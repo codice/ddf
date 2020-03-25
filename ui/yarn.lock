@@ -24449,9 +24449,10 @@ username@3.0.0:
     execa "^0.7.0"
     mem "^1.1.0"
 
-usng.js@0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/usng.js/-/usng.js-0.4.2.tgz#51946e0c0393c18140775823b1604394d0f5f5a6"
+usng.js@0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/usng.js/-/usng.js-0.4.4.tgz#4bcb8889d36d2720c851f486b9274a7d45c61aa6"
+  integrity sha512-rPb3447K3hCGIrZ1UxoKWbFMNrof3gbhWLvOVfGbl9z7WuHGjLNk1EyKGAMtGG+QNCgqY+LuKl2PVa7j3gn8UA==
 
 utf-8-validate@1.2.x:
   version "1.2.2"
