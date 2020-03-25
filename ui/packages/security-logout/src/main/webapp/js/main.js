@@ -72,6 +72,11 @@ async function logout(actions) {
   const queryParams = parseQueryParams()
   if (queryParams && queryParams['service']) {
     $('#link').attr('href', queryParams['service'])
+  } else if (queryParams && queryParams['prevurl']) {
+    $('#link').attr(
+      'href',
+      window.location.href.replace(/\/logout\/.*/, queryParams['prevurl'])
+    )
   } else {
     $('#link').attr('href', window.location.href.replace(/logout\/.*/, ''))
   }

@@ -132,7 +132,7 @@ grant codeBase "file:/registry-federation-admin-impl/registry-publication-action
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
 }
 
-grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-source-configuration-handler/registry-api-impl/org.apache.camel.camel-blueprint/fabric8-karaf-checks/registry-publication-update-handler/org.eclipse.jetty.websocket.server/security-rest-authn-endpoint" {
+grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-source-configuration-handler/registry-api-impl/org.apache.camel.camel-blueprint/fabric8-karaf-checks/registry-publication-update-handler/org.eclipse.jetty.websocket.server" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
@@ -324,7 +324,7 @@ grant codeBase "file:/admin-core-jolokia/javax.servlet-api/org.apache.shiro.core
     permission java.security.SecurityPermission "insertProvider";
 }
 
-grant codeBase "file:/security-rest-authn-impl/security-core-api/security-core-services/security-handler-saml" {
+grant codeBase "file:/security-core-api/security-core-services/security-handler-saml" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";

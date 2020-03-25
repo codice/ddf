@@ -122,21 +122,6 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:ddf.platform/platform-paxweb-jettyconfig/${project.version}</bundle>
     </feature>
 
-    <feature name="security-rest-authentication" version="${project.version}"
-             description="Authentication endpoint for handling multiple realms">
-        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
-        <feature>javax-validation</feature>
-        <feature>cxf-frontend-javascript</feature>
-        <feature>cxf-jaxrs</feature>
-        <feature>util-uuidgenerator</feature>
-        <feature>security-handler-api</feature>
-        <feature>security-policy-context</feature>
-        <feature>security-core-impl</feature>
-        <bundle>mvn:ddf.platform.security/security-rest-authn-service/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.security/security-rest-authn-impl/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.security/security-rest-authn-endpoint/${project.version}</bundle>
-    </feature>
-
     <feature name="security-handler-api" version="${project.version}"
              description="API for authentication handlers for web applications.">
         <feature>security-core-api</feature>
@@ -573,7 +558,6 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-policy-context</feature>
         <feature>security-web-sso-defaults</feature>
         <feature>security-guest</feature>
-        <feature>security-rest-authentication</feature>
         <feature>security-command-listener</feature>
     </feature>
 
