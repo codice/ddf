@@ -31,6 +31,7 @@ type ExportFormat = {
 type Result = {
   id: string
   source: string
+  attributes: string[]
 }
 
 type Props = {
@@ -160,7 +161,8 @@ class ResultsExport extends React.Component<Props, State> {
       response = await exportResult(
         result.source,
         result.id,
-        uriEncodedTransformerId
+        uriEncodedTransformerId,
+        this.props.results[0].attributes.toString()
       )
     }
 
