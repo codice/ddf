@@ -71,7 +71,7 @@ export const getExportResult = (result: any) => {
       result
         .get('metacard')
         .get('properties')
-        .get('attributes')
+        .attributes
     ),
   }
 }
