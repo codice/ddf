@@ -162,7 +162,7 @@ class ResultsExport extends React.Component<Props, State> {
         result.source,
         result.id,
         uriEncodedTransformerId,
-        this.props.results[0].attributes.toString()
+        result.attributes.toString()
       )
     }
 
