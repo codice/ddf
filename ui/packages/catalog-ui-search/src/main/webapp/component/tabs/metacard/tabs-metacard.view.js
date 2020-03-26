@@ -18,6 +18,7 @@ const TabsView = require('../tabs.view')
 const MetacardTabsModel = require('./tabs-metacard')
 const store = require('../../../js/store.js')
 const properties = require('../../../js/properties.js')
+const user = require('../../singletons/user-instance')
 
 module.exports = TabsView.extend({
   className: 'is-metacard',
@@ -93,7 +94,7 @@ module.exports = TabsView.extend({
       this.model.set('activeTab', 'Summary')
     }
     if (
-      properties.isEditingRestricted() &&
+      !user.canWrite(result) &&
       ['Archive', 'Overwrite'].indexOf(activeTabName) >= 0
     ) {
       this.model.set('activeTab', 'Summary')
@@ -124,13 +125,10 @@ module.exports = TabsView.extend({
       this.$el.toggleClass('is-deleted', result.isDeleted())
       this.$el.toggleClass('is-remote', result.isRemote())
       this.$el.toggleClass('lacks-preview', !result.hasPreview())
+      this.$el.toggleClass('is-editing-disabled', !user.canWrite(result))
     }
   },
   determineDisabledContent() {
-    this.$el.toggleClass(
-      'is-editing-disabled',
-      properties.isEditingRestricted()
-    )
     this.$el.toggleClass(
       'is-preview-disabled',
       !properties.isMetacardPreviewEnabled()

@@ -17,7 +17,7 @@ const _ = require('underscore')
 const TabsView = require('../tabs.view')
 const MetacardsTabsModel = require('./tabs-metacards')
 const store = require('../../../js/store.js')
-const properties = require('../../../js/properties.js')
+const user = require('../../singletons/user-instance')
 
 function getTypes(results) {
   const types = {}
@@ -85,7 +85,7 @@ const MetacardsTabsView = TabsView.extend({
       this.model.set('activeTab', 'Details')
     }
     if (
-      properties.isEditingRestricted() &&
+      !user.canWrite(this.selectionInterface.getSelectedResults()) &&
       ['Archive'].indexOf(activeTabName) >= 0
     ) {
       this.model.set('activeTab', 'Details')
@@ -111,6 +111,10 @@ const MetacardsTabsView = TabsView.extend({
       this.$el.toggleClass('is-revision', types.indexOf('revision') >= 0)
       this.$el.toggleClass('is-deleted', types.indexOf('deleted') >= 0)
       this.$el.toggleClass('is-remote', types.indexOf('remote') >= 0)
+      this.$el.toggleClass(
+        'is-editing-disabled',
+        !user.canWrite(this.selectionInterface.getSelectedResults())
+      )
     }
   },
 })
