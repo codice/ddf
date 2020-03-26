@@ -47,35 +47,38 @@ type Source = {
   hits: number
 }
 
-export function buildCqlQueryFromMetacards(metacards: any, count: any) {
-  let queryParts = metacards.map((metacard: any) => {
-    return `(("id" ILIKE '${metacard.metacard.id}'))`
-  })
-  if (count && queryParts.length > count) {
-    queryParts = queryParts.slice(0, count)
-  }
-  return `(${queryParts.join(' OR ')})`
-}
-const visibleData = (size: number, selectionInterface: any) =>
-  buildCqlQueryFromMetacards(
-    selectionInterface.getActiveSearchResults().toJSON(),
-    size
-  )
-const limit = 10
-const allData = (selectionInterface: any) =>
-  selectionInterface.getCurrentQuery().get('cql')
-function getCqlForSize(
-  exportType: string,
-  size: number,
+export function getStartIndex(
+  src: any,
+  exportSize: any,
   selectionInterface: any
 ) {
-  return exportType !== 'all' && size <= limit
-    ? visibleData(size, selectionInterface)
-    : allData(selectionInterface)
+  return exportSize === 'visible'
+    ? selectionInterface
+        .getCurrentQuery()
+        .get('result')
+        .get('status')
+        .find((status: any) => status.id === src)
+        .get('start')
+    : 1
 }
 function getSrcs(selectionInterface: any) {
   const srcs = selectionInterface.getCurrentQuery().get('src')
   return srcs === undefined ? _.pluck(Sources.toJSON(), 'id') : srcs
+}
+export function getSrcCount(
+  src: any,
+  count: any,
+  exportSize: any,
+  selectionInterface: any
+) {
+  return exportSize === 'visible'
+    ? selectionInterface
+        .getCurrentQuery()
+        .get('result')
+        .get('status')
+        .find((status: any) => status.id === src)
+        .get('count')
+    : count
 }
 function getColumnOrder(): string[] {
   return user
@@ -88,6 +91,44 @@ function getHiddenFields(): string[] {
     .get('user')
     .get('preferences')
     .get('columnHide')
+}
+function getHiddenResults(exportSize: string): string[] {
+  return exportSize === 'visible'
+    ? user
+        .get('user')
+        .get('preferences')
+        .get('resultBlacklist')
+        .map((result: any) => result.get('id'))
+    : []
+}
+function getSearches(
+  exportSize: string,
+  srcs: string[],
+  cql: string,
+  count: any,
+  selectionInterface: any
+): any {
+  if (exportSize !== 'visible') {
+    return srcs.length > 0
+      ? [
+          {
+            srcs,
+            cql,
+            count,
+          },
+        ]
+      : []
+  }
+  return srcs.map((src: string) => {
+    const start = getStartIndex(src, exportSize, selectionInterface)
+    const srcCount = getSrcCount(src, count, exportSize, selectionInterface)
+    return {
+      src,
+      cql,
+      start,
+      count: srcCount,
+    }
+  })
 }
 function getHits(sources: Source[]): number {
   return sources
@@ -165,19 +206,23 @@ export const getDownloadBody = (downloadInfo: DownloadInfo) => {
     getExportCount({ exportSize, selectionInterface, customExportCount }),
     properties.exportResultLimit
   )
-  const cql = getCqlForSize(exportSize, count, selectionInterface)
+  const cql = selectionInterface.getCurrentQuery().get('cql')
   const srcs = getSrcs(selectionInterface)
   const sorts = getSorts(selectionInterface)
+  const hiddenResults = getHiddenResults(exportSize)
   const args = {
     hiddenFields: hiddenFields.length > 0 ? hiddenFields : [],
     columnOrder: columnOrder.length > 0 ? columnOrder : {},
     columnAliasMap: properties.attributeAliases,
   }
+
+  const searches = getSearches(exportSize, srcs, cql, count, selectionInterface)
+
   return {
-    cql,
-    srcs,
+    searches,
     count,
     sorts,
+    hiddenResults,
     args,
   }
 }

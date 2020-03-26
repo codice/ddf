@@ -128,31 +128,30 @@ class ResultsExport extends React.Component<Props, State> {
 
     let response = null
     const count = this.props.results.length
+    const cql = getResultSetCql(
+      this.props.results.map((result: Result) => result.id)
+    )
+    const srcs = Array.from(this.getResultSources())
+    const searches = [
+      {
+        srcs,
+        cql,
+        count,
+      },
+    ]
 
     if (this.props.isZipped) {
-      const cql = getResultSetCql(
-        this.props.results.map((result: Result) => result.id)
-      )
-      const srcs = Array.from(this.getResultSources())
-
       response = await exportResultSet('zipCompression', {
-        cql,
-        srcs,
+        searches,
         count,
         args: {
           transformerId: uriEncodedTransformerId,
         },
       })
     } else if (this.props.results.length > 1) {
-      const cql = getResultSetCql(
-        this.props.results.map((result: Result) => result.id)
-      )
-      const srcs = Array.from(this.getResultSources())
-
       response = await exportResultSet(uriEncodedTransformerId, {
+        searches,
         count,
-        cql,
-        srcs,
       })
     } else {
       const result = this.props.results[0]

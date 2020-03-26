@@ -19,5 +19,6 @@ export {
   onDownloadClick,
   onDownloadSuccess,
   getDownloadBody,
-  buildCqlQueryFromMetacards,
+  getStartIndex,
+  getSrcCount,
 } from './table-export'

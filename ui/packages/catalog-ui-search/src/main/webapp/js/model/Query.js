@@ -223,6 +223,12 @@ Query.Model = PartialAssociatedModel.extend({
       this.dispatch(updateResults(this.get('result').toJSON()))
       this.set('serverPageIndex', serverPageIndex(this.state))
 
+      this.get('result')
+        .get('status')
+        .map(status => {
+          status.set('start', this.getPreviousStartIndexForSource(status.id))
+        })
+
       const totalHits = this.get('result')
         .get('status')
         .reduce((total, status) => {
@@ -525,6 +531,9 @@ Query.Model = PartialAssociatedModel.extend({
     this.dispatch(nextPage())
     this.set('serverPageIndex', serverPageIndex(this.state))
     this.startSearch()
+  },
+  getPreviousStartIndexForSource(src) {
+    return currentIndexForSource(this.state.slice(0, -1))[src] || 1
   },
   // get the starting offset (beginning of the server page) for the given source
   getStartIndexForSource(src) {
