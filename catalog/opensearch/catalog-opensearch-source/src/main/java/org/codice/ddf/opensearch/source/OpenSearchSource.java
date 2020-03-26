@@ -123,6 +123,16 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
   @SuppressWarnings("squid:S2068" /*Key for the requestProperties map, not a hardcoded password*/)
   protected static final String PASSWORD_PROPERTY = "password";
 
+  private static final String ID_PROPERTY = "id";
+
+  private static final String OAUTH_DISCOVERY_URL = "oauthDiscoveryUrl";
+
+  private static final String OAUTH_CLIENT_ID = "oauthClientId";
+
+  private static final String OAUTH_CLIENT_SECRET = "oauthClientSecret";
+
+  private static final String OAUTH_FLOW = "oauthFlow";
+
   private static final int MIN_DISTANCE_TOLERANCE_IN_METERS = 1;
 
   private static final int MIN_NUM_POINT_RADIUS_VERTICES = 4;
@@ -920,6 +930,17 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
       if (StringUtils.isNotBlank(username)) {
         requestProperties.put(USERNAME_PROPERTY, username);
         requestProperties.put(PASSWORD_PROPERTY, password);
+      }
+
+      if (OAUTH_AUTH_TYPE.equals(authenticationType)
+          && StringUtils.isNotBlank(oauthDiscoveryUrl)
+          && StringUtils.isNotBlank(oauthClientId)
+          && StringUtils.isNotBlank(oauthClientSecret)) {
+        requestProperties.put(ID_PROPERTY, shortname);
+        requestProperties.put(OAUTH_DISCOVERY_URL, oauthDiscoveryUrl);
+        requestProperties.put(OAUTH_CLIENT_ID, oauthClientId);
+        requestProperties.put(OAUTH_CLIENT_SECRET, oauthClientSecret);
+        requestProperties.put(OAUTH_FLOW, oauthFlow);
       }
       return resourceReader.retrieveResource(restClient.getCurrentURI(), requestProperties);
     }

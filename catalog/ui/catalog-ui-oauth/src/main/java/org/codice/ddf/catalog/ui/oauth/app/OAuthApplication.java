@@ -13,8 +13,11 @@
  */
 package org.codice.ddf.catalog.ui.oauth.app;
 
+import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static javax.ws.rs.core.HttpHeaders.LOCATION;
 import static javax.ws.rs.core.MediaType.TEXT_HTML;
 import static org.apache.http.HttpStatus.SC_OK;
+import static org.apache.http.HttpStatus.SC_SEE_OTHER;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.CLIENT_ID;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.DISCOVERY_URL;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.SECRET;
@@ -61,6 +64,7 @@ public class OAuthApplication implements SparkApplication {
   private static final Logger LOGGER = LoggerFactory.getLogger(OAuthApplication.class);
 
   private static final String CODE = "code";
+  private static final String REDIRECT_URI = "redirect_uri";
   private static final String REDIRECT_URL =
       SystemBaseUrl.EXTERNAL.constructUrl("/search/catalog/internal/oauth");
 
@@ -87,6 +91,7 @@ public class OAuthApplication implements SparkApplication {
           QueryParamsMap paramsMap = req.queryMap();
           String state = paramsMap.get(STATE).value();
           String code = paramsMap.get(CODE).value();
+          String redirectUri = paramsMap.get(REDIRECT_URI).value();
 
           if (state == null || code == null) {
             LOGGER.warn("Unable to process unknown state and/or code.");
@@ -99,7 +104,7 @@ public class OAuthApplication implements SparkApplication {
             return closeBrowser(res);
           }
 
-          return processCodeFlow(res, code, stateMap);
+          return processCodeFlow(res, code, stateMap, redirectUri);
         });
 
     /*
@@ -113,6 +118,7 @@ public class OAuthApplication implements SparkApplication {
           QueryParamsMap paramsMap = req.queryMap();
           String userId = paramsMap.get(USER_ID).value();
           String sourceId = paramsMap.get(SOURCE_ID).value();
+          String redirectUri = paramsMap.get(REDIRECT_URI).value();
           String discoveryUrl = paramsMap.get(DISCOVERY_URL).value();
 
           if (userId == null || sourceId == null || discoveryUrl == null) {
@@ -120,7 +126,11 @@ public class OAuthApplication implements SparkApplication {
             return closeBrowser(res);
           }
 
-          updateAuthorizedSource(userId, sourceId, discoveryUrl);
+          String accessToken = updateAuthorizedSource(userId, sourceId, discoveryUrl);
+
+          if (redirectUri != null && accessToken != null) {
+            return closeBrowser(res, redirectUri, accessToken);
+          }
           return "";
         });
   }
@@ -132,9 +142,10 @@ public class OAuthApplication implements SparkApplication {
    * @param userId the user's unique identifier (email or username)
    * @param sourceId the source to save the tokens to
    * @param discoveryUrl the metadata url of the OAuth provider
+   * @return the corresponding access token
    */
   @VisibleForTesting
-  void updateAuthorizedSource(String userId, String sourceId, String discoveryUrl) {
+  String updateAuthorizedSource(String userId, String sourceId, String discoveryUrl) {
     TokenInformation tokenInformation = tokenStorage.read(userId);
 
     TokenInformation.TokenEntry tokenEntry =
@@ -146,18 +157,22 @@ public class OAuthApplication implements SparkApplication {
             .findFirst()
             .orElse(null);
 
-    if (tokenEntry != null) {
-      int status =
-          tokenStorage.create(
-              userId,
-              sourceId,
-              tokenEntry.getAccessToken(),
-              tokenEntry.getRefreshToken(),
-              discoveryUrl);
-      if (status != SC_OK) {
-        LOGGER.warn("Error updating user's authorized sources.");
-      }
+    if (tokenEntry == null) {
+      return null;
     }
+
+    int status =
+        tokenStorage.create(
+            userId,
+            sourceId,
+            tokenEntry.getAccessToken(),
+            tokenEntry.getRefreshToken(),
+            discoveryUrl);
+    if (status != SC_OK) {
+      LOGGER.warn("Error updating user's authorized sources.");
+    }
+
+    return tokenEntry.getAccessToken();
   }
 
   /**
@@ -166,9 +181,10 @@ public class OAuthApplication implements SparkApplication {
    * @param res - response
    * @param code - authorization code
    * @param state - map containing user and OAuth provider information
+   * @param redirectUri - the uri to redirect to
    */
   @VisibleForTesting
-  String processCodeFlow(Response res, String code, Map<String, Object> state) {
+  String processCodeFlow(Response res, String code, Map<String, Object> state, String redirectUri) {
 
     String userId = (String) state.get(USER_ID);
     String sourceId = (String) state.get(SOURCE_ID);
@@ -187,7 +203,7 @@ public class OAuthApplication implements SparkApplication {
       metadata =
           OIDCProviderMetadata.parse(
               resourceRetriever.retrieveResource(new URL(discoveryUrl)).getContent());
-      oidcTokens = getTokens(code, clientId, clientSecret, metadata);
+      oidcTokens = getTokens(code, clientId, clientSecret, redirectUri, metadata);
 
     } catch (TechnicalException | IOException | com.nimbusds.oauth2.sdk.ParseException e) {
       LOGGER.warn("Error getting tokens.", e);
@@ -211,12 +227,18 @@ public class OAuthApplication implements SparkApplication {
       return closeBrowser(res);
     }
 
+    String accessTokenValue = accessToken.getValue();
     int status =
         tokenStorage.create(
-            userId, sourceId, accessToken.getValue(), refreshToken.getValue(), discoveryUrl);
+            userId, sourceId, accessTokenValue, refreshToken.getValue(), discoveryUrl);
     if (status != SC_OK) {
       LOGGER.warn("Error storing user token.");
     }
+
+    if (redirectUri != null) {
+      return closeBrowser(res, redirectUri, accessTokenValue);
+    }
+
     return closeBrowser(res);
   }
 
@@ -227,15 +249,31 @@ public class OAuthApplication implements SparkApplication {
         + "<script>window.close()</script></body></html>";
   }
 
+  private String closeBrowser(Response res, String redirectUri, String accessToken) {
+    res.status(SC_SEE_OTHER);
+    res.header(LOCATION, redirectUri);
+    res.header(AUTHORIZATION, "Bearer " + accessToken);
+    return "";
+  }
+
   @VisibleForTesting
   OIDCTokens getTokens(
-      String code, String clientId, String clientSecret, OIDCProviderMetadata metadata)
+      String code,
+      String clientId,
+      String clientSecret,
+      String redirectUri,
+      OIDCProviderMetadata metadata)
       throws IOException, ParseException {
     ClientAuthentication clientAuthentication =
         new ClientSecretBasic(new ClientID(clientId), new Secret(clientSecret));
 
+    String redirect = REDIRECT_URL;
+    if (redirectUri != null) {
+      redirect = redirect.concat("?" + REDIRECT_URI + "=" + redirectUri);
+    }
+
     AuthorizationGrant grant =
-        new AuthorizationCodeGrant(new AuthorizationCode(code), URI.create(REDIRECT_URL));
+        new AuthorizationCodeGrant(new AuthorizationCode(code), URI.create(redirect));
     return OidcCredentialsResolver.getOidcTokens(grant, metadata, clientAuthentication);
   }
 

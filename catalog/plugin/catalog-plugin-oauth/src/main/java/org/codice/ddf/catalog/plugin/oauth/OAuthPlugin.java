@@ -307,19 +307,16 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
         "Unable to process query. The user needs to authorize to query the {} source.",
         oauthSource.getId());
 
-    try {
-      URIBuilder uriBuilder = new URIBuilder(AUTHORIZE_SOURCE_ENDPOINT);
-      uriBuilder.addParameter(USER_ID, userId);
-      uriBuilder.addParameter(SOURCE_ID, oauthSource.getId());
-      uriBuilder.addParameter(DISCOVERY_URL, oauthSource.getOauthDiscoveryUrl());
-
-      String url = uriBuilder.build().toURL().toString();
-      throw new OAuthPluginException(oauthSource.getId(), url, AUTH_SOURCE);
-
-    } catch (URISyntaxException | MalformedURLException e) {
-      LOGGER.warn("Unable to construct authorization URL.");
-      throw new StopProcessingException("Unable to construct authorization URL. " + e.getMessage());
-    }
+    Map<String, String> parameters = new HashMap<>();
+    parameters.put(USER_ID, userId);
+    parameters.put(SOURCE_ID, oauthSource.getId());
+    parameters.put(DISCOVERY_URL, oauthSource.getOauthDiscoveryUrl());
+    throw new OAuthPluginException(
+        oauthSource.getId(),
+        buildUrl(AUTHORIZE_SOURCE_ENDPOINT, parameters),
+        AUTHORIZE_SOURCE_ENDPOINT,
+        parameters,
+        AUTH_SOURCE);
   }
 
   /**
@@ -443,20 +440,25 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
     stateMap.put(EXPIRES_AT, Instant.now().plus(STATE_EXP, ChronoUnit.MINUTES).getEpochSecond());
     tokenStorage.getStateMap().put(state, stateMap);
 
+    Map<String, String> parameters = new HashMap<>();
+    parameters.put(RESPONSE_TYPE, CODE_FLOW);
+    parameters.put(CLIENT_ID_PARAM, oauthSource.getOauthClientId());
+    parameters.put(SCOPE, OPENID_SCOPE);
+    parameters.put(REDIRECT_URI, OAUTH_REDIRECT_URL);
+    parameters.put(STATE, state);
+
+    String url = metadata.getAuthorizationEndpointURI().toString();
+    return new OAuthPluginException(
+        oauthSource.getId(), buildUrl(url, parameters), url, parameters, NO_AUTH);
+  }
+
+  private String buildUrl(String baseUrl, Map<String, String> parameters) {
     try {
-      URIBuilder uriBuilder = new URIBuilder(metadata.getAuthorizationEndpointURI());
-      uriBuilder.addParameter(RESPONSE_TYPE, CODE_FLOW);
-      uriBuilder.addParameter(CLIENT_ID_PARAM, oauthSource.getOauthClientId());
-      uriBuilder.addParameter(SCOPE, OPENID_SCOPE);
-      uriBuilder.addParameter(REDIRECT_URI, OAUTH_REDIRECT_URL);
-      uriBuilder.addParameter(STATE, state);
-
-      String redirectUrl = uriBuilder.build().toURL().toString();
-      return new OAuthPluginException(oauthSource.getId(), redirectUrl, NO_AUTH);
-
-    } catch (URISyntaxException | IOException e) {
-      LOGGER.debug("Unable to construct redirect URL.");
-      throw new StopProcessingException("Unable to construct redirect URL. " + e.getMessage());
+      URIBuilder uriBuilder = new URIBuilder(baseUrl);
+      parameters.forEach(uriBuilder::addParameter);
+      return uriBuilder.build().toURL().toString();
+    } catch (URISyntaxException | MalformedURLException e) {
+      return null;
     }
   }
 

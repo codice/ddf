@@ -91,6 +91,16 @@ public class URLResourceReader implements ResourceReader {
   @SuppressWarnings("squid:S2068" /* Password property key */)
   private static final String PASSWORD = "password";
 
+  static final String ID_PROPERTY = "id";
+
+  static final String OAUTH_DISCOVERY_URL = "oauthDiscoveryUrl";
+
+  static final String OAUTH_CLIENT_ID = "oauthClientId";
+
+  static final String OAUTH_CLIENT_SECRET = "oauthClientSecret";
+
+  static final String OAUTH_FLOW = "oauthFlow";
+
   private static final Set<String> QUALIFIER_SET =
       ImmutableSet.of(URL_HTTP_SCHEME, URL_HTTPS_SCHEME, URL_FILE_SCHEME);
 
@@ -598,6 +608,26 @@ public class URLResourceReader implements ResourceReader {
               null,
               (String) properties.get(USERNAME),
               (String) properties.get(PASSWORD));
+    } else if (properties.get(ID_PROPERTY) != null
+        && properties.get(OAUTH_DISCOVERY_URL) != null
+        && properties.get(OAUTH_CLIENT_ID) != null
+        && properties.get(OAUTH_CLIENT_SECRET) != null
+        && properties.get(OAUTH_FLOW) != null) {
+      factory =
+          clientFactoryFactory.getSecureCxfClientFactory(
+              uri,
+              WebClient.class,
+              null,
+              null,
+              false,
+              getFollowRedirects(),
+              null,
+              null,
+              (String) properties.get(ID_PROPERTY),
+              (String) properties.get(OAUTH_DISCOVERY_URL),
+              (String) properties.get(OAUTH_CLIENT_ID),
+              (String) properties.get(OAUTH_CLIENT_SECRET),
+              (String) properties.get(OAUTH_FLOW));
     } else {
       factory =
           clientFactoryFactory.getSecureCxfClientFactory(

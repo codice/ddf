@@ -144,7 +144,8 @@ public class OAuthApplicationTest {
             CLIENT_ID,
             DDF_CLIENT_ID,
             SECRET,
-            DDF_CLIENT_SECRET));
+            DDF_CLIENT_SECRET),
+        "https://localhost:8993/services/redirect?where=here");
     verify(tokenStorage, times(1))
         .create(USERNAME, CSW_SOURCE, accessToken, REFRESH_TOKEN_VAL, METADATA_ENDPOINT);
   }
@@ -174,7 +175,8 @@ public class OAuthApplicationTest {
             CLIENT_ID,
             DDF_CLIENT_ID,
             SECRET,
-            DDF_CLIENT_SECRET));
+            DDF_CLIENT_SECRET),
+        "https://localhost:8993/services/redirect?where=here");
     verify(tokenStorage, times(0))
         .create(anyString(), anyString(), anyString(), anyString(), anyString());
   }
@@ -278,7 +280,11 @@ public class OAuthApplicationTest {
 
     @Override
     OIDCTokens getTokens(
-        String code, String clientId, String clientSecret, OIDCProviderMetadata metadata) {
+        String code,
+        String clientId,
+        String clientSecret,
+        String redirectUri,
+        OIDCProviderMetadata metadata) {
       return oidcTokens;
     }
   }
