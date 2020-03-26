@@ -14,10 +14,7 @@
 package ddf.catalog.source.solr;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,13 +33,11 @@ public class ConfigurationStore {
 
   private Double nearestNeighborDistanceLimit;
 
-  private Set<String> anyTextFieldsCache = new HashSet<>();
-
-  private Set<String> filteredAnyTextFieldsCache = new HashSet<>();
-
   private List<String> anyTextFieldWhitelist = new ArrayList<>();
 
   private List<String> anyTextFieldBlacklist = new ArrayList<>();
+
+  private List<ConfigurationListener> listeners = new ArrayList<>();
 
   private ConfigurationStore() { // everything is already initialized
   }
@@ -63,6 +58,8 @@ public class ConfigurationStore {
 
   public void setDisableTextPath(boolean disableTextPath) {
     this.disableTextPath = disableTextPath;
+
+    notifyListeners();
   }
 
   public String getDataDirectoryPath() {
@@ -71,6 +68,8 @@ public class ConfigurationStore {
 
   public void setDataDirectoryPath(String dataDirectoryPath) {
     this.dataDirectoryPath = dataDirectoryPath;
+
+    notifyListeners();
   }
 
   public Double getNearestNeighborDistanceLimit() {
@@ -79,6 +78,8 @@ public class ConfigurationStore {
 
   public void setNearestNeighborDistanceLimit(Double nearestNeighborDistanceLimit) {
     this.nearestNeighborDistanceLimit = Math.abs(nearestNeighborDistanceLimit);
+
+    notifyListeners();
   }
 
   public boolean isForceAutoCommit() {
@@ -91,6 +92,8 @@ public class ConfigurationStore {
 
   public void setInMemory(boolean isInMemory) {
     inMemory = isInMemory;
+
+    notifyListeners();
   }
 
   public void setForceAutoCommit(boolean forceAutoCommit) {
@@ -103,25 +106,11 @@ public class ConfigurationStore {
       this.anyTextFieldWhitelist.addAll(fieldWhitelist);
     }
 
-    filterAnyTextFieldCache();
+    notifyListeners();
   }
 
   public List<String> getAnyTextFieldWhitelist() {
     return new ArrayList<>(anyTextFieldWhitelist);
-  }
-
-  public void addAnyTextWhitelistField(String whitelistField) {
-    if (whitelistField != null) {
-      this.anyTextFieldWhitelist.add(whitelistField);
-    }
-
-    filterAnyTextFieldCache();
-  }
-
-  public void removeAnyTextWhiteListField(String whitelistField) {
-    this.anyTextFieldWhitelist.remove(whitelistField);
-
-    filterAnyTextFieldCache();
   }
 
   public void setAnyTextFieldBlacklist(List<String> fieldBlacklist) {
@@ -130,93 +119,24 @@ public class ConfigurationStore {
       this.anyTextFieldBlacklist.addAll(fieldBlacklist);
     }
 
-    filterAnyTextFieldCache();
+    notifyListeners();
   }
 
   public List<String> getAnyTextFieldBlacklist() {
     return new ArrayList<>(anyTextFieldBlacklist);
   }
 
-  public void addAnyTextBlacklistField(String blacklistField) {
-    this.anyTextFieldBlacklist.add(blacklistField);
-
-    filterAnyTextFieldCache();
+  public void addConfigurationListener(ConfigurationListener listener) {
+    this.listeners.add(listener);
   }
 
-  public void removeAnyTextBlacklistField(String blacklistField) {
-    this.anyTextFieldBlacklist.remove(blacklistField);
-
-    filterAnyTextFieldCache();
+  public void removeConfigurationListener(ConfigurationListener listener) {
+    this.listeners.remove(listener);
   }
 
-  public void addAnyTextField(String anyTextField) {
-    anyTextFieldsCache.add(anyTextField);
-
-    filterAnyTextFieldCache();
-  }
-
-  public void removeAnyTextField(String anyTextField) {
-    anyTextFieldsCache.remove(anyTextField);
-
-    filterAnyTextFieldCache();
-  }
-
-  public void clearAnyTextFieldCache() {
-    anyTextFieldsCache.clear();
-    filteredAnyTextFieldsCache.clear();
-  }
-
-  public Set<String> getAnyTextFieldsCache() {
-    return anyTextFieldsCache;
-  }
-
-  public Set<String> getFilteredAnyTextFields() {
-    return filteredAnyTextFieldsCache;
-  }
-
-  private void filterAnyTextFieldCache() {
-    Set<String> filteredList = new HashSet<>();
-
-    ConfigurationStore config = ConfigurationStore.getInstance();
-    List<String> anyTextFieldWhitelist = config.getAnyTextFieldWhitelist();
-    List<String> anyTextFieldBlacklist = config.getAnyTextFieldBlacklist();
-    if (!anyTextFieldBlacklist.isEmpty()) {
-      filteredList.addAll(anyTextFieldsCache);
-      for (String blacklistField : anyTextFieldBlacklist) {
-        String blacklist;
-        if (!blacklistField.endsWith(SchemaFields.TEXT_SUFFIX)) {
-          blacklist = blacklistField + SchemaFields.TEXT_SUFFIX;
-        } else {
-          blacklist = blacklistField;
-        }
-        filteredList.removeAll(
-            anyTextFieldsCache
-                .stream()
-                .filter(field -> field.matches(blacklist))
-                .collect(Collectors.toList()));
-      }
-    }
-
-    if (!anyTextFieldWhitelist.isEmpty()) {
-      for (String whitelistField : anyTextFieldWhitelist) {
-        String whitelist;
-        if (!whitelistField.endsWith(SchemaFields.TEXT_SUFFIX)) {
-          whitelist = whitelistField + SchemaFields.TEXT_SUFFIX;
-        } else {
-          whitelist = whitelistField;
-        }
-        filteredList.addAll(
-            anyTextFieldsCache
-                .stream()
-                .filter(field -> field.matches(whitelist))
-                .collect(Collectors.toList()));
-      }
-    }
-
-    if (anyTextFieldBlacklist.isEmpty() && anyTextFieldWhitelist.isEmpty()) {
-      filteredList.addAll(anyTextFieldsCache);
-    }
-
-    filteredAnyTextFieldsCache = filteredList;
+  private void notifyListeners() {
+    listeners
+        .stream()
+        .forEach(listener -> new Thread(() -> listener.configurationUpdated()).start());
   }
 }
