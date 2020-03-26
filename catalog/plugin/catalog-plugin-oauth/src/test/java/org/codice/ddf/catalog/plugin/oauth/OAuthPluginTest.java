@@ -383,8 +383,7 @@ public class OAuthPluginTest {
 
     String url = e.getUrl();
     Map<String, String> urlParams =
-        URLEncodedUtils.parse(
-                new URI(url.substring(0, url.indexOf("&state"))), StandardCharsets.UTF_8)
+        URLEncodedUtils.parse(new URI(url), StandardCharsets.UTF_8)
             .stream()
             .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
     assertEquals(urlParams.get("response_type"), "code");

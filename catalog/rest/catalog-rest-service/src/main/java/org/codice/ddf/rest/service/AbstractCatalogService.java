@@ -45,6 +45,7 @@ import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
+import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
@@ -58,9 +59,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -94,6 +99,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
@@ -133,6 +139,8 @@ public abstract class AbstractCatalogService implements CatalogService {
   private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
 
   private static final String NO_FILE_CONTENTS_ATT_FOUND = "No file contents attachment found";
+
+  private static final String REDIRECT_URI = "redirect_uri";
 
   private static final int MAX_INPUT_SIZE = 65_536;
 
@@ -366,6 +374,15 @@ public abstract class AbstractCatalogService implements CatalogService {
         String errorMessage = "Unable to process request. Data usage limit exceeded: ";
         LOGGER.debug(errorMessage, e);
         throw new DataUsageLimitExceededException(errorMessage);
+      } catch (OAuthPluginException e) {
+        Map<String, String> parameters = e.getParameters();
+        String url = constructUrl(httpRequest, e.getBaseUrl(), parameters);
+        if (url != null) {
+          parameters.put(REDIRECT_URI, url);
+          throw new OAuthPluginException(
+              e.getSourceId(), url, e.getBaseUrl(), parameters, e.getErrorType());
+        }
+        throw e;
         // The catalog framework will throw this if any of the transformers blow up.
         // We need to catch this exception here or else execution will return to CXF and
         // we'll lose this message and end up with a huge stack trace in a GUI or whatever
@@ -1211,6 +1228,43 @@ public abstract class AbstractCatalogService implements CatalogService {
     }
 
     return response;
+  }
+
+  private String constructUrl(
+      HttpServletRequest httpRequest, String baseUrl, Map<String, String> parameters) {
+    String uri = parameters.get(REDIRECT_URI);
+
+    if (uri == null) {
+      return null;
+    }
+
+    try {
+      URIBuilder redirectUriBuilder = new URIBuilder(httpRequest.getRequestURL().toString());
+      httpRequest
+          .getParameterMap()
+          .forEach(
+              (key, value) ->
+                  Arrays.stream(value).forEach(v -> redirectUriBuilder.addParameter(key, v)));
+
+      String redirectUri =
+          String.format(
+              "%s?%s=%s",
+              uri,
+              REDIRECT_URI,
+              URLEncoder.encode(
+                  redirectUriBuilder.build().toString(), StandardCharsets.UTF_8.name()));
+      parameters.put(REDIRECT_URI, redirectUri);
+
+      URIBuilder uriBuilder = new URIBuilder(baseUrl);
+      parameters.forEach(uriBuilder::addParameter);
+      uri = uriBuilder.build().toURL().toString();
+
+    } catch (URISyntaxException | MalformedURLException | UnsupportedEncodingException e) {
+      LOGGER.info("Error constructing redirect uri", e);
+      return null;
+    }
+
+    return uri;
   }
 
   public void setMimeTypeToTransformerMapper(
