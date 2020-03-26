@@ -31,17 +31,19 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.shiro.session.SessionException;
 import org.codice.ddf.platform.filter.AuthenticationChallengeException;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
+import org.codice.ddf.security.handler.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.GuestAuthenticationToken;
+import org.codice.ddf.security.handler.HandlerResultImpl;
+import org.codice.ddf.security.handler.SessionToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
-import org.codice.ddf.security.handler.api.SessionToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
@@ -155,7 +157,7 @@ public class WebSSOFilter implements SecurityFilter {
         if (contextPolicyManager.getGuestAccess()) {
           LOGGER.info(
               "No configured handlers found, but guest access is enabled. Continuing with an empty handler result for guest login.");
-          result = new HandlerResult(Status.NO_ACTION, null);
+          result = new HandlerResultImpl(Status.NO_ACTION, null);
           result.setSource("default");
         } else {
           LOGGER.warn(
@@ -208,6 +210,9 @@ public class WebSSOFilter implements SecurityFilter {
           Hashing.sha256().hashString(requestedSessionId, StandardCharsets.UTF_8).toString());
     }
     if (session == null && requestedSessionId != null) {
+      if (sessionFactory == null) {
+        throw new SessionException("Unable to verify user's session.");
+      }
       session = sessionFactory.getOrCreateSession(httpRequest);
     }
     if (session != null) {
@@ -221,7 +226,7 @@ public class WebSSOFilter implements SecurityFilter {
           sessionToken = new SessionToken(savedToken.getPrincipals(), session.getId(), ip);
         }
         if (sessionToken != null) {
-          result = new HandlerResult();
+          result = new HandlerResultImpl();
           result.setToken(sessionToken);
           result.setStatus(HandlerResult.Status.COMPLETED);
         } else {
@@ -260,7 +265,7 @@ public class WebSSOFilter implements SecurityFilter {
             throw new AuthenticationFailureException(
                 "No handlers were able to determine required credentials");
           }
-          result = new HandlerResult(Status.COMPLETED, new GuestAuthenticationToken(ipAddress));
+          result = new HandlerResultImpl(Status.COMPLETED, new GuestAuthenticationToken(ipAddress));
           result.setSource("default");
           // fall through
         case COMPLETED:
@@ -307,7 +312,7 @@ public class WebSSOFilter implements SecurityFilter {
       FilterChain filterChain,
       List<AuthenticationHandler> handlers)
       throws AuthenticationException {
-    HandlerResult result = new HandlerResult();
+    HandlerResult result = new HandlerResultImpl();
     for (AuthenticationHandler auth : handlers) {
       result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, false);
       if (result.getStatus() != HandlerResult.Status.NO_ACTION) {

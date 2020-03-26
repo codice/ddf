@@ -170,6 +170,10 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
         </dependency>

@@ -13,7 +13,7 @@
  */
 package ddf.security.sts.claimsHandler;
 
-import static ddf.security.SubjectUtils.NAME_IDENTIFIER_CLAIM_URI;
+import static ddf.security.impl.SubjectUtils.NAME_IDENTIFIER_CLAIM_URI;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;

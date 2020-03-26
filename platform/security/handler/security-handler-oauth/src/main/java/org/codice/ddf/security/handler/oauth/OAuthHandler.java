@@ -20,10 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.handler.HandlerResultImpl;
+import org.codice.ddf.security.handler.OidcAuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
-import org.codice.ddf.security.handler.api.OidcAuthenticationToken;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.session.J2ESessionStore;
 import org.pac4j.oauth.exception.OAuthCredentialsException;
@@ -40,7 +41,7 @@ public class OAuthHandler implements AuthenticationHandler {
   private static HandlerResult noActionResult;
 
   static {
-    noActionResult = new HandlerResult(Status.NO_ACTION, null);
+    noActionResult = new HandlerResultImpl(Status.NO_ACTION, null);
     noActionResult.setSource(SOURCE);
   }
 
@@ -109,7 +110,7 @@ public class OAuthHandler implements AuthenticationHandler {
       OidcAuthenticationToken token =
           new OidcAuthenticationToken(credentials, j2EContext, ipAddress);
 
-      HandlerResult handlerResult = new HandlerResult(Status.COMPLETED, token);
+      HandlerResult handlerResult = new HandlerResultImpl(Status.COMPLETED, token);
       handlerResult.setSource(SOURCE);
       return handlerResult;
     } else {

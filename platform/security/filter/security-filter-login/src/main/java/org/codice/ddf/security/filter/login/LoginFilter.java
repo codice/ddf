@@ -39,12 +39,13 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.session.SessionException;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.platform.util.XMLUtils;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
@@ -124,6 +125,9 @@ public class LoginFilter implements SecurityFilter {
         (X509Certificate[]) httpRequest.getAttribute("javax.servlet.request.X509Certificate"));
     token.setRequestURI(httpRequest.getRequestURI());
 
+    if (securityManager == null) {
+      throw new AuthenticationException("Unable to authenticate user, system is not available.");
+    }
     // get subject from the token
     Subject subject;
     try {
@@ -190,6 +194,9 @@ public class LoginFilter implements SecurityFilter {
    * @param subject Subject to attach to request
    */
   private void addToSession(HttpServletRequest httpRequest, Subject subject) {
+    if (sessionFactory == null) {
+      throw new SessionException("Unable to store user's session.");
+    }
     boolean nullSession = httpRequest.getSession(false) == null;
     PrincipalCollection principals = subject.getPrincipals();
     HttpSession session = sessionFactory.getOrCreateSession(httpRequest);

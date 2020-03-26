@@ -21,8 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.OcspService;
+import org.codice.ddf.security.handler.AuthenticationTokenFactory;
+import org.codice.ddf.security.handler.HandlerResultImpl;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public class PKIHandler implements AuthenticationHandler {
   @Override
   public HandlerResult getNormalizedToken(
       ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
-    HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+    HandlerResult handlerResult = new HandlerResultImpl(HandlerResult.Status.NO_ACTION, null);
     handlerResult.setSource(SOURCE);
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -122,7 +123,7 @@ public class PKIHandler implements AuthenticationHandler {
   @Override
   public HandlerResult handleError(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
-    HandlerResult result = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+    HandlerResult result = new HandlerResultImpl(HandlerResult.Status.NO_ACTION, null);
     result.setSource(SOURCE);
     LOGGER.debug("In error handler for pki - no action taken.");
     return result;

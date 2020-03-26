@@ -19,7 +19,7 @@
 
     <ext:property-placeholder />
 
-    <reference id="samlAssertionValidator"
+    <reference id="samlAssertionValidator" availability="optional"
                interface="org.codice.ddf.security.saml.assertion.validator.SamlAssertionValidator"/>
 
     <bean id="samlRealm" class="ddf.security.realm.sts.SamlRealm">

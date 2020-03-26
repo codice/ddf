@@ -15,7 +15,8 @@ package org.codice.ddf.admin.application.service.impl;
 
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
 import ddf.security.service.SecurityServiceException;
 import java.io.File;
 import java.io.IOException;
@@ -177,9 +178,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
   public boolean isPermittedToViewFeature(String featureName) {
     KeyValueCollectionPermission serviceToCheck =
-        new KeyValueCollectionPermission(
+        new KeyValueCollectionPermissionImpl(
             "view-feature.name",
-            new KeyValuePermission("feature.name", Sets.newHashSet(featureName)));
+            new KeyValuePermissionImpl("feature.name", Sets.newHashSet(featureName)));
     try {
       return security.runWithSubjectOrElevate(
           () -> SecurityUtils.getSubject().isPermitted(serviceToCheck));

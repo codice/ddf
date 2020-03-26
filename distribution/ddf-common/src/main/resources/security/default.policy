@@ -381,7 +381,7 @@ grant codeBase "file:/org.apache.commons.io" {
     permission java.io.FilePermission "<<ALL FILES>>", "read,write";
 }
 
-grant codeBase "file:/admin-ui" {
+grant codeBase "file:/admin-ui/security-core-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
 }

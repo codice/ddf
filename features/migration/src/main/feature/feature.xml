@@ -47,6 +47,7 @@
         <feature>io</feature>
         <feature>guava</feature>
         <feature>security-core-api</feature>
+        <feature>security-core-impl</feature>
         <feature>platform-migratable-api</feature>
         <feature>platform-migration-utils</feature>
         <bundle>mvn:ddf.platform.migration/platform-migration/${project.version}</bundle>

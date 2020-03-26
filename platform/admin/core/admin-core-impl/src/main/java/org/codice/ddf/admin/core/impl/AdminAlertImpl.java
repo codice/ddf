@@ -14,7 +14,7 @@
 package org.codice.ddf.admin.core.impl;
 
 import com.google.common.html.HtmlEscapers;
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

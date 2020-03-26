@@ -19,7 +19,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.google.common.collect.ImmutableSet;
-import ddf.security.samlp.SamlProtocol.Binding;
+import ddf.security.samlp.impl.SamlProtocol.Binding;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

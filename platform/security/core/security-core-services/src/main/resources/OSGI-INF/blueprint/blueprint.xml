@@ -19,6 +19,20 @@
 
     <ext:property-placeholder/>
 
+    <bean id="adminAlertAppender" class="ddf.security.common.audit.LogFailoverAlertAppender">
+        <argument ref="eventAdmin"/>
+    </bean>
+
+    <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
+
+    <service id="AdminAlertAppenderService" ref="adminAlertAppender"
+             interface="org.ops4j.pax.logging.spi.PaxAppender">
+        <service-properties>
+            <entry key="org.ops4j.pax.logging.appender.name"
+                   value="ddf.security.common.audit.LogFailoverAlertAppender"/>
+        </service-properties>
+    </service>
+
     <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
                filter="(id=uuidGenerator)"/>
 
@@ -37,7 +51,7 @@
 
     <bean id="configSecurityLogger" class="ddf.security.config.impl.ConfigurationSecurityLogger"/>
 
-    <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
+    <bean id="crypto" class="ddf.security.samlp.impl.SystemCrypto">
         <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
         <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
         <argument ref="encryptionService"/>

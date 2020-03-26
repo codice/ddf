@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.platform.http.proxy;
 
-import ddf.security.PropertiesLoader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +23,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.codice.proxy.http.HttpProxyService;
 import org.codice.proxy.http.HttpProxyServiceImpl;
 import org.slf4j.Logger;
@@ -126,8 +126,8 @@ public class HttpProxy {
                 + CXF_CONFIG);
     Properties properties = new Properties();
     if (paxConfig.exists() && cxfConfig.exists()) {
-      properties.putAll(PropertiesLoader.loadProperties(paxConfig.getAbsolutePath()));
-      properties.putAll(PropertiesLoader.loadProperties(cxfConfig.getAbsolutePath()));
+      properties.putAll(PropertiesLoader.getInstance().loadProperties(paxConfig.getAbsolutePath()));
+      properties.putAll(PropertiesLoader.getInstance().loadProperties(cxfConfig.getAbsolutePath()));
     }
     return properties;
   }

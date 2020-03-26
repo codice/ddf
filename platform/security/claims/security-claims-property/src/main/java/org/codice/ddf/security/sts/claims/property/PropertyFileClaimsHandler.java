@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.security.sts.claims.property;
 
-import ddf.security.PropertiesLoader;
 import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsHandler;
@@ -25,6 +24,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +110,9 @@ public class PropertyFileClaimsHandler implements ClaimsHandler {
     if (propertyFileLocation != null
         && !propertyFileLocation.isEmpty()
         && !propertyFileLocation.equals(this.propertyFileLocation)) {
-      userMapping = PropertiesLoader.toMap(PropertiesLoader.loadProperties(propertyFileLocation));
+      userMapping =
+          PropertiesLoader.getInstance()
+              .toMap(PropertiesLoader.getInstance().loadProperties(propertyFileLocation));
     }
     this.propertyFileLocation = propertyFileLocation;
   }

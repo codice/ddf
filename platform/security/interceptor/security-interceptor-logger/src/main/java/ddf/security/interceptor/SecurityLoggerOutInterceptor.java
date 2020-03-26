@@ -13,8 +13,8 @@
  */
 package ddf.security.interceptor;
 
-import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
+import ddf.security.impl.SubjectUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;

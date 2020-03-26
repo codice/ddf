@@ -61,6 +61,7 @@ import ddf.security.Subject;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -362,7 +363,8 @@ public class QueryOperations extends DescribableImpl {
       Subject subject = (Subject) requestSubject;
 
       KeyValueCollectionPermission kvCollection =
-          new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, securityAttributes);
+          new KeyValueCollectionPermissionImpl(
+              CollectionPermission.READ_ACTION, securityAttributes);
       return subject.isPermitted(kvCollection);
     }
     return false;

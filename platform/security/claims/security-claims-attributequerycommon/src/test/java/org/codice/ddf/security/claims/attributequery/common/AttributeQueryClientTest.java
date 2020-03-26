@@ -27,8 +27,9 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.SignatureException;
+import ddf.security.samlp.impl.SimpleSign;
+import ddf.security.samlp.impl.SystemCrypto;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -175,9 +176,8 @@ public class AttributeQueryClientTest {
   }
 
   @Test(expected = AttributeQueryException.class)
-  public void testRetrieveResponseSimpleSignSignatureException()
-      throws SimpleSign.SignatureException {
-    doThrow(new SimpleSign.SignatureException())
+  public void testRetrieveResponseSimpleSignSignatureException() throws SignatureException {
+    doThrow(new SignatureException())
         .when(spySimpleSign)
         .signSamlObject(any(SignableSAMLObject.class));
 

@@ -18,7 +18,8 @@ import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getBundleContext;
 
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
 import java.util.Arrays;
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
@@ -166,8 +167,9 @@ public class BundleOperation implements Operation<Void> {
 
   private boolean isPermittedToViewService(String servicePid) {
     KeyValueCollectionPermission serviceToCheck =
-        new KeyValueCollectionPermission(
-            "view-service.pid", new KeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
+        new KeyValueCollectionPermissionImpl(
+            "view-service.pid",
+            new KeyValuePermissionImpl("service.pid", Sets.newHashSet(servicePid)));
 
     return subject.isPermitted(serviceToCheck);
   }

@@ -23,7 +23,7 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.permission.Permissions;
+import ddf.security.permission.impl.Permissions;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;

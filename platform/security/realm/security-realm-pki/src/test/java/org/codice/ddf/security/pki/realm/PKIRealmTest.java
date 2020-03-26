@@ -36,8 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.security.auth.x500.X500Principal;
 import org.apache.shiro.authc.AuthenticationInfo;
-import org.codice.ddf.security.handler.api.AuthenticationTokenType;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.AuthenticationTokenType;
+import org.codice.ddf.security.handler.BaseAuthenticationToken;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -20,6 +20,8 @@ import ddf.security.pdp.realm.xacml.processor.PdpException;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
 import ddf.security.policy.extension.PolicyExtension;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,18 +55,19 @@ public class AuthzRealmTest {
 
     // setup the subject permissions
     List<Permission> permissions = new ArrayList<>();
-    KeyValuePermission rulePermission = new KeyValuePermission(ruleClaim);
+    KeyValuePermission rulePermission = new KeyValuePermissionImpl(ruleClaim);
     rulePermission.addValue("A");
     rulePermission.addValue("B");
     permissions.add(rulePermission);
-    KeyValuePermission countryPermission = new KeyValuePermission(countryClaim);
+    KeyValuePermission countryPermission = new KeyValuePermissionImpl(countryClaim);
     countryPermission.addValue("AUS");
     permissions.add(countryPermission);
 
     SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
     authorizationInfo.addObjectPermission(rulePermission);
     authorizationInfo.addObjectPermission(countryPermission);
-    authorizationInfo.addObjectPermission(new KeyValuePermission("role", Arrays.asList("admin")));
+    authorizationInfo.addObjectPermission(
+        new KeyValuePermissionImpl("role", Arrays.asList("admin")));
     authorizationInfo.addRole("admin");
     authorizationInfo.addStringPermission("wild");
 
@@ -87,13 +90,13 @@ public class AuthzRealmTest {
     testRealm.setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
     testRealm.setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
     testRealm.setRolePermissionResolver(
-        roleString -> Arrays.asList(new KeyValuePermission("role", Arrays.asList(roleString))));
+        roleString -> Arrays.asList(new KeyValuePermissionImpl("role", Arrays.asList(roleString))));
   }
 
   @Test
   public void testIsPermitted() {
     permissionList.clear();
-    KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission("action", security);
+    KeyValueCollectionPermission kvcp = new KeyValueCollectionPermissionImpl("action", security);
     permissionList.add(kvcp);
 
     boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
@@ -106,7 +109,7 @@ public class AuthzRealmTest {
   @Test
   public void testIsKvpPermitted() {
     permissionList.clear();
-    KeyValuePermission kvp = new KeyValuePermission("role", Arrays.asList("admin"));
+    KeyValuePermission kvp = new KeyValuePermissionImpl("role", Arrays.asList("admin"));
     permissionList.add(kvp);
 
     boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
@@ -145,7 +148,7 @@ public class AuthzRealmTest {
   @Test
   public void testIsPermittedAllSingle() {
     permissionList.clear();
-    KeyValuePermission kvp = new KeyValuePermission("rule", Arrays.asList("A", "B"));
+    KeyValuePermission kvp = new KeyValuePermissionImpl("rule", Arrays.asList("A", "B"));
     permissionList.add(kvp);
 
     boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
@@ -158,7 +161,8 @@ public class AuthzRealmTest {
   @Test
   public void testIsPermittedOneSingle() {
     permissionList.clear();
-    KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS", "CAN", "GBR"));
+    KeyValuePermission kvp =
+        new KeyValuePermissionImpl("country", Arrays.asList("AUS", "CAN", "GBR"));
     permissionList.add(kvp);
 
     boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
@@ -171,7 +175,8 @@ public class AuthzRealmTest {
   @Test
   public void testIsPermittedOneMultiple() throws PdpException {
     permissionList.clear();
-    KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS", "CAN", "GBR"));
+    KeyValuePermission kvp =
+        new KeyValuePermissionImpl("country", Arrays.asList("AUS", "CAN", "GBR"));
     permissionList.add(kvp);
 
     String ruleClaim = "FineAccessControls";
@@ -179,11 +184,11 @@ public class AuthzRealmTest {
 
     // create a new user here with multiple country permissions to test
     List<Permission> permissions = new ArrayList<Permission>();
-    KeyValuePermission rulePermission = new KeyValuePermission(ruleClaim);
+    KeyValuePermission rulePermission = new KeyValuePermissionImpl(ruleClaim);
     rulePermission.addValue("A");
     rulePermission.addValue("B");
     permissions.add(rulePermission);
-    KeyValuePermission countryPermission = new KeyValuePermission(countryClaim);
+    KeyValuePermission countryPermission = new KeyValuePermissionImpl(countryClaim);
     countryPermission.addValue("USA");
     countryPermission.addValue("AUS");
     permissions.add(countryPermission);
@@ -203,7 +208,7 @@ public class AuthzRealmTest {
     testRealm.setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
     testRealm.setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
     testRealm.setRolePermissionResolver(
-        roleString -> Arrays.asList(new KeyValuePermission("role", Arrays.asList(roleString))));
+        roleString -> Arrays.asList(new KeyValuePermissionImpl("role", Arrays.asList(roleString))));
 
     boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
 
@@ -220,7 +225,7 @@ public class AuthzRealmTest {
     security.put("country2", Arrays.asList("CAN", "GBR"));
     security.put("rule", Arrays.asList("A", "B"));
     security.put("rule2", Arrays.asList("A", "B", "C"));
-    KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission("action", security);
+    KeyValueCollectionPermission kvcp = new KeyValueCollectionPermissionImpl("action", security);
     permissionList.clear();
     permissionList.add(kvcp);
 
@@ -234,7 +239,8 @@ public class AuthzRealmTest {
   @Test
   public void testBadPolicyExtension() {
     permissionList.clear();
-    KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS", "CAN", "GBR"));
+    KeyValuePermission kvp =
+        new KeyValuePermissionImpl("country", Arrays.asList("AUS", "CAN", "GBR"));
     permissionList.add(kvp);
 
     testRealm.addPolicyExtension(

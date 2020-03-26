@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.security.saml.assertion.validator.impl;
 
-import ddf.security.PropertiesLoader;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
 import ddf.security.service.SecurityServiceException;
@@ -50,7 +49,8 @@ import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.util.XMLUtils;
-import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
+import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 import org.codice.ddf.security.saml.assertion.validator.SamlAssertionValidator;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
@@ -70,6 +70,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class SamlAssertionValidatorImpl implements SamlAssertionValidator {
+
+  static {
+    OpenSAMLUtil.initSamlEngine();
+  }
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SamlAssertionValidatorImpl.class);
 
@@ -271,7 +275,7 @@ public class SamlAssertionValidatorImpl implements SamlAssertionValidator {
    */
   private Crypto getSignatureCrypto() {
     if (signatureCrypto == null && signatureProperties != null) {
-      Properties sigProperties = PropertiesLoader.loadProperties(signatureProperties);
+      Properties sigProperties = PropertiesLoader.getInstance().loadProperties(signatureProperties);
       if (sigProperties == null) {
         LOGGER.trace("Cannot load signature properties using: {}", signatureProperties);
         return null;

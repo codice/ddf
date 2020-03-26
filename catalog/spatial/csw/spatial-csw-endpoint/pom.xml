@@ -24,6 +24,11 @@
     <name>DDF :: Spatial :: CSW :: Endpoint</name>
     <dependencies>
         <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
         </dependency>

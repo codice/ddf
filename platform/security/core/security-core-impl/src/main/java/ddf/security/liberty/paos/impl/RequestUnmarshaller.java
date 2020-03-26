@@ -21,6 +21,8 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.core.xml.schema.XSBooleanValue;
 import org.opensaml.saml.common.AbstractSAMLObjectUnmarshaller;
+import org.opensaml.soap.soap11.ActorBearing;
+import org.opensaml.soap.soap11.MustUnderstandBearing;
 import org.w3c.dom.Attr;
 
 public class RequestUnmarshaller extends AbstractSAMLObjectUnmarshaller {
@@ -29,12 +31,12 @@ public class RequestUnmarshaller extends AbstractSAMLObjectUnmarshaller {
   @Override
   protected void processAttribute(@Nonnull XMLObject samlObject, @Nonnull Attr attribute)
       throws UnmarshallingException {
-    Request request = (Request) samlObject;
+    RequestImpl request = (RequestImpl) samlObject;
 
     QName attrName = QNameSupport.getNodeQName(attribute);
-    if (Request.SOAP11_MUST_UNDERSTAND_ATTR_NAME.equals(attrName)) {
+    if (MustUnderstandBearing.SOAP11_MUST_UNDERSTAND_ATTR_NAME.equals(attrName)) {
       request.setSOAP11MustUnderstand(XSBooleanValue.valueOf(attribute.getValue()));
-    } else if (Request.SOAP11_ACTOR_ATTR_NAME.equals(attrName)) {
+    } else if (ActorBearing.SOAP11_ACTOR_ATTR_NAME.equals(attrName)) {
       request.setSOAP11Actor(attribute.getValue());
     } else if (Request.RESPONSE_CONSUMER_URL_ATTRIB_NAME.equals(attribute.getLocalName())) {
       request.setResponseConsumerURL(attribute.getValue());

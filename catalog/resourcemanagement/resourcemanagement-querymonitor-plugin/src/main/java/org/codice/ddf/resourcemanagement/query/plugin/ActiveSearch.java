@@ -17,7 +17,7 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.source.Source;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import java.util.Date;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;

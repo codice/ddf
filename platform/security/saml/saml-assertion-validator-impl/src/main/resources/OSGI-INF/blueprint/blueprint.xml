@@ -17,8 +17,6 @@
 
   <ext:property-placeholder/>
 
-  <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
-
   <bean id="samlAssertionValidator"
     class="org.codice.ddf.security.saml.assertion.validator.impl.SamlAssertionValidatorImpl">
     <property name="signatureProperties"

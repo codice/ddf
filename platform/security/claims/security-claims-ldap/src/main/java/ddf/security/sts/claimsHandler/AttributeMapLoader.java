@@ -13,8 +13,7 @@
  */
 package ddf.security.sts.claimsHandler;
 
-import ddf.security.PropertiesLoader;
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Map;
@@ -26,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wss4j.common.principal.WSUsernameTokenPrincipalImpl;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,8 @@ public class AttributeMapLoader {
    */
   public Map<String, String> buildClaimsMapFile(String attributeMapFile) {
     Map<String, String> map =
-        PropertiesLoader.toMap(PropertiesLoader.loadProperties(attributeMapFile));
+        PropertiesLoader.getInstance()
+            .toMap(PropertiesLoader.getInstance().loadProperties(attributeMapFile));
 
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug(logLdapClaimsMap(map));

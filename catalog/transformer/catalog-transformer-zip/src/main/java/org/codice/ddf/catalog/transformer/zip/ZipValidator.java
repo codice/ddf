@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.transformer.zip;
 
-import ddf.security.PropertiesLoader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.Certificate;
@@ -27,6 +26,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class ZipValidator {
     try {
       merlin =
           new Merlin(
-              PropertiesLoader.loadProperties(signaturePropertiesPath),
+              PropertiesLoader.getInstance().loadProperties(signaturePropertiesPath),
               ZipDecompression.class.getClassLoader(),
               null);
     } catch (WSSecurityException | IOException e) {

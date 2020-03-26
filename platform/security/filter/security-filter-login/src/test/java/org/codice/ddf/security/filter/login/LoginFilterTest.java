@@ -39,7 +39,8 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.platform.filter.FilterChain;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.HandlerResultImpl;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
@@ -141,7 +142,7 @@ public class LoginFilterTest {
   @Test
   public void testBadToken() throws Exception {
     HandlerResult result =
-        new HandlerResult(HandlerResult.Status.COMPLETED, badAuthenticationTokenMock);
+        new HandlerResultImpl(HandlerResult.Status.COMPLETED, badAuthenticationTokenMock);
     when(requestMock.getAttribute(AUTHENTICATION_TOKEN_KEY)).thenReturn(result);
 
     loginFilter.doFilter(requestMock, responseMock, FAIL_FILTER_CHAIN);
@@ -152,7 +153,7 @@ public class LoginFilterTest {
   @Test
   public void testGoodToken() throws Exception {
     HandlerResult result =
-        new HandlerResult(HandlerResult.Status.COMPLETED, goodAuthenticationTokenMock);
+        new HandlerResultImpl(HandlerResult.Status.COMPLETED, goodAuthenticationTokenMock);
     when(requestMock.getAttribute(AUTHENTICATION_TOKEN_KEY)).thenReturn(result);
 
     loginFilter.doFilter(requestMock, responseMock, filterChainMock);
@@ -162,7 +163,8 @@ public class LoginFilterTest {
 
   @Test
   public void testValidReference() throws Exception {
-    HandlerResult result = new HandlerResult(HandlerResult.Status.COMPLETED, referenceTokenMock);
+    HandlerResult result =
+        new HandlerResultImpl(HandlerResult.Status.COMPLETED, referenceTokenMock);
     when(requestMock.getAttribute(AUTHENTICATION_TOKEN_KEY)).thenReturn(result);
 
     SecurityTokenHolder securityTokenHolder = new SecurityTokenHolder();
@@ -178,7 +180,8 @@ public class LoginFilterTest {
 
   @Test
   public void testInvalidReference() throws Exception {
-    HandlerResult result = new HandlerResult(HandlerResult.Status.COMPLETED, referenceTokenMock);
+    HandlerResult result =
+        new HandlerResultImpl(HandlerResult.Status.COMPLETED, referenceTokenMock);
     when(requestMock.getAttribute(AUTHENTICATION_TOKEN_KEY)).thenReturn(result);
 
     when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(badSecurityTokenMock);

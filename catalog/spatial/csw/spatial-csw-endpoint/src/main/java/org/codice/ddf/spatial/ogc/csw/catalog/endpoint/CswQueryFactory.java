@@ -28,7 +28,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryFilterTransformerProvider;
-import ddf.security.permission.Permissions;
+import ddf.security.permission.impl.Permissions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

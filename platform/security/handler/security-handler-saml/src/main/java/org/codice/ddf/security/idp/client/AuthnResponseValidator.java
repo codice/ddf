@@ -13,8 +13,9 @@
  */
 package org.codice.ddf.security.idp.client;
 
-import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.ValidationException;
+import ddf.security.samlp.SignatureException;
+import ddf.security.samlp.impl.SimpleSign;
+import ddf.security.samlp.impl.ValidationException;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Response;
@@ -72,7 +73,7 @@ public class AuthnResponseValidator {
       try {
         simpleSign.validateSignature(
             authnResponse.getSignature(), authnResponse.getDOM().getOwnerDocument());
-      } catch (SimpleSign.SignatureException e) {
+      } catch (SignatureException e) {
         throw new ValidationException("Invalid or untrusted signature.");
       }
     }

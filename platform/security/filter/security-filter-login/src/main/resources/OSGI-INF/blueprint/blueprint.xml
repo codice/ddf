@@ -19,9 +19,9 @@
 
     <ext:property-placeholder/>
 
-    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
+    <reference id="securityManager" availability="optional" interface="ddf.security.service.SecurityManager"/>
 
-    <reference id="sessionFactory" interface="ddf.security.http.SessionFactory" />
+    <reference id="sessionFactory" availability="optional" interface="ddf.security.http.SessionFactory" />
 
     <reference id="contextPolicyManager"
       interface="org.codice.ddf.security.policy.context.ContextPolicyManager"/>

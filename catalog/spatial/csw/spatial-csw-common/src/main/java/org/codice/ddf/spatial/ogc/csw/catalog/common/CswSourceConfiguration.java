@@ -14,7 +14,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.Permissions;
+import ddf.security.permission.impl.Permissions;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

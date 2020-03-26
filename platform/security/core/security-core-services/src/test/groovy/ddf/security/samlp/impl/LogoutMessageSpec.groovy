@@ -1,7 +1,7 @@
 package ddf.security.samlp.impl
 
 import ddf.security.encryption.EncryptionService
-import ddf.security.samlp.SystemCrypto
+import ddf.security.samlp.LogoutWrapper
 import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -72,22 +72,22 @@ class LogoutMessageSpec extends Specification {
 
     def "build valid logout request"() {
         when:
-        LogoutRequest logoutRequest = logoutMessage.buildLogoutRequest(NAME_ID, ISSUER_ID, Collections.singletonList(SESSION_INDEX))
+        LogoutWrapper<LogoutRequest> logoutRequest = logoutMessage.buildLogoutRequest(NAME_ID, ISSUER_ID, Collections.singletonList(SESSION_INDEX))
 
         then:
-        isNotBlank(logoutRequest.ID)
-        NAME_ID.equals(logoutRequest.nameID.value)
-        ISSUER_ID.equals(logoutRequest.issuer.value)
-        SAMLVersion.VERSION_20.equals(logoutRequest.version)
-        logoutRequest.sessionIndexes.size() == 1
-        SESSION_INDEX.equals(logoutRequest.sessionIndexes.get(0).getSessionIndex());
-        now().isAfter(Instant.ofEpochMilli(logoutRequest.issueInstant.millis))
+        isNotBlank(logoutRequest.getMessage().ID)
+        NAME_ID.equals(logoutRequest.getMessage().nameID.value)
+        ISSUER_ID.equals(logoutRequest.getMessage().issuer.value)
+        SAMLVersion.VERSION_20.equals(logoutRequest.getMessage().version)
+        logoutRequest.getMessage().sessionIndexes.size() == 1
+        SESSION_INDEX.equals(logoutRequest.getMessage().sessionIndexes.get(0).getSessionIndex());
+        now().isAfter(Instant.ofEpochMilli(logoutRequest.getMessage().issueInstant.millis))
     }
 
     def "build logout request with invalid info"() {
 
         when:
-        LogoutRequest logoutRequest = logoutMessage.buildLogoutRequest(nameId, issuerId, id,
+        LogoutWrapper<LogoutRequest> logoutWrapper = logoutMessage.buildLogoutRequest(nameId, issuerId, id,
                 sessionIndex == null ? null : Collections.singletonList(sessionIndex))
 
         then:
@@ -107,32 +107,32 @@ class LogoutMessageSpec extends Specification {
 
     def "build logout response with valid info and inResponseTo"() {
         when:
-        LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(ISSUER_ID,
+        LogoutWrapper<LogoutResponse> logoutResponse = logoutMessage.buildLogoutResponse(ISSUER_ID,
                 StatusCode.SUCCESS,
                 IN_RESPONSE_TO)
 
         then:
-        isNotBlank(logoutResponse.ID)
-        ISSUER_ID.equals(logoutResponse.issuer.value)
-        StatusCode.SUCCESS.equals(logoutResponse.status.statusCode.value)
-        IN_RESPONSE_TO.equals(logoutResponse.inResponseTo)
-        SAMLVersion.VERSION_20.equals(logoutResponse.version)
+        isNotBlank(logoutResponse.getMessage().ID)
+        ISSUER_ID.equals(logoutResponse.getMessage().issuer.value)
+        StatusCode.SUCCESS.equals(logoutResponse.getMessage().status.statusCode.value)
+        IN_RESPONSE_TO.equals(logoutResponse.getMessage().inResponseTo)
+        SAMLVersion.VERSION_20.equals(logoutResponse.getMessage().version)
         !now().
-                isBefore(Instant.ofEpochMilli(logoutResponse.issueInstant.millis))
+                isBefore(Instant.ofEpochMilli(logoutResponse.getMessage().issueInstant.millis))
     }
 
     def "build logout response with no inResponseTo"() {
         when:
-        LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse("issuer",
+        LogoutWrapper<LogoutResponse> logoutResponse = logoutMessage.buildLogoutResponse("issuer",
                 StatusCode.SUCCESS)
 
         then:
-        logoutResponse.inResponseTo == null
+        logoutResponse.getMessage().inResponseTo == null
     }
 
     def "verify signed saml request"() {
         setup:
-        LogoutRequest logoutRequest = logoutMessage.buildLogoutRequest(NAME_ID, ISSUER_ID, Collections.singletonList(SESSION_INDEX))
+        LogoutWrapper<LogoutRequest> logoutRequest = logoutMessage.buildLogoutRequest(NAME_ID, ISSUER_ID, Collections.singletonList(SESSION_INDEX))
 
         def target = new URI("https://mytarget.com")
         def relayState = "MyRelayStateGuid"
@@ -152,7 +152,7 @@ class LogoutMessageSpec extends Specification {
 
     def "verify signed saml response"() {
         setup:
-        LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(NAME_ID, ISSUER_ID)
+        LogoutWrapper<LogoutResponse> logoutResponse = logoutMessage.buildLogoutResponse(NAME_ID, ISSUER_ID)
 
         def target = new URI("https://mytarget.com")
         def relayState = "MyRelayStateGuid"

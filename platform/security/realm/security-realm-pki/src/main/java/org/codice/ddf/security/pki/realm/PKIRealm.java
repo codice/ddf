@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.security.pki.realm;
 
-import ddf.security.SubjectUtils;
 import ddf.security.assertion.Attribute;
 import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
@@ -24,6 +23,7 @@ import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsHandler;
 import ddf.security.claims.impl.ClaimsParametersImpl;
+import ddf.security.impl.SubjectUtils;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
@@ -39,8 +39,8 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.codice.ddf.security.handler.api.AuthenticationTokenType;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.AuthenticationTokenType;
+import org.codice.ddf.security.handler.BaseAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

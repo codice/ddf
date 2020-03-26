@@ -29,6 +29,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
   @Override
   public String getExpiry(HttpServletRequest request) {
     long timeLeft = 0;
+    if (sessionFactory == null) {
+      return Long.toString(timeLeft);
+    }
     HttpSession session = sessionFactory.getOrCreateSession(request);
     if (session == null) {
       return Long.toString(timeLeft);

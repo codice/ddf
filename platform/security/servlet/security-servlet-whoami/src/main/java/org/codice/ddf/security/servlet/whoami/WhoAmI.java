@@ -16,12 +16,12 @@ package org.codice.ddf.security.servlet.whoami;
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
-import ddf.security.SubjectUtils;
 import ddf.security.assertion.Attribute;
 import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.AuthenticationStatement;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.principal.GuestPrincipal;
+import ddf.security.impl.SubjectUtils;
+import ddf.security.principal.impl.GuestPrincipal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;

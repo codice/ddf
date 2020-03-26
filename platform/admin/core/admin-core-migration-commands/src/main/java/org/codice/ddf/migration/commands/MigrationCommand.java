@@ -15,7 +15,7 @@ package org.codice.ddf.migration.commands;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.io.PrintStream;

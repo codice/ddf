@@ -19,7 +19,7 @@ import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.util.function.Function;
@@ -110,7 +110,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             throw new AccessDeniedException("Unauthorized");
           }
 
-          action = new KeyValueCollectionPermission(actionURI);
+          action = new KeyValueCollectionPermissionImpl(actionURI);
           LOGGER.debug("Permission: {}", action);
 
           isPermitted = user.isPermitted(action);

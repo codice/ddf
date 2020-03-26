@@ -15,7 +15,6 @@ package org.codice.ddf.security.idp.client;
 
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.SubjectUtils;
 import ddf.security.assertion.AuthenticationStatement;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
@@ -23,14 +22,17 @@ import ddf.security.common.SecurityTokenHolder;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
+import ddf.security.impl.SubjectUtils;
 import ddf.security.samlp.LogoutMessage;
-import ddf.security.samlp.SamlProtocol;
-import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.SimpleSign.SignatureException;
-import ddf.security.samlp.ValidationException;
+import ddf.security.samlp.LogoutSecurityException;
+import ddf.security.samlp.LogoutWrapper;
+import ddf.security.samlp.SignatureException;
 import ddf.security.samlp.impl.HtmlResponseTemplate;
 import ddf.security.samlp.impl.RelayStates;
+import ddf.security.samlp.impl.SamlProtocol;
 import ddf.security.samlp.impl.SamlValidator;
+import ddf.security.samlp.impl.SimpleSign;
+import ddf.security.samlp.impl.ValidationException;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,7 +73,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
-import org.codice.ddf.security.handler.api.SessionToken;
+import org.codice.ddf.security.handler.SessionToken;
 import org.codice.ddf.security.jaxrs.RestSecurity;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.LogoutRequest;
@@ -197,7 +199,10 @@ public class LogoutRequestService {
                 .collect(Collectors.toList());
 
         logout();
-        LogoutRequest logoutRequest =
+        if (logoutMessage == null) {
+          throw new RuntimeException("Logout message not available yet.");
+        }
+        LogoutWrapper<LogoutRequest> logoutRequest =
             logoutMessage.buildLogoutRequest(name, getEntityId(), sessionIndexes);
 
         String relayState = relayStates.encode(name);
@@ -214,7 +219,7 @@ public class LogoutRequestService {
     }
   }
 
-  private Response getLogoutRequest(String relayState, LogoutRequest logoutRequest) {
+  private Response getLogoutRequest(String relayState, LogoutWrapper<LogoutRequest> logoutRequest) {
     try {
       String binding = idpMetadata.getSingleLogoutBinding();
       if (SamlProtocol.POST_BINDING.equals(binding)) {
@@ -230,8 +235,9 @@ public class LogoutRequestService {
     }
   }
 
-  private Response getSamlpPostLogoutRequest(String relayState, LogoutRequest logoutRequest)
-      throws SimpleSign.SignatureException, WSSecurityException {
+  private Response getSamlpPostLogoutRequest(
+      String relayState, LogoutWrapper<LogoutRequest> logoutRequest)
+      throws SignatureException, WSSecurityException {
     LOGGER.debug("Configuring SAML LogoutRequest for POST.");
     String encodedSamlRequest = encodeSaml(logoutRequest);
     String singleLogoutLocation = idpMetadata.getSingleLogoutLocation();
@@ -242,21 +248,27 @@ public class LogoutRequestService {
     return ok.build();
   }
 
-  String encodeSaml(LogoutRequest logoutRequest) throws SignatureException, WSSecurityException {
+  String encodeSaml(LogoutWrapper<LogoutRequest> logoutRequest)
+      throws SignatureException, WSSecurityException {
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement(ROOT_NODE_NAME));
     LOGGER.debug("Signing SAML POST LogoutRequest.");
-    simpleSign.signSamlObject(logoutRequest);
+    simpleSign.signSamlObject(logoutRequest.getMessage());
     LOGGER.debug("Converting SAML Request to DOM");
-    String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(logoutRequest, doc));
+    String assertionResponse =
+        DOM2Writer.nodeToString(OpenSAMLUtil.toDom(logoutRequest.getMessage(), doc));
     return Base64.getEncoder().encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
   }
 
-  private Response getSamlpRedirectLogoutRequest(String relayState, LogoutRequest logoutRequest)
-      throws IOException, SimpleSign.SignatureException, WSSecurityException, URISyntaxException {
+  private Response getSamlpRedirectLogoutRequest(
+      String relayState, LogoutWrapper<LogoutRequest> logoutRequest)
+      throws IOException, SignatureException, LogoutSecurityException, URISyntaxException {
     LOGGER.debug("Configuring SAML Response for Redirect.");
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement(ROOT_NODE_NAME));
+    if (logoutMessage == null) {
+      throw new LogoutSecurityException("Logout message not ready yet.");
+    }
     URI location =
         logoutMessage.signSamlGetRequest(
             logoutRequest, new URI(idpMetadata.getSingleLogoutLocation()), relayState);
@@ -313,7 +325,10 @@ public class LogoutRequestService {
     }
     LogoutRequest logoutRequest = (LogoutRequest) xmlObject;
     // Pre-build response with success status
-    LogoutResponse logoutResponse =
+    if (logoutMessage == null) {
+      throw new RuntimeException("Logout message not available yet.");
+    }
+    LogoutWrapper<LogoutResponse> logoutResponse =
         logoutMessage.buildLogoutResponse(
             logoutRequest.getIssuer().getValue(), StatusCode.SUCCESS, logoutRequest.getID());
 
@@ -370,9 +385,13 @@ public class LogoutRequestService {
       @FormParam(SAML_RESPONSE) String encodedSamlResponse,
       @FormParam(RELAY_STATE) String relayState) {
 
+    if (restSecurity == null || logoutMessage == null) {
+      return Response.serverError().entity("System cannot decode request.").build();
+    }
+
     if (encodedSamlRequest != null) {
       try {
-        LogoutRequest logoutRequest =
+        LogoutWrapper<LogoutRequest> logoutRequest =
             logoutMessage.extractSamlLogoutRequest(restSecurity.base64Decode(encodedSamlRequest));
         if (logoutRequest == null) {
           LOGGER.debug(UNABLE_TO_PARSE_LOGOUT_REQUEST);
@@ -381,14 +400,18 @@ public class LogoutRequestService {
 
         new SamlValidator.Builder(simpleSign)
             .buildAndValidate(
-                request.getRequestURL().toString(), SamlProtocol.Binding.HTTP_POST, logoutRequest);
+                request.getRequestURL().toString(),
+                SamlProtocol.Binding.HTTP_POST,
+                logoutRequest.getMessage());
         logout();
-        LogoutResponse logoutResponse =
+        LogoutWrapper<LogoutResponse> logoutResponse =
             logoutMessage.buildLogoutResponse(
-                logoutRequest.getIssuer().getValue(), StatusCode.SUCCESS, logoutRequest.getID());
+                logoutRequest.getMessage().getIssuer().getValue(),
+                StatusCode.SUCCESS,
+                logoutRequest.getMessage().getID());
 
         return getLogoutResponse(relayState, logoutResponse);
-      } catch (WSSecurityException | XMLStreamException e) {
+      } catch (LogoutSecurityException | XMLStreamException e) {
         LOGGER.info(UNABLE_TO_PARSE_LOGOUT_REQUEST, e);
         return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
       } catch (ValidationException e) {
@@ -397,7 +420,7 @@ public class LogoutRequestService {
       }
     } else {
       try {
-        LogoutResponse logoutResponse =
+        LogoutWrapper<LogoutResponse> logoutResponse =
             logoutMessage.extractSamlLogoutResponse(restSecurity.base64Decode(encodedSamlResponse));
         if (logoutResponse == null) {
           LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
@@ -405,11 +428,13 @@ public class LogoutRequestService {
         }
         new SamlValidator.Builder(simpleSign)
             .buildAndValidate(
-                request.getRequestURL().toString(), SamlProtocol.Binding.HTTP_POST, logoutResponse);
+                request.getRequestURL().toString(),
+                SamlProtocol.Binding.HTTP_POST,
+                logoutResponse.getMessage());
       } catch (ValidationException e) {
         LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE, e);
         return buildLogoutResponse(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE);
-      } catch (WSSecurityException | XMLStreamException e) {
+      } catch (LogoutSecurityException | XMLStreamException e) {
         LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE, e);
         return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
       }
@@ -430,19 +455,28 @@ public class LogoutRequestService {
       @QueryParam(SIG_ALG) String signatureAlgorithm,
       @QueryParam(SIGNATURE) String signature) {
 
+    if (restSecurity == null || logoutMessage == null) {
+      Response.serverError().entity("System cannot decode request.").build();
+    }
+
     if (deflatedSamlRequest != null) {
       try {
-        LogoutRequest logoutRequest =
+        LogoutWrapper<LogoutRequest> logoutRequest =
             logoutMessage.extractSamlLogoutRequest(restSecurity.inflateBase64(deflatedSamlRequest));
         if (logoutRequest == null) {
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
         }
         buildAndValidateSaml(
-            deflatedSamlRequest, relayState, signatureAlgorithm, signature, logoutRequest);
+            deflatedSamlRequest,
+            relayState,
+            signatureAlgorithm,
+            signature,
+            logoutRequest.getMessage());
         logout();
         String entityId = getEntityId();
-        LogoutResponse logoutResponse =
-            logoutMessage.buildLogoutResponse(entityId, StatusCode.SUCCESS, logoutRequest.getID());
+        LogoutWrapper<LogoutResponse> logoutResponse =
+            logoutMessage.buildLogoutResponse(
+                entityId, StatusCode.SUCCESS, logoutRequest.getMessage().getID());
         return getLogoutResponse(relayState, logoutResponse);
       } catch (IOException e) {
         LOGGER.info(UNABLE_TO_DECODE_AND_INFLATE_LOGOUT_REQUEST, e);
@@ -450,14 +484,14 @@ public class LogoutRequestService {
       } catch (ValidationException e) {
         LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_REQUEST, e);
         return buildLogoutResponse(UNABLE_TO_VALIDATE_LOGOUT_REQUEST);
-      } catch (WSSecurityException | XMLStreamException e) {
+      } catch (LogoutSecurityException | XMLStreamException e) {
         LOGGER.info(UNABLE_TO_PARSE_LOGOUT_REQUEST, e);
         return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
       }
     } else {
       try {
 
-        LogoutResponse logoutResponse =
+        LogoutWrapper<LogoutResponse> logoutResponse =
             logoutMessage.extractSamlLogoutResponse(
                 restSecurity.inflateBase64(deflatedSamlResponse));
         if (logoutResponse == null) {
@@ -465,7 +499,11 @@ public class LogoutRequestService {
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
         }
         buildAndValidateSaml(
-            deflatedSamlResponse, relayState, signatureAlgorithm, signature, logoutResponse);
+            deflatedSamlResponse,
+            relayState,
+            signatureAlgorithm,
+            signature,
+            logoutResponse.getMessage());
         String nameId = "You";
         String decodedValue;
         if (relayState != null && (decodedValue = relayStates.decode(relayState)) != null) {
@@ -478,7 +516,7 @@ public class LogoutRequestService {
       } catch (ValidationException e) {
         LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE, e);
         return buildLogoutResponse(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE);
-      } catch (WSSecurityException | XMLStreamException e) {
+      } catch (LogoutSecurityException | XMLStreamException e) {
         LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE, e);
         return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
       }
@@ -563,7 +601,8 @@ public class LogoutRequestService {
             .getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
   }
 
-  private Response getLogoutResponse(String relayState, LogoutResponse samlResponse) {
+  private Response getLogoutResponse(
+      String relayState, LogoutWrapper<LogoutResponse> samlResponse) {
     try {
       String binding = idpMetadata.getSingleLogoutBinding();
       if (SamlProtocol.POST_BINDING.equals(binding)) {
@@ -581,12 +620,12 @@ public class LogoutRequestService {
     }
   }
 
-  private Response getSamlpSoapLogoutResponse(LogoutResponse samlResponse) {
+  private Response getSamlpSoapLogoutResponse(LogoutWrapper<LogoutResponse> samlResponse) {
     return getSamlpSoapLogoutResponse(samlResponse, null, null);
   }
 
   private Response getSamlpSoapLogoutResponse(
-      LogoutResponse samlResponse, String statusCode, String statusMessage) {
+      LogoutWrapper<LogoutResponse> samlResponse, String statusCode, String statusMessage) {
     if (samlResponse == null) {
       return Response.serverError().build();
     }
@@ -596,15 +635,15 @@ public class LogoutRequestService {
     LOGGER.debug("Setting SAML status on Response for SOAP");
     if (statusCode != null) {
       if (statusMessage != null) {
-        samlResponse.setStatus(SamlProtocol.createStatus(statusCode, statusMessage));
+        samlResponse.getMessage().setStatus(SamlProtocol.createStatus(statusCode, statusMessage));
       } else {
-        samlResponse.setStatus(SamlProtocol.createStatus(statusCode));
+        samlResponse.getMessage().setStatus(SamlProtocol.createStatus(statusCode));
       }
     }
 
     try {
       LOGGER.debug("Signing SAML Response for SOAP.");
-      LogoutResponse logoutResponse = simpleSign.forceSignSamlObject(samlResponse);
+      LogoutResponse logoutResponse = simpleSign.forceSignSamlObject(samlResponse.getMessage());
 
       Envelope soapMessage = SamlProtocol.createSoapMessage(logoutResponse);
 
@@ -620,15 +659,17 @@ public class LogoutRequestService {
     }
   }
 
-  private Response getSamlpPostLogoutResponse(String relayState, LogoutResponse samlResponse)
-      throws WSSecurityException, SimpleSign.SignatureException {
+  private Response getSamlpPostLogoutResponse(
+      String relayState, LogoutWrapper<LogoutResponse> samlResponse)
+      throws WSSecurityException, SignatureException {
     LOGGER.debug("Configuring SAML Response for POST.");
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement(ROOT_NODE_NAME));
     LOGGER.debug("Signing SAML POST Response.");
-    simpleSign.signSamlObject(samlResponse);
+    simpleSign.signSamlObject(samlResponse.getMessage());
     LOGGER.debug("Converting SAML Response to DOM");
-    String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
+    String assertionResponse =
+        DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse.getMessage(), doc));
     String encodedSamlResponse =
         Base64.getEncoder().encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
 
@@ -641,11 +682,15 @@ public class LogoutRequestService {
         .build();
   }
 
-  private Response getSamlpRedirectLogoutResponse(String relayState, LogoutResponse samlResponse)
-      throws IOException, SimpleSign.SignatureException, WSSecurityException, URISyntaxException {
+  private Response getSamlpRedirectLogoutResponse(
+      String relayState, LogoutWrapper<LogoutResponse> samlResponse)
+      throws IOException, SignatureException, LogoutSecurityException, URISyntaxException {
     LOGGER.debug("Configuring SAML Response for Redirect.");
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement(ROOT_NODE_NAME));
+    if (logoutMessage == null) {
+      throw new LogoutSecurityException("Logout message is not ready yet.");
+    }
     URI location =
         logoutMessage.signSamlGetResponse(
             samlResponse, new URI(idpMetadata.getSingleLogoutLocation()), relayState);

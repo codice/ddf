@@ -14,21 +14,20 @@
 package ddf.security.liberty.paos;
 
 import javax.xml.namespace.QName;
-import org.opensaml.saml.common.SAMLObject;
-import org.opensaml.saml.common.xml.SAMLConstants;
-import org.opensaml.soap.soap11.ActorBearing;
-import org.opensaml.soap.soap11.MustUnderstandBearing;
 
-public interface Response extends SAMLObject, MustUnderstandBearing, ActorBearing {
+public interface Response {
+
+  String PAOS_NS = "urn:liberty:paos:2003-08";
+
+  String PAOS_PREFIX = "paos";
 
   String DEFAULT_ELEMENT_LOCAL_NAME = "Response";
 
-  QName DEFAULT_ELEMENT_NAME =
-      new QName(SAMLConstants.PAOS_NS, DEFAULT_ELEMENT_LOCAL_NAME, SAMLConstants.PAOS_PREFIX);
+  QName DEFAULT_ELEMENT_NAME = new QName(PAOS_NS, DEFAULT_ELEMENT_LOCAL_NAME, PAOS_PREFIX);
 
   String TYPE_LOCAL_NAME = "ResponseType";
 
-  QName TYPE_NAME = new QName(SAMLConstants.PAOS_NS, TYPE_LOCAL_NAME, SAMLConstants.PAOS_PREFIX);
+  QName TYPE_NAME = new QName(PAOS_NS, TYPE_LOCAL_NAME, PAOS_PREFIX);
 
   String REF_TO_MESSAGE_ID_ATTRIB_NAME = "refToMessageID";
 

@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.security.claims.attributequery.common;
 
-import ddf.security.PropertiesLoader;
 import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsHandler;
@@ -21,7 +20,7 @@ import ddf.security.claims.ClaimsParameters;
 import ddf.security.claims.impl.ClaimImpl;
 import ddf.security.claims.impl.ClaimsCollectionImpl;
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.impl.SimpleSign;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -37,6 +36,7 @@ import javax.xml.ws.Service;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.resource.URIResolver;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -318,7 +318,9 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
   public void setAttributeMapLocation(String attributeMapLocation) {
     if (StringUtils.isNotBlank(attributeMapLocation)
         && !attributeMapLocation.equals(this.attributeMapLocation)) {
-      attributeMap = PropertiesLoader.toMap(PropertiesLoader.loadProperties(attributeMapLocation));
+      attributeMap =
+          PropertiesLoader.getInstance()
+              .toMap(PropertiesLoader.getInstance().loadProperties(attributeMapLocation));
       this.attributeMapLocation = attributeMapLocation;
     }
   }

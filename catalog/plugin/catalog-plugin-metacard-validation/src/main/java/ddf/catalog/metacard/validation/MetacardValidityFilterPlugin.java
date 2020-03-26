@@ -35,6 +35,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -194,7 +195,7 @@ public class MetacardValidityFilterPlugin extends PreFederatedLocalProviderQuery
 
     if (MapUtils.isNotEmpty(securityMap)) {
       KeyValueCollectionPermission securityPermission =
-          new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, securityMap);
+          new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION, securityMap);
       return subject.isPermitted(securityPermission);
     } else {
       return false;

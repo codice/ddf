@@ -21,10 +21,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.handler.HandlerResultImpl;
+import org.codice.ddf.security.handler.OidcAuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
-import org.codice.ddf.security.handler.api.OidcAuthenticationToken;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.Pac4jConstants;
@@ -48,10 +49,10 @@ public class OidcHandler implements AuthenticationHandler {
   private static HandlerResult redirectedResult;
 
   static {
-    noActionResult = new HandlerResult(Status.NO_ACTION, null);
+    noActionResult = new HandlerResultImpl(Status.NO_ACTION, null);
     noActionResult.setSource(SOURCE);
 
-    redirectedResult = new HandlerResult(Status.REDIRECTED, null);
+    redirectedResult = new HandlerResultImpl(Status.REDIRECTED, null);
     redirectedResult.setSource(SOURCE);
   }
 
@@ -133,7 +134,7 @@ public class OidcHandler implements AuthenticationHandler {
 
       OidcAuthenticationToken token =
           new OidcAuthenticationToken(credentials, j2EContext, ipAddress);
-      HandlerResult handlerResult = new HandlerResult(Status.COMPLETED, token);
+      HandlerResult handlerResult = new HandlerResultImpl(Status.COMPLETED, token);
       handlerResult.setSource(SOURCE);
       return handlerResult;
     } else { // the user agent request didn't have credentials, redirect and go get some

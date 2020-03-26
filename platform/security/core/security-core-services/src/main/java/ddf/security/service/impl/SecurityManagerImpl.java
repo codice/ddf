@@ -31,7 +31,7 @@ import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.codice.ddf.security.handler.api.SessionToken;
+import org.codice.ddf.security.handler.SessionToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

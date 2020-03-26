@@ -14,7 +14,7 @@
 package org.codice.ddf.security.saml.assertion.validator;
 
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
-import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 
 public interface SamlAssertionValidator {
 

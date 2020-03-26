@@ -13,7 +13,6 @@
  */
 package ddf.security.samlp.impl;
 
-import ddf.security.samlp.SamlProtocol;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;

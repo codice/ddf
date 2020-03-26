@@ -20,17 +20,17 @@ import net.shibboleth.utilities.java.support.annotation.constraint.NotEmpty;
 import org.opensaml.saml.common.AbstractSAMLObjectBuilder;
 import org.opensaml.saml.common.xml.SAMLConstants;
 
-public class ResponseBuilder extends AbstractSAMLObjectBuilder<Response> {
+public class ResponseBuilder extends AbstractSAMLObjectBuilder<ResponseImpl> {
   @Nonnull
   @Override
-  public Response buildObject() {
+  public ResponseImpl buildObject() {
     return new ResponseImpl(
         SAMLConstants.PAOS_NS, Response.DEFAULT_ELEMENT_LOCAL_NAME, SAMLConstants.PAOS_PREFIX);
   }
 
   @Nonnull
   @Override
-  public Response buildObject(
+  public ResponseImpl buildObject(
       @Nullable String uri, @Nonnull @NotEmpty String localName, @Nullable String prefix) {
     return new ResponseImpl(uri, localName, prefix);
   }

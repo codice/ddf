@@ -14,7 +14,7 @@
 package ddf.security.service.impl;
 
 import ddf.security.SubjectIdentity;
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;

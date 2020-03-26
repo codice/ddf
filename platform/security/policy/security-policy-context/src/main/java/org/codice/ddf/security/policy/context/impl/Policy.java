@@ -16,6 +16,7 @@ package org.codice.ddf.security.policy.context.impl;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,7 +58,8 @@ public class Policy implements ContextPolicy {
     for (ContextAttributeMapping mapping : attributeMappings) {
       perms.add(mapping.getAttributePermission());
     }
-    KeyValueCollectionPermission permissions = new KeyValueCollectionPermission(getContextPath());
+    KeyValueCollectionPermission permissions =
+        new KeyValueCollectionPermissionImpl(getContextPath());
     permissions.addAll(perms);
     return permissions;
   }

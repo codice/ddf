@@ -13,13 +13,13 @@
  */
 package org.codice.ddf.security.claims.certificate;
 
-import ddf.security.SubjectUtils;
 import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsHandler;
 import ddf.security.claims.ClaimsParameters;
 import ddf.security.claims.impl.ClaimImpl;
 import ddf.security.claims.impl.ClaimsCollectionImpl;
+import ddf.security.impl.SubjectUtils;
 import java.util.List;
 import java.util.Map;
 import org.apache.cxf.common.util.StringUtils;

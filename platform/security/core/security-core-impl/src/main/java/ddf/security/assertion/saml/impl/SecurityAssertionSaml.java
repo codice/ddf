@@ -18,7 +18,7 @@ import ddf.security.assertion.Attribute;
 import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.AuthenticationStatement;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.principal.GuestPrincipal;
+import ddf.security.principal.impl.GuestPrincipal;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;

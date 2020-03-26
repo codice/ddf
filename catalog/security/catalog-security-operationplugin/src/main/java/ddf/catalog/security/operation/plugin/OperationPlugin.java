@@ -28,9 +28,10 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
 import java.util.Map;
 import java.util.Set;
 
@@ -112,7 +113,7 @@ public class OperationPlugin implements AccessPlugin {
     Map<String, Set<String>> perms =
         (Map<String, Set<String>>) operation.getPropertyValue(PolicyPlugin.OPERATION_SECURITY);
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, perms);
+        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION, perms);
 
     if (!subject.isPermitted(securityPermission)) {
       throw new StopProcessingException(

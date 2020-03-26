@@ -26,7 +26,7 @@ import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.attributes.AttributesStore;

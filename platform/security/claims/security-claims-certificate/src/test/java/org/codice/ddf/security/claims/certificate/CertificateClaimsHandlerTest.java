@@ -18,10 +18,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
-import ddf.security.SubjectUtils;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsParameters;
 import ddf.security.claims.impl.ClaimsParametersImpl;
+import ddf.security.impl.SubjectUtils;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.HashMap;

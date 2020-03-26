@@ -29,6 +29,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -97,7 +98,7 @@ public class OperationPluginTest {
     testRoleMap.put("Roles", testRoles);
 
     final KeyValueCollectionPermission testUserPermission =
-        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, testRoleMap);
+        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION, testRoleMap);
 
     return new Answer<Boolean>() {
       @Override

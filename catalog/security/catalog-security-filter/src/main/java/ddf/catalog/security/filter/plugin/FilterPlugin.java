@@ -33,10 +33,11 @@ import ddf.catalog.security.FilterResult;
 import ddf.catalog.security.FilterStrategy;
 import ddf.catalog.util.impl.ServiceComparator;
 import ddf.security.SecurityConstants;
-import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
+import ddf.security.impl.SubjectUtils;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
 import java.io.Serializable;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -92,7 +93,7 @@ public class FilterPlugin implements AccessPlugin {
   @Override
   public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermission(CollectionPermission.CREATE_ACTION);
+        new KeyValueCollectionPermissionImpl(CollectionPermission.CREATE_ACTION);
     List<Metacard> metacards = input.getMetacards();
     Subject subject = getSubject(input);
     Subject systemSubject = getSystemSubject();
@@ -131,7 +132,7 @@ public class FilterPlugin implements AccessPlugin {
   public UpdateRequest processPreUpdate(UpdateRequest input, Map<String, Metacard> metacards)
       throws StopProcessingException {
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermission(CollectionPermission.UPDATE_ACTION);
+        new KeyValueCollectionPermissionImpl(CollectionPermission.UPDATE_ACTION);
     List<Map.Entry<Serializable, Metacard>> updates = input.getUpdates();
     Subject subject = getSubject(input);
     Subject systemSubject = getSystemSubject();
@@ -196,7 +197,7 @@ public class FilterPlugin implements AccessPlugin {
     List<Metacard> results = input.getDeletedMetacards();
     List<Metacard> newResults = new ArrayList<>(results.size());
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION);
+        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION);
     int filteredMetacards = 0;
     for (Metacard metacard : results) {
       Attribute attr = metacard.getAttribute(Metacard.SECURITY);
@@ -245,7 +246,7 @@ public class FilterPlugin implements AccessPlugin {
     List<Result> newResults = new ArrayList<>(results.size());
     Metacard metacard;
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION);
+        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION);
     int filteredMetacards = 0;
     for (Result result : results) {
       metacard = result.getMetacard();
@@ -291,7 +292,7 @@ public class FilterPlugin implements AccessPlugin {
           "Unable to filter contents of current message, no user Subject available.");
     }
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION);
+        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION);
     Subject subject = getSubject(input);
     Attribute attr = metacard.getAttribute(Metacard.SECURITY);
     if (!checkPermissions(attr, securityPermission, subject, CollectionPermission.READ_ACTION)) {
@@ -348,7 +349,7 @@ public class FilterPlugin implements AccessPlugin {
       map = (Map<String, Set<String>>) attr.getValue();
     }
     if (map != null) {
-      securityPermission = new KeyValueCollectionPermission(action, map);
+      securityPermission = new KeyValueCollectionPermissionImpl(action, map);
     }
     return subject.isPermitted(securityPermission);
   }

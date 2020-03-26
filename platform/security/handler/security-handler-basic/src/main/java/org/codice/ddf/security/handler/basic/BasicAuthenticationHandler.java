@@ -24,8 +24,9 @@ import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.handler.AuthenticationTokenFactory;
+import org.codice.ddf.security.handler.HandlerResultImpl;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
   public HandlerResult getNormalizedToken(
       ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
 
-    HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+    HandlerResult handlerResult = new HandlerResultImpl(HandlerResult.Status.NO_ACTION, null);
     handlerResult.setSource(SOURCE);
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -97,7 +98,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
   public HandlerResult handleError(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
     doAuthPrompt((HttpServletResponse) servletResponse);
-    HandlerResult result = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
+    HandlerResult result = new HandlerResultImpl(HandlerResult.Status.REDIRECTED, null);
     result.setSource(SOURCE);
     LOGGER.debug("In error handler for basic auth - prompted for auth credentials.");
     return result;

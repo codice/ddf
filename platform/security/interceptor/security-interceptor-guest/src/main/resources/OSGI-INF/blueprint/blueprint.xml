@@ -17,7 +17,7 @@
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd"
 >
-    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
+    <reference id="securityManager" interface="ddf.security.service.SecurityManager" availability="optional"/>
 
     <bean id="guestInterceptor" class="org.codice.ddf.security.interceptor.GuestInterceptor">
         <argument ref="securityManager"/>

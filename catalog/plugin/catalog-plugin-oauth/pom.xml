@@ -75,6 +75,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.storage</groupId>
             <artifactId>token-storage-api</artifactId>
             <version>${project.version}</version>

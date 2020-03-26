@@ -1,6 +1,6 @@
 package ddf.security.samlp.impl
 
-import ddf.security.samlp.SamlProtocol
+
 import org.xml.sax.SAXException
 import org.xml.sax.SAXParseException
 import spock.lang.Specification

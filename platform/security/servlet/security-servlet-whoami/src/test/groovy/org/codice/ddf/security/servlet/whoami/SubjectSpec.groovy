@@ -18,11 +18,12 @@ import ddf.security.assertion.Attribute
 import ddf.security.assertion.AttributeStatement
 import ddf.security.assertion.AuthenticationStatement
 import ddf.security.assertion.SecurityAssertion
-import ddf.security.principal.GuestPrincipal
-import java.time.LocalDateTime
-import java.time.ZoneId
+import ddf.security.principal.impl.GuestPrincipal
 import org.apache.shiro.subject.PrincipalCollection
 import spock.lang.Specification
+
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 class SubjectSpec extends Specification {
 

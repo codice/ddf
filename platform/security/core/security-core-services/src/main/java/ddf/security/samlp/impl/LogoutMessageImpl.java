@@ -14,9 +14,9 @@
 package ddf.security.samlp.impl;
 
 import ddf.security.samlp.LogoutMessage;
-import ddf.security.samlp.SamlProtocol;
-import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.LogoutSecurityException;
+import ddf.security.samlp.LogoutWrapper;
+import ddf.security.samlp.SignatureException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -47,7 +47,6 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.security.jaxrs.impl.RestSecurity;
 import org.opensaml.core.xml.XMLObject;
-import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
@@ -87,39 +86,62 @@ public class LogoutMessageImpl implements LogoutMessage {
         .orElse("");
   }
 
-  public SignableSAMLObject extractXmlObject(String samlLogoutResponse)
-      throws WSSecurityException, XMLStreamException {
-    Document responseDoc =
-        StaxUtils.read(
-            new ByteArrayInputStream(samlLogoutResponse.getBytes(StandardCharsets.UTF_8)));
-    XMLObject xmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
-    if (xmlObject instanceof SignableSAMLObject) {
-      return (SignableSAMLObject) xmlObject;
+  public LogoutWrapper<SignableSAMLObject> extractXmlObject(String samlLogoutResponse)
+      throws LogoutSecurityException, XMLStreamException {
+    try {
+      Document responseDoc =
+          StaxUtils.read(
+              new ByteArrayInputStream(samlLogoutResponse.getBytes(StandardCharsets.UTF_8)));
+      XMLObject xmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
+      if (xmlObject instanceof SignableSAMLObject) {
+        return new LogoutWrapperImpl<>((SignableSAMLObject) xmlObject);
+      }
+      return null;
+    } catch (WSSecurityException e) {
+      throw new LogoutSecurityException(e);
     }
-    return null;
   }
 
-  private <T extends SAMLObject> T extract(String samlObject, Class<T> clazz)
-      throws WSSecurityException, XMLStreamException {
-    Document responseDoc =
-        StaxUtils.read(new ByteArrayInputStream(samlObject.getBytes(StandardCharsets.UTF_8)));
-    XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
-    if (clazz.isAssignableFrom(responseXmlObject.getClass())) {
-      return clazz.cast(responseXmlObject);
+  private LogoutWrapper<LogoutResponse> extractResponse(String samlObject)
+      throws LogoutSecurityException, XMLStreamException {
+    try {
+      Document responseDoc =
+          StaxUtils.read(new ByteArrayInputStream(samlObject.getBytes(StandardCharsets.UTF_8)));
+      XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
+      if (LogoutResponse.class.isAssignableFrom(responseXmlObject.getClass())) {
+        return new LogoutWrapperImpl<>((LogoutResponse) responseXmlObject);
+      }
+      return null;
+    } catch (WSSecurityException e) {
+      throw new LogoutSecurityException(e);
     }
-    return null;
+  }
+
+  private LogoutWrapper<LogoutRequest> extractRequest(String samlObject)
+      throws LogoutSecurityException, XMLStreamException {
+    try {
+      Document requestDoc =
+          StaxUtils.read(new ByteArrayInputStream(samlObject.getBytes(StandardCharsets.UTF_8)));
+      XMLObject requestXmlObject = OpenSAMLUtil.fromDom(requestDoc.getDocumentElement());
+      if (LogoutRequest.class.isAssignableFrom(requestXmlObject.getClass())) {
+        return new LogoutWrapperImpl<>((LogoutRequest) requestXmlObject);
+      }
+      return null;
+    } catch (WSSecurityException e) {
+      throw new LogoutSecurityException(e);
+    }
   }
 
   @Override
-  public LogoutResponse extractSamlLogoutResponse(String samlLogoutResponse)
-      throws XMLStreamException, WSSecurityException {
-    return extract(samlLogoutResponse, LogoutResponse.class);
+  public LogoutWrapper<LogoutResponse> extractSamlLogoutResponse(String samlLogoutResponse)
+      throws XMLStreamException, LogoutSecurityException {
+    return extractResponse(samlLogoutResponse);
   }
 
   @Override
-  public LogoutRequest extractSamlLogoutRequest(String samlLogoutResponse)
-      throws XMLStreamException, WSSecurityException {
-    return extract(samlLogoutResponse, LogoutRequest.class);
+  public LogoutWrapper<LogoutRequest> extractSamlLogoutRequest(String samlLogoutResponse)
+      throws XMLStreamException, LogoutSecurityException {
+    return extractRequest(samlLogoutResponse);
   }
 
   /**
@@ -132,12 +154,12 @@ public class LogoutMessageImpl implements LogoutMessage {
    * @return the built <code>LogoutRequest</code>
    */
   @Override
-  public LogoutRequest buildLogoutRequest(
+  public LogoutWrapper<LogoutRequest> buildLogoutRequest(
       String nameIdString, String issuerOrEntityId, List<String> sessionIndexes) {
     return buildLogoutRequest(nameIdString, issuerOrEntityId, generateId(), sessionIndexes);
   }
 
-  public LogoutRequest buildLogoutRequest(
+  public LogoutWrapper<LogoutRequest> buildLogoutRequest(
       String nameIdString, String issuerOrEntityId, String id, List<String> sessionIndexes) {
     if (nameIdString == null) {
       throw new IllegalArgumentException("Name ID cannot be null");
@@ -167,12 +189,13 @@ public class LogoutMessageImpl implements LogoutMessage {
    * @return LogoutResponse
    */
   @Override
-  public LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue) {
+  public LogoutWrapper<LogoutResponse> buildLogoutResponse(
+      String issuerOrEntityId, String statusCodeValue) {
     return buildLogoutResponse(issuerOrEntityId, statusCodeValue, null);
   }
 
   @Override
-  public LogoutResponse buildLogoutResponse(
+  public LogoutWrapper<LogoutResponse> buildLogoutResponse(
       String issuerOrEntityId, String statusCodeValue, String inResponseTo) {
     Validate.notNull(issuerOrEntityId, ISSUER_CANNOT_BE_NULL_MSG);
     Validate.notNull(statusCodeValue, "Status Code cannot be null");
@@ -185,7 +208,7 @@ public class LogoutMessageImpl implements LogoutMessage {
   }
 
   @Override
-  public LogoutResponse buildLogoutResponse(
+  public LogoutWrapper<LogoutResponse> buildLogoutResponse(
       String issuerOrEntityId,
       String topLevelStatusCode,
       String secondLevelStatusCode,
@@ -203,19 +226,26 @@ public class LogoutMessageImpl implements LogoutMessage {
   }
 
   @Override
-  public Element getElementFromSaml(XMLObject xmlObject) throws WSSecurityException {
-    Document doc = DOMUtils.createDocument();
-    doc.appendChild(doc.createElement("root"));
-    return OpenSAMLUtil.toDom(xmlObject, doc);
+  public Element getElementFromSaml(LogoutWrapper xmlObject) throws LogoutSecurityException {
+    try {
+      Document doc = DOMUtils.createDocument();
+      doc.appendChild(doc.createElement("root"));
+      return OpenSAMLUtil.toDom((XMLObject) xmlObject.getMessage(), doc);
+    } catch (WSSecurityException e) {
+      throw new LogoutSecurityException(e);
+    }
   }
 
   @Override
   public String sendSamlLogoutRequest(
-      LogoutRequest request, String targetUri, boolean isSoap, @Nullable Cookie cookie)
-      throws IOException, WSSecurityException {
-    XMLObject xmlObject = isSoap ? SamlProtocol.createSoapMessage(request) : request;
+      LogoutWrapper request, String targetUri, boolean isSoap, @Nullable Cookie cookie)
+      throws IOException, LogoutSecurityException {
+    XMLObject xmlObject =
+        isSoap
+            ? SamlProtocol.createSoapMessage((SignableSAMLObject) request.getMessage())
+            : (XMLObject) request;
 
-    Element requestElement = getElementFromSaml(xmlObject);
+    Element requestElement = getElementFromSaml(new LogoutWrapperImpl(xmlObject));
     String requestMessage = DOM2Writer.nodeToString(requestElement);
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
       HttpPost post = new HttpPost(targetUri);
@@ -244,37 +274,43 @@ public class LogoutMessageImpl implements LogoutMessage {
   }
 
   @Override
-  public URI signSamlGetResponse(SAMLObject samlObject, URI target, String relayState)
-      throws WSSecurityException, SimpleSign.SignatureException, IOException {
+  public URI signSamlGetResponse(LogoutWrapper samlObject, URI target, String relayState)
+      throws LogoutSecurityException, SignatureException, IOException {
 
     return signSamlGet(samlObject, target, relayState, SSOConstants.SAML_RESPONSE);
   }
 
   @Override
-  public URI signSamlGetRequest(SAMLObject samlObject, URI target, String relayState)
-      throws WSSecurityException, SimpleSign.SignatureException, IOException {
+  public URI signSamlGetRequest(LogoutWrapper samlObject, URI target, String relayState)
+      throws LogoutSecurityException, SignatureException, IOException {
 
     return signSamlGet(samlObject, target, relayState, SSOConstants.SAML_REQUEST);
   }
 
-  private URI signSamlGet(SAMLObject samlObject, URI target, String relayState, String requestType)
-      throws WSSecurityException, SimpleSign.SignatureException, IOException {
-    Document doc = DOMUtils.createDocument();
-    doc.appendChild(doc.createElement("root"));
-    RestSecurity restSecurity = new RestSecurity();
-    String encodedResponse =
-        URLEncoder.encode(
-            restSecurity.deflateAndBase64Encode(
-                DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlObject, doc, false))),
-            "UTF-8");
-    String requestToSign =
-        String.format(
-            "%s=%s&%s=%s", requestType, encodedResponse, SSOConstants.RELAY_STATE, relayState);
-    UriBuilder uriBuilder = UriBuilder.fromUri(target);
-    uriBuilder.queryParam(requestType, encodedResponse);
-    uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState);
-    new SimpleSign(systemCrypto).signUriString(requestToSign, uriBuilder);
-    return uriBuilder.build();
+  private URI signSamlGet(
+      LogoutWrapper samlObject, URI target, String relayState, String requestType)
+      throws LogoutSecurityException, SignatureException, IOException {
+    try {
+      Document doc = DOMUtils.createDocument();
+      doc.appendChild(doc.createElement("root"));
+      RestSecurity restSecurity = new RestSecurity();
+      String encodedResponse =
+          URLEncoder.encode(
+              restSecurity.deflateAndBase64Encode(
+                  DOM2Writer.nodeToString(
+                      OpenSAMLUtil.toDom((XMLObject) samlObject.getMessage(), doc, false))),
+              "UTF-8");
+      String requestToSign =
+          String.format(
+              "%s=%s&%s=%s", requestType, encodedResponse, SSOConstants.RELAY_STATE, relayState);
+      UriBuilder uriBuilder = UriBuilder.fromUri(target);
+      uriBuilder.queryParam(requestType, encodedResponse);
+      uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState);
+      new SimpleSign(systemCrypto).signUriString(requestToSign, uriBuilder);
+      return uriBuilder.build();
+    } catch (WSSecurityException e) {
+      throw new LogoutSecurityException(e);
+    }
   }
 
   public void setSystemCrypto(SystemCrypto systemCrypto) {

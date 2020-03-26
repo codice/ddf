@@ -20,14 +20,16 @@ import ddf.security.http.SessionFactory;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.RequestBuilder;
+import ddf.security.liberty.paos.impl.RequestImpl;
 import ddf.security.liberty.paos.impl.RequestMarshaller;
 import ddf.security.liberty.paos.impl.RequestUnmarshaller;
 import ddf.security.liberty.paos.impl.ResponseBuilder;
 import ddf.security.liberty.paos.impl.ResponseMarshaller;
 import ddf.security.liberty.paos.impl.ResponseUnmarshaller;
-import ddf.security.samlp.SamlProtocol;
-import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.SignatureException;
 import ddf.security.samlp.impl.RelayStates;
+import ddf.security.samlp.impl.SamlProtocol;
+import ddf.security.samlp.impl.SimpleSign;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -66,9 +68,10 @@ import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.util.HttpUtils;
+import org.codice.ddf.security.handler.HandlerResultImpl;
+import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.jaxrs.RestSecurity;
 import org.codice.ddf.security.util.SAMLUtils;
 import org.joda.time.DateTime;
@@ -244,7 +247,7 @@ public class IdpHandler implements AuthenticationHandler {
         throw new AuthenticationFailureException(
             "Unable to send response to HEAD message from IdP client.");
       }
-      return new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+      return new HandlerResultImpl(HandlerResult.Status.NO_ACTION, null);
     }
 
     LOGGER.trace("Checking for assertion in HTTP header.");
@@ -264,10 +267,10 @@ public class IdpHandler implements AuthenticationHandler {
       // it isn't going to understand the redirect to the IdP and it doesn't support ECP
       // so we need to fall back to other handlers to allow it to log in using PKI, Basic or Guest
 
-      return new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+      return new HandlerResultImpl(HandlerResult.Status.NO_ACTION, null);
     }
 
-    HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
+    HandlerResult handlerResult = new HandlerResultImpl(HandlerResult.Status.REDIRECTED, null);
     handlerResult.setSource(SOURCE);
 
     String path = httpRequest.getServletPath();
@@ -288,12 +291,14 @@ public class IdpHandler implements AuthenticationHandler {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     String authHeader =
         ((HttpServletRequest) request).getHeader(SecurityConstants.SAML_HEADER_NAME);
-    HandlerResult handlerResult = new HandlerResult();
+    HandlerResult handlerResult = new HandlerResultImpl();
 
     // check for full SAML assertions coming in (federated requests, etc.)
     if (authHeader != null) {
       String[] tokenizedAuthHeader = authHeader.split(" ");
-      if (tokenizedAuthHeader.length == 2 && tokenizedAuthHeader[0].equals("SAML")) {
+      if (tokenizedAuthHeader.length == 2
+          && tokenizedAuthHeader[0].equals("SAML")
+          && restSecurity != null) {
         String encodedSamlAssertion = tokenizedAuthHeader[1];
         LOGGER.trace("Header retrieved");
         try {
@@ -319,7 +324,7 @@ public class IdpHandler implements AuthenticationHandler {
     // Check for legacy SAML cookie
     Map<String, Cookie> cookies = HttpUtils.getCookieMap(httpRequest);
     Cookie samlCookie = cookies.get(SecurityConstants.SAML_COOKIE_NAME);
-    if (samlCookie != null) {
+    if (samlCookie != null && restSecurity != null) {
       String cookieValue = samlCookie.getValue();
       LOGGER.trace("Cookie retrieved");
       try {
@@ -373,7 +378,7 @@ public class IdpHandler implements AuthenticationHandler {
 
   private HandlerResult doPaosRequest(ServletRequest request, ServletResponse response) {
     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-    HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
+    HandlerResult handlerResult = new HandlerResultImpl(HandlerResult.Status.REDIRECTED, null);
     handlerResult.setSource(SOURCE);
     String paosHeader = ((HttpServletRequest) request).getHeader(PAOS);
 
@@ -446,7 +451,7 @@ public class IdpHandler implements AuthenticationHandler {
     String spIssuerId = getSpIssuerId();
     String spAssertionConsumerServiceUrl = getSpAssertionConsumerServiceUrl(spIssuerId);
     RequestBuilder requestBuilder = new RequestBuilder();
-    Request paosRequest = requestBuilder.buildObject();
+    RequestImpl paosRequest = requestBuilder.buildObject();
     paosRequest.setResponseConsumerURL(spAssertionConsumerServiceUrl);
     paosRequest.setMessageID(createRelayState(request));
     paosRequest.setService(Request.ECP_SERVICE);
@@ -528,7 +533,7 @@ public class IdpHandler implements AuthenticationHandler {
     } catch (UnsupportedEncodingException e) {
       LOGGER.info("Unable to encode relay state: {}", relayState, e);
       throw new AuthenticationFailureException("Unable to create return location");
-    } catch (SimpleSign.SignatureException e) {
+    } catch (SignatureException e) {
       String msg = "Unable to sign request";
       LOGGER.info(msg, e);
       throw new AuthenticationFailureException(msg);
@@ -640,7 +645,7 @@ public class IdpHandler implements AuthenticationHandler {
     } catch (WSSecurityException e) {
       LOGGER.info(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST, e);
       throw new AuthenticationFailureException(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST);
-    } catch (SimpleSign.SignatureException e) {
+    } catch (SignatureException e) {
       LOGGER.info(UNABLE_TO_SIGN_SAML_AUTHN_REQUEST, e);
       throw new AuthenticationFailureException(UNABLE_TO_SIGN_SAML_AUTHN_REQUEST);
     }
@@ -654,7 +659,7 @@ public class IdpHandler implements AuthenticationHandler {
       } else {
         return encodeRedirectRequest(requestMessage);
       }
-    } catch (WSSecurityException | IOException e) {
+    } catch (IOException e) {
       LOGGER.info(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST, e);
       throw new AuthenticationFailureException(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST);
     }
@@ -664,11 +669,14 @@ public class IdpHandler implements AuthenticationHandler {
     return relayStates.encode(recreateFullRequestUrl(request));
   }
 
-  private String encodeRedirectRequest(String request) throws WSSecurityException, IOException {
+  private String encodeRedirectRequest(String request) throws IOException {
+    if (restSecurity == null) {
+      throw new IOException("Unable to encode because encoder doesn't exist yet.");
+    }
     return URLEncoder.encode(restSecurity.deflateAndBase64Encode(request), "UTF-8");
   }
 
-  private String encodePostRequest(String request) throws WSSecurityException {
+  private String encodePostRequest(String request) {
     return Base64.getEncoder().encodeToString(request.getBytes(StandardCharsets.UTF_8));
   }
 
@@ -699,7 +707,7 @@ public class IdpHandler implements AuthenticationHandler {
   public HandlerResult handleError(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
       throws AuthenticationFailureException {
-    HandlerResult result = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+    HandlerResult result = new HandlerResultImpl(HandlerResult.Status.NO_ACTION, null);
     result.setSource(SOURCE);
     LOGGER.debug("In error handler for idp - no action taken.");
     return result;

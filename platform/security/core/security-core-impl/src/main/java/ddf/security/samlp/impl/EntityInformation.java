@@ -16,8 +16,7 @@ package ddf.security.samlp.impl;
 import static java.util.Objects.nonNull;
 
 import com.google.common.collect.ImmutableSet;
-import ddf.security.samlp.SamlProtocol;
-import ddf.security.samlp.SamlProtocol.Binding;
+import ddf.security.samlp.impl.SamlProtocol.Binding;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;

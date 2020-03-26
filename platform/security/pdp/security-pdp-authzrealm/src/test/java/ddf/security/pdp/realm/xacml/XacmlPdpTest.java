@@ -22,6 +22,8 @@ import ddf.security.pdp.realm.xacml.processor.PdpException;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -147,7 +149,7 @@ public class XacmlPdpTest {
         testRealm.createXACMLRequest(
             USER_NAME,
             generateSubjectInfo(TEST_COUNTRY),
-            new KeyValueCollectionPermission(QUERY_ACTION));
+            new KeyValueCollectionPermissionImpl(QUERY_ACTION));
 
     assertThat(testRealm.isPermitted(request), equalTo(true));
   }
@@ -156,7 +158,9 @@ public class XacmlPdpTest {
   public void testActionBadCountry() {
     RequestType request =
         testRealm.createXACMLRequest(
-            USER_NAME, generateSubjectInfo("CAN"), new KeyValueCollectionPermission(QUERY_ACTION));
+            USER_NAME,
+            generateSubjectInfo("CAN"),
+            new KeyValueCollectionPermissionImpl(QUERY_ACTION));
 
     assertThat(testRealm.isPermitted(request), equalTo(false));
   }
@@ -167,7 +171,7 @@ public class XacmlPdpTest {
     blankUserInfo.setObjectPermissions(new HashSet<Permission>());
     RequestType request =
         testRealm.createXACMLRequest(
-            USER_NAME, blankUserInfo, new KeyValueCollectionPermission(SITE_NAME_ACTION));
+            USER_NAME, blankUserInfo, new KeyValueCollectionPermissionImpl(SITE_NAME_ACTION));
 
     assertThat(testRealm.isPermitted(request), equalTo(true));
   }
@@ -177,7 +181,9 @@ public class XacmlPdpTest {
 
     RequestType request =
         testRealm.createXACMLRequest(
-            USER_NAME, generateSubjectInfo(TEST_COUNTRY), new KeyValueCollectionPermission("bad"));
+            USER_NAME,
+            generateSubjectInfo(TEST_COUNTRY),
+            new KeyValueCollectionPermissionImpl("bad"));
 
     assertThat(testRealm.isPermitted(request), equalTo(false));
   }
@@ -189,7 +195,7 @@ public class XacmlPdpTest {
     security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A, ACCESS_TYPE_B));
 
     KeyValueCollectionPermission resourcePermissions =
-        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, security);
+        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION, security);
 
     RequestType request =
         testRealm.createXACMLRequest(
@@ -205,7 +211,7 @@ public class XacmlPdpTest {
     security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A));
 
     KeyValueCollectionPermission resourcePermissions =
-        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, security);
+        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION, security);
     RequestType request =
         testRealm.createXACMLRequest(
             USER_NAME, generateSubjectInfo(TEST_COUNTRY), resourcePermissions);
@@ -220,7 +226,7 @@ public class XacmlPdpTest {
     security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A, ACCESS_TYPE_B, ACCESS_TYPE_C));
 
     KeyValueCollectionPermission resourcePermissions =
-        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, security);
+        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION, security);
     RequestType request =
         testRealm.createXACMLRequest(
             USER_NAME, generateSubjectInfo(TEST_COUNTRY), resourcePermissions);
@@ -300,7 +306,7 @@ public class XacmlPdpTest {
         testRealm.createXACMLRequest(
             USER_NAME,
             generateSubjectInfo(TEST_COUNTRY),
-            new KeyValueCollectionPermission(QUERY_ACTION));
+            new KeyValueCollectionPermissionImpl(QUERY_ACTION));
 
     List<AttributesType> attributes = request.getAttributes();
 
@@ -331,18 +337,18 @@ public class XacmlPdpTest {
     roles.add("admin");
 
     // add permissions
-    KeyValuePermission citizenshipPermission = new KeyValuePermission(COUNTRY);
+    KeyValuePermission citizenshipPermission = new KeyValuePermissionImpl(COUNTRY);
     citizenshipPermission.addValue(country);
     permissions.add(citizenshipPermission);
 
-    KeyValuePermission typePermission = new KeyValuePermission(SUBJECT_ACCESS);
+    KeyValuePermission typePermission = new KeyValuePermissionImpl(SUBJECT_ACCESS);
     typePermission.addValue(ACCESS_TYPE_A);
     typePermission.addValue(ACCESS_TYPE_B);
 
-    KeyValuePermission nameIdentPermission = new KeyValuePermission(NAME_IDENTIFIER);
+    KeyValuePermission nameIdentPermission = new KeyValuePermissionImpl(NAME_IDENTIFIER);
     nameIdentPermission.addValue("testuser1");
 
-    KeyValuePermission givenNamePermission = new KeyValuePermission(GIVEN_NAME);
+    KeyValuePermission givenNamePermission = new KeyValuePermissionImpl(GIVEN_NAME);
     givenNamePermission.addValue("Test User");
 
     permissions.add(typePermission);
