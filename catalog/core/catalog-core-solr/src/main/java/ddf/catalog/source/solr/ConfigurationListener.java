@@ -18,8 +18,6 @@ package ddf.catalog.source.solr;
  */
 public interface ConfigurationListener {
 
-  /**
-   * Invoked when any configuration item is updated in the <code>ConfigurationStore</code>
-   */
+  /** Invoked when any configuration item is updated in the <code>ConfigurationStore</code> */
   void configurationUpdated();
 }

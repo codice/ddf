@@ -135,8 +135,6 @@ public class ConfigurationStore {
   }
 
   private void notifyListeners() {
-    listeners
-        .stream()
-        .forEach(listener -> new Thread(() -> listener.configurationUpdated()).start());
+    listeners.stream().forEach(listener -> listener.configurationUpdated());
   }
 }

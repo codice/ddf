@@ -14,11 +14,15 @@
 package ddf.catalog.source.solr;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.eq;
@@ -45,6 +49,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -357,5 +362,78 @@ public class DynamicSchemaResolverTest {
     assertThat(
         dynamicSchemaResolver.getField("unknown", AttributeFormat.STRING, true, enabledFeatures),
         is("unknown_txt"));
+  }
+
+  @Test
+  public void testAnyTextWhitelist() {
+    ConfigurationStore config = ConfigurationStore.getInstance();
+    List<String> resultList = new ArrayList<>();
+    List<String> addedFields = Arrays.asList("one_txt", "example.one_txt", "example.two_txt");
+    addedFields.stream().forEach(field -> dynamicSchemaResolver.anyTextFieldsCache.add(field));
+
+    config.setAnyTextFieldWhitelist(Arrays.asList("one"));
+
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList.size(), is(1));
+    assertThat(resultList, contains("one_txt"));
+
+    config.setAnyTextFieldWhitelist(Arrays.asList("one", "example.*"));
+    resultList.clear();
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList.size(), is(3));
+    assertThat(resultList, containsInAnyOrder("one_txt", "example.one_txt", "example.two_txt"));
+
+    config.setAnyTextFieldWhitelist(new ArrayList<>());
+    addedFields.stream().forEach(field -> dynamicSchemaResolver.anyTextFieldsCache.remove(field));
+  }
+
+  @Test
+  public void testAnyTextBlacklist() {
+    ConfigurationStore config = ConfigurationStore.getInstance();
+    List<String> resultList = new ArrayList<>();
+    List<String> addedFields = Arrays.asList("one_txt", "example.one_txt", "example.two_txt");
+    addedFields.stream().forEach(field -> dynamicSchemaResolver.anyTextFieldsCache.add(field));
+
+    config.setAnyTextFieldBlacklist(Arrays.asList("one"));
+
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList, not(hasItem("one_txt")));
+
+    config.setAnyTextFieldBlacklist(Arrays.asList("one", "example.*"));
+    resultList.clear();
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList, not(hasItems("one_txt", "example.one_txt", "example.two_txt")));
+
+    config.setAnyTextFieldBlacklist(new ArrayList<>());
+    addedFields.stream().forEach(field -> dynamicSchemaResolver.anyTextFieldsCache.remove(field));
+  }
+
+  @Test
+  public void testAnyTextBlacklistAndWhitelist() {
+    ConfigurationStore config = ConfigurationStore.getInstance();
+    List<String> resultList = new ArrayList<>();
+    List<String> addedFields = Arrays.asList("one_txt", "example.one_txt", "example.two_txt");
+    addedFields.stream().forEach(field -> dynamicSchemaResolver.anyTextFieldsCache.add(field));
+
+    config.setAnyTextFieldBlacklist(Arrays.asList("example.*"));
+
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList, not(hasItems("example.one_txt", "example.two_txt")));
+
+    config.setAnyTextFieldWhitelist(Arrays.asList("example.one"));
+    resultList.clear();
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList, hasItem("example.one_txt"));
+    assertThat(resultList, not(hasItem("example.two_txt")));
+
+    config.setAnyTextFieldWhitelist(new ArrayList<>());
+    config.setAnyTextFieldBlacklist(new ArrayList<>());
+    addedFields.stream().forEach(field -> dynamicSchemaResolver.anyTextFieldsCache.remove(field));
   }
 }
