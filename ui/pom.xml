@@ -376,14 +376,9 @@
                                     <classifier>sources-module</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/resourcemanagement-querymonitor-ui/target/resourcemanagement-querymonitor-ui.jar</file>
+                                    <file>packages/security-handler-guest/target/guest-security-handler.jar</file>
                                     <type>jar</type>
-                                    <classifier>resourcemanagement-querymonitor-ui</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>packages/resourcemanagement-usage-ui/target/resourcemanagement-usage-ui.jar</file>
-                                    <type>jar</type>
-                                    <classifier>resourcemanagement-usage-ui</classifier>
+                                    <classifier>guest-security-handler</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>packages/security-logout/target/security-logout.jar</file>
