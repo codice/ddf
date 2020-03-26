@@ -26,8 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,13 +49,12 @@ public class CsvMetacardTransformer implements MetacardTransformer {
     Map<String, String> aliases =
         (Map<String, String>) arguments.getOrDefault("aliases", new HashMap<>());
     String attributeString = (String) arguments.get("columnOrder");
-    List<String> attributes =
-        new ArrayList<String>(Arrays.asList((attributeString).split(",")));
+    List<String> attributes = new ArrayList<String>(Arrays.asList((attributeString).split(",")));
     List<AttributeDescriptor> allAttributes =
         new ArrayList<AttributeDescriptor>(metacard.getMetacardType().getAttributeDescriptors());
     List<AttributeDescriptor> descriptors =
         new ArrayList<AttributeDescriptor>(
-            attributes == null || attributes.isEmpty()
+            CollectionUtils.isEmpty(attributes)
                 ? allAttributes
                 : allAttributes
                     .stream()
