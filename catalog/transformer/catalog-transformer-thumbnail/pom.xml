@@ -15,7 +15,7 @@
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
-        <version>2.20.1</version>
+        <version>2.20.2-SNAPSHOT</version>
     </parent>
     <groupId>ddf.catalog.transformer</groupId>
     <artifactId>catalog-transformer-thumbnail</artifactId>
