@@ -138,7 +138,8 @@ function removeImpertinentFailures(queryId) {
   if (failedQueries[queryId]) {
     _.forEach(failedQueries[queryId].failures, (timeRanges, srcId) => {
       if (
-        failedQueries[queryId].originalQuery.get('src').indexOf(srcId) === -1
+        failedQueries[queryId].originalQuery.get('sources').indexOf(srcId) ===
+        -1
       ) {
         delete failedQueries[queryId].failures[srcId]
       }
@@ -218,7 +219,7 @@ handleReattempts = function() {
         }
         const queryToRun = subset.originalQuery.clone()
         queryToRun.set('federation', 'selected')
-        queryToRun.set('src', [srcId])
+        queryToRun.set('sources', [srcId])
         queryToRun.set(
           'cql',
           addTimeRangeToCQLString(subset.originalQuery, timeRange)
@@ -238,7 +239,7 @@ module.exports = {
   handleAddingQuery(query) {
     this.handleRemovingQuery(query)
     query.listenTo(query, 'change:polling', this.handlePollingUpdate.bind(this))
-    query.listenTo(query, 'change:src', this.handleSrcUpdate.bind(this))
+    query.listenTo(query, 'change:sources', this.handleSrcUpdate.bind(this))
     query.listenTo(query, 'change:federation', this.handleSrcUpdate.bind(this))
     const polling = query.get('polling')
     if (polling) {

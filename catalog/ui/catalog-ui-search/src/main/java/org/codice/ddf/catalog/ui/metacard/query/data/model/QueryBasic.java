@@ -76,7 +76,7 @@ public class QueryBasic {
   @SerializedName("enterprise")
   private Boolean enterprise;
 
-  @SerializedName("src")
+  @SerializedName("sources")
   private List<String> sources;
 
   @SerializedName("sorts")

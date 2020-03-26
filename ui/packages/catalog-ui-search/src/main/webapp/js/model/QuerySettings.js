@@ -19,7 +19,7 @@ module.exports = Backbone.Model.extend({
   defaults() {
     return {
       type: 'text',
-      src: undefined,
+      sources: undefined,
       federation: 'enterprise',
       sorts: [
         {
