@@ -37,7 +37,7 @@ module.exports = Marionette.LayoutView.extend({
     'click .footer-delete': 'handleDelete',
   },
   initialize(options) {
-    this._useremail = userInstance.get('user').get('email')
+    this._userId = userInstance.getUserId()
     this._parent = options.parent
   },
   handleDelete() {
@@ -105,7 +105,7 @@ module.exports = Marionette.LayoutView.extend({
   canModify() {
     this.$el.toggleClass(
       'is-modifiable',
-      this._useremail === this.model.attributes.owner
+      this._userId === this.model.attributes.owner
     )
   },
   toggleDeleting() {
