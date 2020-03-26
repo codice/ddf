@@ -83,6 +83,7 @@
                         </Embed-Dependency>
                         <Import-Package>
                             !com.fasterxml.jackson*,
+                            !org.noggit*,
                             *
                         </Import-Package>
                     </instructions>

@@ -443,10 +443,20 @@ public final class SolrClientAdapter extends SolrClientProxy
 
   @Override
   // overridden to always send the ping to the client; avoiding the intercept in handle()
-  // which goes throw getProxiedClient() which would throw back an unavailable error instead of
+  // which goes through getProxiedClient() which would throw back an unavailable error instead of
   // returning the response
   public SolrPingResponse ping() throws SolrServerException, IOException {
-    return ping("from the API");
+    LOGGER.debug("Solr: pinging the client from the API");
+    return clientPing(null);
+  }
+
+  @Override
+  // overridden to always send the ping to the client; avoiding the intercept in handle()
+  // which goes through getProxiedClient() which would throw back an unavailable error instead of
+  // returning the response
+  public SolrPingResponse ping(String collection) throws SolrServerException, IOException {
+    LOGGER.debug("Solr({}): pinging the client from the API", core);
+    return clientPing(collection);
   }
 
   @Override
@@ -786,15 +796,20 @@ public final class SolrClientAdapter extends SolrClientProxy
   }
 
   private SolrPingResponse backgroundPing() throws SolrServerException, IOException {
-    return ping("in the background");
+    LOGGER.debug("Solr: pinging the client in the background");
+    return clientPing(null);
   }
 
   @SuppressWarnings("squid:S1181" /* bubbling out VirtualMachineError */)
-  private SolrPingResponse ping(String how) throws SolrServerException, IOException {
-    LOGGER.debug("Solr({}): pinging the client {}", core, how);
+  private SolrPingResponse clientPing(String collection) throws SolrServerException, IOException {
     try {
       lastPing.set(System.currentTimeMillis());
-      final SolrPingResponse response = pingClient.ping();
+      final SolrPingResponse response;
+      if (collection != null) {
+        response = pingClient.ping(collection);
+      } else {
+        response = pingClient.ping();
+      }
 
       if (response == null) {
         LOGGER.debug(SolrClientAdapter.FAILED_TO_PING, core, "null response");

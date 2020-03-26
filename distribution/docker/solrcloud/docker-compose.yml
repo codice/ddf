@@ -5,22 +5,23 @@ version: '3.7'
 services:
 
   zoo:
-    image: zookeeper:3.4
+    image: zookeeper:3.5
     container_name: zoo
     restart: always
     ports:
       - "2181:2181"
+      - "2182:8080"
     environment:
       ZOO_MY_ID: 1
-      ZOO_SERVERS: server.1=zoo:2888:3888
-      JVMFLAGS: -Djute.maxbuffer=2097152
+      ZOO_SERVERS: server.1=zoo:2888:3888:participant;2181
+      JVMFLAGS: -Djute.maxbuffer=2097152 -Dzookeeper.4lw.commands.whitelist=mntr,conf,ruok
     volumes:
       - zoo_data:/data
     networks:
       - solrcloud
 
   solr1:
-    image: codice/ddf-solr:2.22.0-SNAPSHOT
+    image: codice/ddf-solr:2.24.0-SNAPSHOT
     container_name: solr1
     hostname: localhost
     restart: always
@@ -30,34 +31,30 @@ services:
       - "8994:8994"
       - "8995:8995"
     environment:
-      - SOLR_HOME=/opt/solr/server/solr/nodes/node1
       - SOLR_HOST=localhost
       - SOLR_PORT=8994
-      - SOLR_OPTS=-Djute.maxbuffer=0x200000
+      - SOLR_OPTS=-Djute.maxbuffer=2097152
       - ZK_HOST=zoo:2181
     volumes:
-      - ./solr.xml:/opt/solr/server/solr/nodes/node1/solr.xml
-      - solr1_data:/opt/solr/server/solr/nodes/node1
+      - solr1_data:/var/solr
     networks:
       - solrcloud
     depends_on:
       - zoo
 
   solr2:
-    image: codice/ddf-solr:2.22.0-SNAPSHOT
+    image: codice/ddf-solr:2.24.0-SNAPSHOT
     container_name: solr2
     restart: always
     entrypoint: docker-entrypoint.sh
     command: solr-fg
     environment:
-      - SOLR_HOME=/opt/solr/server/solr/nodes/node2
       - SOLR_HOST=localhost
       - SOLR_PORT=8995
-      - SOLR_OPTS=-Djute.maxbuffer=0x200000
+      - SOLR_OPTS=-Djute.maxbuffer=2097152
       - ZK_HOST=zoo:2181
     volumes:
-      - ./solr.xml:/opt/solr/server/solr/nodes/node2/solr.xml
-      - solr2_data:/opt/solr/server/solr/nodes/node2
+      - solr2_data:/var/solr
     network_mode: "service:solr1"
     depends_on:
       - zoo

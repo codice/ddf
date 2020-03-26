@@ -97,6 +97,21 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper-jute</artifactId>
+            <version>${solr.zookeeper.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.locationtech.spatial4j</groupId>
             <artifactId>spatial4j</artifactId>
             <version>${spatial4j.version}</version>
@@ -105,11 +120,6 @@
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
             <version>${jts.spatial4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.noggit</groupId>
-            <artifactId>noggit</artifactId>
-            <version>${solr.noggit.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -127,7 +137,7 @@
                             org.apache.solr.client.solrj.*;version=${solr.version},
                             org.apache.solr.common.*;version=${solr.version},
                             org.apache.zookeeper.*;version=${solr.zookeeper.version},
-                            org.noggit;version=${solr.noggit.version},
+                            com.fasterxml.jackson.*;version=${jackson.version},
 
                             <!-- used by solr-factory implementation -->
                             org.apache.solr.client.solrj.embedded;version=${solr.version},
@@ -156,8 +166,8 @@
                             solr-solrj,
                             commons-io,
                             httpmime,
-                            noggit,
                             zookeeper,
+                            zookeeper-jute,
                             spatial4j,
                             jts-core,
                             lux

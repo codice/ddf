@@ -109,7 +109,7 @@
                             org.apache.zookeeper.client;version=${solr.zookeeper.version},
                             org.apache.zookeeper.data;version=${solr.zookeeper.version},
                             org.apache.zookeeper.proto;version=${solr.zookeeper.version},
-                            org.noggit;version=${solr.noggit.version},
+                            com.fasterxml.jackson.*;version=${jackson.version},
 
                             <!-- used by  lux -->
                             org.apache.lucene.analysis.charfilter;version=${solr.version},

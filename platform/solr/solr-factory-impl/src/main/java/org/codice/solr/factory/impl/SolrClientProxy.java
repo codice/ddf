@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.solr.client.solrj.FastStreamingDocsCallback;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
@@ -381,6 +382,11 @@ public abstract class SolrClientProxy extends SolrClient {
   }
 
   @Override
+  public SolrPingResponse ping(String collection) throws SolrServerException, IOException {
+    return handle(c -> c.ping(collection));
+  }
+
+  @Override
   public QueryResponse query(String collection, SolrParams params)
       throws SolrServerException, IOException {
     return handle(c -> c.query(collection, params));
@@ -406,6 +412,13 @@ public abstract class SolrClientProxy extends SolrClient {
   @Override
   public QueryResponse queryAndStreamResponse(
       String collection, SolrParams params, StreamingResponseCallback callback)
+      throws SolrServerException, IOException {
+    return handle(c -> c.queryAndStreamResponse(collection, params, callback));
+  }
+
+  @Override
+  public QueryResponse queryAndStreamResponse(
+      String collection, SolrParams params, FastStreamingDocsCallback callback)
       throws SolrServerException, IOException {
     return handle(c -> c.queryAndStreamResponse(collection, params, callback));
   }
