@@ -47,11 +47,11 @@ public class CsvMetacardTransformer implements MetacardTransformer {
     Map<String, String> aliases =
         (Map<String, String>) arguments.getOrDefault("aliases", new HashMap<>());
     String attributeString = (String) arguments.get("columnOrder");
-    ArrayList<String> attributes =
+    List<String> attributes =
         new ArrayList<String>(Arrays.asList((attributeString).split(",")));
-    ArrayList<AttributeDescriptor> allAttributes =
+    List<AttributeDescriptor> allAttributes =
         new ArrayList<AttributeDescriptor>(metacard.getMetacardType().getAttributeDescriptors());
-    ArrayList<AttributeDescriptor> descriptors =
+    List<AttributeDescriptor> descriptors =
         new ArrayList<AttributeDescriptor>(
             attributes == null || attributes.isEmpty()
                 ? allAttributes
