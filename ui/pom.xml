@@ -376,11 +376,6 @@
                                     <classifier>sources-module</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/security-handler-guest/target/guest-security-handler.jar</file>
-                                    <type>jar</type>
-                                    <classifier>guest-security-handler</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>packages/security-logout/target/security-logout.jar</file>
                                     <type>jar</type>
                                     <classifier>security-logout</classifier>
