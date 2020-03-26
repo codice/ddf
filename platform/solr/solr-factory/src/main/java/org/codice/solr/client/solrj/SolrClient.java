@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.apache.solr.client.solrj.FastStreamingDocsCallback;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.StreamingResponseCallback;
@@ -767,6 +768,17 @@ public interface SolrClient extends Closeable {
       throws SolrServerException, IOException;
 
   /**
+   * Issues a ping request to check if the collection's replicas are alive
+   *
+   * @param collection the Solr collection to ping
+   * @return a {@link SolrPingResponse} containing the response from the server
+   * @throws IOException If there is a low-level I/O error.
+   * @throws SolrServerException if there is an error on the server
+   * @throws UnavailableSolrException if the Solr server or the core is unavailable
+   */
+  public SolrPingResponse ping(String collection) throws SolrServerException, IOException;
+
+  /**
    * Issues a ping request to check if the server is alive
    *
    * @return a {@link SolrPingResponse} containing the response from the server
@@ -845,6 +857,19 @@ public interface SolrClient extends Closeable {
    */
   public QueryResponse queryAndStreamResponse(
       String collection, SolrParams params, StreamingResponseCallback callback)
+      throws SolrServerException, IOException;
+
+  /**
+   * @param collection the Solr collection to query
+   * @param params an object holding all key/value parameters to send along the request
+   * @param callback the callback to stream results to
+   * @return a {@link QueryResponse} containing the response from the server
+   * @throws IOException If there is a low-level I/O error.
+   * @throws SolrServerException if there is an error on the server
+   * @throws UnavailableSolrException if the Solr server or the core is unavailable
+   */
+  public QueryResponse queryAndStreamResponse(
+      String collection, SolrParams params, FastStreamingDocsCallback callback)
       throws SolrServerException, IOException;
 
   /**

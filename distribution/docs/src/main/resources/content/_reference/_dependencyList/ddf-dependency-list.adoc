@@ -279,8 +279,6 @@
 * org.locationtech.spatial4j:spatial4j:jar:0.7
 * org.mindrot:jbcrypt:jar:0.4
 * org.mockito:mockito-core:jar:1.10.19
-* org.noggit:noggit:jar:0.6
-* org.noggit:noggit:jar:0.8
 * org.objenesis:objenesis:jar:2.5.1
 * org.opensaml:opensaml-core:jar:3.3.0
 * org.opensaml:opensaml-messaging-api:jar:3.3.0

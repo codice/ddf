@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.endpoints.rest;
+package org.codice.ddf.endpoints.rest.it;
 
 import static com.jayway.restassured.RestAssured.when;
 import static org.awaitility.Awaitility.with;

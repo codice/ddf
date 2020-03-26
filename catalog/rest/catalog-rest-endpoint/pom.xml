@@ -246,6 +246,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/AbstractMetacardActionProvider*</exclude>
+                        <exclude>org.codice.ddf.endpoints.rest.it.*</exclude>
                     </excludes>
                 </configuration>
                 <executions>

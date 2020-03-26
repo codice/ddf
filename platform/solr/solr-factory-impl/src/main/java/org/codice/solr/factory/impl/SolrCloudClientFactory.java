@@ -69,11 +69,11 @@ public class SolrCloudClientFactory implements SolrClientFactory {
 
     if (StringUtils.isBlank(zookeeperHosts)) {
       LOGGER.warn(
-          "Cannot create Solr Cloud client without Zookeeper host list system property [solr.cloud.zookeeper] being set.");
+          "Cannot create SolrCloud client without Zookeeper host list system property [solr.cloud.zookeeper] being set.");
       throw new IllegalStateException("system property 'solr.cloud.zookeeper' is not configured");
     }
     LOGGER.debug(
-        "Solr({}): Creating a Solr Cloud client using Zookeeper hosts [{}]", core, zookeeperHosts);
+        "Solr({}): Creating a SolrCloud client using Zookeeper hosts [{}]", core, zookeeperHosts);
     return new SolrClientAdapter(core, () -> createSolrCloudClient(zookeeperHosts, core));
   }
 
@@ -86,19 +86,22 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       try {
         uploadCoreConfiguration(collection, client);
       } catch (SolrFactoryException e) {
-        LOGGER.debug("Solr({}): Unable to upload configuration to Solr Cloud", collection, e);
+        LOGGER.debug("Solr({}): Unable to upload configuration to SolrCloud", collection, e);
         return null;
       }
 
       try {
         createCollection(collection, client);
       } catch (SolrFactoryException e) {
-        LOGGER.debug("Solr({}): Unable to create collection on Solr Cloud", collection, e);
+        LOGGER.debug("Solr({}): Unable to create collection on SolrCloud", collection, e);
         return null;
       }
 
       client.setDefaultCollection(collection);
       return closer.returning(client);
+    } catch (LinkageError | Exception e) {
+      LOGGER.debug("Solr({}): Unable to create SolrCloud client", collection, e);
+      return null;
     }
   }
 

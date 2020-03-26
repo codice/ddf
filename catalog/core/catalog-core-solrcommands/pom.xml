@@ -24,6 +24,11 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
             <version>${project.version}</version>
@@ -231,7 +236,7 @@
                             org.apache.zookeeper.client;version=${solr.zookeeper.version},
                             org.apache.zookeeper.data;version=${solr.zookeeper.version},
                             org.apache.zookeeper.proto;version=${solr.zookeeper.version},
-                            org.noggit;version=${solr.noggit.version},
+                            com.fasterxml.jackson.*;version=${jackson.version},
 
                             <!-- used by  lux -->
                             org.apache.lucene.analysis.charfilter;version=${solr.version},
@@ -305,7 +310,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.66</minimum>
+                                            <minimum>0.60</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

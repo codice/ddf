@@ -1,1 +1,1 @@
-SOLR_OPTS="$SOLR_OPTS -Djute.maxbuffer=0x200000"
+SOLR_OPTS="$SOLR_OPTS -Djute.maxbuffer=2097152"
