@@ -58,6 +58,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
@@ -124,6 +125,16 @@ public class SearchFormsApplication implements SparkApplication {
    */
   @Override
   public void init() {
+    get(
+        "/forms/query/:id",
+        (req, res) -> {
+          String id = req.params("id");
+
+          Metacard metacard = getMetacardIfExistsOrNull(id);
+          FormTemplate form = transformer.toFormTemplate(metacard);
+          return GSON.toJson(form);
+        });
+
     get(
         "/forms/query",
         (req, res) ->
