@@ -50,17 +50,16 @@ public class CsvMetacardTransformer implements MetacardTransformer {
         (Map<String, String>) arguments.getOrDefault("aliases", new HashMap<>());
     String attributeString =
         arguments.get("columnOrder") != null ? (String) arguments.get("columnOrder") : "";
-    List<String> attributes = new ArrayList<String>(Arrays.asList((attributeString).split(",")));
+    List<String> attributes = Arrays.asList((attributeString).split(","));
     List<AttributeDescriptor> allAttributes =
         new ArrayList<AttributeDescriptor>(metacard.getMetacardType().getAttributeDescriptors());
     List<AttributeDescriptor> descriptors =
-        new ArrayList<AttributeDescriptor>(
-            CollectionUtils.isEmpty(attributes)
-                ? allAttributes
-                : allAttributes
-                    .stream()
-                    .filter(attr -> attributes.contains(attr.getName()))
-                    .collect(Collectors.toList()));
+        CollectionUtils.isEmpty(attributes)
+            ? allAttributes
+            : allAttributes
+                .stream()
+                .filter(attr -> attributes.contains(attr.getName()))
+                .collect(Collectors.toList());
     Appendable appendable =
         writeMetacardsToCsv(Collections.singletonList(metacard), descriptors, aliases);
     return createResponse(appendable);
