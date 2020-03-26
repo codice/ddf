@@ -14,6 +14,8 @@
 package ddf.catalog.source.solr;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
@@ -45,6 +47,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,6 +68,13 @@ public class DynamicSchemaResolverTest {
       MetacardTypeMapperFactory.newObjectMapper();
 
   private DynamicSchemaResolver dynamicSchemaResolver;
+
+  private List<String> cacheFields =
+      Arrays.asList(
+          "id_txt",
+          "description_txt",
+          "security.access-administrators_txt",
+          "security.access-individuals_txt");
 
   @Before
   public void setup() {
@@ -357,5 +367,97 @@ public class DynamicSchemaResolverTest {
     assertThat(
         dynamicSchemaResolver.getField("unknown", AttributeFormat.STRING, true, enabledFeatures),
         is("unknown_txt"));
+  }
+
+  @Test
+  public void testFieldWhitelist() {
+    ConfigurationStore config = ConfigurationStore.getInstance();
+    config.clearAnyTextFieldCache();
+    cacheFields.stream().forEach(field -> config.addAnyTextField(field));
+
+    config.setAnyTextFieldWhitelist(Arrays.asList("id", "description"));
+
+    List<String> resultList = new ArrayList<>();
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList.size(), is(2));
+    assertThat(resultList, containsInAnyOrder("id_txt", "description_txt"));
+
+    config.addAnyTextWhitelistField("security.*");
+
+    resultList.clear();
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList.size(), is(4));
+    assertThat(
+        resultList,
+        containsInAnyOrder(
+            "id_txt",
+            "description_txt",
+            "security.access-administrators_txt",
+            "security.access-individuals_txt"));
+
+    config.clearAnyTextFieldCache();
+    config.setAnyTextFieldWhitelist(new ArrayList<>());
+  }
+
+  @Test
+  public void testFieldBlacklist() {
+    ConfigurationStore config = ConfigurationStore.getInstance();
+    config.clearAnyTextFieldCache();
+    cacheFields.stream().forEach(field -> config.addAnyTextField(field));
+
+    config.setAnyTextFieldBlacklist(Arrays.asList("id_txt"));
+
+    List<String> resultList = new ArrayList<>();
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList.size(), is(3));
+    assertThat(
+        resultList,
+        containsInAnyOrder(
+            "description_txt",
+            "security.access-administrators_txt",
+            "security.access-individuals_txt"));
+
+    config.addAnyTextBlacklistField("security.*");
+
+    resultList.clear();
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList.size(), is(1));
+    assertThat(resultList, contains("description_txt"));
+
+    config.clearAnyTextFieldCache();
+    config.setAnyTextFieldBlacklist(new ArrayList<>());
+  }
+
+  @Test
+  public void testFieldBlacklistAndWhitelist() {
+    ConfigurationStore config = ConfigurationStore.getInstance();
+    config.clearAnyTextFieldCache();
+    cacheFields.stream().forEach(field -> config.addAnyTextField(field));
+
+    config.setAnyTextFieldBlacklist(Arrays.asList("security.*"));
+
+    List<String> resultList = new ArrayList<>();
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList.size(), is(2));
+    assertThat(resultList, containsInAnyOrder("description_txt", "id_txt"));
+
+    config.addAnyTextWhitelistField("security.access-individuals");
+
+    resultList.clear();
+    dynamicSchemaResolver.anyTextFields().forEach(field -> resultList.add(field));
+
+    assertThat(resultList.size(), is(3));
+    assertThat(
+        resultList,
+        containsInAnyOrder("description_txt", "id_txt", "security.access-individuals_txt"));
+
+    config.clearAnyTextFieldCache();
+    config.setAnyTextFieldBlacklist(new ArrayList<>());
+    config.setAnyTextFieldWhitelist(new ArrayList<>());
   }
 }
