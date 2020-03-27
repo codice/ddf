@@ -12,10 +12,9 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
+import * as React from 'react'
 const _ = require('underscore')
 const $ = require('jquery')
-const template = require('./thead.hbs')
 const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
 const user = require('../../singletons/user-instance.js')
@@ -24,11 +23,43 @@ const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 require('jquery-ui/ui/widgets/resizable')
 let isResizing = false
 const {
-  SelectAllToggle,
-} = require('../../selection-checkbox/selection-checkbox.view.js')
+  ItemCheckboxAll,
+} = require('../../selection-checkbox/item-checkbox-all')
 
 module.exports = Marionette.LayoutView.extend({
-  template,
+  template({ headers }) {
+    return (
+      <React.Fragment>
+        <th className="checkbox-th">
+          <ItemCheckboxAll
+            selectionInterface={this.options.selectionInterface}
+          />
+        </th>
+        {headers.map(header => {
+          const { hidden, sortable, label, id } = header
+          return (
+            <th
+              className={`${hidden ? 'is-hidden-column' : ''} ${
+                sortable ? 'is-sortable' : ''
+              }`}
+              data-propertyid={`${id}`}
+              data-propertytext={`${label ? `${label} ${id}` : `${id}`}`}
+            >
+              <span
+                className="column-text"
+                title={`${label ? `${label} ${id}` : `${id}`}`}
+              >
+                {`${label ? `${label} ${id}` : `${id}`}`}
+              </span>
+              <span className="fa fa-sort-asc" />
+              <span className="fa fa-sort-desc" />
+              <div className="resizer" />
+            </th>
+          )
+        })}
+      </React.Fragment>
+    )
+  },
   className: 'is-thead',
   tagName: CustomElements.register('result-thead'),
   events: {
@@ -66,14 +97,6 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.find('.resizer').resizable({
       handles: 'e',
     })
-    this.showCheckbox()
-  },
-  showCheckbox() {
-    this.checkboxContainer.show(
-      new SelectAllToggle({
-        selectionInterface: this.options.selectionInterface,
-      })
-    )
   },
   updateSorting(e) {
     const attribute = e.currentTarget.getAttribute('data-propertyid')
@@ -140,19 +163,21 @@ module.exports = Marionette.LayoutView.extend({
     prefs.set('columnOrder', preferredHeader)
     prefs.savePreferences()
 
-    return preferredHeader
-      .filter(property => availableAttributes.indexOf(property) !== -1)
-      .map(property => ({
-        label: properties.attributeAliases[property],
-        id: property,
+    return {
+      headers: preferredHeader
+        .filter(property => availableAttributes.indexOf(property) !== -1)
+        .map(property => ({
+          label: properties.attributeAliases[property],
+          id: property,
 
-        hidden:
-          hiddenColumns.indexOf(property) >= 0 ||
-          properties.isHidden(property) ||
-          metacardDefinitions.isHiddenTypeExceptThumbnail(property),
+          hidden:
+            hiddenColumns.indexOf(property) >= 0 ||
+            properties.isHidden(property) ||
+            metacardDefinitions.isHiddenTypeExceptThumbnail(property),
 
-        sortable: sortAttributes.indexOf(property) >= 0,
-      }))
+          sortable: sortAttributes.indexOf(property) >= 0,
+        })),
+    }
   },
   updateColumnWidth(e) {
     $(e.currentTarget).css('width', $(e.target).width())
