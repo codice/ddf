@@ -104,13 +104,6 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.codice.ddf.resourcemanagement</groupId>
-            <artifactId>resourcemanagement-app</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
             <groupId>ddf.ui</groupId>
             <artifactId>search-ui-app</artifactId>
             <version>${project.version}</version>
