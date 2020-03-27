@@ -68,8 +68,9 @@ public class StoreImportCommand extends AbstractStoreCommand {
   @Completion(FileCompleter.class)
   String filePath;
 
+  static final String DATE_FORMAT = "dd MMM yyyy HH:mm:ss zzz";
   private final Gson gson = new Gson();
-  static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
+
   private final SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 
   @Override
@@ -109,7 +110,7 @@ public class StoreImportCommand extends AbstractStoreCommand {
 
   private Map<String, Object> processFile(File file) {
 
-    Map<String, String> jsonResult;
+    Map<String, Object> jsonResult;
     try {
       jsonResult = gson.fromJson(new FileReader(file), Map.class);
     } catch (FileNotFoundException e) {
@@ -167,30 +168,30 @@ public class StoreImportCommand extends AbstractStoreCommand {
    * Convert the string value to its given type
    *
    * @param attributeType attribute type
-   * @param stringValue value of the attribute
+   * @param attributeValue value of the attribute
    * @return the attribute value as its coverted object type
    */
-  private Object getValue(String attributeType, String stringValue) {
+  private Object getValue(String attributeType, Object attributeValue) {
     if (attributeType == null) {
       return null;
     }
     switch (attributeType.toLowerCase()) {
       case BINARY_SUFFIX:
-        return Base64.getDecoder().decode(stringValue);
+        return Base64.getDecoder().decode(String.valueOf(attributeValue));
       case DATE_SUFFIX:
         try {
-          return formatter.parse(stringValue);
+          return formatter.parse(String.valueOf(attributeValue));
         } catch (ParseException e) {
-          console.println("Failed to parse date: " + stringValue);
+          console.println("Failed to parse date: " + attributeValue);
           return null;
         }
-      case LONG_SUFFIX:
-        return Long.valueOf(stringValue);
       case INT_SUFFIX:
-        return Integer.valueOf(stringValue);
+        return new Double((double) attributeValue).intValue();
+      case LONG_SUFFIX:
+        return new Double((double) attributeValue).longValue();
       case TEXT_SUFFIX:
       case XML_SUFFIX:
-        return stringValue;
+        return attributeValue;
       default:
         return null;
     }

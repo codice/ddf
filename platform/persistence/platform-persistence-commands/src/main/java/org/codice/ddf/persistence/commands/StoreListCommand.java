@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
@@ -40,19 +40,20 @@ public class StoreListCommand extends AbstractStoreCommand {
         "User ID to search for notifications. If an id is not provided, then all of the notifications for all users are displayed.",
     multiValued = false
   )
-  private String user;
+  String user;
 
   private Set<String> headerSet = new TreeSet<>();
 
   @Override
   public void storeCommand() throws PersistenceException {
 
-    cql = createCql(user, cql);
+    cql = addUserConstraintToCql(user, cql);
 
     // output the entries
     // populates the header with the keys from the first entry
-    Consumer<List<Map<String, Object>>> listFunction =
+    Function<List<Map<String, Object>>, Integer> listFunction =
         results -> {
+          int count = 0;
           for (int i = 0; i < results.size(); i++) {
             Map<String, Object> curStore = PersistentItem.stripSuffixes(results.get(i));
             console.println("Result {" + i + "}:");
@@ -64,8 +65,10 @@ public class StoreListCommand extends AbstractStoreCommand {
             for (String curKey : headerSet) {
               console.println(curKey + ":");
               console.println("\t" + curStore.get(curKey).toString());
+              count++;
             }
           }
+          return count;
         };
 
     long totalCount = getResults(listFunction);

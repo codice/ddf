@@ -22,7 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.karaf.shell.api.action.Argument;
@@ -45,10 +45,10 @@ public class StoreExportCommand extends AbstractStoreCommand {
     aliases = {"-u", "--user"},
     required = false,
     description =
-        "User ID to search for notifications. If an id is not provided, then all of the notifications for all users are displayed.",
+        "User ID to search for the specified persistence type. If an id is not provided, then all of the specified persistence type for all users are displayed.",
     multiValued = false
   )
-  private String user;
+  String user;
 
   @Argument(
     name = "Dump directory path",
@@ -58,7 +58,7 @@ public class StoreExportCommand extends AbstractStoreCommand {
     multiValued = false,
     required = true
   )
-  private String dirPath = null;
+  String dirPath = null;
 
   private final Gson gson =
       new GsonBuilder()
@@ -68,6 +68,11 @@ public class StoreExportCommand extends AbstractStoreCommand {
 
   @Override
   public void storeCommand() throws PersistenceException {
+
+    if (dirPath == null) {
+      console.println("Export directory is not specified");
+      return;
+    }
 
     if (FilenameUtils.getExtension(dirPath).equals("") && !dirPath.endsWith(File.separator)) {
       dirPath += File.separator;
@@ -85,32 +90,25 @@ public class StoreExportCommand extends AbstractStoreCommand {
       return;
     }
 
-    cql = createCql(user, cql);
+    cql = addUserConstraintToCql(user, cql);
 
-    //    Consumer<List<Map<String, Object>>> exportFunction =
-    //        results -> {
-    //           results
-    //              .stream()
-    //              .map(PersistentItem.class::cast)
-    //              .map(gson::toJson)
-    //              .map(json -> writeRecordToFile(json, dumpDir));
-    //        };
-
-    Consumer<List<Map<String, Object>>> exportFunction =
+    Function<List<Map<String, Object>>, Integer> exportFunction =
         results -> {
-          for (Map<String, Object> result : results) {
-            writeRecordToFile(gson.toJson(result), dumpDir);
-          }
+          return results
+              .stream()
+              .map(gson::toJson)
+              .map(json -> writeRecordToFile(json, dumpDir))
+              .reduce(0, (a, b) -> a + b);
         };
 
     long count = getResults(exportFunction);
-    console.println("Exported " + count + " records\n");
+    console.println("Exported: " + count + " records\n");
   }
 
   private int writeRecordToFile(String json, final File dumpDir) {
     String fileName = DigestUtils.md5Hex(json).toUpperCase();
     try (FileOutputStream outputStream = new FileOutputStream(new File(dumpDir, fileName))) {
-      outputStream.write(json.getBytes());
+      outputStream.write(json.getBytes("UTF-8"));
     } catch (IOException e) {
       console.println("Unable to write to:" + dumpDir);
       return 0;

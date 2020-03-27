@@ -16,8 +16,6 @@ package org.codice.ddf.persistence;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public interface PersistentStore {
 
@@ -38,13 +36,6 @@ public interface PersistentStore {
 
     PersistenceType(final String type) {
       this.type = type;
-    }
-
-    public static boolean hasType(String type) {
-      return Stream.of(PersistenceType.values())
-          .map(PersistenceType::toString)
-          .collect(Collectors.toList())
-          .contains(type);
     }
 
     @Override

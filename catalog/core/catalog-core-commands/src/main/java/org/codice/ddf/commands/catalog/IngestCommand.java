@@ -442,7 +442,6 @@ public class IngestCommand extends CatalogCommands {
 
   private int totalFileCount(File inputFile) throws IOException {
     if (inputFile.isDirectory()) {
-      int currentFileCount = 0;
       try (DirectoryStream<Path> stream = Files.newDirectoryStream(inputFile.toPath())) {
         return (int)
             StreamSupport.stream(stream.spliterator(), false)
