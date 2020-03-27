@@ -126,7 +126,7 @@ const render = (props: Props) => {
                   {item.category === Category.User ? (
                     <EditableLabelText
                       value={item.value}
-                      placeholder="user id"
+                      placeholder="User ID"
                       showLabel={false}
                       onChange={value => handleChangeInput(i, value)}
                     />
