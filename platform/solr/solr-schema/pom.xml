@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.platform.solr</groupId>
         <artifactId>platform-solr</artifactId>
-        <version>2.20.2</version>
+        <version>2.20.3-SNAPSHOT</version>
     </parent>
     <artifactId>solr-schema</artifactId>
     <name>DDF :: Platform :: Solr :: Schema</name>
