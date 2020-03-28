@@ -192,8 +192,12 @@ class SortedQueryMonitor implements Runnable {
 
           for (SourceProcessingDetails detailsOfSourceResponse :
               sourceResponse.getProcessingDetails()) {
-            detailsOfReturnResults.add(
-                new ProcessingDetailsImpl(detailsOfSourceResponse, sourceId));
+            if (detailsOfSourceResponse instanceof ProcessingDetails) {
+              detailsOfReturnResults.add((ProcessingDetails) detailsOfSourceResponse);
+            } else {
+              detailsOfReturnResults.add(
+                  new ProcessingDetailsImpl(detailsOfSourceResponse, sourceId));
+            }
           }
         }
       } catch (InterruptedException e) {

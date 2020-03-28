@@ -551,7 +551,13 @@ public class EndpointUtil {
                 .filter(Objects::nonNull)
                 .map(QueryResponse::getProperties)
                 .findFirst()
-                .orElse(Collections.emptyMap()));
+                .orElse(Collections.emptyMap()),
+            responses
+                .stream()
+                .filter(Objects::nonNull)
+                .map(QueryResponse::getProcessingDetails)
+                .findFirst()
+                .orElse(Collections.EMPTY_SET));
 
     stopwatch.stop();
 
