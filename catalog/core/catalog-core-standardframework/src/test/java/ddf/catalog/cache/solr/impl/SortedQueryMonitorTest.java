@@ -18,6 +18,7 @@ import static org.assertj.core.extractor.Extractors.byName;
 import static org.awaitility.Awaitility.with;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -31,20 +32,25 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -129,7 +135,8 @@ public class SortedQueryMonitorTest {
             queryRequest,
             new ArrayList<>());
 
-    final Iterator<Future<SourceResponse>> futureIter = getFutureIterator();
+    final Iterator<Future<SourceResponse>> futureIter =
+        new ArrayList<>(futures.keySet()).iterator();
     when(completionService.take()).thenAnswer((invocationOnMock -> futureIter.next()));
     queryMonitor.run();
     verify(completionService, times(4)).take();
@@ -213,7 +220,8 @@ public class SortedQueryMonitorTest {
             queryRequest,
             new ArrayList<>());
 
-    final Iterator<Future<SourceResponse>> futureIter = getFutureIterator();
+    final Iterator<Future<SourceResponse>> futureIter =
+        new ArrayList<>(futures.keySet()).iterator();
     when(completionService.poll(anyLong(), eq(TimeUnit.MILLISECONDS)))
         .thenAnswer((invocationOnMock -> futureIter.next()));
 
@@ -239,6 +247,67 @@ public class SortedQueryMonitorTest {
         .extracting(byName("class"))
         .contains(
             NullPointerException.class, InterruptedException.class, InterruptedException.class);
+  }
+
+  @Test
+  public void testPersistenceOfProcessingDetails() throws InterruptedException, ExecutionException {
+
+    Map<Future<SourceResponse>, QueryRequest> futures = new HashMap<>();
+
+    Future mockedFuture = mock(Future.class);
+
+    SourceResponse mockedSourceResponseWithProcessingDetails = mock(SourceResponse.class);
+    when(mockedFuture.get()).thenReturn(mockedSourceResponseWithProcessingDetails);
+
+    Set<ProcessingDetails> processingDetailsOfMockedSourceResponse = new HashSet<>();
+    doReturn(processingDetailsOfMockedSourceResponse)
+        .when(mockedSourceResponseWithProcessingDetails)
+        .getProcessingDetails();
+
+    QueryRequest mockedQueryRequest = mock(QueryRequest.class);
+
+    String idOfTestSource = "test source";
+    when(mockedQueryRequest.getSourceIds()).thenReturn(Collections.singleton(idOfTestSource));
+
+    List<String> errorFromMalformedQuery =
+        Collections.singletonList("We do not support this query.");
+
+    ProcessingDetails processingDetailsForMalformedQuery =
+        new ProcessingDetailsImpl(idOfTestSource, null, errorFromMalformedQuery);
+    processingDetailsOfMockedSourceResponse.add(processingDetailsForMalformedQuery);
+
+    List<String> nonspecificError = Collections.singletonList("Something went wrong.");
+
+    ProcessingDetails processingDetailsForNonspecificError =
+        new ProcessingDetailsImpl(idOfTestSource, null, nonspecificError);
+    processingDetailsOfMockedSourceResponse.add(processingDetailsForNonspecificError);
+    futures.put(mockedFuture, mockedQueryRequest);
+
+    when(queryRequest.getQuery()).thenReturn(query);
+    when(query.getTimeoutMillis()).thenReturn(0L);
+
+    SortedQueryMonitor queryMonitor =
+        new SortedQueryMonitor(
+            cachingFederationStrategy,
+            completionService,
+            futures,
+            queryResponse,
+            queryRequest,
+            new ArrayList<>());
+
+    final Iterator<Future<SourceResponse>> iterator = futures.keySet().iterator();
+    when(completionService.take()).thenAnswer((invocationOnMock -> iterator.next()));
+    queryMonitor.run();
+
+    verify(completionService, times(1)).take();
+    verify(completionService, never()).poll(anyLong(), eq(TimeUnit.MILLISECONDS));
+
+    assertThat(queryResponse.getProcessingDetails())
+        .extracting(byName("sourceId"))
+        .containsOnly(idOfTestSource);
+    assertThat(queryResponse.getProcessingDetails())
+        .extracting(byName("warnings"))
+        .containsOnly(errorFromMalformedQuery, nonspecificError);
   }
 
   @Test
@@ -393,12 +462,6 @@ public class SortedQueryMonitorTest {
       }
       idx++;
     }
-  }
-
-  public Iterator<Future<SourceResponse>> getFutureIterator() {
-    List<Future<SourceResponse>> futureKeys = new ArrayList<>();
-    futureKeys.addAll(futures.keySet());
-    return futureKeys.iterator();
   }
 
   class TestSerial implements Serializable {

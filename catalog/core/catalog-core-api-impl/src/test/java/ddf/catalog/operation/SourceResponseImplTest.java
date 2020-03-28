@@ -17,25 +17,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
-import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
 import org.junit.Test;
 
-/**
- * Test {@link QueryResponseImpl}
- *
- * @author Shaun Morris
- */
-public class QueryResponseImplTest {
+public class SourceResponseImplTest {
 
   @Test
-  public void testConstructorCannotMakeProcessingDetailsNull() {
-    assertThat((new QueryResponseImpl(null)).getProcessingDetails(), is(notNullValue()));
-  }
-
-  @Test
-  public void testSetterCannotMakeProcessingDetailsNull() {
-    QueryResponseImpl response = new QueryResponseImpl(null);
-    response.setProcessingDetails(null);
-    assertThat(response.getProcessingDetails(), is(notNullValue()));
+  public void testGetProcessingDetailsDoesNotReturnNull() {
+    assertThat(
+        (new SourceResponseImpl(null, null, null, 0, null)).getProcessingDetails(),
+        is(notNullValue()));
   }
 }

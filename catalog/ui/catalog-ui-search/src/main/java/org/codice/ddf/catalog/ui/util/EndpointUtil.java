@@ -61,6 +61,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -551,7 +552,17 @@ public class EndpointUtil {
                 .filter(Objects::nonNull)
                 .map(QueryResponse::getProperties)
                 .findFirst()
-                .orElse(Collections.emptyMap()));
+                .orElse(Collections.emptyMap()),
+            responses
+                .stream()
+                .filter(Objects::nonNull)
+                .map(QueryResponse::getProcessingDetails)
+                .reduce(
+                    new HashSet<>(),
+                    (l, r) -> {
+                      l.addAll(r);
+                      return l;
+                    }));
 
     stopwatch.stop();
 
