@@ -13,9 +13,9 @@
  *
  **/
 const React = require('react')
-const dmsRegex = new RegExp('^(.*)°(.*)\'(.*\\.?.*)"$')
 const TextField = require('../../../react-component/text-field/index.js')
 const MaskedTextField = require('../inputs/masked-text-field')
+const { buildDmsString, parseDmsCoordinate } = require('../utils/dms-utils')
 const { latitudeDMSMask, longitudeDMSMask } = require('./masks')
 
 const Coordinate = props => {
@@ -56,8 +56,8 @@ const DmsLatitude = props => {
       mask={latitudeDMSMask}
       placeholderChar="_"
       {...props}
-      onBlur={event => {
-        props.onChange(pad(props.value), event.type)
+      onBlur={() => {
+        props.onChange(buildDmsString(parseDmsCoordinate(props.value)))
       }}
     />
   )
@@ -70,8 +70,8 @@ const DmsLongitude = props => {
       mask={longitudeDMSMask}
       placeholderChar="_"
       {...props}
-      onBlur={event => {
-        props.onChange(pad(props.value), event.type)
+      onBlur={() => {
+        props.onChange(buildDmsString(parseDmsCoordinate(props.value)))
       }}
     />
   )
@@ -111,35 +111,6 @@ const UsngCoordinate = props => {
       <TextField label="Grid" {...props} />
     </div>
   )
-}
-
-const pad = coordinate => {
-  if (coordinate === undefined) {
-    return coordinate
-  }
-  const matches = dmsRegex.exec(coordinate)
-  if (!matches) {
-    return coordinate
-  }
-  let deg = matches[1]
-  let min = matches[2]
-  let sec = matches[3]
-  deg = padComponent(deg)
-  min = padComponent(min)
-  sec = padComponent(sec)
-  return deg + '°' + min + "'" + sec + '"'
-}
-
-const padComponent = (numString = '') => {
-  while (numString.includes('_')) {
-    if (numString.includes('.')) {
-      numString = numString.replace('_', '0')
-    } else {
-      numString = numString.replace('_', '')
-      numString = '0' + numString
-    }
-  }
-  return numString
 }
 
 module.exports = {

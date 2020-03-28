@@ -221,7 +221,7 @@ Draw.BboxView = Marionette.View.extend({
     if (
       rectangle &&
       !_.isUndefined(rectangle) &&
-      (rectangle.north !== rectangle.south && rectangle.east !== rectangle.west)
+      (rectangle.north > rectangle.south && rectangle.east !== rectangle.west)
     ) {
       this.drawBorderedRectangle(rectangle)
       //only call this if the mouse button isn't pressed, if we try to draw the border while someone is dragging
@@ -237,7 +237,7 @@ Draw.BboxView = Marionette.View.extend({
     if (
       rectangle &&
       !_.isUndefined(rectangle) &&
-      (rectangle.north !== rectangle.south && rectangle.east !== rectangle.west)
+      (rectangle.north > rectangle.south && rectangle.east !== rectangle.west)
     ) {
       this.drawBorderedRectangle(rectangle)
     }

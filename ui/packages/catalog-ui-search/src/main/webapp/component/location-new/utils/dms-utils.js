@@ -16,7 +16,7 @@ const wkx = require('wkx')
 const { computeCircle, toKilometers } = require('./geo-helper')
 const errorMessages = require('./errors')
 
-const dmsRegex = new RegExp('^([0-9]*)°([0-9]*)\'([0-9]*\\.?[0-9]*)"$')
+const dmsRegex = new RegExp('^([0-9_]*)°([0-9_]*)\'([0-9_]*\\.?[0-9_]*)"$')
 const minimumDifference = 0.0001
 
 const LAT_DEGREES_DIGITS = 2
@@ -62,27 +62,28 @@ function inputIsBlank(dms) {
 }
 
 function parseDmsCoordinate(coordinate) {
-  const matches = dmsRegex.exec(coordinate.coordinate)
-  if (matches == null) {
-    return null
+  if (coordinate === undefined) {
+    return coordinate
   }
-
-  const seconds = parseFloat(matches[3])
-  if (isNaN(seconds)) {
-    return null
+  const matches = dmsRegex.exec(coordinate)
+  if (!matches) {
+    return coordinate
   }
-
-  return {
-    degrees: parseInt(matches[1]),
-    minutes: parseInt(matches[2]),
-    seconds,
-    direction: coordinate.direction,
-  }
+  const degrees = replacePlaceholderWithZeros(matches[1])
+  const minutes = replacePlaceholderWithZeros(matches[2])
+  const seconds = replacePlaceholderWithZeros(matches[3])
+  return { degrees, minutes, seconds }
 }
 
 function dmsCoordinateToDD(coordinate) {
+  const seconds = parseFloat(coordinate.seconds)
+  if (isNaN(seconds)) {
+    return null
+  }
   const dd =
-    coordinate.degrees + coordinate.minutes / 60 + coordinate.seconds / 3600
+    parseInt(coordinate.degrees) +
+    parseInt(coordinate.minutes) / 60 +
+    seconds / 3600
   if (
     coordinate.direction === Direction.North ||
     coordinate.direction === Direction.East
@@ -166,60 +167,29 @@ function dmsToWkt(dms) {
 /*
  *  DMS validation utils
  */
-function validateLatitudeRange(coordinate) {
-  if (
-    coordinate.degrees > 90 ||
-    coordinate.minutes > 60 ||
-    coordinate.seconds > 60
-  ) {
+function inValidRange(coordinate, maximum) {
+  const degrees = parseInt(coordinate.degrees)
+  const minutes = parseInt(coordinate.minutes)
+  const seconds = parseFloat(coordinate.seconds)
+  if (isNaN(seconds)) {
     return false
   }
-  if (
-    coordinate.degrees === 90 &&
-    (coordinate.minutes > 0 || coordinate.seconds > 0)
-  ) {
+  if (degrees > maximum || minutes > 60 || seconds > 60) {
     return false
   }
-  return true
-}
-
-function validateLongitudeRange(coordinate) {
-  if (
-    coordinate.degrees > 180 ||
-    coordinate.minutes > 60 ||
-    coordinate.seconds > 60
-  ) {
-    return false
-  }
-  if (
-    coordinate.degrees === 180 &&
-    (coordinate.minutes > 0 || coordinate.seconds > 0)
-  ) {
+  if (degrees === maximum && (minutes > 0 || seconds > 0)) {
     return false
   }
   return true
-}
-
-function validateDmsLatitude(latitude) {
-  const _latitude = parseDmsCoordinate(latitude)
-  if (_latitude == null) {
-    return false
-  }
-  return validateLatitudeRange(_latitude)
-}
-
-function validateDmsLongitude(longitude) {
-  const _longitude = parseDmsCoordinate(longitude)
-  if (_longitude == null) {
-    return false
-  }
-  return validateLongitudeRange(_longitude)
 }
 
 function validateDmsPoint(point) {
-  return (
-    validateDmsLatitude(point.latitude) && validateDmsLongitude(point.longitude)
-  )
+  const latitude = parseDmsCoordinate(point.latitude)
+  const longitude = parseDmsCoordinate(point.longitude)
+  if (latitude && longitude) {
+    return inValidRange(latitude, 90) && inValidRange(longitude, 180)
+  }
+  return false
 }
 
 function validateDmsBoundingBox(boundingbox) {
@@ -228,15 +198,15 @@ function validateDmsBoundingBox(boundingbox) {
   const east = parseDmsCoordinate(boundingbox.east)
   const west = parseDmsCoordinate(boundingbox.west)
 
-  if (north == null || south == null || east == null || west == null) {
+  if (!north || !south || !east || !west) {
     return false
   }
 
   if (
-    !validateLatitudeRange(north) ||
-    !validateLatitudeRange(south) ||
-    !validateLongitudeRange(east) ||
-    !validateLongitudeRange(west)
+    !inValidRange(north, 90) ||
+    !inValidRange(south, 90) ||
+    !inValidRange(east, 180) ||
+    !inValidRange(west, 180)
   ) {
     return false
   }
@@ -307,10 +277,14 @@ function validateDms(dms) {
       break
     case 'boundingbox':
       if (
-        !validateDmsLatitude(dms.boundingbox.north) ||
-        !validateDmsLatitude(dms.boundingbox.south) ||
-        !validateDmsLongitude(dms.boundingbox.east) ||
-        !validateDmsLongitude(dms.boundingbox.west)
+        !validateDmsPoint({
+          latitude: dms.boundingbox.north,
+          longitude: dms.boundingbox.east,
+        }) ||
+        !validateDmsPoint({
+          latitude: dms.boundingbox.south,
+          longitude: dms.boundingbox.west,
+        })
       ) {
         valid = false
         error = errorMessages.invalidCoordinates
@@ -331,17 +305,36 @@ function roundTo(num, sigDigits) {
   return Math.round(num * scaler) / scaler
 }
 
-function pad(num, width) {
+function padWithZeros(num, width) {
   return num.toString().padStart(width, '0')
 }
 
-function padDecimal(num, width) {
+function padDecimalWithZeros(num, width) {
   const decimalParts = num.toString().split('.')
   if (decimalParts.length > 1) {
     return decimalParts[0].padStart(width, '0') + '.' + decimalParts[1]
   } else {
-    return pad(num, width)
+    return padWithZeros(num, width)
   }
+}
+
+function buildDmsString(components) {
+  if (!components) {
+    return
+  }
+  return `${components.degrees}°${components.minutes}'${components.seconds}"`
+}
+
+function replacePlaceholderWithZeros(numString = '') {
+  while (numString.includes('_')) {
+    if (numString.includes('.')) {
+      numString = numString.replace('_', '0')
+    } else {
+      numString = numString.replace('_', '')
+      numString = '0' + numString
+    }
+  }
+  return numString
 }
 
 function ddToDmsCoordinate(
@@ -357,10 +350,11 @@ function ddToDmsCoordinate(
   const seconds = 3600 * degreeFraction - 60 * minutes
   const secondsRounded = roundTo(seconds, secondsPrecision)
   return {
-    coordinate: `${pad(degrees, degreesPad)}°${pad(minutes, 2)}'${padDecimal(
-      secondsRounded,
-      2
-    )}"`,
+    coordinate: buildDmsString({
+      degrees: padWithZeros(degrees, degreesPad),
+      minutes: padWithZeros(minutes, 2),
+      seconds: padDecimalWithZeros(secondsRounded, 2),
+    }),
     direction,
   }
 }
@@ -416,5 +410,6 @@ module.exports = {
   ddToDmsCoordinateLat,
   ddToDmsCoordinateLon,
   getSecondsPrecision,
+  buildDmsString,
   Direction,
 }

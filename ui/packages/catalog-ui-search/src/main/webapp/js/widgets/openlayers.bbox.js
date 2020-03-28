@@ -73,6 +73,12 @@ Draw.BboxView = Marionette.View.extend({
     let east = parseFloat(model.get('mapEast'))
     let west = parseFloat(model.get('mapWest'))
 
+    // If south is greater than north, return in order to
+    // prevent displaying the shape on the map
+    if (south > north) {
+      return
+    }
+
     // If we are crossing the date line, we must go outside [-180, 180]
     // for openlayers to draw correctly. This means we can't draw boxes
     // that encompass more than half the world. This actually matches
