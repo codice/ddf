@@ -68,10 +68,7 @@ export const getExportResult = (result: any) => {
     id: getResultId(result),
     source: getResultSourceId(result),
     attributes: Object.keys(
-      result
-        .get('metacard')
-        .get('properties')
-        .attributes
+      result.get('metacard').get('properties').attributes
     ),
   }
 }
