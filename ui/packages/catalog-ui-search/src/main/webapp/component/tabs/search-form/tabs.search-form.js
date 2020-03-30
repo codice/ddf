@@ -26,14 +26,14 @@ const formsTitle = properties.i18n['forms.title'] || 'Forms'
 
 const tabChildViewOptions = {
   [`My Search ${formsTitle}`]: {
-    filter: child => child.get('createdBy') === user.getEmail(),
+    filter: child => child.get('createdBy') === user.getUserId(),
     showNewForm: true,
   },
   [`Shared Search ${formsTitle}`]: {
     type: 'Shared',
     filter: child =>
       child.get('createdBy') !== 'system' &&
-      child.get('createdBy') !== user.getEmail() &&
+      child.get('createdBy') !== user.getUserId() &&
       user.canRead(child),
   },
   [`System Search ${formsTitle}`]: {

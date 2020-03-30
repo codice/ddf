@@ -101,7 +101,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   handleTypes() {
-    const username = user.get('user').get('userid')
+    const userId = user.getUserId()
     let isOwner = true
     const types = {}
     this.model.forEach(result => {
@@ -122,7 +122,7 @@ module.exports = Marionette.LayoutView.extend({
         .get('properties')
         .get('metacard.owner')
 
-      isOwner = isOwner && username === metacardOwner
+      isOwner = isOwner && userId === metacardOwner
     })
     this.$el.toggleClass('is-mixed', Object.keys(types).length > 1)
     this.$el.toggleClass('is-workspace', types.workspace !== undefined)
