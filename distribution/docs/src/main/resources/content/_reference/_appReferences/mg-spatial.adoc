@@ -30,7 +30,7 @@ The `gazetteer` commands provide the ability to interact with the local GeoNames
 
 The resource argument can be one of three types:
 
-* a local file path to a `.txt`, `.zip`, or `.geo.json` GeoNames data file. If a path to a file ends in .geo.json, it will processed as a geoJSON feature collection and imported as supplementary shape data for GeoNames entries.
+* a local file path to a `.txt`, `.zip`, or `.geo.json` GeoNames data file. (e.g. file://path/to/file.zip) If a path to a file ends in .geo.json, it will processed as a geoJSON feature collection and imported as supplementary shape data for GeoNames entries.
 * a URL to a `.txt` or `.zip` GeoNames data file. GeoJSON URLs are not supported.
 * a keyword to automatically process a GeoNames file from from http://download.geonames.org/export/dump. Valid keywords include
   ** a country code, which will add the country as GeoNames metacards in the core catalog. The full list of country codes available can be found in http://download.geonames.org/export/dump/countryInfo.txt.
