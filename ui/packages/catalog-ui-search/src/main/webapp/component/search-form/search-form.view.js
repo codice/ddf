@@ -149,9 +149,12 @@ export default Marionette.LayoutView.extend({
         />
       )
     } else if (props.type == 'result') {
+      const isDefault = user.getQuerySettings().get('defaultResultFormId') === props.id
+      debugger
       return (
         <RelativeWrapper>
           <FormTitle data-help={props.title}>{props.title}</FormTitle>
+          {isDefault ? <DefaultIcon className="fa fa-star" /> : null}
           <FormContents>{props.createdOn}</FormContents>
           <Author title={props.createdBy}>
             <span className="fa fa-cloud" />
