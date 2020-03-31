@@ -202,10 +202,16 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
   },
   handleMakeDefault() {
     this.model.set('default', true)
-    user.getQuerySettings().set({
-      type: 'custom',
-      template: this.model.toJSON(),
-    })
+    if(this.model.get('type') === 'result') {
+      user.getQuerySettings().set({
+        defaultResultFormId: this.model.get('id'),
+      })
+    } else {
+      user.getQuerySettings().set({
+        type: 'custom',
+        template: this.model.toJSON(),
+      })
+    }
     user.savePreferences()
     this.messageNotifier(
       'Success',
@@ -215,10 +221,16 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
   },
   handleClearDefault() {
     this.model.set('default', false)
-    user.getQuerySettings().set({
-      template: undefined,
-      type: 'text',
-    })
+    if(this.model.get('type') === 'result') {
+      user.getQuerySettings().set({
+        defaultResultFormId: undefined,
+      })
+    } else {
+      user.getQuerySettings().set({
+        template: undefined,
+        type: 'text',
+      })
+    }
     user.savePreferences()
     this.messageNotifier(
       'Success',
