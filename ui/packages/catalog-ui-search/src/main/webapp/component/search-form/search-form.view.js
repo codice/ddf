@@ -149,8 +149,8 @@ export default Marionette.LayoutView.extend({
         />
       )
     } else if (props.type == 'result') {
-      const isDefault = user.getQuerySettings().get('defaultResultFormId') === props.id
-      debugger
+      const isDefault =
+        user.getQuerySettings().get('defaultResultFormId') === props.id
       return (
         <RelativeWrapper>
           <FormTitle data-help={props.title}>{props.title}</FormTitle>
@@ -182,7 +182,11 @@ export default Marionette.LayoutView.extend({
   initialize() {
     this.listenTo(this.model, 'change:type', this.changeView)
     this.listenTo(user.getQuerySettings(), 'change:template', this.render)
-    this.listenTo(user.getQuerySettings(), 'change:defaultResultFormId', this.render)
+    this.listenTo(
+      user.getQuerySettings(),
+      'change:defaultResultFormId',
+      this.render
+    )
   },
   serializeData() {
     const { createdOn, ...json } = this.model.toJSON()

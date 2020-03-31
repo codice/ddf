@@ -54,9 +54,11 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(user.getQuerySettings(), 'change:template', querySettings =>
       this.updateCurrentQuery(querySettings)
     )
-    this.listenTo(user.getQuerySettings(), 'change:defaultResultFormId', querySettings =>
-    this.updateCurrentQuery(querySettings)
-  )
+    this.listenTo(
+      user.getQuerySettings(),
+      'change:defaultResultFormId',
+      querySettings => this.updateCurrentQuery(querySettings)
+    )
     this.model = new Query.Model(this.getDefaultQuery())
     this.listenTo(this.model, 'resetToDefaults change:type', this.reshow)
     this.listenTo(this.model, 'change:filterTree', this.reshow)
@@ -72,10 +74,10 @@ module.exports = Marionette.LayoutView.extend({
     }
     const searchForm = new SearchForm(currentQuerySettings.get('template'))
     const sharedAttributes = searchForm.transformToQueryStructure()
-    if(currentQuerySettings.get('defaultResultFormId')) {
+    if (currentQuerySettings.get('defaultResultFormId')) {
       sharedAttributes['detail-level'] = ''
       this.model.set({
-        defaultResultFormId: currentQuerySettings.get('defaultResultFormId')
+        defaultResultFormId: currentQuerySettings.get('defaultResultFormId'),
       })
     }
     this.model.set({

@@ -204,7 +204,7 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
     this.model.set('default', true)
     if(this.model.get('type') === 'result') {
       user.getQuerySettings().set({
-        defaultResultFormId: this.model.get('id')
+        defaultResultFormId: this.model.get('id'),
       })
     } else {
       user.getQuerySettings().set({

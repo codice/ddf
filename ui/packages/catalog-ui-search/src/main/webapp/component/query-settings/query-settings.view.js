@@ -92,11 +92,15 @@ module.exports = plugin(
       })
       resultTemplates = _.uniq(resultTemplates, 'id')
       let lastIndex = resultTemplates.length - 1
-      let defaultResultForm = resultTemplates.find((form) => form.id === this.model.get('defaultResultFormId'))
+      let defaultResultForm = resultTemplates.find(
+        form => form.id === this.model.get('defaultResultFormId')
+      )
       let detailLevelProperty = new Property({
         label: 'Result Form',
         enum: resultTemplates,
-        value: [ this.model.get('detail-level') || defaultResultForm && defaultResultForm.value ||
+        value: [
+          this.model.get('detail-level') ||
+            (defaultResultForm && defaultResultForm.value) ||
             (resultTemplates &&
               resultTemplates[lastIndex] &&
               resultTemplates[lastIndex].value),
