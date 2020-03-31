@@ -356,14 +356,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     String searchPhrase = QUOTE + escapeSpecialCharacters(literal) + QUOTE;
-    if (!(searchPhrase.contains(SOLR_WILDCARD_CHAR)
-            || searchPhrase.contains(SOLR_SINGLE_WILDCARD_CHAR))
-        && Metacard.ANY_TEXT.equals(propertyName)) {
+    if (Metacard.ANY_TEXT.equals(propertyName)) {
       return new SolrQuery(wildcardSolrQuery(searchPhrase, propertyName, true, true));
-    } else if (searchPhrase.contains(SOLR_WILDCARD_CHAR)
-        || searchPhrase.contains(SOLR_SINGLE_WILDCARD_CHAR)
-        || Metacard.ANY_TEXT.equals(propertyName)) {
-      return new SolrQuery(wildcardSolrQuery(searchPhrase, propertyName, true, false));
     } else {
       return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
     }
