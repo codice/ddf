@@ -182,6 +182,7 @@ export default Marionette.LayoutView.extend({
   initialize() {
     this.listenTo(this.model, 'change:type', this.changeView)
     this.listenTo(user.getQuerySettings(), 'change:template', this.render)
+    this.listenTo(user.getQuerySettings(), 'change:defaultResultFormId', this.render)
   },
   serializeData() {
     const { createdOn, ...json } = this.model.toJSON()
