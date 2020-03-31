@@ -300,22 +300,34 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     String searchPhrase = escapeSpecialCharacters(pattern);
 
-    if (Metacard.ANY_TEXT.equals(propertyName) && SOLR_WILDCARD_CHAR.equals(searchPhrase)) {
+    boolean isAnyText = Metacard.ANY_TEXT.equals(propertyName);
+
+    if (isAnyText && SOLR_WILDCARD_CHAR.equals(searchPhrase)) {
       return new SolrQuery("*:*");
     }
 
-    if (searchPhrase.contains(SOLR_WILDCARD_CHAR)
-        || searchPhrase.contains(SOLR_SINGLE_WILDCARD_CHAR)) {
+    boolean isWildcard =
+        searchPhrase.contains(SOLR_WILDCARD_CHAR)
+            || searchPhrase.contains(SOLR_SINGLE_WILDCARD_CHAR);
+
+    boolean isQuotedPhrase = pattern.startsWith("\"") && pattern.endsWith("\"");
+
+    if (isQuotedPhrase) {
+      searchPhrase =
+          searchPhrase.substring(2, searchPhrase.length() - 2).replaceAll("\\s", "\\\\ ");
+      if (!isWildcard) {
+        searchPhrase = SOLR_WILDCARD_CHAR + searchPhrase + SOLR_WILDCARD_CHAR;
+      }
+    } else if (isWildcard) {
       searchPhrase = "(" + searchPhrase + ")";
     } else {
       // Not an exact phrase
       searchPhrase = QUOTE + searchPhrase + QUOTE;
     }
 
-    if (searchPhrase.contains(SOLR_WILDCARD_CHAR)
-        || searchPhrase.contains(SOLR_SINGLE_WILDCARD_CHAR)
-        || Metacard.ANY_TEXT.equals(propertyName)) {
-
+    if (isQuotedPhrase) {
+      return new SolrQuery(wildcardSolrQuery(searchPhrase, propertyName, isCaseSensitive, true));
+    } else if (isWildcard || isAnyText) {
       return new SolrQuery(wildcardSolrQuery(searchPhrase, propertyName, isCaseSensitive, false));
     } else {
       if (isCaseSensitive) {
@@ -384,8 +396,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
               .map(field -> field + ":" + searchPhrase)
               .collect(Collectors.joining(" "));
     } else {
-      String field = getMappedPropertyName(propertyName, AttributeFormat.STRING, true) + tokenized;
-      if (isCaseSensitive) {
+      String field = getMappedPropertyName(propertyName, AttributeFormat.STRING, true);
+      if (!isExact) {
+        field += tokenized;
+      }
+      if (isCaseSensitive && !isExact) {
         field = resolver.getCaseSensitiveField(field, enabledFeatures);
       }
       solrQuery = field + ":" + searchPhrase;

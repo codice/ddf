@@ -1137,6 +1137,78 @@ public class SolrProviderQuery {
   }
 
   @Test
+  public void testPropertyIsLikeWithQuotedPhrases() throws Exception {
+    deleteAll(provider);
+
+    List<Metacard> list = new ArrayList<>();
+
+    MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+    metacard1.setTitle("Mary");
+
+    list.add(metacard1);
+
+    MockMetacard metacard2 = new MockMetacard(Library.getTampaRecord());
+    metacard2.setTitle("Mary had a little");
+
+    list.add(metacard2);
+
+    MockMetacard metacard3 = new MockMetacard(Library.getShowLowRecord());
+    metacard3.setTitle("Mary had a little l!@#$%^&*()_mb");
+
+    list.add(metacard3);
+
+    create(list, provider);
+
+    queryAndVerifyCount(
+        2,
+        getFilterBuilder().attribute(Metacard.TITLE).is().like().text("\"Mary had*\""),
+        provider);
+
+    queryAndVerifyCount(
+        1,
+        getFilterBuilder().attribute(Metacard.TITLE).is().like().text("\"*ad a little\""),
+        provider);
+
+    queryAndVerifyCount(
+        1, getFilterBuilder().attribute(Metacard.TITLE).is().like().text("\"*little\""), provider);
+
+    queryAndVerifyCount(
+        2, getFilterBuilder().attribute(Metacard.TITLE).is().like().text("\"had a\""), provider);
+
+    queryAndVerifyCount(
+        2,
+        getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text("\"Mary had*\""),
+        provider);
+
+    queryAndVerifyCount(
+        1,
+        getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text("\"*ad a little\""),
+        provider);
+
+    queryAndVerifyCount(
+        1,
+        getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text("\"*little\""),
+        provider);
+
+    queryAndVerifyCount(
+        2, getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text("\"had a\""), provider);
+
+    /* Negative cases */
+
+    queryAndVerifyCount(
+        0, getFilterBuilder().attribute(Metacard.TITLE).is().like().text("\"*ad\""), provider);
+
+    queryAndVerifyCount(
+        0, getFilterBuilder().attribute(Metacard.TITLE).is().like().text("\"a had\""), provider);
+
+    queryAndVerifyCount(
+        0, getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text("\"*ad\""), provider);
+
+    queryAndVerifyCount(
+        0, getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text("\"a had\""), provider);
+  }
+
+  @Test
   public void testPropertyIsLike() throws Exception {
     deleteAll(provider);
 
