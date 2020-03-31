@@ -96,7 +96,7 @@ module.exports = plugin(
       let detailLevelProperty = new Property({
         label: 'Result Form',
         enum: resultTemplates,
-        value: [ defaultResultForm && defaultResultForm.value || this.model.get('detail-level') ||
+        value: [ this.model.get('detail-level') || defaultResultForm && defaultResultForm.value ||
             (resultTemplates &&
               resultTemplates[lastIndex] &&
               resultTemplates[lastIndex].value),
