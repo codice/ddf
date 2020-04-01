@@ -58,7 +58,7 @@
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.16</ddf.support.version>
         <!-- Must MANUALLY update this if the codice-maven project's version changes -->
-        <codice-maven.version>0.2</codice-maven.version>
+        <codice-maven.version>0.3</codice-maven.version>
         <!-- Must MANUALLY update this if the codice-test project's version changes -->
         <codice-test.version>0.3</codice-test.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
