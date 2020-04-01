@@ -67,7 +67,7 @@ public class CsvMetacardTransformerTest {
   public void setUp() {
     this.transformer = new CsvMetacardTransformer();
     this.arguments = new HashMap<>();
-    arguments.put("columnOrder", ImmutableList.of("stringAtt", "intAtt", "doubleAtt"));
+    arguments.put("columnOrder", "stringAtt,intAtt,doubleAtt");
     normalMC = buildMetacard();
   }
 
