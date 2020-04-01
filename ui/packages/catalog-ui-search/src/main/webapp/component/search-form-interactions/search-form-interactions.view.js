@@ -116,10 +116,6 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
       user.getQuerySettings().isDefaultTemplate(this.model)
     )
     this.$el.toggleClass(
-      'is-result-form-template',
-      this.model.get('type') === 'result'
-    )
-    this.$el.toggleClass(
       'is-system-template',
       this.model.get('createdBy') === 'system'
     )
