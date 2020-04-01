@@ -29,6 +29,7 @@ const Common = require('../../js/Common.js')
 const properties = require('../../js/properties.js')
 const plugin = require('plugins/query-settings')
 const ResultForm = require('../result-form/result-form.js')
+const user = require('../singletons/user-instance.js')
 import * as React from 'react'
 import RadioComponent from '../../react-component/input-wrappers/radio'
 import { showErrorMessages } from '../../react-component/utils/validation'
@@ -68,6 +69,10 @@ module.exports = plugin(
         'change:added',
         this.handleFormUpdate
       )
+      this.listenTo(user.getQuerySettings(),
+      'change:defaultResultFormId',
+     () => this.renderResultForms(this.resultFormCollection.filteredList)
+      )
     },
     handleFormUpdate(newForm) {
       this.renderResultForms(this.resultFormCollection.filteredList)
@@ -93,7 +98,7 @@ module.exports = plugin(
       resultTemplates = _.uniq(resultTemplates, 'id')
       let lastIndex = resultTemplates.length - 1
       let defaultResultForm = resultTemplates.find(
-        form => form.id === this.model.get('defaultResultFormId')
+        form => form.id === user.getQuerySettings().get('defaultResultFormId')
       )
       let detailLevelProperty = new Property({
         label: 'Result Form',

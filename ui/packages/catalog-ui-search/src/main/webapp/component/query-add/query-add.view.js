@@ -75,8 +75,7 @@ module.exports = Marionette.LayoutView.extend({
     const searchForm = new SearchForm(currentQuerySettings.get('template'))
     const sharedAttributes = searchForm.transformToQueryStructure()
     if (currentQuerySettings.get('defaultResultFormId')) {
-      sharedAttributes['detail-level'] = ''
-      this.model.set({
+      user.getQuerySettings().set({
         defaultResultFormId: currentQuerySettings.get('defaultResultFormId'),
       })
     }
