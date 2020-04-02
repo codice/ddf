@@ -69,9 +69,8 @@ module.exports = plugin(
         'change:added',
         this.handleFormUpdate
       )
-      this.listenTo(user.getQuerySettings(),
-      'change:defaultResultFormId',
-     () => this.renderResultForms(this.resultFormCollection.filteredList)
+      this.listenTo(user.getQuerySettings(), 'change:defaultResultFormId', () =>
+        this.renderResultForms(this.resultFormCollection.filteredList)
       )
     },
     handleFormUpdate(newForm) {
