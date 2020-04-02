@@ -25,21 +25,7 @@ module.exports = SearchFormViews.extend({
     SearchFormViews.prototype.initialize.call(this)
   },
   changeView() {
-    if (!user.canWrite(this.model)) {
-      announcement.announce(
-        {
-          title: 'Error',
-          message:
-            'You have read-only permission on result form ' +
-            this.model.get('title') +
-            '.',
-          type: 'error',
-        },
-        3000
-      )
-      return
-    }
-
+    this.model.set({ isReadOnly: !user.canWrite(this.model) })
     lightboxInstance.model.updateTitle(this.model.get('title'))
     lightboxInstance.model.open()
     lightboxInstance.showContent(
