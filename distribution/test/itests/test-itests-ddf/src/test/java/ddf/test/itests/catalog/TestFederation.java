@@ -1995,8 +1995,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
   private boolean verifySubscriptions(
       Set<String> subscriptionIds, Set<String> expected, Set<String> unexpected) {
-    return subscriptionIds
-        .stream()
+    return subscriptionIds.stream()
         .map(this::getEvents)
         .allMatch(ids -> areIdsCorrect(ids, expected, unexpected));
   }

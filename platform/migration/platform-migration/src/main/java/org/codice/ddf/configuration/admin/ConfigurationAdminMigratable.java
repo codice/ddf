@@ -117,7 +117,8 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   private List<
           BiFunction<
-              ImportMigrationConfigurationAdminEntry, ImportMigrationContext,
+              ImportMigrationConfigurationAdminEntry,
+              ImportMigrationContext,
               ImportMigrationConfigurationAdminEntry>>
       filters;
 
@@ -228,7 +229,8 @@ public class ConfigurationAdminMigratable implements Migratable {
   private ImportMigrationConfigurationAdminEntry updateNecessaryConfigurationAdminEntries(
       ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
     for (BiFunction<
-            ImportMigrationConfigurationAdminEntry, ImportMigrationContext,
+            ImportMigrationConfigurationAdminEntry,
+            ImportMigrationContext,
             ImportMigrationConfigurationAdminEntry>
         filter : filters) {
       entry = filter.apply(entry, context);
@@ -334,9 +336,7 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   Map<String, Object> getDefaultProperties(String pid) {
     Optional<Service> defaultMetatypeValues =
-        configAdminMBean
-            .listServices()
-            .stream()
+        configAdminMBean.listServices().stream()
             .filter(service -> service.getId() != null && service.getId().equals(pid))
             .findFirst();
 
@@ -347,8 +347,7 @@ public class ConfigurationAdminMigratable implements Migratable {
       return null;
     }
 
-    return metatypes
-        .stream()
+    return metatypes.stream()
         .collect(Collectors.toMap(MetatypeAttribute::getId, MetatypeAttribute::getDefaultValue));
   }
 
@@ -373,8 +372,7 @@ public class ConfigurationAdminMigratable implements Migratable {
   PersistenceStrategy getPersister(String extension) {
     // we do not anticipate many persistence strategies (< 5 and 2 at the moment) so a simple linear
     // search should suffice
-    return strategies
-        .stream()
+    return strategies.stream()
         .filter(s -> s.getExtension().equals(extension))
         .findFirst()
         .orElse(null);

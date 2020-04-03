@@ -58,10 +58,9 @@ import org.slf4j.LoggerFactory;
  */
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "import",
-  description = "Imports Metacards and history into the current Catalog"
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "import",
+    description = "Imports Metacards and history into the current Catalog")
 public class ImportCommand extends CatalogCommands {
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportCommand.class);
 
@@ -80,41 +79,37 @@ public class ImportCommand extends CatalogCommands {
   private DigitalSignature verifier;
 
   @Argument(
-    name = "Import File",
-    description = "The file to import",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "Import File",
+      description = "The file to import",
+      index = 0,
+      multiValued = false,
+      required = true)
   String importFile;
 
   @Option(
-    name = "--skip-signature-verification",
-    required = false,
-    multiValued = false,
-    description =
-        "Exports the data but does NOT sign the resulting zip file. "
-            + "WARNING: This file will not be able to be verified on import for integrity and authenticity."
-  )
+      name = "--skip-signature-verification",
+      required = false,
+      multiValued = false,
+      description =
+          "Exports the data but does NOT sign the resulting zip file. "
+              + "WARNING: This file will not be able to be verified on import for integrity and authenticity.")
   boolean unsafe = false;
 
   @Option(
-    name = "--force",
-    required = false,
-    aliases = {"-f"},
-    multiValued = false,
-    description = "Do not prompt"
-  )
+      name = "--force",
+      required = false,
+      aliases = {"-f"},
+      multiValued = false,
+      description = "Do not prompt")
   boolean force = false;
 
   @Option(
-    name = "--signature",
-    required = false,
-    aliases = {"-s"},
-    multiValued = false,
-    description =
-        "Provide an absolute path for the digital signature to verify the integrity of the exported data. Required unless you use --skip-signature-verification."
-  )
+      name = "--signature",
+      required = false,
+      aliases = {"-s"},
+      multiValued = false,
+      description =
+          "Provide an absolute path for the digital signature to verify the integrity of the exported data. Required unless you use --skip-signature-verification.")
   String signatureFile;
 
   @Override

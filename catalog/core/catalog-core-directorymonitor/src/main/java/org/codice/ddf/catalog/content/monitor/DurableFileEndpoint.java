@@ -36,12 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @UriEndpoint(
-  scheme = "durable",
-  title = "Durable File Endpoint",
-  syntax = "durable:directoryName",
-  consumerClass = AbstractDurableFileConsumer.class,
-  label = "codice,file"
-)
+    scheme = "durable",
+    title = "Durable File Endpoint",
+    syntax = "durable:directoryName",
+    consumerClass = AbstractDurableFileConsumer.class,
+    label = "codice,file")
 public class DurableFileEndpoint extends GenericFileEndpoint<File> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileEndpoint.class);

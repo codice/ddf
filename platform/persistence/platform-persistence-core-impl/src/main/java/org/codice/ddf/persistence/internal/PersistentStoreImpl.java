@@ -218,8 +218,7 @@ public class PersistentStoreImpl implements PersistentStore {
         if (name.endsWith(PersistentItem.TEXT_SUFFIX) && fieldValues.size() > 1) {
           result.addProperty(
               name,
-              fieldValues
-                  .stream()
+              fieldValues.stream()
                   .filter(String.class::isInstance)
                   .map(String.class::cast)
                   .collect(Collectors.toSet()));

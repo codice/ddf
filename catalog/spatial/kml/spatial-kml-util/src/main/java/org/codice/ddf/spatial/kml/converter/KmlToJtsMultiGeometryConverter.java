@@ -33,9 +33,7 @@ public class KmlToJtsMultiGeometryConverter {
     GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
 
     List<Geometry> jtsGeometries =
-        kmlMultiGeometry
-            .getGeometry()
-            .stream()
+        kmlMultiGeometry.getGeometry().stream()
             .map(KmlToJtsGeometryConverter::from)
             .collect(Collectors.toList());
 

@@ -88,8 +88,7 @@ public class QueryResponsePostProcessor {
           metacard.setAttribute(
               new AttributeImpl(
                   Metacard.DERIVED_RESOURCE_DOWNLOAD_URL,
-                  actions
-                      .stream()
+                  actions.stream()
                       .map(action -> action.getUrl().toString())
                       .collect(Collectors.toList())));
         }

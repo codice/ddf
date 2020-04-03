@@ -115,14 +115,13 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
     // use answer to ensure we create a new stream each time if called multiple times
     Mockito.doAnswer(
-            new Answer() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                return Stream.of(zipEntry);
-              }
-            })
-        .when(mockMigrationZipFile)
-        .stream();
+        new Answer() {
+          @Override
+          public Object answer(InvocationOnMock invocation) throws Throwable {
+            return Stream.of(zipEntry);
+          }
+        })
+        .when(mockMigrationZipFile).stream();
 
     mgr =
         new ImportMigrationManagerImpl(
@@ -219,8 +218,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
     Assert.assertThat(
-        mgr.getContexts()
-            .stream()
+        mgr.getContexts().stream()
             .map(ImportMigrationContextImpl::getMigratable)
             .toArray(Migratable[]::new),
         Matchers.arrayContaining(
@@ -248,8 +246,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
     Assert.assertThat(
-        mgr.getContexts()
-            .stream()
+        mgr.getContexts().stream()
             .map(ImportMigrationContextImpl::getMigratable)
             .toArray(Migratable[]::new),
         Matchers.arrayContaining(
@@ -274,8 +271,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
     Assert.assertThat(
-        mgr.getContexts()
-            .stream()
+        mgr.getContexts().stream()
             .map(ImportMigrationContextImpl::getMigratable)
             .toArray(Migratable[]::new),
         Matchers.arrayContaining(
@@ -302,8 +298,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
     Assert.assertThat(
-        mgr.getContexts()
-            .stream()
+        mgr.getContexts().stream()
             .map(ImportMigrationContextImpl::getMigratable)
             .toArray(Migratable[]::new),
         Matchers.arrayContaining(
@@ -540,8 +535,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
     Assert.assertThat(
-        mgr.getContexts()
-            .stream()
+        mgr.getContexts().stream()
             .map(ImportMigrationContextImpl::getMigratable)
             .toArray(Migratable[]::new),
         Matchers.arrayContaining(
@@ -550,8 +544,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
             Matchers.sameInstance(migratable3),
             Matchers.nullValue())); // null correspond to the system context
     Assert.assertThat(
-        mgr.getContexts()
-            .stream()
+        mgr.getContexts().stream()
             .filter(c -> c.getMigratable() == migratable)
             .map(ImportMigrationContextImpl::getEntries)
             .findFirst(),

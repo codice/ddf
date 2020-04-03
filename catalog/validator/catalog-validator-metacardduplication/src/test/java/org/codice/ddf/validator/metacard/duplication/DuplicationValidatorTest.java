@@ -171,10 +171,7 @@ public class DuplicationValidatorTest {
     assertThat(report.get().getMetacardValidationViolations(), hasSize(2));
 
     Map<ValidationViolation.Severity, ValidationViolation> violations =
-        report
-            .get()
-            .getMetacardValidationViolations()
-            .stream()
+        report.get().getMetacardValidationViolations().stream()
             .collect(Collectors.toMap(ValidationViolation::getSeverity, Function.identity()));
 
     ValidationViolation warnViolation = violations.get(ValidationViolation.Severity.WARNING);

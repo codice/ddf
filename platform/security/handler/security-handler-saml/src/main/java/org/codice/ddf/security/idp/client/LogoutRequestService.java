@@ -190,11 +190,10 @@ public class LogoutRequestService {
         // assertion is removed.
         List<String> sessionIndexes =
             new SecurityAssertionSaml(idpSecToken)
-                .getAuthnStatements()
-                .stream()
-                .filter(Objects::nonNull)
-                .map(AuthenticationStatement::getSessionIndex)
-                .collect(Collectors.toList());
+                .getAuthnStatements().stream()
+                    .filter(Objects::nonNull)
+                    .map(AuthenticationStatement::getSessionIndex)
+                    .collect(Collectors.toList());
 
         logout();
         LogoutRequest logoutRequest =
@@ -520,10 +519,7 @@ public class LogoutRequestService {
   }
 
   private Element getIdpSecurityToken() {
-    return getTokenHolder()
-        .getPrincipals()
-        .byType(SecurityAssertion.class)
-        .stream()
+    return getTokenHolder().getPrincipals().byType(SecurityAssertion.class).stream()
         .map(SecurityAssertion::getToken)
         .filter(Element.class::isInstance)
         .map(Element.class::cast)

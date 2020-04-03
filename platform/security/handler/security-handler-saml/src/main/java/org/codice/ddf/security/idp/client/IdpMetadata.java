@@ -104,8 +104,7 @@ public class IdpMetadata {
     }
 
     // Prefer HTTP-Redirect over HTTP-POST if both are present
-    return endpoints
-        .stream()
+    return endpoints.stream()
         .filter(Objects::nonNull)
         .filter(s -> Objects.nonNull(s.getBinding()))
         .filter(

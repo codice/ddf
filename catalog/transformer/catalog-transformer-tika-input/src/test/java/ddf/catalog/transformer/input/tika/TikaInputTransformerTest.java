@@ -193,10 +193,7 @@ public class TikaInputTransformerTest {
     verify(cme).getMetacardAttributes();
     assertThat(metacard.getMetacardType().getName(), is(PDF_METACARDTYPE_NAME));
     List<String> actualNames =
-        metacard
-            .getMetacardType()
-            .getAttributeDescriptors()
-            .stream()
+        metacard.getMetacardType().getAttributeDescriptors().stream()
             .map(AttributeDescriptor::getName)
             .collect(toList());
     assertThat(

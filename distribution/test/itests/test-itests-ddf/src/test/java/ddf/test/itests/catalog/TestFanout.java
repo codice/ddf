@@ -111,9 +111,7 @@ public class TestFanout extends AbstractIntegrationTest {
   }
 
   private boolean areSourcesReady() throws InvalidSyntaxException {
-    return getServiceManager()
-        .getServiceReferences(FederatedSource.class, null)
-        .stream()
+    return getServiceManager().getServiceReferences(FederatedSource.class, null).stream()
         .map(getServiceManager()::getService)
         .filter(src -> CSW_SOURCE_ID.equals(src.getId()))
         .anyMatch(Source::isAvailable);

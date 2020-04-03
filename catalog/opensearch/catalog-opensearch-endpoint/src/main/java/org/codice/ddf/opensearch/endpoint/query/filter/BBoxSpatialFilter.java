@@ -23,8 +23,7 @@ public class BBoxSpatialFilter extends SpatialFilter {
   /** A {@link Pattern} of 4 {@value OpenSearchConstants#BBOX_DELIMITER}-delimited doubles */
   private static final Pattern EXPECTED_BBOX_FORMAT =
       Pattern.compile(
-          Collections.nCopies(4, "(-?\\d+(\\.\\d+)?)")
-              .stream()
+          Collections.nCopies(4, "(-?\\d+(\\.\\d+)?)").stream()
               .collect(Collectors.joining(OpenSearchConstants.BBOX_DELIMITER)));
 
   private static final Pattern BBOX_PATTERN = Pattern.compile(OpenSearchConstants.BBOX_DELIMITER);

@@ -277,9 +277,7 @@ public class ConfluenceSource extends MaskableImpl
     try {
 
       List<Result> results =
-          transformer
-              .transformConfluenceResponse(stream, bodyExpansion)
-              .stream()
+          transformer.transformConfluenceResponse(stream, bodyExpansion).stream()
               .map(this::getUpdatedResult)
               .collect(Collectors.toList());
 
@@ -393,9 +391,7 @@ public class ConfluenceSource extends MaskableImpl
       return;
     }
 
-    attributeOverrides
-        .keySet()
-        .stream()
+    attributeOverrides.keySet().stream()
         .map(attributeRegistry::lookup)
         .filter(Optional::isPresent)
         .map(Optional::get)

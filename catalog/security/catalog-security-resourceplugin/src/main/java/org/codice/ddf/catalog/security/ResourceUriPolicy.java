@@ -88,8 +88,7 @@ public class ResourceUriPolicy implements PolicyPlugin {
             .getPreviousStateMetacards();
 
     Metacard previous =
-        previousStateMetacards
-            .stream()
+        previousStateMetacards.stream()
             .filter((x) -> x.getId().equals(input.getId()))
             .findFirst()
             .orElse(null);

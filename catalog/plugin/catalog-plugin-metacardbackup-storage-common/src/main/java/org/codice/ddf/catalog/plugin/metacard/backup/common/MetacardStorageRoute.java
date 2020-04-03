@@ -161,9 +161,7 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
     } else {
       Attribute metacardTagsAttr = metacard.getAttribute(Core.METACARD_TAGS);
       if (metacardTagsAttr != null) {
-        return metacardTagsAttr
-            .getValues()
-            .stream()
+        return metacardTagsAttr.getValues().stream()
             .filter(String.class::isInstance)
             .map(String.class::cast)
             .noneMatch(INVALID_TAG::equalsIgnoreCase);
@@ -203,9 +201,7 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
     Attribute metacardTagsAttr = metacard.getAttribute(Core.METACARD_TAGS);
     if (metacardTagsAttr != null) {
       List<String> metacardTagValues =
-          metacardTagsAttr
-              .getValues()
-              .stream()
+          metacardTagsAttr.getValues().stream()
               .filter(String.class::isInstance)
               .map(String.class::cast)
               .collect(Collectors.toList());

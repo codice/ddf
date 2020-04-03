@@ -212,8 +212,7 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
       Collection<ServiceReference<OAuthFederatedSource>> implementers =
           bundleContext.getServiceReferences(OAuthFederatedSource.class, null);
       oauthSource =
-          implementers
-              .stream()
+          implementers.stream()
               .map(bundleContext::getService)
               .filter(s -> s.getId().equals(source.getId()))
               .filter(s -> s.getAuthenticationType().equals(OAUTH))
@@ -271,16 +270,12 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
 
     // Verify that an unexpired token exists
     List<TokenInformation.TokenEntry> matchingTokenEntries =
-        tokenInformation
-            .getTokenEntries()
-            .values()
-            .stream()
+        tokenInformation.getTokenEntries().values().stream()
             .filter(entry -> entry.getDiscoveryUrl().equals(oauthSource.getOauthDiscoveryUrl()))
             .collect(Collectors.toList());
 
     TokenInformation.TokenEntry tokenEntry =
-        matchingTokenEntries
-            .stream()
+        matchingTokenEntries.stream()
             .filter(entry -> entry.getAccessToken() != null)
             .filter(entry -> !isExpired(entry.getAccessToken()))
             .findAny()
@@ -289,8 +284,7 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
     if (tokenEntry == null) {
       // does one with a valid refresh token exist
       tokenEntry =
-          matchingTokenEntries
-              .stream()
+          matchingTokenEntries.stream()
               .filter(entry -> entry.getRefreshToken() != null)
               .filter(entry -> !isExpired(entry.getRefreshToken()))
               .findAny()

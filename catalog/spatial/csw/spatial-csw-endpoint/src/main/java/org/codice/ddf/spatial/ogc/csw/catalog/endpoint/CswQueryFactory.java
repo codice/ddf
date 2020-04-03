@@ -245,8 +245,7 @@ public class CswQueryFactory {
       Serializable extraSortBys = request.getPropertyValue(ADDITIONAL_SORT_BYS);
       if (extraSortBys instanceof SortBy[]) {
         List<SortBy> extraSortBysList = Arrays.asList((SortBy[]) extraSortBys);
-        extraSortBysList
-            .stream()
+        extraSortBysList.stream()
             .map(this::normalizeSortBy)
             .filter(Objects::nonNull)
             .forEach(sortBys::add);

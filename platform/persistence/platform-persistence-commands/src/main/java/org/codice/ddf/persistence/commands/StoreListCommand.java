@@ -26,20 +26,18 @@ import org.codice.ddf.persistence.PersistentItem;
 
 @Service
 @Command(
-  scope = "store",
-  name = "list",
-  description = "Lists entries that are available in the persistent store."
-)
+    scope = "store",
+    name = "list",
+    description = "Lists entries that are available in the persistent store.")
 public class StoreListCommand extends AbstractStoreCommand {
 
   @Option(
-    name = "User ID",
-    aliases = {"-u", "--user"},
-    required = false,
-    description =
-        "User ID to search for notifications. If an id is not provided, then all of the notifications for all users are displayed.",
-    multiValued = false
-  )
+      name = "User ID",
+      aliases = {"-u", "--user"},
+      required = false,
+      description =
+          "User ID to search for notifications. If an id is not provided, then all of the notifications for all users are displayed.",
+      multiValued = false)
   private String user;
 
   private Set<String> headerSet = new TreeSet<String>();

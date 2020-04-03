@@ -861,10 +861,10 @@ public class OpenSearchSourceTest {
     List<String> names =
         ((List<?>) elementListCaptor.getAllValues().get(0))
             .stream()
-            .filter(Element.class::isInstance)
-            .map(Element.class::cast)
-            .map(Element::getName)
-            .collect(Collectors.toList());
+                .filter(Element.class::isInstance)
+                .map(Element.class::cast)
+                .map(Element::getName)
+                .collect(Collectors.toList());
 
     assertThat(names, is(Arrays.asList("totalResults", "itemsPerPage", "startIndex")));
   }
@@ -888,9 +888,7 @@ public class OpenSearchSourceTest {
 
   private void assertSourceId(SourceResponse sourceResponse) {
     if (sourceResponse != null && sourceResponse.getResults() != null) {
-      sourceResponse
-          .getResults()
-          .stream()
+      sourceResponse.getResults().stream()
           .filter(Objects::nonNull)
           .map(Result::getMetacard)
           .filter(Objects::nonNull)

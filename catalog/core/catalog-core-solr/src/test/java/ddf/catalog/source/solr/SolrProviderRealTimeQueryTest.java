@@ -227,9 +227,7 @@ public class SolrProviderRealTimeQueryTest {
 
     CreateResponse createResponse = create(metacards, provider);
     List<String> ids =
-        createResponse
-            .getCreatedMetacards()
-            .stream()
+        createResponse.getCreatedMetacards().stream()
             .map(m -> m.getId())
             .collect(Collectors.toList());
 

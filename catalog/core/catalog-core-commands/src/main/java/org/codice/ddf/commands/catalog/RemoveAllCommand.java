@@ -49,10 +49,9 @@ import org.slf4j.LoggerFactory;
 /** Command used to remove all or a subset of records (in bulk) from the Catalog. */
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "removeall",
-  description = "Attempts to delete all records from the Catalog."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "removeall",
+    description = "Attempts to delete all records from the Catalog.")
 public class RemoveAllCommand extends CatalogCommands {
 
   private static final String COMMAND_SCOPE = CatalogCommands.NAMESPACE;
@@ -75,27 +74,24 @@ public class RemoveAllCommand extends CatalogCommands {
   private static final int DEFAULT_BATCH_SIZE = 100;
 
   @Argument(
-    name = "Batch size",
-    description =
-        "Number of Metacards to delete at a time until completion. Change this argument based on system memory and Catalog limits. "
-            + "Must be a positive integer.\nNOTE: Batch size may not be honored given system constraints."
-  )
+      name = "Batch size",
+      description =
+          "Number of Metacards to delete at a time until completion. Change this argument based on system memory and Catalog limits. "
+              + "Must be a positive integer.\nNOTE: Batch size may not be honored given system constraints.")
   int batchSize = DEFAULT_BATCH_SIZE;
 
   @Option(
-    name = "--expired",
-    aliases = {"-e"},
-    description =
-        "Remove only expired records from the Catalog. "
-            + "Expired records are based on the Metacard EXPIRATION field."
-  )
+      name = "--expired",
+      aliases = {"-e"},
+      description =
+          "Remove only expired records from the Catalog. "
+              + "Expired records are based on the Metacard EXPIRATION field.")
   private boolean expired = false;
 
   @Option(
-    name = "--force",
-    aliases = {"-f"},
-    description = "Force the removal without a confirmation message."
-  )
+      name = "--force",
+      aliases = {"-f"},
+      description = "Force the removal without a confirmation message.")
   boolean force = false;
 
   @Option(name = "--cache", description = "Only remove cached entries.")
@@ -177,9 +173,7 @@ public class RemoveAllCommand extends CatalogCommands {
 
       // Add metacard ids to string array
       List<String> ids =
-          response
-              .getResults()
-              .stream()
+          response.getResults().stream()
               .filter(Objects::nonNull)
               .map(Result::getMetacard)
               .filter(Objects::nonNull)

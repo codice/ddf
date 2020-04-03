@@ -56,11 +56,10 @@ import org.codice.solr.factory.SolrClientFactory;
 
 @Service
 @Command(
-  scope = SolrCommands.NAMESPACE,
-  name = "reindex",
-  description =
-      "Reindexes data from a source collection to current Catalog Framework collection(s)."
-)
+    scope = SolrCommands.NAMESPACE,
+    name = "reindex",
+    description =
+        "Reindexes data from a source collection to current Catalog Framework collection(s).")
 public class ReindexCommand extends SolrCommands {
   private static final int PAGE_SIZE = 200;
 
@@ -92,64 +91,57 @@ public class ReindexCommand extends SolrCommands {
   @Reference Security security;
 
   @Option(
-    name = "-s",
-    aliases = {"--solr"},
-    description =
-        "The source Solr system (local or cloud) to retrieve data. Should be in the form of 'http://host:port' of any cloud node.",
-    required = true
-  )
+      name = "-s",
+      aliases = {"--solr"},
+      description =
+          "The source Solr system (local or cloud) to retrieve data. Should be in the form of 'http://host:port' of any cloud node.",
+      required = true)
   private String solrHost;
 
   @Option(
-    name = "-c",
-    aliases = {"--collection"},
-    description = "The source collection (or alias) to migrate data from.",
-    required = true
-  )
+      name = "-c",
+      aliases = {"--collection"},
+      description = "The source collection (or alias) to migrate data from.",
+      required = true)
   private String collection;
 
   @Option(
-    name = "-f",
-    aliases = {"--field"},
-    description =
-        "Field used for date comparisons. Range restricts by --after and --before parameters. Default (Date of indexing): metacard.modified_tdt",
-    required = false
-  )
+      name = "-f",
+      aliases = {"--field"},
+      description =
+          "Field used for date comparisons. Range restricts by --after and --before parameters. Default (Date of indexing): metacard.modified_tdt",
+      required = false)
   private String field = "metacard.modified_tdt";
 
   @Option(
-    name = "-a",
-    aliases = {"--after"},
-    description =
-        "Optional after date used to restrict data to be migrated. Default of 1900-01-01T00:00:00.000Z. Should be in the format: 2019-01-01T00:00:00Z.",
-    required = false
-  )
+      name = "-a",
+      aliases = {"--after"},
+      description =
+          "Optional after date used to restrict data to be migrated. Default of 1900-01-01T00:00:00.000Z. Should be in the format: 2019-01-01T00:00:00Z.",
+      required = false)
   private String afterDate;
 
   @Option(
-    name = "-b",
-    aliases = {"--before"},
-    description =
-        "Optional before date used to restrict data to be migrated. Default of NOW. Should be in the format: 2019-01-01T00:00:00Z.",
-    required = false
-  )
+      name = "-b",
+      aliases = {"--before"},
+      description =
+          "Optional before date used to restrict data to be migrated. Default of NOW. Should be in the format: 2019-01-01T00:00:00Z.",
+      required = false)
   private String beforeDate;
 
   @Option(
-    name = "-d",
-    aliases = {"--dryrun"},
-    description = "Display the query that would run and exit. No data will be migrated",
-    required = false
-  )
+      name = "-d",
+      aliases = {"--dryrun"},
+      description = "Display the query that would run and exit. No data will be migrated",
+      required = false)
   private boolean dryrun = false;
 
   @Option(
-    name = "-t",
-    aliases = {"--threads"},
-    description =
-        "Number of writer threads for parallel processing. Default is number of processors",
-    required = false
-  )
+      name = "-t",
+      aliases = {"--threads"},
+      description =
+          "Number of writer threads for parallel processing. Default is number of processors",
+      required = false)
   int numThreads = Runtime.getRuntime().availableProcessors();
 
   @Override

@@ -167,9 +167,7 @@ public abstract class PropertyOperation implements Operation<Void> {
                 "Error reading configuration from file %s", configFile.toFile().getName()));
       }
 
-      result
-          .keySet()
-          .stream()
+      result.keySet().stream()
           .map(String.class::cast)
           .forEach(k -> currentProperties.put(k, result.getProperty(k)));
     }

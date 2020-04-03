@@ -71,12 +71,11 @@ public abstract class MigrationCommand implements Action {
   @Reference protected Session session;
 
   @Option(
-    name = "--user",
-    required = false,
-    aliases = {"-u"},
-    multiValued = false,
-    description = "Run command as a different user."
-  )
+      name = "--user",
+      required = false,
+      aliases = {"-u"},
+      multiValued = false,
+      description = "Run command as a different user.")
   protected String user = null;
 
   protected Path exportDirectory =

@@ -155,8 +155,7 @@ public class WhoAmI {
 
     private List<String> extractAuthnContextClasses(List<AuthenticationStatement> authnStatements) {
       return Collections.unmodifiableList(
-          authnStatements
-              .stream()
+          authnStatements.stream()
               .filter(Objects::nonNull)
               .map(AuthenticationStatement::getAuthnContextClassRef)
               .collect(Collectors.toList()));

@@ -307,9 +307,7 @@ public class TransactionMessageBodyReaderTest {
     new MediaAttributes().getAttributeDescriptors().stream().forEach(d -> registry.register(d));
     new TopicAttributes().getAttributeDescriptors().stream().forEach(d -> registry.register(d));
     new AssociationsAttributes()
-        .getAttributeDescriptors()
-        .stream()
-        .forEach(d -> registry.register(d));
+        .getAttributeDescriptors().stream().forEach(d -> registry.register(d));
   }
 
   @Test

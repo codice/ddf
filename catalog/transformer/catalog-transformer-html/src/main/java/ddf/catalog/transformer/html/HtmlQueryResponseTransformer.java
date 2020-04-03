@@ -50,9 +50,7 @@ public class HtmlQueryResponseTransformer implements QueryResponseTransformer {
         HtmlMetacardUtility.sortCategoryList(htmlMetacardUtility.getCategoryList());
 
     final List<HtmlMetacardModel> metacardModels =
-        sourceResponse
-            .getResults()
-            .stream()
+        sourceResponse.getResults().stream()
             .map(Result::getMetacard)
             .map(metacard -> new HtmlMetacardModel(metacard, categoryList))
             .collect(toList());

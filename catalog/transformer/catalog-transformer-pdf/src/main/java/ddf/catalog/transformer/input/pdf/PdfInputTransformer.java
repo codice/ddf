@@ -187,9 +187,7 @@ public class PdfInputTransformer implements InputTransformer {
     if (StringUtils.isNotEmpty(bodyText) && !contentMetadataExtractors.isEmpty()) {
 
       Set<AttributeDescriptor> attributes =
-          contentMetadataExtractors
-              .values()
-              .stream()
+          contentMetadataExtractors.values().stream()
               .map(ContentMetadataExtractor::getMetacardAttributes)
               .flatMap(Collection::stream)
               .collect(Collectors.toSet());

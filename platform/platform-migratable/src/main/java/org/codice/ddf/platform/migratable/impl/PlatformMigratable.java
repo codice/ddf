@@ -129,13 +129,11 @@ public class PlatformMigratable implements Migratable {
   @Override
   public void doExport(ExportMigrationContext context) {
     LOGGER.debug("Exporting required system files & directories...");
-    PlatformMigratable.REQUIRED_SYSTEM_PATHS
-        .stream()
+    PlatformMigratable.REQUIRED_SYSTEM_PATHS.stream()
         .map(context::getEntry)
         .forEach(ExportMigrationEntry::store);
     LOGGER.debug("Exporting optional system files & directories...");
-    PlatformMigratable.OPTIONAL_SYSTEM_PATHS
-        .stream()
+    PlatformMigratable.OPTIONAL_SYSTEM_PATHS.stream()
         .map(context::getEntry)
         .forEach(me -> me.store(false));
     LOGGER.debug("Exporting keystore and truststore...");
@@ -157,13 +155,11 @@ public class PlatformMigratable implements Migratable {
   @Override
   public void doImport(ImportMigrationContext context) {
     LOGGER.debug("Importing required system files & directories...");
-    PlatformMigratable.REQUIRED_SYSTEM_PATHS
-        .stream()
+    PlatformMigratable.REQUIRED_SYSTEM_PATHS.stream()
         .map(context::getEntry)
         .forEach(ImportMigrationEntry::restore);
     LOGGER.debug("Importing optional system files & directories...");
-    PlatformMigratable.OPTIONAL_SYSTEM_PATHS
-        .stream()
+    PlatformMigratable.OPTIONAL_SYSTEM_PATHS.stream()
         .map(context::getEntry)
         .forEach(me -> me.restore(false));
     importKeystores(context);
@@ -184,8 +180,7 @@ public class PlatformMigratable implements Migratable {
     }
 
     LOGGER.debug("Importing remaining system files...");
-    PlatformMigratable.UPGRADEABLE_SYSTEM_PATHS
-        .stream()
+    PlatformMigratable.UPGRADEABLE_SYSTEM_PATHS.stream()
         .map(context::getEntry)
         .forEach(me -> me.restore(false));
     importKeystores(context);
@@ -210,9 +205,7 @@ public class PlatformMigratable implements Migratable {
             .getInputStream()
             .orElseThrow(IOException::new));
 
-    currentProps
-        .entrySet()
-        .stream()
+    currentProps.entrySet().stream()
         .filter(e -> propertyShouldNotBeOverwritten(e, importedProps))
         .forEach(e -> importedProps.put(e.getKey(), e.getValue()));
 

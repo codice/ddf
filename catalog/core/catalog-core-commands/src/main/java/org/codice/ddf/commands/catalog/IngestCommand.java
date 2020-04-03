@@ -93,10 +93,9 @@ import org.slf4j.LoggerFactory;
 /** Custom Karaf command for ingesting records into the Catalog. */
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "ingest",
-  description = "Ingests Metacards into the Catalog."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "ingest",
+    description = "Ingests Metacards into the Catalog.")
 public class IngestCommand extends CatalogCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IngestCommand.class);
@@ -152,100 +151,91 @@ public class IngestCommand extends CatalogCommands {
   private DigitalSignature verifier;
 
   @Argument(
-    name = "File path or Directory path",
-    description =
-        "Path to a file or a directory of file(s) to be ingested. Paths can be absolute or relative to installation directory."
-            + " This command can only detect roughly 2 billion files in one directory. Individual operating system limits might also apply.",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "File path or Directory path",
+      description =
+          "Path to a file or a directory of file(s) to be ingested. Paths can be absolute or relative to installation directory."
+              + " This command can only detect roughly 2 billion files in one directory. Individual operating system limits might also apply.",
+      index = 0,
+      multiValued = false,
+      required = true)
   @Completion(FileCompleter.class)
   String filePath;
 
   // DDF-535: Remove this argument in ddf-3.0
   @Argument(
-    name = "Batch size",
-    description =
-        "Number of Metacards to ingest at a time. Change this argument based on system memory and Catalog Provider limits. [DEPRECATED: use --batchsize option instead]",
-    index = 1,
-    multiValued = false,
-    required = false
-  )
+      name = "Batch size",
+      description =
+          "Number of Metacards to ingest at a time. Change this argument based on system memory and Catalog Provider limits. [DEPRECATED: use --batchsize option instead]",
+      index = 1,
+      multiValued = false,
+      required = false)
   int deprecatedBatchSize = DEFAULT_BATCH_SIZE;
 
   // DDF-535: remove "Transformer" alias in ddf-3.0
   @Option(
-    name = "--transformer",
-    required = false,
-    aliases = {"-t", "Transformer"},
-    multiValued = false,
-    description =
-        "The metacard transformer ID to use to transform data file(s) into metacard(s). "
-            + "The default metacard transformer is the XML transformer."
-  )
+      name = "--transformer",
+      required = false,
+      aliases = {"-t", "Transformer"},
+      multiValued = false,
+      description =
+          "The metacard transformer ID to use to transform data file(s) into metacard(s). "
+              + "The default metacard transformer is the XML transformer.")
   String transformerId = DEFAULT_TRANSFORMER_ID;
 
   // DDF-535: Remove "Multithreaded" alias in ddf-3.0
   @Option(
-    name = "--multithreaded",
-    required = false,
-    aliases = {"-m", "Multithreaded"},
-    multiValued = false,
-    description =
-        "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation."
-  )
+      name = "--multithreaded",
+      required = false,
+      aliases = {"-m", "Multithreaded"},
+      multiValued = false,
+      description =
+          "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
   int multithreaded = 8;
 
   // DDF-535: remove "-d" and "Ingest Failure Directory" aliases in ddf-3.0
   @Option(
-    name = "--failedDir",
-    required = false,
-    aliases = {"-d", "-f", "Ingest Failure Directory"},
-    multiValued = false,
-    description =
-        "The directory to put file(s) that failed to ingest. Using this option will force a batch size of 1."
-  )
+      name = "--failedDir",
+      required = false,
+      aliases = {"-d", "-f", "Ingest Failure Directory"},
+      multiValued = false,
+      description =
+          "The directory to put file(s) that failed to ingest. Using this option will force a batch size of 1.")
   String failedDir = null;
 
   @Option(
-    name = "--batchsize",
-    required = false,
-    aliases = {"-b"},
-    multiValued = false,
-    description =
-        "Number of Metacards to ingest at a time. Change this argument based on system memory and Catalog Provider limits."
-  )
+      name = "--batchsize",
+      required = false,
+      aliases = {"-b"},
+      multiValued = false,
+      description =
+          "Number of Metacards to ingest at a time. Change this argument based on system memory and Catalog Provider limits.")
   int batchSize = DEFAULT_BATCH_SIZE;
 
   @Option(
-    name = "--ignore",
-    required = false,
-    aliases = {"-i"},
-    multiValued = true,
-    description =
-        "File extension(s) or file name(s) to ignore during ingestion (-i '.txt' -i 'image.jpg' -i 'file' )"
-  )
+      name = "--ignore",
+      required = false,
+      aliases = {"-i"},
+      multiValued = true,
+      description =
+          "File extension(s) or file name(s) to ignore during ingestion (-i '.txt' -i 'image.jpg' -i 'file' )")
   List<String> ignoreList;
 
   @Option(
-    name = "--include-content",
-    required = false,
-    aliases = {},
-    multiValued = false,
-    description =
-        "Ingest a zip file that contains metacards and content using the default transformer. The specified zip must be signed externally using DDF certificates."
-  )
+      name = "--include-content",
+      required = false,
+      aliases = {},
+      multiValued = false,
+      description =
+          "Ingest a zip file that contains metacards and content using the default transformer. The specified zip must be signed externally using DDF certificates.")
   boolean includeContent = false;
 
   @Option(
-    name = "--signature",
-    required = false,
-    aliases = {"-s"},
-    multiValued = false,
-    description =
-        "Provided absolute path for the digital signature to verify the integrity of the exported data. Required when the `--include-content` option is specified."
-  )
+      name = "--signature",
+      required = false,
+      aliases = {"-s"},
+      multiValued = false,
+      description =
+          "Provided absolute path for the digital signature to verify the integrity of the exported data. Required when the `--include-content` option is specified.")
   String signatureFile;
 
   @Reference StorageProvider storageProvider;
@@ -716,10 +706,7 @@ public class IngestCommand extends CatalogCommands {
     if (zipDecompression.isPresent()) {
       try (InputStream inputStream = byteSource.openBufferedStream()) {
         List<Metacard> metacardList =
-            zipDecompression
-                .get()
-                .transform(inputStream, arguments)
-                .stream()
+            zipDecompression.get().transform(inputStream, arguments).stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -743,8 +730,7 @@ public class IngestCommand extends CatalogCommands {
   }
 
   private void submitToStorageProvider(List<Metacard> metacardList) {
-    metacardList
-        .stream()
+    metacardList.stream()
         .filter(metacard -> metacardFileMapping.containsKey(metacard.getId()))
         .map(
             metacard -> {

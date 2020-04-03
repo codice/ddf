@@ -96,9 +96,7 @@ public class InMemoryStorageProvider implements StorageProvider {
     List<ContentItem> itemsToDelete = new ArrayList<>();
     for (Metacard metacard : deleteRequest.getMetacards()) {
       List<ContentItem> tmp =
-          storageMap
-              .values()
-              .stream()
+          storageMap.values().stream()
               .filter(item -> item.getMetacard().getId().equals(metacard.getId()))
               .collect(Collectors.toList());
 

@@ -34,39 +34,35 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "migrate",
-  description = "Migrates Metacards from one Provider to another Provider."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "migrate",
+    description = "Migrates Metacards from one Provider to another Provider.")
 public class MigrateCommand extends DuplicateCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MigrateCommand.class);
 
   @Option(
-    name = "--list",
-    required = false,
-    aliases = {"-list"},
-    multiValued = false,
-    description = "Print a list of Providers."
-  )
+      name = "--list",
+      required = false,
+      aliases = {"-list"},
+      multiValued = false,
+      description = "Print a list of Providers.")
   boolean listProviders = false;
 
   @Option(
-    name = "--from",
-    required = false,
-    aliases = {"-from"},
-    multiValued = false,
-    description = "The Source ID of the Provider to migrate from."
-  )
+      name = "--from",
+      required = false,
+      aliases = {"-from"},
+      multiValued = false,
+      description = "The Source ID of the Provider to migrate from.")
   String fromProviderId;
 
   @Option(
-    name = "--to",
-    required = false,
-    aliases = {"-to"},
-    multiValued = false,
-    description = "The Source ID of the Provider to migrate to."
-  )
+      name = "--to",
+      required = false,
+      aliases = {"-to"},
+      multiValued = false,
+      description = "The Source ID of the Provider to migrate to.")
   String toProviderId;
 
   @Override
@@ -79,8 +75,7 @@ public class MigrateCommand extends DuplicateCommands {
         return null;
       }
       console.println("Available Providers:");
-      providers
-          .stream()
+      providers.stream()
           .map(p -> p.getClass().getSimpleName())
           .forEach(id -> console.println("\t" + id));
 
@@ -149,8 +144,7 @@ public class MigrateCommand extends DuplicateCommands {
 
     final String providerId = id;
     final CatalogProvider provider =
-        providers
-            .stream()
+        providers.stream()
             .filter(p -> p.getClass().getSimpleName().equals(providerId))
             .findFirst()
             .orElse(null);

@@ -55,147 +55,134 @@ public abstract class CqlCommands extends CatalogCommands {
   private static final String SEARCH_PHRASE_OPTION_NAME = "--searchPhrase";
 
   @Option(
-    name = "--cql",
-    required = false,
-    aliases = {"-cqlFilter"},
-    multiValued = false,
-    description =
-        "Option to filter by metacards that match a CQL Filter expression. It is recommended to use the search command (catalog:search) first to see which metacards will be filtered.\n\n"
-            + "CQL Examples:\n\t"
-            + "Textual:   --cql \"title like 'some text'\"\n\t"
-            + "Temporal:  --cql \"modified before 2012-09-01T12:30:00Z\"\n\t"
-            + "Spatial:   --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n\t"
-            + "Complex:   --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\""
-  )
+      name = "--cql",
+      required = false,
+      aliases = {"-cqlFilter"},
+      multiValued = false,
+      description =
+          "Option to filter by metacards that match a CQL Filter expression. It is recommended to use the search command (catalog:search) first to see which metacards will be filtered.\n\n"
+              + "CQL Examples:\n\t"
+              + "Textual:   --cql \"title like 'some text'\"\n\t"
+              + "Temporal:  --cql \"modified before 2012-09-01T12:30:00Z\"\n\t"
+              + "Spatial:   --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n\t"
+              + "Complex:   --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
   String cqlFilter = null;
 
   @Option(
-    name = "--temporal",
-    required = false,
-    aliases = {"-dt"},
-    multiValued = false,
-    description =
-        "Option to use temporal criteria to filter. The default is to use \"keyword like "
-            + WILDCARD
-            + " \"."
-  )
+      name = "--temporal",
+      required = false,
+      aliases = {"-dt"},
+      multiValued = false,
+      description =
+          "Option to use temporal criteria to filter. The default is to use \"keyword like "
+              + WILDCARD
+              + " \".")
   boolean isUseTemporal = false;
 
   @Option(
-    name = "--temporalProperty",
-    required = false,
-    aliases = {"-tp"},
-    multiValued = false,
-    description =
-        "Option to select which temporal property by which to filter with --XXXDate and--lastXXXX "
-            + "options. Valid values include, but are not limited to, \""
-            + Core.MODIFIED
-            + "\", \""
-            + Core.CREATED
-            + "\", \""
-            + Metacard.EFFECTIVE
-            + "\", and \""
-            + Core.EXPIRATION
-            + "\". Defaults to \""
-            + DEFAULT_TEMPORAL_PROPERTY
-            + "\" if "
-            + "not specified or input not recognized."
-  )
+      name = "--temporalProperty",
+      required = false,
+      aliases = {"-tp"},
+      multiValued = false,
+      description =
+          "Option to select which temporal property by which to filter with --XXXDate and--lastXXXX "
+              + "options. Valid values include, but are not limited to, \""
+              + Core.MODIFIED
+              + "\", \""
+              + Core.CREATED
+              + "\", \""
+              + Metacard.EFFECTIVE
+              + "\", and \""
+              + Core.EXPIRATION
+              + "\". Defaults to \""
+              + DEFAULT_TEMPORAL_PROPERTY
+              + "\" if "
+              + "not specified or input not recognized.")
   String temporalProperty;
 
   @Option(
-    name = "--startDate",
-    required = false,
-    aliases = {"-start"},
-    multiValued = false,
-    description =
-        "Flag to specify a start date range to by which to filter." + DATE_FORMATTING_MESSAGE
-  )
+      name = "--startDate",
+      required = false,
+      aliases = {"-start"},
+      multiValued = false,
+      description =
+          "Flag to specify a start date range to by which to filter." + DATE_FORMATTING_MESSAGE)
   String startDate;
 
   @Option(
-    name = "--endDate",
-    required = false,
-    aliases = {"-end"},
-    multiValued = false,
-    description =
-        "Flag to specify a start date range to by which to filter." + DATE_FORMATTING_MESSAGE
-  )
+      name = "--endDate",
+      required = false,
+      aliases = {"-end"},
+      multiValued = false,
+      description =
+          "Flag to specify a start date range to by which to filter." + DATE_FORMATTING_MESSAGE)
   String endDate;
 
   @Option(
-    name = "--lastSeconds",
-    required = false,
-    aliases = {"-sec", "-seconds"},
-    multiValued = false,
-    description = "Option to filter by the last N seconds." + LASTXXXX_MESSAGE
-  )
+      name = "--lastSeconds",
+      required = false,
+      aliases = {"-sec", "-seconds"},
+      multiValued = false,
+      description = "Option to filter by the last N seconds." + LASTXXXX_MESSAGE)
   int lastSeconds;
 
   @Option(
-    name = "--lastMinutes",
-    required = false,
-    aliases = {"-min", "-minutes"},
-    multiValued = false,
-    description = "Option to filter by the last N minutes." + LASTXXXX_MESSAGE
-  )
+      name = "--lastMinutes",
+      required = false,
+      aliases = {"-min", "-minutes"},
+      multiValued = false,
+      description = "Option to filter by the last N minutes." + LASTXXXX_MESSAGE)
   int lastMinutes;
 
   @Option(
-    name = "--lastHours",
-    required = false,
-    aliases = {"-h", "-hours"},
-    multiValued = false,
-    description = "Option to filter by the last N hours." + LASTXXXX_MESSAGE
-  )
+      name = "--lastHours",
+      required = false,
+      aliases = {"-h", "-hours"},
+      multiValued = false,
+      description = "Option to filter by the last N hours." + LASTXXXX_MESSAGE)
   int lastHours;
 
   @Option(
-    name = "--lastDays",
-    required = false,
-    aliases = {"-d", "-days"},
-    multiValued = false,
-    description = "Option to filter by the last N days." + LASTXXXX_MESSAGE
-  )
+      name = "--lastDays",
+      required = false,
+      aliases = {"-d", "-days"},
+      multiValued = false,
+      description = "Option to filter by the last N days." + LASTXXXX_MESSAGE)
   int lastDays;
 
   @Option(
-    name = "--lastWeeks",
-    required = false,
-    aliases = {"-w", "-weeks"},
-    multiValued = false,
-    description = "Option to filter by the last N weeks." + LASTXXXX_MESSAGE
-  )
+      name = "--lastWeeks",
+      required = false,
+      aliases = {"-w", "-weeks"},
+      multiValued = false,
+      description = "Option to filter by the last N weeks." + LASTXXXX_MESSAGE)
   int lastWeeks;
 
   @Option(
-    name = "--lastMonths",
-    required = false,
-    aliases = {"-m", "-months"},
-    multiValued = false,
-    description = "Option to filter by the last N months." + LASTXXXX_MESSAGE
-  )
+      name = "--lastMonths",
+      required = false,
+      aliases = {"-m", "-months"},
+      multiValued = false,
+      description = "Option to filter by the last N months." + LASTXXXX_MESSAGE)
   int lastMonths;
 
   @Option(
-    name = SEARCH_PHRASE_OPTION_NAME,
-    required = false,
-    aliases = {"-phrase", "-like"},
-    multiValued = false,
-    description =
-        "Option to filter by a specific phrase."
-            + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE
-            + " --lastXXXX options take precedence over this option."
-  )
+      name = SEARCH_PHRASE_OPTION_NAME,
+      required = false,
+      aliases = {"-phrase", "-like"},
+      multiValued = false,
+      description =
+          "Option to filter by a specific phrase."
+              + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE
+              + " --lastXXXX options take precedence over this option.")
   String searchPhrase = WILDCARD;
 
   @Option(
-    name = "--caseSensitive",
-    required = false,
-    aliases = {"-case"},
-    multiValued = false,
-    description = "Option to set the " + SEARCH_PHRASE_OPTION_NAME + " to be case sensitive."
-  )
+      name = "--caseSensitive",
+      required = false,
+      aliases = {"-case"},
+      multiValued = false,
+      description = "Option to set the " + SEARCH_PHRASE_OPTION_NAME + " to be case sensitive.")
   boolean caseSensitive = false;
 
   @Reference List<MetacardType> metacardTypes;
@@ -271,8 +258,7 @@ public abstract class CqlCommands extends CatalogCommands {
 
   protected String getTemporalProperty() {
     if (metacardTypes != null && StringUtils.isNotEmpty(temporalProperty)) {
-      return metacardTypes
-          .stream()
+      return metacardTypes.stream()
           .map(MetacardType::getAttributeDescriptors)
           .flatMap(Set::stream)
           .filter(this::isDateType)

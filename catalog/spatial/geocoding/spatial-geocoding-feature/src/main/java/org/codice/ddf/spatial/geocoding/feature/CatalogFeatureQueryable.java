@@ -73,9 +73,7 @@ public class CatalogFeatureQueryable implements FeatureQueryable {
       throw new FeatureQueryException("Failed to query catalog", e);
     }
 
-    return response
-        .getResults()
-        .stream()
+    return response.getResults().stream()
         .map(Result::getMetacard)
         .map(this::getFeatureForMetacard)
         .filter(Objects::nonNull)

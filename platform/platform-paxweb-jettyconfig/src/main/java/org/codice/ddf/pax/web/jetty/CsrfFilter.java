@@ -209,9 +209,7 @@ public class CsrfFilter implements Filter {
     if (key != null) {
       Pattern requestMethodPattern = Pattern.compile(requestMethod);
       if (HEADER_WHITELIST.get(key) != null
-          && HEADER_WHITELIST
-              .get(key)
-              .stream()
+          && HEADER_WHITELIST.get(key).stream()
               .anyMatch(method -> requestMethodPattern.matcher(method).matches())) {
         return false;
       }
@@ -239,9 +237,7 @@ public class CsrfFilter implements Filter {
 
     if (whitelistKey != null) {
       Pattern requestMethodPattern = Pattern.compile(requestMethod);
-      if (BROWSER_PROTECTION_WHITELIST
-          .get(whitelistKey)
-          .stream()
+      if (BROWSER_PROTECTION_WHITELIST.get(whitelistKey).stream()
           .anyMatch(method -> requestMethodPattern.matcher(method).matches())) {
         contextPathIsWhitelisted = true;
       }
@@ -278,9 +274,7 @@ public class CsrfFilter implements Filter {
 
     if (whitelistKey != null) {
       Pattern requestMethodPattern = Pattern.compile(requestMethod);
-      if (SYSTEM_PROTECTION_WHITELIST
-          .get(whitelistKey)
-          .stream()
+      if (SYSTEM_PROTECTION_WHITELIST.get(whitelistKey).stream()
           .anyMatch(method -> requestMethodPattern.matcher(method).matches())) {
         contextPathIsWhitelisted = true;
       }
@@ -295,8 +289,7 @@ public class CsrfFilter implements Filter {
 
   private Pattern getMultivaluedMapKey(
       MultivaluedMap<Pattern, String> map, String targetContextPath) {
-    return map.keySet()
-        .stream()
+    return map.keySet().stream()
         .filter(regex -> regex.matcher(targetContextPath).matches())
         .findFirst()
         .orElse(null);
@@ -370,9 +363,7 @@ public class CsrfFilter implements Filter {
 
       if (split.length == 2) {
         Pattern existingPattern =
-            SYSTEM_PROTECTION_WHITELIST
-                .keySet()
-                .stream()
+            SYSTEM_PROTECTION_WHITELIST.keySet().stream()
                 .filter(regex -> regex.toString().equals(split[0].trim()))
                 .findFirst()
                 .orElse(null);

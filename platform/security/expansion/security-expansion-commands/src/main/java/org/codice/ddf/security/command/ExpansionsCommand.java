@@ -28,10 +28,9 @@ import org.fusesource.jansi.Ansi;
  */
 @Service
 @Command(
-  scope = "security",
-  name = "expansions",
-  description = "Dumps the current expansion tables."
-)
+    scope = "security",
+    name = "expansions",
+    description = "Dumps the current expansion tables.")
 public class ExpansionsCommand implements Action {
   // live list of expansion services
   @Reference List<Expansion> expansionList;

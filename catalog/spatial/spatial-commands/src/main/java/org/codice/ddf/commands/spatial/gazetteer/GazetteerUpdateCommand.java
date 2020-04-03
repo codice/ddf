@@ -36,28 +36,25 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = "gazetteer",
-  name = "update",
-  description = "Updates the gazetteer entries from a resource"
-)
+    scope = "gazetteer",
+    name = "update",
+    description = "Updates the gazetteer entries from a resource")
 public final class GazetteerUpdateCommand extends SubjectCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GazetteerUpdateCommand.class);
 
   @Argument(
-    index = 0,
-    name = "resource",
-    description =
-        "The resource whose contents will be added to the index. The resource can be a local file path to a .txt, .zip, or .geo.json GeoNames data file; a URL to a .txt or .zip GeoNames data file; or a keyword to automatically process a GeoNames file from from http://download.geonames.org/export/dump. See the documentation for more details.",
-    required = true
-  )
+      index = 0,
+      name = "resource",
+      description =
+          "The resource whose contents will be added to the index. The resource can be a local file path to a .txt, .zip, or .geo.json GeoNames data file; a URL to a .txt or .zip GeoNames data file; or a keyword to automatically process a GeoNames file from from http://download.geonames.org/export/dump. See the documentation for more details.",
+      required = true)
   private String resource = null;
 
   @Option(
-    name = "-c",
-    aliases = "--create",
-    description = "Create a new index, overwriting any existing index at the destination."
-  )
+      name = "-c",
+      aliases = "--create",
+      description = "Create a new index, overwriting any existing index at the destination.")
   private boolean create;
 
   @Reference private GeoEntryIndexer geoEntryIndexer;

@@ -77,10 +77,7 @@ public class RequiredAttributesMetacardValidator
 
     if (reportOptional.isPresent()) {
       final List<String> errors =
-          reportOptional
-              .get()
-              .getMetacardValidationViolations()
-              .stream()
+          reportOptional.get().getMetacardValidationViolations().stream()
               .map(ValidationViolation::getMessage)
               .collect(Collectors.toList());
 

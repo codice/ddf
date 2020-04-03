@@ -40,72 +40,64 @@ import org.codice.solr.factory.impl.HttpSolrClientFactory;
 
 @Service
 @Command(
-  scope = SolrCommands.NAMESPACE,
-  name = "restore",
-  description = "Restores a selected Solr core/collection from backup."
-)
+    scope = SolrCommands.NAMESPACE,
+    name = "restore",
+    description = "Restores a selected Solr core/collection from backup.")
 public class RestoreCommand extends SolrCommands {
   @Reference private EncryptionService encryptionService;
 
   @Option(
-    name = "-d",
-    aliases = {"--dir"},
-    description = "The location of the backup files to be restored."
-  )
+      name = "-d",
+      aliases = {"--dir"},
+      description = "The location of the backup files to be restored.")
   @VisibleForTesting
   protected String backupLocation;
 
   @Option(
-    name = "-n",
-    aliases = {"--name"},
-    description =
-        "The name of the backed up index snapshot to be restored. If the name is not provided it looks for backups with snapshot.<timestamp> format in the location directory. It picks the latest timestamp backup in that case."
-  )
+      name = "-n",
+      aliases = {"--name"},
+      description =
+          "The name of the backed up index snapshot to be restored. If the name is not provided it looks for backups with snapshot.<timestamp> format in the location directory. It picks the latest timestamp backup in that case.")
   @VisibleForTesting
   protected String backupName;
 
   @Option(
-    name = "-c",
-    aliases = {"--core"},
-    description =
-        "Specify the Solr core to operate on (e.g. catalog). Defaults to catalog if one isn't provided."
-  )
+      name = "-c",
+      aliases = {"--core"},
+      description =
+          "Specify the Solr core to operate on (e.g. catalog). Defaults to catalog if one isn't provided.")
   @VisibleForTesting
   protected String coreName = DEFAULT_CORE_NAME;
 
   @Option(
-    name = "-s",
-    aliases = {"--restoreStatus"},
-    description =
-        "Get the status of a SolrCloud asynchronous restore. Used in conjunction with --requestId."
-  )
+      name = "-s",
+      aliases = {"--restoreStatus"},
+      description =
+          "Get the status of a SolrCloud asynchronous restore. Used in conjunction with --requestId.")
   @VisibleForTesting
   protected boolean status;
 
   @Option(
-    name = "-i",
-    aliases = {"--requestId"},
-    description =
-        "Request Id returned after performing a restore. This request Id is used to track"
-            + " the status of a given restore. When requesting a restore status, --restoreStatus and --requestId"
-            + " are both required options."
-  )
+      name = "-i",
+      aliases = {"--requestId"},
+      description =
+          "Request Id returned after performing a restore. This request Id is used to track"
+              + " the status of a given restore. When requesting a restore status, --restoreStatus and --requestId"
+              + " are both required options.")
   @VisibleForTesting
   protected String requestId;
 
   @Option(
-    name = "-a",
-    aliases = {"--asyncRestore"},
-    description = "Perform an asynchronous restore."
-  )
+      name = "-a",
+      aliases = {"--asyncRestore"},
+      description = "Perform an asynchronous restore.")
   @VisibleForTesting
   protected boolean asyncRestore;
 
   @Option(
-    name = "-f",
-    aliases = {"--force"},
-    description = "Forces the restore. Will delete the collection if it already exists."
-  )
+      name = "-f",
+      aliases = {"--force"},
+      description = "Forces the restore. Will delete the collection if it already exists.")
   @VisibleForTesting
   protected boolean force = false;
 

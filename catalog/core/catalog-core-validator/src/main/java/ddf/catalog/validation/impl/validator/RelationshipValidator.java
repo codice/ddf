@@ -91,9 +91,7 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
       Collection<String> actualValues =
           actualAttribute == null
               ? Collections.emptyList()
-              : actualAttribute
-                  .getValues()
-                  .stream()
+              : actualAttribute.getValues().stream()
                   .map(Objects::toString)
                   .filter(StringUtils::isNotEmpty)
                   .collect(Collectors.toList());
@@ -213,34 +211,22 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
     Optional<MetacardValidationReport> report = validateMetacard(metacard);
     if (report.isPresent() && !report.get().getAttributeValidationViolations().isEmpty()) {
       List<String> errors =
-          report
-              .get()
-              .getAttributeValidationViolations()
-              .stream()
+          report.get().getAttributeValidationViolations().stream()
               .filter(v -> v.getSeverity() == ValidationViolation.Severity.ERROR)
               .map(ValidationViolation::getMessage)
               .collect(Collectors.toList());
       errors.addAll(
-          report
-              .get()
-              .getMetacardValidationViolations()
-              .stream()
+          report.get().getMetacardValidationViolations().stream()
               .filter(v -> v.getSeverity() == ValidationViolation.Severity.ERROR)
               .map(ValidationViolation::getMessage)
               .collect(Collectors.toList()));
       List<String> warnings =
-          report
-              .get()
-              .getAttributeValidationViolations()
-              .stream()
+          report.get().getAttributeValidationViolations().stream()
               .filter(v -> v.getSeverity() == ValidationViolation.Severity.WARNING)
               .map(ValidationViolation::getMessage)
               .collect(Collectors.toList());
       errors.addAll(
-          report
-              .get()
-              .getMetacardValidationViolations()
-              .stream()
+          report.get().getMetacardValidationViolations().stream()
               .filter(v -> v.getSeverity() == ValidationViolation.Severity.WARNING)
               .map(ValidationViolation::getMessage)
               .collect(Collectors.toList()));

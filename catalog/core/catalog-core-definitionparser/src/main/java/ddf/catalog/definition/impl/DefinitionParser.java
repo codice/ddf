@@ -338,9 +338,7 @@ public class DefinitionParser {
       Set<String> requiredAttributes = new HashSet<>();
 
       Set<AttributeDescriptor> extendedAttributes =
-          Optional.of(metacardType)
-              .map(omt -> omt.extendsTypes)
-              .orElse(Collections.emptyList())
+          Optional.of(metacardType).map(omt -> omt.extendsTypes).orElse(Collections.emptyList())
               .stream()
               .flatMap(getSpecifiedTypes(stagedTypes))
               .collect(Collectors.toSet());
@@ -410,21 +408,17 @@ public class DefinitionParser {
       List<MetacardType> stagedTypes) {
     return type ->
         new ImmutableList.Builder<MetacardType>()
-            .addAll(metacardTypes)
-            .addAll(stagedTypes)
-            .addAll(coreTypes)
-            .build()
-            .stream()
-            .filter(mt -> mt.getName().equals(type))
-            .findFirst()
-            .orElseThrow(
-                () ->
-                    new RuntimeException(
-                        String.format(
-                            "Could not find a metacard type by name '%s'. Was the type already defined or defined first in the list of definitions?",
-                            type)))
-            .getAttributeDescriptors()
-            .stream();
+            .addAll(metacardTypes).addAll(stagedTypes).addAll(coreTypes).build().stream()
+                .filter(mt -> mt.getName().equals(type))
+                .findFirst()
+                .orElseThrow(
+                    () ->
+                        new RuntimeException(
+                            String.format(
+                                "Could not find a metacard type by name '%s'. Was the type already defined or defined first in the list of definitions?",
+                                type)))
+                .getAttributeDescriptors()
+                .stream();
   }
 
   private List<Callable<Boolean>> registerMetacardValidators(
@@ -467,8 +461,7 @@ public class DefinitionParser {
     for (Map.Entry<String, List<Outer.Validator>> entry : validators.entrySet()) {
       Set<ValidatorWrapper> validatorWrappers = validatorFactory(entry.getKey(), entry.getValue());
       Set<AttributeValidator> attributeValidators =
-          validatorWrappers
-              .stream()
+          validatorWrappers.stream()
               .map(ValidatorWrapper::getAttributeValidators)
               .flatMap(Collection::stream)
               .collect(Collectors.toSet());
@@ -479,8 +472,7 @@ public class DefinitionParser {
             changeset.attributeValidators.put(attributeName, attributeValidators);
             return true;
           });
-      validatorWrappers
-          .stream()
+      validatorWrappers.stream()
           .map(ValidatorWrapper::getMetacardValidators)
           .flatMap(Collection::stream)
           .collect(Collectors.toSet())
@@ -494,8 +486,7 @@ public class DefinitionParser {
                         changeset.metacardValidatorServices.add(registration);
                         return registration != null;
                       }));
-      validatorWrappers
-          .stream()
+      validatorWrappers.stream()
           .map(ValidatorWrapper::getReportingMetacardValidators)
           .flatMap(Collection::stream)
           .collect(Collectors.toSet())
@@ -515,8 +506,7 @@ public class DefinitionParser {
 
   private Set<ValidatorWrapper> validatorFactory(
       String attribute, List<Outer.Validator> validators) {
-    return validators
-        .stream()
+    return validators.stream()
         .filter(Objects::nonNull)
         .filter(v -> StringUtils.isNotBlank(v.validator))
         .map((Outer.Validator validator) -> getValidator(attribute, validator))
@@ -605,8 +595,7 @@ public class DefinitionParser {
         {
           List<Outer.Validator> collection = ((Outer.ValidatorCollection) validator).validators;
           List<AttributeValidator> attributeValidators =
-              collection
-                  .stream()
+              collection.stream()
                   .map((Outer.Validator key1) -> getValidator(key, key1))
                   .map(ValidatorWrapper::getAttributeValidators)
                   .flatMap(Collection::stream)
@@ -692,8 +681,7 @@ public class DefinitionParser {
   }
 
   private List<Callable<Boolean>> parseDefaults(Changeset changeset, List<Outer.Default> defaults) {
-    return defaults
-        .stream()
+    return defaults.stream()
         .map(
             defaultObj -> {
               String attribute = defaultObj.attribute;
@@ -733,8 +721,7 @@ public class DefinitionParser {
   private List<Callable<Boolean>> parseInjections(
       Changeset changeset, List<Outer.Injection> injections) {
     BundleContext context = getBundleContext();
-    return injections
-        .stream()
+    return injections.stream()
         .map(
             injection ->
                 (Callable<Boolean>)

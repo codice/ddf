@@ -114,8 +114,7 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     StringBuilder builder = new StringBuilder();
     builder.append(START_PAREN);
     builder.append(
-        filters
-            .stream()
+        filters.stream()
             .filter(Objects::nonNull)
             .map(e -> getQuery(e, data))
             .collect(Collectors.joining(operator)));

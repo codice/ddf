@@ -79,8 +79,7 @@ public class MetacardTypeImpl implements MetacardType {
      */
     this.name = name;
     if (descriptors != null) {
-      descriptors
-          .stream()
+      descriptors.stream()
           .filter(Objects::nonNull)
           .forEach(descriptor -> this.descriptors.put(descriptor.getName(), descriptor));
     }
@@ -256,9 +255,7 @@ public class MetacardTypeImpl implements MetacardType {
 
   private void validateDescriptors() {
     Set<String> names = new HashSet<>();
-    descriptors
-        .values()
-        .stream()
+    descriptors.values().stream()
         .filter(Objects::nonNull)
         .forEach(
             attributeDescriptor -> {

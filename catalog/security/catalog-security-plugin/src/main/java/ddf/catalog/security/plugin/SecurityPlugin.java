@@ -62,9 +62,7 @@ public class SecurityPlugin implements AccessPlugin {
     ddf.security.Subject subject = setSubjectOnRequestProperties(input);
 
     if (input.getMetacards() != null && subject != null) {
-      input
-          .getMetacards()
-          .stream()
+      input.getMetacards().stream()
           .filter(metacard -> metacard.getAttribute(Metacard.POINT_OF_CONTACT) == null)
           .forEach(
               metacard -> {

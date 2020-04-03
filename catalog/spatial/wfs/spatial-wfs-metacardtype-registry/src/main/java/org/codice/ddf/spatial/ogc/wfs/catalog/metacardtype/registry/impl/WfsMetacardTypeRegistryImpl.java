@@ -47,8 +47,7 @@ public final class WfsMetacardTypeRegistryImpl implements WfsMetacardTypeRegistr
     }
 
     Optional<ServiceRegistration<MetacardType>> serviceRegistrationOptional =
-        serviceRegistrations
-            .stream()
+        serviceRegistrations.stream()
             .filter(s -> s.getReference().getProperty(SOURCE_ID) != null)
             .filter(s -> s.getReference().getProperty(SOURCE_ID).equals(sourceId))
             .filter(s -> s.getReference().getProperty(FEATURE_NAME) != null)

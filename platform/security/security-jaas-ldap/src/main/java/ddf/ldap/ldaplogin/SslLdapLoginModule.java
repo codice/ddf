@@ -388,8 +388,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             bundleContext.getServiceReferences(
                 GenericObjectPool.class, String.format("(id=%s)", connectionPoolId));
         ServiceReference<GenericObjectPool> serviceReference =
-            serviceReferences
-                .stream()
+            serviceReferences.stream()
                 .findFirst()
                 .orElseThrow(
                     () ->

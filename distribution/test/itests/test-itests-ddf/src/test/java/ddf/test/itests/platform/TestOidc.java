@@ -635,9 +635,7 @@ public class TestOidc extends AbstractIntegrationTest {
 
     // Verify that the stub server was hit
     List<Call> tokenEndpointCalls =
-        server
-            .getCalls()
-            .stream()
+        server.getCalls().stream()
             .filter(call -> call.getUrl().equals(URL_START + TOKEN_ENDPOINT_PATH))
             .collect(Collectors.toList());
     assertThat(tokenEndpointCalls.size(), is(1));
@@ -916,9 +914,7 @@ public class TestOidc extends AbstractIntegrationTest {
             .get(ROOT_URL.getUrl() + "?access_token=" + accessToken);
 
     List<Call> endpointCalls =
-        server
-            .getCalls()
-            .stream()
+        server.getCalls().stream()
             .filter(call -> call.getMethod().getMethodString().equals(GET))
             .filter(call -> call.getUrl().equals(URL_START + USER_INFO_ENDPOINT_PATH))
             .collect(Collectors.toList());
@@ -957,8 +953,7 @@ public class TestOidc extends AbstractIntegrationTest {
     String body = initialLogoutResponse.getBody().prettyPrint();
     List<Map<String, String>> responseJson = GSON.fromJson(body, List.class);
     Map<String, String> oidcLogoutProperties =
-        responseJson
-            .stream()
+        responseJson.stream()
             .filter(entry -> ((String) ((Map) entry).get("title")).contains("OIDC"))
             .findFirst()
             .get();
@@ -969,8 +964,7 @@ public class TestOidc extends AbstractIntegrationTest {
     assertThat(logoutUri.getPath(), is("/auth/admin/master/protocol/openid-connect/logout"));
 
     Map<String, String> requestParams =
-        URLEncodedUtils.parse(logoutUri, StandardCharsets.UTF_8)
-            .stream()
+        URLEncodedUtils.parse(logoutUri, StandardCharsets.UTF_8).stream()
             .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
 
     assertTrue(requestParams.containsKey("id_token_hint"));
@@ -1024,8 +1018,7 @@ public class TestOidc extends AbstractIntegrationTest {
     URI locationUri = new URI(initialResponse.header(LOCATION));
     assertThat(locationUri.getPath(), is("/auth/realms/master/protocol/openid-connect/auth"));
     Map<String, String> requestParams =
-        URLEncodedUtils.parse(locationUri, StandardCharsets.UTF_8)
-            .stream()
+        URLEncodedUtils.parse(locationUri, StandardCharsets.UTF_8).stream()
             .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
 
     requestParams.putAll(initialResponse.cookies());
@@ -1286,8 +1279,7 @@ public class TestOidc extends AbstractIntegrationTest {
       return subjectList.get(0);
     }
 
-    return subjectList
-        .stream()
+    return subjectList.stream()
         .filter(subject -> !((boolean) subject.get("isGuest")))
         .findFirst()
         .get();

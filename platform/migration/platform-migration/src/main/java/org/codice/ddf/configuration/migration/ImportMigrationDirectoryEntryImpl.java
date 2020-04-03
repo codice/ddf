@@ -57,8 +57,7 @@ public class ImportMigrationDirectoryEntryImpl extends ImportMigrationEntryImpl 
         context, JsonUtils.getStringFrom(metadata, MigrationEntryImpl.METADATA_NAME, true), false);
     this.filtered = JsonUtils.getBooleanFrom(metadata, MigrationEntryImpl.METADATA_FILTERED, false);
     this.fileEntries =
-        JsonUtils.getListFrom(metadata, MigrationEntryImpl.METADATA_FILES)
-            .stream()
+        JsonUtils.getListFrom(metadata, MigrationEntryImpl.METADATA_FILES).stream()
             .map(Object::toString)
             .map(FilenameUtils::separatorsToSystem)
             .map(Paths::get)
@@ -100,8 +99,7 @@ public class ImportMigrationDirectoryEntryImpl extends ImportMigrationEntryImpl 
             // directory
             // exported to start with and all files underneath are always optional so pass false to
             // restore()
-            if (fileEntries
-                .stream()
+            if (fileEntries.stream()
                 .peek(me -> existingFiles.remove(me.getPath()))
                 .map(me -> me.restore(false))
                 .reduce(true, Boolean::logicalAnd)) {
@@ -148,8 +146,7 @@ public class ImportMigrationDirectoryEntryImpl extends ImportMigrationEntryImpl 
             // exported to start with and all files underneath are always optional so pass false to
             // restore()
             super.restored =
-                fileEntries
-                    .stream()
+                fileEntries.stream()
                     .filter(me -> filter.matches(me.getPath()))
                     .map(me -> me.restore(false))
                     .reduce(true, Boolean::logicalAnd);

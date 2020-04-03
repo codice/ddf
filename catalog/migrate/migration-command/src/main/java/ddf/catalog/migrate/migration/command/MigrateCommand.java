@@ -43,10 +43,9 @@ public class MigrateCommand extends SubjectCommands {
   private boolean allMigrationTasks = false;
 
   @Option(
-    name = "-l",
-    aliases = "--list",
-    description = "Lists all available data migration options"
-  )
+      name = "-l",
+      aliases = "--list",
+      description = "Lists all available data migration options")
   private boolean listMigrationTasks = false;
 
   @Reference private BundleContext bundleContext;
@@ -75,8 +74,7 @@ public class MigrateCommand extends SubjectCommands {
       LOGGER.info("Running data migration task [{}]", LogSanitizer.sanitize(serviceId));
 
       ServiceReference<DataMigratable> serviceRef =
-          services
-              .stream()
+          services.stream()
               .filter(service -> service.getProperty("id").equals(serviceId))
               .findFirst()
               .orElseThrow(

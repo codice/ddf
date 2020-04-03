@@ -24,11 +24,10 @@ import org.osgi.service.event.EventAdmin;
 /** Command class used to export the system configuration and data. */
 @Service
 @Command(
-  scope = MigrationCommand.NAMESPACE,
-  name = "decrypt",
-  description =
-      "Decrypts an exported file. Decrypting an exported file is insecure and appropriate measures should be taken to secure the resulting decrypted file."
-)
+    scope = MigrationCommand.NAMESPACE,
+    name = "decrypt",
+    description =
+        "Decrypts an exported file. Decrypting an exported file is insecure and appropriate measures should be taken to secure the resulting decrypted file.")
 public class DecryptCommand extends MigrationCommand {
 
   public DecryptCommand(Security security) {

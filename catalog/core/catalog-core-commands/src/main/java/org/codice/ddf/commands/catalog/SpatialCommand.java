@@ -24,10 +24,9 @@ import org.codice.ddf.commands.util.SpatialOperations;
 // TODO DDF-1282 Implement Spatial queries in Catalog Commands
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "spatial",
-  description = "Searches spatially the Catalog Provider."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "spatial",
+    description = "Searches spatially the Catalog Provider.")
 public class SpatialCommand extends CatalogCommands {
 
   private static final String ID = "ID ";
@@ -43,49 +42,44 @@ public class SpatialCommand extends CatalogCommands {
   private static final Object WKT = "WKT";
 
   @Argument(
-    name = "Operation",
-    description =
-        "An operation from the set {CONTAINS,INTERSECTS,EQUALS,DISJOINT,TOUCHES,CROSSES,WITHIN,OVERLAPS,RADIUS,NN}",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "Operation",
+      description =
+          "An operation from the set {CONTAINS,INTERSECTS,EQUALS,DISJOINT,TOUCHES,CROSSES,WITHIN,OVERLAPS,RADIUS,NN}",
+      index = 0,
+      multiValued = false,
+      required = true)
   String operation = null;
 
   @Argument(
-    name = "PointX",
-    description = "X coordinate of point of reference",
-    index = 1,
-    multiValued = false,
-    required = true
-  )
+      name = "PointX",
+      description = "X coordinate of point of reference",
+      index = 1,
+      multiValued = false,
+      required = true)
   String pointX = null;
 
   @Argument(
-    name = "PointY",
-    description = "Y coordinate of point of reference",
-    index = 2,
-    multiValued = false,
-    required = true
-  )
+      name = "PointY",
+      description = "Y coordinate of point of reference",
+      index = 2,
+      multiValued = false,
+      required = true)
   String pointY = null;
 
   @Argument(
-    name = "Radius",
-    description = "Radius for a Point-Radius search {RADIUS}",
-    index = 3,
-    multiValued = false,
-    required = false
-  )
+      name = "Radius",
+      description = "Radius for a Point-Radius search {RADIUS}",
+      index = 3,
+      multiValued = false,
+      required = false)
   String radius = "10000";
 
   @Option(
-    name = "items-returned",
-    required = false,
-    aliases = {"-n"},
-    multiValued = false,
-    description = "Number of the items returned."
-  )
+      name = "items-returned",
+      required = false,
+      aliases = {"-n"},
+      multiValued = false,
+      description = "Number of the items returned.")
   int numberOfItems = DEFAULT_NUMBER_OF_ITEMS;
 
   @Override

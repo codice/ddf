@@ -62,10 +62,7 @@ public class SPMetadataParser {
               });
 
       spMap.putAll(
-          metadataConfigurationParser
-              .getEntityDescriptors()
-              .entrySet()
-              .stream()
+          metadataConfigurationParser.getEntityDescriptors().entrySet().stream()
               .map(
                   e ->
                       Maps.immutableEntry(

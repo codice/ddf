@@ -885,8 +885,7 @@ public class CatalogFrameworkImplTest {
     registerDefaults();
 
     List<Result> mockFederationResults =
-        metacards
-            .stream()
+        metacards.stream()
             .map(
                 m -> {
                   Result mockResult = mock(Result.class);
@@ -905,9 +904,7 @@ public class CatalogFrameworkImplTest {
     UpdateResponse updateResponse = framework.update(updateRequest);
 
     List<Metacard> updatedMetacards =
-        updateResponse
-            .getUpdatedMetacards()
-            .stream()
+        updateResponse.getUpdatedMetacards().stream()
             .map(Update::getNewMetacard)
             .collect(Collectors.toList());
     verifyDefaults(
@@ -1249,8 +1246,7 @@ public class CatalogFrameworkImplTest {
         new UpdateRequestImpl((URI[]) list.toArray(new URI[list.size()]), insertedCards);
 
     List<Result> mockFederationResults =
-        metacards
-            .stream()
+        metacards.stream()
             .map(
                 m -> {
                   Result mockResult = mock(Result.class);

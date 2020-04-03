@@ -272,8 +272,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     LOGGER.debug("Imported metadata for {}: {}", id, metadata);
     super.processMetadata(metadata);
     // process files exported by the framework
-    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_FILES)
-        .stream()
+    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_FILES).stream()
         .map(JsonUtils::convertToMap)
         .map(m -> m.get(MigrationEntryImpl.METADATA_NAME))
         .filter(Objects::nonNull)
@@ -281,27 +280,23 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
         .forEach(files::add);
     // process external entries first so we have a complete set of migratable data entries that
     // were exported by a migratable before we start looking at the property references
-    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_EXTERNALS)
-        .stream()
+    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_EXTERNALS).stream()
         .map(JsonUtils::convertToMap)
         .map(m -> new ImportMigrationExternalEntryImpl(this, m))
         .forEach(me -> entries.put(me.getPath(), me));
     // process system property references
-    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_SYSTEM_PROPERTIES)
-        .stream()
+    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_SYSTEM_PROPERTIES).stream()
         .map(JsonUtils::convertToMap)
         .map(m -> new ImportMigrationSystemPropertyReferencedEntryImpl(this, m))
         .forEach(me -> systemProperties.put(me.getProperty(), me));
     // process java property references
-    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_JAVA_PROPERTIES)
-        .stream()
+    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_JAVA_PROPERTIES).stream()
         .map(JsonUtils::convertToMap)
         .map(m -> new ImportMigrationJavaPropertyReferencedEntryImpl(this, m))
         .forEach(this::addToPropertyEntry);
     // process directories exported by the framework
     // do this last so it can find all the files that were exported underneath the folders
-    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_FOLDERS)
-        .stream()
+    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_FOLDERS).stream()
         .map(JsonUtils::convertToMap)
         .map(m -> new ImportMigrationDirectoryEntryImpl(this, m))
         .forEach(me -> entries.put(me.getPath(), me));

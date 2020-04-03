@@ -111,10 +111,7 @@ public class QueryMonitor implements QueryMonitorMBean {
   public List<Map<String, String>> activeSearches() {
     Map<UUID, ActiveSearch> map = queryMonitorPlugin.getActiveSearches();
     if (MapUtils.isNotEmpty(map)) {
-      return queryMonitorPlugin
-          .getActiveSearches()
-          .values()
-          .stream()
+      return queryMonitorPlugin.getActiveSearches().values().stream()
           .map(ACTIVE_SEARCH_MAP_FUNCTION)
           .collect(Collectors.toList());
     }

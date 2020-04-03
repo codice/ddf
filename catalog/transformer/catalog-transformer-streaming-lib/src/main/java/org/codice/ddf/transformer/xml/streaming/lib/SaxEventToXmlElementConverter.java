@@ -148,8 +148,7 @@ public class SaxEventToXmlElementConverter {
       Attributes atts, Multimap<String, String> addedNamespaces, int i, String attUri)
       throws XMLStreamException {
     NamespaceMapping altNSMap =
-        namespaceStack
-            .stream()
+        namespaceStack.stream()
             .filter(p -> attUri.equals(p.getUri()) && !(p.getPrefix().isEmpty()))
             .findFirst()
             .orElse(null);

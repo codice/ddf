@@ -319,8 +319,7 @@ public class PlatformMigratableTest {
     // an error during export.
     Files.delete(ddfHome.resolve("etc").resolve("users.properties").toRealPath());
     List<Path> optionalFilesExported =
-        OPTIONAL_SYSTEM_FILES
-            .stream()
+        OPTIONAL_SYSTEM_FILES.stream()
             .filter(p -> !p.equals(Paths.get("etc", "users.properties")))
             .collect(Collectors.toList());
 
@@ -366,8 +365,7 @@ public class PlatformMigratableTest {
     // an error during export.
     Files.delete(ddfHome.resolve("etc").resolve("users.properties").toRealPath());
     List<Path> optionalFilesExported =
-        OPTIONAL_SYSTEM_FILES
-            .stream()
+        OPTIONAL_SYSTEM_FILES.stream()
             .filter(p -> !p.equals(Paths.get("etc", "users.properties")))
             .collect(Collectors.toList());
 

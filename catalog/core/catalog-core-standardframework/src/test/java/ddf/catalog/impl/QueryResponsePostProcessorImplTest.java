@@ -210,9 +210,7 @@ public class QueryResponsePostProcessorImplTest {
     ArgumentCaptor<AttributeImpl> attribute1 = ArgumentCaptor.forClass(AttributeImpl.class);
     verify(metacard, times(2)).setAttribute(attribute1.capture());
     AttributeImpl actualAttribute =
-        attribute1
-            .getAllValues()
-            .stream()
+        attribute1.getAllValues().stream()
             .filter(attribute -> attributeName.equals(attribute.getName()))
             .collect(Collectors.toList())
             .get(0);

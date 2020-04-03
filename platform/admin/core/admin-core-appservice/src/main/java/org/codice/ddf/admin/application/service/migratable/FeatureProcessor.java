@@ -126,9 +126,7 @@ public class FeatureProcessor {
    */
   public boolean installFeatures(
       ProfileMigrationReport report, Map<String, Set<JsonFeature>> jfeatures) {
-    return jfeatures
-        .entrySet()
-        .stream()
+    return jfeatures.entrySet().stream()
         .allMatch(e -> installFeatures(report, e.getKey(), e.getValue()));
   }
 
@@ -163,9 +161,7 @@ public class FeatureProcessor {
    */
   public boolean uninstallFeatures(
       ProfileMigrationReport report, Map<String, Set<Feature>> features) {
-    return features
-        .entrySet()
-        .stream()
+    return features.entrySet().stream()
         .allMatch(e -> uninstallFeatures(report, e.getKey(), e.getValue()));
   }
 
@@ -224,9 +220,7 @@ public class FeatureProcessor {
    */
   public boolean updateFeaturesRequirements(
       ProfileMigrationReport report, Map<String, Set<JsonFeature>> jfeatures) {
-    return jfeatures
-        .entrySet()
-        .stream()
+    return jfeatures.entrySet().stream()
         .allMatch(e -> updateFeaturesRequirements(report, e.getKey(), e.getValue()));
   }
 
@@ -246,8 +240,7 @@ public class FeatureProcessor {
         region,
         jfeatures.stream().map(JsonFeature::getId),
         Operation.UPDATE,
-        jfeatures
-            .stream()
+        jfeatures.stream()
             .collect(
                 Collectors.groupingBy(
                     JsonFeature::isRequired,

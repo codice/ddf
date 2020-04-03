@@ -174,8 +174,7 @@ public class ZipCompression implements QueryResponseTransformer {
 
   private ServiceReference getTransformerServiceReference(String transformerId)
       throws CatalogTransformerException {
-    return metacardTransformers
-        .stream()
+    return metacardTransformers.stream()
         .filter(serviceRef -> transformerId.equals(serviceRef.getProperty("id")))
         .findFirst()
         .orElseThrow(

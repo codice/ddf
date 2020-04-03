@@ -82,9 +82,7 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
         String subjectName, Function<Map<String, Object>, String> sessionSubjectExtractor) {
 
       final Optional<String> sessionIdOptional =
-          idManager
-              .dataStores
-              .stream()
+          idManager.dataStores.stream()
               .map(AttributeSharingSessionDataStore::getSessionDataMap)
               .map(Map::entrySet)
               .flatMap(Collection::stream)
@@ -193,8 +191,7 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
     // Make sure these attributes are different than the latest.
     if (sessionData != null) {
       LOGGER.trace("Pushing new session attributes to all web contexts for session {}", id);
-      dataStores
-          .stream()
+      dataStores.stream()
           .filter(ds -> ds != callingDataStore)
           .forEach(ds -> ds.updateSessionAttributes(id, sessionData));
     }

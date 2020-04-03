@@ -44,8 +44,7 @@ public class ActionRegistryImpl implements ActionRegistry {
   @Override
   public <T> List<Action> list(T subject) {
     ArrayList<Action> actions =
-        multiActionProviders
-            .stream()
+        multiActionProviders.stream()
             .filter(provider -> provider.canHandle(subject))
             .map(multiActionProvider -> multiActionProvider.getActions(subject))
             .flatMap(Collection::stream)
@@ -54,8 +53,7 @@ public class ActionRegistryImpl implements ActionRegistry {
             .collect(Collectors.toCollection(ArrayList::new));
 
     actions.addAll(
-        actionProviders
-            .stream()
+        actionProviders.stream()
             .map(actionProvider -> actionProvider.getAction(subject))
             .filter(Objects::nonNull)
             .collect(Collectors.toSet()));

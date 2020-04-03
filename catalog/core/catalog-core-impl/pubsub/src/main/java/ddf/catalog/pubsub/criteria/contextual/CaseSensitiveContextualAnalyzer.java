@@ -27,7 +27,6 @@ package ddf.catalog.pubsub.criteria.contextual;
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;

@@ -142,9 +142,7 @@ public class CreateOperations {
 
     if (!streamCreateRequest.getContentItems().isEmpty()) {
       List<String> fileList =
-          streamCreateRequest
-              .getContentItems()
-              .stream()
+          streamCreateRequest.getContentItems().stream()
               .map(ContentItem::getFilename)
               .collect(Collectors.toList());
       fileNames = String.join(", ", fileList);
@@ -247,9 +245,7 @@ public class CreateOperations {
 
     if (createRequest != null) {
       List<String> fileList =
-          createRequest
-              .getMetacards()
-              .stream()
+          createRequest.getMetacards().stream()
               .filter(Objects::nonNull)
               .map(Metacard::getTitle)
               .collect(Collectors.toList());
@@ -336,8 +332,7 @@ public class CreateOperations {
 
   private boolean blockCreateMetacards(
       Collection<Metacard> metacards, List<String> fanoutBlacklist) {
-    return metacards
-        .stream()
+    return metacards.stream()
         .anyMatch((metacard) -> isMetacardBlacklisted(metacard, fanoutBlacklist));
   }
 
@@ -367,9 +362,7 @@ public class CreateOperations {
 
   private CreateRequest injectAttributes(CreateRequest request) {
     List<Metacard> metacards =
-        request
-            .getMetacards()
-            .stream()
+        request.getMetacards().stream()
             .map(
                 (original) ->
                     opsMetacardSupport.applyInjectors(
@@ -380,9 +373,7 @@ public class CreateOperations {
   }
 
   private CreateRequest setDefaultValues(CreateRequest createRequest) {
-    createRequest
-        .getMetacards()
-        .stream()
+    createRequest.getMetacards().stream()
         .filter(Objects::nonNull)
         .forEach(opsMetacardSupport::setDefaultValues);
     return createRequest;

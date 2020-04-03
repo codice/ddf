@@ -100,19 +100,13 @@ public class TransactionRequestConverterTest {
     when(cswRecordConverter.canConvert(any())).thenReturn(true);
     new CoreAttributes().getAttributeDescriptors().stream().forEach(d -> mockRegistry.register(d));
     new ContactAttributes()
-        .getAttributeDescriptors()
-        .stream()
-        .forEach(d -> mockRegistry.register(d));
+        .getAttributeDescriptors().stream().forEach(d -> mockRegistry.register(d));
     new LocationAttributes()
-        .getAttributeDescriptors()
-        .stream()
-        .forEach(d -> mockRegistry.register(d));
+        .getAttributeDescriptors().stream().forEach(d -> mockRegistry.register(d));
     new MediaAttributes().getAttributeDescriptors().stream().forEach(d -> mockRegistry.register(d));
     new TopicAttributes().getAttributeDescriptors().stream().forEach(d -> mockRegistry.register(d));
     new AssociationsAttributes()
-        .getAttributeDescriptors()
-        .stream()
-        .forEach(d -> mockRegistry.register(d));
+        .getAttributeDescriptors().stream().forEach(d -> mockRegistry.register(d));
     xStream = new XStream(new Xpp3Driver());
     xStream.registerConverter(new TransactionRequestConverter(cswRecordConverter, mockRegistry));
     xStream.alias(CswConstants.CSW_TRANSACTION, CswTransactionRequest.class);

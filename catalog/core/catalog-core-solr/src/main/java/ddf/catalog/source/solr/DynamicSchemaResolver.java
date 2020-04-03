@@ -208,8 +208,7 @@ public class DynamicSchemaResolver {
 
   public static void addAdditionalFields(
       DynamicSchemaResolver dynamicSchemaResolver, List<String> additionalFields) {
-    additionalFields
-        .stream()
+    additionalFields.stream()
         .filter(StringUtils::isNotBlank)
         .forEach(field -> dynamicSchemaResolver.fieldsCache.add(field));
   }
@@ -222,9 +221,7 @@ public class DynamicSchemaResolver {
   public void addMetacardType(MetacardType metacardType) {
     metacardType.getAttributeDescriptors().forEach(this::addToFieldsCache);
 
-    metacardType
-        .getAttributeDescriptors()
-        .stream()
+    metacardType.getAttributeDescriptors().stream()
         .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))
         .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
         .forEach(fieldName -> anyTextFieldsCache.add(fieldName));
@@ -312,8 +309,7 @@ public class DynamicSchemaResolver {
                       ad.getName() + getFieldSuffix(AttributeFormat.STRING))
                   == null) {
             List<Serializable> truncatedValues =
-                attributeValues
-                    .stream()
+                attributeValues.stream()
                     .map(value -> value != null ? truncateAsUTF8(value.toString()) : value)
                     .collect(Collectors.toList());
             // *_txt

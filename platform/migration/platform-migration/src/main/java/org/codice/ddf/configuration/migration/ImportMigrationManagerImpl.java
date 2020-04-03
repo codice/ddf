@@ -255,8 +255,7 @@ public class ImportMigrationManagerImpl implements Closeable {
     if (commaDelimitedVersions == null) {
       return Collections.emptySet();
     } else {
-      return Arrays.asList(commaDelimitedVersions.split(","))
-          .stream()
+      return Arrays.asList(commaDelimitedVersions.split(",")).stream()
           .map(String::trim)
           .collect(Collectors.toSet());
     }

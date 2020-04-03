@@ -48,8 +48,7 @@ public class PreviewStoragePlugin implements PreCreateStoragePlugin, PreUpdateSt
   }
 
   private List<ContentItem> createPreviewItems(List<ContentItem> items) {
-    return items
-        .stream()
+    return items.stream()
         .filter(item -> item.getMetacard().getThumbnail() != null)
         .map(ContentItem::getMetacard)
         .map(this::createPreviewItem)

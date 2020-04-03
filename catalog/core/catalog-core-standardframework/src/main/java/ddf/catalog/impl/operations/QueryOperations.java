@@ -595,9 +595,7 @@ public class QueryOperations extends DescribableImpl {
 
   private QueryResponse injectAttributes(QueryResponse response) {
     List<Result> results =
-        response
-            .getResults()
-            .stream()
+        response.getResults().stream()
             .map(
                 result -> {
                   Metacard original = result.getMetacard();
@@ -712,8 +710,7 @@ public class QueryOperations extends DescribableImpl {
         return null;
       }
       return filterBuilder.anyOf(
-          queryTags
-              .stream()
+          queryTags.stream()
               .map(tag -> filterBuilder.attribute(Metacard.TAGS).is().like().text(tag))
               .collect(Collectors.toList()));
     }

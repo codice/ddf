@@ -75,9 +75,7 @@ public class SecurityLoggingPlugin
   public CreateRequest process(CreateRequest input)
       throws PluginExecutionException, StopProcessingException {
     String additional =
-        input
-            .getMetacards()
-            .stream()
+        input.getMetacards().stream()
             .map(Metacard::getId)
             .collect(Collectors.joining(",", "Creating metacards: ", ""));
     logOperation(CatalogOperationType.INGEST_REQUEST, input, additional);
@@ -88,9 +86,7 @@ public class SecurityLoggingPlugin
   public UpdateRequest process(UpdateRequest input)
       throws PluginExecutionException, StopProcessingException {
     String additional =
-        input
-            .getUpdates()
-            .stream()
+        input.getUpdates().stream()
             .map(Map.Entry::getValue)
             .map(Metacard::getId)
             .collect(Collectors.joining(",", "Updating metacards: ", ""));
@@ -134,9 +130,7 @@ public class SecurityLoggingPlugin
   @Override
   public CreateResponse process(CreateResponse input) throws PluginExecutionException {
     String additional =
-        input
-            .getCreatedMetacards()
-            .stream()
+        input.getCreatedMetacards().stream()
             .map(Metacard::getId)
             .collect(Collectors.joining(",", "Created metacards: ", ""));
     logOperation(CatalogOperationType.INGEST_RESPONSE, input, additional);
@@ -146,9 +140,7 @@ public class SecurityLoggingPlugin
   @Override
   public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
     String additional =
-        input
-            .getUpdatedMetacards()
-            .stream()
+        input.getUpdatedMetacards().stream()
             .map(Update::getNewMetacard)
             .map(Metacard::getId)
             .collect(Collectors.joining(",", "Updated metacards: ", ""));
@@ -159,9 +151,7 @@ public class SecurityLoggingPlugin
   @Override
   public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
     String additional =
-        input
-            .getDeletedMetacards()
-            .stream()
+        input.getDeletedMetacards().stream()
             .map(Metacard::getId)
             .collect(Collectors.joining(",", "Deleted metacards: ", ""));
     logOperation(CatalogOperationType.DELETE_RESPONSE, input, additional);
@@ -172,9 +162,7 @@ public class SecurityLoggingPlugin
   public QueryResponse process(QueryResponse input)
       throws PluginExecutionException, StopProcessingException {
     String addtional =
-        input
-            .getResults()
-            .stream()
+        input.getResults().stream()
             .map(Result::getMetacard)
             .map(Metacard::getId)
             .collect(Collectors.joining(",", "Queried metacards: ", ""));
@@ -205,9 +193,7 @@ public class SecurityLoggingPlugin
   @Override
   public CreateStorageRequest process(CreateStorageRequest input) throws PluginExecutionException {
     String additional =
-        input
-            .getContentItems()
-            .stream()
+        input.getContentItems().stream()
             .map(ContentItem::getMetacard)
             .map(Metacard::getId)
             .collect(Collectors.joining(",", "Creating products: ", ""));
@@ -218,9 +204,7 @@ public class SecurityLoggingPlugin
   @Override
   public UpdateStorageRequest process(UpdateStorageRequest input) throws PluginExecutionException {
     String additional =
-        input
-            .getContentItems()
-            .stream()
+        input.getContentItems().stream()
             .map(ContentItem::getMetacard)
             .map(Metacard::getId)
             .collect(Collectors.joining(",", "Updating products: ", ""));
@@ -232,9 +216,7 @@ public class SecurityLoggingPlugin
   public CreateStorageResponse process(CreateStorageResponse input)
       throws PluginExecutionException {
     String additional =
-        input
-            .getCreatedContentItems()
-            .stream()
+        input.getCreatedContentItems().stream()
             .map(ContentItem::getMetacard)
             .map(Metacard::getId)
             .collect(Collectors.joining(",", "Created product: ", ""));
@@ -246,9 +228,7 @@ public class SecurityLoggingPlugin
   public UpdateStorageResponse process(UpdateStorageResponse input)
       throws PluginExecutionException {
     String additional =
-        input
-            .getUpdatedContentItems()
-            .stream()
+        input.getUpdatedContentItems().stream()
             .map(ContentItem::getMetacard)
             .map(Metacard::getId)
             .collect(Collectors.joining(",", "Updated products: ", ""));

@@ -42,14 +42,13 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = "gazetteer",
-  name = "build-suggester-index",
-  description =
-      "Builds the Solr suggest index used for placename autocompletion in Intrigue when using "
-          + "the offline gazetteer. This index is built automatically whenever gazetteer "
-          + "metacards are created, updated, or deleted, but if those builds fail then this "
-          + "command can be used to attempt to build the index again."
-)
+    scope = "gazetteer",
+    name = "build-suggester-index",
+    description =
+        "Builds the Solr suggest index used for placename autocompletion in Intrigue when using "
+            + "the offline gazetteer. This index is built automatically whenever gazetteer "
+            + "metacards are created, updated, or deleted, but if those builds fail then this "
+            + "command can be used to attempt to build the index again.")
 public class GazetteerBuildSuggesterIndexCommand extends SubjectCommands {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(GazetteerBuildSuggesterIndexCommand.class);

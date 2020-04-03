@@ -94,16 +94,11 @@ public class SolrCacheSourceTest {
     SourceResponse queryResponse = solrCacheSource.query(queryRequest);
     assertThat(queryResponse.getHits(), is(sourceResponse.getHits()));
     assertThat(queryResponse.getProperties().size(), is(sourceResponse.getProperties().size()));
-    queryResponse
-        .getProperties()
-        .entrySet()
-        .stream()
+    queryResponse.getProperties().entrySet().stream()
         .forEach(e -> assertThat(e.getValue(), is(sourceResponse.getProperties().get(e.getKey()))));
 
     assertThat(queryResponse.getResults().size(), is(sourceResponse.getResults().size()));
-    queryResponse
-        .getResults()
-        .stream()
+    queryResponse.getResults().stream()
         .forEach(r -> assertTrue(sourceResponse.getResults().contains(r)));
   }
 
@@ -113,9 +108,7 @@ public class SolrCacheSourceTest {
     SourceResponse queryResponse = solrCacheSource.query(queryRequest);
     assertThat(queryResponse.getProcessingDetails().size(), greaterThan(0));
     ProcessingDetails processingDetail =
-        queryResponse
-            .getProcessingDetails()
-            .stream()
+        queryResponse.getProcessingDetails().stream()
             .filter(ProcessingDetails.class::isInstance)
             .map(ProcessingDetails.class::cast)
             .filter(pd -> pd.getSourceId().equals(solrCacheSource.getId()))

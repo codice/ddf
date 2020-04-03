@@ -108,9 +108,7 @@ public class RemoteDeleteOperations {
   // https://codice.atlassian.net/browse/DDF-2962
   private DeleteResponse injectAttributes(DeleteResponse response) {
     List<Metacard> deletedMetacards =
-        response
-            .getDeletedMetacards()
-            .stream()
+        response.getDeletedMetacards().stream()
             .map(
                 (original) ->
                     opsMetacardSupport.applyInjectors(

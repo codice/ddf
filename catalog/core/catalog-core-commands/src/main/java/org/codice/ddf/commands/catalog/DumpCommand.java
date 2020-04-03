@@ -92,10 +92,9 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "dump",
-  description = "Exports Metacards from the current Catalog. Does not remove them."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "dump",
+    description = "Exports Metacards from the current Catalog. Does not remove them.")
 public class DumpCommand extends CqlCommands {
 
   public static final String FILE_PATH = "filePath";
@@ -129,76 +128,69 @@ public class DumpCommand extends CqlCommands {
           .toFormatter();
 
   @Argument(
-    name = "Dump directory path",
-    description =
-        "Directory to export Metacards into. Paths are absolute and must be in quotes.  Files in directory will be overwritten if they already exist.",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "Dump directory path",
+      description =
+          "Directory to export Metacards into. Paths are absolute and must be in quotes.  Files in directory will be overwritten if they already exist.",
+      index = 0,
+      multiValued = false,
+      required = true)
   String dirPath = null;
 
   @Argument(
-    name = "Batch size",
-    description =
-        "Number of Metacards to retrieve and export at a time until completion. Change this argument based on system memory and CatalogProvider limits.",
-    index = 1,
-    multiValued = false,
-    required = false
-  )
+      name = "Batch size",
+      description =
+          "Number of Metacards to retrieve and export at a time until completion. Change this argument based on system memory and CatalogProvider limits.",
+      index = 1,
+      multiValued = false,
+      required = false)
   int pageSize = 1000;
 
   // DDF-535: remove "Transformer" alias in DDF 3.0
   @Option(
-    name = "--transformer",
-    required = false,
-    aliases = {"-t", "Transformer"},
-    multiValued = false,
-    description =
-        "The metacard transformer ID to use to transform metacards into data files. "
-            + "The default metacard transformer is the XML transformer."
-  )
+      name = "--transformer",
+      required = false,
+      aliases = {"-t", "Transformer"},
+      multiValued = false,
+      description =
+          "The metacard transformer ID to use to transform metacards into data files. "
+              + "The default metacard transformer is the XML transformer.")
   String transformerId = DEFAULT_TRANSFORMER_ID;
 
   // DDF-535: remove "Extension" alias in DDF 3.0
   @Option(
-    name = "--extension",
-    required = false,
-    aliases = {"-e", "Extension"},
-    multiValued = false,
-    description = "The file extension of the data files."
-  )
+      name = "--extension",
+      required = false,
+      aliases = {"-e", "Extension"},
+      multiValued = false,
+      description = "The file extension of the data files.")
   String fileExtension = null;
 
   @Option(
-    name = "--multithreaded",
-    required = false,
-    aliases = {"-m", "Multithreaded"},
-    multiValued = false,
-    description =
-        "Number of threads to use when dumping. Setting "
-            + "this value too high for your system can cause performance degradation."
-  )
+      name = "--multithreaded",
+      required = false,
+      aliases = {"-m", "Multithreaded"},
+      multiValued = false,
+      description =
+          "Number of threads to use when dumping. Setting "
+              + "this value too high for your system can cause performance degradation.")
   int multithreaded = Runtime.getRuntime().availableProcessors();
 
   @Option(
-    name = "--dirlevel",
-    required = false,
-    multiValued = false,
-    description =
-        "Number of subdirectory levels to create.  Two characters from the ID "
-            + "will be used to name each subdirectory level."
-  )
+      name = "--dirlevel",
+      required = false,
+      multiValued = false,
+      description =
+          "Number of subdirectory levels to create.  Two characters from the ID "
+              + "will be used to name each subdirectory level.")
   int dirLevel = 0;
 
   @Option(
-    name = "--include-content",
-    required = false,
-    aliases = {},
-    multiValued = false,
-    description =
-        "Dump the entire Catalog and local content into a zip file with the specified name using the default transformer."
-  )
+      name = "--include-content",
+      required = false,
+      aliases = {},
+      multiValued = false,
+      description =
+          "Dump the entire Catalog and local content into a zip file with the specified name using the default transformer.")
   String zipFileName;
 
   public DumpCommand() {
@@ -303,8 +295,7 @@ public class DumpCommand extends CqlCommands {
         }
       }
     } else {
-      ResultIterable.resultIterable(catalog::query, queryRequest)
-          .stream()
+      ResultIterable.resultIterable(catalog::query, queryRequest).stream()
           .map(Collections::singletonList)
           .map(result -> new SourceResponseImpl(queryRequest, result))
           .forEach(response -> handleResult(response, executorService, dumpDir, resultCount));
@@ -452,8 +443,7 @@ public class DumpCommand extends CqlCommands {
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
 
       // write the metacards to the zip
-      ResultIterable.resultIterable(catalog::query, queryRequest)
-          .stream()
+      ResultIterable.resultIterable(catalog::query, queryRequest).stream()
           .map(Result::getMetacard)
           .forEach(
               metacard -> {
@@ -530,9 +520,7 @@ public class DumpCommand extends CqlCommands {
     if (attribute == null) {
       return new HashMap<>();
     }
-    return attribute
-        .getValues()
-        .stream()
+    return attribute.getValues().stream()
         .map(serializable -> getDerivedResources(metacard, serializable))
         .filter(Objects::nonNull)
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (first, next) -> first));

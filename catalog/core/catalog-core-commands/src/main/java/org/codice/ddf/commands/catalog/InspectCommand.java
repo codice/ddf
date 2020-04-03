@@ -32,19 +32,17 @@ import org.opengis.filter.Filter;
 
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "inspect",
-  description = "Provides the various fields of a metacard for inspection."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "inspect",
+    description = "Provides the various fields of a metacard for inspection.")
 public class InspectCommand extends CatalogCommands {
 
   @Argument(
-    name = "ID",
-    description = "The id of the document that is to be inspected.",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "ID",
+      description = "The id of the document that is to be inspected.",
+      index = 0,
+      multiValued = false,
+      required = true)
   String id = null;
 
   @Override

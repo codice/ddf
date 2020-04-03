@@ -101,10 +101,9 @@ public class SamlRealm extends AuthenticatingRealm {
     if (credential instanceof PrincipalCollection) {
       Optional<SecurityAssertionSaml> assertionSamlOptional =
           ((PrincipalCollection) credential)
-              .byType(SecurityAssertionSaml.class)
-              .stream()
-              .filter(sa -> sa.getToken() instanceof Element)
-              .findFirst();
+              .byType(SecurityAssertionSaml.class).stream()
+                  .filter(sa -> sa.getToken() instanceof Element)
+                  .findFirst();
       if (assertionSamlOptional.isPresent()) {
         SecurityAssertionSaml assertion = assertionSamlOptional.get();
         return (Element) assertion.getToken();

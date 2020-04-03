@@ -505,10 +505,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(2));
     Assert.assertThat(
-        context
-            .getSystemPropertiesReferencedEntries()
-            .values()
-            .stream()
+        context.getSystemPropertiesReferencedEntries().values().stream()
             .toArray(ImportMigrationSystemPropertyReferencedEntryImpl[]::new),
         Matchers.arrayContaining( //
             Matchers.allOf( //

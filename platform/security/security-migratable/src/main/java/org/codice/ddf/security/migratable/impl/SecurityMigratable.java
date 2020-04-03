@@ -84,8 +84,7 @@ public class SecurityMigratable implements Migratable {
 
   @Override
   public void doExport(ExportMigrationContext context) {
-    SecurityMigratable.PROPERTIES_FILES
-        .stream()
+    SecurityMigratable.PROPERTIES_FILES.stream()
         .map(context::getEntry)
         .peek(
             me ->
@@ -138,8 +137,7 @@ public class SecurityMigratable implements Migratable {
   }
 
   private void importPropertiesFiles(ImportMigrationContext context) {
-    SecurityMigratable.PROPERTIES_FILES
-        .stream()
+    SecurityMigratable.PROPERTIES_FILES.stream()
         .map(context::getEntry)
         .peek(
             me ->

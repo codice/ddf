@@ -182,9 +182,7 @@ public class ExportMigrationManagerImpl implements Closeable {
         customSystemPropertiesFile);
     metadata.put(
         MigrationContextImpl.METADATA_MIGRATABLES,
-        contexts
-            .values()
-            .stream()
+        contexts.values().stream()
             .map(ExportMigrationContextImpl::doExport)
             .collect(
                 LinkedHashMap::new,

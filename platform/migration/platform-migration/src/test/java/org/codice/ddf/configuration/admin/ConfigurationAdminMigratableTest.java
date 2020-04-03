@@ -497,8 +497,7 @@ public class ConfigurationAdminMigratableTest {
     List<Configuration> configs =
         pids.stream().map(this::getConfigurationForExportSystem).collect(Collectors.toList());
     List<Configuration> factoryConfigs =
-        configFactoryPids
-            .stream()
+        configFactoryPids.stream()
             .map(this::getFactoryConfigurationForExportSystem)
             .collect(Collectors.toList());
     configurations = ListUtils.union(configs, factoryConfigs);
@@ -512,8 +511,7 @@ public class ConfigurationAdminMigratableTest {
     List<Configuration> configs =
         pids.stream().map(this::getConfigurationForImportSystem).collect(Collectors.toList());
     List<Configuration> factoryConfigs =
-        configFactoryPids
-            .stream()
+        configFactoryPids.stream()
             .map(this::getFactoryConfigurationForImportSystem)
             .collect(Collectors.toList());
     configurations = ListUtils.union(configs, factoryConfigs);

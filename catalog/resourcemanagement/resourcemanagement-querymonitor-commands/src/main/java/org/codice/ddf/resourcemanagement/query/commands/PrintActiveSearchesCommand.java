@@ -27,10 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Command(
-  scope = "catalog",
-  name = "printactivesearches",
-  description = "Prints a summary of all ActiveSearches currently in the QueryMonitor"
-)
+    scope = "catalog",
+    name = "printactivesearches",
+    description = "Prints a summary of all ActiveSearches currently in the QueryMonitor")
 @Service
 public class PrintActiveSearchesCommand implements Action {
 

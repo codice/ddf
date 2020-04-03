@@ -24,10 +24,9 @@ import org.codice.ddf.persistence.PersistenceException;
 
 @Service
 @Command(
-  scope = "store",
-  name = "delete",
-  description = "Deletes entries from the persistence store."
-)
+    scope = "store",
+    name = "delete",
+    description = "Deletes entries from the persistence store.")
 public class StoreDeleteCommand extends AbstractStoreCommand {
 
   @Reference Session session;

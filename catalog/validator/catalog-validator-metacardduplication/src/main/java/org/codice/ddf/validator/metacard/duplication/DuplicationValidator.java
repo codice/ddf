@@ -127,20 +127,14 @@ public class DuplicationValidator
 
     if (report.isPresent()) {
       final List<String> errors =
-          report
-              .get()
-              .getMetacardValidationViolations()
-              .stream()
+          report.get().getMetacardValidationViolations().stream()
               .filter(
                   validationViolation ->
                       validationViolation.getSeverity().equals(ValidationViolation.Severity.ERROR))
               .map(ValidationViolation::getMessage)
               .collect(Collectors.toList());
       final List<String> warnings =
-          report
-              .get()
-              .getMetacardValidationViolations()
-              .stream()
+          report.get().getMetacardValidationViolations().stream()
               .filter(
                   validationViolation ->
                       validationViolation
@@ -204,9 +198,7 @@ public class DuplicationValidator
 
       SourceResponse response = query(uniqueAttributes);
       if (response != null) {
-        response
-            .getResults()
-            .stream()
+        response.getResults().stream()
             .filter(result -> !result.getMetacard().getId().equals(metacard.getId()))
             .forEach(result -> duplicates.add(result.getMetacard().getId()));
       }
@@ -220,13 +212,10 @@ public class DuplicationValidator
 
   private Filter[] buildFilters(Set<Attribute> attributes) {
 
-    return attributes
-        .stream()
+    return attributes.stream()
         .flatMap(
             attribute ->
-                attribute
-                    .getValues()
-                    .stream()
+                attribute.getValues().stream()
                     .map(
                         value ->
                             filterBuilder

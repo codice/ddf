@@ -31,29 +31,26 @@ import org.osgi.service.event.EventAdmin;
  */
 @Service
 @Command(
-  scope = MigrationCommand.NAMESPACE,
-  name = "import",
-  description =
-      "Restores the system profile and configuration to the one recorded by a previously executed "
-          + MigrationCommand.NAMESPACE
-          + ":export command."
-)
+    scope = MigrationCommand.NAMESPACE,
+    name = "import",
+    description =
+        "Restores the system profile and configuration to the one recorded by a previously executed "
+            + MigrationCommand.NAMESPACE
+            + ":export command.")
 public class ImportCommand extends MigrationCommand {
 
   @Option(
-    name = "--profile",
-    required = false,
-    multiValued = false,
-    description =
-        "Enables the installed profile from the original system to be restored. Cannot be used if upgrading from an older version."
-  )
+      name = "--profile",
+      required = false,
+      multiValued = false,
+      description =
+          "Enables the installed profile from the original system to be restored. Cannot be used if upgrading from an older version.")
   private boolean profile = false;
 
   @Option(
-    name = "--force",
-    aliases = {"-f"},
-    description = "Force import without a confirmation message."
-  )
+      name = "--force",
+      aliases = {"-f"},
+      description = "Force import without a confirmation message.")
   boolean force = false;
 
   public ImportCommand(Security security) {

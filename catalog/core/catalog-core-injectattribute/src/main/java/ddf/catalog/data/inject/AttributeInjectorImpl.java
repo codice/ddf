@@ -43,8 +43,7 @@ public class AttributeInjectorImpl implements AttributeInjector {
   }
 
   private Set<String> injectableAttributes(String metacardTypeName) {
-    return injectableAttributes
-        .stream()
+    return injectableAttributes.stream()
         .filter(
             injectableAttribute ->
                 isInjected(injectableAttribute.metacardTypes(), metacardTypeName))
@@ -63,8 +62,7 @@ public class AttributeInjectorImpl implements AttributeInjector {
     final String metacardTypeName = original.getName();
 
     final Set<AttributeDescriptor> injectAttributes =
-        injectableAttributes(metacardTypeName)
-            .stream()
+        injectableAttributes(metacardTypeName).stream()
             .map(attributeRegistry::lookup)
             .filter(Optional::isPresent)
             .map(Optional::get)

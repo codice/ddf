@@ -131,16 +131,12 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
 
     AttributeStatement attributeStatement = new AttributeStatementDefault();
     Principal userPrincipal =
-        subject
-            .getPrincipals()
-            .stream()
+        subject.getPrincipals().stream()
             .filter(p -> p instanceof UserPrincipal)
             .findFirst()
             .orElseThrow(AuthenticationException::new);
     Set<Principal> rolePrincipals =
-        subject
-            .getPrincipals()
-            .stream()
+        subject.getPrincipals().stream()
             .filter(p -> p instanceof RolePrincipal)
             .collect(Collectors.toSet());
     for (ClaimsHandler claimsHandler : claimsHandlers) {

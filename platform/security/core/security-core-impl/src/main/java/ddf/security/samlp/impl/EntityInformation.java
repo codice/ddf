@@ -157,9 +157,7 @@ public class EntityInformation {
   }
 
   private ServiceInfo getACS(Predicate<ServiceInfo> predicate) {
-    return assertionConsumerServices
-        .values()
-        .stream()
+    return assertionConsumerServices.values().stream()
         .filter(predicate)
         .filter(serviceInfo -> supportedBindings.contains(serviceInfo.getBinding()))
         .filter(serviceInfo -> IDP_SUPPORTED_BINDINGS.contains(serviceInfo.getBinding()))
@@ -271,8 +269,7 @@ public class EntityInformation {
 
     ServiceInfo parseAssertionConsumerServiceInfo(
         List<AssertionConsumerService> services, Predicate<Endpoint> bindingFilter) {
-      return services
-          .stream()
+      return services.stream()
           .filter(bindingFilter)
           .findFirst()
           .map(
@@ -282,8 +279,7 @@ public class EntityInformation {
 
     ServiceInfo parseSingleLogoutServiceInfo(
         List<SingleLogoutService> services, Predicate<Endpoint> bindingFilter) {
-      return services
-          .stream()
+      return services.stream()
           .filter(bindingFilter)
           .findFirst()
           .map(si -> new ServiceInfo(si.getLocation(), Binding.from(si.getBinding()), null))
@@ -292,9 +288,7 @@ public class EntityInformation {
 
     String extractCertificate(
         SPSSODescriptor spssoDescriptor, Predicate<KeyDescriptor> usageTypePredicate) {
-      return spssoDescriptor
-          .getKeyDescriptors()
-          .stream()
+      return spssoDescriptor.getKeyDescriptors().stream()
           .filter(Objects::nonNull)
           .filter(kd -> nonNull(kd.getUse()))
           .filter(usageTypePredicate)
@@ -305,9 +299,7 @@ public class EntityInformation {
     }
 
     String extractCertificateFromKeyDescriptor(KeyDescriptor kd) {
-      return kd.getKeyInfo()
-          .getX509Datas()
-          .stream()
+      return kd.getKeyInfo().getX509Datas().stream()
           .flatMap(datas -> datas.getX509Certificates().stream())
           .map(XSBase64Binary::getValue)
           .filter(StringUtils::isNotBlank)

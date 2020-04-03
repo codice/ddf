@@ -25,12 +25,11 @@ import org.fusesource.jansi.Ansi;
 @Command(scope = "security", name = "encrypt", description = "Encrypts a plain text value.")
 public class EncryptCommand implements Action {
   @Argument(
-    name = "plainTextValue",
-    description = "The plain text value to be encrypted.",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "plainTextValue",
+      description = "The plain text value to be encrypted.",
+      index = 0,
+      multiValued = false,
+      required = true)
   private String plainTextValue = null;
 
   @Reference private EncryptionService encryptionService = null;

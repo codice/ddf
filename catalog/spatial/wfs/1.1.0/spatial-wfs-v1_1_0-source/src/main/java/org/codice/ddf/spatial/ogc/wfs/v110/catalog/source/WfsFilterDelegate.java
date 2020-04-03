@@ -209,9 +209,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
             "Query with mix of feature ID and non-feature ID queries not supported");
       }
       if (isFeatureIdFilter) {
-        filterType
-            .getId()
-            .stream()
+        filterType.getId().stream()
             .map(
                 (Function<JAXBElement<? extends AbstractIdType>, AbstractIdType>)
                     JAXBElement::getValue)

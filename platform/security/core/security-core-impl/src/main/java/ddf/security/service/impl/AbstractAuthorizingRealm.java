@@ -124,8 +124,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
       throw new AuthorizationException(msg);
     }
     List<AttributeStatement> attributeStatements =
-        assertions
-            .stream()
+        assertions.stream()
             .map(SecurityAssertion::getAttributeStatements)
             .flatMap(List::stream)
             .collect(Collectors.toList());

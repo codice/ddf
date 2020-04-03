@@ -243,8 +243,7 @@ public class OAuthPluginTest {
 
       String url = e.getUrl();
       Map<String, String> urlParams =
-          URLEncodedUtils.parse(new URI(url), StandardCharsets.UTF_8)
-              .stream()
+          URLEncodedUtils.parse(new URI(url), StandardCharsets.UTF_8).stream()
               .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
       assertEquals(urlParams.get(USER_ID), USER_EMAIL);
       assertEquals(urlParams.get(SOURCE_ID), CSW_SOURCE);
@@ -383,8 +382,7 @@ public class OAuthPluginTest {
 
     String url = e.getUrl();
     Map<String, String> urlParams =
-        URLEncodedUtils.parse(new URI(url), StandardCharsets.UTF_8)
-            .stream()
+        URLEncodedUtils.parse(new URI(url), StandardCharsets.UTF_8).stream()
             .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
     assertEquals(urlParams.get("response_type"), "code");
     assertEquals(urlParams.get("client_id"), DDF_CLIENT);

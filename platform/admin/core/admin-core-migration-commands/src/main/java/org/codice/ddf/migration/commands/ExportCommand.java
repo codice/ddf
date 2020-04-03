@@ -24,10 +24,9 @@ import org.osgi.service.event.EventAdmin;
 /** Command class used to export the system configuration and data. */
 @Service
 @Command(
-  scope = MigrationCommand.NAMESPACE,
-  name = "export",
-  description = "Exports the system profile and configuration."
-)
+    scope = MigrationCommand.NAMESPACE,
+    name = "export",
+    description = "Exports the system profile and configuration.")
 public class ExportCommand extends MigrationCommand {
 
   public ExportCommand(Security security) {

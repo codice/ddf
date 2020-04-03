@@ -345,8 +345,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       throw new IllegalArgumentException(
           format("Path has no file extension [%s]", path.toAbsolutePath()));
     }
-    return strategies
-        .stream()
+    return strategies.stream()
         .filter(s -> s.getExtension().equals(ext))
         .findFirst()
         .orElseThrow(

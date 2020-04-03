@@ -35,8 +35,7 @@ public class ValidateExecutor {
         forkJoinPool
             .submit(
                 () ->
-                    metacards
-                        .stream()
+                    metacards.stream()
                         .parallel()
                         .map(metacard -> generateReport(metacard, validators))
                         .collect(Collectors.toList()))

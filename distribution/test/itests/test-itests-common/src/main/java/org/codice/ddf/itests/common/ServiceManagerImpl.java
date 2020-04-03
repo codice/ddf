@@ -194,10 +194,7 @@ public class ServiceManagerImpl implements ServiceManager {
   }
 
   private boolean isServiceReady(Configuration sourceConfig) throws NotCompliantMBeanException {
-    return adminConfig
-        .getAdminConsoleService()
-        .listServices()
-        .stream()
+    return adminConfig.getAdminConsoleService().listServices().stream()
         .map(Service::getId)
         .anyMatch(id -> servicePredicate(id, sourceConfig));
   }

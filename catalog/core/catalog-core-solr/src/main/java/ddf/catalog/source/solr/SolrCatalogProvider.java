@@ -267,9 +267,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     if (Metacard.ID.equals(attributeName)) {
       try {
         idToMetacardMap =
-            client
-                .getIds(identifiers)
-                .stream()
+            client.getIds(identifiers).stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(Metacard::getId, Function.identity()));
       } catch (UnsupportedQueryException e) {
@@ -454,8 +452,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       List<? extends Serializable> identifierPaged, String fieldName) throws IngestException {
     if (fieldName.equals(Metacard.ID + SchemaFields.TEXT_SUFFIX)) {
       Set<String> ids =
-          identifierPaged
-              .stream()
+          identifierPaged.stream()
               .filter(Objects::nonNull)
               .map(Object::toString)
               .collect(Collectors.toSet());

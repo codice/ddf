@@ -95,11 +95,10 @@ import org.slf4j.LoggerFactory;
  */
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "export",
-  description =
-      "Exports metacards, history, and their associated resources from the current Catalog"
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "export",
+    description =
+        "Exports metacards, history, and their associated resources from the current Catalog")
 public class ExportCommand extends CqlCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportCommand.class);
@@ -134,48 +133,44 @@ public class ExportCommand extends CqlCommands {
   private DigitalSignature signer;
 
   @Option(
-    name = "--output",
-    description =
-        "Output file to export Metacards and contents into. Paths are absolute and must be in quotes. Will default to auto generated name inside of ddf.home",
-    multiValued = false,
-    required = false,
-    aliases = {"-o"}
-  )
+      name = "--output",
+      description =
+          "Output file to export Metacards and contents into. Paths are absolute and must be in quotes. Will default to auto generated name inside of ddf.home",
+      multiValued = false,
+      required = false,
+      aliases = {"-o"})
   String output = getExportFilePath();
 
   @Option(
-    name = "--delete",
-    required = true,
-    multiValued = false,
-    description = "Delete Metacards and content after export. E.g., --delete=true or --delete=false"
-  )
+      name = "--delete",
+      required = true,
+      multiValued = false,
+      description =
+          "Delete Metacards and content after export. E.g., --delete=true or --delete=false")
   boolean delete = false;
 
   @Option(
-    name = "--archived",
-    required = false,
-    aliases = {"-a", "archived"},
-    multiValued = false,
-    description = "Equivalent to --cql \"\\\"metacard-tags\\\" like 'deleted'\""
-  )
+      name = "--archived",
+      required = false,
+      aliases = {"-a", "archived"},
+      multiValued = false,
+      description = "Equivalent to --cql \"\\\"metacard-tags\\\" like 'deleted'\"")
   boolean archived = false;
 
   @Option(
-    name = "--force",
-    required = false,
-    aliases = {"-f"},
-    multiValued = false,
-    description = "Do not prompt"
-  )
+      name = "--force",
+      required = false,
+      aliases = {"-f"},
+      multiValued = false,
+      description = "Do not prompt")
   boolean force = false;
 
   @Option(
-    name = "--skip-signature-verification",
-    required = false,
-    multiValued = false,
-    description =
-        "Produces the export zip but does NOT sign the resulting zip file. This file will not be able to be verified on import for integrity and security."
-  )
+      name = "--skip-signature-verification",
+      required = false,
+      multiValued = false,
+      description =
+          "Produces the export zip but does NOT sign the resulting zip file. This file will not be able to be verified on import for integrity and security.")
   boolean unsafe = false;
 
   public ExportCommand() {
@@ -344,8 +339,7 @@ public class ExportCommand extends CqlCommands {
 
   private void auditRecords(List<ExportItem> exportedItems) {
     AtomicInteger counter = new AtomicInteger();
-    exportedItems
-        .stream()
+    exportedItems.stream()
         .map(ExportItem::getId)
         .distinct()
         .collect(Collectors.groupingBy(e -> logPartition(e, counter)))
@@ -413,11 +407,7 @@ public class ExportCommand extends CqlCommands {
       return Collections.emptyList();
     }
 
-    return result
-        .getMetacard()
-        .getAttribute(Metacard.DERIVED_RESOURCE_URI)
-        .getValues()
-        .stream()
+    return result.getMetacard().getAttribute(Metacard.DERIVED_RESOURCE_URI).getValues().stream()
         .filter(Objects::nonNull)
         .map(String::valueOf)
         .collect(Collectors.toList());
@@ -427,8 +417,7 @@ public class ExportCommand extends CqlCommands {
   private List<ExportItem> doContentExport(
       ZipOutputStream zipOutputStream, List<ExportItem> exportedItems) {
     List<ExportItem> contentItemsToExport =
-        exportedItems
-            .stream()
+        exportedItems.stream()
             // Only things with a resource URI
             .filter(ei -> ei.getResourceUri() != null)
             // Only our content scheme
@@ -524,8 +513,7 @@ public class ExportCommand extends CqlCommands {
     try {
       getCacheProxy()
           .removeById(
-              exportedItems
-                  .stream()
+              exportedItems.stream()
                   .map(ExportItem::getId)
                   .collect(Collectors.toList())
                   .toArray(new String[exportedItems.size()]));

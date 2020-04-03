@@ -51,10 +51,9 @@ import org.geotools.filter.text.cql2.CQLException;
 /** Custom Karaf command to validate XML files against services that implement MetacardValidator */
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "validate",
-  description = "Validates an XML file against all installed validators."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "validate",
+    description = "Validates an XML file against all installed validators.")
 public class ValidateCommand extends CqlCommands {
 
   @Option(name = "--path", aliases = "-p", description = "The path to the file to be validated")
@@ -62,21 +61,19 @@ public class ValidateCommand extends CqlCommands {
   String path;
 
   @Option(
-    name = "--recurse",
-    aliases = "-r",
-    description =
-        "Allows for searching subdirectories "
-            + "of the specified directory to be searched for metacards."
-  )
+      name = "--recurse",
+      aliases = "-r",
+      description =
+          "Allows for searching subdirectories "
+              + "of the specified directory to be searched for metacards.")
   boolean recurse = false;
 
   @Option(
-    name = "--include-extensions",
-    multiValued = true,
-    description =
-        "List of file extensions to use in the path search. Leave blank for all "
-            + "file extensions to be included."
-  )
+      name = "--include-extensions",
+      multiValued = true,
+      description =
+          "List of file extensions to use in the path search. Leave blank for all "
+              + "file extensions to be included.")
   List<String> filteredExtensions;
 
   @Reference List<MetacardValidator> validators;
@@ -146,8 +143,7 @@ public class ValidateCommand extends CqlCommands {
       List<Result> resultList = response.getResults();
       if (resultList != null) {
         results.addAll(
-            resultList
-                .stream()
+            resultList.stream()
                 .map(Result::getMetacard)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));

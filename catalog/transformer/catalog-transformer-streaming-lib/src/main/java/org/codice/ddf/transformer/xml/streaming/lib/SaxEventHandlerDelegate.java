@@ -292,8 +292,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
         new HashSet<>(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
 
     attributeDescriptors.addAll(
-        eventHandlers
-            .stream()
+        eventHandlers.stream()
             .map(SaxEventHandler::getSupportedAttributeDescriptors)
             .flatMap(Collection::stream)
             .collect(Collectors.toSet()));

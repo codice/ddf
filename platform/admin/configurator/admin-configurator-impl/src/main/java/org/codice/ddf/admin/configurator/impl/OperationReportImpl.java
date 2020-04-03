@@ -36,9 +36,7 @@ public class OperationReportImpl implements OperationReport {
 
   public List<Result> getFailedResults() {
     return Collections.unmodifiableList(
-        results
-            .values()
-            .stream()
+        results.values().stream()
             .filter(((Predicate<Result>) Result::isOperationSucceeded).negate())
             .collect(Collectors.toList()));
   }

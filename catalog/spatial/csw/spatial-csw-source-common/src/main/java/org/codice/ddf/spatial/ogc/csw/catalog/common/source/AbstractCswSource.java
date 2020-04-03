@@ -684,9 +684,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     // Filter out Blank Strings and null Integers and Booleans
     filteredConfiguration.putAll(
-        configuration
-            .entrySet()
-            .stream()
+        configuration.entrySet().stream()
             .filter(entry -> (entry.getValue() != null))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 

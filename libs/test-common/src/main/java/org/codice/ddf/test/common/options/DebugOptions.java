@@ -88,9 +88,7 @@ public class DebugOptions extends BasicOptions {
     Map<String, String> parsedCustomLogging = parseCustomLogging(customLogging);
 
     List<Option> options =
-        parsedCustomLogging
-            .entrySet()
-            .stream()
+        parsedCustomLogging.entrySet().stream()
             .map(e -> logLevelOption(e.getKey(), e.getValue()))
             .collect(Collectors.toList());
     return new DefaultCompositeOption(options.stream().toArray(Option[]::new));

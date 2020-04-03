@@ -50,21 +50,20 @@ import org.slf4j.LoggerFactory;
 // @formatter:off
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "seed",
-  description =
-      "Seeds the local metacard and resource caches from the enterprise or from specific federated sources.",
-  detailedDescription =
-      "This command will query the enterprise or the specified sources for metacards in increments "
-          + "the size of the `--resource-limit` argument (default 20) until that number of resource downloads "
-          + "have started or until there are no more results. Local resources will not be added to the cache. "
-          + "This command will not re-download resources that are up-to-date in the cache, so subsequent runs "
-          + "of the command will attempt to cache metacards and resources that have not already been cached.\n"
-          + "\n"
-          + "Note: this command will trigger resource downloads in the background and they may continue after "
-          + "control is returned to the console. Also, resource caching must be enabled in the Catalog Framework "
-          + "for this command to seed the resource cache."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "seed",
+    description =
+        "Seeds the local metacard and resource caches from the enterprise or from specific federated sources.",
+    detailedDescription =
+        "This command will query the enterprise or the specified sources for metacards in increments "
+            + "the size of the `--resource-limit` argument (default 20) until that number of resource downloads "
+            + "have started or until there are no more results. Local resources will not be added to the cache. "
+            + "This command will not re-download resources that are up-to-date in the cache, so subsequent runs "
+            + "of the command will attempt to cache metacards and resources that have not already been cached.\n"
+            + "\n"
+            + "Note: this command will trigger resource downloads in the background and they may continue after "
+            + "control is returned to the console. Also, resource caching must be enabled in the Catalog Framework "
+            + "for this command to seed the resource cache.")
 // @formatter:on
 public class SeedCommand extends CqlCommands {
 
@@ -97,22 +96,20 @@ public class SeedCommand extends CqlCommands {
       };
 
   @Option(
-    name = "--source",
-    multiValued = true,
-    aliases = {"-s"},
-    description =
-        "Source(s) to query (e.g., -s source1 -s source2). Default is to query the entire enterprise."
-  )
+      name = "--source",
+      multiValued = true,
+      aliases = {"-s"},
+      description =
+          "Source(s) to query (e.g., -s source1 -s source2). Default is to query the entire enterprise.")
   List<String> sources;
 
   @Option(
-    name = "--resource-limit",
-    aliases = {"-rl"},
-    description =
-        "The maximum number of resources to download to the cache. The number of metacards cached "
-            + "might not be equal to this number because some metacards may not have associated "
-            + "resources."
-  )
+      name = "--resource-limit",
+      aliases = {"-rl"},
+      description =
+          "The maximum number of resources to download to the cache. The number of metacards cached "
+              + "might not be equal to this number because some metacards may not have associated "
+              + "resources.")
   int resourceLimit = 20;
 
   @Override
@@ -149,9 +146,7 @@ public class SeedCommand extends CqlCommands {
       }
 
       final List<Entry<? extends ResourceRequest, String>> resourceRequests =
-          queryResponse
-              .getResults()
-              .stream()
+          queryResponse.getResults().stream()
               .map(Result::getMetacard)
               .filter(isNonCachedResource)
               .map(

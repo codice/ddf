@@ -355,8 +355,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
   }
 
   private boolean blockFanoutContentItems(List<ContentItem> contentItems) {
-    return contentItems
-        .stream()
+    return contentItems.stream()
         .map(ContentItem::getMetacard)
         .anyMatch(this::isMetacardBlacklisted);
   }
@@ -366,9 +365,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
   }
 
   private boolean blockFanoutUpdate(UpdateRequest updateRequest) {
-    return updateRequest
-        .getUpdates()
-        .stream()
+    return updateRequest.getUpdates().stream()
         .anyMatch((updateEntry) -> isMetacardBlacklisted(updateEntry.getValue()));
   }
 

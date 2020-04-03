@@ -327,9 +327,7 @@ public class DeleteOperations {
     }
 
     List<Serializable> updatedList =
-        response
-            .getResults()
-            .stream()
+        response.getResults().stream()
             .map(Result::getMetacard)
             .map(Metacard::getId)
             .map(Serializable.class::cast)
@@ -342,15 +340,11 @@ public class DeleteOperations {
   private boolean foundAllDeleteRequestMetacards(
       DeleteRequest deleteRequest, SourceResponse response) {
     Set<String> originalKeys =
-        deleteRequest
-            .getAttributeValues()
-            .stream()
+        deleteRequest.getAttributeValues().stream()
             .map(Object::toString)
             .collect(Collectors.toSet());
     Set<String> responseKeys =
-        response
-            .getResults()
-            .stream()
+        response.getResults().stream()
             .map(Result::getMetacard)
             .map(m -> m.getAttribute(deleteRequest.getAttributeName()))
             .filter(Objects::nonNull)
@@ -451,8 +445,7 @@ public class DeleteOperations {
   }
 
   private boolean blockDeleteMetacards(List<Metacard> metacards, List<String> fanoutTagBlacklist) {
-    return metacards
-        .stream()
+    return metacards.stream()
         .anyMatch((metacard) -> isMetacardBlacklisted(metacard, fanoutTagBlacklist));
   }
 
@@ -469,9 +462,7 @@ public class DeleteOperations {
 
   private QueryRequestImpl createQueryRequest(DeleteRequest deleteRequest) {
     List<Filter> idFilters =
-        deleteRequest
-            .getAttributeValues()
-            .stream()
+        deleteRequest.getAttributeValues().stream()
             .map(
                 serializable ->
                     frameworkProperties
@@ -574,9 +565,7 @@ public class DeleteOperations {
   // https://codice.atlassian.net/browse/DDF-2962
   private DeleteResponse injectAttributes(DeleteResponse response) {
     List<Metacard> deletedMetacards =
-        response
-            .getDeletedMetacards()
-            .stream()
+        response.getDeletedMetacards().stream()
             .map(
                 (original) ->
                     opsMetacardSupport.applyInjectors(
@@ -594,9 +583,7 @@ public class DeleteOperations {
     if (LOGGER.isDebugEnabled()) {
       final String attributeName = deleteRequest.getAttributeName();
       Set<String> queryResults =
-          query
-              .getResults()
-              .stream()
+          query.getResults().stream()
               .map(Result::getMetacard)
               .map(m -> m.getAttribute(attributeName))
               .filter(Objects::nonNull)
@@ -610,9 +597,7 @@ public class DeleteOperations {
       LOGGER.debug("Original Delete By attribute was: {}", attributeName);
       LOGGER.debug(
           "Metacards unable to get Metacard ID from are: "
-              + deleteRequest
-                  .getAttributeValues()
-                  .stream()
+              + deleteRequest.getAttributeValues().stream()
                   .map(Object::toString)
                   .filter(s -> !queryResults.contains(s))
                   .collect(Collectors.joining(", ", "[", "]")));

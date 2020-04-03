@@ -573,8 +573,7 @@ public class WfsSource extends AbstractWfsSource {
   private MetacardMapper getMetacardMapper(final QName featureTypeName) {
     final Predicate<MetacardMapper> matchesFeatureType =
         mapper -> mapper.getFeatureType().equals(featureTypeName.toString());
-    return metacardMappers
-        .stream()
+    return metacardMappers.stream()
         .filter(matchesFeatureType)
         .findAny()
         .orElseGet(
@@ -617,8 +616,7 @@ public class WfsSource extends AbstractWfsSource {
       FeatureTypeType featureTypeType, String ftName, XmlSchema schema) {
 
     MetacardTypeEnhancer metacardTypeEnhancer =
-        metacardTypeEnhancers
-            .stream()
+        metacardTypeEnhancers.stream()
             .filter(me -> me.getFeatureName() != null)
             .filter(me -> me.getFeatureName().equalsIgnoreCase(ftName))
             .findAny()
@@ -846,8 +844,7 @@ public class WfsSource extends AbstractWfsSource {
   @Override
   public Set<ContentType> getContentTypes() {
     Set<QName> typeNames = featureTypeFilters.keySet();
-    return typeNames
-        .stream()
+    return typeNames.stream()
         .map(featureName -> new ContentTypeImpl(featureName.getLocalPart(), getVersion()))
         .collect(toSet());
   }

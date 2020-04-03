@@ -35,23 +35,21 @@ public abstract class AbstractStoreCommand implements Action {
   protected PrintStream console = System.out;
 
   @Option(
-    name = "Persistence Type",
-    aliases = {"-t", "--type"},
-    required = true,
-    description =
-        "Type of entry in the persistence store to perform the current operation on.\nOptions: metacard, saved_query, notification, activity, workspace, preferences, attributes, subscriptions, event_subscriptions, alerts, or decanter",
-    multiValued = false
-  )
+      name = "Persistence Type",
+      aliases = {"-t", "--type"},
+      required = true,
+      description =
+          "Type of entry in the persistence store to perform the current operation on.\nOptions: metacard, saved_query, notification, activity, workspace, preferences, attributes, subscriptions, event_subscriptions, alerts, or decanter",
+      multiValued = false)
   protected String type;
 
   @Option(
-    name = "CQL",
-    aliases = {"-c", "--cql"},
-    required = false,
-    description =
-        "OGC CQL statement to query the persistence store. Not specifying returns all entries. More information on CQL is available at: http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html",
-    multiValued = false
-  )
+      name = "CQL",
+      aliases = {"-c", "--cql"},
+      required = false,
+      description =
+          "OGC CQL statement to query the persistence store. Not specifying returns all entries. More information on CQL is available at: http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html",
+      multiValued = false)
   protected String cql;
 
   @Reference protected PersistentStore persistentStore;

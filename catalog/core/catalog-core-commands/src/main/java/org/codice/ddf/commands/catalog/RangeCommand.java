@@ -35,10 +35,9 @@ import org.opengis.filter.sort.SortOrder;
 
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "range",
-  description = "Searches by the given date range arguments (exclusively)."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "range",
+    description = "Searches by the given date range arguments (exclusively).")
 public class RangeCommand extends CatalogCommands {
 
   private static final int MAX_LENGTH = 40;
@@ -54,42 +53,39 @@ public class RangeCommand extends CatalogCommands {
   private static final String DATE_FORMAT = "MM-dd-yyyy";
 
   @Argument(
-    name = "ATTRIBUTE_NAME",
-    description =
-        "The attribute to query on. Valid values are \""
-            + Core.MODIFIED
-            + "\", \""
-            + Core.CREATED
-            + "\", \""
-            + Metacard.EFFECTIVE
-            + "\", and"
-            + " \""
-            + Core.EXPIRATION
-            + "\".",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "ATTRIBUTE_NAME",
+      description =
+          "The attribute to query on. Valid values are \""
+              + Core.MODIFIED
+              + "\", \""
+              + Core.CREATED
+              + "\", \""
+              + Metacard.EFFECTIVE
+              + "\", and"
+              + " \""
+              + Core.EXPIRATION
+              + "\".",
+      index = 0,
+      multiValued = false,
+      required = true)
   String attributeName = Core.MODIFIED;
 
   @Argument(
-    name = "RANGE_BEGINNING",
-    description =
-        "The first parameter can be a Date or an asterisk (*). Dates should be formatted as MM-dd-yyyy such as 01-23-2009.",
-    index = 1,
-    multiValued = false,
-    required = true
-  )
+      name = "RANGE_BEGINNING",
+      description =
+          "The first parameter can be a Date or an asterisk (*). Dates should be formatted as MM-dd-yyyy such as 01-23-2009.",
+      index = 1,
+      multiValued = false,
+      required = true)
   String rangeBeginning = null;
 
   @Argument(
-    name = "RANGE_END",
-    description =
-        "The second parameter can be a Date or an asterisk (*). Dates should be formatted as MM-dd-yyyy such as 01-23-2009.",
-    index = 2,
-    multiValued = false,
-    required = true
-  )
+      name = "RANGE_END",
+      description =
+          "The second parameter can be a Date or an asterisk (*). Dates should be formatted as MM-dd-yyyy such as 01-23-2009.",
+      index = 2,
+      multiValued = false,
+      required = true)
   String rangeEnd = null;
 
   @Override

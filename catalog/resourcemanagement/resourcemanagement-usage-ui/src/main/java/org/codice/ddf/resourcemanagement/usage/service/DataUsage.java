@@ -153,9 +153,7 @@ public class DataUsage extends RouteBuilder implements DataUsageMBean {
     Map<String, List<Long>> dataUsageMap = new HashMap<>();
     try {
 
-      attributesStore
-          .getAllUsers()
-          .stream()
+      attributesStore.getAllUsers().stream()
           .filter(MapUtils::isNotEmpty)
           .forEach(
               stringObjectMap -> {

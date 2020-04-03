@@ -636,8 +636,7 @@ public class WfsSource extends AbstractWfsSource {
   private MetacardMapper lookupMetacardAttributeToFeaturePropertyMapper(QName featureType) {
     final Predicate<MetacardMapper> matchesFeatureType =
         mapper -> mapper.getFeatureType().equals(featureType.toString());
-    return metacardToFeatureMappers
-        .stream()
+    return metacardToFeatureMappers.stream()
         .filter(matchesFeatureType)
         .findAny()
         .orElseGet(

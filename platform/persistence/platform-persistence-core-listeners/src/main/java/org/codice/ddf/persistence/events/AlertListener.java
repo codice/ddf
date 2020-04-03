@@ -136,9 +136,7 @@ public class AlertListener implements EventHandler {
     List<Alert> alerts = new ArrayList<>();
     try {
       alerts =
-          persistentStore
-              .get(CORE_NAME, cql)
-              .stream()
+          persistentStore.get(CORE_NAME, cql).stream()
               .map(item -> new Alert(PersistentItem.stripSuffixes(item)))
               .collect(Collectors.toList());
 

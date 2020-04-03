@@ -81,8 +81,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
     Assert.assertThat(
-        mgr.getContexts()
-            .stream()
+        mgr.getContexts().stream()
             .map(ExportMigrationContextImpl::getMigratable)
             .toArray(Migratable[]::new),
         Matchers.arrayContaining(
@@ -99,8 +98,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
     Assert.assertThat(
-        mgr.getContexts()
-            .stream()
+        mgr.getContexts().stream()
             .map(ExportMigrationContextImpl::getMigratable)
             .toArray(Migratable[]::new),
         Matchers.arrayContaining(

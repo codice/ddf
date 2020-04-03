@@ -54,9 +54,7 @@ public class ISO3CountryCodeValidator implements AttributeValidator {
     }
 
     countryCodes =
-        standardProvider
-            .getStandardEntries()
-            .stream()
+        standardProvider.getStandardEntries().stream()
             .map(cc -> cc.getAsFormat("alpha3"))
             .collect(Collectors.toSet());
   }
@@ -80,9 +78,7 @@ public class ISO3CountryCodeValidator implements AttributeValidator {
   private AttributeValidationReport buildReport(Attribute attribute) {
     AttributeValidationReportImpl report = new AttributeValidationReportImpl();
 
-    attribute
-        .getValues()
-        .stream()
+    attribute.getValues().stream()
         .filter(String.class::isInstance)
         .map(String.class::cast)
         .map(ignoreCase ? String::toUpperCase : String::toString)

@@ -91,8 +91,7 @@ class CachedResourceMetacardComparator {
       Metacard cachedMetacard, Metacard updatedMetacard) {
 
     Optional<String> difference =
-        METACARD_ATTRIBUTES
-            .stream()
+        METACARD_ATTRIBUTES.stream()
             .filter(
                 attributeName ->
                     !Objects.equals(

@@ -31,9 +31,7 @@ public class KmlFolderToJtsGeometryConverter {
     }
 
     List<Geometry> jtsGeometries =
-        kmlFolder
-            .getFeature()
-            .stream()
+        kmlFolder.getFeature().stream()
             .map(KmlFeatureToJtsGeometryConverter::from)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());

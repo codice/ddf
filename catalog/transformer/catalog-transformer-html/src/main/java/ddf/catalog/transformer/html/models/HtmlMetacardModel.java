@@ -37,8 +37,7 @@ public class HtmlMetacardModel {
     this.title = metacard.getTitle();
 
     this.categories =
-        categories
-            .stream()
+        categories.stream()
             .map(category -> new HtmlCategoryModel(category.getTitle(), category.getAttributes()))
             .collect(Collectors.toList());
 

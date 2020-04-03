@@ -74,8 +74,7 @@ public class MetacardAttributeSecurityPolicyPlugin implements PolicyPlugin {
           badAttributes);
     }
 
-    return metacardAttributes
-        .stream()
+    return metacardAttributes.stream()
         .map(s -> s.split("="))
         .collect(Collectors.toMap(sArr -> sArr[0], sArr -> sArr.length == 1 ? sArr[0] : sArr[1]));
   }

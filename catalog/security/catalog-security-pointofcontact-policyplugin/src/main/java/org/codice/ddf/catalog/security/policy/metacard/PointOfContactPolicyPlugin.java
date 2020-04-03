@@ -66,8 +66,7 @@ public class PointOfContactPolicyPlugin implements PolicyPlugin {
 
     Metacard previous;
     previous =
-        previousStateMetacards
-            .stream()
+        previousStateMetacards.stream()
             .filter(x -> x.getId().equals(newMetacard.getId()))
             .findFirst()
             .orElse(null);

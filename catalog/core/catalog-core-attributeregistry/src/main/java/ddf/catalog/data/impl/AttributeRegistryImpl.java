@@ -65,9 +65,7 @@ public class AttributeRegistryImpl implements AttributeRegistry {
 
   private void registerMetacardTypeAttributes(MetacardType metacardType) {
     LOGGER.debug("Adding attributes from {} metacard type", metacardType.getName());
-    metacardType
-        .getAttributeDescriptors()
-        .stream()
+    metacardType.getAttributeDescriptors().stream()
         .filter(attributeDescriptor -> attributeDescriptor != null)
         .filter(attributeDescriptor -> attributeDescriptor.getName() != null)
         .forEach(this::register);
@@ -75,9 +73,7 @@ public class AttributeRegistryImpl implements AttributeRegistry {
 
   private void deregisterMetacardTypeAttributes(MetacardType metacardType) {
     LOGGER.debug("Removing attributes from {} metacard type", metacardType.getName());
-    metacardType
-        .getAttributeDescriptors()
-        .stream()
+    metacardType.getAttributeDescriptors().stream()
         .filter(attributeDescriptor -> attributeDescriptor != null)
         .filter(attributeDescriptor -> attributeDescriptor.getName() != null)
         .forEach(this::deregister);

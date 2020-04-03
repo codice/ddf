@@ -152,8 +152,7 @@ public class CsvTransformer {
   public static Set<AttributeDescriptor> getAllCsvAttributeDescriptors(
       final List<Metacard> metacards) {
 
-    return metacards
-        .stream()
+    return metacards.stream()
         .filter(Objects::nonNull)
         .map(Metacard::getMetacardType)
         .map(MetacardType::getAttributeDescriptors)

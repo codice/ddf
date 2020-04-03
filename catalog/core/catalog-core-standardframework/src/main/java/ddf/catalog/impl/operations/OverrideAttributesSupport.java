@@ -65,10 +65,7 @@ public class OverrideAttributesSupport {
 
   private static void addAttributes(
       Metacard metacard, Metacard otherMetacard, boolean onlyFillNull) {
-    metacard
-        .getMetacardType()
-        .getAttributeDescriptors()
-        .stream()
+    metacard.getMetacardType().getAttributeDescriptors().stream()
         .map(attributeDescriptor -> otherMetacard.getAttribute(attributeDescriptor.getName()))
         .filter(Objects::nonNull)
         .filter(attribute -> !attribute.getName().equals(Metacard.ID))
@@ -87,9 +84,7 @@ public class OverrideAttributesSupport {
         .values()
         .forEach(
             metacard ->
-                attributeOverrideMap
-                    .keySet()
-                    .stream()
+                attributeOverrideMap.keySet().stream()
                     .map(
                         attributeName ->
                             metacard.getMetacardType().getAttributeDescriptor(attributeName))

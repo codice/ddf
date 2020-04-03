@@ -221,9 +221,7 @@ public class GuestClaimsHandlerExt {
 
   /** Convert the structure found in profiles.json to simple claims listings. */
   private Map<String, Object> flatCopyProfileData(Map<String, Object> profiles) {
-    return profiles
-        .entrySet()
-        .stream()
+    return profiles.entrySet().stream()
         .collect(
             Collectors.toMap(
                 Map.Entry::getKey, entry -> convertGuestClaimsToList(entry.getValue())));
@@ -233,9 +231,7 @@ public class GuestClaimsHandlerExt {
   private List<String> convertGuestClaimsToList(Object profile) {
     Map<String, Object> innerMap = (Map<String, Object>) profile;
     Map<String, String> guestClaims = (Map<String, String>) innerMap.get(GUEST_CLAIMS);
-    return guestClaims
-        .entrySet()
-        .stream()
+    return guestClaims.entrySet().stream()
         .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
         .collect(Collectors.toList());
   }

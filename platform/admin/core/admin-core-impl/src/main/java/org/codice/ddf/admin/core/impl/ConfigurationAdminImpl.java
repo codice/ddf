@@ -246,8 +246,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
     }
 
     if (serviceList != null) {
-      return serviceList
-          .stream()
+      return serviceList.stream()
           .filter(service -> isPermittedToViewService(service.getId()))
           .collect(Collectors.toList());
     } else {
@@ -308,8 +307,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
       // If the configuration property is a password that has been set,
       // mask its value to "password" so that the real password value will be hidden.
       List<MetatypeAttribute> metatypeList = service.getAttributeDefinitions();
-      metatypeList
-          .stream()
+      metatypeList.stream()
           .filter(metatype -> AttributeDefinition.PASSWORD == metatype.getType())
           .forEach(
               metatype -> {
@@ -644,8 +642,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
       }
     }
 
-    return serviceList
-        .stream()
+    return serviceList.stream()
         .filter(service -> isPermittedToViewService(service.getId()))
         .collect(Collectors.toList());
   }

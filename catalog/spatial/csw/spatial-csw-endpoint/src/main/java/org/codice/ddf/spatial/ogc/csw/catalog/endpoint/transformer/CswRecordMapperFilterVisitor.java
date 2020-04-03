@@ -499,9 +499,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
       return getFactory(function)
           .function(
               function.getName(),
-              function
-                  .getParameters()
-                  .stream()
+              function.getParameters().stream()
                   .map(expression -> visit(expression, extraData))
                   .toArray(Expression[]::new));
     }

@@ -37,12 +37,11 @@ public abstract class SubjectCommands extends CommandSupport {
   private static final Logger LOGGER = LoggerFactory.getLogger(SubjectCommands.class);
 
   @Option(
-    name = "--user",
-    required = false,
-    aliases = {"-u"},
-    multiValued = false,
-    description = "Run command as a different user."
-  )
+      name = "--user",
+      required = false,
+      aliases = {"-u"},
+      multiValued = false,
+      description = "Run command as a different user.")
   protected String user = null;
 
   @Reference protected Session session;

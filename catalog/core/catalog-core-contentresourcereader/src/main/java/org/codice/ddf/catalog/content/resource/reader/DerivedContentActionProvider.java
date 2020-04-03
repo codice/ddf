@@ -57,49 +57,53 @@ public class DerivedContentActionProvider implements MultiActionProvider {
     }
 
     return ((Metacard) input)
-        .getAttribute(Metacard.DERIVED_RESOURCE_URI)
-        .getValues()
-        .stream()
-        .map(
-            value -> {
-              try {
-                URI uri = new URI(value.toString());
-                URIBuilder builder = new URIBuilder(resourceAction.getUrl().toURI());
-                if (StringUtils.equals(uri.getScheme(), ContentItem.CONTENT_SCHEME)) {
-                  String qualifier = uri.getFragment();
+        .getAttribute(Metacard.DERIVED_RESOURCE_URI).getValues().stream()
+            .map(
+                value -> {
+                  try {
+                    URI uri = new URI(value.toString());
+                    URIBuilder builder = new URIBuilder(resourceAction.getUrl().toURI());
+                    if (StringUtils.equals(uri.getScheme(), ContentItem.CONTENT_SCHEME)) {
+                      String qualifier = uri.getFragment();
 
-                  builder.addParameters(
-                      Collections.singletonList(
-                          new BasicNameValuePair(ContentItem.QUALIFIER_KEYWORD, qualifier)));
-                  return Optional.of(
-                      new ActionImpl(
-                          ID,
-                          "View " + qualifier,
-                          DESCRIPTION_PREFIX + qualifier,
-                          builder.build().toURL()));
-                } else {
-                  String uriString = uri.toString();
-                  String qualifier = getQualifierForRemoteResource(uriString);
-                  if (StringUtils.isNotBlank(qualifier)) {
-                    // remote source
-                    return Optional.of(
-                        new ActionImpl(
-                            ID, "View " + qualifier, DESCRIPTION_PREFIX + uriString, uri.toURL()));
-                  } else {
-                    // fail case
-                    return Optional.of(
-                        new ActionImpl(
-                            ID, "View " + uriString, DESCRIPTION_PREFIX + uriString, uri.toURL()));
+                      builder.addParameters(
+                          Collections.singletonList(
+                              new BasicNameValuePair(ContentItem.QUALIFIER_KEYWORD, qualifier)));
+                      return Optional.of(
+                          new ActionImpl(
+                              ID,
+                              "View " + qualifier,
+                              DESCRIPTION_PREFIX + qualifier,
+                              builder.build().toURL()));
+                    } else {
+                      String uriString = uri.toString();
+                      String qualifier = getQualifierForRemoteResource(uriString);
+                      if (StringUtils.isNotBlank(qualifier)) {
+                        // remote source
+                        return Optional.of(
+                            new ActionImpl(
+                                ID,
+                                "View " + qualifier,
+                                DESCRIPTION_PREFIX + uriString,
+                                uri.toURL()));
+                      } else {
+                        // fail case
+                        return Optional.of(
+                            new ActionImpl(
+                                ID,
+                                "View " + uriString,
+                                DESCRIPTION_PREFIX + uriString,
+                                uri.toURL()));
+                      }
+                    }
+                  } catch (URISyntaxException | MalformedURLException e) {
+                    LOGGER.debug("Unable to create action URL.", e);
+                    return Optional.<Action>empty();
                   }
-                }
-              } catch (URISyntaxException | MalformedURLException e) {
-                LOGGER.debug("Unable to create action URL.", e);
-                return Optional.<Action>empty();
-              }
-            })
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .collect(Collectors.toList());
+                })
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
   }
 
   @Override
@@ -122,8 +126,7 @@ public class DerivedContentActionProvider implements MultiActionProvider {
   private String getQualifierForRemoteResource(String uriString) throws URISyntaxException {
     final String QUALIFIER_KEY = "qualifier";
 
-    return URLEncodedUtils.parse(new URI(uriString), StandardCharsets.UTF_8.name())
-        .stream()
+    return URLEncodedUtils.parse(new URI(uriString), StandardCharsets.UTF_8.name()).stream()
         .filter(pair -> QUALIFIER_KEY.equals(pair.getName()))
         .map(NameValuePair::getValue)
         .findFirst()

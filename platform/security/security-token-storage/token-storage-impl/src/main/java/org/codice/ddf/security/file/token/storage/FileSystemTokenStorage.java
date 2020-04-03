@@ -70,9 +70,7 @@ public class FileSystemTokenStorage implements TokenStorage {
    */
   @Override
   public Map<String, Map<String, Object>> getStateMap() {
-    stateMap
-        .entrySet()
-        .stream()
+    stateMap.entrySet().stream()
         .filter(
             entry -> (long) entry.getValue().get(EXPIRES_AT) - Instant.now().getEpochSecond() <= 0)
         .forEach(entry -> stateMap.remove(entry.getKey()));

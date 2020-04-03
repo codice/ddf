@@ -104,9 +104,7 @@ public class InPlaceMetacardProcessor implements Processor {
       return;
     }
 
-    attributeOverrides
-        .keySet()
-        .stream()
+    attributeOverrides.keySet().stream()
         .map(attributeRegistry::lookup)
         .filter(Optional::isPresent)
         .map(Optional::get)

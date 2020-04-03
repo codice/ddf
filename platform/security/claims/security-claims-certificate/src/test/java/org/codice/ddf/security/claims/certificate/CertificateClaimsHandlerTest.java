@@ -52,8 +52,7 @@ public class CertificateClaimsHandlerTest {
     ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
     assertThat(processedClaims.size(), is(2));
     assertThat(
-        processedClaims
-            .stream()
+        processedClaims.stream()
             .map(ddf.security.claims.Claim::getName)
             .collect(Collectors.toList()),
         containsInAnyOrder(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, SubjectUtils.COUNTRY_CLAIM_URI));
@@ -72,8 +71,7 @@ public class CertificateClaimsHandlerTest {
     ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
     assertThat(processedClaims.size(), is(2));
     assertThat(
-        processedClaims
-            .stream()
+        processedClaims.stream()
             .map(ddf.security.claims.Claim::getName)
             .collect(Collectors.toList()),
         containsInAnyOrder("Email", "Country"));
@@ -89,8 +87,7 @@ public class CertificateClaimsHandlerTest {
     ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
     assertThat(processedClaims.size(), is(1));
     assertThat(
-        processedClaims
-            .stream()
+        processedClaims.stream()
             .map(ddf.security.claims.Claim::getName)
             .collect(Collectors.toList()),
         containsInAnyOrder(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
@@ -106,8 +103,7 @@ public class CertificateClaimsHandlerTest {
     ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
     assertThat(processedClaims.size(), is(1));
     assertThat(
-        processedClaims
-            .stream()
+        processedClaims.stream()
             .map(ddf.security.claims.Claim::getName)
             .collect(Collectors.toList()),
         containsInAnyOrder(SubjectUtils.COUNTRY_CLAIM_URI));

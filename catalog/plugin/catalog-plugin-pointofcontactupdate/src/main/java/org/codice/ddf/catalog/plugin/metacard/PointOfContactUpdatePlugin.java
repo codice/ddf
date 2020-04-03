@@ -95,9 +95,7 @@ public class PointOfContactUpdatePlugin implements PreAuthorizationPlugin {
   private Metacard getPreviousMetacardWithId(String id, Map<String, Metacard> previousMetacards) {
     Metacard previous;
     previous =
-        previousMetacards
-            .entrySet()
-            .stream()
+        previousMetacards.entrySet().stream()
             .map(Map.Entry::getValue)
             .filter(x -> x.getId().equals(id))
             .findFirst()

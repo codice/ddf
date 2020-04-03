@@ -117,8 +117,7 @@ public class MigrationZipFileTest extends AbstractMigrationSupport {
   @Test
   public void testReadingEncryptedEntry() throws IOException {
     MigrationZipFile migrationZipFile = new MigrationZipFile(zipPath, keyPath, checksumPath);
-    migrationZipFile
-        .stream()
+    migrationZipFile.stream()
         .forEach(
             entry -> {
               try {

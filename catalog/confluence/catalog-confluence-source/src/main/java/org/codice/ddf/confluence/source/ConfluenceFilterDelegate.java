@@ -92,8 +92,7 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
 
   @Override
   public String and(List<String> operands) {
-    return operands
-        .stream()
+    return operands.stream()
         .filter(StringUtils::isNotEmpty)
         .collect(Collectors.joining(" AND ", "( ", " )"))
         .replaceAll(EMPTY_GROUP_PATTERN, "");
@@ -101,8 +100,7 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
 
   @Override
   public String or(List<String> operands) {
-    return operands
-        .stream()
+    return operands.stream()
         .filter(StringUtils::isNotEmpty)
         .collect(Collectors.joining(" OR ", "( ", " )"))
         .replaceAll(EMPTY_GROUP_PATTERN, "");

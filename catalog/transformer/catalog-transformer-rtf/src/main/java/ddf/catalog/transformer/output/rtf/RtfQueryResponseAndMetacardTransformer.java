@@ -75,9 +75,7 @@ public class RtfQueryResponseAndMetacardTransformer
 
     Rtf doc = createRtfDoc();
 
-    upstreamResponse
-        .getResults()
-        .stream()
+    upstreamResponse.getResults().stream()
         .map(Result::getMetacard)
         .forEach(metacard -> toRtf(doc, metacard));
 

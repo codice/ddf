@@ -184,9 +184,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         LOGGER.trace("Enabling faceted query for request [{}] on field {}", request, textFacetProp);
       }
 
-      textFacetProp
-          .getFacetAttributes()
-          .stream()
+      textFacetProp.getFacetAttributes().stream()
           .map(this::addAttributeTypeSuffix)
           .filter(attr -> attr.contains(String.valueOf(FIRST_CHAR_OF_SUFFIX)))
           .forEach(query::addFacetField);
@@ -237,10 +235,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
       if (suggesterResponse != null) {
         List<Map.Entry<String, String>> suggestionResults =
-            suggesterResponse
-                .getSuggestions()
-                .entrySet()
-                .stream()
+            suggesterResponse.getSuggestions().entrySet().stream()
                 .map(Map.Entry::getValue)
                 .flatMap(List::stream)
                 .map(
@@ -602,31 +597,23 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     Set<String> excludedAttributes = (Set<String>) request.getPropertyValue(EXCLUDE_ATTRIBUTES);
 
     Set<String> excludedFields =
-        resolver
-            .fieldsCache
-            .stream()
+        resolver.fieldsCache.stream()
             .filter(Objects::nonNull)
             .filter(field -> excludedAttributes.stream().anyMatch(field::startsWith))
             .collect(Collectors.toSet());
 
     Set<String> wildcardFields =
-        SchemaFields.FORMAT_TO_SUFFIX_MAP
-            .values()
-            .stream()
+        SchemaFields.FORMAT_TO_SUFFIX_MAP.values().stream()
             .filter(suffix -> excludedFields.stream().noneMatch(field -> field.endsWith(suffix)))
             .map(suffix -> "*" + suffix)
             .collect(Collectors.toSet());
 
     Set<String> includedFields =
-        SchemaFields.FORMAT_TO_SUFFIX_MAP
-            .values()
-            .stream()
+        SchemaFields.FORMAT_TO_SUFFIX_MAP.values().stream()
             .filter(suffix -> excludedFields.stream().anyMatch(field -> field.endsWith(suffix)))
             .flatMap(
                 suffix ->
-                    resolver
-                        .fieldsCache
-                        .stream()
+                    resolver.fieldsCache.stream()
                         .filter(Objects::nonNull)
                         .filter(field -> field.endsWith(suffix))
                         .filter(field -> excludedAttributes.stream().noneMatch(field::startsWith)))

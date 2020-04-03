@@ -69,8 +69,7 @@ public class CreateStorageResponseImpl extends ResponseImpl<CreateStorageRequest
     }
     return String.format(
         "CreateStorageResponseImpl{createdContentItems=%s}",
-        createdContentItems
-            .stream()
+        createdContentItems.stream()
             .filter(Objects::nonNull)
             .map(Object::toString)
             .collect(Collectors.joining(", ", "[", "]")));

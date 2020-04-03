@@ -537,9 +537,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
   /** Set the source-id on every metacard this is missing a source-id. */
   private void setSourceId(SourceResponse sourceResponse) {
     if (sourceResponse != null && sourceResponse.getResults() != null) {
-      sourceResponse
-          .getResults()
-          .stream()
+      sourceResponse.getResults().stream()
           .filter(Objects::nonNull)
           .map(Result::getMetacard)
           .filter(Objects::nonNull)

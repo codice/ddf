@@ -658,9 +658,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     //   field with the specified name... When using docValues, an optional 2nd argument can be
     //   specified to select the min or max value of multivalued fields.
     List<String> solrExpressions =
-        resolver
-            .getAnonymousField(propertyName)
-            .stream()
+        resolver.getAnonymousField(propertyName).stream()
             .map(f -> String.format("_val_:\"{!frange l=0 u=0}mod(field(%s,min),%d)\"", f, divisor))
             .collect(Collectors.toList());
 

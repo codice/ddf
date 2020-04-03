@@ -548,9 +548,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private SourceResponse cloneResponse(SourceResponse sourceResponse) {
       List<Result> clonedResults =
-          sourceResponse
-              .getResults()
-              .stream()
+          sourceResponse.getResults().stream()
               .map(Result::getMetacard)
               .map(m -> new MetacardImpl(m, m.getMetacardType()))
               .map(ResultImpl::new)

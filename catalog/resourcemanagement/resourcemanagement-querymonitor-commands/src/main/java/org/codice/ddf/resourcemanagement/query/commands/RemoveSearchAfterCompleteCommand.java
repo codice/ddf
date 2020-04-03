@@ -30,11 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Command(
-  scope = "catalog",
-  name = "removesearchaftercomplete",
-  description =
-      "Sets flag to determine whether to delete active searches from the map after the searches complete"
-)
+    scope = "catalog",
+    name = "removesearchaftercomplete",
+    description =
+        "Sets flag to determine whether to delete active searches from the map after the searches complete")
 @Service
 public class RemoveSearchAfterCompleteCommand implements Action {
 
@@ -58,13 +57,12 @@ public class RemoveSearchAfterCompleteCommand implements Action {
   }
 
   @Argument(
-    name = "removesearch",
-    description =
-        "The boolean value indicating whether to remove active searches from the search map after the search has completed.",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "removesearch",
+      description =
+          "The boolean value indicating whether to remove active searches from the search map after the search has completed.",
+      index = 0,
+      multiValued = false,
+      required = true)
   @Completion(TrueAndFalseCompleter.class)
   private String removeSearchAfterComplete = "";
 

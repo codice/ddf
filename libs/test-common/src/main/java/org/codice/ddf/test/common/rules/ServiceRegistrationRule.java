@@ -40,8 +40,7 @@ public class ServiceRegistrationRule implements MethodRule {
         FieldUtils.getFieldsListWithAnnotation(target.getClass(), MockOsgiService.class);
 
     List<MockOsgiServiceField> mockOsgiServiceFields =
-        fieldsWithAnnotation
-            .stream()
+        fieldsWithAnnotation.stream()
             .map(field -> new MockOsgiServiceField(target, field))
             .collect(Collectors.toList());
 

@@ -29,10 +29,9 @@ import org.osgi.framework.ServiceReference;
 
 @Service
 @Command(
-  scope = SubscriptionsCommand.NAMESPACE,
-  name = "list",
-  description = "Allows users to view registered subscriptions."
-)
+    scope = SubscriptionsCommand.NAMESPACE,
+    name = "list",
+    description = "Allows users to view registered subscriptions.")
 public class ListCommand extends SubscriptionsCommand {
 
   static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
@@ -52,30 +51,28 @@ public class ListCommand extends SubscriptionsCommand {
   static final String NO_SUBSCRIPTIONS_FOUND_MSG = "No subscriptions found";
 
   @Argument(
-    name = "search phrase or LDAP filter",
-    description =
-        "Subscription ID to search for. Wildcard characters (*) can be used in the ID, e.g., my*name or *123. "
-            + "If an id is not provided, then all of the subscriptions are displayed.",
-    index = 0,
-    multiValued = false,
-    required = false
-  )
+      name = "search phrase or LDAP filter",
+      description =
+          "Subscription ID to search for. Wildcard characters (*) can be used in the ID, e.g., my*name or *123. "
+              + "If an id is not provided, then all of the subscriptions are displayed.",
+      index = 0,
+      multiValued = false,
+      required = false)
   String id = null;
 
   @Option(
-    name = "filter",
-    required = false,
-    aliases = {"-f"},
-    multiValued = false,
-    description =
-        "Allows user to specify any type of LDAP filter rather than searching on single subscription ID.\n"
-            + "You should enclose the LDAP filter in quotes since it will often have special characters in it.\n"
-            + "An example LDAP filter would be:\n"
-            + "(& (subscription-id=my*) (subscription-id=*169*))\n"
-            + "which searches for all subscriptions starting with \"my\" and having 169 in the ID, which can be thought of as part of an IP address.\n"
-            + "An example of the entire quote command would be:\n"
-            + "subscriptions:list -f \"\"(& (subscription-id=my*) (subscription-id=*169*))\""
-  )
+      name = "filter",
+      required = false,
+      aliases = {"-f"},
+      multiValued = false,
+      description =
+          "Allows user to specify any type of LDAP filter rather than searching on single subscription ID.\n"
+              + "You should enclose the LDAP filter in quotes since it will often have special characters in it.\n"
+              + "An example LDAP filter would be:\n"
+              + "(& (subscription-id=my*) (subscription-id=*169*))\n"
+              + "which searches for all subscriptions starting with \"my\" and having 169 in the ID, which can be thought of as part of an IP address.\n"
+              + "An example of the entire quote command would be:\n"
+              + "subscriptions:list -f \"\"(& (subscription-id=my*) (subscription-id=*169*))\"")
   boolean ldapFilter = false;
 
   @Override
@@ -84,9 +81,7 @@ public class ListCommand extends SubscriptionsCommand {
 
     Map<String, ServiceReference<Subscription>> subscriptions = getSubscriptions(id, ldapFilter);
     List<SubscriptionListEntry> entries =
-        subscriptions
-            .entrySet()
-            .stream()
+        subscriptions.entrySet().stream()
             .map(SubscriptionListEntry::new)
             .collect(Collectors.toList());
 

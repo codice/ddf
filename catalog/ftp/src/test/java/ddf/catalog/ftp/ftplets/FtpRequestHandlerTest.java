@@ -237,9 +237,7 @@ public class FtpRequestHandlerTest {
     verify(session, atLeast(1)).write(argumentCaptor.capture());
     assertEquals(FtpletResult.SKIP, result);
     List<String> strReplies =
-        argumentCaptor
-            .getAllValues()
-            .stream()
+        argumentCaptor.getAllValues().stream()
             .map(FtpReply::getMessage)
             .collect(Collectors.toList());
     assertThat(
@@ -249,9 +247,7 @@ public class FtpRequestHandlerTest {
   private List<Integer> getReplyCodes() throws FtpException {
     ArgumentCaptor<FtpReply> argumentCaptor = ArgumentCaptor.forClass(FtpReply.class);
     verify(session, atLeast(1)).write(argumentCaptor.capture());
-    return argumentCaptor
-        .getAllValues()
-        .stream()
+    return argumentCaptor.getAllValues().stream()
         .map(FtpReply::getCode)
         .collect(Collectors.toList());
   }

@@ -34,10 +34,9 @@ import org.opengis.filter.sort.SortOrder;
 
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "latest",
-  description = "Retrieves the latest records from the Catalog based on a filter."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "latest",
+    description = "Retrieves the latest records from the Catalog based on a filter.")
 public class LatestCommand extends CatalogCommands {
 
   private static final int MAX_LENGTH = 40;
@@ -51,12 +50,11 @@ public class LatestCommand extends CatalogCommands {
   private static final String NUMBER = "#";
 
   @Argument(
-    name = "NUMBER_OF_ITEMS",
-    description = "Maximum number of records to display. 0 returns 1000 records.",
-    index = 0,
-    multiValued = false,
-    required = false
-  )
+      name = "NUMBER_OF_ITEMS",
+      description = "Maximum number of records to display. 0 returns 1000 records.",
+      index = 0,
+      multiValued = false,
+      required = false)
   int numberOfItems = DEFAULT_NUMBER_OF_ITEMS;
 
   @Override

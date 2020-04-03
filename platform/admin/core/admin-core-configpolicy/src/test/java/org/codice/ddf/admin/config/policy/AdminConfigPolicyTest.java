@@ -64,15 +64,13 @@ public class AdminConfigPolicyTest {
     KeyValueCollectionPermission requestedFeaturePermissions =
         new KeyValueCollectionPermission(
             AdminConfigPolicy.VIEW_FEATURE_ACTION,
-            getMatchOnePermissions(AdminConfigPolicy.FEATURE_NAME)
-                .stream()
+            getMatchOnePermissions(AdminConfigPolicy.FEATURE_NAME).stream()
                 .toArray(KeyValuePermission[]::new));
 
     KeyValueCollectionPermission requestedServicePermissions =
         new KeyValueCollectionPermission(
             AdminConfigPolicy.VIEW_SERVICE_ACTION,
-            getMatchOnePermissions(AdminConfigPolicy.SERVICE_PID)
-                .stream()
+            getMatchOnePermissions(AdminConfigPolicy.SERVICE_PID).stream()
                 .toArray(KeyValuePermission[]::new));
 
     assertTrue(

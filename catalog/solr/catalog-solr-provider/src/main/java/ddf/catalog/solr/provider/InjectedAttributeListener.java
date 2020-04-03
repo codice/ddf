@@ -60,8 +60,7 @@ public class InjectedAttributeListener implements ServiceListener {
 
       Collection<ServiceReference<InjectableAttribute>> alreadyRegistered =
           context.getServiceReferences(InjectableAttribute.class, null);
-      alreadyRegistered
-          .stream()
+      alreadyRegistered.stream()
           .map(context::getService)
           .filter(Objects::nonNull)
           .map(InjectableAttribute::attribute)

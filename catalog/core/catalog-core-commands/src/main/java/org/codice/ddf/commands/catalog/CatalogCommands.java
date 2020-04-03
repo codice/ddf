@@ -66,14 +66,13 @@ public abstract class CatalogCommands extends SubjectCommands {
 
   // DDF-535: remove "-provider" alias in DDF 3.0
   @Option(
-    name = "--provider",
-    required = false,
-    aliases = {"-p", "-provider"},
-    multiValued = false,
-    description =
-        "Interacts with the Provider directly "
-            + "instead of the framework. NOTE: This option picks the first Provider."
-  )
+      name = "--provider",
+      required = false,
+      aliases = {"-p", "-provider"},
+      multiValued = false,
+      description =
+          "Interacts with the Provider directly "
+              + "instead of the framework. NOTE: This option picks the first Provider.")
   protected boolean isProvider = false;
 
   @Reference protected CatalogProvider catalogProvider;
@@ -104,9 +103,7 @@ public abstract class CatalogCommands extends SubjectCommands {
 
   protected <T> Optional<T> getServiceByFilter(Class<T> clazz, String filter)
       throws InvalidSyntaxException {
-    return bundleContext
-        .getServiceReferences(clazz, filter)
-        .stream()
+    return bundleContext.getServiceReferences(clazz, filter).stream()
         .map(ref -> bundleContext.getService(ref))
         .filter(Objects::nonNull)
         .findFirst();

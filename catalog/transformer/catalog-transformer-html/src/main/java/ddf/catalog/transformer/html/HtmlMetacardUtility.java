@@ -101,8 +101,7 @@ public class HtmlMetacardUtility {
 
   public static List<HtmlExportCategory> sortCategoryList(List<HtmlExportCategory> categories) {
     if (categories != null) {
-      return categories
-          .stream()
+      return categories.stream()
           .sorted(Comparator.comparing(HtmlExportCategory::getTitle))
           .collect(Collectors.toList());
     }

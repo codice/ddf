@@ -94,8 +94,7 @@ public class KeyValueCollectionPermission extends CollectionPermission {
    */
   public void addAll(Map<String, ? extends Collection<String>> map) {
     permissionList.addAll(
-        map.entrySet()
-            .stream()
+        map.entrySet().stream()
             .map(entry -> new KeyValuePermission(entry.getKey(), new HashSet<>(entry.getValue())))
             .collect(Collectors.toList()));
   }

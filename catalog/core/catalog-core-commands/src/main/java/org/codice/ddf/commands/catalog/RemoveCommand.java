@@ -43,10 +43,9 @@ import org.slf4j.LoggerFactory;
 /** Deletes records by ID. */
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "remove",
-  description = "Deletes records from the Catalog."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "remove",
+    description = "Deletes records from the Catalog.")
 public class RemoveCommand extends CqlCommands {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveCommand.class);
@@ -56,20 +55,18 @@ public class RemoveCommand extends CqlCommands {
   private static final int BATCH_SIZE = 250;
 
   @Argument(
-    name = IDS_LIST_ARGUMENT_NAME,
-    description = "The ID(s) of documents to remove",
-    index = 0,
-    multiValued = true,
-    required = false
-  )
+      name = IDS_LIST_ARGUMENT_NAME,
+      description = "The ID(s) of documents to remove",
+      index = 0,
+      multiValued = true,
+      required = false)
   Set<String> ids = new HashSet<>();
 
   @Option(
-    name = "--cache",
-    required = false,
-    multiValued = false,
-    description = "Only remove cached entries."
-  )
+      name = "--cache",
+      required = false,
+      multiValued = false,
+      description = "Only remove cached entries.")
   boolean cache = false;
 
   @Override
@@ -129,8 +126,7 @@ public class RemoveCommand extends CqlCommands {
         while (idsToDelete.length > 0) {
           if (CollectionUtils.isNotEmpty(ids)) {
             idsToDelete =
-                Arrays.asList(idsToDelete)
-                    .stream()
+                Arrays.asList(idsToDelete).stream()
                     .filter(id -> ids.contains(id))
                     .toArray(String[]::new);
           }
@@ -157,8 +153,7 @@ public class RemoveCommand extends CqlCommands {
   }
 
   private String[] getNextQueryBatch(QueryRequest queryRequest) {
-    return ResultIterable.resultIterable(catalogFramework, queryRequest, BATCH_SIZE)
-        .stream()
+    return ResultIterable.resultIterable(catalogFramework, queryRequest, BATCH_SIZE).stream()
         .filter(Objects::nonNull)
         .map(Result::getMetacard)
         .filter(Objects::nonNull)
