@@ -29,6 +29,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.source.solr.ConfigurationStore;
 import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.SchemaFields;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
@@ -166,6 +167,24 @@ public class SolrCache implements SolrCacheMBean {
         new CacheSolrMetacardClient(
             client, adapter, solrFilterDelegateFactory, dynamicSchemaResolver),
         cachePutPlugins);
+  }
+
+  /**
+   * Sets the fields that may be used for anyText expansion.
+   *
+   * @param anyTextFieldWhitelist
+   */
+  public void setAnyTextFieldWhitelist(List<String> anyTextFieldWhitelist) {
+    ConfigurationStore.getInstance().setAnyTextFieldWhitelist(anyTextFieldWhitelist);
+  }
+
+  /**
+   * Sets the fields that may NOT be used for anyText expansion.
+   *
+   * @param anyTextFieldBlacklist
+   */
+  public void setAnyTextFieldBlacklist(List<String> anyTextFieldBlacklist) {
+    ConfigurationStore.getInstance().setAnyTextFieldBlacklist(anyTextFieldBlacklist);
   }
 
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {

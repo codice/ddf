@@ -95,7 +95,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.2.0
  */
-public class DynamicSchemaResolver {
+public class DynamicSchemaResolver implements ConfigurationListener {
 
   private static final String LUX_XML_FIELD_NAME = "lux_xml";
 
@@ -163,7 +163,9 @@ public class DynamicSchemaResolver {
 
   Set<String> fieldsCache = new HashSet<>();
 
-  private Set<String> anyTextFieldsCache = new HashSet<>();
+  Set<String> anyTextFieldsCache = new HashSet<>();
+
+  Set<String> filteredAnyTextFieldsCache = new HashSet<>();
 
   private SchemaFields schemaFields;
 
@@ -182,6 +184,7 @@ public class DynamicSchemaResolver {
   }
 
   public DynamicSchemaResolver(List<String> additionalFields) {
+    ConfigurationStore.getInstance().addConfigurationListener(this);
     this.tinyBinaryFunction = this::newTinyBinary;
     this.schemaFields = new SchemaFields();
     metadataMaximumBytes = getMetadataSizeLimit();
@@ -200,6 +203,8 @@ public class DynamicSchemaResolver {
     fieldsCache.add(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 
     addAdditionalFields(this, additionalFields);
+
+    filterAnyTextFieldCache();
   }
 
   public DynamicSchemaResolver() {
@@ -228,6 +233,8 @@ public class DynamicSchemaResolver {
         .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))
         .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
         .forEach(fieldName -> anyTextFieldsCache.add(fieldName));
+
+    filterAnyTextFieldCache();
   }
 
   /**
@@ -278,6 +285,8 @@ public class DynamicSchemaResolver {
         anyTextFieldsCache.add(key);
       }
     }
+
+    filterAnyTextFieldCache();
   }
 
   /** Adds the fields of the Metacard into the {@link SolrInputDocument} */
@@ -748,6 +757,7 @@ public class DynamicSchemaResolver {
       fieldsCache.add(
           descriptor.getName() + schemaFields.getFieldSuffix(format) + SchemaFields.PHONETICS);
       anyTextFieldsCache.add(descriptor.getName() + schemaFields.getFieldSuffix(format));
+      filterAnyTextFieldCache();
     }
 
     if (format.equals(AttributeFormat.XML)) {
@@ -762,6 +772,57 @@ public class DynamicSchemaResolver {
               + schemaFields.getFieldSuffix(format)
               + getSpecialIndexSuffix(format));
     }
+  }
+
+  @Override
+  public void configurationUpdated() {
+    filterAnyTextFieldCache();
+  }
+
+  private void filterAnyTextFieldCache() {
+    Set<String> filteredList = new HashSet<>();
+
+    ConfigurationStore config = ConfigurationStore.getInstance();
+    List<String> anyTextFieldWhitelist = config.getAnyTextFieldWhitelist();
+    List<String> anyTextFieldBlacklist = config.getAnyTextFieldBlacklist();
+    if (!anyTextFieldBlacklist.isEmpty()) {
+      filteredList.addAll(anyTextFieldsCache);
+      for (String blacklistField : anyTextFieldBlacklist) {
+        String blacklist;
+        if (!blacklistField.endsWith(SchemaFields.TEXT_SUFFIX)) {
+          blacklist = blacklistField + SchemaFields.TEXT_SUFFIX;
+        } else {
+          blacklist = blacklistField;
+        }
+        filteredList.removeAll(
+            anyTextFieldsCache
+                .stream()
+                .filter(field -> field.matches(blacklist))
+                .collect(Collectors.toList()));
+      }
+    }
+
+    if (!anyTextFieldWhitelist.isEmpty()) {
+      for (String whitelistField : anyTextFieldWhitelist) {
+        String whitelist;
+        if (!whitelistField.endsWith(SchemaFields.TEXT_SUFFIX)) {
+          whitelist = whitelistField + SchemaFields.TEXT_SUFFIX;
+        } else {
+          whitelist = whitelistField;
+        }
+        filteredList.addAll(
+            anyTextFieldsCache
+                .stream()
+                .filter(field -> field.matches(whitelist))
+                .collect(Collectors.toList()));
+      }
+    }
+
+    if (anyTextFieldBlacklist.isEmpty() && anyTextFieldWhitelist.isEmpty()) {
+      filteredList.addAll(anyTextFieldsCache);
+    }
+
+    filteredAnyTextFieldsCache = filteredList;
   }
 
   private byte[] serialize(MetacardType anywhereMType) throws MetacardCreationException {
@@ -893,7 +954,7 @@ public class DynamicSchemaResolver {
   }
 
   Stream<String> anyTextFields() {
-    return anyTextFieldsCache.stream();
+    return filteredAnyTextFieldsCache.stream();
   }
 
   /**
