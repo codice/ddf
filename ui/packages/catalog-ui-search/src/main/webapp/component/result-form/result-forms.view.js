@@ -18,14 +18,16 @@ const lightboxResultInstance = require('../lightbox/result/lightbox.result.view.
 const lightboxInstance = lightboxResultInstance.generateNewLightbox()
 const QueryResult = require('./result-form.view.js')
 const user = require('../singletons/user-instance')
-const announcement = require('../announcement')
 
 module.exports = SearchFormViews.extend({
   initialize() {
     SearchFormViews.prototype.initialize.call(this)
   },
   changeView() {
-    this.model.set({ isReadOnly: !user.canWrite(this.model) })
+    this.model.set({
+      isReadOnly:
+        !user.canWrite(this.model) || this.model.get('createdBy') === 'system',
+    })
     lightboxInstance.model.updateTitle(this.model.get('title'))
     lightboxInstance.model.open()
     lightboxInstance.showContent(
