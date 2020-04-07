@@ -50,7 +50,7 @@ const timeZones = {
 const dateTimeFormats = {
   ISO: { datetimefmt: 'YYYY-MM-DD[T]HH:mm:ss.SSSZ', timefmt: 'HH:mm:ssZ' },
   24: { datetimefmt: 'DD MMM YYYY HH:mm:ss.SSS Z', timefmt: 'HH:mm:ss Z' },
-  12: { datetimefmt: 'DD MMM YYYY h:mm:ss.SSS a Z', timefmt: 'h:mm:ss a Z' },
+  12: { datetimefmt: 'DD MMM YYYY hh:mm:ss.SSS a Z', timefmt: 'hh:mm:ss a Z' },
 }
 
 module.exports = {
