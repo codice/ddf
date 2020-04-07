@@ -123,6 +123,8 @@ public class QueryTemplateMetacard extends MetacardImpl {
     String detailLevel = safeGet(json, DETAIL_LEVEL, String.class);
     if (detailLevel != null) {
       setAttribute(DETAIL_LEVEL, detailLevel);
+    } else {
+      setAttribute(DETAIL_LEVEL, "");
     }
   }
 }

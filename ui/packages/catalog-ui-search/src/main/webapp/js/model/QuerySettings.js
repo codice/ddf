@@ -43,6 +43,6 @@ module.exports = Backbone.Model.extend({
     }
   },
   isDefaultTemplate(template) {
-    return this.isTemplate(template) && this.get('template').default
+    return this.isTemplate(template) && this.get('template') && this.get('template').default
   },
 })
