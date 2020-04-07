@@ -139,7 +139,7 @@ const CustomSearchForm = props => {
 
 export default Marionette.LayoutView.extend({
   template(props) {
-    const isDefault = user.getQuerySettings().isTemplate(this.model)
+    const isDefault = user.getQuerySettings().isDefaultTemplate(this.model)
     if (props.type === 'custom') {
       return (
         <CustomSearchForm

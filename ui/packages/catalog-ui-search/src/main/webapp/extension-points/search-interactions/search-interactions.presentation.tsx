@@ -73,12 +73,14 @@ export const SearchFormMenuItem = ({
   onClick,
   active,
   onHover,
+  selected,
 }: {
   value: any
   title: any
   onClick?: any
   active?: any
   onHover?: any
+  selected?: any
 }) => {
   return (
     <MenuItem
@@ -88,6 +90,7 @@ export const SearchFormMenuItem = ({
       onClick={onClick}
       active={active}
       onHover={onHover}
+      selected={selected}
     >
       <Text>
         <Icon className="fa fa-search" />

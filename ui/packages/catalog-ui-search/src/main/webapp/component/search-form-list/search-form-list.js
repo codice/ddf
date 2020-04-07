@@ -52,6 +52,21 @@ const HoverableListItem = styled(ListItem)`
       transparentize(0.9, readableColor(props.theme.backgroundDropdown))};
     box-shadow: inset 0px 0px 0px 1px ${props => props.theme.primaryColor};
   }
+  padding-right: ${props => props.theme.minimumButtonSize};
+  ${({ selected }) => (selected ? 'font-weight: bold;' : '')} ${({
+    selected,
+  }) => (selected ? after : '')};
+`
+
+const after = `
+::after {
+  display: inline-block;
+  content: '\f00c';
+  font-family: FontAwesome;
+  font-style: normal;
+  position: absolute;
+  right: 0.5rem
+}
 `
 
 const WarningItem = styled(ListItem)`
@@ -65,8 +80,12 @@ const NoSearchForms = () => (
   <ListItem>No search {formsTitle} are available</ListItem>
 )
 
-const SearchFormItem = ({ title, onClick }) => {
-  return <HoverableListItem onClick={onClick}>{title}</HoverableListItem>
+const SearchFormItem = ({ title, onClick, selected }) => {
+  return (
+    <HoverableListItem onClick={onClick} selected={selected}>
+      {title}
+    </HoverableListItem>
+  )
 }
 
 const FilterPadding = styled.div`
@@ -86,23 +105,38 @@ class SearchForms extends React.Component {
       filter: '',
     }
   }
-  changeView(selectedForm, currentQuery) {
+  changeView(form, currentQuery) {
+    const selectedForm = new SearchForm(form)
     const sharedAttributes = selectedForm.transformToQueryStructure()
     currentQuery.set({
       type: 'custom',
+      searchFormId: selectedForm.id,
       ...sharedAttributes,
     })
     currentQuery.trigger('change:type')
     user.getQuerySettings().set('type', 'custom')
+
+    const template = user.getQuerySettings().get('template')
+    if (!template || !template.default) {
+      user.getQuerySettings().set('template', form)
+    }
     user.savePreferences()
   }
   handleClick = form => {
-    this.changeView(new SearchForm(form), this.model.get('currentQuery'))
+    this.changeView(form, this.model.get('currentQuery'))
+  }
+  isSelected = form => {
+    if (this.model.get('currentQuery').get('type') !== 'custom') {
+      return false
+    }
+    const searchFormId = this.model.get('currentQuery').get('searchFormId')
+    return searchFormId
+      ? searchFormId === form.id
+      : user.getQuerySettings().isTemplate(form)
   }
   render() {
     const { filter } = this.state
     const forms = this.model.get('searchForms').toJSON()
-
     const filteredForms = forms.filter(form =>
       matchesFilter(filter, form.title, false)
     )
@@ -124,6 +158,7 @@ class SearchForms extends React.Component {
               title={form.title}
               key={form.id}
               onClick={() => this.handleClick(form)}
+              selected={this.isSelected(form)}
             />
           ))}
           {forms.length !== 0 && filteredForms.length === 0 ? (
