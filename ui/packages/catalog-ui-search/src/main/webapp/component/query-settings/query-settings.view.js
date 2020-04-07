@@ -99,15 +99,13 @@ module.exports = plugin(
       let defaultResultForm = resultTemplates.find(
         form => form.id === user.getQuerySettings().get('defaultResultFormId')
       )
+      const propertyValue = this.model.get('detail-level') === undefined ? (resultTemplates && resultTemplates[lastIndex] && resultTemplates[lastIndex].value) : (this.model.get('detail-level') ||
+      (defaultResultForm && defaultResultForm.value))
       let detailLevelProperty = new Property({
         label: 'Result Form',
         enum: resultTemplates,
         value: [
-          this.model.get('detail-level') ||
-            (defaultResultForm && defaultResultForm.value) ||
-            (resultTemplates &&
-              resultTemplates[lastIndex] &&
-              resultTemplates[lastIndex].value),
+          propertyValue,
         ],
         showValidationIssues: false,
         id: 'Result Form',
