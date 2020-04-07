@@ -198,7 +198,7 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
   },
   handleMakeDefault() {
     this.model.set('default', true)
-    if(this.model.get('type') === 'result') {
+    if (this.model.get('type') === 'result') {
       user.getQuerySettings().set({
         defaultResultFormId: this.model.get('id'),
       })
@@ -217,7 +217,7 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
   },
   handleClearDefault() {
     this.model.set('default', false)
-    if(this.model.get('type') === 'result') {
+    if (this.model.get('type') === 'result') {
       user.getQuerySettings().set({
         defaultResultFormId: undefined,
       })
