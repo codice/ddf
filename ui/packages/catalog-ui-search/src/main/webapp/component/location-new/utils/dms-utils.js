@@ -21,7 +21,7 @@ const minimumDifference = 0.0001
 
 const LAT_DEGREES_DIGITS = 2
 const LON_DEGREES_DIGITS = 3
-const DEFAULT_SECONDS_PRECISION = 4
+const DEFAULT_SECONDS_PRECISION = 3
 
 const Direction = Object.freeze({
   North: 'N',

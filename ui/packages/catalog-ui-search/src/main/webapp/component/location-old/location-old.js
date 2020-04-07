@@ -351,6 +351,8 @@ module.exports = Backbone.AssociatedModel.extend({
       return
     }
 
+    this.setBboxDmsFromMap()
+
     let utmUps = this.LLtoUtmUps(north, west)
     if (utmUps !== undefined) {
       var utmUpsParts = this.formatUtmUps(utmUps)
@@ -660,27 +662,11 @@ module.exports = Backbone.AssociatedModel.extend({
       const upperLeftParts = this.parseUtmUpsUpperLeft()
       if (upperLeftParts !== undefined) {
         upperLeft = this.utmUpstoLL(upperLeftParts)
-
-        if (upperLeft !== undefined) {
-          this.set({ mapNorth: upperLeft.lat, mapWest: upperLeft.lon })
-          this.set(
-            { north: upperLeft.lat, west: upperLeft.lon },
-            { silent: true }
-          )
-        } else {
-          if (upperLeftParts.zoneNumber !== 0) {
-            this.clearUtmUpsUpperLeft(true)
-          }
-          upperLeft = undefined
-          this.set({
-            mapNorth: undefined,
-            mapSouth: undefined,
-            mapEast: undefined,
-            mapWest: undefined,
-            usngbbUpperLeft: undefined,
-            usngbbLowerRight: undefined,
-          })
-        }
+        this.set({ mapNorth: upperLeft.lat, mapWest: upperLeft.lon })
+        this.set(
+          { north: upperLeft.lat, west: upperLeft.lon },
+          { silent: true }
+        )
       }
     }
 
@@ -688,27 +674,11 @@ module.exports = Backbone.AssociatedModel.extend({
       const lowerRightParts = this.parseUtmUpsLowerRight()
       if (lowerRightParts !== undefined) {
         lowerRight = this.utmUpstoLL(lowerRightParts)
-
-        if (lowerRight !== undefined) {
-          this.set({ mapSouth: lowerRight.lat, mapEast: lowerRight.lon })
-          this.set(
-            { south: lowerRight.lat, east: lowerRight.lon },
-            { silent: true }
-          )
-        } else {
-          if (lowerRightParts.zoneNumber !== 0) {
-            this.clearUtmUpsLowerRight(true)
-          }
-          lowerRight = undefined
-          this.set({
-            mapNorth: undefined,
-            mapSouth: undefined,
-            mapEast: undefined,
-            mapWest: undefined,
-            usngbbUpperLeft: undefined,
-            usngbbLowerRight: undefined,
-          })
-        }
+        this.set({ mapSouth: lowerRight.lat, mapEast: lowerRight.lon })
+        this.set(
+          { south: lowerRight.lat, east: lowerRight.lon },
+          { silent: true }
+        )
       }
     }
 
@@ -902,7 +872,7 @@ module.exports = Backbone.AssociatedModel.extend({
       lon = lon - 360
     }
 
-    return this.isLatLonValid(lat, lon) ? { lat, lon } : undefined
+    return { lat, lon }
   },
 
   // Return true if the current location type is UTM/UPS, otherwise false.
