@@ -117,10 +117,6 @@ module.exports = Marionette.LayoutView.extend({
     this.cleanup()
   },
   save() {
-    if (this.model.get('isReadOnly')) {
-      this.cleanup()
-      return
-    }
     let view = this
     Loading.beginLoading(view)
     let descriptors = this.basicAttributeSpecific.currentView.model.get(
