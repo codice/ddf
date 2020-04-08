@@ -255,6 +255,7 @@
         <mariadb.version>2.4.1</mariadb.version>
         <maven.failsafe.version>3.0.0-M4</maven.failsafe.version>
         <maven.surefire.version>3.0.0-M4</maven.surefire.version>
+		<maven.release.version>3.0.0-M1</maven.release.version>
         <!-- Mina version is not the latest version due to Apache FTPServer 1.0.6 not supporting newer releases properly -->
         <mina.version>2.0.6</mina.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
@@ -600,7 +601,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5.3</version>
+                    <version>${maven.release.version}</version>
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <preparationGoals>clean install</preparationGoals>
