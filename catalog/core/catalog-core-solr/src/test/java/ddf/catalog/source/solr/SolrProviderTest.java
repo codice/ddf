@@ -27,7 +27,6 @@ import ddf.catalog.source.solr.provider.SolrProviderSource;
 import ddf.catalog.source.solr.provider.SolrProviderSpatial;
 import ddf.catalog.source.solr.provider.SolrProviderTemporal;
 import ddf.catalog.source.solr.provider.SolrProviderUpdate;
-import ddf.catalog.source.solr.provider.SolrProviderXpath;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import org.apache.solr.client.solrj.embedded.JettyConfig;
@@ -57,8 +56,7 @@ import org.slf4j.LoggerFactory;
   SolrProviderSource.class,
   SolrProviderSpatial.class,
   SolrProviderTemporal.class,
-  SolrProviderUpdate.class,
-  SolrProviderXpath.class
+  SolrProviderUpdate.class
 })
 public class SolrProviderTest {
 

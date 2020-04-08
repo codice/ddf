@@ -1303,6 +1303,4 @@
     </arr>
   </requestHandler>
 
-  <queryParser name="xpath" class="org.codice.solr.xpath.XpathQParserPlugin"/>
-
 </config>

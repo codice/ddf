@@ -47,16 +47,6 @@
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codice</groupId>
-            <artifactId>lux</artifactId>
-            <version>${lux.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>Saxon-HE</artifactId>
-            <version>${lux.saxon.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>${osgi.version}</version>
@@ -78,9 +68,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-solr,
-                            catalog-core-api-impl,
-                            lux,
-                            Saxon-HE
+                            catalog-core-api-impl
                         </Embed-Dependency>
                         <Include-Resource>
                             {maven-resources},
@@ -88,11 +76,6 @@
                         </Include-Resource>
                         <Export-Package />
                         <Import-Package>
-                            <!--excluded javax.xml.xquery package coming from lux -->
-                            !javax.xml.xquery,
-                            !org.apache.lucene.*,
-                            !org.apache.solr.*,
-
                             <!--packages required for solrj -->
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj;version=${solr.version},
@@ -110,20 +93,6 @@
                             org.apache.zookeeper.data;version=${solr.zookeeper.version},
                             org.apache.zookeeper.proto;version=${solr.zookeeper.version},
                             com.fasterxml.jackson.*;version=${jackson.version},
-
-                            <!-- used by  lux -->
-                            org.apache.lucene.analysis.charfilter;version=${solr.version},
-                            org.apache.lucene.analysis.core;version=${solr.version},
-                            org.apache.lucene.analysis.miscellaneous;version=${solr.version},
-                            org.apache.lucene.analysis.standard;version=${solr.version},
-                            org.apache.lucene.analysis.tokenattributes;version=${solr.version},
-                            org.apache.lucene.queryparser.classic;version=${solr.version},
-                            org.apache.lucene.queryparser.ext;version=${solr.version},
-                            org.apache.lucene.queryparser.xml;version=${solr.version},
-                            org.apache.lucene.search.spans;version=${solr.version},
-                            org.apache.lucene.store;version=${solr.version},
-                            org.apache.lucene.util;version=${solr.version},
-                            org.apache.solr.parser;version=${solr.version},
 
                             <!-- dependencies used by catalog-core-solr-->
                             org.locationtech.spatial4j.*;version=${solr.spatial4j.version},

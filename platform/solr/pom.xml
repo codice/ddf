@@ -35,18 +35,12 @@
                 <artifactId>solr-solrj</artifactId>
                 <version>${solr.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.codice</groupId>
-                <artifactId>lux</artifactId>
-                <version>${lux.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
         <module>solr-dependencies</module>
         <module>solr-logging</module>
         <module>solr-query</module>
-        <module>solr-xpath</module>
         <module>solr-schema</module>
         <module>solr-appender</module>
         <module>solr-factory</module>

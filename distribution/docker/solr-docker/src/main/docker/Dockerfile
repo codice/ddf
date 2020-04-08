@@ -15,9 +15,6 @@ FROM solr:${solr.version}
 # Copy solr libs
 COPY maven/jts-core-1.15.0.jar /opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
 
-# Copy solr plugins
-COPY maven/solr-xpath-${project.version}.jar /opt/solr/plugins/
-
 # Copy all solr core configurations to /seed directory
 USER root
 RUN mkdir /seed

@@ -46,7 +46,7 @@ To add an additional ddf compatible core(s) a helper script has been included, r
 
 ## Added plugins
 
-* `ddf.platform.solr:solr-xpath`
+* N/A
 
 ## Added libraries
 

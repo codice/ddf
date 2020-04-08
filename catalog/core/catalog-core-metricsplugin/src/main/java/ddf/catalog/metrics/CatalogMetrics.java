@@ -81,8 +81,6 @@ public final class CatalogMetrics
 
   protected final Meter spatialQueries;
 
-  protected final Meter xpathQueries;
-
   protected final Meter fuzzyQueries;
 
   protected final Meter functionQueries;
@@ -112,7 +110,6 @@ public final class CatalogMetrics
     federatedQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Federated"));
     comparisonQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Comparison"));
     spatialQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Spatial"));
-    xpathQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Xpath"));
     fuzzyQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Fuzzy"));
     temporalQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Temporal"));
     functionQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Function"));
@@ -163,9 +160,6 @@ public final class CatalogMetrics
       }
       if (queryType.isFuzzy()) {
         fuzzyQueries.mark();
-      }
-      if (queryType.isXpath()) {
-        xpathQueries.mark();
       }
       if (queryType.isTemporal()) {
         temporalQueries.mark();

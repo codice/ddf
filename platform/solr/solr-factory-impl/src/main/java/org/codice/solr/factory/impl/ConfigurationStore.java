@@ -26,8 +26,6 @@ public class ConfigurationStore {
 
   private boolean forceAutoCommit;
 
-  private boolean disableTextPath;
-
   private boolean inMemory;
 
   private Double nearestNeighborDistanceLimit;
@@ -41,19 +39,6 @@ public class ConfigurationStore {
     }
 
     return uniqueInstance;
-  }
-
-  /** @return true, if text path indexing has been disabled */
-  public boolean isDisableTextPath() {
-    return disableTextPath;
-  }
-
-  /**
-   * @param disableTextPath When set to true, this will turn off text path indexing for every
-   *     subsequent update or insert.
-   */
-  public void setDisableTextPath(boolean disableTextPath) {
-    this.disableTextPath = disableTextPath;
   }
 
   public String getDataDirectoryPath() {

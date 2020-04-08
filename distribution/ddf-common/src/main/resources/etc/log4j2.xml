@@ -124,7 +124,6 @@
         <!--GraphqQL tends to log at warn/error level. This is not needed since we provide our own
         logging.-->
         <Logger name="graphql.execution" level="fatal"/>
-        <Logger name="lux.solr" level="warn"/>
         <Logger name="org.apache.aries.spifly" level="warn"/>
         <Logger name="org.apache.cxf" level="warn"/>
         <Logger name="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper" level="error"/>

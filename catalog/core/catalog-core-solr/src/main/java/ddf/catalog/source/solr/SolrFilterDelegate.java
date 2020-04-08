@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
@@ -62,12 +61,6 @@ import org.slf4j.LoggerFactory;
 
 /** Translates filter-proxy calls into Solr query syntax. */
 public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
-
-  public static final String XPATH_QUERY_PARSER_PREFIX = "{!xpath}";
-
-  public static final String XPATH_FILTER_QUERY = "xpath";
-
-  public static final String XPATH_FILTER_QUERY_INDEX = XPATH_FILTER_QUERY + "_index";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrFilterDelegate.class);
 
@@ -200,67 +193,13 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   @Override
   public SolrQuery and(List<SolrQuery> operands) {
     SolrQuery query = logicalOperator(operands, AND);
-    combineXpathFilterQueries(query, operands, AND);
     return query;
   }
 
   @Override
   public SolrQuery or(List<SolrQuery> operands) {
     SolrQuery query = logicalOperator(operands, OR);
-    combineXpathFilterQueries(query, operands, OR);
     return query;
-  }
-
-  private void combineXpathFilterQueries(
-      SolrQuery query, List<SolrQuery> subQueries, String operator) {
-    List<String> queryParams = new ArrayList<>();
-    // Use Set to remove duplicates now that the namespaces have been stripped out
-    Set<String> xpathFilters = new TreeSet<>();
-    Set<String> xpathIndexes = new TreeSet<>();
-
-    for (SolrQuery subQuery : subQueries) {
-      String[] params = subQuery.getParams(FILTER_QUERY_PARAM_NAME);
-      if (params != null) {
-        for (String param : params) {
-          if (StringUtils.startsWith(param, XPATH_QUERY_PARSER_PREFIX)) {
-            if (StringUtils.contains(param, XPATH_FILTER_QUERY_INDEX)) {
-              xpathIndexes.add(
-                  StringUtils.substringAfter(
-                      StringUtils.substringBeforeLast(param, "\""),
-                      XPATH_FILTER_QUERY_INDEX + ":\""));
-            } else if (StringUtils.startsWith(
-                param, XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY)) {
-              xpathFilters.add(
-                  StringUtils.substringAfter(
-                      StringUtils.substringBeforeLast(param, "\""), XPATH_FILTER_QUERY + ":\""));
-            }
-          }
-          Collections.addAll(queryParams, param);
-        }
-      }
-    }
-
-    if (xpathFilters.size() > 1) {
-      // More than one XPath found, need to combine
-      String filter =
-          XPATH_QUERY_PARSER_PREFIX
-              + XPATH_FILTER_QUERY
-              + ":\"("
-              + StringUtils.join(xpathFilters, operator.toLowerCase())
-              + ")\"";
-
-      List<String> indexes = new ArrayList<>();
-      for (String xpath : xpathIndexes) {
-        indexes.add("(" + XPATH_FILTER_QUERY_INDEX + ":\"" + xpath + "\")");
-      }
-      // TODO DDF-1882 add pre-filter xpath index
-      // String index = XPATH_QUERY_PARSER_PREFIX + StringUtils.join(indexes, operator);
-      // query.setParam(FILTER_QUERY_PARAM_NAME, filter, index);
-      query.setParam(FILTER_QUERY_PARAM_NAME, filter);
-    } else if (!queryParams.isEmpty()) {
-      // Pass through original filter queries if only a single XPath is present
-      query.setParam(FILTER_QUERY_PARAM_NAME, queryParams.toArray(new String[queryParams.size()]));
-    }
   }
 
   @Override
@@ -870,22 +809,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     return operationToQuery("Overlaps", propertyName, wkt);
   }
 
-  @Override
-  public SolrQuery xpathExists(String xpath) {
-    return getXPathQuery(xpath, null, true);
-  }
-
-  @Override
-  public SolrQuery xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
-    return getXPathQuery(xpath, pattern, isCaseSensitive);
-  }
-
-  @Override
-  public SolrQuery xpathIsFuzzy(String xpath, String literal) {
-    // XPath does not support fuzzy matching, doing best effort case-insensitive evaluation instead
-    return getXPathQuery(xpath, literal, false);
-  }
-
   public SolrQuery propertyIsInProximityTo(
       String propertyName, Integer distance, String searchTerms) {
     if (propertyName == null) {
@@ -900,39 +823,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     SolrQuery query = new SolrQuery(wildcardSolrQuery(searchPhrase, propertyName, false, false));
     LOGGER.debug("Generated Query : {}", query.getQuery());
     return query;
-  }
-
-  private SolrQuery getXPathQuery(
-      final String pattern, final String searchPhrase, final boolean isCaseSensitive) {
-    // TODO should use XPath parser to make sure to only remove namespace pattern from path and not
-    // quoted text
-    // replace quotes and remove namespaces
-    String xpath = pattern.replace("\"", "'").replaceAll("[\\w]+:(?!:)", "");
-    String query = "*:*";
-
-    if (StringUtils.isNotBlank(searchPhrase)) {
-      String result = ".";
-      String phrase = searchPhrase;
-      if (!isCaseSensitive) {
-        result = "lower-case(" + result + ")";
-        phrase = phrase.toLowerCase();
-      }
-      xpath = xpath + "[contains(" + result + ", '" + phrase + "')]";
-      query =
-          resolver.getField(Metacard.METADATA, AttributeFormat.STRING, false, enabledFeatures)
-              + ":\""
-              + searchPhrase.replaceAll("\"", "\\\\")
-              + "\"";
-    }
-
-    SolrQuery solrQuery = new SolrQuery(query);
-    solrQuery.addFilterQuery(XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"" + xpath + "\"");
-    // TODO DDF-1882 add pre-filter xpath index
-    //        solrQuery.addFilterQuery(
-    //                XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"" + xpath + "\"",
-    //                XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY_INDEX + ":\"" + xpath + "\"");
-
-    return solrQuery;
   }
 
   private void updateDistanceSort(String propertyName, Point point) {

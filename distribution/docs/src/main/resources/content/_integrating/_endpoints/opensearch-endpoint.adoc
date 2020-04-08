@@ -250,11 +250,6 @@ default: `300000` (5 minutes)
 |Comma-delimited list of strings (e.g. 20,30)
 |Version values for which to search.
 
-|`selector`
-|`selector`
-|Comma-delimited list of XPath string selectors (e.g. `//namespace:example`, `//example`)
-|Selectors to narrow the query.
-
 |===
 
 .Federated Search

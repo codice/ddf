@@ -84,11 +84,6 @@
 |Mean
 |The average of the total number of results returned from executed queries. This total results data is averaged over the metric's sample rate.
 
-|Catalog Queries Xpath
-|ddf.metrics.catalog:name=Queries.Xpath
-|Count
-|The number of queries attempted that included a Xpath criteria as part of the search criteria.
-
 |Catalog Resource Retrieval
 |ddf.metrics.catalog:name=Resource
 |Count

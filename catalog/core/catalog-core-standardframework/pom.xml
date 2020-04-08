@@ -264,22 +264,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.codice</groupId>
-            <artifactId>lux</artifactId>
-            <version>${lux.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.eclipse.jetty.orbit</groupId>
-                    <artifactId>javax.servlet</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>Saxon-HE</artifactId>
-            <version>${lux.saxon.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>${org.slf4j.version}</version>
@@ -341,9 +325,7 @@
                             hazelcast;scope=runtime|compile,
                             notifications,
                             versioning-common,
-                            catalog-core-api-impl;scope=!test,
-                            lux,
-                            Saxon-HE
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Export-Package>
                             ddf.catalog.cache,
@@ -355,11 +337,6 @@
                             org.codice.ddf.catalog.sourcepoller
                         </Export-Package>
                         <Import-Package>
-                            <!-- excluded packages coming from lux -->
-                            !javax.xml.xquery,
-                            !org.apache.lucene.*,
-                            !org.apache.solr.*,
-
                             <!--packages required for solrj -->
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj;version=${solr.version},
@@ -377,19 +354,6 @@
                             org.apache.zookeeper.data;version=${solr.zookeeper.version},
                             org.apache.zookeeper.proto;version=${solr.zookeeper.version},
                             com.fasterxml.jackson.*;version=${jackson.version},
-
-                            <!-- used by  lux -->
-                            org.apache.lucene.analysis.charfilter;version=${solr.version},
-                            org.apache.lucene.analysis.core;version=${solr.version},
-                            org.apache.lucene.analysis.miscellaneous;version=${solr.version},
-                            org.apache.lucene.analysis.standard;version=${solr.version},
-                            org.apache.lucene.analysis.tokenattributes;version=${solr.version},
-                            org.apache.lucene.queryparser.classic;version=${solr.version},
-                            org.apache.lucene.queryparser.ext;version=${solr.version},
-                            org.apache.lucene.queryparser.xml;version=${solr.version},
-                            org.apache.lucene.search.spans;version=${solr.version},
-                            org.apache.lucene.store;version=${solr.version},
-                            org.apache.solr.parser;version=${solr.version},
 
                             <!-- dependencies used by catalog-core-solr-->
                             org.locationtech.spatial4j.*;version=${solr.spatial4j.version},

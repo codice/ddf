@@ -22,7 +22,6 @@ import static org.mockito.Mockito.stub;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -641,53 +640,6 @@ public class SolrFilterDelegateTest {
         toTest.propertyIsBetween("altitude", (Object) nonNumber, (Object) nonNumber);
 
     notANumberQuery.getQuery();
-  }
-
-  @Test
-  public void testXpathExists() {
-    String xpath = "//root/sub/@attribute";
-    String expectedQuery = "{!xpath}xpath:\"" + xpath + "\"";
-    SolrQuery xpathQuery = toTest.xpathExists(xpath);
-    assertThat(xpathQuery.getFilterQueries()[0], is(expectedQuery));
-  }
-
-  @Test
-  public void testXpathIsLike() {
-    String xpath = "//root/sub/@attribute";
-    String expectedQuery = "{!xpath}xpath:\"" + xpath + "[contains(lower-case(.), 'example')]\"";
-    SolrQuery xpathQuery = toTest.xpathIsLike(xpath, "example", false);
-    assertThat(xpathQuery.getFilterQueries()[0], is(expectedQuery));
-  }
-
-  @Test
-  public void testXpathOR() {
-    String xpath = "//root/sub/@attribute";
-    String expected1Query = "{!xpath}xpath:\"" + xpath + "[contains(lower-case(.), 'example1')]\"";
-    SolrQuery xpath1Query = toTest.xpathIsLike(xpath, "example1", false);
-    assertThat(xpath1Query.getFilterQueries()[0], is(expected1Query));
-
-    String expected2Query = "{!xpath}xpath:\"" + xpath + "[contains(lower-case(.), 'example2')]\"";
-    SolrQuery xpath2Query = toTest.xpathIsLike(xpath, "example2", false);
-    assertThat(xpath2Query.getFilterQueries()[0], is(expected2Query));
-
-    SolrQuery combinedQuery = toTest.or(Arrays.asList(xpath1Query, xpath2Query));
-    String combinedExpectedFilter =
-        "{!xpath}xpath:\"("
-            + xpath
-            + "[contains(lower-case(.), 'example1')] or "
-            + xpath
-            + "[contains(lower-case(.), 'example2')])\"";
-    String expectedIndex =
-        "{!xpath}(xpath_index:\""
-            + xpath
-            + "[contains(lower-case(.), 'example1')]\") OR "
-            + "(xpath_index:\""
-            + xpath
-            + "[contains(lower-case(.), 'example2')]\")";
-    // TODO DDF-1882 support xpath pre-filtering
-    //        assertThat(combinedQuery.getFilterQueries().length, is(2));
-    assertThat(combinedQuery.getFilterQueries()[0], is(combinedExpectedFilter));
-    //        assertThat(combinedQuery.getFilterQueries()[1], is(expectedIndex));
   }
 
   @Test

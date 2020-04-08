@@ -34,7 +34,6 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
      - Apache Solr integration
         - Well Known Text (WKT) indexing and search for spatial awareness
         - Full text search
-        - XPath searches
         - XML indexing
      - Open Geospatial Consortium (OGC) KML, CSW, and WFS federated services
      - OpenSearch federated services

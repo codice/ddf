@@ -27,8 +27,6 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
   private boolean isTemporal = false;
 
-  private boolean isXpath = false;
-
   private boolean isLogical = false;
 
   private boolean isFuzzy = false;
@@ -46,16 +44,6 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
       Class<S> wktClass,
       SpatialPropertyOperation spatialPropertyOperation) {
     isSpatial = true;
-    return true;
-  }
-
-  @Override
-  public <S> Boolean xpathOperation(
-      String xpath,
-      S literal,
-      Class<S> literalClass,
-      XPathPropertyOperation xpathPropertyOperation) {
-    isXpath = true;
     return true;
   }
 
@@ -133,10 +121,6 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
   public boolean isTemporal() {
     return isTemporal;
-  }
-
-  public boolean isXpath() {
-    return isXpath;
   }
 
   public boolean isLogical() {

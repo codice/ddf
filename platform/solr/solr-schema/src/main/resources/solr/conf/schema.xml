@@ -42,8 +42,6 @@
     <field name="id_txt_tokenized" type="text" indexed="true" stored="false" required="false"/>
     <field name="id_txt_tokenized_has_case" type="text_case" indexed="true" stored="false" required="false"/>
 
-    <field name="lux_xml" type="binary" indexed="false" stored="true"/>
-
     <!-- Dynamic Fields -->
     <dynamicField name="*_int" type="pint" indexed="true" stored="true" multiValued="true" docValues="true"/>
     <dynamicField name="*_lng" type="plong" indexed="true" stored="true" multiValued="true" docValues="true"/>

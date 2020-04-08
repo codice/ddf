@@ -253,7 +253,6 @@
             dependencies. DDF does not make use of YARN.
 
             solr-dependencies -> hadoop-auth-2.7.4.jar (latest versions available)
-            org.codice:lux -> solr-core -> hadoop-auth-2.2.0.jar
         </notes>
         <cve>CVE-2018-8029</cve>
         <cve>CVE-2018-11766</cve>

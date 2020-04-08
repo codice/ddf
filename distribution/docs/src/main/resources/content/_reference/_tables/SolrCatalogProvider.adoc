@@ -22,11 +22,4 @@
 |false
 |true
 
-|Disable Text Path indexing
-|disableTextPath
-|Boolean
-|Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance.
-|false
-|true
-
 |===

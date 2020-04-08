@@ -90,20 +90,18 @@ The two shards enables the document mapping to be restored if one shard becomes 
 
 .Configuring SolrCloud
 
-The following jars are needed to support geospatial and XPath queries and need to be installed on every Solr server instance.
 The `jute.maxbuffer` property needs to be set on Zookeeper and SolrCloud nodes to support large dictionary files.
+The following JAR is needed to support WKT geospatial queries and needs to be installed on every Solr server instance.
 
-The JARs can be downloaded from:
+The JAR can be downloaded from:
 
 .. http://artifacts.codice.org/content/groups/public/org/locationtech/jts/jts-core/${jts.spatial4j.version}/jts-core-${jts.spatial4j.version}.jar[jts-core-${jts.spatial4j.version}.jar] {external-link}
-.. http://artifacts.codice.org/service/local/repositories/releases/content/ddf/platform/solr/solr-xpath/${ddf.version}/solr-xpath-${ddf.version}.jar[solr-xpath-${ddf.version}.jar] {external-link}
 
 Repeat the following procedure for each Zookeeper and SolrCloud node instance:
 
 . Add `jute.maxbuffer=0x30D40` to `<ZOOKEEPER_INSTALL_DIR>/conf/zoo.cfg`.
 . Add `SOLR_OPTS="$SOLR_OPTS -Djute.maxbuffer=0x30D40"` to `<SOLR_INSTALL_DIR>/bin/solr.in.cmd`.
 . Copy `jts-core-${jts.spatial4j.version}.jar` to: `<SOLR_INSTALL_DIR>/server/solr-webapp/webapp/WEB-INF/lib/`.
-. Copy `solr-xpath-${ddf.version}.jar` to: `<SOLR_INSTALL_DIR>/plugins/`.
 
 .Configuring ${branding} for SolrCloud
 . On the ${branding} server, edit `${home_directory}/etc/custom.system.properties`:

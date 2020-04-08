@@ -219,12 +219,10 @@ public class TestSpatial extends AbstractIntegrationTest {
               })
           .put(
               "CswXPathExpressionQueryWithAttributeSelector",
-              new ExpectedResultPair[] {
-                new ExpectedResultPair(ResultType.TITLE, PLAINXML_FAR_METACARD)
-              })
+              new ExpectedResultPair[] {new ExpectedResultPair(ResultType.COUNT, "0")})
           .put(
               "CswXPathExpressionQuery",
-              new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
+              new ExpectedResultPair[] {new ExpectedResultPair(ResultType.COUNT, "0")})
           .put(
               "CswFuzzyTextQuery",
               new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})

@@ -32,17 +32,3 @@ Filters use a number of boolean operators.
 Filters can be based on specific attributes.
 
 `FilterBuilder.attribute(String attributeName)`:: begins a fluent API for creating an Attribute-based Filter, i.e., a Filter that matches on Metacards with Attributes of a particular value.
-
-==== XPath
-
-Filters can be based on XML attributes.
-
-`FilterBuilder.xpath(String xpath)`:: begins a fluent API for creating an XPath-based Filter, i.e., a Filter that matches on Metacards with Attributes of type XML that match when evaluating a provided XPath selector.
-
-.Contextual Operators
-[source,java,linenums]
-----
-FilterBuilder.attribute(attributeName).is().like().text(String contextualSearchPhrase);
-FilterBuilder.attribute(attributeName).is().like().caseSensitiveText(StringcaseSensitiveContextualSearchPhrase);
-FilterBuilder.attribute(attributeName).is().like().fuzzyText(String fuzzySearchPhrase);
-----

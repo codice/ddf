@@ -21,10 +21,6 @@
                 description="WARNING: Performance Impact. Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately."
                 name="Force Auto Commit" id="forceAutoCommit" required="true" type="Boolean"
                 default="false"/>
-        <AD
-                description="Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance."
-                name="Disable Text Path indexing" id="disableTextPath" required="true"
-                type="Boolean" default="false"/>
         <AD     description="List of Solr fields that an anyText query expands to include (e.g. title, description, ext.extracted.*). NOTE: If a blacklist is also provided, this list becomes a blacklist exception list instead of a pure whitelist."
                 name="AnyText Expansion Field Whitelist" id="anyTextFieldWhitelist"
                 cardinality="100" required="false" type="String"/>
