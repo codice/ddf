@@ -82,7 +82,6 @@ const Area = styled.div`
   position: fixed;
   z-index: ${props => props.theme.zIndexDropdown};
 
-  overflow: auto;
   border-radius: ${props => props.theme.borderRadius};
 
   color: ${foreground};
@@ -131,7 +130,10 @@ const DropdownArea = props => {
 
   const { rect, children, onClose } = props
   const viewport = document.body.getBoundingClientRect()
-  const style = getPosition(viewport, rect, offset)
+  const style = {
+    ...getPosition(viewport, rect, offset),
+    overflow: props.overflow ? props.overflow : 'auto',
+  }
   return (
     <Area style={style} ref={ref}>
       {React.Children.map(children, child => {
@@ -266,6 +268,7 @@ class Dropdown extends React.Component {
               {createPortal(
                 <Poller fn={this.getRect}>
                   <DropdownArea
+                    overflow={this.props.overflow}
                     onClose={() => {
                       this.onToggle(false)
                     }}
