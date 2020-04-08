@@ -48,7 +48,7 @@ pipeline {
         stage('Checkout repo') {
             steps {
                 retry(3) {
-                    checkout scm
+                    checkout([$class: 'GitSCM', branches: [[name: "refs/heads/${BRANCH_NAME}"]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'WipeWorkspace'], [$class: 'LocalBranch', localBranch: "${BRANCH_NAME}"], [$class: 'CloneOption', timeout: 30, shallow: true]], submoduleCfg: [], userRemoteConfigs: scm.userRemoteConfigs ])
                 }
             }
         }
@@ -192,11 +192,13 @@ pipeline {
             slackSend color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
         }
         cleanup {
-            echo '...Cleaning up workspace'
-            cleanWs()
-            sh 'rm -rf ~/.m2/repository'
-            wrap([$class: 'MesosSingleUseSlave']) {
-                sh 'echo "...Shutting down Jenkins slave: `hostname`"'
+            catchError(buildResult: null, stageResult: 'FAILURE') {
+                echo '...Cleaning up workspace'
+                cleanWs()
+                sh 'rm -rf ~/.m2/repository'
+                wrap([$class: 'MesosSingleUseSlave']) {
+                    sh 'echo "...Shutting down Jenkins slave: `hostname`"'
+                }
             }
         }
     }
