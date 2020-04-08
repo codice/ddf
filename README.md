@@ -113,6 +113,9 @@ mvn install
 This will compile DDF and run all of the tests in the DDF source distribution. It usually takes some time for maven to download required dependencies in the first build.
 The distribution will be available under "distribution/ddf/target" directory.
 
+### How to release ###
+See https://github.com/codice/ddf/wiki/Release-Process for documentation on how to perform a release.
+
 #### Formatting
 If during development the build fails for formatting, eg:
 ```
