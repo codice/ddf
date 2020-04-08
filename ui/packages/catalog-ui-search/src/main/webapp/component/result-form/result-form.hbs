@@ -25,6 +25,7 @@
         </div>
     </div>
     <div class="editor-footer">
+        {{#unless isReadOnly}}
         <button class="editor-edit is-primary">
         <span class="fa fa-pencil">
 
@@ -47,5 +48,6 @@
             Save
         </span>
         </button>
+        {{/unless }}
     </div>
 </form>
