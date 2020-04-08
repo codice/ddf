@@ -320,7 +320,7 @@ function padDecimalWithZeros(num, width) {
 
 function buildDmsString(components) {
   if (!components) {
-    return
+    return components
   }
   return `${components.degrees}°${components.minutes}'${components.seconds}"`
 }

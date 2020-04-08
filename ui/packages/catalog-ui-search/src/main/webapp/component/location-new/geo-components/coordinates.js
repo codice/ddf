@@ -56,8 +56,11 @@ const DmsLatitude = props => {
       mask={latitudeDMSMask}
       placeholderChar="_"
       {...props}
-      onBlur={() => {
-        props.onChange(buildDmsString(parseDmsCoordinate(props.value)))
+      onBlur={event => {
+        props.onChange(
+          buildDmsString(parseDmsCoordinate(props.value)),
+          event.type
+        )
       }}
     />
   )
@@ -70,8 +73,11 @@ const DmsLongitude = props => {
       mask={longitudeDMSMask}
       placeholderChar="_"
       {...props}
-      onBlur={() => {
-        props.onChange(buildDmsString(parseDmsCoordinate(props.value)))
+      onBlur={event => {
+        props.onChange(
+          buildDmsString(parseDmsCoordinate(props.value)),
+          event.type
+        )
       }}
     />
   )

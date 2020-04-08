@@ -273,7 +273,7 @@ function validateLinePolygon(mode: string, currentValue: string) {
 function validateBoundingBox(value: any) {
   let north
   let south
-  if (value.dms) {
+  if (value.isDms) {
     const coordinateNorth = parseDmsCoordinate(value.north)
     const coordinateSouth = parseDmsCoordinate(value.south)
     north = coordinateNorth
@@ -288,12 +288,12 @@ function validateBoundingBox(value: any) {
           direction: value.dmsSouthDirection,
         })
       : null
-  } else if (value.usng) {
+  } else if (value.isUsng) {
     const upperLeftCoord = converter.USNGtoLL(value.upperLeft, true)
-    north = upperLeftCoord.lat
     const lowerRightCoord = converter.USNGtoLL(value.lowerRight, true)
+    north = upperLeftCoord.lat
     south = lowerRightCoord.lat
-  } else if (value.utmUps) {
+  } else if (value.isUtmUps) {
     const upperLeftParts = {
       easting: parseFloat(value.upperLeft.easting),
       northing: parseFloat(value.upperLeft.northing),
