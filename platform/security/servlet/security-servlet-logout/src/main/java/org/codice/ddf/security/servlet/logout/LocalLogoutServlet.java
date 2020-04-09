@@ -14,7 +14,7 @@
 package org.codice.ddf.security.servlet.logout;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -67,9 +67,9 @@ public class LocalLogoutServlet extends HttpServlet {
   private void invalidateSession(HttpServletRequest request, HttpServletResponse response) {
     HttpSession session = request.getSession();
     if (session != null) {
-      SecurityTokenHolder savedToken =
-          (SecurityTokenHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
-      if (savedToken != null) {
+      PrincipalHolder principalHolder =
+          (PrincipalHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
+      if (principalHolder != null) {
         Subject subject = ThreadContext.getSubject();
 
         if (subject != null) {
@@ -80,7 +80,7 @@ public class LocalLogoutServlet extends HttpServlet {
             SecurityLogger.audit("Subject with admin privileges has logged out", subject);
           }
         }
-        savedToken.remove();
+        principalHolder.remove();
       }
       removeTokens(session.getId());
       session.invalidate();

@@ -24,10 +24,10 @@
 
     <bean id="clientFactoryFactory" class="org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl">
         <property name="oauthSecurity" ref="oauthSecurity"/>
-        <property name="restSecurity" ref="restSecurity" />
+        <property name="samlSecurity" ref="samlSecurity" />
     </bean>
 
     <service ref="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
 
-    <reference id="restSecurity" interface="org.codice.ddf.security.jaxrs.RestSecurity" availability="optional" />
+    <reference id="samlSecurity" interface="org.codice.ddf.security.jaxrs.SamlSecurity" availability="optional" />
 </blueprint>

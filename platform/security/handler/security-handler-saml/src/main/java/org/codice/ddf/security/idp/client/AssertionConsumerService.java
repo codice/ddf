@@ -75,7 +75,7 @@ import org.codice.ddf.security.handler.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.HandlerResultImpl;
 import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.jaxrs.RestSecurity;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.opensaml.core.xml.XMLObject;
@@ -123,7 +123,7 @@ public class AssertionConsumerService {
     OpenSAMLUtil.initSamlEngine();
   }
 
-  private RestSecurity restSecurity;
+  private SamlSecurity samlSecurity;
 
   public AssertionConsumerService(
       SimpleSign simpleSign,
@@ -143,11 +143,11 @@ public class AssertionConsumerService {
       @FormParam(SAML_RESPONSE) String encodedSamlResponse,
       @FormParam(RELAY_STATE) String relayState) {
 
-    if (restSecurity == null) {
+    if (samlSecurity == null) {
       return Response.serverError().entity("System cannot decode request.").build();
     }
 
-    return processSamlResponse(restSecurity.base64Decode(encodedSamlResponse), relayState, false);
+    return processSamlResponse(samlSecurity.base64Decode(encodedSamlResponse), relayState, false);
   }
 
   @POST
@@ -227,13 +227,13 @@ public class AssertionConsumerService {
       return Response.serverError().entity("Invalid AuthN response signature.").build();
     }
 
-    if (restSecurity == null) {
+    if (samlSecurity == null) {
       return Response.serverError().entity("System cannot decode response.").build();
     }
 
     try {
       return processSamlResponse(
-          restSecurity.inflateBase64(deflatedSamlResponse), relayState, signature != null);
+          samlSecurity.inflateBase64(deflatedSamlResponse), relayState, signature != null);
 
     } catch (IOException e) {
       String msg = "Unable to decode and inflate AuthN response.";
@@ -488,7 +488,7 @@ public class AssertionConsumerService {
     this.contextPolicyManager = contextPolicyManager;
   }
 
-  public void setRestSecurity(RestSecurity restSecurity) {
-    this.restSecurity = restSecurity;
+  public void setSamlSecurity(SamlSecurity samlSecurity) {
+    this.samlSecurity = samlSecurity;
   }
 }

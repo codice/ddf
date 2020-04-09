@@ -44,7 +44,7 @@
 
     <reference id="contextPolicyManager" interface="org.codice.ddf.security.policy.context.ContextPolicyManager"/>
 
-    <reference id="restSecurity" interface="org.codice.ddf.security.jaxrs.RestSecurity" availability="optional"/>
+    <reference id="samlSecurity" interface="org.codice.ddf.security.jaxrs.SamlSecurity" availability="optional"/>
 
     <bean id="crypto" class="ddf.security.samlp.impl.SystemCrypto">
         <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
@@ -76,7 +76,7 @@
                 <value>urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient</value>
             </list>
         </property>
-        <property name="restSecurity" ref="restSecurity" />
+        <property name="samlSecurity" ref="samlSecurity" />
     </bean>
 
     <service ref="idpHandler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>
@@ -93,7 +93,7 @@
         </property>
         <property name="sessionFactory" ref="sessionFactory"/>
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
-        <property name="restSecurity" ref="restSecurity" />
+        <property name="samlSecurity" ref="samlSecurity" />
     </bean>
 
     <bean id="logoutRequestService"
@@ -110,7 +110,7 @@
         <property name="sessionFactory" ref="sessionFactory"/>
         <property name="httpSessionInvalidator" ref="httpSessionInvalidator"/>
         <property name="securityManager" ref="securityManager"/>
-        <property name="restSecurity" ref="restSecurity" />
+        <property name="samlSecurity" ref="samlSecurity" />
     </bean>
 
     <jaxrs:server id="restService" address="/saml">

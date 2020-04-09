@@ -256,7 +256,7 @@ public class SimpleSignTest {
   }
 
   /**
-   * Deflates a value and Base64 encodes the result. This code is copied from RestSecurity because
+   * Deflates a value and Base64 encodes the result. This code is copied from SamlSecurity because
    * it would cause a circular dependency to use it directly..
    *
    * @param value value to deflate and Base64 encode

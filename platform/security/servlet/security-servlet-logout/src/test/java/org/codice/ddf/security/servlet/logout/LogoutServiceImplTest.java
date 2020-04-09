@@ -22,7 +22,7 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
 import ddf.security.SecurityConstants;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -46,13 +46,13 @@ public class LogoutServiceImplTest {
   public static void initialize() {
     sessionFactory = mock(SessionFactory.class);
     HttpSession httpSession = mock(HttpSession.class);
-    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+    PrincipalHolder principalHolder = mock(PrincipalHolder.class);
     sm = mock(SecurityManager.class);
 
     when(sessionFactory.getOrCreateSession(null)).thenReturn(httpSession);
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
-        .thenReturn(securityTokenHolder);
-    when(securityTokenHolder.getPrincipals()).thenReturn(new SimplePrincipalCollection());
+        .thenReturn(principalHolder);
+    when(principalHolder.getPrincipals()).thenReturn(new SimplePrincipalCollection());
   }
 
   @Test

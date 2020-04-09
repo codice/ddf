@@ -15,7 +15,7 @@ package org.codice.ddf.security.jaxrs;
 
 import java.io.IOException;
 
-public interface RestSecurity {
+public interface SamlSecurity {
   /**
    * Deflates a value and Base64 encodes the result.
    *

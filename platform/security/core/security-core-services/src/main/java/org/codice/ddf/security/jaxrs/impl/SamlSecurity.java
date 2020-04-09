@@ -27,7 +27,7 @@ import java.util.zip.InflaterInputStream;
 import org.apache.commons.io.IOUtils;
 
 /** Provides methods that help with securing RESTful (jaxrs) communications. */
-public final class RestSecurity implements org.codice.ddf.security.jaxrs.RestSecurity {
+public final class SamlSecurity implements org.codice.ddf.security.jaxrs.SamlSecurity {
 
   public static final boolean GZIP_COMPATIBLE = true;
 

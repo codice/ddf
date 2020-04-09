@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-public class RestSecurityTest {
+public class SamlSecurityTest {
 
   public static Document readXml(InputStream is)
       throws SAXException, IOException, ParserConfigurationException {
@@ -75,10 +75,10 @@ public class RestSecurityTest {
   @Test
   public void testInflateDeflate() throws Exception {
     String token = "valid_grant";
-    RestSecurity restSecurity = new RestSecurity();
+    SamlSecurity samlSecurity = new SamlSecurity();
 
-    String encodedToken = restSecurity.deflateAndBase64Encode(token);
-    String decodedToken = restSecurity.inflateBase64(encodedToken);
+    String encodedToken = samlSecurity.deflateAndBase64Encode(token);
+    String decodedToken = samlSecurity.inflateBase64(encodedToken);
 
     assertThat(decodedToken, is(token));
   }

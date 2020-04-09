@@ -18,7 +18,7 @@ import static ddf.security.SecurityConstants.AUTHENTICATION_TOKEN_KEY;
 import com.google.common.hash.Hashing;
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import java.io.IOException;
@@ -216,21 +216,21 @@ public class WebSSOFilter implements SecurityFilter {
       session = sessionFactory.getOrCreateSession(httpRequest);
     }
     if (session != null) {
-      SecurityTokenHolder savedToken =
-          (SecurityTokenHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
-      if (savedToken != null && savedToken.getPrincipals() != null) {
+      PrincipalHolder principalHolder =
+          (PrincipalHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
+      if (principalHolder != null && principalHolder.getPrincipals() != null) {
         Collection<SecurityAssertion> assertions =
-            savedToken.getPrincipals().byType(SecurityAssertion.class);
+            principalHolder.getPrincipals().byType(SecurityAssertion.class);
         SessionToken sessionToken = null;
         if (!assertions.isEmpty()) {
-          sessionToken = new SessionToken(savedToken.getPrincipals(), session.getId(), ip);
+          sessionToken = new SessionToken(principalHolder.getPrincipals(), session.getId(), ip);
         }
         if (sessionToken != null) {
           result = new HandlerResultImpl();
           result.setToken(sessionToken);
           result.setStatus(HandlerResult.Status.COMPLETED);
         } else {
-          savedToken.remove();
+          principalHolder.remove();
         }
       } else {
         LOGGER.trace("No principals located in session - returning with no results");

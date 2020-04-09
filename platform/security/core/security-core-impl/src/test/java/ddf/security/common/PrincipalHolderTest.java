@@ -21,47 +21,47 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Test;
 
-public class SecurityTokenHolderTest {
+public class PrincipalHolderTest {
 
   @Test
   public void testRetrieveSecurityTokens() {
     // given
-    SecurityTokenHolder securityTokenHolder = new SecurityTokenHolder();
+    PrincipalHolder principalHolder = new PrincipalHolder();
     PrincipalCollection principalCollection = new SimplePrincipalCollection();
 
     // when
-    securityTokenHolder.setPrincipals(principalCollection);
+    principalHolder.setPrincipals(principalCollection);
 
     // then
-    assertThat(securityTokenHolder.getPrincipals(), is(principalCollection));
+    assertThat(principalHolder.getPrincipals(), is(principalCollection));
   }
 
   @Test
   public void testSettingMultipleSecurityTokens() {
     // given
-    SecurityTokenHolder securityTokenHolder = new SecurityTokenHolder();
+    PrincipalHolder principalHolder = new PrincipalHolder();
     PrincipalCollection securityTokenOne = new SimplePrincipalCollection();
     PrincipalCollection securityTokenTwo = new SimplePrincipalCollection();
 
     // when
-    securityTokenHolder.setPrincipals(securityTokenOne);
-    securityTokenHolder.setPrincipals(securityTokenTwo);
+    principalHolder.setPrincipals(securityTokenOne);
+    principalHolder.setPrincipals(securityTokenTwo);
 
     // then
-    assertThat(securityTokenHolder.getPrincipals(), is(securityTokenTwo));
+    assertThat(principalHolder.getPrincipals(), is(securityTokenTwo));
   }
 
   @Test
   public void testRemoveSecurityToken() {
     // given
-    SecurityTokenHolder securityTokenHolder = new SecurityTokenHolder();
+    PrincipalHolder principalHolder = new PrincipalHolder();
     PrincipalCollection securityToken = new SimplePrincipalCollection();
-    securityTokenHolder.setPrincipals(securityToken);
+    principalHolder.setPrincipals(securityToken);
 
     // when
-    securityTokenHolder.remove();
+    principalHolder.remove();
 
     // then
-    assertNull(securityTokenHolder.getPrincipals());
+    assertNull(principalHolder.getPrincipals());
   }
 }

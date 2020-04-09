@@ -104,8 +104,8 @@
 
     <service ref="security" interface="org.codice.ddf.security.Security" />
 
-    <bean id="restSecurity" class="org.codice.ddf.security.jaxrs.impl.RestSecurity" />
+    <bean id="samlSecurity" class="org.codice.ddf.security.jaxrs.impl.SamlSecurity" />
 
-    <service ref="restSecurity" interface="org.codice.ddf.security.jaxrs.RestSecurity" />
+    <service ref="samlSecurity" interface="org.codice.ddf.security.jaxrs.SamlSecurity" />
 
 </blueprint>

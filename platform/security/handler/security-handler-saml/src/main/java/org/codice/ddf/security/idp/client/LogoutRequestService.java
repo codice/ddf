@@ -18,7 +18,7 @@ import ddf.security.Subject;
 import ddf.security.assertion.AuthenticationStatement;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
@@ -74,7 +74,7 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
 import org.codice.ddf.security.handler.SessionToken;
-import org.codice.ddf.security.jaxrs.RestSecurity;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
@@ -144,7 +144,7 @@ public class LogoutRequestService {
 
   private long logOutPageTimeOut = 3600000;
 
-  private RestSecurity restSecurity;
+  private SamlSecurity samlSecurity;
 
   public LogoutRequestService(
       SimpleSign simpleSign, IdpMetadata idpMetadata, RelayStates<String> relayStates) {
@@ -279,9 +279,9 @@ public class LogoutRequestService {
 
   private String extractSubject(Map<String, Object> sessionAttributes) {
     return Stream.of(sessionAttributes.get(SecurityConstants.SECURITY_TOKEN_KEY))
-        .filter(SecurityTokenHolder.class::isInstance)
-        .map(SecurityTokenHolder.class::cast)
-        .map(SecurityTokenHolder::getPrincipals)
+        .filter(PrincipalHolder.class::isInstance)
+        .map(PrincipalHolder.class::cast)
+        .map(PrincipalHolder::getPrincipals)
         .filter(Objects::nonNull)
         .map(PrincipalCollection.class::cast)
         .map(principalCollection -> new SessionToken(principalCollection, null, "127.0.0.1"))
@@ -385,14 +385,14 @@ public class LogoutRequestService {
       @FormParam(SAML_RESPONSE) String encodedSamlResponse,
       @FormParam(RELAY_STATE) String relayState) {
 
-    if (restSecurity == null || logoutMessage == null) {
+    if (samlSecurity == null || logoutMessage == null) {
       return Response.serverError().entity("System cannot decode request.").build();
     }
 
     if (encodedSamlRequest != null) {
       try {
         LogoutWrapper<LogoutRequest> logoutRequest =
-            logoutMessage.extractSamlLogoutRequest(restSecurity.base64Decode(encodedSamlRequest));
+            logoutMessage.extractSamlLogoutRequest(samlSecurity.base64Decode(encodedSamlRequest));
         if (logoutRequest == null) {
           LOGGER.debug(UNABLE_TO_PARSE_LOGOUT_REQUEST);
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
@@ -421,7 +421,7 @@ public class LogoutRequestService {
     } else {
       try {
         LogoutWrapper<LogoutResponse> logoutResponse =
-            logoutMessage.extractSamlLogoutResponse(restSecurity.base64Decode(encodedSamlResponse));
+            logoutMessage.extractSamlLogoutResponse(samlSecurity.base64Decode(encodedSamlResponse));
         if (logoutResponse == null) {
           LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
@@ -455,14 +455,14 @@ public class LogoutRequestService {
       @QueryParam(SIG_ALG) String signatureAlgorithm,
       @QueryParam(SIGNATURE) String signature) {
 
-    if (restSecurity == null || logoutMessage == null) {
+    if (samlSecurity == null || logoutMessage == null) {
       Response.serverError().entity("System cannot decode request.").build();
     }
 
     if (deflatedSamlRequest != null) {
       try {
         LogoutWrapper<LogoutRequest> logoutRequest =
-            logoutMessage.extractSamlLogoutRequest(restSecurity.inflateBase64(deflatedSamlRequest));
+            logoutMessage.extractSamlLogoutRequest(samlSecurity.inflateBase64(deflatedSamlRequest));
         if (logoutRequest == null) {
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
         }
@@ -493,7 +493,7 @@ public class LogoutRequestService {
 
         LogoutWrapper<LogoutResponse> logoutResponse =
             logoutMessage.extractSamlLogoutResponse(
-                restSecurity.inflateBase64(deflatedSamlResponse));
+                samlSecurity.inflateBase64(deflatedSamlResponse));
         if (logoutResponse == null) {
           LOGGER.debug(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
@@ -558,7 +558,7 @@ public class LogoutRequestService {
   }
 
   private Element getIdpSecurityToken() {
-    return getTokenHolder()
+    return getPrincipalHolder()
         .getPrincipals()
         .byType(SecurityAssertion.class)
         .stream()
@@ -571,7 +571,7 @@ public class LogoutRequestService {
 
   private void logout() {
     logSecurityAuditRole();
-    getTokenHolder().remove();
+    getPrincipalHolder().remove();
   }
 
   private void logSecurityAuditRole() {
@@ -594,8 +594,8 @@ public class LogoutRequestService {
                     .contains(new RolePrincipal(role)));
   }
 
-  private SecurityTokenHolder getTokenHolder() {
-    return (SecurityTokenHolder)
+  private PrincipalHolder getPrincipalHolder() {
+    return (PrincipalHolder)
         sessionFactory
             .getOrCreateSession(request)
             .getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
@@ -733,7 +733,7 @@ public class LogoutRequestService {
     this.logOutPageTimeOut = logOutPageTimeOut;
   }
 
-  public void setRestSecurity(RestSecurity restSecurity) {
-    this.restSecurity = restSecurity;
+  public void setSamlSecurity(SamlSecurity samlSecurity) {
+    this.samlSecurity = samlSecurity;
   }
 }

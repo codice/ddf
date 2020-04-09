@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.impl.SubjectImpl;
 import ddf.security.service.SecurityManager;
@@ -57,7 +57,7 @@ public class LoginFilterTest {
 
   private LoginFilter loginFilter;
   private Subject subject;
-  private SecurityTokenHolder securityTokenHolder;
+  private PrincipalHolder principalHolder;
 
   // mocks
   @Mock private HttpServletRequest requestMock;
@@ -70,7 +70,7 @@ public class LoginFilterTest {
   @Mock private BaseAuthenticationToken goodAuthenticationTokenMock;
   @Mock private BaseAuthenticationToken badAuthenticationTokenMock;
   @Mock private SecurityToken goodSecurityTokenMock;
-  @Mock private SecurityToken badSecurityTokenMock;
+  @Mock private SecurityToken badPrincipalHolderMock;
   @Mock private BaseAuthenticationToken referenceTokenMock;
   @Mock private SessionFactory sessionFactory;
   @Mock private ContextPolicyManager contextPolicyManager;
@@ -85,8 +85,8 @@ public class LoginFilterTest {
     MockitoAnnotations.initMocks(this);
 
     SimplePrincipalCollection principalCollection = new SimplePrincipalCollection();
-    securityTokenHolder = new SecurityTokenHolder();
-    securityTokenHolder.setPrincipals(principalCollection);
+    principalHolder = new PrincipalHolder();
+    principalHolder.setPrincipals(principalCollection);
     loginFilter = new LoginFilter();
     loginFilter.setSecurityManager(securityManagerMock);
     loginFilter.setSessionFactory(sessionFactory);
@@ -112,11 +112,11 @@ public class LoginFilterTest {
 
     when(sessionFactory.getOrCreateSession(any())).thenReturn(sessionMock);
 
-    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(securityTokenHolder);
+    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(principalHolder);
 
     when(sessionFactory.getOrCreateSession(any())).thenReturn(sessionMock);
 
-    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(securityTokenHolder);
+    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(principalHolder);
 
     when(contextPolicyManager.getSessionAccess()).thenReturn(true);
   }
@@ -167,9 +167,9 @@ public class LoginFilterTest {
         new HandlerResultImpl(HandlerResult.Status.COMPLETED, referenceTokenMock);
     when(requestMock.getAttribute(AUTHENTICATION_TOKEN_KEY)).thenReturn(result);
 
-    SecurityTokenHolder securityTokenHolder = new SecurityTokenHolder();
-    securityTokenHolder.setPrincipals(principalCollectionMock);
-    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(securityTokenHolder);
+    PrincipalHolder principalHolder = new PrincipalHolder();
+    principalHolder.setPrincipals(principalCollectionMock);
+    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(principalHolder);
 
     when(securityManagerMock.getSubject(referenceTokenMock)).thenReturn(subject);
 
@@ -184,7 +184,7 @@ public class LoginFilterTest {
         new HandlerResultImpl(HandlerResult.Status.COMPLETED, referenceTokenMock);
     when(requestMock.getAttribute(AUTHENTICATION_TOKEN_KEY)).thenReturn(result);
 
-    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(badSecurityTokenMock);
+    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(badPrincipalHolderMock);
 
     loginFilter.doFilter(requestMock, responseMock, FAIL_FILTER_CHAIN);
 
