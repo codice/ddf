@@ -664,13 +664,6 @@
         </bundle>
     </feature>
 
-    <feature name="catalog-ftp" version="${project.version}"
-             description="FTP endpoint for ingesting files into the catalog. Supports PUT and MPUT operations only. Avoids the extra IO overhead of otherwise having to temporarily write the file to the file system.">
-        <feature>catalog-app</feature>
-        <bundle>mvn:ddf.catalog/ftp/${project.version}</bundle>
-        <bundle>mvn:org.apache.mina/mina-core/${mina.version}</bundle>
-    </feature>
-
     <feature name="catalog-plugin-gazetteer" version="${project.version}"
              description="Post-ingest plugin for updating the offline gazetteer's suggester index when
           gazetteer metacards are created, updated, or deleted.">

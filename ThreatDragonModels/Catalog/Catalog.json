@@ -279,58 +279,6 @@
                 "height": 100
               },
               "position": {
-                "x": 740,
-                "y": 392
-              },
-              "angle": 0,
-              "id": "f047e198-9a38-4d08-b124-b550ca2ee6a7",
-              "z": 11,
-              "hasOpenThreats": false,
-              "attrs": {
-                ".element-shape": {
-                  "class": "element-shape hasNoOpenThreats isInScope"
-                },
-                "text": {
-                  "text": "FTP Endpoint"
-                },
-                ".element-text": {
-                  "class": "element-text hasNoOpenThreats isInScope"
-                }
-              }
-            },
-            {
-              "type": "tm.Actor",
-              "size": {
-                "width": 160,
-                "height": 80
-              },
-              "position": {
-                "x": 1010,
-                "y": 404
-              },
-              "angle": 0,
-              "id": "7ed553b4-1ad0-4927-9ac8-2ec0d07a9ee2",
-              "z": 12,
-              "hasOpenThreats": false,
-              "attrs": {
-                ".element-shape": {
-                  "class": "element-shape hasNoOpenThreats isInScope"
-                },
-                "text": {
-                  "text": "External FTP Client"
-                },
-                ".element-text": {
-                  "class": "element-text hasNoOpenThreats isInScope"
-                }
-              }
-            },
-            {
-              "type": "tm.Process",
-              "size": {
-                "width": 100,
-                "height": 100
-              },
-              "position": {
                 "x": 616,
                 "y": 523
               },
@@ -484,6 +432,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "213fa0a5-4c90-4b0c-91b5-c38d1eef4fb8"
@@ -609,6 +561,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "94be417e-b007-461b-9541-fbcdbe4a2ff7"
@@ -650,6 +606,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "21b17984-d6da-45b7-b3e0-43ebddfd4797"
@@ -691,6 +651,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "94be417e-b007-461b-9541-fbcdbe4a2ff7"
@@ -759,6 +723,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "21b17984-d6da-45b7-b3e0-43ebddfd4797"
@@ -795,6 +763,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "8b48e6a1-307b-45be-b958-da3eb57b7f87"
@@ -866,6 +838,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "21b17984-d6da-45b7-b3e0-43ebddfd4797"
@@ -910,6 +886,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "1e86c5b8-d28b-4831-babd-db6268c2ea16"
@@ -978,6 +958,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "ca2ec464-840b-4198-806c-cdac75f5c09e"
@@ -1109,6 +1093,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "1e86c5b8-d28b-4831-babd-db6268c2ea16"
@@ -1150,6 +1138,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "21b17984-d6da-45b7-b3e0-43ebddfd4797"
@@ -1191,6 +1183,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "eef98365-7d50-4b4e-bff5-46c8e15f933a"
@@ -1259,6 +1255,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "799ebf0e-7099-4c14-967b-f17d0e6e00ee"
@@ -1390,6 +1390,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "eef98365-7d50-4b4e-bff5-46c8e15f933a"
@@ -1431,6 +1435,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "eef98365-7d50-4b4e-bff5-46c8e15f933a"
@@ -1499,6 +1507,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "ef4fce83-69e3-4899-92b6-4459e7ce209e"
@@ -1630,454 +1642,10 @@
             },
             {
               "type": "tm.Flow",
-              "smooth": true,
-              "source": {
-                "id": "21b17984-d6da-45b7-b3e0-43ebddfd4797"
+              "size": {
+                "width": 10,
+                "height": 10
               },
-              "target": {
-                "id": "f047e198-9a38-4d08-b124-b550ca2ee6a7"
-              },
-              "vertices": [
-                {
-                  "x": 659,
-                  "y": 397
-                }
-              ],
-              "id": "5d88be88-48f9-4ce0-a207-44c546436eb0",
-              "labels": [
-                {
-                  "position": 0.5,
-                  "attrs": {
-                    "text": {
-                      "text": "Response",
-                      "font-weight": "400",
-                      "font-size": "small"
-                    }
-                  }
-                }
-              ],
-              "z": 37,
-              "hasOpenThreats": false,
-              "threats": [
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Elevation Using Impersonation",
-                  "type": "Elevation of privilege",
-                  "description": "Catalog may be able to impersonate the context of FTP Endpoint in order to gain additional privilege.",
-                  "mitigation": "Catalog executes only with the permissions of the user that is requesting the resource.",
-                  "$$hashKey": "object:774"
-                }
-              ],
-              "attrs": {
-                ".marker-target": {
-                  "class": "marker-target hasNoOpenThreats isInScope"
-                },
-                ".connection": {
-                  "class": "connection hasNoOpenThreats isInScope"
-                }
-              }
-            },
-            {
-              "type": "tm.Flow",
-              "smooth": true,
-              "source": {
-                "id": "f047e198-9a38-4d08-b124-b550ca2ee6a7"
-              },
-              "target": {
-                "id": "7ed553b4-1ad0-4927-9ac8-2ec0d07a9ee2"
-              },
-              "vertices": [
-                {
-                  "x": 917,
-                  "y": 466
-                }
-              ],
-              "id": "f0e1ed58-486d-437c-834f-3d379671f49a",
-              "labels": [
-                {
-                  "position": 0.5,
-                  "attrs": {
-                    "text": {
-                      "text": "FTP Response",
-                      "font-weight": "400",
-                      "font-size": "small"
-                    }
-                  }
-                }
-              ],
-              "z": 38,
-              "hasOpenThreats": false,
-              "threats": [
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Spoofing of the External FTP Client External Destination Entity",
-                  "type": "Spoofing",
-                  "description": "External FTP Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of External FTP Client. Consider using a standard authentication mechanism to identify the external entity.",
-                  "mitigation": "Catalog uses authentication and session based tracking",
-                  "$$hashKey": "object:1119"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "External Entity External FTP Client Potentially Denies Receiving Data",
-                  "type": "Repudiation",
-                  "description": "External FTP Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
-                  "mitigation": "Everything set to and received from sources is audited",
-                  "$$hashKey": "object:1125"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Data Flow Generic Data Flow Is Potentially Interrupted",
-                  "type": "Denial of service",
-                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
-                  "mitigation": "DDF is a software system is not responsible for the network.",
-                  "$$hashKey": "object:1131"
-                }
-              ],
-              "attrs": {
-                ".marker-target": {
-                  "class": "marker-target hasNoOpenThreats isInScope"
-                },
-                ".connection": {
-                  "class": "connection hasNoOpenThreats isInScope"
-                }
-              }
-            },
-            {
-              "type": "tm.Flow",
-              "smooth": true,
-              "source": {
-                "id": "7ed553b4-1ad0-4927-9ac8-2ec0d07a9ee2"
-              },
-              "target": {
-                "id": "f047e198-9a38-4d08-b124-b550ca2ee6a7"
-              },
-              "vertices": [
-                {
-                  "x": 911,
-                  "y": 384
-                }
-              ],
-              "id": "4f7e6d60-8958-4e65-abc1-7af5b20d8490",
-              "labels": [
-                {
-                  "position": 0.5,
-                  "attrs": {
-                    "text": {
-                      "text": "Login",
-                      "font-weight": "400",
-                      "font-size": "small"
-                    }
-                  }
-                }
-              ],
-              "z": 39,
-              "hasOpenThreats": false,
-              "threats": [
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Spoofing the FTP Endpoint Process",
-                  "type": "Spoofing",
-                  "description": "FTP Endpoint may be spoofed by an attacker and this may lead to information disclosure by External FTP Client. Consider using a standard authentication mechanism to identify the destination process.",
-                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
-                  "$$hashKey": "object:1049"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Spoofing the External FTP Client External Entity",
-                  "type": "Spoofing",
-                  "description": "External FTP Client may be spoofed by an attacker and this may lead to unauthorized access to FTP Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
-                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
-                  "$$hashKey": "object:1055"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Potential Lack of Input Validation for FTP Endpoint",
-                  "type": "Tampering",
-                  "description": "Data flowing across Login may be tampered with by an attacker. This may lead to a denial of service attack against FTP Endpoint or an elevation of privilege attack against FTP Endpoint or an information disclosure by FTP Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "All input is validated by the Catalog Framework",
-                  "$$hashKey": "object:1061"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Potential Data Repudiation by FTP Endpoint",
-                  "type": "Repudiation",
-                  "description": "FTP Endpoint claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
-                  "mitigation": "All connections are audited",
-                  "$$hashKey": "object:1067"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Data Flow Sniffing",
-                  "type": "Information disclosure",
-                  "description": "Data flowing across Login may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
-                  "mitigation": "TLS",
-                  "$$hashKey": "object:1073"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Potential Process Crash or Stop for FTP Endpoint",
-                  "type": "Denial of service",
-                  "description": "FTP Endpoint crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
-                  "mitigation": "FTP Endpoint is not a process on the system, it is a service running within a container that is managing services.",
-                  "$$hashKey": "object:1079"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Data Flow Generic Data Flow Is Potentially Interrupted",
-                  "type": "Denial of service",
-                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
-                  "mitigation": "DDF is a software system is not responsible for the network.",
-                  "$$hashKey": "object:1085"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Elevation Using Impersonation",
-                  "type": "Elevation of privilege",
-                  "description": "FTP Endpoint may be able to impersonate the context of External FTP Client in order to gain additional privilege.",
-                  "mitigation": "FTP Endpoint only with the permissions of the user that is requesting the resource.",
-                  "$$hashKey": "object:1091"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "FTP Endpoint May be Subject to Elevation of Privilege Using Remote Code Execution",
-                  "type": "Elevation of privilege",
-                  "description": "External FTP Client may be able to remotely execute code for FTP Endpoint.",
-                  "mitigation": "Communication happens only via the FTP protocol and is authenticated.",
-                  "$$hashKey": "object:1097"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Elevation by Changing the Execution Flow in FTP Endpoint",
-                  "type": "Elevation of privilege",
-                  "description": "An attacker may pass data into FTP Endpoint in order to change the flow of program execution within FTP Endpoint to the attacker's choosing.",
-                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
-                  "$$hashKey": "object:1103"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Cross Site Request Forgery",
-                  "type": "Elevation of privilege",
-                  "description": "Cross-site request forgery (CSRF or XSRF) is a type of attack in which an attacker forces a user's browser to make a forged request to a vulnerable site by exploiting an existing trust relationship between the browser and the vulnerable web site. ┬áIn a simple scenario, a user is logged in to web site A using a cookie as a credential. ┬áThe other browses to web site B. ┬áWeb site B returns a page with a hidden form that posts to web site A. ┬áSince the browser will carry the user's cookie to web site A, web site B now can take any action on web site A, for example, adding an admin to an account. ┬áThe attack can be used to exploit any requests that the browser automatically authenticates, e.g. by session cookie, integrated authentication, IP whitelisting, ΓÇª ┬áThe attack can be carried out in many ways such as by luring the victim to a site under control of the attacker, getting the user to click a link in a phishing email, or hacking a reputable web site that the victim will visit. The issue can only be resolved on the server side by requiring that all authenticated state-changing requests include an additional piece of secret payload (canary or CSRF token) which is known only to the legitimate web site and the browser and which is protected in transit through SSL/TLS. See the Forgery Protection property on the flow stencil for a list of mitigations.",
-                  "mitigation": "Not web browser interaction.",
-                  "$$hashKey": "object:1109"
-                }
-              ],
-              "attrs": {
-                ".marker-target": {
-                  "class": "marker-target hasNoOpenThreats isInScope"
-                },
-                ".connection": {
-                  "class": "connection hasNoOpenThreats isInScope"
-                }
-              }
-            },
-            {
-              "type": "tm.Flow",
-              "smooth": true,
-              "source": {
-                "id": "7ed553b4-1ad0-4927-9ac8-2ec0d07a9ee2"
-              },
-              "target": {
-                "id": "f047e198-9a38-4d08-b124-b550ca2ee6a7"
-              },
-              "vertices": [
-                {
-                  "x": 927,
-                  "y": 417
-                }
-              ],
-              "id": "298246f9-d134-4ee8-a930-69cd2e355c91",
-              "labels": [
-                {
-                  "position": 0.5,
-                  "attrs": {
-                    "text": {
-                      "text": "FTP Operations",
-                      "font-weight": "400",
-                      "font-size": "small"
-                    }
-                  }
-                }
-              ],
-              "z": 40,
-              "hasOpenThreats": false,
-              "threats": [
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Spoofing the FTP Endpoint Process",
-                  "type": "Spoofing",
-                  "description": "FTP Endpoint may be spoofed by an attacker and this may lead to information disclosure by External FTP Client. Consider using a standard authentication mechanism to identify the destination process.",
-                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
-                  "$$hashKey": "object:1148"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Spoofing the External FTP Client External Entity",
-                  "type": "Spoofing",
-                  "description": "External FTP Client may be spoofed by an attacker and this may lead to unauthorized access to FTP Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
-                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
-                  "$$hashKey": "object:1154"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Potential Lack of Input Validation for FTP Endpoint",
-                  "type": "Tampering",
-                  "description": "Data flowing across FTP Operations may be tampered with by an attacker. This may lead to a denial of service attack against FTP Endpoint or an elevation of privilege attack against FTP Endpoint or an information disclosure by FTP Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "All input is validated by the Catalog Framework",
-                  "$$hashKey": "object:1160"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Potential Data Repudiation by FTP Endpoint",
-                  "type": "Repudiation",
-                  "description": "FTP Endpoint claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
-                  "mitigation": "All connections are audited.",
-                  "$$hashKey": "object:1166"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Data Flow Sniffing",
-                  "type": "Information disclosure",
-                  "description": "Data flowing across FTP Operations may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
-                  "mitigation": "TLS",
-                  "$$hashKey": "object:1172"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Potential Process Crash or Stop for FTP Endpoint",
-                  "type": "Denial of service",
-                  "description": "FTP Endpoint crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
-                  "mitigation": "FTP Endpoint is not a process on the system, it is a service running within a container that is managing services.",
-                  "$$hashKey": "object:1178"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Data Flow FTP Operations Is Potentially Interrupted",
-                  "type": "Denial of service",
-                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
-                  "mitigation": "DDF is a software system is not responsible for the network.",
-                  "$$hashKey": "object:1184"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Elevation Using Impersonation",
-                  "type": "Elevation of privilege",
-                  "description": "FTP Endpoint may be able to impersonate the context of External FTP Client in order to gain additional privilege.",
-                  "mitigation": "FTP Endpoint executes only with the permissions of the user that is requesting the resource.",
-                  "$$hashKey": "object:1190"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "FTP Endpoint May be Subject to Elevation of Privilege Using Remote Code Execution",
-                  "type": "Elevation of privilege",
-                  "description": "External FTP Client may be able to remotely execute code for FTP Endpoint.",
-                  "mitigation": "Communication happens only via the FTP protocol and is authenticated.",
-                  "$$hashKey": "object:1196"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Elevation by Changing the Execution Flow in FTP Endpoint",
-                  "type": "Elevation of privilege",
-                  "description": "An attacker may pass data into FTP Endpoint in order to change the flow of program execution within FTP Endpoint to the attacker's choosing.",
-                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
-                  "$$hashKey": "object:1202"
-                },
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Cross Site Request Forgery",
-                  "type": "Elevation of privilege",
-                  "description": "Cross-site request forgery (CSRF or XSRF) is a type of attack in which an attacker forces a user's browser to make a forged request to a vulnerable site by exploiting an existing trust relationship between the browser and the vulnerable web site. ┬áIn a simple scenario, a user is logged in to web site A using a cookie as a credential. ┬áThe other browses to web site B. ┬áWeb site B returns a page with a hidden form that posts to web site A. ┬áSince the browser will carry the user's cookie to web site A, web site B now can take any action on web site A, for example, adding an admin to an account. ┬áThe attack can be used to exploit any requests that the browser automatically authenticates, e.g. by session cookie, integrated authentication, IP whitelisting, ΓÇª ┬áThe attack can be carried out in many ways such as by luring the victim to a site under control of the attacker, getting the user to click a link in a phishing email, or hacking a reputable web site that the victim will visit. The issue can only be resolved on the server side by requiring that all authenticated state-changing requests include an additional piece of secret payload (canary or CSRF token) which is known only to the legitimate web site and the browser and which is protected in transit through SSL/TLS. See the Forgery Protection property on the flow stencil for a list of mitigations.",
-                  "mitigation": "Not web browser interaction.",
-                  "$$hashKey": "object:1208"
-                }
-              ],
-              "attrs": {
-                ".marker-target": {
-                  "class": "marker-target hasNoOpenThreats isInScope"
-                },
-                ".connection": {
-                  "class": "connection hasNoOpenThreats isInScope"
-                }
-              }
-            },
-            {
-              "type": "tm.Flow",
-              "smooth": true,
-              "source": {
-                "id": "f047e198-9a38-4d08-b124-b550ca2ee6a7"
-              },
-              "target": {
-                "id": "21b17984-d6da-45b7-b3e0-43ebddfd4797"
-              },
-              "vertices": [
-                {
-                  "x": 652,
-                  "y": 441
-                }
-              ],
-              "id": "26dab9c9-8959-4aaa-a257-d54d53e9a8b9",
-              "labels": [
-                {
-                  "position": 0.5,
-                  "attrs": {
-                    "text": {
-                      "text": "Request",
-                      "font-weight": "400",
-                      "font-size": "small"
-                    }
-                  }
-                }
-              ],
-              "z": 41,
-              "hasOpenThreats": false,
-              "threats": [
-                {
-                  "status": "Mitigated",
-                  "severity": "High",
-                  "title": "Elevation Using Impersonation",
-                  "type": "Elevation of privilege",
-                  "description": "FTP Endpoint may be able to impersonate the context of Catalog in order to gain additional privilege.",
-                  "mitigation": "FTP Endpoint executes only with the permissions of the user that is requesting the resource.",
-                  "$$hashKey": "object:1027"
-                }
-              ],
-              "attrs": {
-                ".marker-target": {
-                  "class": "marker-target hasNoOpenThreats isInScope"
-                },
-                ".connection": {
-                  "class": "connection hasNoOpenThreats isInScope"
-                }
-              }
-            },
-            {
-              "type": "tm.Flow",
               "smooth": true,
               "source": {
                 "id": "21b17984-d6da-45b7-b3e0-43ebddfd4797"
@@ -2119,6 +1687,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "5692b1f7-9631-4ae9-bfab-40a4aababc51"
@@ -2262,6 +1834,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "ad673e7f-8ff9-4237-8d16-b133e747ad9f"
@@ -2384,6 +1960,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "5692b1f7-9631-4ae9-bfab-40a4aababc51"
@@ -2425,6 +2005,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "5692b1f7-9631-4ae9-bfab-40a4aababc51"
@@ -2467,6 +2051,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "ff9795cc-37ba-4616-8932-6d287b25dd51"
@@ -2598,6 +2186,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "21b17984-d6da-45b7-b3e0-43ebddfd4797"
@@ -2639,6 +2231,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "21b17984-d6da-45b7-b3e0-43ebddfd4797"
@@ -2680,6 +2276,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "656979aa-eb7f-406a-9319-0c2469bf1bbc"
@@ -2748,6 +2348,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "d34e4417-c418-4ac2-ac6c-0d37e5b4bb90"
@@ -2879,6 +2483,10 @@
             },
             {
               "type": "tm.Flow",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "id": "656979aa-eb7f-406a-9319-0c2469bf1bbc"
@@ -2920,6 +2528,10 @@
             },
             {
               "type": "tm.Boundary",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "x": 258,
@@ -2941,6 +2553,10 @@
             },
             {
               "type": "tm.Boundary",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "x": 314,
@@ -2962,6 +2578,10 @@
             },
             {
               "type": "tm.Boundary",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "x": 412,
@@ -2983,6 +2603,10 @@
             },
             {
               "type": "tm.Boundary",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "x": 636,
@@ -3004,6 +2628,10 @@
             },
             {
               "type": "tm.Boundary",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "x": 811,
@@ -3025,6 +2653,10 @@
             },
             {
               "type": "tm.Boundary",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "x": 881,
@@ -3046,27 +2678,10 @@
             },
             {
               "type": "tm.Boundary",
-              "smooth": true,
-              "source": {
-                "x": 833,
-                "y": 366
+              "size": {
+                "width": 10,
+                "height": 10
               },
-              "target": {
-                "x": 833,
-                "y": 505
-              },
-              "vertices": [
-                {
-                  "x": 872,
-                  "y": 436
-                }
-              ],
-              "id": "6e6b5ffe-f728-4932-a10d-111177b3a783",
-              "z": 63,
-              "attrs": {}
-            },
-            {
-              "type": "tm.Boundary",
               "smooth": true,
               "source": {
                 "x": 723,
@@ -3088,6 +2703,10 @@
             },
             {
               "type": "tm.Boundary",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "x": 731,
@@ -3109,6 +2728,10 @@
             },
             {
               "type": "tm.Boundary",
+              "size": {
+                "width": 10,
+                "height": 10
+              },
               "smooth": true,
               "source": {
                 "x": 266,
@@ -3133,7 +2756,8 @@
         "size": {
           "height": 726.0621948242188,
           "width": 970.5955200195312
-        }
+        },
+        "$$hashKey": "object:11"
       }
     ]
   }

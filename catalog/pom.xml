@@ -538,7 +538,6 @@
         <module>solr</module>
         <module>ui</module>
         <module>spatial</module>
-        <module>ftp</module>
         <module>validator</module>
         <module>confluence</module>
         <module>migrate</module>

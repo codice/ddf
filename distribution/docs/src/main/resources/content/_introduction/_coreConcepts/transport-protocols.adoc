@@ -14,9 +14,6 @@
 |https://tools.ietf.org/html/rfc2616[HyperText Transport Protocol (HTTP)] / https://tools.ietf.org/html/rfc2818[HyperText Transport Protocol Secure (HTTPS)] {external-link}
 |Supported
 
-|https://tools.ietf.org/html/rfc959[File Transfer Protocol (FTP)] {external-link} / https://www.ietf.org/rfc/rfc4217.txt[File Transfer Protocol Secure (FTPS)] {external-link}
-|Supported
-
 |https://tools.ietf.org/html/rfc4510[Lightweight Directory Access (LDAP/LDAPS)] {external-link}
 |Supported
 |===
