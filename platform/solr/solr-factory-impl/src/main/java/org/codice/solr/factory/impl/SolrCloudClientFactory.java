@@ -16,7 +16,8 @@ package org.codice.solr.factory.impl;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,14 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     }
     LOGGER.debug(
         "Solr({}): Creating a SolrCloud client using Zookeeper hosts [{}]", core, zookeeperHosts);
-    return new SolrClientAdapter(core, () -> createSolrCloudClient(zookeeperHosts, core));
+    return new SolrClientAdapter(
+        core,
+        () ->
+            AccessController.doPrivileged(
+                (PrivilegedAction<SolrClient>)
+                    () -> {
+                      return createSolrCloudClient(zookeeperHosts, core);
+                    }));
   }
 
   @VisibleForTesting
@@ -203,16 +211,12 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     }
 
     if (!configExistsInZk) {
-      ConfigurationStore configStore = ConfigurationStore.getInstance();
+      Path configPath = new Configsets().get(collection);
 
-      if (System.getProperty("solr.data.dir") != null) {
-        configStore.setDataDirectoryPath(System.getProperty("solr.data.dir"));
-      }
-
-      ConfigurationFileProxy configProxy = new ConfigurationFileProxy(configStore);
-      configProxy.writeSolrConfiguration(collection);
-      Path configPath =
-          Paths.get(configProxy.getDataDirectory().getAbsolutePath(), collection, "conf");
+      LOGGER.info(
+          "Configuration for collection [{}] not present in Zookeeper. Uploading configset from [{}].",
+          collection,
+          configPath.toString());
 
       try (ZkClientClusterStateProvider zkStateProvider = newZkStateProvider(client)) {
         zkStateProvider.uploadConfig(configPath, collection);

@@ -61,7 +61,7 @@ class SolrCloudClientFactorySpec extends Specification {
 
   def setup() {
     tempFolder.create();
-    ConfigurationStore.instance.dataDirectoryPath = tempFolder.root.absolutePath
+    System.setProperty("ddf.home", tempFolder.root.absolutePath)
   }
 
   def cleanup() {
@@ -301,70 +301,6 @@ class SolrCloudClientFactorySpec extends Specification {
 
     and: "close() is never called on the underlying client"
       0 * cloudClient.close()
-  }
-
-  @Unroll
-  def 'test creating a Solr cloud client when configuration is uploaded and the collection already exists and system property solr.data.dir is #data_dir_is'() {
-    given:
-      if (solr_data_dir) {
-        solr_data_dir = new File(tempFolder.root, solr_data_dir).absolutePath
-        System.setProperty("solr.data.dir", solr_data_dir)
-      } else {
-        System.clearProperty("solr.data.dir")
-      }
-
-    and:
-      def initialDataDir = ConfigurationStore.instance.dataDirectoryPath
-      def zkClient = Mock(SolrZkClient)
-      def listResponse = Mock(NamedList)
-      def aliasResponse = Mock(NamedList)
-      def zkStateProvider = Mock(ZkClientClusterStateProvider)
-      def cloudClient = Mock(CloudSolrClient) {
-        getZkStateReader() >> Mock(ZkStateReader) {
-          getZkClient() >> zkClient
-        }
-      }
-      def factory = Spy(SolrCloudClientFactory)
-
-    when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
-
-    then: "verify the Solr cloud client is created"
-      1 * factory.newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
-
-    and: "the returned client is the one we created"
-      createdClient.is(cloudClient)
-
-    and: "it is being connected"
-      1 * cloudClient.connect() >> null
-
-    then: "verify zookeeper is consulted to see if the configuration exists"
-      1 * zkClient.exists("/configs/$CORE", true) >> false
-
-    and: "the zookeeper state provider is the one we created"
-      1 * factory.newZkStateProvider(cloudClient) >> zkStateProvider
-
-    and: "the config is uploaded to zookeeper"
-      1 * zkStateProvider.uploadConfig(*_) >> null
-
-    then: "verify zookeeper is consulted to see if the collection exists"
-      1 * cloudClient.request({ it instanceof CollectionAdminRequest.ListAliases }, null) >> aliasResponse
-      1 * cloudClient.request({ it instanceof CollectionAdminRequest.List }, null) >> listResponse
-      1 * listResponse.get('collections') >> Collections.singletonList(CORE)
-
-    and: "the collection is never created"
-      0 * cloudClient.request({ it instanceof CollectionAdminRequest.Create }, null)
-
-    and: "close() is never called on the underlying client"
-      0 * cloudClient.close()
-
-    and: "the config store is initialized and its data directory was or wasn't updated"
-      ConfigurationStore.instance.dataDirectoryPath == data_dir_updated ? solr_data_dir : initialDataDir
-
-    where:
-      data_dir_is   || solr_data_dir || data_dir_updated
-      'defined'     || DATA_DIR      || true
-      'not defined' || null          || false
   }
 
   // @ClearInterruptions because Failsafe is affected whenever it catches an InterruptedException
