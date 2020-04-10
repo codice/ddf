@@ -297,11 +297,8 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${setup.folder}/solr</directory>
-            <outputDirectory>/solr</outputDirectory>
-            <excludes>
-                <exclude>**/derby*</exclude>
-            </excludes>
+            <directory>${setup.folder}/solr/</directory>
+            <outputDirectory>etc/solr/configsets/default/</outputDirectory>
         </fileSet>
     </fileSets>
 

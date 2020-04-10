@@ -162,7 +162,8 @@ grant codeBase "file:/catalog-transformer-csw-profile/persistence-core-impl/pers
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
 }
 
-grant codeBase "file:/solr-factory-impl" {
+grant codeBase "file:/solr-factory-impl/solr-dependencies" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}solr${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverTruststore.jks", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverKeystore.jks", "read";
 }
@@ -523,14 +524,12 @@ grant {
 
     permission java.io.FilePermission "${ddf.home.perm}data", "read, write";
     permission java.io.FilePermission "${ddf.home.perm}instances", "read, write";
-    permission java.io.FilePermission "${ddf.home.perm}solr", "read, write";
     permission java.io.FilePermission "${ddf.home.perm}system", "read, write";
     permission java.io.FilePermission "${ddf.home.perm}workspace", "read, write";
 
     permission java.io.FilePermission "${ddf.home.perm}data${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}countries.geo.json", "read";
     permission java.io.FilePermission "${ddf.home.perm}instances${/}-", "read, write";
-    permission java.io.FilePermission "${ddf.home.perm}solr${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home.perm}system${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home.perm}workspace${/}-", "read, write";
 
