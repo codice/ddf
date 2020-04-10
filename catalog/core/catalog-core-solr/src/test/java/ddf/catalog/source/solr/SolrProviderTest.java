@@ -78,8 +78,8 @@ public class SolrProviderTest {
   public static void beforeClass() throws Exception {
     ConfigurationStore store = ConfigurationStore.getInstance();
     store.setForceAutoCommit(true);
-    String solrDataPath = Paths.get("target/surefire/solr").toString();
-    System.setProperty("solr.data.dir", solrDataPath);
+    String solrDataPath = Paths.get("target/surefire/ddf").toString();
+    System.setProperty("ddf.home", solrDataPath);
     store.setDataDirectoryPath(solrDataPath);
 
     System.setProperty("jute.maxbuffer", "20000000"); // windows solution
@@ -119,7 +119,7 @@ public class SolrProviderTest {
 
   @AfterClass
   public static void afterClass() throws Exception {
-    System.clearProperty("solr.data.dir");
+    System.clearProperty("ddf.home");
     System.clearProperty("solr.cloud.shardCount");
     System.clearProperty("solr.cloud.replicationFactor");
     System.clearProperty("solr.cloud.maxShardPerNode");
