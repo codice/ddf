@@ -312,7 +312,7 @@ function validateBoundingBox(value: any) {
     north = Number(value.north)
     south = Number(value.south)
   }
-  if (south >= north) {
+  if (south && north && south >= north) {
     return {
       error: true,
       message:
