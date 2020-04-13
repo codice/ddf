@@ -136,11 +136,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.admin.core</groupId>
-            <artifactId>admin-core-migration-commands</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-logviewer</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -197,13 +192,6 @@
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>migration</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>

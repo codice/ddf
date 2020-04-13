@@ -59,21 +59,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>ddf.platform.migration</groupId>
-                <artifactId>platform-migration</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ddf.platform.migration</groupId>
-                <artifactId>platform-migration-utils</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ddf.platform.migration</groupId>
-                <artifactId>platform-migratable-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>ddf.platform</groupId>
                 <artifactId>platform-commands</artifactId>
                 <version>${project.version}</version>
@@ -342,8 +327,6 @@
         <module>platform-configuration</module>
         <module>platform-configuration-endpoint</module>
         <module>io</module>
-        <module>migration</module>
-        <module>platform-migratable</module>
         <module>parser</module>
         <module>action</module>
         <module>solr</module>

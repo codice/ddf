@@ -49,9 +49,6 @@ Provides a list of environment variables.
 |catalog:latest
 |Retrieves the latest records from the Catalog based on the Core.METACARD_MODIFIED date.
 
-|catalog:migrate
-|Allows two `CatalogProvider` s to be configured and migrates the data from the primary to the secondary.
-
 |catalog:range
 |Searches by the given range arguments (exclusively).
 

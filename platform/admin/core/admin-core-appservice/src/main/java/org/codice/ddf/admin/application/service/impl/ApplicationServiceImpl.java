@@ -43,7 +43,7 @@ import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
-import org.codice.ddf.admin.application.service.migratable.JsonUtils;
+import org.codice.ddf.admin.application.service.util.JsonUtils;
 import org.codice.ddf.security.Security;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;

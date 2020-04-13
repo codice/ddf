@@ -617,16 +617,6 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:ddf.security.command/security-command-sessionmanager/${project.version}</bundle>
     </feature>
 
-    <feature name="security-migratable" version="${project.version}"
-             description="Exports security configurations and system files">
-        <feature>guava</feature>
-        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
-        <bundle>mvn:ddf.platform.migration/platform-migration-utils/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.migration/platform-migratable-api/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
-        <bundle>mvn:ddf.security.migration/security-migratable/${project.version}</bundle>
-    </feature>
-
     <feature name="security-misc" version="${project.version}">
         <feature>security-core-misc</feature>
         <feature>security-certificate</feature>

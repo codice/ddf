@@ -221,7 +221,6 @@
         <module>interceptor</module>
         <module>certificate</module>
         <module>rest</module>
-        <module>security-migratable</module>
         <module>command</module>
         <module>secure-boot</module>
     </modules>

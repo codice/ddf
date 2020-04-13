@@ -11,24 +11,20 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.migratable;
+package org.codice.ddf.admin.application.service.util;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Map;
-import org.codice.ddf.admin.application.service.util.JsonUtils;
-
-public class JsonSupport {
-
-  public static Map<String, Object> toImmutableMap(Object... keysAndValues) {
-    final ImmutableMap.Builder builder = ImmutableMap.builder();
-
-    for (int i = 0; i < keysAndValues.length; i += 2) {
-      builder.put(keysAndValues[i], keysAndValues[i + 1]);
-    }
-    return builder.build();
-  }
-
-  public static String toJsonString(Object... keysAndValues) {
-    return JsonUtils.toJson(JsonSupport.toImmutableMap(keysAndValues));
-  }
+/**
+ * Interface used by Json classes that can be validated by the {@link JsonUtils} class after
+ * deserialization.
+ */
+public interface JsonValidatable {
+  /**
+   * Validates this object.
+   *
+   * <p><i>Note:</i> This method is required because objects of this class are deserialized with
+   * Gson which bypasses setters which can lead to an inconsistent and unexpected state.
+   *
+   * @throws IllegalArgumentException if this object is invalid
+   */
+  public void validate();
 }

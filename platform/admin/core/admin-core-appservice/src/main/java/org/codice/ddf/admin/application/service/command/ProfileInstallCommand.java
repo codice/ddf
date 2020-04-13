@@ -40,7 +40,7 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
-import org.codice.ddf.admin.application.service.migratable.JsonUtils;
+import org.codice.ddf.admin.application.service.util.JsonUtils;
 import org.osgi.framework.BundleException;
 import org.osgi.service.resolver.ResolutionException;
 import org.slf4j.Logger;

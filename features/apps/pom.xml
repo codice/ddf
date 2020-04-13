@@ -69,13 +69,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.features</groupId>
-            <artifactId>migration</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
             <artifactId>security</artifactId>
             <version>${project.version}</version>
             <type>xml</type>

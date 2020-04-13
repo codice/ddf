@@ -27,5 +27,4 @@ the normal steps can be followed for installing, configuring, and hardening.
 . Configure the first ${branding} node. See the <<{managing-prefix}configuring, Configuring Section>>.
 . Optional: If hardening the first ${branding} node (excluding setting directory permissions). See the <<{managing-prefix}security_hardening, Hardening Section>>.
 . Export the first ${branding} node's configurations, install the second ${branding} node, and import the exported configurations on that node.
-See <<{managing-prefix}reusing_configurations, Reusing Configurations>>.
 . If hardening, set directory permissions on both ${branding} nodes. See <<{managing-prefix}setting_directory_permissions, Setting Directory Permissions>>.

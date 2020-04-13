@@ -34,7 +34,6 @@
         <module>branding</module>
         <module>security</module>
         <module>solr</module>
-        <module>migration</module>
         <module>admin</module>
         <module>apps</module>
         <module>install-profiles</module>

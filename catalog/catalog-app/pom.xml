@@ -670,16 +670,6 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.migrate</groupId>
-            <artifactId>migration-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.migrate</groupId>
-            <artifactId>migration-command</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-bootflag</artifactId>
             <version>${project.version}</version>

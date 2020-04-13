@@ -511,16 +511,6 @@
                 <artifactId>branding-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>ddf.catalog.migrate</groupId>
-                <artifactId>migration-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ddf.catalog.migrate</groupId>
-                <artifactId>migration-commands</artifactId>
-                <version>${project.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -541,7 +531,6 @@
         <module>ftp</module>
         <module>validator</module>
         <module>confluence</module>
-        <module>migrate</module>
     </modules>
     <build>
         <plugins>
