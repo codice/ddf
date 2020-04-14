@@ -26,7 +26,7 @@ module.exports = SearchFormViews.extend({
   changeView() {
     this.model.set({
       readOnly:
-        !user.canWrite(this.model) || this.model.get('createdBy') === 'system',
+        !user.canWrite(this.model),
     })
     lightboxInstance.model.updateTitle(this.model.get('title'))
     lightboxInstance.model.open()

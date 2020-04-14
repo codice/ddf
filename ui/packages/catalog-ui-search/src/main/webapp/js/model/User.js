@@ -460,7 +460,7 @@ User.Response = Backbone.AssociatedModel.extend({
     return new Security(Restrictions.from(metacard)).canRead(this)
   },
   canWrite(metacard) {
-    return new Security(Restrictions.from(metacard)).canWrite(this)
+    return new Security(Restrictions.from(metacard)).canWrite(this) && metacard.get('createdBy') !== 'system'
   },
   canShare(metacard) {
     return new Security(Restrictions.from(metacard)).canShare(this)

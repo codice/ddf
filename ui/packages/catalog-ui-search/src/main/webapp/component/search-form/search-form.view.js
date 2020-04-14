@@ -188,7 +188,7 @@ export default Marionette.LayoutView.extend({
     const newResult = this.model.get('type') === 'new-result'
     const noActions =
       this.model.get('type') === 'result' &&
-      (!user.canWrite(this.model) || this.model.get('createdBy') === 'system')
+      !user.canWrite(this.model)
     if (newResult || noActions) {
       this.$el.addClass('is-static')
     } else {
