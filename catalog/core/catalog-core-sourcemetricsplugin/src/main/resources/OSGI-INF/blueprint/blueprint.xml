@@ -19,6 +19,8 @@
     with the local catalog provider. 
     -->
 
+    <reference id="meterRegistryService" interface="org.codice.ddf.lib.metrics.registry.MeterRegistryService" availability="mandatory"/>
+
     <reference-list id="catalogProviders" interface="ddf.catalog.source.CatalogProvider"
                     availability="optional">
     	<reference-listener
@@ -35,8 +37,8 @@
                 unbind-method="deletingSource"/>
     </reference-list>
     
-    <bean id="sourceMetrics" class="ddf.catalog.metrics.source.SourceMetricsImpl"
-          init-method="init" destroy-method="destroy">
+    <bean id="sourceMetrics" class="ddf.catalog.metrics.source.SourceMetricsImpl">
+        <argument ref="meterRegistryService" />
     </bean>
   
     <service ref="sourceMetrics" interface="ddf.catalog.plugin.PreFederatedQueryPlugin"/>

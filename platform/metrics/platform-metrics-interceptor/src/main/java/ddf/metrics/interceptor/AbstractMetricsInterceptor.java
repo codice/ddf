@@ -13,14 +13,12 @@
  */
 package ddf.metrics.interceptor;
 
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SlidingTimeWindowReservoir;
-import java.util.concurrent.TimeUnit;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 
 /**
  * This class is extended by the METRICS interceptors used for capturing round trip message latency.
@@ -31,27 +29,24 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
 
   private static final String REGISTRY_NAME = "ddf.METRICS.services";
 
-  private static final String HISTOGRAM_NAME = "Latency";
+  private static final String METRICS_PREFIX = "ddf.platform";
 
-  private static final MetricRegistry METRICS = new MetricRegistry();
+  private static final String HISTOGRAM_NAME = "latency";
 
-  private static final JmxReporter REPORTER =
-      JmxReporter.forRegistry(METRICS).inDomain(REGISTRY_NAME).build();
+  private final MeterRegistry meterRegistry;
 
-  static final Histogram MESSAGE_LATENCY =
-      METRICS.register(
-          MetricRegistry.name(HISTOGRAM_NAME),
-          new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
+  final DistributionSummary messageLatency;
 
   /**
    * Constructor to pass the phase to {@code AbstractPhaseInterceptor} and creates a new histogram.
    *
    * @param phase
    */
-  public AbstractMetricsInterceptor(String phase) {
-
+  public AbstractMetricsInterceptor(String phase, MeterRegistryService meterRegistryService) {
     super(phase);
-    REPORTER.start();
+
+    meterRegistry = meterRegistryService.getMeterRegistry();
+    messageLatency = meterRegistry.summary(METRICS_PREFIX + "." + HISTOGRAM_NAME);
   }
 
   protected boolean isClient(Message msg) {
@@ -90,6 +85,6 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
   }
 
   private void increaseCounter(LatencyTimeRecorder ltr) {
-    MESSAGE_LATENCY.update(ltr.getLatencyTime());
+    messageLatency.record(ltr.getLatencyTime());
   }
 }

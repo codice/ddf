@@ -3,3 +3,11 @@ node_modules/
 node/
 src/main/resources/webapp/
 packages/codice-icons/icons
+<<<<<<< HEAD
+=======
+test.js
+server*.js
+webpack*
+packages/linter
+disable-idp.js
+>>>>>>> dd5e78aa9f... Add metrics

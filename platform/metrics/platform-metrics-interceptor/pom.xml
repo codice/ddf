@@ -33,22 +33,26 @@
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.codahale.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.metrics.collector</groupId>
-            <artifactId>metrics-collector</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.rrd4j</groupId>
-            <artifactId>rrd4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.lib.metrics</groupId>
+            <artifactId>meter-registry-service</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.lib.metrics</groupId>
+            <artifactId>micrometer-bundle</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.lib.metrics</groupId>
+            <artifactId>micrometer-registry-prometheus-bundle</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>
@@ -61,8 +65,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             platform-util,
-                            metrics-core,
-                            metrics-collector,
                             rrd4j;scope=compile|runtime;artifactId=!slf4j-api
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>

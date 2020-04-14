@@ -17,6 +17,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 
 /**
  * CXF in interceptor used to capture HTTP message latency metrics.
@@ -28,10 +29,8 @@ import org.apache.cxf.phase.Phase;
  */
 public class MetricsInInterceptor extends AbstractMetricsInterceptor {
 
-  static final String TIME_IN = "TimeIn";
-
-  public MetricsInInterceptor() {
-    super(Phase.RECEIVE);
+  public MetricsInInterceptor(MeterRegistryService meterRegistryService) {
+    super(Phase.RECEIVE, meterRegistryService);
   }
 
   @Override

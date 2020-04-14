@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.codahale.metrics.MetricRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
@@ -26,31 +25,18 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.DeleteRequest;
-import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.ProcessingDetails;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.Update;
-import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.*;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.*;
 import org.codice.ddf.configuration.SystemInfo;
-import org.junit.After;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.Filter;
@@ -66,6 +52,10 @@ public class CatalogMetricsTest {
 
   private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
+  private MeterRegistryService meterRegistryService;
+
+  private MeterRegistry meterRegistry;
+
   private static Filter idFilter =
       filterBuilder.attribute(Metacard.ID).is().equalTo().text("metacardId");
 
@@ -73,42 +63,11 @@ public class CatalogMetricsTest {
 
   @Before
   public void setup() {
-    underTest = new CatalogMetrics(filterAdapter);
+    meterRegistry = new SimpleMeterRegistry();
+    meterRegistryService = mock(MeterRegistryService.class);
+    when(meterRegistryService.getMeterRegistry()).thenReturn(meterRegistry);
+    underTest = new CatalogMetrics(filterAdapter, meterRegistryService);
     System.setProperty(SystemInfo.SITE_NAME, "testSite");
-  }
-
-  @After
-  public void tearDown() {
-
-    // Remove the metrics created when setup() instantiated CatalogMetrics -
-    // otherwise get lots of exceptions that metric already exists which fill
-    // up the log to point of Travis CI build failing
-
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "TotalResults"));
-
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Federated"));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Comparison"));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Spatial"));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Xpath"));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Fuzzy"));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Temporal"));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Function"));
-
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE));
-    underTest.metrics.remove(
-        MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE, "UnsupportedQuery"));
-    underTest.metrics.remove(
-        MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE, "SourceUnavailable"));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE, "Federation"));
-
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE, "Created"));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE, "Updated"));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE, "Deleted"));
-
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.RESOURCE_SCOPE));
-
-    underTest.reporter.stop();
   }
 
   @Test
@@ -116,8 +75,8 @@ public class CatalogMetricsTest {
     QueryRequest query = new QueryRequestImpl(new QueryImpl(idFilter));
     underTest.process(query);
 
-    assertThat(underTest.queries.getCount(), is(1L));
-    assertThat(underTest.comparisonQueries.getCount(), is(1L));
+    assertThat(underTest.queries.count(), is(1.0));
+    assertThat(underTest.comparisonQueries.count(), is(1.0));
   }
 
   @Test
@@ -133,7 +92,7 @@ public class CatalogMetricsTest {
             new QueryImpl(idFilter), Arrays.asList("fedSource1Id", "fedSource2Id"));
     underTest.process(query);
 
-    assertThat(underTest.federatedQueries.getCount(), is(3L));
+    assertThat(underTest.federatedQueries.count(), is(3.0));
   }
 
   @Test
@@ -148,7 +107,7 @@ public class CatalogMetricsTest {
     query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList("localSourceId"));
     underTest.process(query);
 
-    assertThat(underTest.federatedQueries.getCount(), is(0L));
+    assertThat(underTest.federatedQueries.count(), is(0.0));
   }
 
   @Test
@@ -159,7 +118,7 @@ public class CatalogMetricsTest {
     QueryRequest query = new QueryRequestImpl(new QueryImpl(geoFilter));
     underTest.process(query);
 
-    assertThat(underTest.spatialQueries.getCount(), is(1L));
+    assertThat(underTest.spatialQueries.count(), is(1.0));
   }
 
   @Test
@@ -169,7 +128,7 @@ public class CatalogMetricsTest {
     QueryRequest query = new QueryRequestImpl(new QueryImpl(temporalFilter));
     underTest.process(query);
 
-    assertThat(underTest.temporalQueries.getCount(), is(1L));
+    assertThat(underTest.temporalQueries.count(), is(1.0));
   }
 
   @Test
@@ -186,7 +145,7 @@ public class CatalogMetricsTest {
     QueryRequest query = new QueryRequestImpl(new QueryImpl(functionFilter));
     underTest.process(query);
 
-    assertThat(underTest.functionQueries.getCount(), is(1L));
+    assertThat(underTest.functionQueries.count(), is(1.0));
   }
 
   @Test
@@ -196,7 +155,7 @@ public class CatalogMetricsTest {
     QueryRequest query = new QueryRequestImpl(new QueryImpl(xpathFilter));
     underTest.process(query);
 
-    assertThat(underTest.xpathQueries.getCount(), is(1L));
+    assertThat(underTest.xpathQueries.count(), is(1.0));
   }
 
   @Test
@@ -206,7 +165,7 @@ public class CatalogMetricsTest {
     QueryRequest query = new QueryRequestImpl(new QueryImpl(fuzzyFilter));
     underTest.process(query);
 
-    assertThat(underTest.fuzzyQueries.getCount(), is(1L));
+    assertThat(underTest.fuzzyQueries.count(), is(1.0));
   }
 
   @Test
@@ -216,8 +175,8 @@ public class CatalogMetricsTest {
 
     underTest.process(response);
 
-    assertThat(underTest.resultCount.getCount(), is(1L));
-    assertThat(underTest.resultCount.getSnapshot().getMean(), is(50.0));
+    assertThat(underTest.resultCount.count(), is(1L));
+    assertThat(underTest.resultCount.mean(), is(50.0));
   }
 
   @Test
@@ -237,10 +196,10 @@ public class CatalogMetricsTest {
 
     underTest.process(response);
 
-    assertThat(underTest.exceptions.getCount(), is(4L));
-    assertThat(underTest.unsupportedQueryExceptions.getCount(), is(1L));
-    assertThat(underTest.sourceUnavailableExceptions.getCount(), is(1L));
-    assertThat(underTest.federationExceptions.getCount(), is(1L));
+    assertThat(underTest.exceptions.count(), is(4.0));
+    assertThat(underTest.unsupportedQueryExceptions.count(), is(1.0));
+    assertThat(underTest.sourceUnavailableExceptions.count(), is(1.0));
+    assertThat(underTest.federationExceptions.count(), is(1.0));
   }
 
   @Test
@@ -254,7 +213,7 @@ public class CatalogMetricsTest {
 
     underTest.process(response);
 
-    assertThat(underTest.createdMetacards.getCount(), is(100L));
+    assertThat(underTest.createdMetacards.count(), is(100.0));
   }
 
   @Test
@@ -268,7 +227,7 @@ public class CatalogMetricsTest {
 
     underTest.process(response);
 
-    assertThat(underTest.updatedMetacards.getCount(), is(100L));
+    assertThat(underTest.updatedMetacards.count(), is(100.0));
   }
 
   @Test
@@ -282,7 +241,7 @@ public class CatalogMetricsTest {
 
     underTest.process(response);
 
-    assertThat(underTest.deletedMetacards.getCount(), is(100L));
+    assertThat(underTest.deletedMetacards.count(), is(100.0));
   }
 
   @Test
@@ -291,6 +250,6 @@ public class CatalogMetricsTest {
 
     underTest.process(response);
 
-    assertThat(underTest.resourceRetrival.getCount(), is(1L));
+    assertThat(underTest.resourceRetrival.count(), is(1.0));
   }
 }

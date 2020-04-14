@@ -528,16 +528,31 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
   }
 
   private String getWktFromGeometry(String geometry, String coordinateOrder) {
+<<<<<<< HEAD
     String wkt = getWktFromGml(geometry, Gml3ToWktImpl.newGml3ToWkt(), coordinateOrder);
+=======
+    String wkt = getWktFromGml(geometry, new org.geotools.gml3.GMLConfiguration(), coordinateOrder);
+>>>>>>> dd5e78aa9f... Add metrics
     if (StringUtils.isNotBlank(wkt)) {
       return wkt;
     }
     LOGGER.debug("Error converting gml to wkt using gml3 configuration. Trying gml2.");
+<<<<<<< HEAD
     return getWktFromGml(geometry, Gml3ToWktImpl.newGml2ToWkt(), coordinateOrder);
   }
 
   private String getWktFromGml(
       final String geometry, final Gml3ToWkt gml3ToWkt, final String featureCoordinateOrder) {
+=======
+    return getWktFromGml(geometry, new org.geotools.gml2.GMLConfiguration(), coordinateOrder);
+  }
+
+  private String getWktFromGml(
+      final String geometry,
+      final Configuration gmlConfiguration,
+      final String featureCoordinateOrder) {
+    final Gml3ToWkt gml3ToWkt = new Gml3ToWktImpl(gmlConfiguration);
+>>>>>>> dd5e78aa9f... Add metrics
     try (final InputStream gmlStream =
         new ByteArrayInputStream(geometry.getBytes(StandardCharsets.UTF_8))) {
       final Object gmlObject = gml3ToWkt.parseXml(gmlStream);

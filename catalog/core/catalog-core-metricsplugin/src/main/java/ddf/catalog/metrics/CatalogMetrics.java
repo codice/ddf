@@ -13,11 +13,6 @@
  */
 package ddf.catalog.metrics;
 
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SlidingTimeWindowReservoir;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateResponse;
@@ -36,11 +31,16 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.Requests;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemInfo;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Catalog plug-in to capture metrics on catalog operations.
@@ -50,94 +50,98 @@ import org.codice.ddf.configuration.SystemInfo;
 public final class CatalogMetrics
     implements PreQueryPlugin, PostQueryPlugin, PostIngestPlugin, PostResourcePlugin {
 
-  protected static final String EXCEPTIONS_SCOPE = "Exceptions";
+  protected static final String METRIC_PREFIX = "ddf.catalog";
 
-  protected static final String QUERIES_SCOPE = "Queries";
+  protected static final String EXCEPTIONS_SCOPE = "exceptions";
 
-  protected static final String INGEST_SCOPE = "Ingest";
+  protected static final String QUERIES_SCOPE = "queries";
 
-  protected static final String RESOURCE_SCOPE = "Resource";
+  protected static final String INGEST_SCOPE = "ingest";
 
-  protected final MetricRegistry metrics = new MetricRegistry();
+  protected static final String RESOURCE_SCOPE = "resource";
 
-  protected final JmxReporter reporter =
-      JmxReporter.forRegistry(metrics).inDomain("ddf.metrics.catalog").build();
+  protected final MeterRegistry meterRegistry;
 
-  protected final Histogram resultCount;
+  protected final DistributionSummary resultCount;
 
-  protected final Meter exceptions;
+  protected final Counter exceptions;
 
-  protected final Meter unsupportedQueryExceptions;
+  protected final Counter unsupportedQueryExceptions;
 
-  protected final Meter sourceUnavailableExceptions;
+  protected final Counter sourceUnavailableExceptions;
 
-  protected final Meter federationExceptions;
+  protected final Counter federationExceptions;
 
-  protected final Meter queries;
+  protected final Counter queries;
 
-  protected final Meter federatedQueries;
+  protected final Counter federatedQueries;
 
-  protected final Meter comparisonQueries;
+  protected final Counter comparisonQueries;
 
-  protected final Meter spatialQueries;
+  protected final Counter spatialQueries;
 
-  protected final Meter xpathQueries;
+  protected final Counter xpathQueries;
 
-  protected final Meter fuzzyQueries;
+  protected final Counter fuzzyQueries;
 
-  protected final Meter functionQueries;
+  protected final Counter functionQueries;
 
-  protected final Meter temporalQueries;
+  protected final Counter temporalQueries;
 
-  protected final Meter createdMetacards;
+  protected final Counter createdMetacards;
 
-  protected final Meter updatedMetacards;
+  protected final Counter updatedMetacards;
 
-  protected final Meter deletedMetacards;
+  protected final Counter deletedMetacards;
 
-  protected final Meter resourceRetrival;
+  protected final Counter resourceRetrival;
 
   private final FilterAdapter filterAdapter;
 
-  public CatalogMetrics(FilterAdapter filterAdapter) {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogMetrics.class);
+
+  public CatalogMetrics(FilterAdapter filterAdapter, MeterRegistryService meterRegistryService) {
 
     this.filterAdapter = filterAdapter;
 
-    resultCount =
-        metrics.register(
-            MetricRegistry.name(QUERIES_SCOPE, "TotalResults"),
-            new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
+    if (meterRegistryService == null) {
+      LOGGER.warn("Meter Registry Service is not available");
+    }
 
-    queries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE));
-    federatedQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Federated"));
-    comparisonQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Comparison"));
-    spatialQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Spatial"));
-    xpathQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Xpath"));
-    fuzzyQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Fuzzy"));
-    temporalQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Temporal"));
-    functionQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Function"));
+    meterRegistry = meterRegistryService.getMeterRegistry();
+    resultCount = meterRegistry.summary(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "totalresults");
 
-    exceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE));
+    queries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE);
+    federatedQueries =
+        meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "federated");
+    comparisonQueries =
+        meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "comparison");
+    spatialQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "spatial");
+    xpathQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "xpath");
+    fuzzyQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "fuzzy");
+    temporalQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "temporal");
+    functionQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "function");
+
+    exceptions = meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE);
     unsupportedQueryExceptions =
-        metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "UnsupportedQuery"));
+        meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE + "." + "unsupportedquery");
     sourceUnavailableExceptions =
-        metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "SourceUnavailable"));
-    federationExceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "Federation"));
+        meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE + "." + "sourceunavailable");
+    federationExceptions =
+        meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE + "." + "federation");
 
-    createdMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Created"));
-    updatedMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Updated"));
-    deletedMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Deleted"));
+    createdMetacards = meterRegistry.counter(METRIC_PREFIX + "." + INGEST_SCOPE + "." + "created");
+    updatedMetacards = meterRegistry.counter(METRIC_PREFIX + "." + INGEST_SCOPE + "." + "updated");
+    deletedMetacards = meterRegistry.counter(METRIC_PREFIX + "." + INGEST_SCOPE + "." + "deleted");
 
-    resourceRetrival = metrics.meter(MetricRegistry.name(RESOURCE_SCOPE));
-
-    reporter.start();
+    resourceRetrival = meterRegistry.counter(METRIC_PREFIX + "." + RESOURCE_SCOPE);
   }
 
   // PostQuery
   @Override
   public QueryResponse process(QueryResponse input)
       throws PluginExecutionException, StopProcessingException {
-    resultCount.update(input.getHits());
+    resultCount.record(input.getHits());
     recordSourceQueryExceptions(input);
 
     return input;
@@ -148,30 +152,30 @@ public final class CatalogMetrics
   public QueryRequest process(QueryRequest input)
       throws PluginExecutionException, StopProcessingException {
     if (isFederated(input)) {
-      federatedQueries.mark();
+      federatedQueries.increment();
     }
-    queries.mark();
+    queries.increment();
 
     QueryTypeFilterDelegate queryType = new QueryTypeFilterDelegate();
     try {
       filterAdapter.adapt(input.getQuery(), queryType);
       if (queryType.isComparison()) {
-        comparisonQueries.mark();
+        comparisonQueries.increment();
       }
       if (queryType.isSpatial()) {
-        spatialQueries.mark();
+        spatialQueries.increment();
       }
       if (queryType.isFuzzy()) {
-        fuzzyQueries.mark();
+        fuzzyQueries.increment();
       }
       if (queryType.isXpath()) {
-        xpathQueries.mark();
+        xpathQueries.increment();
       }
       if (queryType.isTemporal()) {
-        temporalQueries.mark();
+        temporalQueries.increment();
       }
       if (queryType.isFunction()) {
-        functionQueries.mark();
+        functionQueries.increment();
       }
     } catch (UnsupportedQueryException e) {
       // ignore filters not supported by the QueryTypeFilterDelegate
@@ -184,7 +188,7 @@ public final class CatalogMetrics
   @Override
   public CreateResponse process(CreateResponse input) throws PluginExecutionException {
     if (Requests.isLocal(input.getRequest())) {
-      createdMetacards.mark(input.getCreatedMetacards().size());
+      createdMetacards.increment(input.getCreatedMetacards().size());
     }
     return input;
   }
@@ -193,7 +197,7 @@ public final class CatalogMetrics
   @Override
   public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
     if (Requests.isLocal(input.getRequest())) {
-      updatedMetacards.mark(input.getUpdatedMetacards().size());
+      updatedMetacards.increment(input.getUpdatedMetacards().size());
     }
     return input;
   }
@@ -202,7 +206,7 @@ public final class CatalogMetrics
   @Override
   public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
     if (Requests.isLocal(input.getRequest())) {
-      deletedMetacards.mark(input.getDeletedMetacards().size());
+      deletedMetacards.increment(input.getDeletedMetacards().size());
     }
     return input;
   }
@@ -211,7 +215,7 @@ public final class CatalogMetrics
   @Override
   public ResourceResponse process(ResourceResponse input)
       throws PluginExecutionException, StopProcessingException {
-    resourceRetrival.mark();
+    resourceRetrival.increment();
     return input;
   }
 
@@ -228,13 +232,13 @@ public final class CatalogMetrics
       ProcessingDetails next = iterator.next();
       if (next != null && next.getException() != null) {
         if (next.getException() instanceof UnsupportedQueryException) {
-          unsupportedQueryExceptions.mark();
+          unsupportedQueryExceptions.increment();
         } else if (next.getException() instanceof SourceUnavailableException) {
-          sourceUnavailableExceptions.mark();
+          sourceUnavailableExceptions.increment();
         } else if (next.getException() instanceof FederationException) {
-          federationExceptions.mark();
+          federationExceptions.increment();
         }
-        exceptions.mark();
+        exceptions.increment();
       }
     }
 

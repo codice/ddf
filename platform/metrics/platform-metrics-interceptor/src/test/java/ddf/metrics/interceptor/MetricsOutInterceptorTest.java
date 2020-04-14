@@ -17,33 +17,65 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-import org.apache.cxf.Bus;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
+import org.junit.Before;
 import org.junit.Test;
 
 /** @author willisod */
 public class MetricsOutInterceptorTest {
 
   /**
-   * Test method for {@link ddf.metrics.interceptor.MetricsOutInterceptor#MetricsOutInterceptor()} .
+   * Test method for {@link
+   * ddf.metrics.interceptor.MetricsOutInterceptor#MetricsOutInterceptor(MeterRegistryService)} .
    */
+  private Exchange exchange;
+
+  private LatencyTimeRecorder latencyTimeRecorder;
+
+  private Message message;
+
+  private MetricsOutInterceptor metricsOutInterceptor;
+
+  @Before
+  public void init() {
+    MeterRegistry meterRegistry = new SimpleMeterRegistry();
+    MeterRegistryService meterRegistryService = mock(MeterRegistryService.class);
+    when(meterRegistryService.getMeterRegistry()).thenReturn(meterRegistry);
+    metricsOutInterceptor = new MetricsOutInterceptor(meterRegistryService);
+
+    message = mock(Message.class);
+    exchange = spy(ExchangeImpl.class);
+    latencyTimeRecorder = mock(LatencyTimeRecorder.class);
+    when(message.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn(false);
+    when(message.getExchange()).thenReturn(exchange);
+  }
+
   @Test
   public void testMetricsOutInterceptor() {
+    assertEquals(Phase.SEND, metricsOutInterceptor.getPhase());
+  }
 
-    // Perform test
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
-
-    // Validate
-    assertEquals(Phase.SEND, outInterceptor.getPhase());
+  /**
+   * Test method for {@link
+   * ddf.metrics.interceptor.MetricsOutInterceptor#handleMessage(org.apache.cxf.message.Message)} .
+   *
+   * @throws InterruptedException
+   */
+  @Test
+  public void testHandleMessageWithoutExchange() {
+    Message messageWithoutExchange = mock(Message.class);
+    when(messageWithoutExchange.getExchange()).thenReturn(null);
+    metricsOutInterceptor.handleMessage(messageWithoutExchange);
+    verify(messageWithoutExchange, never()).get(Message.PARTIAL_RESPONSE_MESSAGE);
   }
 
   /**
@@ -54,22 +86,10 @@ public class MetricsOutInterceptorTest {
    */
   @Test
   public void testHandleMessageWithPartialResponseMessage() {
-
-    // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
-
-    Message mockMessage = mock(Message.class);
-    Exchange ex = new ExchangeImpl();
-
-    when(mockMessage.getExchange()).thenReturn(ex);
-    when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("true");
-
-    // Perform test
-    outInterceptor.handleMessage(mockMessage);
-
-    // validate that there is not an instance of LatencyTimeRecorder on the
-    // exchange
-    assertNull(ex.get(LatencyTimeRecorder.class));
+    Message partialMessage = mock(Message.class);
+    when(partialMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn(true);
+    metricsOutInterceptor.handleMessage(partialMessage);
+    verify(partialMessage, never()).get(Message.REQUESTOR_ROLE);
   }
 
   /**
@@ -80,28 +100,10 @@ public class MetricsOutInterceptorTest {
    */
   @Test
   public void testHandleMessageWithTwoWayClientMessageWithLatencyTimeRecorder() {
-
-    // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
-
-    Message mockMessage = mock(Message.class);
-    Exchange ex = new ExchangeImpl();
-    Bus mockBus = mock(Bus.class);
-    LatencyTimeRecorder mockLtr = mock(LatencyTimeRecorder.class);
-
-    ex.put(Bus.class, mockBus);
-    ex.put(LatencyTimeRecorder.class, mockLtr);
-
-    when(mockBus.getId()).thenReturn("bus_id");
-    when(mockMessage.getExchange()).thenReturn(ex);
-    when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("false");
-    when(mockMessage.get(Message.REQUESTOR_ROLE)).thenReturn(true);
-
-    // Perform test
-    outInterceptor.handleMessage(mockMessage);
-
-    // validate that LatencyTimeRecorder.beginHandling was called once
-    verify(mockLtr, times(1)).beginHandling();
+    when(message.get(Message.REQUESTOR_ROLE)).thenReturn(true);
+    when(exchange.get(LatencyTimeRecorder.class)).thenReturn(latencyTimeRecorder);
+    metricsOutInterceptor.handleMessage(message);
+    verify(latencyTimeRecorder, times(1)).beginHandling();
   }
 
   /**
@@ -112,27 +114,9 @@ public class MetricsOutInterceptorTest {
    */
   @Test
   public void testHandleMessageWithTwoWayClientMessageWithoutLatencyTimeRecorder() {
-
-    // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
-
-    Message mockMessage = mock(Message.class);
-    Exchange ex = new ExchangeImpl();
-    Bus mockBus = mock(Bus.class);
-
-    ex.put(Bus.class, mockBus);
-
-    when(mockBus.getId()).thenReturn("bus_id");
-    when(mockMessage.getExchange()).thenReturn(ex);
-    when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("false");
-    when(mockMessage.get(Message.REQUESTOR_ROLE)).thenReturn(true);
-
-    // Perform test
-    outInterceptor.handleMessage(mockMessage);
-
-    // validate that an instance of LatencyTimeRecorder was put onto the
-    // exchange
-    assertThat(ex.get(LatencyTimeRecorder.class), instanceOf(LatencyTimeRecorder.class));
+    when(message.get(Message.REQUESTOR_ROLE)).thenReturn(true);
+    metricsOutInterceptor.handleMessage(message);
+    assertThat(exchange.get(LatencyTimeRecorder.class), instanceOf(LatencyTimeRecorder.class));
   }
 
   /**
@@ -143,29 +127,12 @@ public class MetricsOutInterceptorTest {
    */
   @Test
   public void testHandleMessageWithOneWayClientMessage() {
-
-    // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
-
-    Message mockMessage = mock(Message.class);
-    Exchange ex = new ExchangeImpl();
-    Bus mockBus = mock(Bus.class);
-    InterceptorChain mockIc = mock(InterceptorChain.class);
-
-    ex.put(Bus.class, mockBus);
-    ex.setOneWay(true);
-
-    when(mockBus.getId()).thenReturn("bus_id");
-    when(mockMessage.getExchange()).thenReturn(ex);
-    when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("false");
-    when(mockMessage.get(Message.REQUESTOR_ROLE)).thenReturn(true);
-    when(mockMessage.getInterceptorChain()).thenReturn(mockIc);
-
-    // Perform test
-    outInterceptor.handleMessage(mockMessage);
-
-    // validate that LatencyTimeRecorder.beginHandling was called once
-    verify(mockMessage, times(1)).getInterceptorChain();
+    when(message.get(Message.REQUESTOR_ROLE)).thenReturn(true);
+    exchange.setOneWay(true);
+    InterceptorChain interceptorChain = mock(InterceptorChain.class);
+    when(message.getInterceptorChain()).thenReturn(interceptorChain);
+    metricsOutInterceptor.handleMessage(message);
+    verify(message, times(1)).getInterceptorChain();
   }
 
   /**
@@ -175,23 +142,11 @@ public class MetricsOutInterceptorTest {
    * @throws InterruptedException
    */
   @Test
-  public void testHandleMessageWithNonClientMessageWithNullExchange() {
-
-    // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
-
-    Message mockMessage = mock(Message.class);
-
-    when(mockMessage.getExchange()).thenReturn(null);
-    when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("false");
-    when(mockMessage.get(Message.REQUESTOR_ROLE)).thenReturn("false");
-
-    // Perform test
-    outInterceptor.handleMessage(mockMessage);
-
-    // validate that there is not an instance of LatencyTimeRecorder on the
-    // exchange
-    verify(mockMessage, times(1)).getExchange();
+  public void testHandleMessageWithNonClientMessageWithLatencyTimeRecorder() {
+    when(message.get(Message.REQUESTOR_ROLE)).thenReturn(false);
+    when(exchange.get(LatencyTimeRecorder.class)).thenReturn(latencyTimeRecorder);
+    metricsOutInterceptor.handleMessage(message);
+    verify(latencyTimeRecorder, times(1)).endHandling();
   }
 
   /**
@@ -202,26 +157,8 @@ public class MetricsOutInterceptorTest {
    */
   @Test
   public void testHandleMessageWithNonClientMessageWithoutLatencyTimeRecorder() {
-
-    // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
-
-    Message mockMessage = mock(Message.class);
-    Exchange ex = new ExchangeImpl();
-    Bus mockBus = mock(Bus.class);
-
-    ex.put(Bus.class, mockBus);
-
-    when(mockBus.getId()).thenReturn("bus_id");
-    when(mockMessage.getExchange()).thenReturn(ex);
-    when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("false");
-    when(mockMessage.get(Message.REQUESTOR_ROLE)).thenReturn("false");
-
-    // Perform test
-    outInterceptor.handleMessage(mockMessage);
-
-    // validate that there is not an instance of LatencyTimeRecorder on the
-    // exchange
-    assertNull(ex.get(LatencyTimeRecorder.class));
+    when(message.get(Message.REQUESTOR_ROLE)).thenReturn(false);
+    metricsOutInterceptor.handleMessage(message);
+    assertNull(exchange.get(LatencyTimeRecorder.class));
   }
 }

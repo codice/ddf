@@ -24,33 +24,13 @@ package ddf.catalog.source;
  */
 public interface SourceMetrics {
 
-  /** Package name for the JMX MBean where metrics for {@link Source}s are stored. */
-  public static final String MBEAN_PACKAGE_NAME = "ddf.metrics.catalog.source";
+  String METRICS_PREFIX = "ddf.catalog.source";
 
-  /**
-   * Name of the JMX MBean scope for source-level metrics tracking exceptions while querying a
-   * specific {@link Source}
-   */
-  public static final String EXCEPTIONS_SCOPE = "Exceptions";
+  String QUERY_SCOPE = "query";
 
-  /**
-   * Name of the JMX MBean scope for source-level metrics tracking query count while querying a
-   * specific {@link Source}
-   */
-  public static final String QUERIES_SCOPE = "Queries";
+  String REQUEST_TYPE = "request";
 
-  /**
-   * Name of the JMX MBean scope for source-level metrics tracking total results returned while
-   * querying a specific {@link Source}
-   */
-  public static final String QUERIES_TOTAL_RESULTS_SCOPE = "Queries.TotalResults";
+  String RESPONSE_TYPE = "response";
 
-  /**
-   * Update a source-level metric.
-   *
-   * @param sourceId ID of the {@link Source} to update metrics for
-   * @param metricName name of the metric to update
-   * @param incrementAmount amount to increment the metric's count by
-   */
-  public void updateMetric(String sourceId, String metricName, int incrementAmount);
+  String EXCEPTION_TYPE = "exception";
 }

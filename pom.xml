@@ -327,6 +327,8 @@
         <xmlsec.version>2.1.4</xmlsec.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
         <xstream.version>1.4.11.1</xstream.version>
+        <micrometer.version>1.1.5</micrometer.version>
+        <prometheus-client.version>0.5.0</prometheus-client.version>
         <!-- Command line argument properties for the maven-surefire-plugin -->
         <surefire.argline.append />
         <surefire.argline>${jacoco.argline} ${surefire.argline.append} -Xmx1024m -Djava.awt.headless=true -noverify</surefire.argline>

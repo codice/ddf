@@ -361,11 +361,6 @@
                                     <classifier>federation-admin-module</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/admin-metrics-ui/target/metrics-module.jar</file>
-                                    <type>jar</type>
-                                    <classifier>metrics-module</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>packages/admin-security-certificate-ui/target/security-certificate-adminmodule.jar</file>
                                     <type>jar</type>
                                     <classifier>security-certificate-adminmodule</classifier>

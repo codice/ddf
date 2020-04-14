@@ -34,10 +34,12 @@
     <repository>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.catalog.solr/solr-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.opendj.embedded/opendj-embedded-app/${opendj-embedded.app.version}/xml/features</repository>
+    <repository>mvn:ddf.features/metrics-support/${project.version}/xml/features</repository>
 
     <feature name="ddf-boot-features" version="${project.version}"
              description="Features that will be started on container startup.">
         <feature>kernel</feature>
+        <feature>metrics-support-endpoint</feature>
         <feature>platform-paxweb-jettyconfig</feature>
         <feature>security-services-app</feature>
         <feature>ddf-branding</feature>
@@ -59,7 +61,6 @@
         <feature>mime-tika-resolver</feature>
         <feature>security-encryption</feature>
         <feature>security-core-api</feature>
-        <feature>metrics-reporting</feature>
         <feature>metrics-services</feature>
         <feature>security-logger</feature>
         <feature>persistence-core</feature>

@@ -31,6 +31,7 @@
         <module>test-utilities</module>
         <module>karaf</module>
         <module>cxf</module>
+        <module>metrics-support</module>
         <module>migration</module>
         <module>admin</module>
         <module>solr</module>
