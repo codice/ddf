@@ -130,6 +130,7 @@ public class WhoAmI {
           .flatMap(Collection::stream)
           .map(AttributeStatement::getAttributes)
           .flatMap(Collection::stream)
+          .filter(WhoAmI::attributeValuesAreNonNull)
           .collect(
               Collectors.toMap(
                   Attribute::getName,
@@ -201,5 +202,9 @@ public class WhoAmI {
     public Map<String, SortedSet<String>> getClaims() {
       return claims;
     }
+  }
+
+  private static boolean attributeValuesAreNonNull(Attribute attribute) {
+    return attribute.getValues().stream().noneMatch(Objects::isNull);
   }
 }
