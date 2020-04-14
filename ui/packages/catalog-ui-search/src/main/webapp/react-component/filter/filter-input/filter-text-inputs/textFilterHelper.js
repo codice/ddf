@@ -14,5 +14,5 @@
  **/
 
 export const deserializeValue = value => {
-  return (typeof value === 'object' ? value.value : value) || ''
+  return (typeof value === 'object' && value !== null ? value.value : value) || ''
 }

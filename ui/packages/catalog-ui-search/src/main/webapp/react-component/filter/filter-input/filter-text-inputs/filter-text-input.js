@@ -17,7 +17,7 @@ import ExpandingTextInput from '../../../inputs/expanding-text-input'
 import { deserializeValue } from './textFilterHelper'
 
 const TextInput = props => {
-  const [value, setValue] = useState(deserializeValue(props))
+  const [value, setValue] = useState(deserializeValue(props.value))
 
   useEffect(
     () => {
