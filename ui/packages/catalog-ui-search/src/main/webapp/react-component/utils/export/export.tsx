@@ -74,6 +74,9 @@ export const getExportResult = (result: any) => {
   return {
     id: getResultId(result),
     source: getResultSourceId(result),
+    attributes: Object.keys(
+      result.get('metacard').get('properties').attributes
+    ),
   }
 }
 
@@ -85,10 +88,11 @@ export const getExportOptions = async (type: Transformer) => {
 export const exportResult = async (
   source: string,
   id: string,
-  transformer: string
+  transformer: string,
+  attributes: string
 ) => {
   return await fetch(
-    `/services/catalog/sources/${source}/${id}?transform=${transformer}`
+    `/services/catalog/sources/${source}/${id}?transform=${transformer}&columnOrder=${attributes}`
   )
 }
 
