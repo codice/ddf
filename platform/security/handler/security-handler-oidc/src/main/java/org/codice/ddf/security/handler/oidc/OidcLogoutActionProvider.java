@@ -23,12 +23,15 @@ import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.impl.SubjectUtils;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.cxf.common.util.StringUtils;
+import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.pac4j.core.context.J2EContext;
@@ -113,14 +116,35 @@ public class OidcLogoutActionProvider implements ActionProvider {
             }
           });
 
+      URIBuilder urlBuilder =
+          new URIBuilder(SystemBaseUrl.EXTERNAL.constructUrl("/oidc/logout", true));
+      String referer = request.getHeader("Referer");
+      if (!StringUtils.isEmpty(referer)) {
+        String[] parts;
+        if (referer.contains("prevurl")) {
+          parts = referer.split("\\?prevurl=");
+        } else {
+          parts = referer.split("\\?service=");
+        }
+
+        if (parts.length > 1) {
+          String previousUrl = parts[1];
+
+          if (previousUrl.startsWith("/")) {
+            previousUrl = SystemBaseUrl.EXTERNAL.constructUrl(previousUrl, false);
+          }
+          urlBuilder.addParameter("prevurl", previousUrl);
+        }
+      }
+
       RedirectAction logoutAction =
           logoutActionBuilder.getLogoutAction(
-              j2EContext, oidcProfile, SystemBaseUrl.EXTERNAL.constructUrl("/oidc/logout", true));
+              j2EContext, oidcProfile, urlBuilder.build().toString());
 
       logoutUrlString = logoutAction.getLocation();
 
       logoutUrl = new URL(logoutUrlString);
-    } catch (MalformedURLException e) {
+    } catch (MalformedURLException | URISyntaxException e) {
       LOGGER.info("Unable to resolve URL: {}", logoutUrlString);
     } catch (ClassCastException e) {
       LOGGER.debug("Unable to cast parameter to Map<String, Object>, {}", subjectMap, e);

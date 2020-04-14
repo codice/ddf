@@ -29,7 +29,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.handler.SessionToken;
 import org.codice.ddf.security.logout.service.LogoutService;
@@ -75,18 +74,7 @@ public class LogoutServiceImpl implements LogoutService {
         actionProperties.put("title", action.getTitle());
         actionProperties.put("auth", displayName);
         actionProperties.put("description", action.getDescription());
-
-        StringBuilder urlBuilder = new StringBuilder(action.getUrl().toString());
-        String referer = request.getHeader("Referer");
-        if (!StringUtils.isEmpty(referer)) {
-          String[] parts = referer.split("\\?prevurl=");
-          if (parts.length > 1) {
-            String previousUrl = parts[1];
-            urlBuilder.append("?prevurl=");
-            urlBuilder.append(previousUrl);
-          }
-        }
-        actionProperties.put("url", urlBuilder.toString());
+        actionProperties.put("url", action.getUrl().toString());
       }
     }
 

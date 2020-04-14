@@ -979,12 +979,12 @@ public class TestOidc extends AbstractIntegrationTest {
             .redirects()
             .follow(false)
             .expect()
-            .statusCode(307)
+            .statusCode(303)
             .when()
             .get(requestParams.get("post_logout_redirect_uri"));
 
     String location = logoutResponse.header(LOCATION);
-    assertThat(location, is(SECURE_ROOT + HTTPS_PORT.getPort() + "/logout"));
+    assertThat(location, is(SECURE_ROOT + HTTPS_PORT.getPort() + "/logout/logout-response.html"));
 
     // Verify that we're not logged in
     Map<String, Object> userInfoList = getUserInfo(jsessionidValue);
@@ -1072,7 +1072,7 @@ public class TestOidc extends AbstractIntegrationTest {
         .redirects()
         .follow(false)
         .expect()
-        .statusCode(307)
+        .statusCode(303)
         .when()
         .get(LOGOUT_URL.getUrl());
 

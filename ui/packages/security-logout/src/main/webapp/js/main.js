@@ -40,38 +40,5 @@
 })()
 
 function logout(action) {
-  let url = action.url
-  const queryParams = parseQueryParams()
-
-  if (queryParams && queryParams['service']) {
-    url = url.concat('?prevurl=').concat(queryParams['service'])
-  } else if (queryParams && queryParams['prevurl']) {
-    url = url
-      .concat('?prevurl=')
-      .concat(
-        window.location.href.replace(/\/logout\/.*/, queryParams['prevurl'])
-      )
-  }
-
-  window.location.href = url
-}
-
-function parseQueryParams() {
-  const searchString = (window.location.search + '').split('?')
-
-  if (searchString[1]) {
-    const searchParams = searchString[1].split('&')
-
-    return searchParams.reduce((map, param) => {
-      const paramKvPair = param.split('=')
-
-      if (paramKvPair.length === 2) {
-        map[paramKvPair[0]] = decodeURIComponent(
-          paramKvPair[1].split('+').join(' ')
-        )
-      }
-
-      return map
-    }, {})
-  }
+  window.location.href = action.url
 }

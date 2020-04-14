@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.logging.log4j.util.Strings;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.configuration.SystemBaseUrl;
@@ -51,13 +50,8 @@ public class LocalLogoutServlet extends HttpServlet {
     invalidateSession(request, response);
 
     try {
-      URIBuilder redirectUrlBuilder;
-
-      if (Strings.isNotBlank(SystemBaseUrl.EXTERNAL.getRootContext())) {
-        redirectUrlBuilder = new URIBuilder(SystemBaseUrl.EXTERNAL.getRootContext() + redirectUri);
-      } else {
-        redirectUrlBuilder = new URIBuilder(redirectUri);
-      }
+      URIBuilder redirectUrlBuilder =
+          new URIBuilder(SystemBaseUrl.EXTERNAL.constructUrl(redirectUri));
       redirectUrlBuilder.addParameter("mustCloseBrowser", "true");
 
       response.sendRedirect(redirectUrlBuilder.build().toString());

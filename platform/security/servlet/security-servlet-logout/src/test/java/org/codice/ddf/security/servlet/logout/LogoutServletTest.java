@@ -83,7 +83,7 @@ public class LogoutServletTest {
       fail(e.getMessage());
     }
     verify(httpSession).invalidate();
-    verify(response).sendRedirect("/logout?mustCloseBrowser=true");
+    verify(response).sendRedirect("https://localhost:8993/logout?mustCloseBrowser=true");
   }
 
   @Test()
