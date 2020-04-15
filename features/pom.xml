@@ -26,7 +26,6 @@
 
     <modules>
         <module>cxf</module>
-        <module>karaf</module>
         <module>camel</module>
         <module>kernel</module>
         <module>test-utilities</module>

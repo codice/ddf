@@ -135,7 +135,6 @@
         <mockito-all.version>1.10.19</mockito-all.version>
         <pax.exam.version>4.13.2.CODICE</pax.exam.version>
         <pax.url.version>2.6.1</pax.url.version>
-        <pax.transx.version>0.4.1</pax.transx.version>
         <pax.web.version>7.2.11</pax.web.version>
         <restito.version>0.8.2</restito.version>
         <xmlunit.version>1.4</xmlunit.version>
