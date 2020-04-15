@@ -104,6 +104,10 @@
                     <groupId>org.mongodb</groupId>
                     <artifactId>mongo-java-driver</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.jooq</groupId>
+                    <artifactId>jooq</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
     </dependencies>
@@ -175,6 +179,9 @@
                             !reactor.*,
                             !rx.*,
                             !com.hazelcast.*,
+                            !com.mongodb.*,
+                            !org.apache.kafka.*,
+                            !org.jooq.*,
                             *
                         </Import-Package>
                     </instructions>
