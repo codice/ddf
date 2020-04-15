@@ -29,6 +29,7 @@ const Common = require('../../js/Common.js')
 const properties = require('../../js/properties.js')
 const plugin = require('plugins/query-settings')
 const ResultForm = require('../result-form/result-form.js')
+const user = require('../singletons/user-instance.js')
 import * as React from 'react'
 import RadioComponent from '../../react-component/input-wrappers/radio'
 import { showErrorMessages } from '../../react-component/utils/validation'
@@ -68,6 +69,9 @@ module.exports = plugin(
         'change:added',
         this.handleFormUpdate
       )
+      this.listenTo(user.getQuerySettings(), 'change:defaultResultFormId', () =>
+        this.renderResultForms(this.resultFormCollection.filteredList)
+      )
     },
     handleFormUpdate(newForm) {
       this.renderResultForms(this.resultFormCollection.filteredList)
@@ -92,15 +96,19 @@ module.exports = plugin(
       })
       resultTemplates = _.uniq(resultTemplates, 'id')
       let lastIndex = resultTemplates.length - 1
+      let defaultResultForm = resultTemplates.find(
+        form => form.id === user.getQuerySettings().get('defaultResultFormId')
+      )
+      const propertyValue =
+        this.model.get('detail-level') ||
+        (defaultResultForm && defaultResultForm.value) ||
+        (resultTemplates &&
+          resultTemplates[lastIndex] &&
+          resultTemplates[lastIndex].value)
       let detailLevelProperty = new Property({
         label: 'Result Form',
         enum: resultTemplates,
-        value: [
-          this.model.get('detail-level') ||
-            (resultTemplates &&
-              resultTemplates[lastIndex] &&
-              resultTemplates[lastIndex].value),
-        ],
+        value: [propertyValue],
         showValidationIssues: false,
         id: 'Result Form',
       })

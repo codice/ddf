@@ -89,6 +89,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   showForm(form) {
     const options = form.options || {}
+    if (this.model.get('detail-level') === undefined) {
+      this.model.set('detail-level', 'allFields')
+    }
     this.queryContent.show(
       new form.view({
         model: this.model,
