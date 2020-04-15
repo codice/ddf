@@ -79,10 +79,10 @@ export function validateGeo(key: string, value: any) {
       return validateDmsLatLon(LONGITUDE, value)
     case 'usng':
       return validateUsng(value)
-    case 'utmUpsEasting':
-    case 'utmUpsNorthing':
-    case 'utmUpsZone':
-    case 'utmUpsHemisphere':
+    case 'easting':
+    case 'northing':
+    case 'zoneNumber':
+    case 'hemisphere':
       return validateUtmUps(key, value)
     case 'radius':
     case 'lineWidth':

@@ -339,6 +339,7 @@ const BoundingBoxUtmUps = props => {
 
   function validateUtmUps(field, key, value) {
     if (field === 'upperLeft') {
+      upperLeft[key] = value
       setUpperLeftError(validateGeo(key, upperLeft))
       // If lower right was previously located above upper left,
       // perform an update to the error message in case that has changed
@@ -348,6 +349,7 @@ const BoundingBoxUtmUps = props => {
         )
       }
     } else {
+      lowerRight[key] = value
       const { error, message } = validateGeo(key, lowerRight)
       setLowerRightError({ error, message })
       if (!error) {
@@ -375,11 +377,7 @@ const BoundingBoxUtmUps = props => {
                 setState({ ['utmUpsUpperLeftEasting']: value })
               }
               onBlur={() =>
-                validateUtmUps(
-                  'upperLeft',
-                  'utmUpsEasting',
-                  utmUpsUpperLeftEasting
-                )
+                validateUtmUps('upperLeft', 'easting', utmUpsUpperLeftEasting)
               }
               addon="m"
             />
@@ -394,33 +392,23 @@ const BoundingBoxUtmUps = props => {
                 setState({ ['utmUpsUpperLeftNorthing']: value })
               }
               onBlur={() =>
-                validateUtmUps(
-                  'upperLeft',
-                  'utmUpsNorthing',
-                  utmUpsUpperLeftNorthing
-                )
+                validateUtmUps('upperLeft', 'northing', utmUpsUpperLeftNorthing)
               }
               addon="m"
             />
             <Zone
               value={utmUpsUpperLeftZone}
-              onChange={value => setState({ ['utmUpsUpperLeftZone']: value })}
-              onBlur={() =>
-                validateUtmUps('upperLeft', 'utmUpsZone', utmUpsUpperLeftZone)
-              }
+              onChange={value => {
+                setState({ ['utmUpsUpperLeftZone']: value })
+                validateUtmUps('upperLeft', 'zoneNumber', value)
+              }}
             />
             <Hemisphere
               value={utmUpsUpperLeftHemisphere}
-              onChange={value =>
+              onChange={value => {
                 setState({ ['utmUpsUpperLeftHemisphere']: value })
-              }
-              onBlur={() =>
-                validateUtmUps(
-                  'upperLeft',
-                  'utmUpsHemisphere',
-                  utmUpsUpperLeftHemisphere
-                )
-              }
+                validateUtmUps('upperLeft', 'hemisphere', value)
+              }}
             />
           </div>
         </Group>
@@ -441,11 +429,7 @@ const BoundingBoxUtmUps = props => {
                 setState({ ['utmUpsLowerRightEasting']: value })
               }
               onBlur={() =>
-                validateUtmUps(
-                  'lowerRight',
-                  'utmUpsEasting',
-                  utmUpsLowerRightEasting
-                )
+                validateUtmUps('lowerRight', 'easting', utmUpsLowerRightEasting)
               }
               addon="m"
             />
@@ -462,7 +446,7 @@ const BoundingBoxUtmUps = props => {
               onBlur={() =>
                 validateUtmUps(
                   'lowerRight',
-                  'utmUpsNorthing',
+                  'northing',
                   utmUpsLowerRightNorthing
                 )
               }
@@ -470,23 +454,17 @@ const BoundingBoxUtmUps = props => {
             />
             <Zone
               value={utmUpsLowerRightZone}
-              onChange={value => setState({ ['utmUpsLowerRightZone']: value })}
-              onBlur={() =>
-                validateUtmUps('lowerRight', 'utmUpsZone', utmUpsLowerRightZone)
-              }
+              onChange={value => {
+                setState({ ['utmUpsLowerRightZone']: value })
+                validateUtmUps('lowerRight', 'zoneNumber', value)
+              }}
             />
             <Hemisphere
               value={utmUpsLowerRightHemisphere}
-              onChange={value =>
+              onChange={value => {
                 setState({ ['utmUpsLowerRightHemisphere']: value })
-              }
-              onBlur={() =>
-                validateUtmUps(
-                  'lowerRight',
-                  'utmUpsHemisphere',
-                  utmUpsLowerRightHemisphere
-                )
-              }
+                validateUtmUps('lowerRight', 'hemisphere', value)
+              }}
             />
           </div>
         </Group>
