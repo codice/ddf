@@ -13,34 +13,18 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
         >
-        
+
     <!--
     NOTE: ConnectedSources are explicitly not monitored because their sourceId overlaps
-    with the local catalog provider. 
+    with the local catalog provider.
     -->
 
     <reference id="meterRegistryService" interface="org.codice.ddf.lib.metrics.registry.MeterRegistryService" availability="mandatory"/>
 
-    <reference-list id="catalogProviders" interface="ddf.catalog.source.CatalogProvider"
-                    availability="optional">
-    	<reference-listener
-                ref="sourceMetrics"
-                bind-method="addingSource"
-                unbind-method="deletingSource"/>
-    </reference-list>
-        
-    <reference-list id="federatedSourceList" interface="ddf.catalog.source.FederatedSource"
-                    availability="optional">
-    	<reference-listener
-                ref="sourceMetrics"
-                bind-method="addingSource"
-                unbind-method="deletingSource"/>
-    </reference-list>
-    
     <bean id="sourceMetrics" class="ddf.catalog.metrics.source.SourceMetricsImpl">
         <argument ref="meterRegistryService" />
     </bean>
-  
+
     <service ref="sourceMetrics" interface="ddf.catalog.plugin.PreFederatedQueryPlugin"/>
     <service ref="sourceMetrics" interface="ddf.catalog.plugin.PostFederatedQueryPlugin"/>
 
