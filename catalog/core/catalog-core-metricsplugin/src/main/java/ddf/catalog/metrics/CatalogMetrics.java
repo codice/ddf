@@ -101,7 +101,6 @@ public final class CatalogMetrics
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogMetrics.class);
 
   public CatalogMetrics(FilterAdapter filterAdapter, MeterRegistryService meterRegistryService) {
-
     this.filterAdapter = filterAdapter;
 
     if (meterRegistryService == null) {
@@ -220,8 +219,7 @@ public final class CatalogMetrics
   }
 
   private void recordSourceQueryExceptions(QueryResponse response) {
-    Set<ProcessingDetails> processingDetails =
-        (Set<ProcessingDetails>) response.getProcessingDetails();
+    Set<ProcessingDetails> processingDetails = response.getProcessingDetails();
 
     if (processingDetails == null || processingDetails.iterator() == null) {
       return;
@@ -241,8 +239,6 @@ public final class CatalogMetrics
         exceptions.increment();
       }
     }
-
-    return;
   }
 
   private boolean isFederated(QueryRequest queryRequest) {

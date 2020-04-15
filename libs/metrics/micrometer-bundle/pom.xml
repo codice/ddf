@@ -74,7 +74,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>com.netflix.hystrix</groupId>
-                    <artifactId>hystrix=core</artifactId>
+                    <artifactId>hystrix-core</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>

@@ -13,24 +13,18 @@
  */
 package ddf.catalog.source;
 
-/**
- * The interface {@link SourceMetrics} used by the {@link FederationStrategy} to update metrics on
- * individual {@link Source}s as queries and exceptions occur when the {@link Source} is accessed.
- *
- * <p><b> This code is experimental. While this interface is functional and tested, it may change or
- * be removed in a future version of the library. </b>
- *
- * @author rodgersh
- */
-public interface SourceMetrics {
+/** Contains metric names related to {@link Source}s. */
+public class SourceMetrics {
 
-  String METRICS_PREFIX = "ddf.catalog.source";
+  private SourceMetrics() {}
 
-  String QUERY_SCOPE = "query";
+  public static final String METRICS_PREFIX = "ddf.catalog.source";
 
-  String REQUEST_TYPE = "request";
+  public static final String QUERY_SCOPE = "query";
 
-  String RESPONSE_TYPE = "response";
+  public static final String REQUEST_TYPE = "request";
 
-  String EXCEPTION_TYPE = "exception";
+  public static final String RESPONSE_TYPE = "response";
+
+  public static final String EXCEPTION_TYPE = "exception";
 }

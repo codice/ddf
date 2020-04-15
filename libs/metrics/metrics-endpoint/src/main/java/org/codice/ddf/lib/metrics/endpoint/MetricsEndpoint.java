@@ -29,12 +29,12 @@ import org.slf4j.LoggerFactory;
 public class MetricsEndpoint {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetricsEndpoint.class);
-  private MeterRegistryService meterRegistryService;
+  private final MeterRegistryService meterRegistryService;
 
   public MetricsEndpoint(MeterRegistryService meterRegistryService) {
     LOGGER.debug("Starting Metrics endpoint...");
     if (meterRegistryService == null) {
-      LOGGER.debug("MeterRegistryService is null!");
+      LOGGER.warn("MeterRegistryService is null!");
     }
     this.meterRegistryService = meterRegistryService;
   }

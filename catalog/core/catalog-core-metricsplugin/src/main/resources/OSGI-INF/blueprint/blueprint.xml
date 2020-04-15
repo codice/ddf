@@ -12,19 +12,20 @@
  **/
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    
-    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
-    <reference id="meterRegistryService" interface="org.codice.ddf.lib.metrics.registry.MeterRegistryService" availability="mandatory"/>
+
+  <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+  <reference id="meterRegistryService"
+    interface="org.codice.ddf.lib.metrics.registry.MeterRegistryService" availability="mandatory"/>
 
 
-	<bean id="catalogMetrics" class="ddf.catalog.metrics.CatalogMetrics">
-        <argument ref="filterAdapter"/>
-        <argument ref="meterRegistryService"/>
-    </bean>
+  <bean id="catalogMetrics" class="ddf.catalog.metrics.CatalogMetrics">
+    <argument ref="filterAdapter"/>
+    <argument ref="meterRegistryService"/>
+  </bean>
 
-    <service ref="catalogMetrics" interface="ddf.catalog.plugin.PreQueryPlugin"/>
-	<service ref="catalogMetrics" interface="ddf.catalog.plugin.PostQueryPlugin"/>
-    <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostIngestPlugin"/>
-    <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostResourcePlugin"/>
+  <service ref="catalogMetrics" interface="ddf.catalog.plugin.PreQueryPlugin"/>
+  <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostQueryPlugin"/>
+  <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostIngestPlugin"/>
+  <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostResourcePlugin"/>
 
 </blueprint>
