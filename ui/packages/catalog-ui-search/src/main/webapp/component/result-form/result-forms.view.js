@@ -18,28 +18,15 @@ const lightboxResultInstance = require('../lightbox/result/lightbox.result.view.
 const lightboxInstance = lightboxResultInstance.generateNewLightbox()
 const QueryResult = require('./result-form.view.js')
 const user = require('../singletons/user-instance')
-const announcement = require('../announcement')
 
 module.exports = SearchFormViews.extend({
   initialize() {
     SearchFormViews.prototype.initialize.call(this)
   },
   changeView() {
-    if (!user.canWrite(this.model)) {
-      announcement.announce(
-        {
-          title: 'Error',
-          message:
-            'You have read-only permission on result form ' +
-            this.model.get('title') +
-            '.',
-          type: 'error',
-        },
-        3000
-      )
-      return
-    }
-
+    this.model.set({
+      readOnly: !user.canWrite(this.model),
+    })
     lightboxInstance.model.updateTitle(this.model.get('title'))
     lightboxInstance.model.open()
     lightboxInstance.showContent(
