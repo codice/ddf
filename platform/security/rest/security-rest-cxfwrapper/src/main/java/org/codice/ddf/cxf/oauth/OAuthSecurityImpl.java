@@ -42,9 +42,12 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MultivaluedMap;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.rs.security.oauth2.client.Consumer;
@@ -327,6 +330,15 @@ public class OAuthSecurityImpl implements OAuthSecurity {
 
     if (response.getStatus() != HttpStatus.SC_OK) {
       LOGGER.debug("Unable to retrieve system access token. {}", body);
+      if (LOGGER.isTraceEnabled()) {
+        sanitizeFormParameters(formParam);
+        LOGGER.trace(
+            "Unable to retrieve system access token. Headers: {}, Request: {}, Status: {}, Response: {}",
+            webClient.getHeaders(),
+            formParam.asMap(),
+            response.getStatus(),
+            body);
+      }
       return null;
     }
 
@@ -358,6 +370,23 @@ public class OAuthSecurityImpl implements OAuthSecurity {
       LOGGER.debug("Error storing user token.");
     }
     return accessToken;
+  }
+
+  private void sanitizeFormParameters(Form formParam) {
+    MultivaluedMap<String, String> formParamMap = formParam.asMap();
+    List<String> passwords = formParamMap.get(PASSWORD);
+    if (passwords != null && passwords.size() == 1) {
+      String password = passwords.get(0);
+      if (isEncrypted(password)) {
+        LOGGER.warn("Trying to use an encrypted password to retrieve system access token.");
+      }
+      formParamMap.replace(
+          PASSWORD, Collections.singletonList(StringUtils.repeat("*", password.length())));
+    }
+  }
+
+  private boolean isEncrypted(String s) {
+    return s.startsWith("ENC(") && s.endsWith(")");
   }
 
   /**
