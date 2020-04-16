@@ -36,8 +36,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -49,22 +47,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import lux.Config;
-import lux.xml.SaxonDocBuilder;
-import lux.xml.XmlReader;
-import lux.xml.tinybin.TinyBinary;
-import net.sf.saxon.s9api.Processor;
-import net.sf.saxon.s9api.SaxonApiException;
-import net.sf.saxon.s9api.XdmNode;
-import net.sf.saxon.tree.tiny.TinyDocumentImpl;
-import net.sf.saxon.tree.tiny.TinyTree;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -97,8 +85,6 @@ import org.slf4j.LoggerFactory;
  */
 public class DynamicSchemaResolver implements ConfigurationListener {
 
-  private static final String LUX_XML_FIELD_NAME = "lux_xml";
-
   private static final String SCORE_FIELD_NAME = "score";
 
   private static final int TOKEN_MAXIMUM_BYTES = 32766;
@@ -129,14 +115,11 @@ public class DynamicSchemaResolver implements ConfigurationListener {
           SOLR_CLOUD_VERSION_FIELD,
           SchemaFields.METACARD_TYPE_FIELD_NAME,
           SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME,
-          LUX_XML_FIELD_NAME,
           SCORE_FIELD_NAME);
 
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
-
-  private Function<TinyTree, TinyBinary> tinyBinaryFunction;
 
   private static int metadataMaximumBytes;
 
@@ -175,17 +158,8 @@ public class DynamicSchemaResolver implements ConfigurationListener {
   private Cache<String, byte[]> metacardTypeNameToSerialCache =
       CacheBuilder.newBuilder().maximumSize(4096).initialCapacity(64).build();
 
-  private Processor processor = new Processor(new Config());
-
-  public DynamicSchemaResolver(
-      List<String> additionalFields, Function<TinyTree, TinyBinary> tinyBinaryFunction) {
-    this(additionalFields);
-    this.tinyBinaryFunction = tinyBinaryFunction;
-  }
-
   public DynamicSchemaResolver(List<String> additionalFields) {
     ConfigurationStore.getInstance().addConfigurationListener(this);
-    this.tinyBinaryFunction = this::newTinyBinary;
     this.schemaFields = new SchemaFields();
     metadataMaximumBytes = getMetadataSizeLimit();
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
@@ -369,26 +343,6 @@ public class DynamicSchemaResolver implements ConfigurationListener {
       }
     }
 
-    if (!ConfigurationStore.getInstance().isDisableTextPath()
-        && StringUtils.isNotBlank(metacard.getMetadata())) {
-      String metadata = metacard.getMetadata();
-      if (metadata.getBytes().length < metadataMaximumBytes) {
-        try {
-          byte[] luxXml = createTinyBinary(metadata);
-          solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
-        } catch (XMLStreamException | SaxonApiException | IOException | RuntimeException e) {
-          LOGGER.debug(
-              "Unable to parse metadata field.  XPath support unavailable for metacard {}",
-              metacard.getId(),
-              e);
-        }
-      } else {
-        LOGGER.debug(
-            "Can't create binary data from metadata larger than metadata size limit. ID: {}",
-            metacard.getId());
-      }
-    }
-
     /*
      * Lastly the metacardType must be added to the solr document. These are internal fields
      */
@@ -477,27 +431,6 @@ public class DynamicSchemaResolver implements ConfigurationListener {
     }
 
     return centerPoint.getY() + "," + centerPoint.getX();
-  }
-
-  private byte[] createTinyBinary(String xml)
-      throws XMLStreamException, SaxonApiException, IOException {
-    SaxonDocBuilder builder = new SaxonDocBuilder(processor);
-
-    XmlReader xmlReader = new XmlReader();
-    xmlReader.addHandler(builder);
-    xmlReader.setStripNamespaces(true);
-    xmlReader.read(IOUtils.toInputStream(xml, Charset.defaultCharset().name()));
-
-    XdmNode node = builder.getDocument();
-
-    TinyTree tinyTree = ((TinyDocumentImpl) node.getUnderlyingNode()).getTree();
-    TinyBinary tinyBinary = tinyBinaryFunction.apply(tinyTree);
-
-    return tinyBinary.getBytes();
-  }
-
-  private TinyBinary newTinyBinary(TinyTree tinyTree) {
-    return new TinyBinary(tinyTree, StandardCharsets.UTF_8);
   }
 
   /**

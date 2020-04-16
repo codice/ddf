@@ -101,15 +101,6 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
   }
 
   /**
-   * Disables text path indexing for every subsequent update or insert.
-   *
-   * @param disableTextPath {@code true} to turn off text path indexing
-   */
-  public void setDisableTextPath(boolean disableTextPath) {
-    ConfigurationStore.getInstance().setDisableTextPath(disableTextPath);
-  }
-
-  /**
    * Sets the fields that may be used for anyText expansion.
    *
    * @param anyTextFieldWhitelist

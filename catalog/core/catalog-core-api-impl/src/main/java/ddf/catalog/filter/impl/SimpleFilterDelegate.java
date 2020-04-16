@@ -59,6 +59,7 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
     return defaultOperation(propertyName, literal, literalClass, temporalPropertyOperation);
   }
 
+  @Deprecated
   public <S> T xpathOperation(
       String xpath,
       S literal,

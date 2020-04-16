@@ -1035,6 +1035,7 @@ public abstract class FilterDelegate<T> {
    * @param xpath XPath expression
    * @return result of XPath node existence
    */
+  @Deprecated
   public T xpathExists(String xpath) {
     throw new UnsupportedOperationException(
         "xpathExists(String) not supported by org.opengis.filter.Filter Delegate.");
@@ -1049,6 +1050,7 @@ public abstract class FilterDelegate<T> {
    * @return result of regular expression operation on XPath node
    * @see FilterDelegate#propertyIsLike(String, String, boolean)
    */
+  @Deprecated
   public T xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
     throw new UnsupportedOperationException(
         "xpathIsLike(String,String,boolean) not supported by org.opengis.filter.Filter Delegate.");
@@ -1062,6 +1064,7 @@ public abstract class FilterDelegate<T> {
    * @param literal value to compare
    * @return result of fuzzy operation on XPath node
    */
+  @Deprecated
   public T xpathIsFuzzy(String xpath, String literal) {
     throw new UnsupportedOperationException(
         "xpathIsFuzzy(String,String) not supported by org.opengis.filter.Filter Delegate.");

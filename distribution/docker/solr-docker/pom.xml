@@ -41,20 +41,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-xpath</artifactId>
-            <version>${project.version}</version>
-            <!-- Exclude all transitives unnecessary transitives. 
-              This ensures that extra files are not sent to the docker daemon
-              as part of the build context. -->
-            <exclusions>
-                <exclusion>
-                    <artifactId>*</artifactId>
-                    <groupId>*</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-schema</artifactId>
             <version>${project.version}</version>
         </dependency>

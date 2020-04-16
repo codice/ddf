@@ -142,20 +142,6 @@
                             <!-- used by solr-factory implementation -->
                             org.apache.solr.client.solrj.embedded;version=${solr.version},
 
-                            <!-- used by  lux -->
-                            org.apache.lucene.analysis.charfilter;version=${solr.version},
-                            org.apache.lucene.analysis.core;version=${solr.version},
-                            org.apache.lucene.analysis.miscellaneous;version=${solr.version},
-                            org.apache.lucene.analysis.standard;version=${solr.version},
-                            org.apache.lucene.analysis.tokenattributes;version=${solr.version},
-                            org.apache.lucene.queryparser.classic;version=${solr.version},
-                            org.apache.lucene.queryparser.ext;version=${solr.version},
-                            org.apache.lucene.queryparser.xml;version=${solr.version},
-                            org.apache.lucene.search.spans;version=${solr.version},
-                            org.apache.lucene.store;version=${solr.version},
-                            org.apache.lucene.util;version=${solr.version},
-                            org.apache.solr.parser;version=${solr.version},
-
                             org.locationtech.spatial4j.*;version=${solr.spatial4j.version}
                         </Export-Package>
                         <Embed-Dependency>
@@ -169,8 +155,7 @@
                             zookeeper,
                             zookeeper-jute,
                             spatial4j,
-                            jts-core,
-                            lux
+                            jts-core
                         </Embed-Dependency>
                         <Import-Package>
                             org.slf4j;version=${org.slf4j.version},

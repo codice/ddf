@@ -41,10 +41,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-xpath</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-factory</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -94,11 +90,6 @@
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
             <version>${jts.spatial4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>Saxon-HE</artifactId>
-            <version>${lux.saxon.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

@@ -1605,18 +1605,6 @@
           ],
           "type": 11,
           "cardinality": 0
-        },
-        {
-          "id": "disableTextPath",
-          "optionLabels": [],
-          "description": "Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance.",
-          "optionValues": [],
-          "name": "Disable Text Path indexing",
-          "defaultValue": [
-            ""
-          ],
-          "type": 11,
-          "cardinality": 0
         }
       ],
       "factory": false

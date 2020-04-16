@@ -90,7 +90,6 @@ public class CatalogMetricsTest {
     underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Federated"));
     underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Comparison"));
     underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Spatial"));
-    underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Xpath"));
     underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Fuzzy"));
     underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Temporal"));
     underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Function"));
@@ -187,16 +186,6 @@ public class CatalogMetricsTest {
     underTest.process(query);
 
     assertThat(underTest.functionQueries.getCount(), is(1L));
-  }
-
-  @Test
-  public void catalogXpathQueryMetric() throws Exception {
-    Filter xpathFilter = filterBuilder.xpath("//node").exists();
-
-    QueryRequest query = new QueryRequestImpl(new QueryImpl(xpathFilter));
-    underTest.process(query);
-
-    assertThat(underTest.xpathQueries.getCount(), is(1L));
   }
 
   @Test

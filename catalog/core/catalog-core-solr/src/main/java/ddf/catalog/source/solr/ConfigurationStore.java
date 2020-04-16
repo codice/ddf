@@ -27,8 +27,6 @@ public class ConfigurationStore {
 
   private boolean forceAutoCommit;
 
-  private boolean disableTextPath;
-
   private boolean inMemory;
 
   private Double nearestNeighborDistanceLimit;
@@ -50,16 +48,6 @@ public class ConfigurationStore {
     }
 
     return uniqueInstance;
-  }
-
-  public boolean isDisableTextPath() {
-    return disableTextPath;
-  }
-
-  public void setDisableTextPath(boolean disableTextPath) {
-    this.disableTextPath = disableTextPath;
-
-    notifyListeners();
   }
 
   public String getDataDirectoryPath() {
