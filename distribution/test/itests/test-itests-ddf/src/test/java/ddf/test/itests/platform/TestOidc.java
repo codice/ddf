@@ -97,7 +97,7 @@ import org.osgi.service.cm.Configuration;
 @ExamReactorStrategy(PerSuite.class)
 public class TestOidc extends AbstractIntegrationTest {
 
-  private static final String OIDC_AUTH_TYPES = "/=OIDC,/solr=SAML|PKI|basic";
+  private static final String OIDC_AUTH_TYPES = "OIDC";
 
   private static final DynamicUrl LOGOUT_REQUEST_URL =
       new DynamicUrl(SERVICE_ROOT, "/logout/actions");
@@ -181,7 +181,8 @@ public class TestOidc extends AbstractIntegrationTest {
       getServiceManager().waitForHttpEndpoint(WHO_AM_I_URL.getUrl());
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
       oldPolicyManagerProps =
-          getSecurityPolicy().configureWebContextPolicy(OIDC_AUTH_TYPES, null, null);
+          getSecurityPolicy()
+              .configureWebContextPolicy(OIDC_AUTH_TYPES, OIDC_AUTH_TYPES, null, null);
 
       // start stub server
       server = new StubServer(Integer.parseInt(IDP_PORT.getPort())).run();

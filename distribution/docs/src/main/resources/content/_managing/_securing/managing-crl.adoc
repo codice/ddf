@@ -57,7 +57,7 @@ Enabling CRL revocation or modifying the CRL file will require a restart of ${br
 . (Replace <CRL_FILENAME> with the file path or URL of the CRL file used in previous step.)
 
 Adding this property will also enable CRL revocation for any context policy implementing PKI authentication.
-For example, adding an authentication policy in the Web Context Policy Manager of `/search=PKI` will disable basic authentication and require a certificate for the search UI.
+For example, setting PKI as the authentication type for web pages in the Web Context Policy Manager will disable basic authentication and require a certificate.
 If a certificate is not in the CRL, it will be allowed through, otherwise it will get a 401 error.
 If no certificate is provided, and guest access is enabled on the web context policy, guest access will be granted.
 
@@ -80,7 +80,7 @@ A local CRL file will be created and the `encryption.properties` and `signature.
 The PKIHandler implements CRL revocation, so any web context that is configured to use PKI authentication will also use CRL revocation if revocation is enabled.
 
 . After enabling revocation (see above), open the *Web Context Policy Manager*.
-. Add or modify a Web Context to use PKI in authentication. For example, enabling CRL for the search ui endpoint would require adding an authorization policy of `/search=PKI`
+. Add or modify the *Authentication Types for Web Pages* and *Authentication Types for Endpoints* configurations to use PKI.
 . If guest access is also required, check the `Allow Guest Access` box in the policy.
 
 With guest access, a user with a revoked certificate will be given a 401 error, but users without a certificate will be able to access the web context as the guest user.

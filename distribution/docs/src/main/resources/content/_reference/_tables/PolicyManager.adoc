@@ -37,11 +37,18 @@
 |true
 |true
 
-|Authentication Types
-|authenticationTypes
+|Authentication Types for Web Pages
+|webAuthenticationTypes
 |String
-|List of authentication types required for each context. List of default valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: /context=AUTH1|AUTH2|AUTH3
-|/=,/admin=PKI|BASIC
+|List of authentication types required for all web pages (these are all context paths except /services). List of valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: AUTH1|AUTH2|AUTH3
+|PKI|BASIC
+|true
+
+|Authentication Types for Endpoints
+|endpointAuthenticationTypes
+|String
+|List of authentication types required for all endpoints (these are context paths that start with /services). List of valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: AUTH1|AUTH2|AUTH3
+|PKI|BASIC
 |true
 
 |Required Attributes

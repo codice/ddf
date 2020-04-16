@@ -1230,7 +1230,7 @@ public class TestFederation extends AbstractIntegrationTest {
   @Test
   public void testRetrievalReliablility() throws Exception {
     try {
-      getSecurityPolicy().configureWebContextPolicy("/=basic,/solr=PKI|basic", null, null);
+      getSecurityPolicy().configureWebContextPolicy("PKI|BASIC", "PKI|BASIC", null, null);
 
       String filename = "product2.txt";
       String metacardId = generateUniqueMetacardId();
@@ -1608,7 +1608,7 @@ public class TestFederation extends AbstractIntegrationTest {
   public void testCancelDownload() throws Exception {
     try {
       getCatalogBundle().setupCaching(true);
-      getSecurityPolicy().configureWebContextPolicy("/=basic,/solr=PKI|basic", null, null);
+      getSecurityPolicy().configureWebContextPolicy("PKI|BASIC", "PKI|BASIC", null, null);
 
       String filename = testName + ".txt";
       String metacardId = generateUniqueMetacardId();
@@ -1732,7 +1732,7 @@ public class TestFederation extends AbstractIntegrationTest {
   @Test
   public void testProductDownloadWithTwoUsers() throws Exception {
     try {
-      getSecurityPolicy().configureWebContextPolicy("/=basic,/solr=PKI|basic", null, null);
+      getSecurityPolicy().configureWebContextPolicy("PKI|BASIC", "PKI|BASIC", null, null);
 
       String filename1 = "product4.txt";
       String metacardId1 = generateUniqueMetacardId();
@@ -1836,7 +1836,7 @@ public class TestFederation extends AbstractIntegrationTest {
   public void testSingleUserDownloadSameProductSyncAndAsync() throws Exception {
     try {
       getCatalogBundle().setupCaching(true);
-      getSecurityPolicy().configureWebContextPolicy("/=basic,/solr=PKI|basic", null, null);
+      getSecurityPolicy().configureWebContextPolicy("PKI|BASIC", "PKI|BASIC", null, null);
 
       String filename = "product4.txt";
       String metacardId = generateUniqueMetacardId();
@@ -1882,7 +1882,7 @@ public class TestFederation extends AbstractIntegrationTest {
   public void testSingleUserDownloadSameProductAsync() throws Exception {
     try {
       getCatalogBundle().setupCaching(true);
-      getSecurityPolicy().configureWebContextPolicy("/=basic,/solr=PKI|basic", null, null);
+      getSecurityPolicy().configureWebContextPolicy("PKI|BASIC", "PKI|BASIC", null, null);
 
       String filename = "product4.txt";
       String metacardId = generateUniqueMetacardId();

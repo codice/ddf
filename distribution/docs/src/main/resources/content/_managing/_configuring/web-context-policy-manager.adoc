@@ -10,9 +10,9 @@
 The Web Context Policy Manager defines all security policies for REST endpoints within ${branding}.
 It defines:
 
-* the realms a context should authenticate against.
-* the type of authentication that a context requires.
-* any user attributes required for authorization.
+* the type of authentication for web pages (such as /admin and /search) and endpoints (context paths that start with /services)
+* any user attributes required for authorization
+* a list of whitelisted contexts
 
 See <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager, Web Context Policy Manager Configurations>> for detailed descriptions of all fields.
 
@@ -27,13 +27,32 @@ Note that the `SAML` and `OIDC` authentication types require session storage to 
 
 === Authentication Types
 
-As you add REST endpoints, you may need to add different types of authentication through the Web Context Policy Manager.
-
-Any web context that allows or requires specific authentication types should be added here with the following format:
+Through the Web Context Policy Manager, authentication types for ${branding} may be configured with the following format:
 
 ----
-/<CONTEXT>=<AUTH_TYPE>|<AUTH_TYPE|...
+<AUTH_TYPE>|<AUTH_TYPE|...
 ----
+
+Authentication types can be configured separately for:
+* web pages (these are all context paths that do not start with `/services` such as `/admin` and `/search`)
+* endpoints (these are all context paths that start with `/services`)
+
+Configuring separate authentication types for web pages or endpoints is supported through the `web-context-policy-config.properties` configuration file.
+* Navigate to `${home_directory}/etc/`
+* Edit the `web-context-policy-config.properties` file
+* Restart ${branding}
+
+The `web-context-policy-config.properties` file format is:
+
+----
+/<CONTEXT>=<AUTH_TYPE> then <AUTH_TYPE then ...
+----
+
+[WARNING]
+====
+If the file-based configuration is used, the *authentication type* configuration for web pages and endpoints in the ${admin-console} is ignored.
+All other configurations in the Web Context Policy Manager such as Guest Access, Required Attributes, and White Listed Contexts will *not* be ignored.
+====
 
 .Default Types of Authentication
 [cols="1,4" options="header"]
@@ -64,10 +83,10 @@ Non-Terminating authentication types are authentication types where, once hit, m
 If the client supports the non-terminating authentication type's method of obtaining credentials, it either allows or forbids access to the system.
 However if the client does not support the non-terminating authentication type's method of obtaining credentials, the system will continue to the next configured authentication type.
 
-`BASIC` is the only terminating authentication type.
-Every other authentication type is non-terminating.
+`PKI` is the only non-terminating authentication type.
+`BASIC`, `OIDC`, and `SAML` are terminating authentication types.
 
-For example: assume a context is protected by the non-terminating `SAML` authorization type.
+For example: assume ${branding} is protected by the terminating `SAML` authorization type.
 The system first checks to see if the client supports the acquisition of SAML credentials.
 
 - If the connecting client is a browser, the system can acquire SAML credentials.
@@ -75,10 +94,9 @@ The system first checks to see if the client supports the acquisition of SAML cr
 - If the connecting client is a machine that does not support SAML ECP, the system cannot acquire SAML credentials.
 
 If the system can acquire SAML credentials from the client, the system will attempt to acquire said credentials and either allow or forbid access.
-If the system cannot acquire SAML credentials from the client, the system will continue to the next configured authentication type.
+If the system cannot acquire SAML credentials from the client, the system will forbid access.
 
-Contrarily, assume a context is protected by the terminating `BASIC` authentication type.
-Once this authentication type is hit, the system either allows or forbids access to the system, without checking if the client supports the acquisition of BASIC credentials.
+Otherwise, if ${branding} is protected by the non-terminating `PKI` authorization type and the system cannot acquire PKI certificates from the client, the system will continue to the next configured authentication type.
 
 === Required Attributes
 

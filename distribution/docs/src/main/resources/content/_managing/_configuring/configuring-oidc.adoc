@@ -26,7 +26,7 @@ Once connected, the Web Context Policy Manager needs to be updated. to do so,
 
 . Under the *Configuration* tab in the *${ddf-security}* application
 . Select the *Web Context Policy Manager*.
-. Under `Authentication Types`, add the context type of the endpoint you wish to protect with OIDC. For example `/search=OIDC`.
+. Under `Authentication Types for Web Pages` and `Authentication Types for Endpoints` add OIDC.
 
 ===== OAuth 2.0
 

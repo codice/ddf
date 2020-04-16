@@ -293,6 +293,10 @@ grant codeBase "file:/admin-core-impl/catalog-admin-poller-service/admin-core-jo
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
 }
 
+grant codeBase "file:/security-policy-context/platform-util" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}web-context-policy-config.properties", "read";
+}
+
 grant codeBase "file:/admin-core-jolokia/javax.servlet-api/org.apache.shiro.core/org.eclipse.jetty.io/org.eclipse.jetty.security/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.ops4j.pax.web.pax-web-extender-whiteboard/pax-web-jetty/platform-paxweb-jettyconfig/org.ops4j.pax.web.pax-web-runtime/org.apache.cxf.cxf-rt-transports-http/org.eclipse.jetty.servlet/org.eclipse.jetty.util/platform-filter-clientinfo/platform-filter-response/security-certificate-generator/security-filter-authorization/security-filter-login/security-filter-web-sso/org.eclipse.jetty.websocket.server" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";

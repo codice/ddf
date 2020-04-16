@@ -43,15 +43,6 @@ public class SecurityPolicyConfigurator {
   private static final String FACTORY_PID =
       "org.codice.ddf.security.policy.context.impl.PolicyManager";
 
-  private static final String BROWSER_USER_AGENT =
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
-
-  private static final String SAML_AUTH_TYPES = "/=SAML";
-
-  private static final String BASIC_AUTH_TYPES = "/=BASIC";
-
-  private static final String GUEST_AUTH_TYPES = "/=,/admin=basic,/system=basic";
-
   private static final String DEFAULT_WHITELIST =
       "/services/SecurityTokenService,/services/internal/metrics,/services/saml,/proxy,/services/platform/config/ui";
 
@@ -69,7 +60,7 @@ public class SecurityPolicyConfigurator {
   }
 
   public Map<String, Object> configureRestForGuest(String whitelist) throws Exception {
-    return configureWebContextPolicy(GUEST_AUTH_TYPES, null, createWhitelist(whitelist));
+    return configureWebContextPolicy("", "", null, createWhitelist(whitelist));
   }
 
   public Map<String, Object> configureRestForBasic() throws Exception {
@@ -77,11 +68,11 @@ public class SecurityPolicyConfigurator {
   }
 
   public Map<String, Object> configureRestForBasic(String whitelist) throws Exception {
-    return configureWebContextPolicy(BASIC_AUTH_TYPES, null, createWhitelist(whitelist));
+    return configureWebContextPolicy("BASIC", "BASIC", null, createWhitelist(whitelist));
   }
 
   public Map<String, Object> configureRestForSaml(String whitelist) throws Exception {
-    return configureWebContextPolicy(SAML_AUTH_TYPES, null, createWhitelist(whitelist));
+    return configureWebContextPolicy("SAML", "SAML", null, createWhitelist(whitelist));
   }
 
   public void waitForBasicAuthReady(String url) {
@@ -103,7 +94,8 @@ public class SecurityPolicyConfigurator {
   }
 
   public Map<String, Object> configureWebContextPolicy(
-      String authTypes, String requiredAttributes, String whitelist) throws Exception {
+      String webAuthTypes, String endpointAuthTypes, String requiredAttributes, String whitelist)
+      throws Exception {
 
     RetryPolicy retryPolicy =
         new RetryPolicy()
@@ -116,8 +108,11 @@ public class SecurityPolicyConfigurator {
         Failsafe.with(retryPolicy)
             .get(() -> services.getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
-    if (authTypes != null) {
-      putPolicyValues(policyProperties, "authenticationTypes", authTypes);
+    if (webAuthTypes != null) {
+      policyProperties.put("webAuthenticationTypes", webAuthTypes);
+    }
+    if (endpointAuthTypes != null) {
+      policyProperties.put("endpointAuthenticationTypes", endpointAuthTypes);
     }
     if (requiredAttributes != null) {
       putPolicyValues(policyProperties, "requiredAttributes", requiredAttributes);
@@ -126,9 +121,9 @@ public class SecurityPolicyConfigurator {
       putPolicyValues(policyProperties, "whiteListContexts", whitelist);
     }
 
-    putPolicyValues(policyProperties, "guestAccess", true);
+    policyProperties.put("guestAccess", true);
 
-    putPolicyValues(policyProperties, "sessionAccess", true);
+    policyProperties.put("sessionAccess", true);
 
     return updateWebContextPolicy(policyProperties);
   }
@@ -158,10 +153,6 @@ public class SecurityPolicyConfigurator {
     if (StringUtils.isNotBlank(value)) {
       properties.put(key, StringUtils.split(value, ","));
     }
-  }
-
-  private void putPolicyValues(Map<String, Object> properties, String key, Object value) {
-    properties.put(key, value);
   }
 
   private Callable<Boolean> createChecker(final Map<String, Object> policyProperties) {
