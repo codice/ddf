@@ -68,8 +68,8 @@ pipeline {
                 // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                 // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
-                    sh 'mvn install -B -DskipStatic=true -DskipTests=true $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                    sh 'mvn clean install -B -DskipITs -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                    sh 'mvn install -B -DskipStatic=true -DskipTests=true'
+                    sh 'mvn clean install -B -DskipITs -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET'
                 }
             }
         }
