@@ -429,11 +429,19 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   usngBbFromLatLon({ north, west, south, east }) {
-    const usngbbUpperLeft = converter.LLtoUSNG(north, west, usngPrecision)
-    const usngbbLowerRight = converter.LLtoUSNG(south, east, usngPrecision)
+    try {
+      const usngbbUpperLeft = converter.LLtoUSNG(north, west, usngPrecision)
+      const usngbbLowerRight = converter.LLtoUSNG(south, east, usngPrecision)
+      return {
+        usngbbUpperLeft,
+        usngbbLowerRight,
+      }
+    } catch (err) {
+      // do nothing
+    }
     return {
-      usngbbUpperLeft,
-      usngbbLowerRight,
+      usngbbUpperLeft: undefined,
+      usngbbLowerRight: undefined,
     }
   },
 

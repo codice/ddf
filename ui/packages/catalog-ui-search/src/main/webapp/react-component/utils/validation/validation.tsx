@@ -294,29 +294,41 @@ function validateBoundingBox(value: any) {
     north = upperLeftCoord.lat
     south = lowerRightCoord.lat
   } else if (value.isUtmUps) {
+    let northPole = value.upperLeft.hemisphere.toUpperCase() === 'NORTHERN'
     const upperLeftParts = {
       easting: parseFloat(value.upperLeft.easting),
       northing: parseFloat(value.upperLeft.northing),
+      zoneNumber: value.upperLeft.zoneNumber,
       hemisphere: value.upperLeft.hemisphere,
-      northPole: value.upperLeft.hemisphere.toUpperCase() === 'NORTHERN',
+      northPole,
     }
+    upperLeftParts.northing =
+      upperLeftParts.zoneNumber === 0 || northPole
+        ? upperLeftParts.northing
+        : upperLeftParts.northing - NORTHING_OFFSET
     north = Number(converter.UTMUPStoLL(upperLeftParts).lat.toFixed(5))
+    northPole = value.lowerRight.hemisphere.toUpperCase() === 'NORTHERN'
     const lowerRightParts = {
       easting: parseFloat(value.lowerRight.easting),
       northing: parseFloat(value.lowerRight.northing),
+      zoneNumber: value.lowerRight.zoneNumber,
       hemisphere: value.lowerRight.hemisphere,
-      northPole: value.lowerRight.hemisphere.toUpperCase() === 'NORTHERN',
+      northPole,
     }
+    lowerRightParts.northing =
+      lowerRightParts.zoneNumber === 0 || northPole
+        ? lowerRightParts.northing
+        : lowerRightParts.northing - NORTHING_OFFSET
     south = Number(converter.UTMUPStoLL(lowerRightParts).lat.toFixed(5))
   } else {
     north = Number(value.north)
     south = Number(value.south)
   }
-  if (south && north && south >= north) {
+  if (south !== null && north !== null && south >= north) {
     return {
       error: true,
       message:
-        value.usng || value.utmUps
+        value.isUsng || value.isUtmUps
           ? 'Upper left coordinate must be located above lower right coordinate'
           : 'North value must be greater than south value',
     }

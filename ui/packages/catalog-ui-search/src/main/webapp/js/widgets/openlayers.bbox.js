@@ -74,7 +74,7 @@ Draw.BboxView = Marionette.View.extend({
     let east = parseFloat(model.get('mapEast'))
     let west = parseFloat(model.get('mapWest'))
 
-    if (!north || !south || !east || !west) {
+    if (isNaN(north) || isNaN(south) || isNaN(east) || isNaN(west)) {
       return
     }
 

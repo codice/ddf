@@ -319,7 +319,10 @@ const BoundingBoxUtmUps = props => {
         setUpperLeftError(initialErrorState)
         setLowerRightError(initialErrorState)
       }
-      if (!lowerRightError.error) {
+      if (
+        !lowerRightError.error ||
+        lowerRightError.message.includes('must be located above')
+      ) {
         setLowerRightError(
           validateGeo('bbox', { isUtmUps: true, upperLeft, lowerRight })
         )
