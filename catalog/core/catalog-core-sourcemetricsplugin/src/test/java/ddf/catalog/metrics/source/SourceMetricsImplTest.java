@@ -13,7 +13,11 @@
  */
 package ddf.catalog.metrics.source;
 
-import static ddf.catalog.source.SourceMetrics.*;
+import static ddf.catalog.source.SourceMetrics.EXCEPTION_TYPE;
+import static ddf.catalog.source.SourceMetrics.METRICS_PREFIX;
+import static ddf.catalog.source.SourceMetrics.QUERY_SCOPE;
+import static ddf.catalog.source.SourceMetrics.REQUEST_TYPE;
+import static ddf.catalog.source.SourceMetrics.RESPONSE_TYPE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
@@ -37,12 +41,8 @@ import java.util.stream.Stream;
 import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SourceMetricsImplTest {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImplTest.class);
 
   private SourceMetricsImpl sourceMetricsImpl;
 
@@ -56,6 +56,11 @@ public class SourceMetricsImplTest {
     sourceMetricsImpl = new SourceMetricsImpl(meterRegistryService);
   }
 
+  @Test(expected = NullPointerException.class)
+  public void testNullMeterRegistry() {
+    new SourceMetricsImpl(null);
+  }
+
   @Test
   public void testRequestCounterForQueryRequest()
       throws PluginExecutionException, StopProcessingException {
@@ -64,7 +69,7 @@ public class SourceMetricsImplTest {
     QueryRequest queryRequest = mock(QueryRequest.class);
     sourceMetricsImpl.process(source, queryRequest);
     String suffix = METRICS_PREFIX + "." + QUERY_SCOPE + "." + REQUEST_TYPE;
-    assertThat(meterRegistry.counter("testSource" + "." + suffix).count(), is(1.0));
+    assertThat(meterRegistry.counter(suffix, "source", "testSource").count(), is(1.0));
   }
 
   @Test
@@ -77,7 +82,7 @@ public class SourceMetricsImplTest {
     when(queryResponse.getProcessingDetails()).thenReturn(processingDetails);
     sourceMetricsImpl.process(queryResponse);
     String suffix = METRICS_PREFIX + "." + QUERY_SCOPE + "." + EXCEPTION_TYPE;
-    assertThat(meterRegistry.counter("testSource" + "." + suffix).count(), is(1.0));
+    assertThat(meterRegistry.counter(suffix, "source", "testSource").count(), is(1.0));
   }
 
   @Test
@@ -92,6 +97,6 @@ public class SourceMetricsImplTest {
     when(queryResponse.getResults()).thenReturn(results);
     sourceMetricsImpl.process(queryResponse);
     String suffix = METRICS_PREFIX + "." + QUERY_SCOPE + "." + RESPONSE_TYPE;
-    assertThat(meterRegistry.find("testSource" + "." + suffix).counter().count(), is(1.0));
+    assertThat(meterRegistry.counter(suffix, "source", "testSource").count(), is(1.0));
   }
 }

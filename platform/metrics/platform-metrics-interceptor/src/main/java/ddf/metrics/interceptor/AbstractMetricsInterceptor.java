@@ -14,7 +14,6 @@
 package ddf.metrics.interceptor;
 
 import io.micrometer.core.instrument.DistributionSummary;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -27,15 +26,11 @@ import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
  */
 public abstract class AbstractMetricsInterceptor extends AbstractPhaseInterceptor<Message> {
 
-  private static final String REGISTRY_NAME = "ddf.METRICS.services";
-
   private static final String METRICS_PREFIX = "ddf.platform";
 
   private static final String HISTOGRAM_NAME = "latency";
 
-  private final MeterRegistry meterRegistry;
-
-  final DistributionSummary messageLatency;
+  private final DistributionSummary messageLatency;
 
   /**
    * Constructor to pass the phase to {@code AbstractPhaseInterceptor} and creates a new histogram.
@@ -45,8 +40,8 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
   public AbstractMetricsInterceptor(String phase, MeterRegistryService meterRegistryService) {
     super(phase);
 
-    meterRegistry = meterRegistryService.getMeterRegistry();
-    messageLatency = meterRegistry.summary(METRICS_PREFIX + "." + HISTOGRAM_NAME);
+    messageLatency =
+        meterRegistryService.getMeterRegistry().summary(METRICS_PREFIX + "." + HISTOGRAM_NAME);
   }
 
   protected boolean isClient(Message msg) {

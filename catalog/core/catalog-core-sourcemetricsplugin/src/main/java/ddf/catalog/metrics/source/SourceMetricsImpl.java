@@ -13,7 +13,11 @@
  */
 package ddf.catalog.metrics.source;
 
-import static ddf.catalog.source.SourceMetrics.*;
+import static ddf.catalog.source.SourceMetrics.EXCEPTION_TYPE;
+import static ddf.catalog.source.SourceMetrics.METRICS_PREFIX;
+import static ddf.catalog.source.SourceMetrics.QUERY_SCOPE;
+import static ddf.catalog.source.SourceMetrics.REQUEST_TYPE;
+import static ddf.catalog.source.SourceMetrics.RESPONSE_TYPE;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -26,6 +30,7 @@ import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import java.util.List;
 import java.util.Set;
 import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
@@ -35,6 +40,8 @@ import org.slf4j.LoggerFactory;
 public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederatedQueryPlugin {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImpl.class);
+
+  private static final String SOURCE_TAG = "source";
 
   private final MeterRegistry meterRegistry;
 
@@ -50,11 +57,13 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
   public QueryRequest process(Source source, QueryRequest input)
       throws PluginExecutionException, StopProcessingException {
 
-    //    A DistributionSummary can be instead by replacing counter() by summary() and increment()
-    // by record(). This applies
-    //    equally to any other metric set in this class and retrieved in SourceMetricImplTest
+    // A DistributionSummary can be instead by replacing counter() by summary() and increment()
+    // by record(). This applies equally to any other metric set in this class and retrieved in
+    // SourceMetricImplTest
     meterRegistry
-        .counter(source.getId() + "." + METRICS_PREFIX + "." + QUERY_SCOPE + "." + REQUEST_TYPE)
+        .counter(
+            METRICS_PREFIX + "." + QUERY_SCOPE + "." + REQUEST_TYPE,
+            Tags.of(SOURCE_TAG, source.getId()))
         .increment();
     return input;
   }
@@ -73,22 +82,24 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
           .filter(ProcessingDetails::hasException)
           .map(ProcessingDetails::getSourceId)
           .forEach(
-              id -> {
-                meterRegistry
-                    .counter(id + "." + METRICS_PREFIX + "." + QUERY_SCOPE + "." + EXCEPTION_TYPE)
-                    .increment();
-              });
+              id ->
+                  meterRegistry
+                      .counter(
+                          METRICS_PREFIX + "." + QUERY_SCOPE + "." + EXCEPTION_TYPE,
+                          Tags.of(SOURCE_TAG, id))
+                      .increment());
 
       results
           .stream()
           .map(Result::getMetacard)
           .map(Metacard::getSourceId)
           .forEach(
-              id -> {
-                meterRegistry
-                    .counter(id + "." + METRICS_PREFIX + "." + QUERY_SCOPE + "." + RESPONSE_TYPE)
-                    .increment();
-              });
+              id ->
+                  meterRegistry
+                      .counter(
+                          METRICS_PREFIX + "." + QUERY_SCOPE + "." + RESPONSE_TYPE,
+                          Tags.of(SOURCE_TAG, id))
+                      .increment());
     }
     return input;
   }
