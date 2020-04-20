@@ -31,45 +31,40 @@ const {
 const DirectionInput = require('../../component/location-new/geo-components/direction.js')
 const { Direction } = require('../../component/location-new/utils/dms-utils.js')
 
-const minimumDifference = 0.0001
-
 const BoundingBoxLatLonDd = props => {
-  const {
-    north,
-    east,
-    south,
-    west,
-    setState,
-    mapEast,
-    mapWest,
-    mapSouth,
-    mapNorth,
-  } = props
+  const { north, east, south, west, setState } = props
   const [ddError, setDdError] = useState(initialErrorStateWithDefault)
-  const westMax = parseFloat(mapEast) - minimumDifference
-  const eastMin = parseFloat(mapWest) + minimumDifference
-  const northMin = parseFloat(mapSouth) + minimumDifference
-  const southMax = parseFloat(mapNorth) - minimumDifference
 
   useEffect(
     () => {
       if (props.drawing) {
         setDdError(initialErrorStateWithDefault)
       }
+      if (!ddError.error) {
+        setDdError(validateGeo('bbox', { north, south }))
+      }
     },
     [props.east, props.west, props.south, props.north]
   )
 
-  function validateDd(key, value) {
+  function validateDd(key, value, type) {
     const label = key.includes('east') || key.includes('west') ? 'lon' : 'lat'
     const { error, message, defaultValue } = validateGeo(label, value)
-    if (defaultValue) {
+    if (type === 'blur' || defaultValue) {
       setDdError({ error, message, defaultValue })
-      setState({ [key]: defaultValue })
-    } else {
-      setState({ [key]: value })
     }
+    if (!error && label === 'lat') {
+      const opposite = key.includes('north') ? south : north
+      setDdError(
+        validateGeo('bbox', {
+          north: key.includes('north') ? value : opposite,
+          south: key.includes('south') ? value : opposite,
+        })
+      )
+    }
+    setState({ [key]: defaultValue ? defaultValue : value })
   }
+
   return (
     <div className="input-location">
       <TextField
@@ -80,18 +75,18 @@ const BoundingBoxLatLonDd = props => {
         type="number"
         step="any"
         min={-180}
-        max={westMax || 180}
+        max={180}
         addon="°"
       />
       <TextField
         label="South"
         value={south !== undefined ? String(south) : south}
         onChange={value => validateDd('south', value)}
-        onBlur={() => setDdError(validateGeo('lat', south))}
+        onBlur={event => validateDd('south', south, event.type)}
         type="number"
         step="any"
         min={-90}
-        max={southMax || 90}
+        max={90}
         addon="°"
       />
       <TextField
@@ -101,7 +96,7 @@ const BoundingBoxLatLonDd = props => {
         onBlur={() => setDdError(validateGeo('lon', east))}
         type="number"
         step="any"
-        min={eastMin || -180}
+        min={-180}
         max={180}
         addon="°"
       />
@@ -109,10 +104,10 @@ const BoundingBoxLatLonDd = props => {
         label="North"
         value={north !== undefined ? String(north) : north}
         onChange={value => validateDd('north', value)}
-        onBlur={() => setDdError(validateGeo('lat', north))}
+        onBlur={event => validateDd('north', north, event.type)}
         type="number"
         step="any"
-        min={northMin || -90}
+        min={-90}
         max={90}
         addon="°"
       />
@@ -142,30 +137,45 @@ const BoundingBoxLatLonDms = props => {
       if (props.drawing) {
         setDmsError(initialErrorStateWithDefault)
       }
+      if (!dmsError.error) {
+        setDmsError(
+          validateGeo('bbox', {
+            isDms: true,
+            dmsNorthDirection,
+            dmsSouthDirection,
+            north: dmsNorth,
+            south: dmsSouth,
+          })
+        )
+      }
     },
     [props.dmsWest, props.dmsSouth, props.dmsEast, props.dmsNorth]
   )
 
-  function validateDms(key, type, value) {
+  function validateDms(key, value, type) {
     const label =
       key.includes('East') || key.includes('West') ? 'dmsLon' : 'dmsLat'
     const { error, message, defaultValue } = validateGeo(label, value)
-    if (type === 'blur') {
-      setDmsError({
-        error: value !== undefined && value.length === 0,
-        message,
-        defaultValue,
-      })
-    } else if (defaultValue) {
+    if (type === 'blur' || defaultValue) {
       setDmsError({
         error,
         message,
         defaultValue,
       })
     }
-    defaultValue
-      ? setState({ [key]: defaultValue })
-      : setState({ [key]: value })
+    if (!error && label === 'dmsLat') {
+      const opposite = key.includes('North') ? dmsSouth : dmsNorth
+      setDmsError(
+        validateGeo('bbox', {
+          isDms: true,
+          dmsNorthDirection,
+          dmsSouthDirection,
+          north: key.includes('North') ? value : opposite,
+          south: key.includes('South') ? value : opposite,
+        })
+      )
+    }
+    setState({ [key]: defaultValue ? defaultValue : value })
   }
 
   return (
@@ -173,7 +183,7 @@ const BoundingBoxLatLonDms = props => {
       <DmsLongitude
         label="West"
         value={dmsWest}
-        onChange={(value, type) => validateDms('dmsWest', type, value)}
+        onChange={(value, type) => validateDms('dmsWest', value, type)}
       >
         <DirectionInput
           options={longitudeDirections}
@@ -184,7 +194,7 @@ const BoundingBoxLatLonDms = props => {
       <DmsLatitude
         label="South"
         value={dmsSouth}
-        onChange={(value, type) => validateDms('dmsSouth', type, value)}
+        onChange={(value, type) => validateDms('dmsSouth', value, type)}
       >
         <DirectionInput
           options={latitudeDirections}
@@ -195,7 +205,7 @@ const BoundingBoxLatLonDms = props => {
       <DmsLongitude
         label="East"
         value={dmsEast}
-        onChange={(value, type) => validateDms('dmsEast', type, value)}
+        onChange={(value, type) => validateDms('dmsEast', value, type)}
       >
         <DirectionInput
           options={longitudeDirections}
@@ -206,7 +216,7 @@ const BoundingBoxLatLonDms = props => {
       <DmsLatitude
         label="North"
         value={dmsNorth}
-        onChange={(value, type) => validateDms('dmsNorth', type, value)}
+        onChange={(value, type) => validateDms('dmsNorth', value, type)}
       >
         <DirectionInput
           options={latitudeDirections}
@@ -228,9 +238,32 @@ const BoundingBoxUsngMgrs = props => {
       if (props.drawing) {
         setUsngError(initialErrorState)
       }
+      if (!usngError.error) {
+        setUsngError(
+          validateGeo('bbox', {
+            isUsng: true,
+            upperLeft: usngbbUpperLeft,
+            lowerRight: usngbbLowerRight,
+          })
+        )
+      }
     },
     [props.usngbbUpperLeft, props.usngbbLowerRight]
   )
+
+  function validateUsng(value) {
+    const { error, message } = validateGeo('usng', value)
+    setUsngError({ error, message })
+    if (!error) {
+      setUsngError(
+        validateGeo('bbox', {
+          isUsng: true,
+          upperLeft: usngbbUpperLeft,
+          lowerRight: usngbbLowerRight,
+        })
+      )
+    }
+  }
 
   return (
     <div className="input-location">
@@ -239,14 +272,14 @@ const BoundingBoxUsngMgrs = props => {
         style={{ minWidth: 200 }}
         value={usngbbUpperLeft}
         onChange={value => setState({ ['usngbbUpperLeft']: value })}
-        onBlur={() => setUsngError(validateGeo('usng', usngbbUpperLeft))}
+        onBlur={() => validateUsng(usngbbUpperLeft)}
       />
       <TextField
         label="Lower Right"
         style={{ minWidth: 200 }}
         value={usngbbLowerRight}
         onChange={value => setState({ ['usngbbLowerRight']: value })}
-        onBlur={() => setUsngError(validateGeo('usng', usngbbLowerRight))}
+        onBlur={() => validateUsng(usngbbLowerRight)}
       />
       <ErrorComponent errorState={usngError} />
     </div>
@@ -265,6 +298,18 @@ const BoundingBoxUtmUps = props => {
     utmUpsLowerRightHemisphere,
     setState,
   } = props
+  const upperLeft = {
+    easting: utmUpsUpperLeftEasting,
+    northing: utmUpsUpperLeftNorthing,
+    zoneNumber: utmUpsUpperLeftZone,
+    hemisphere: utmUpsUpperLeftHemisphere,
+  }
+  const lowerRight = {
+    easting: utmUpsLowerRightEasting,
+    northing: utmUpsLowerRightNorthing,
+    zoneNumber: utmUpsLowerRightZone,
+    hemisphere: utmUpsLowerRightHemisphere,
+  }
   const [upperLeftError, setUpperLeftError] = useState(initialErrorState)
   const [lowerRightError, setLowerRightError] = useState(initialErrorState)
 
@@ -273,6 +318,14 @@ const BoundingBoxUtmUps = props => {
       if (props.drawing) {
         setUpperLeftError(initialErrorState)
         setLowerRightError(initialErrorState)
+      }
+      if (
+        !lowerRightError.error ||
+        lowerRightError.message.includes('must be located above')
+      ) {
+        setLowerRightError(
+          validateGeo('bbox', { isUtmUps: true, upperLeft, lowerRight })
+        )
       }
     },
     [
@@ -287,11 +340,34 @@ const BoundingBoxUtmUps = props => {
     ]
   )
 
+  function validateUtmUps(field, key, value) {
+    if (field === 'upperLeft') {
+      upperLeft[key] = value
+      setUpperLeftError(validateGeo(key, upperLeft))
+      // If lower right was previously located above upper left,
+      // perform an update to the error message in case that has changed
+      if (lowerRightError.message.includes('must be located above')) {
+        setLowerRightError(
+          validateGeo('bbox', { isUtmUps: true, upperLeft, lowerRight })
+        )
+      }
+    } else {
+      lowerRight[key] = value
+      const { error, message } = validateGeo(key, lowerRight)
+      setLowerRightError({ error, message })
+      if (!error) {
+        setLowerRightError(
+          validateGeo('bbox', { isUtmUps: true, upperLeft, lowerRight })
+        )
+      }
+    }
+  }
+
   return (
     <div>
       <div className="input-location">
         <Group>
-          <Label>Upper-Left</Label>
+          <Label>Upper Left</Label>
           <div>
             <TextField
               label="Easting"
@@ -304,14 +380,7 @@ const BoundingBoxUtmUps = props => {
                 setState({ ['utmUpsUpperLeftEasting']: value })
               }
               onBlur={() =>
-                setUpperLeftError(
-                  validateGeo('utmUpsEasting', {
-                    utmUpsEasting: utmUpsUpperLeftEasting,
-                    utmUpsNorthing: utmUpsUpperLeftNorthing,
-                    zoneNumber: utmUpsUpperLeftZone,
-                    hemisphere: utmUpsUpperLeftHemisphere,
-                  })
-                )
+                validateUtmUps('upperLeft', 'easting', utmUpsUpperLeftEasting)
               }
               addon="m"
             />
@@ -326,46 +395,23 @@ const BoundingBoxUtmUps = props => {
                 setState({ ['utmUpsUpperLeftNorthing']: value })
               }
               onBlur={() =>
-                setUpperLeftError(
-                  validateGeo('utmUpsNorthing', {
-                    utmUpsEasting: utmUpsUpperLeftEasting,
-                    utmUpsNorthing: utmUpsUpperLeftNorthing,
-                    zoneNumber: utmUpsUpperLeftZone,
-                    hemisphere: utmUpsUpperLeftHemisphere,
-                  })
-                )
+                validateUtmUps('upperLeft', 'northing', utmUpsUpperLeftNorthing)
               }
               addon="m"
             />
             <Zone
               value={utmUpsUpperLeftZone}
-              onChange={value => setState({ ['utmUpsUpperLeftZone']: value })}
-              onBlur={() =>
-                setUpperLeftError(
-                  validateGeo('utmUpsZone', {
-                    utmUpsEasting: utmUpsUpperLeftEasting,
-                    utmUpsNorthing: utmUpsUpperLeftNorthing,
-                    zoneNumber: utmUpsUpperLeftZone,
-                    hemisphere: utmUpsUpperLeftHemisphere,
-                  })
-                )
-              }
+              onChange={value => {
+                setState({ ['utmUpsUpperLeftZone']: value })
+                validateUtmUps('upperLeft', 'zoneNumber', value)
+              }}
             />
             <Hemisphere
               value={utmUpsUpperLeftHemisphere}
-              onChange={value =>
+              onChange={value => {
                 setState({ ['utmUpsUpperLeftHemisphere']: value })
-              }
-              onBlur={() =>
-                setUpperLeftError(
-                  validateGeo('utmUpsHemisphere', {
-                    utmUpsEasting: utmUpsUpperLeftEasting,
-                    utmUpsNorthing: utmUpsUpperLeftNorthing,
-                    zoneNumber: utmUpsUpperLeftZone,
-                    hemisphere: utmUpsUpperLeftHemisphere,
-                  })
-                )
-              }
+                validateUtmUps('upperLeft', 'hemisphere', value)
+              }}
             />
           </div>
         </Group>
@@ -373,7 +419,7 @@ const BoundingBoxUtmUps = props => {
       </div>
       <div className="input-location">
         <Group>
-          <Label>Lower-Right</Label>
+          <Label>Lower Right</Label>
           <div>
             <TextField
               label="Easting"
@@ -386,14 +432,7 @@ const BoundingBoxUtmUps = props => {
                 setState({ ['utmUpsLowerRightEasting']: value })
               }
               onBlur={() =>
-                setLowerRightError(
-                  validateGeo('utmUpsEasting', {
-                    utmUpsEasting: utmUpsLowerRightEasting,
-                    utmUpsNorthing: utmUpsLowerRightNorthing,
-                    zoneNumber: utmUpsLowerRightZone,
-                    hemisphere: utmUpsLowerRightHemisphere,
-                  })
-                )
+                validateUtmUps('lowerRight', 'easting', utmUpsLowerRightEasting)
               }
               addon="m"
             />
@@ -408,46 +447,27 @@ const BoundingBoxUtmUps = props => {
                 setState({ ['utmUpsLowerRightNorthing']: value })
               }
               onBlur={() =>
-                setLowerRightError(
-                  validateGeo('utmUpsNorthing', {
-                    utmUpsEasting: utmUpsLowerRightEasting,
-                    utmUpsNorthing: utmUpsLowerRightNorthing,
-                    zoneNumber: utmUpsLowerRightZone,
-                    hemisphere: utmUpsLowerRightHemisphere,
-                  })
+                validateUtmUps(
+                  'lowerRight',
+                  'northing',
+                  utmUpsLowerRightNorthing
                 )
               }
               addon="m"
             />
             <Zone
               value={utmUpsLowerRightZone}
-              onChange={value => setState({ ['utmUpsLowerRightZone']: value })}
-              onBlur={() =>
-                setLowerRightError(
-                  validateGeo('utmUpsZone', {
-                    utmUpsEasting: utmUpsLowerRightEasting,
-                    utmUpsNorthing: utmUpsLowerRightNorthing,
-                    zoneNumber: utmUpsLowerRightZone,
-                    hemisphere: utmUpsLowerRightHemisphere,
-                  })
-                )
-              }
+              onChange={value => {
+                setState({ ['utmUpsLowerRightZone']: value })
+                validateUtmUps('lowerRight', 'zoneNumber', value)
+              }}
             />
             <Hemisphere
               value={utmUpsLowerRightHemisphere}
-              onChange={value =>
+              onChange={value => {
                 setState({ ['utmUpsLowerRightHemisphere']: value })
-              }
-              onBlur={() =>
-                setLowerRightError(
-                  validateGeo('utmUpsHemisphere', {
-                    utmUpsEasting: utmUpsLowerRightEasting,
-                    utmUpsNorthing: utmUpsLowerRightNorthing,
-                    zoneNumber: utmUpsLowerRightZone,
-                    hemisphere: utmUpsLowerRightHemisphere,
-                  })
-                )
-              }
+                validateUtmUps('lowerRight', 'hemisphere', value)
+              }}
             />
           </div>
         </Group>

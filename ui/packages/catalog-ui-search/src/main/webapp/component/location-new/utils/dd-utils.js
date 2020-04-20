@@ -113,34 +113,17 @@ function parseDdCoordinate(coordinate) {
   return _coordinate
 }
 
-function validateLatitudeRange(latitude) {
-  return latitude >= -90 && latitude <= 90
-}
-
-function validateLongitudeRange(longitude) {
-  return longitude >= -180 && longitude <= 180
-}
-
-function validateDdLatitude(latitude) {
-  const _latitude = parseDdCoordinate(latitude)
-  if (_latitude == null) {
-    return false
-  }
-  return validateLatitudeRange(_latitude)
-}
-
-function validateDdLongitude(longitude) {
-  const _longitude = parseDdCoordinate(longitude)
-  if (_longitude == null) {
-    return false
-  }
-  return validateLongitudeRange(_longitude)
+function inValidRange(coordinate, maximum) {
+  return coordinate >= -1 * maximum && coordinate <= maximum
 }
 
 function validateDdPoint(point) {
-  return (
-    validateDdLatitude(point.latitude) && validateDdLongitude(point.longitude)
-  )
+  const latitude = parseDdCoordinate(point.latitude)
+  const longitude = parseDdCoordinate(point.longitude)
+  if (latitude && longitude) {
+    return inValidRange(latitude, 90) && inValidRange(longitude, 180)
+  }
+  return false
 }
 
 function validateDdBoundingBox(boundingbox) {
@@ -154,10 +137,10 @@ function validateDdBoundingBox(boundingbox) {
   }
 
   if (
-    !validateLatitudeRange(north) ||
-    !validateLatitudeRange(south) ||
-    !validateLongitudeRange(east) ||
-    !validateLongitudeRange(west)
+    !inValidRange(north, 90) ||
+    !inValidRange(south, 90) ||
+    !inValidRange(east, 180) ||
+    !inValidRange(west, 180)
   ) {
     return false
   }
@@ -221,10 +204,14 @@ function validateDd(dd) {
       break
     case 'boundingbox':
       if (
-        !validateDdLatitude(dd.boundingbox.north) ||
-        !validateDdLatitude(dd.boundingbox.south) ||
-        !validateDdLongitude(dd.boundingbox.east) ||
-        !validateDdLongitude(dd.boundingbox.west)
+        !validateDdPoint({
+          latitude: dd.boundingbox.north,
+          longitude: dd.boundingbox.east,
+        }) ||
+        !validateDdPoint({
+          latitude: dd.boundingbox.south,
+          longitude: dd.boundingbox.west,
+        })
       ) {
         valid = false
         error = errorMessages.invalidCoordinates

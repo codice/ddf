@@ -23,7 +23,6 @@ const dmsUtils = require('../location-new/utils/dms-utils.js')
 const DistanceUtils = require('../../js/DistanceUtils.js')
 
 const converter = new usngs.Converter()
-const minimumDifference = 0.0001
 const utmUpsLocationType = 'utmUps'
 // offset used by utmUps for southern hemisphere
 const utmUpsBoundaryNorth = 84
@@ -31,41 +30,6 @@ const utmUpsBoundarySouth = -80
 const northingOffset = 10000000
 const usngPrecision = 6
 const Direction = dmsUtils.Direction
-
-function convertToValid(key, model) {
-  if (
-    key.mapSouth !== undefined &&
-    (key.mapSouth >= key.mapNorth ||
-      (key.mapNorth === undefined && key.mapSouth >= model.get('mapNorth')))
-  ) {
-    key.mapSouth =
-      parseFloat(key.mapNorth || model.get('mapNorth')) - minimumDifference
-  }
-  if (
-    key.mapNorth !== undefined &&
-    (key.mapNorth <= key.mapSouth ||
-      (key.mapSouth === undefined && key.mapNorth <= model.get('mapSouth')))
-  ) {
-    key.mapNorth =
-      parseFloat(key.mapSouth || model.get('mapSouth')) + minimumDifference
-  }
-  if (key.mapNorth !== undefined) {
-    key.mapNorth = Math.max(-90, key.mapNorth)
-    key.mapNorth = Math.min(90, key.mapNorth)
-  }
-  if (key.mapSouth !== undefined) {
-    key.mapSouth = Math.max(-90, key.mapSouth)
-    key.mapSouth = Math.min(90, key.mapSouth)
-  }
-  if (key.mapWest !== undefined) {
-    key.mapWest = Math.max(-180, key.mapWest)
-    key.mapWest = Math.min(180, key.mapWest)
-  }
-  if (key.mapEast !== undefined) {
-    key.mapEast = Math.max(-180, key.mapEast)
-    key.mapEast = Math.min(180, key.mapEast)
-  }
-}
 
 module.exports = Backbone.AssociatedModel.extend({
   defaults: {
@@ -132,7 +96,6 @@ module.exports = Backbone.AssociatedModel.extend({
       key = keyObject
       value = options
     }
-    convertToValid(key, this)
     Backbone.AssociatedModel.prototype.set.call(this, key, value, options)
     Common.queueExecution(() => {
       this.trigger('change', Object.keys(key))
@@ -466,11 +429,19 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   usngBbFromLatLon({ north, west, south, east }) {
-    const usngbbUpperLeft = converter.LLtoUSNG(north, west, usngPrecision)
-    const usngbbLowerRight = converter.LLtoUSNG(south, east, usngPrecision)
+    try {
+      const usngbbUpperLeft = converter.LLtoUSNG(north, west, usngPrecision)
+      const usngbbLowerRight = converter.LLtoUSNG(south, east, usngPrecision)
+      return {
+        usngbbUpperLeft,
+        usngbbLowerRight,
+      }
+    } catch (err) {
+      // do nothing
+    }
     return {
-      usngbbUpperLeft,
-      usngbbLowerRight,
+      usngbbUpperLeft: undefined,
+      usngbbLowerRight: undefined,
     }
   },
 
@@ -836,20 +807,17 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setLatLonFromDms(dmsCoordinateKey, dmsDirectionKey, latLonKey) {
-    const coordinate = {}
-    coordinate.coordinate = this.get(dmsCoordinateKey)
-
-    const isDmsInputIncomplete =
-      coordinate.coordinate && coordinate.coordinate.includes('_')
-    if (isDmsInputIncomplete) {
-      return
-    }
-
-    coordinate.direction = this.get(dmsDirectionKey)
-
-    const dmsCoordinate = dmsUtils.parseDmsCoordinate(coordinate)
+    const dmsCoordinate = dmsUtils.parseDmsCoordinate(
+      this.get(dmsCoordinateKey)
+    )
     if (dmsCoordinate) {
-      this.set(latLonKey, dmsUtils.dmsCoordinateToDD(dmsCoordinate))
+      this.set(
+        latLonKey,
+        dmsUtils.dmsCoordinateToDD({
+          ...dmsCoordinate,
+          direction: this.get(dmsDirectionKey),
+        })
+      )
     } else {
       this.set(latLonKey, undefined)
     }
