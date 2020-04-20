@@ -1311,7 +1311,4 @@
       <str name="q">id_txt:*</str>
     </lst>
   </requestHandler>
-
-  <queryParser name="xpath" class="org.codice.solr.xpath.XpathQParserPlugin"/>
-
 </config>

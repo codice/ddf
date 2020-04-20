@@ -69,7 +69,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
@@ -319,19 +318,16 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     SolrDocumentList resultDocs = originalDocs;
     responseProps.put(SPELLCHECK_KEY, userSpellcheckIsOn);
     if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
-      Collation collation = findQueryToResend(query, solrResponse);
-      query.set("q", collation.getCollationQueryString());
+      query.set("q", findQueryToResend(query, solrResponse));
       query.set("spellcheck", false);
       QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
       SolrDocumentList docs = solrResponseRequery.getResults();
       if (docs != null && docs.size() > originalDocs.size()) {
         resultDocs = docs;
 
+        responseProps.put(DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
         responseProps.put(
-            DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
-        responseProps.put(
-            SHOWING_RESULTS_FOR_KEY,
-            (Serializable) getSearchTermFieldValues(solrResponseRequery));
+            SHOWING_RESULTS_FOR_KEY, (Serializable) getSearchTermFieldValues(solrResponseRequery));
       }
     }
 
@@ -564,7 +560,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return postAdapt(request, solrFilterDelegate, query);
   }
 
-  private SolrQuery getRealTimeQuery(SolrQuery originalQuery, Collection<String> ids) {
+  protected SolrQuery getRealTimeQuery(SolrQuery originalQuery, Collection<String> ids) {
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("originalQuery: {}", getQueryParams(originalQuery));
     }

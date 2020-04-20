@@ -388,14 +388,6 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     return Optional.empty();
   }
 
-  public void refresh(Map<String, Object> properties) {
-    Optional.ofNullable(properties)
-        .map(p -> p.get(COLLECTION_HINT_PROP))
-        .filter(String.class::isInstance)
-        .map(String.class::cast)
-        .ifPresent(this::setGeocoderCollection);
-  }
-
   public void setGeocoderCollection(String geocoderCollection) {
     this.geocoderCollection = geocoderCollection;
   }
