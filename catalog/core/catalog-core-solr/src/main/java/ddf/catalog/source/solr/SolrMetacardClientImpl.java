@@ -27,6 +27,8 @@ import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_CONTEXT_F
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_DICT;
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_Q;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.Attribute;
@@ -120,6 +122,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String SPELLCHECK_KEY = "spellcheck";
 
+  public static final String HIGHLIGHT_KEY = "highlight";
+
+  public static final String SOLR_HIGHLIGHT_KEY = "hl";
+
   public static final int GET_BY_ID_LIMIT = 100;
 
   public static final String EXCLUDE_ATTRIBUTES = "excludeAttributes";
@@ -134,6 +140,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private final DynamicSchemaResolver resolver;
 
+  private final ObjectMapper mapper;
+
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
 
@@ -147,6 +155,11 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private final int commitNrtCommitWithinMs =
       Math.max(NumberUtils.toInt(accessProperty(SOLR_COMMIT_NRT_COMMITWITHINMS, "1000")), 0);
 
+  private static final String SOLR_HIGHLIGHT_BLACKLIST = "solr.highlight.blacklist";
+
+  private final Set<String> highlightBlacklist =
+      Sets.newHashSet(accessProperty(SOLR_HIGHLIGHT_BLACKLIST, "").split("\\s*,\\s*"));
+
   public SolrMetacardClientImpl(
       SolrClient client,
       FilterAdapter catalogFilterAdapter,
@@ -156,6 +169,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     filterDelegateFactory = solrFilterDelegateFactory;
     filterAdapter = catalogFilterAdapter;
     resolver = dynamicSchemaResolver;
+    mapper = new ObjectMapper();
   }
 
   public SolrClient getClient() {
@@ -220,6 +234,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     Boolean userSpellcheckIsOn = userSpellcheckIsOn(request);
 
+    Boolean highlightIsOn = userHighlightIsOn(request);
+
     try {
       QueryResponse solrResponse;
       Boolean doRealTimeGet = filterAdapter.adapt(request.getQuery(), new RealTimeGetDelegate());
@@ -230,6 +246,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         solrResponse = client.query(realTimeQuery, METHOD.POST);
       } else {
         query.setParam("spellcheck", userSpellcheckIsOn);
+        if (highlightIsOn) {
+          enableHighlighter(query);
+        }
         solrResponse = client.query(query, METHOD.POST);
       }
 
@@ -259,14 +278,20 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         totalHits = docs.getNumFound();
         addDocsToResults(docs, results);
 
+        QueryResponse highlightResponse = solrResponse;
+
         if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
           Collation collation = getCollationToResend(query, solrResponse);
           query.set("q", collation.getCollationQueryString());
           query.set("spellcheck", false);
+          if (highlightIsOn) {
+            enableHighlighter(query);
+          }
           QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
           docs = solrResponseRequery.getResults();
           if (docs != null && docs.size() > originalQueryResultsSize) {
             results = new ArrayList<>();
+            highlightResponse = solrResponseRequery;
             totalHits = docs.getNumFound();
             addDocsToResults(docs, results);
 
@@ -283,6 +308,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             responseProps.put(DID_YOU_MEAN_KEY, new ArrayList<>(originals));
             responseProps.put(SHOWING_RESULTS_FOR_KEY, new ArrayList<>(corrections));
           }
+        }
+
+        if (highlightIsOn) {
+          extractHighlighing(highlightResponse, responseProps);
         }
       }
 
@@ -309,6 +338,74 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       userSpellcheckChoice = (Boolean) request.getProperties().get("spellcheck");
     }
     return userSpellcheckChoice;
+  }
+
+  private Boolean userHighlightIsOn(QueryRequest request) {
+    Boolean userHighlight = false;
+    if (request.getProperties().get(HIGHLIGHT_KEY) != null) {
+      userHighlight = (Boolean) request.getProperties().get(HIGHLIGHT_KEY);
+    }
+    return userHighlight;
+  }
+
+  private void enableHighlighter(SolrQuery query) {
+    query.setParam(SOLR_HIGHLIGHT_KEY, true);
+    query.setParam("hl.fl", "*");
+    query.setParam("hl.simple.pre", "<b>");
+    query.setParam("hl.tag.pre", "<b>");
+    query.setParam("hl.simple.post", "</b>");
+    query.setParam("hl.tag.post", "</b>");
+    query.setParam("hl.requireFieldMatch", true);
+    query.setParam("hl.method", "unified");
+  }
+
+  private void extractHighlighing(QueryResponse response, Map<String, Serializable> responseProps) {
+    Map<String, Map<String, List<String>>> highlights = response.getHighlighting();
+    if (highlights == null) {
+      return;
+    }
+    Map<String, Map<String, Set<String>>> resultsHighlights = new HashMap<>();
+    for (String metacardId : highlights.keySet()) {
+      Map<String, List<String>> fieldHighlight = highlights.get(metacardId);
+      Map<String, Set<String>> consolidated = new HashMap<>();
+      if (fieldHighlight != null && fieldHighlight.size() > 0) {
+        for (Map.Entry<String, List<String>> entry : fieldHighlight.entrySet()) {
+          String solrField = entry.getKey();
+          String normalizedKey = resolver.resolveFieldName(solrField);
+          if (isHighlightBlacklisted(normalizedKey) || isHighlightBlacklisted(solrField)) {
+            continue;
+          }
+          Set<String> consolidatedSet = consolidated.get(normalizedKey);
+          if (consolidatedSet == null) {
+            consolidatedSet = new HashSet<>();
+          }
+          consolidatedSet.addAll(entry.getValue());
+          if (!consolidatedSet.isEmpty()) {
+            consolidated.put(normalizedKey, consolidatedSet);
+          }
+        }
+      }
+      if (!consolidated.isEmpty()) {
+        resultsHighlights.put(metacardId, consolidated);
+      }
+    }
+
+    if (!resultsHighlights.isEmpty()) {
+      try {
+        responseProps.put(HIGHLIGHT_KEY, mapper.writeValueAsString(resultsHighlights));
+      } catch (JsonProcessingException jpe) {
+        LOGGER.debug("Unable to add highlight information to response", jpe);
+      }
+    }
+  }
+
+  private boolean isHighlightBlacklisted(String fieldName) {
+    List<String> blacklist =
+        highlightBlacklist
+            .stream()
+            .filter(item -> fieldName.matches(item))
+            .collect(Collectors.toList());
+    return !blacklist.isEmpty() || resolver.isPrivateField(fieldName);
   }
 
   private boolean solrSpellcheckHasResults(QueryResponse solrResponse) {
