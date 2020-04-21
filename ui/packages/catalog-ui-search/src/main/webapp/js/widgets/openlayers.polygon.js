@@ -85,7 +85,9 @@ const getPolygonCoordSegments = (polySegment, bufferWidth) => {
   return polySegment.geometry.coordinates.map(set => {
     /**
      * There appears to be a bug in the current version of Turf that produces 2-point arrays instead of 4
-     * which results in an exception
+     * which results in an exception. This bug appears to be present in versions < 7
+     *
+     * Related issue: https://github.com/Turfjs/turf/issues/1583
      */
     const coordSet = set.length < 4 ? [...set, ...set] : set
 
