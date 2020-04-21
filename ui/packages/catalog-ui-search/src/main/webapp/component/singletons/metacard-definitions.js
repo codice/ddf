@@ -25,10 +25,15 @@ function transformEnumResponse(metacardTypes, response) {
       switch (metacardTypes[key].type) {
         case 'DATE':
           result[key] = value.map(subval => {
+            let dateObj = {}
             if (subval) {
-              return moment(subval).toISOString()
+              dateObj['label'] = moment(subval).toISOString()
+              dateObj['value'] = moment(subval).toISOString()
+              return dateObj
             }
-            return subval
+            dateObj['label'] = subval
+            dateObj['value'] = subval
+            return dateObj
           })
           break
         case 'LONG':
@@ -38,10 +43,28 @@ function transformEnumResponse(metacardTypes, response) {
         case 'SHORT': //needed until enum response correctly returns numbers as numbers
           result[key] = value.map((
             subval //handle cases of unnecessary number padding -> 22.0000
-          ) => Number(subval))
+          ) => {
+            let numObj = {}
+            numObj['label'] = Number(subval)
+            numObj['value'] = Number(subval)
+            return numObj
+          })
+          break
+        case 'COUNTRY':
+          result[key] = value.map(subval => {
+            let countryObj = {}
+            countryObj['label'] = `${subval} - ${countries[key][subval]}`
+            countryObj['value'] = subval
+            return countryObj
+          })
           break
         default:
-          result[key] = value
+          result[key] = value.map(subval => {
+            let defaultObj = {}
+            defaultObj['label'] = subval
+            defaultObj['value'] = subval
+            return defaultObj
+          })
           break
       }
       return result
@@ -49,6 +72,7 @@ function transformEnumResponse(metacardTypes, response) {
     {}
   )
 }
+let countries = {}
 const metacardStartingTypes = {
   anyText: {
     id: 'anyText',
@@ -81,6 +105,13 @@ const metacardStartingTypes = {
     id: 'metacard-tags',
     type: 'STRING',
     multivalued: true,
+  },
+}
+const countryTypes = {
+  'location.country-code': {
+    standard: 'ISO3166',
+    version: '1',
+    format: 'alpha3',
   },
 }
 
@@ -136,6 +167,12 @@ module.exports = new (Backbone.Model.extend({
       }
     )
   },
+  populateCountries(id) {
+    if (!countries || !(id in Object.keys(countries))) {
+      // check id and then call endpoint with correct version/standard/format
+      this.getCountries(id)
+    }
+  },
   addMetacardDefinition(metacardDefinitionName, metacardDefinition) {
     if (
       Object.keys(this.metacardDefinitions).indexOf(metacardDefinitionName) ===
@@ -157,6 +194,8 @@ module.exports = new (Backbone.Model.extend({
             this.metacardTypes[type].id
           )
         }
+        if (this.metacardTypes[type].type === 'COUNTRY')
+          this.populateCountries(this.metacardTypes[type].id)
       }
       return true
     }
@@ -221,6 +260,15 @@ module.exports = new (Backbone.Model.extend({
   },
   getMetacardStartingTypes() {
     return metacardStartingTypes
+  },
+  getCountries(type) {
+    $.get('./internal/enumerations/countries', {
+      standard: countryTypes[type].standard,
+      version: countryTypes[type].version,
+      format: countryTypes[type].format,
+    }).then(response => {
+      countries[type] = response
+    })
   },
   metacardDefinitions: [],
   sortedMetacardTypes: [],

@@ -448,7 +448,7 @@
       "multivalued": true,
       "isInjected": false,
       "id": "location.country-code",
-      "type": "STRING"
+      "type": "COUNTRY"
     },
     "media.format": {
       "multivalued": false,

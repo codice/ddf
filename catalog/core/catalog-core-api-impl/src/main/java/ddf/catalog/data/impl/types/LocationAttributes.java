@@ -49,7 +49,7 @@ public class LocationAttributes implements Location, MetacardType {
             true /* stored */,
             true /* tokenized */,
             true /* multivalued */,
-            BasicTypes.STRING_TYPE));
+            BasicTypes.COUNTRY_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
             COORDINATE_REFERENCE_SYSTEM_CODE,

@@ -45,6 +45,11 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codice.countrycode</groupId>
+            <artifactId>converter</artifactId>
+            <version>${countryconverter.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

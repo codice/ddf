@@ -114,6 +114,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
+import org.codice.ddf.catalog.ui.enumeration.CountryExtractor;
 import org.codice.ddf.catalog.ui.enumeration.ExperimentalEnumerationExtractor;
 import org.codice.ddf.catalog.ui.metacard.associations.Associated;
 import org.codice.ddf.catalog.ui.metacard.edit.AttributeChange;
@@ -205,6 +206,8 @@ public class MetacardApplication implements SparkApplication {
 
   private final AssociatedQueryMetacardsHandler queryMetacardsHandler;
 
+  private final CountryExtractor countryExtractor;
+
   public MetacardApplication(
       CatalogFramework catalogFramework,
       FilterBuilder filterBuilder,
@@ -222,7 +225,8 @@ public class MetacardApplication implements SparkApplication {
       SubjectIdentity subjectIdentity,
       AccessControlSecurityConfiguration accessControlSecurityConfiguration,
       WorkspaceService workspaceService,
-      AssociatedQueryMetacardsHandler queryMetacardsHandler) {
+      AssociatedQueryMetacardsHandler queryMetacardsHandler,
+      CountryExtractor countryExtractor) {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
     this.util = endpointUtil;
@@ -240,6 +244,7 @@ public class MetacardApplication implements SparkApplication {
     this.accessControlSecurityConfiguration = accessControlSecurityConfiguration;
     this.workspaceService = workspaceService;
     this.queryMetacardsHandler = queryMetacardsHandler;
+    this.countryExtractor = countryExtractor;
   }
 
   private String getSubjectEmail() {
@@ -643,6 +648,17 @@ public class MetacardApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           return util.getJson(enumExtractor.getEnumerations(req.params(":type")));
+        });
+
+    get(
+        "/enumerations/countries",
+        APPLICATION_JSON,
+        (req, res) -> {
+          return util.getJson(
+              countryExtractor.getCountries(
+                  req.queryParams("standard"),
+                  req.queryParams("version"),
+                  req.queryParams("format")));
         });
 
     get(

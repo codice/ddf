@@ -230,6 +230,10 @@ Implementation details
         <argument ref="attributeInjectors"/>
     </bean>
 
+    <bean id="countryExtractor"
+          class="org.codice.ddf.catalog.ui.enumeration.CountryExtractor">
+    </bean>
+
     <bean id="workspacePersistentStore"
           class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
         <argument ref="persistentStore"/>
@@ -268,6 +272,7 @@ Implementation details
         <argument ref="accessControlSecurityConfiguration"/>
         <argument ref="queryWorkspaceService"/>
         <argument ref="queryMetacardsHandler"/>
+        <argument ref="countryExtractor"/>
     </bean>
 
     <!--

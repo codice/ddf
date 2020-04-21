@@ -182,6 +182,7 @@ public class MetacardApplicationTest {
           null,
           null,
           null,
+          null,
           null);
     }
 

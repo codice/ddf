@@ -33,6 +33,7 @@ const typeToComparators = {
   LOCATION: geometryComparators,
   GEOMETRY: geometryComparators,
   BOOLEAN: booleanComparators,
+  COUNTRY: stringComparators,
 }
 
 export const getComparators = attribute => {

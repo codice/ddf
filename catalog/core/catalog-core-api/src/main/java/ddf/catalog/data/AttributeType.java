@@ -130,6 +130,12 @@ public interface AttributeType<T extends Serializable> extends Serializable {
      *
      * @see Serializable
      */
-    OBJECT
+    OBJECT,
+
+    /**
+     * {@link Attribute}s of this {@link AttributeFormat} <b>must</b> have a value that is a
+     * Country-formatted Java {@link String}.
+     */
+    COUNTRY
   }
 }

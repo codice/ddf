@@ -153,6 +153,7 @@ public class InPlaceMetacardProcessor implements Processor {
           case OBJECT:
           case STRING:
           case GEOMETRY:
+          case COUNTRY:
           case XML:
             newValue.add(override);
             break;

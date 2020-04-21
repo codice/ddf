@@ -60,6 +60,9 @@ public class BasicTypes {
   /** A Constant for an {@link AttributeType} with {@link AttributeFormat#SHORT}. */
   public static final AttributeType<Short> SHORT_TYPE;
 
+  /** A Constant for an {@link AttributeType} with {@link AttributeFormat#COUNTRY}. */
+  public static final AttributeType<String> COUNTRY_TYPE;
+
   private static final Map<String, AttributeType> ATTRIBUTE_TYPE_MAP;
 
   static {
@@ -77,6 +80,7 @@ public class BasicTypes {
     INTEGER_TYPE = addAttributeType(AttributeFormat.INTEGER, Integer.class, attributeTypeMap);
     OBJECT_TYPE = addAttributeType(AttributeFormat.OBJECT, Serializable.class, attributeTypeMap);
     SHORT_TYPE = addAttributeType(AttributeFormat.SHORT, Short.class, attributeTypeMap);
+    COUNTRY_TYPE = addAttributeType(AttributeFormat.COUNTRY, String.class, attributeTypeMap);
 
     ATTRIBUTE_TYPE_MAP = Collections.unmodifiableMap(attributeTypeMap);
   }
