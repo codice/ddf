@@ -57,7 +57,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
   public QueryRequest process(Source source, QueryRequest input)
       throws PluginExecutionException, StopProcessingException {
 
-    // A DistributionSummary can be instead by replacing counter() by summary() and increment()
+    // A DistributionSummary can be used instead by replacing counter() by summary() and increment()
     // by record(). This applies equally to any other metric set in this class and retrieved in
     // SourceMetricImplTest
     meterRegistry
