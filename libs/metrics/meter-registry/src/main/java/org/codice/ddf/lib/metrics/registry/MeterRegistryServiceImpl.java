@@ -17,11 +17,17 @@ import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Service that exposing a Micrometer {@link MeterRegistry}. */
 public class MeterRegistryServiceImpl implements MeterRegistryService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MeterRegistryService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MeterRegistryServiceImpl.class);
   private MeterRegistry meterRegistry;
 
+  /**
+   * Creates a new MeterRegistryServiceImpl.
+   *
+   * @param meterRegistry the registry exposed by this service
+   */
   public MeterRegistryServiceImpl(MeterRegistry meterRegistry) {
     LOGGER.debug("Starting Meter Registry Service...");
     this.meterRegistry = meterRegistry;

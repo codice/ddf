@@ -34,13 +34,12 @@ import ddf.catalog.util.impl.Requests;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
-import java.util.Iterator;
 import java.util.Set;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Catalog plug-in to capture metrics on catalog operations.
@@ -64,75 +63,19 @@ public final class CatalogMetrics
 
   protected final DistributionSummary resultCount;
 
-  protected final Counter exceptions;
-
-  protected final Counter unsupportedQueryExceptions;
-
-  protected final Counter sourceUnavailableExceptions;
-
-  protected final Counter federationExceptions;
-
-  protected final Counter queries;
-
-  protected final Counter federatedQueries;
-
-  protected final Counter comparisonQueries;
-
-  protected final Counter spatialQueries;
-
-  protected final Counter xpathQueries;
-
-  protected final Counter fuzzyQueries;
-
-  protected final Counter functionQueries;
-
-  protected final Counter temporalQueries;
-
-  protected final Counter createdMetacards;
-
-  protected final Counter updatedMetacards;
-
-  protected final Counter deletedMetacards;
-
   protected final Counter resourceRetrival;
 
   private final FilterAdapter filterAdapter;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogMetrics.class);
+  public CatalogMetrics(
+      @NotNull FilterAdapter filterAdapter, @NotNull MeterRegistryService meterRegistryService) {
+    Validate.notNull(filterAdapter, "Argument filterAdapter cannot be null");
+    Validate.notNull(meterRegistryService, "Argument meterRegistryService cannot be null");
 
-  public CatalogMetrics(FilterAdapter filterAdapter, MeterRegistryService meterRegistryService) {
     this.filterAdapter = filterAdapter;
-
-    if (meterRegistryService == null) {
-      LOGGER.warn("Meter Registry Service is not available");
-    }
-
     meterRegistry = meterRegistryService.getMeterRegistry();
+
     resultCount = meterRegistry.summary(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "totalresults");
-
-    queries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE);
-    federatedQueries =
-        meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "federated");
-    comparisonQueries =
-        meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "comparison");
-    spatialQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "spatial");
-    xpathQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "xpath");
-    fuzzyQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "fuzzy");
-    temporalQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "temporal");
-    functionQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "function");
-
-    exceptions = meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE);
-    unsupportedQueryExceptions =
-        meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE + "." + "unsupportedquery");
-    sourceUnavailableExceptions =
-        meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE + "." + "sourceunavailable");
-    federationExceptions =
-        meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE + "." + "federation");
-
-    createdMetacards = meterRegistry.counter(METRIC_PREFIX + "." + INGEST_SCOPE + "." + "created");
-    updatedMetacards = meterRegistry.counter(METRIC_PREFIX + "." + INGEST_SCOPE + "." + "updated");
-    deletedMetacards = meterRegistry.counter(METRIC_PREFIX + "." + INGEST_SCOPE + "." + "deleted");
-
     resourceRetrival = meterRegistry.counter(METRIC_PREFIX + "." + RESOURCE_SCOPE);
   }
 
@@ -150,44 +93,78 @@ public final class CatalogMetrics
   @Override
   public QueryRequest process(QueryRequest input)
       throws PluginExecutionException, StopProcessingException {
-    if (isFederated(input)) {
-      federatedQueries.increment();
-    }
-    queries.increment();
-
+    final String scope = getQueryScope(input);
     QueryTypeFilterDelegate queryType = new QueryTypeFilterDelegate();
-    try {
-      filterAdapter.adapt(input.getQuery(), queryType);
-      if (queryType.isComparison()) {
-        comparisonQueries.increment();
+    Set<String> sourceIds = input.getSourceIds();
+    if (sourceIds != null) {
+      try {
+        filterAdapter.adapt(input.getQuery(), queryType);
+        if (queryType.isComparison()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "comparison", scope));
+        }
+        if (queryType.isSpatial()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "spatial", scope));
+        }
+        if (queryType.isFuzzy()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "fuzzy", scope));
+        }
+        if (queryType.isXpath()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "xpath", scope));
+        }
+        if (queryType.isTemporal()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "temporal", scope));
+        }
+        if (queryType.isFunction()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "function", scope));
+        }
+        if (isNone(queryType)) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "none", scope));
+        }
+      } catch (UnsupportedQueryException e) {
+        // ignore filters not supported by the QueryTypeFilterDelegate
       }
-      if (queryType.isSpatial()) {
-        spatialQueries.increment();
-      }
-      if (queryType.isFuzzy()) {
-        fuzzyQueries.increment();
-      }
-      if (queryType.isXpath()) {
-        xpathQueries.increment();
-      }
-      if (queryType.isTemporal()) {
-        temporalQueries.increment();
-      }
-      if (queryType.isFunction()) {
-        functionQueries.increment();
-      }
-    } catch (UnsupportedQueryException e) {
-      // ignore filters not supported by the QueryTypeFilterDelegate
     }
 
     return input;
+  }
+
+  private String getQueryScope(QueryRequest input) {
+    if (isFederated(input)) {
+      return "federated";
+    } else {
+      return "local";
+    }
+  }
+
+  private void pegQueryCounter(String sourceId, String queryType, String scope) {
+    meterRegistry
+        .counter(
+            METRIC_PREFIX + "." + QUERIES_SCOPE,
+            "type",
+            queryType,
+            "sourceId",
+            sourceId,
+            "scope",
+            scope)
+        .increment();
+  }
+
+  private boolean isNone(QueryTypeFilterDelegate queryType) {
+    return !(queryType.isComparison()
+        || queryType.isSpatial()
+        || queryType.isFuzzy()
+        || queryType.isXpath()
+        || queryType.isTemporal()
+        || queryType.isFunction());
   }
 
   // PostCreate
   @Override
   public CreateResponse process(CreateResponse input) throws PluginExecutionException {
     if (Requests.isLocal(input.getRequest())) {
-      createdMetacards.increment(input.getCreatedMetacards().size());
+      meterRegistry
+          .counter(METRIC_PREFIX + "." + INGEST_SCOPE, "type", "create")
+          .increment(input.getCreatedMetacards().size());
     }
     return input;
   }
@@ -196,7 +173,9 @@ public final class CatalogMetrics
   @Override
   public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
     if (Requests.isLocal(input.getRequest())) {
-      updatedMetacards.increment(input.getUpdatedMetacards().size());
+      meterRegistry
+          .counter(METRIC_PREFIX + "." + INGEST_SCOPE, "type", "update")
+          .increment(input.getUpdatedMetacards().size());
     }
     return input;
   }
@@ -205,7 +184,9 @@ public final class CatalogMetrics
   @Override
   public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
     if (Requests.isLocal(input.getRequest())) {
-      deletedMetacards.increment(input.getDeletedMetacards().size());
+      meterRegistry
+          .counter(METRIC_PREFIX + "." + INGEST_SCOPE, "type", "delete")
+          .increment(input.getDeletedMetacards().size());
     }
     return input;
   }
@@ -221,22 +202,29 @@ public final class CatalogMetrics
   private void recordSourceQueryExceptions(QueryResponse response) {
     Set<ProcessingDetails> processingDetails = response.getProcessingDetails();
 
-    if (processingDetails == null || processingDetails.iterator() == null) {
+    if (processingDetails == null) {
       return;
     }
 
-    Iterator<ProcessingDetails> iterator = processingDetails.iterator();
-    while (iterator.hasNext()) {
-      ProcessingDetails next = iterator.next();
+    for (ProcessingDetails next : processingDetails) {
       if (next != null && next.getException() != null) {
         if (next.getException() instanceof UnsupportedQueryException) {
-          unsupportedQueryExceptions.increment();
+          meterRegistry
+              .counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE, "type", "unsupportedquery")
+              .increment();
         } else if (next.getException() instanceof SourceUnavailableException) {
-          sourceUnavailableExceptions.increment();
+          meterRegistry
+              .counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE, "type", "sourceunavailable")
+              .increment();
         } else if (next.getException() instanceof FederationException) {
-          federationExceptions.increment();
+          meterRegistry
+              .counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE, "type", "federation")
+              .increment();
+        } else {
+          meterRegistry
+              .counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE, "type", "unknown")
+              .increment();
         }
-        exceptions.increment();
       }
     }
   }

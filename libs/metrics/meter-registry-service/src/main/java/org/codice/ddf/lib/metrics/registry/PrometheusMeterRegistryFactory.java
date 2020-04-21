@@ -18,6 +18,7 @@ import io.micrometer.prometheus.PrometheusMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Factory for creating {@link PrometheusMeterRegistry}. */
 public class PrometheusMeterRegistryFactory {
 
   private static final Logger LOGGER =

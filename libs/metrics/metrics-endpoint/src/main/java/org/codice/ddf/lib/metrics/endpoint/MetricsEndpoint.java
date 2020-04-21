@@ -21,21 +21,27 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.Validate;
 import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Endpoint which exposes Micrometer metrics. */
 @Path("/")
 public class MetricsEndpoint {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetricsEndpoint.class);
   private final MeterRegistryService meterRegistryService;
 
+  /**
+   * Creates a new MetricsEndpoint.
+   *
+   * @param meterRegistryService service for accessing the {@link
+   *     io.micrometer.core.instrument.MeterRegistry}
+   */
   public MetricsEndpoint(MeterRegistryService meterRegistryService) {
     LOGGER.debug("Starting Metrics endpoint...");
-    if (meterRegistryService == null) {
-      LOGGER.warn("MeterRegistryService is null!");
-    }
+    Validate.notNull(meterRegistryService, "Argument meterRegistryService cannot be null");
     this.meterRegistryService = meterRegistryService;
   }
 
