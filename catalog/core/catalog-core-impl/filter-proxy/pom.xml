@@ -36,12 +36,9 @@
             <artifactId>measure-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-main</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-jts-wrapper</artifactId>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>geotools-suite</artifactId>
+            <version>${org.geotools.bundle.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
