@@ -119,7 +119,8 @@
                distanceUnits="degrees"
                format="WKT"
                autoIndex="true"
-               allowMultiOverlap="true" />
+               allowMultiOverlap="true"
+               normWrapLongitude="true" />
 
     <fieldType name="location" class="solr.LatLonPointSpatialField"/>
 
