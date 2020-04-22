@@ -50,17 +50,49 @@ const translateFromOpenlayersCoordinates = coords => {
     .flatten()
 }
 
+const isValidBufferWidth = bufferWidth =>
+  !_.isNull(bufferWidth) && !_.isUndefined(bufferWidth) && '' != bufferWidth
+
 /**
- * Returns buffer width in meters with the lowest value of 1 meter.
+ * Returns buffer width in meters, if applicable, with the lowest value of 1 meter.
  */
 const getConstrainedBufferWidth = model => {
+  const polygonWidthValue = model.get('polygonBufferWidth')
+
+  if (!isValidBufferWidth(polygonWidthValue)) return undefined
+
+  if (0 == polygonWidthValue) return undefined
+
   const bufferWidth =
     DistanceUtils.getDistanceInMeters(
-      model.get('polygonBufferWidth'),
+      polygonWidthValue,
       model.get('polygonBufferUnits')
     ) || 1
 
   return bufferWidth >= 1 ? bufferWidth : 1
+}
+
+const getPolygonCoordSegments = (polySegment, bufferWidth) => {
+  if (isValidBufferWidth(bufferWidth))
+    return Turf.buffer(
+      polySegment,
+      bufferWidth,
+      'meters'
+    ).geometry.coordinates.map(set => {
+      return Turf.polygon([set])
+    })
+
+  return polySegment.geometry.coordinates.map(set => {
+    /**
+     * There appears to be a bug in the current version of Turf that produces 2-point arrays instead of 4
+     * which results in an exception. This bug appears to be present in versions < 7
+     *
+     * Related issue: https://github.com/Turfjs/turf/issues/1583
+     */
+    const coordSet = set.length < 4 ? [...set, ...set] : set
+
+    return Turf.polygon([coordSet])
+  })
 }
 
 const Draw = {}
@@ -203,13 +235,7 @@ Draw.PolygonView = Marionette.View.extend({
       const polySegment = Turf.multiLineString([
         translateFromOpenlayersCoordinates(set),
       ])
-      const bufferPolygons = Turf.buffer(
-        polySegment,
-        bufferWidth,
-        'meters'
-      ).geometry.coordinates.map(set => {
-        return Turf.polygon([set])
-      })
+      const bufferPolygons = getPolygonCoordSegments(polySegment, bufferWidth)
       return Turf.union(...bufferPolygons).geometry.coordinates
     })
 
