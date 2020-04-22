@@ -33,7 +33,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrCatalogProviderImpl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -70,12 +70,12 @@ public class SolrProviderTestUtil {
 
   private static final int A_LITTLE_WHILE = TIME_STEP_10SECONDS;
 
-  public static void deleteAll(SolrCatalogProvider provider)
+  public static void deleteAll(SolrCatalogProviderImpl provider)
       throws IngestException, UnsupportedQueryException {
     deleteAll(TEST_METHOD_NAME_INDEX, provider);
   }
 
-  public static void deleteAll(int methodNameIndex, SolrCatalogProvider provider)
+  public static void deleteAll(int methodNameIndex, SolrCatalogProviderImpl provider)
       throws IngestException, UnsupportedQueryException {
     messageBreak(Thread.currentThread().getStackTrace()[methodNameIndex].getMethodName() + "()");
 
@@ -92,7 +92,7 @@ public class SolrProviderTestUtil {
 
     LOGGER.info("Records found for deletion: {}", ids);
 
-    provider.delete(new DeleteRequestImpl(ids.toArray(new String[ids.size()])));
+    provider.delete(new DeleteRequestImpl(ids.toArray(new String[0])));
 
     LOGGER.info("Deletion complete. -----------");
   }
@@ -101,7 +101,7 @@ public class SolrProviderTestUtil {
     return new QueryRequestImpl(new QueryImpl(filter));
   }
 
-  public static void queryAndVerifyCount(int count, Filter filter, SolrCatalogProvider provider)
+  public static void queryAndVerifyCount(int count, Filter filter, SolrCatalogProviderImpl provider)
       throws UnsupportedQueryException {
     Query query = new QueryImpl(filter);
     QueryRequest request = new QueryRequestImpl(query);
@@ -110,33 +110,33 @@ public class SolrProviderTestUtil {
     assertEquals(count, response.getResults().size());
   }
 
-  public static DeleteResponse delete(String identifier, SolrCatalogProvider provider)
+  public static DeleteResponse delete(String identifier, SolrCatalogProviderImpl provider)
       throws IngestException {
     return delete(new String[] {identifier}, provider);
   }
 
-  public static DeleteResponse delete(String[] identifier, SolrCatalogProvider provider)
+  public static DeleteResponse delete(String[] identifier, SolrCatalogProviderImpl provider)
       throws IngestException {
     return provider.delete(new DeleteRequestImpl(identifier));
   }
 
-  public static UpdateResponse update(String id, Metacard metacard, SolrCatalogProvider provider)
-      throws IngestException {
+  public static UpdateResponse update(
+      String id, Metacard metacard, SolrCatalogProviderImpl provider) throws IngestException {
     String[] ids = {id};
     return update(ids, Collections.singletonList(metacard), provider);
   }
 
   public static UpdateResponse update(
-      String[] ids, List<Metacard> list, SolrCatalogProvider provider) throws IngestException {
+      String[] ids, List<Metacard> list, SolrCatalogProviderImpl provider) throws IngestException {
     return provider.update(new UpdateRequestImpl(ids, list));
   }
 
-  public static CreateResponse create(Metacard metacard, SolrCatalogProvider provider)
+  public static CreateResponse create(Metacard metacard, SolrCatalogProviderImpl provider)
       throws IngestException {
     return create(Collections.singletonList(metacard), provider);
   }
 
-  public static CreateResponse create(List<Metacard> metacards, SolrCatalogProvider provider)
+  public static CreateResponse create(List<Metacard> metacards, SolrCatalogProviderImpl provider)
       throws IngestException {
     return createIn(metacards, provider);
   }
@@ -145,7 +145,7 @@ public class SolrProviderTestUtil {
     return filterBuilder;
   }
 
-  public static void addMetacardWithModifiedDate(DateTime now, SolrCatalogProvider provider)
+  public static void addMetacardWithModifiedDate(DateTime now, SolrCatalogProviderImpl provider)
       throws IngestException {
     List<Metacard> list = new ArrayList<>();
     MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
@@ -154,8 +154,8 @@ public class SolrProviderTestUtil {
     create(list, provider);
   }
 
-  public static List<Result> getResultsForFilteredQuery(Filter filter, SolrCatalogProvider provider)
-      throws UnsupportedQueryException {
+  public static List<Result> getResultsForFilteredQuery(
+      Filter filter, SolrCatalogProviderImpl provider) throws UnsupportedQueryException {
     QueryImpl query = new QueryImpl(filter);
 
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
@@ -192,8 +192,8 @@ public class SolrProviderTestUtil {
     return descriptors;
   }
 
-  private static CreateResponse createIn(List<Metacard> metacards, SolrCatalogProvider solrProvider)
-      throws IngestException {
+  private static CreateResponse createIn(
+      List<Metacard> metacards, SolrCatalogProviderImpl solrProvider) throws IngestException {
     return solrProvider.create(new CreateRequestImpl(metacards));
   }
 

@@ -132,7 +132,6 @@
 
     <feature name="offline-gazetteer" version="${project.version}"
              description="Offline gazetteer service utilizing a local GeoNames index.">
-        <feature>catalog-solr-provider</feature>
         <feature>spatial-geocoding-endpoint</feature>
         <feature>catalog-core-plugins</feature>
         <bundle>mvn:commons-digester/commons-digester/${commons-digester.version}</bundle>

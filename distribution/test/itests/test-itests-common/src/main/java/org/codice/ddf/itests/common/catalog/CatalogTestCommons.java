@@ -396,6 +396,6 @@ public class CatalogTestCommons {
   public static void deleteMetacardUsingCswResponseId(Response response)
       throws IOException, XPathExpressionException {
     String id = getMetacardIdFromCswInsertResponse(response);
-    CatalogTestCommons.delete(id);
+    delete(id);
   }
 }

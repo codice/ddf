@@ -35,7 +35,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrCatalogProviderImpl;
 import ddf.catalog.source.solr.SolrProviderTest;
 import java.beans.XMLEncoder;
 import java.io.BufferedOutputStream;
@@ -89,7 +89,7 @@ public class SolrProviderExtensibleMetacards {
   private String objectField = "payload";
   private BevelBorder objectFieldValue = new BevelBorder(BevelBorder.RAISED);
 
-  private static SolrCatalogProvider provider;
+  private static SolrCatalogProviderImpl provider;
 
   @BeforeClass
   public static void setUp() {

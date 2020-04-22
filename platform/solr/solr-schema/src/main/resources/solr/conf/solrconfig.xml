@@ -1305,4 +1305,10 @@
 
   <queryParser name="xpath" class="org.codice.solr.xpath.XpathQParserPlugin"/>
 
+  <requestHandler name="/admin/ping" class="solr.PingRequestHandler">
+    <lst name="invariants">
+      <str name="qt">/query</str>
+      <str name="q">id_txt:*</str>
+    </lst>
+  </requestHandler>
 </config>

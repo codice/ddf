@@ -66,7 +66,7 @@ public class SolrProviderRealTimeQueryTest {
 
   private static MiniSolrCloudCluster miniSolrCloud;
 
-  private static SolrCatalogProvider provider;
+  private static SolrCatalogProviderImpl provider;
 
   public static final String MASKED_ID = "scp";
 
@@ -75,8 +75,8 @@ public class SolrProviderRealTimeQueryTest {
     ConfigurationStore store = ConfigurationStore.getInstance();
     // Set to false for real time query by ID tests
     store.setForceAutoCommit(false);
-    String solrDataPath = Paths.get("target/surefire/solr/realtime").toString();
-    System.setProperty("solr.data.dir", solrDataPath);
+    String solrDataPath = Paths.get("target/surefire/ddf/realtime").toString();
+    System.setProperty("ddf.home", solrDataPath);
     store.setDataDirectoryPath(solrDataPath);
 
     System.setProperty("jute.maxbuffer", "20000000"); // windows solution
@@ -109,7 +109,7 @@ public class SolrProviderRealTimeQueryTest {
     dynamicSchemaResolver.addMetacardType(BASIC_METACARD);
 
     provider =
-        new SolrCatalogProvider(
+        new SolrCatalogProviderImpl(
             solrClient,
             new GeotoolsFilterAdapterImpl(),
             new SolrFilterDelegateFactoryImpl(),
@@ -121,7 +121,7 @@ public class SolrProviderRealTimeQueryTest {
 
   @AfterClass
   public static void afterClass() throws Exception {
-    System.clearProperty("solr.data.dir");
+    System.clearProperty("ddf.home");
     System.clearProperty("solr.cloud.shardCount");
     System.clearProperty("solr.cloud.replicationFactor");
     System.clearProperty("solr.cloud.maxShardPerNode");

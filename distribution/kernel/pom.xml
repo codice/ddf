@@ -251,6 +251,14 @@
                         </goals>
                         <configuration>
                             <artifactItems>
+                                <!-- Uncompress the Solr default configset -->
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>solr-schema</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${setup.folder}</outputDirectory>
+                                </artifactItem>
                                 <!-- Uncompress the unix Karaf distribution -->
                                 <artifactItem>
                                     <groupId>org.apache.karaf</groupId>
@@ -346,6 +354,12 @@
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>ddf-common</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-schema</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>

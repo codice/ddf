@@ -30,7 +30,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrCatalogProviderImpl;
 import ddf.catalog.source.solr.SolrProviderTest;
 import java.util.Calendar;
 import java.util.Collections;
@@ -53,7 +53,7 @@ public class SolrProviderTemporal {
 
   private static final long MINUTES_IN_MILLISECONDS = 60000;
 
-  private static SolrCatalogProvider provider;
+  private static SolrCatalogProviderImpl provider;
 
   @BeforeClass
   public static void setUp() {

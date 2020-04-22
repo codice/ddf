@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrCatalogProviderImpl;
 import ddf.catalog.source.solr.SolrProviderTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class SolrProviderSource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderSource.class);
 
-  private static SolrCatalogProvider provider;
+  private static SolrCatalogProviderImpl provider;
 
   @BeforeClass
   public static void setUp() {

@@ -18,7 +18,7 @@ import static org.apache.commons.lang.Validate.notNull;
 import com.google.common.annotations.VisibleForTesting;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.function.BiFunction;
+import java.util.Map;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 
@@ -28,38 +28,34 @@ import org.codice.solr.factory.SolrClientFactory;
  */
 public final class SolrClientFactoryImpl implements SolrClientFactory {
 
-  private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
-  private final HttpSolrClientFactory httpSolrClientFactory;
+  private String clientType;
+  private SolrClientFactory factory;
 
-  @SuppressWarnings("unused" /* used by blueprint */)
   public SolrClientFactoryImpl(HttpSolrClientFactory httpSolrClientFactory) {
-    this.newClientFunction = (factory, core) -> factory.newClient(core);
-    this.httpSolrClientFactory = httpSolrClientFactory;
-  }
-
-  @VisibleForTesting
-  SolrClientFactoryImpl(
-      HttpSolrClientFactory httpSolrClientFactory,
-      BiFunction<SolrClientFactory, String, SolrClient> newClientFunction) {
-    this.newClientFunction = newClientFunction;
-    this.httpSolrClientFactory = httpSolrClientFactory;
-  }
-
-  @Override
-  public SolrClient newClient(String core) {
-    notNull(core, "Solr core name cannot be null");
-
-    String clientType =
+    this.clientType =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("solr.client", "HttpSolrClient"));
-    SolrClientFactory factory;
 
     if ("CloudSolrClient".equals(clientType)) {
       factory = new SolrCloudClientFactory();
     } else { // Use HttpSolrClient by default
       factory = httpSolrClientFactory;
     }
+  }
 
-    return newClientFunction.apply(factory, core);
+  @Override
+  public SolrClient newClient(String core) {
+    notNull(core, "Solr core name cannot be null");
+    return factory.newClient(core);
+  }
+
+  @Override
+  public SolrClient newClient(String collection, Map<String, Object> properties) {
+    return factory.newClient(collection, properties);
+  }
+
+  @VisibleForTesting
+  SolrClientFactory getFactory() {
+    return factory;
   }
 }
