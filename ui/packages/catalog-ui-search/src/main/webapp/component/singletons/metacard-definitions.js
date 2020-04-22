@@ -43,28 +43,22 @@ function transformEnumResponse(metacardTypes, response) {
         case 'SHORT': //needed until enum response correctly returns numbers as numbers
           result[key] = value.map((
             subval //handle cases of unnecessary number padding -> 22.0000
-          ) => {
-            let numObj = {}
-            numObj['label'] = Number(subval)
-            numObj['value'] = Number(subval)
-            return numObj
-          })
+          ) => ({
+            label: Number(subval),
+            value: Number(subval),
+          }))
           break
         case 'COUNTRY':
-          result[key] = value.map(subval => {
-            let countryObj = {}
-            countryObj['label'] = `${subval} - ${countries[key][subval]}`
-            countryObj['value'] = subval
-            return countryObj
-          })
+          result[key] = value.map(subval => ({
+            label: `${subval} (${this.countries[key][subval]})`,
+            value: subval,
+          }))
           break
         default:
-          result[key] = value.map(subval => {
-            let defaultObj = {}
-            defaultObj['label'] = subval
-            defaultObj['value'] = subval
-            return defaultObj
-          })
+          result[key] = value.map(subval => ({
+            label: subval,
+            value: subval,
+          }))
           break
       }
       return result
@@ -72,7 +66,6 @@ function transformEnumResponse(metacardTypes, response) {
     {}
   )
 }
-let countries = {}
 const metacardStartingTypes = {
   anyText: {
     id: 'anyText',
@@ -162,14 +155,14 @@ module.exports = new (Backbone.Model.extend({
       response => {
         _.extend(
           this.enums,
-          transformEnumResponse(this.metacardTypes, response)
+          transformEnumResponse.bind(this)(this.metacardTypes, response)
         )
       }
     )
   },
   populateCountries(id) {
-    if (!countries || !(id in Object.keys(countries))) {
-      // check id and then call endpoint with correct version/standard/format
+    if (!this.countries || !this.countries[id]) {
+      this.countries[id] = {}
       this.getCountries(id)
     }
   },
@@ -267,7 +260,7 @@ module.exports = new (Backbone.Model.extend({
       version: countryTypes[type].version,
       format: countryTypes[type].format,
     }).then(response => {
-      countries[type] = response
+      this.countries[type] = response
     })
   },
   metacardDefinitions: [],
@@ -275,4 +268,5 @@ module.exports = new (Backbone.Model.extend({
   metacardTypes: _.extendOwn({}, metacardStartingTypesWithTemporal()),
   validation: {},
   enums: properties.enums,
+  countries: {},
 }))()
