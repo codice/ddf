@@ -69,7 +69,7 @@ public class SourceMetricsImplTest {
     QueryRequest queryRequest = mock(QueryRequest.class);
     sourceMetricsImpl.process(source, queryRequest);
     String suffix = METRICS_PREFIX + "." + QUERY_SCOPE + "." + REQUEST_TYPE;
-    assertThat(meterRegistry.counter(suffix, "source", "testSource").count(), is(1.0));
+    assertThat(meterRegistry.counter(suffix, "sourceId", "testSource").count(), is(1.0));
   }
 
   @Test
@@ -82,7 +82,7 @@ public class SourceMetricsImplTest {
     when(queryResponse.getProcessingDetails()).thenReturn(processingDetails);
     sourceMetricsImpl.process(queryResponse);
     String suffix = METRICS_PREFIX + "." + QUERY_SCOPE + "." + EXCEPTION_TYPE;
-    assertThat(meterRegistry.counter(suffix, "source", "testSource").count(), is(1.0));
+    assertThat(meterRegistry.counter(suffix, "sourceId", "testSource").count(), is(1.0));
   }
 
   @Test
@@ -97,6 +97,6 @@ public class SourceMetricsImplTest {
     when(queryResponse.getResults()).thenReturn(results);
     sourceMetricsImpl.process(queryResponse);
     String suffix = METRICS_PREFIX + "." + QUERY_SCOPE + "." + RESPONSE_TYPE;
-    assertThat(meterRegistry.counter(suffix, "source", "testSource").count(), is(1.0));
+    assertThat(meterRegistry.counter(suffix, "sourceId", "testSource").count(), is(1.0));
   }
 }

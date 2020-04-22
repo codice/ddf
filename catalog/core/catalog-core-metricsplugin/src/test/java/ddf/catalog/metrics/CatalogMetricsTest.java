@@ -379,10 +379,12 @@ public class CatalogMetricsTest {
 
   @Test
   public void catalogExceptionMetric() throws Exception {
-    Iterable<Tag> unsupportedQueryExceptionTags = Tags.of("type", "unsupportedquery");
-    Iterable<Tag> sourceUnavailableExceptionTags = Tags.of("type", "unsupportedquery");
-    Iterable<Tag> federationExceptionTags = Tags.of("type", "unsupportedquery");
-    Iterable<Tag> unknownExceptionTags = Tags.of("type", "unsupportedquery");
+    Iterable<Tag> unsupportedQueryExceptionTags =
+        Tags.of("type", "unsupportedquery", "sourceId", "source1");
+    Iterable<Tag> sourceUnavailableExceptionTags =
+        Tags.of("type", "sourceunavailable", "sourceId", "source2");
+    Iterable<Tag> federationExceptionTags = Tags.of("type", "federation", "sourceId", "source3");
+    Iterable<Tag> unknownExceptionTags = Tags.of("type", "unknown", "sourceId", "source4");
     QueryResponse response = new QueryResponseImpl(new QueryRequestImpl(new QueryImpl(idFilter)));
     Set<ProcessingDetails> details = response.getProcessingDetails();
 

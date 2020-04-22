@@ -210,19 +210,39 @@ public final class CatalogMetrics
       if (next != null && next.getException() != null) {
         if (next.getException() instanceof UnsupportedQueryException) {
           meterRegistry
-              .counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE, "type", "unsupportedquery")
+              .counter(
+                  METRIC_PREFIX + "." + EXCEPTIONS_SCOPE,
+                  "type",
+                  "unsupportedquery",
+                  "sourceId",
+                  next.getSourceId())
               .increment();
         } else if (next.getException() instanceof SourceUnavailableException) {
           meterRegistry
-              .counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE, "type", "sourceunavailable")
+              .counter(
+                  METRIC_PREFIX + "." + EXCEPTIONS_SCOPE,
+                  "type",
+                  "sourceunavailable",
+                  "sourceId",
+                  next.getSourceId())
               .increment();
         } else if (next.getException() instanceof FederationException) {
           meterRegistry
-              .counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE, "type", "federation")
+              .counter(
+                  METRIC_PREFIX + "." + EXCEPTIONS_SCOPE,
+                  "type",
+                  "federation",
+                  "sourceId",
+                  next.getSourceId())
               .increment();
         } else {
           meterRegistry
-              .counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE, "type", "unknown")
+              .counter(
+                  METRIC_PREFIX + "." + EXCEPTIONS_SCOPE,
+                  "type",
+                  "unknown",
+                  "sourceId",
+                  next.getSourceId())
               .increment();
         }
       }

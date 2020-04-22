@@ -41,7 +41,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImpl.class);
 
-  private static final String SOURCE_TAG = "source";
+  private static final String SOURCE_TAG = "sourceId";
 
   private final MeterRegistry meterRegistry;
 
