@@ -75,6 +75,8 @@ public class OidcLogoutActionProviderTest {
     principalCollection.add(securityAssertion, "oidc");
     when(session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY)).thenReturn(tokenHolder);
     when(request.getSession(false)).thenReturn(session);
+    when(request.getHeader("Referer"))
+        .thenReturn("http://foo.bar?prevurl=https://localhost:8993/admin");
 
     Action action =
         oidcLogoutActionProvider.getAction(

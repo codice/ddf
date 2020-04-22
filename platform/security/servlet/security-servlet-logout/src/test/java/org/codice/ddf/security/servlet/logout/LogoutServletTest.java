@@ -24,7 +24,6 @@ import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
 import java.io.PrintWriter;
 import java.security.cert.X509Certificate;
-import java.util.Collections;
 import java.util.Enumeration;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -52,6 +51,7 @@ public class LogoutServletTest {
   @Before
   public void testsetup() throws Exception {
     localLogoutServlet = new MockLocalLogoutServlet();
+    localLogoutServlet.setRedirectUri("/logout");
     request = mock(HttpServletRequest.class);
     response = mock(HttpServletResponse.class);
     printWriter = mock(PrintWriter.class);
@@ -73,13 +73,7 @@ public class LogoutServletTest {
   }
 
   @Test
-  public void testLocalLogoutBasicAuth() {
-    // Used for detecting basic auth
-    when(request.getHeaders(anyString())).thenReturn(new LogoutServletEnumeration());
-
-    // used for detecting pki
-    when(request.getAttribute("javax.servlet.request.X509Certificate")).thenReturn(null);
-
+  public void testLocalLogout() throws Exception {
     SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(securityTokenHolder);
@@ -89,50 +83,7 @@ public class LogoutServletTest {
       fail(e.getMessage());
     }
     verify(httpSession).invalidate();
-    verify(printWriter).write("{ \"mustCloseBrowser\": true }");
-  }
-
-  @Test
-  public void testLocalLogoutPkiAuth() {
-    // Used for detecting basic auth
-    when(request.getHeaders(anyString()))
-        .thenReturn(Collections.enumeration(Collections.emptyList()));
-
-    // used for detecting pki
-    when(request.getAttribute("javax.servlet.request.X509Certificate"))
-        .thenReturn(new X509Certificate[] {mock(X509Certificate.class)});
-
-    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
-    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
-        .thenReturn(securityTokenHolder);
-    try {
-      localLogoutServlet.doGet(request, response);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
-    verify(httpSession).invalidate();
-    verify(printWriter).write("{ \"mustCloseBrowser\": true }");
-  }
-
-  @Test
-  public void testLocalLogoutNotBasicOrPki() {
-    // Used for detecting basic auth
-    when(request.getHeaders(anyString()))
-        .thenReturn(Collections.enumeration(Collections.emptyList()));
-
-    // used for detecting pki
-    when(request.getAttribute("javax.servlet.request.X509Certificate")).thenReturn(null);
-
-    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
-    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
-        .thenReturn(securityTokenHolder);
-    try {
-      localLogoutServlet.doGet(request, response);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
-    verify(httpSession).invalidate();
-    verify(printWriter).write("{ \"mustCloseBrowser\": false }");
+    verify(response).sendRedirect("https://localhost:8993/logout?mustCloseBrowser=true");
   }
 
   @Test()

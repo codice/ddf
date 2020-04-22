@@ -16,8 +16,12 @@ package org.codice.ddf.security.servlet.local.logout;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.impl.SubjectUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +37,12 @@ public class DefaultLogoutAction implements ActionProvider {
   private static final String DESCRIPTION =
       "Logging out of local system. Accounts signed into external identity providers will remain logged in.";
 
+  private static final String USER_PASS_TOKEN_TYPE = "userpass";
+
+  private static final String GUEST_TOKEN_TYPE = "guest";
+
+  private static final String PKI_TOKEN_TYPE = "pki";
+
   private static URL logoutUrl = null;
 
   static {
@@ -44,9 +54,37 @@ public class DefaultLogoutAction implements ActionProvider {
     }
   }
 
+  /**
+   * *
+   *
+   * @param <T> is a Map<String, Subject>
+   * @param subjectMap containing the corresponding subject
+   * @return OidcLogoutActionProvider containing the logout url
+   */
   @Override
-  public <T> Action getAction(T subject) {
+  public <T> Action getAction(T subjectMap) {
+    if (!canHandle(subjectMap)) {
+      return null;
+    }
+
     return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);
+  }
+
+  private <T> boolean canHandle(T subjectMap) {
+    if (!(subjectMap instanceof Map)) {
+      return false;
+    }
+
+    Object subject = ((Map) subjectMap).get(SecurityConstants.SECURITY_SUBJECT);
+    if (!(subject instanceof Subject)) {
+      return false;
+    }
+
+    String type = SubjectUtils.getType((Subject) subject);
+    return type != null
+        && (type.equals(GUEST_TOKEN_TYPE)
+            || type.equals(USER_PASS_TOKEN_TYPE)
+            || type.equals(PKI_TOKEN_TYPE));
   }
 
   @Override

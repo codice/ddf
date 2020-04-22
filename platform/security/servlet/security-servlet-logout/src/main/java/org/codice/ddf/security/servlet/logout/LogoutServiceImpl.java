@@ -23,7 +23,6 @@ import ddf.security.http.SessionFactory;
 import ddf.security.impl.SubjectUtils;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,10 +64,9 @@ public class LogoutServiceImpl implements LogoutService {
     subjectMap.put("http_response", response);
     subjectMap.put(SecurityConstants.SECURITY_SUBJECT, subject);
 
-    List<Map<String, String>> actionPropertiesList = new ArrayList<>();
+    Map<String, String> actionProperties = new HashMap<>();
 
     for (ActionProvider actionProvider : logoutActionProviders) {
-      Map<String, String> actionProperties = new HashMap<>();
       Action action = actionProvider.getAction(subjectMap);
 
       if (action != null) {
@@ -77,11 +75,10 @@ public class LogoutServiceImpl implements LogoutService {
         actionProperties.put("auth", displayName);
         actionProperties.put("description", action.getDescription());
         actionProperties.put("url", action.getUrl().toString());
-        actionPropertiesList.add(actionProperties);
       }
     }
 
-    return GSON.toJson(actionPropertiesList);
+    return GSON.toJson(actionProperties);
   }
 
   public void setHttpSessionFactory(SessionFactory httpSessionFactory) {

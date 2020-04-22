@@ -90,7 +90,9 @@
         </bean>
     </service>
 
-    <bean id="oidcCallbackEndpoint" class="org.codice.ddf.security.handler.oidc.OidcCallbackEndpoint"/>
+    <bean id="oidcCallbackEndpoint" class="org.codice.ddf.security.handler.oidc.OidcCallbackEndpoint">
+        <property name="redirectUri" value="/logout/logout-response.html"/>
+    </bean>
 
     <jaxrs:server id="restService" address="/oidc">
         <jaxrs:serviceBeans>

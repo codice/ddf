@@ -50,6 +50,10 @@ public final class RestSecurity implements org.codice.ddf.security.jaxrs.RestSec
   }
 
   public String inflateBase64(String base64EncodedValue) throws IOException {
+    if (base64EncodedValue == null) {
+      return "";
+    }
+
     byte[] deflatedValue =
         Base64.getMimeDecoder().decode(base64EncodedValue.getBytes(StandardCharsets.UTF_8));
     InputStream is =
@@ -65,6 +69,9 @@ public final class RestSecurity implements org.codice.ddf.security.jaxrs.RestSec
    * @return decoded value
    */
   public String base64Decode(String base64EncodedValue) {
+    if (base64EncodedValue == null) {
+      return "";
+    }
     return new String(
         Base64.getMimeDecoder().decode(base64EncodedValue.getBytes(StandardCharsets.UTF_8)),
         StandardCharsets.UTF_8);

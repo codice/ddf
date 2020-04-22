@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.security.handler.oidc;
 
-import java.net.URI;
+import com.google.common.annotations.VisibleForTesting;
 import java.net.URISyntaxException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +21,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.session.J2ESessionStore;
@@ -31,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public class OidcCallbackEndpoint {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OidcCallbackEndpoint.class);
+  private String redirectUri;
 
   @GET
   @Path("/logout")
@@ -54,12 +58,36 @@ public class OidcCallbackEndpoint {
 
     sessionStore.destroySession(j2EContext);
 
+    String localLogout = SystemBaseUrl.EXTERNAL.constructUrl("/logout/local");
+    WebClient webClient = getWebClient(localLogout);
+    Response logoutResponse = webClient.get();
+    if (logoutResponse.getStatus() == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+      return logoutResponse;
+    }
+
     try {
-      return Response.temporaryRedirect(new URI(SystemBaseUrl.EXTERNAL.constructUrl("/logout")))
-          .build();
+      String redirectUrl = SystemBaseUrl.EXTERNAL.constructUrl(redirectUri, false);
+      URIBuilder redirectUrlBuilder = new URIBuilder(redirectUrl);
+
+      String prevUrl = request.getParameter("prevurl");
+      if (prevUrl != null) {
+        redirectUrlBuilder.addParameter("prevurl", prevUrl);
+      }
+
+      return Response.seeOther(redirectUrlBuilder.build()).build();
     } catch (URISyntaxException e) {
       LOGGER.debug("Unable to create logout response URL for OIDC logout.", e);
     }
+
     return Response.serverError().build();
+  }
+
+  @VisibleForTesting
+  WebClient getWebClient(String logoutUrlString) {
+    return WebClient.create(logoutUrlString);
+  }
+
+  public void setRedirectUri(String redirectUri) {
+    this.redirectUri = redirectUri;
   }
 }

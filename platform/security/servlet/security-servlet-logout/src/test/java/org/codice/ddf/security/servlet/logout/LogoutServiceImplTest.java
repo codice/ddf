@@ -29,7 +29,6 @@ import ddf.security.service.SecurityServiceException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.servlet.http.HttpSession;
-import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -68,9 +67,7 @@ public class LogoutServiceImplTest {
 
     String responseMessage = logoutServiceImpl.getActionProviders(null, null);
 
-    JSONArray actionProperties = (JSONArray) new JSONParser().parse(responseMessage);
-    assertEquals(1, actionProperties.size());
-    JSONObject defaultActionProperty = ((JSONObject) actionProperties.get(0));
+    JSONObject defaultActionProperty = (JSONObject) new JSONParser().parse(responseMessage);
 
     assertEquals(defaultActionProperty.get("description"), defaultLogoutAction.getDescription());
     assertEquals(defaultActionProperty.get("title"), defaultLogoutAction.getTitle());

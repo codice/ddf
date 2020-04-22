@@ -38,6 +38,7 @@
 
     <bean id="logoutServlet" class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet">
         <property name="tokenStorage" ref="tokenStorage"/>
+        <property name="redirectUri" value="/logout/logout-response.html"/>
     </bean>
 
     <service ref="logoutServlet" interface="javax.servlet.Servlet">

@@ -52,6 +52,8 @@ public class PKIRealm extends AuthenticatingRealm {
 
   private Duration fourHours = Duration.ofHours(4);
 
+  private static final String PKI_TOKEN_TYPE = "pki";
+
   /** Determine if the supplied token is supported by this realm. */
   @Override
   public boolean supports(AuthenticationToken token) {
@@ -117,6 +119,7 @@ public class PKIRealm extends AuthenticatingRealm {
             .issuer("DDF")
             .notBefore(Date.from(now))
             .notOnOrAfter(Date.from(now.plus(fourHours)))
+            .tokenType(PKI_TOKEN_TYPE)
             .build();
 
     principals.add(assertion, "PKI");

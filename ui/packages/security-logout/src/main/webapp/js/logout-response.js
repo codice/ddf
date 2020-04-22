@@ -12,9 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* global $ */
 // eslint-disable-next-line no-extra-semi
 ;(function() {
+  var redirectUrl = window.location.href.replace(/\/logout\/.*/, '')
   var searchString = (window.location.search + '').split('?')
+  var mustCloseBrowser = false
 
   if (searchString[1] !== undefined) {
     var searchParams = searchString[1].split('&')
@@ -22,18 +25,30 @@
     searchParams.forEach(function(paramString) {
       var param = paramString.split('=')
 
-      if (param[0] === 'msg') {
+      if (param[0] === 'mustCloseBrowser') {
         // eslint-disable-next-line no-undef
-        $('#extramessage')
-          .text(decodeURIComponent(param[1].split('+').join(' ')))
-          .html()
+        mustCloseBrowser = true
+      } else if (param[0] === 'prevurl') {
+        // eslint-disable-next-line no-undef
+        redirectUrl = param[1]
       }
       //add additional params here if needed
     })
   }
 
-  // eslint-disable-next-line no-undef
-  $('#landinglink').click(function() {
-    window.location.href = window.location.href.replace(/logout\/.*/, '')
-  })
+  if (mustCloseBrowser) {
+    $('#close-browser-msg').show()
+    return
+  }
+
+  $('#link').attr('href', decodeUrl(redirectUrl))
+  $('#standard-msg').show()
 })()
+
+function decodeUrl(url) {
+  if (url.indexOf('%') !== -1) {
+    return decodeURIComponent(url)
+  }
+
+  return url
+}

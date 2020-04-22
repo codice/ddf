@@ -955,14 +955,7 @@ public class TestOidc extends AbstractIntegrationTest {
 
     // Get and verify the logout url from body
     String body = initialLogoutResponse.getBody().prettyPrint();
-    List<Map<String, String>> responseJson = GSON.fromJson(body, List.class);
-    Map<String, String> oidcLogoutProperties =
-        responseJson
-            .stream()
-            .filter(entry -> ((String) ((Map) entry).get("title")).contains("OIDC"))
-            .findFirst()
-            .get();
-
+    Map<String, String> oidcLogoutProperties = GSON.fromJson(body, Map.class);
     assertThat(oidcLogoutProperties.get("auth"), is(ADMIN));
 
     URI logoutUri = new URI(oidcLogoutProperties.get("url"));
@@ -986,12 +979,12 @@ public class TestOidc extends AbstractIntegrationTest {
             .redirects()
             .follow(false)
             .expect()
-            .statusCode(307)
+            .statusCode(303)
             .when()
             .get(requestParams.get("post_logout_redirect_uri"));
 
     String location = logoutResponse.header(LOCATION);
-    assertThat(location, is(SECURE_ROOT + HTTPS_PORT.getPort() + "/logout"));
+    assertThat(location, is(SECURE_ROOT + HTTPS_PORT.getPort() + "/logout/logout-response.html"));
 
     // Verify that we're not logged in
     Map<String, Object> userInfoList = getUserInfo(jsessionidValue);
@@ -1070,6 +1063,8 @@ public class TestOidc extends AbstractIntegrationTest {
    * @param jsessionidValue - {@code JSESSIONID} value returned during login
    */
   public void logout(String jsessionidValue) {
+    whenHttp(server).match(get(LOGOUT_URL_PATH)).then(ok());
+
     given()
         .cookie(JSESSIONID, jsessionidValue)
         .header(USER_AGENT, BROWSER_USER_AGENT)
@@ -1077,7 +1072,7 @@ public class TestOidc extends AbstractIntegrationTest {
         .redirects()
         .follow(false)
         .expect()
-        .statusCode(307)
+        .statusCode(303)
         .when()
         .get(LOGOUT_URL.getUrl());
 
