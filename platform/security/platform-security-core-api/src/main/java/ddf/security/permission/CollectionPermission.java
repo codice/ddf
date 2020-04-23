@@ -32,6 +32,8 @@ public class CollectionPermission implements Permission {
 
   public static final String UPDATE_ACTION = "update";
 
+  public static final String REMOVE_USER_ACCESS_ACTION = "remove-user-access";
+
   public static final String DELETE_ACTION = "delete";
 
   public static final String UNKNOWN_ACTION = "unknown-action";

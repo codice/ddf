@@ -112,6 +112,12 @@ export class Security {
     return this.canAccess(user, Access.Share)
   }
 
+  hasGroupAccess(user: any): boolean {
+    return Math.max(
+      ...user.getRoles().map((group: string) => this.getGroupAccess(group))
+    ) !== 0
+  }
+
   isShared(): boolean {
     return !(
       this.res.accessGroups.length == 0 &&

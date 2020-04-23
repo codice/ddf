@@ -31,10 +31,13 @@ type Props = {
   subscribeToWorkspace: () => void
   unsubscribeFromWorkspace: () => void
   deletionPrompt: () => void
+  removeSharedForm: () => void
   isSubscribed: boolean
   isLocal: boolean
   isDeletable: boolean
   isShareable: boolean
+  isShared: boolean
+  hasGroupAccess: boolean
 }
 
 const Root = styled.div`
@@ -54,10 +57,13 @@ const render = (props: Props) => {
     subscribeToWorkspace,
     unsubscribeFromWorkspace,
     deletionPrompt,
+    removeSharedForm,
     isSubscribed,
     isLocal,
     isDeletable,
     isShareable,
+    isShared,
+    hasGroupAccess,
   } = props
   return (
     <Root className="composed-menu">
@@ -175,6 +181,18 @@ const render = (props: Props) => {
           icon="fa fa-trash-o"
         >
           Delete Workspace
+        </MenuAction>
+      )}
+      {isShared && !hasGroupAccess && (
+        <MenuAction
+          help="Leave workspace. You will no longer have access to this workspace."
+          onClick={(_e, context) => {
+            removeSharedForm()
+            context.closeAndRefocus()
+          }}
+          icon="fa fa-trash-o"
+        >
+          Leave Workspace
         </MenuAction>
       )}
     </Root>

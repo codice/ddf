@@ -52,6 +52,78 @@ export type Item = {
   access: Access
 }
 
+export const handleRemoveSharedMetacard = (id: number) => {
+  fetchMetacard(id).then((data:any) => {
+    const metacard = data
+    const res = Restrictions.from(metacard)
+    const security = new Security(res)
+
+    const individuals = security
+      .getIndividuals()
+      .filter(e => e.value !== user.getEmail())
+
+    const attributes = [
+      {
+        attribute: Restrictions.IndividualsWrite,
+        values: individuals
+          .filter(e => e.access === Access.Write)
+          .map(e => e.value),
+      },
+      {
+        attribute: Restrictions.IndividualsRead,
+        values: individuals
+          .filter(e => e.access === Access.Read)
+          .map(e => e.value),
+      },
+      {
+        attribute: Restrictions.GroupsWrite,
+        values: security
+          .getGroups([])
+          .filter(e => e.access === Access.Write)
+          .map(e => e.value),
+      },
+      {
+        attribute: Restrictions.GroupsRead,
+        values: security
+          .getGroups([])
+          .filter(e => e.access === Access.Read)
+          .map(e => e.value),
+      },
+      {
+        attribute: Restrictions.AccessAdministrators,
+        values: individuals
+          .filter(e => e.access === Access.Share)
+          .map(e => e.value),
+      },
+    ]
+    handleSave(attributes, id)
+  })  
+}
+
+const fetchMetacard = async (id: number) => {
+  const res = await fetch('/search/catalog/internal/metacard/' + id)
+  const metacard = await res.json()
+  return metacard.metacards[0]
+}
+    
+const handleSave = async (attributes:any, id: number) => {
+  const res = await fetch(`/search/catalog/internal/metacards`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify([
+      {
+        ids: [id],
+        attributes: attributes,
+      },
+    ]),
+  })
+
+  if (res.status !== 200) {
+    throw new Error()
+  }
+  return await res.json()
+}
+
 export class Sharing extends React.Component<Props, State> {
   prevUsers: any
   constructor(props: Props) {
@@ -63,7 +135,7 @@ export class Sharing extends React.Component<Props, State> {
     }
   }
   componentDidMount = () => {
-    this.fetchMetacard(this.props.id).then(data => {
+    fetchMetacard(this.props.id).then(data => {
       const metacard = data
       const res = Restrictions.from(metacard)
       const security = new Security(res)
@@ -172,11 +244,11 @@ export class Sharing extends React.Component<Props, State> {
   // and should be removed when support for optimistic concurrency is added
   // https://github.com/codice/ddf/issues/4467
   attemptSave = async (attributes: any, usersToUnsubscribe: String[]) => {
-    const currMetacard = await this.fetchMetacard(this.props.id)
+    const currMetacard = await fetchMetacard(this.props.id)
     if (currMetacard['metacard.modified'] === this.state.modified) {
       await this.doSave(attributes)
       await this.unsubscribeUsers(usersToUnsubscribe)
-      const newMetacard = await this.fetchMetacard(this.props.id)
+      const newMetacard = await fetchMetacard(this.props.id)
       this.setState({
         items: [...this.state.items],
         modified: newMetacard['metacard.modified'],
@@ -187,31 +259,12 @@ export class Sharing extends React.Component<Props, State> {
   }
 
   doSave = async (attributes: any) => {
-    const res = await fetch(`/search/catalog/internal/metacards`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify([
-        {
-          ids: [this.props.id],
-          attributes: attributes,
-        },
-      ]),
-    })
-
-    if (res.status !== 200) {
-      throw new Error()
-    }
+    const res = await handleSave(attributes,this.props.id)
 
     if (this.props.onUpdate) {
       this.props.onUpdate(attributes)
     }
-    return await res.json()
-  }
-
-  fetchMetacard = async (id: number) => {
-    const res = await fetch('/search/catalog/internal/metacard/' + id)
-    const metacard = await res.json()
-    return metacard.metacards[0]
+    return res
   }
 
   unsubscribeUsers = async (usersToUnsubscribe: String[]) => {

@@ -468,6 +468,9 @@ User.Response = Backbone.AssociatedModel.extend({
   canShare(metacard) {
     return new Security(Restrictions.from(metacard)).canShare(this)
   },
+  hasGroupAccess(metacard) {
+    return new Security(Restrictions.from(metacard)).hasGroupAccess(this)
+  },
 })
 
 module.exports = User

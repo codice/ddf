@@ -134,6 +134,8 @@ public class AccessControlPolicyExtension implements PolicyExtension {
             hasAccessAdministrators.apply(sub, mc)
                 || hasAccessIndividuals.apply(sub, mc)
                 || hasAccessGroups.apply(sub, mc)
+                || (CollectionPermission.REMOVE_USER_ACCESS_ACTION.equals(allPerms.getAction())
+                    && !isOwner.apply(subject, metacard))
                 || (READ_ACTION.equals(allPerms.getAction())
                     && (hasAccessGroupsReadOnly.apply(sub, mc)
                         || hasAccessIndividualsReadOnly.apply(sub, mc)));
