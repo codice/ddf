@@ -17,6 +17,7 @@ import static org.codice.ddf.catalog.ui.security.accesscontrol.AclTestSupport.me
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -26,9 +27,11 @@ import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
+import ddf.security.SubjectIdentity;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
+import org.codice.ddf.catalog.ui.security.Constants;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,10 +45,14 @@ public class AccessControlPolicyPluginTest {
 
   private static final Serializable MOCK_ID = "100";
 
+  private SubjectIdentity subjectIdentity;
+
   @Before
   public void setUp() {
     properties = mock(Map.class);
-    plugin = new AccessControlPolicyPlugin();
+    subjectIdentity = mock(SubjectIdentity.class);
+    when(subjectIdentity.getIdentityAttribute()).thenReturn(Constants.EMAIL_ADDRESS_CLAIM_URI);
+    plugin = new AccessControlPolicyPlugin(subjectIdentity);
   }
 
   @Test

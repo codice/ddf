@@ -14,7 +14,6 @@
 package ddf.catalog.security.filter.plugin;
 
 import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ResultImpl;
@@ -45,12 +44,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.common.Security;
 import org.osgi.framework.Bundle;
@@ -152,15 +148,15 @@ public class FilterPlugin implements AccessPlugin {
         unknownIds.add(id);
       } else {
 
-        String action = getUpdateAction(oldMetacard, newMetacard, subject);
         Attribute oldAttr = oldMetacard.getAttribute(Metacard.SECURITY);
 
-        if ((!CollectionPermission.REMOVE_USER_ACCESS_ACTION.equals(action)
-                && !checkPermissions(attr, securityPermission, subject, action))
-            || !checkPermissions(oldAttr, securityPermission, subject, action)) {
+        if (!checkPermissions(attr, securityPermission, subject, CollectionPermission.UPDATE_ACTION)
+            || !checkPermissions(
+                oldAttr, securityPermission, subject, CollectionPermission.UPDATE_ACTION)) {
           userNotPermittedIds.add(newMetacard.getId());
         }
-        if (!checkPermissions(attr, securityPermission, systemSubject, action)) {
+        if (!checkPermissions(
+            attr, securityPermission, systemSubject, CollectionPermission.UPDATE_ACTION)) {
           systemNotPermittedIds.add(newMetacard.getId());
         }
       }
@@ -180,59 +176,6 @@ public class FilterPlugin implements AccessPlugin {
               + " ]");
     }
     return input;
-  }
-
-  private String getUpdateAction(Metacard oldMetacard, Metacard newMetacard, Subject subject) {
-    List<AttributeDescriptor> updatedAttributes =
-        oldMetacard
-            .getMetacardType()
-            .getAttributeDescriptors()
-            .stream()
-            .filter(
-                attribute ->
-                    !Objects.equals(
-                        oldMetacard.getAttribute(attribute.getName()),
-                        newMetacard.getAttribute(attribute.getName())))
-            .collect(Collectors.toList());
-
-    if (updatedAttributes.stream().anyMatch(attr -> !this.isAccessControlAttribute(attr.getName()))) {
-      return CollectionPermission.UPDATE_ACTION;
-    }
-    return updatedAttributes
-            .stream()
-            .allMatch(attr -> isUserOnlyRemoved(oldMetacard, newMetacard, subject, attr.getName()))
-        ? CollectionPermission.REMOVE_USER_ACCESS_ACTION
-        : CollectionPermission.UPDATE_ACTION;
-  }
-
-  private boolean isUserOnlyRemoved(
-      Metacard prev, Metacard updated, Subject subject, String attribute) {
-    List<String> prevValues = getAttribute(prev, attribute);
-    List<String> updatedValues = getAttribute(updated, attribute);
-    if (prevValues.size() > updatedValues.size()) {
-      prevValues.removeAll(updatedValues);
-      return prevValues.size() == 1 && prevValues.contains(SubjectUtils.getEmailAddress(subject));
-    }
-    return false;
-  }
-
-  private boolean isAccessControlAttribute(String attribute) {
-    return StringUtils.isNotEmpty(attribute)
-        && (ddf.catalog.data.types.Security.ACCESS_ADMINISTRATORS.equals(attribute)
-            && ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS.equals(attribute)
-            && ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS_READ.equals(attribute));
-  }
-
-  private List<String> getAttribute(Metacard metacard, String attribute) {
-    return metacard.getAttribute(attribute) != null
-        ? new ArrayList<>(
-            metacard
-                .getAttribute(attribute)
-                .getValues()
-                .stream()
-                .map(String::valueOf)
-                .collect(Collectors.toList()))
-        : Collections.emptyList();
   }
 
   @Override

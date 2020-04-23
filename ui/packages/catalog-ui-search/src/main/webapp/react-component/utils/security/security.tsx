@@ -113,9 +113,11 @@ export class Security {
   }
 
   hasGroupAccess(user: any): boolean {
-    return Math.max(
-      ...user.getRoles().map((group: string) => this.getGroupAccess(group))
-    ) !== 0
+    return (
+      Math.max(
+        ...user.getRoles().map((group: string) => this.getGroupAccess(group))
+      ) !== 0
+    )
   }
 
   isShared(): boolean {

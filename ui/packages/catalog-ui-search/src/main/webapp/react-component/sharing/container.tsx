@@ -53,7 +53,7 @@ export type Item = {
 }
 
 export const handleRemoveSharedMetacard = (id: number) => {
-  fetchMetacard(id).then((data:any) => {
+  fetchMetacard(id).then((data: any) => {
     const metacard = data
     const res = Restrictions.from(metacard)
     const security = new Security(res)
@@ -97,7 +97,7 @@ export const handleRemoveSharedMetacard = (id: number) => {
       },
     ]
     handleSave(attributes, id)
-  })  
+  })
 }
 
 const fetchMetacard = async (id: number) => {
@@ -105,8 +105,8 @@ const fetchMetacard = async (id: number) => {
   const metacard = await res.json()
   return metacard.metacards[0]
 }
-    
-const handleSave = async (attributes:any, id: number) => {
+
+const handleSave = async (attributes: any, id: number) => {
   const res = await fetch(`/search/catalog/internal/metacards`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -259,7 +259,7 @@ export class Sharing extends React.Component<Props, State> {
   }
 
   doSave = async (attributes: any) => {
-    const res = await handleSave(attributes,this.props.id)
+    const res = await handleSave(attributes, this.props.id)
 
     if (this.props.onUpdate) {
       this.props.onUpdate(attributes)

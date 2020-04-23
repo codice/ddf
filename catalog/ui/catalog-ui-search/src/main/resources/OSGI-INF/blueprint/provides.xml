@@ -234,7 +234,7 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
         </bean>
     </service>
 
-    <service interface="ddf.security.policy.extension.PolicyExtension">
+    <service interface="ddf.security.policy.extension.PolicyExtension" ranking="100">
         <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlPolicyExtension">
             <argument ref="accessControlSecurityConfiguration"/>
             <argument ref="subjectIdentity"/>
@@ -242,7 +242,9 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
     </service>
 
     <service interface="ddf.catalog.plugin.PolicyPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlPolicyPlugin"/>
+        <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlPolicyPlugin">
+            <argument ref="subjectIdentity"/>
+        </bean>
     </service>
 
     <service interface="ddf.catalog.plugin.PreIngestPlugin">

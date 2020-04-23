@@ -14,7 +14,10 @@
  **/
 
 import React from 'react'
-import { Sharing, handleRemoveSharedMetacard } from '../../react-component/sharing'
+import {
+  Sharing,
+  handleRemoveSharedMetacard,
+} from '../../react-component/sharing'
 
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
@@ -87,7 +90,11 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
         <div
           className="search-form-interaction interaction-remove-share"
           data-help={`Leave search ${formTitleLowerCase}.`}
-          title={user.hasGroupAccess(this.model)?"Form shared by group, cannot leave this form":"Leave Form"}
+          title={
+            user.hasGroupAccess(this.model)
+              ? 'Form shared by group, cannot leave this form'
+              : 'Leave Form'
+          }
         >
           <div className="interaction-icon fa fa-trash-o" />
           <div className="interaction-text">Leave Shared {formTitle}</div>

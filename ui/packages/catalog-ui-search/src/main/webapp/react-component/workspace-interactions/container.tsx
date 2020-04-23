@@ -82,7 +82,7 @@ class WorkspaceInteractions extends React.Component<Props, State> {
         yes: 'Remove',
       }),
       'change:choice',
-      (confirmation:any) => {
+      (confirmation: any) => {
         if (confirmation.get('choice')) {
           let loadingview = new LoadingView()
           handleRemoveSharedMetacard(this.props.workspace.id)

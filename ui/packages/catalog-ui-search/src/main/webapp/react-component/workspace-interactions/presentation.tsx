@@ -183,18 +183,19 @@ const render = (props: Props) => {
           Delete Workspace
         </MenuAction>
       )}
-      {isShared && !hasGroupAccess && (
-        <MenuAction
-          help="Leave workspace. You will no longer have access to this workspace."
-          onClick={(_e, context) => {
-            removeSharedForm()
-            context.closeAndRefocus()
-          }}
-          icon="fa fa-trash-o"
-        >
-          Leave Workspace
-        </MenuAction>
-      )}
+      {isShared &&
+        !hasGroupAccess && (
+          <MenuAction
+            help="Leave workspace. You will no longer have access to this workspace."
+            onClick={(_e, context) => {
+              removeSharedForm()
+              context.closeAndRefocus()
+            }}
+            icon="fa fa-trash-o"
+          >
+            Leave Workspace
+          </MenuAction>
+        )}
     </Root>
   )
 }

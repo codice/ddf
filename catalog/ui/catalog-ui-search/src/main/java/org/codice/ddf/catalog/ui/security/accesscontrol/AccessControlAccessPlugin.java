@@ -23,11 +23,9 @@ import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_INDIVIDUALS_READ_HAS_CHANGED;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ATTRIBUTE_TO_SET;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.OWNER_HAS_CHANGED;
-import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.attributeHasChanged;
-import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.getValuesOrEmpty;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.isAnyObjectNull;
 
-import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
@@ -42,8 +40,9 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SubjectIdentity;
-import java.util.ArrayList;
-import java.util.HashSet;
+import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -91,10 +90,6 @@ public class AccessControlAccessPlugin implements AccessPlugin {
                   .apply(newMetacard, Core.METACARD_OWNER)
                   .contains(subjectSupplier.get()));
 
-  private final Predicate<Metacard> subjectIsOwner =
-      newMetacard ->
-          ATTRIBUTE_TO_SET.apply(newMetacard, Core.METACARD_OWNER).contains(subjectSupplier.get());
-
   private final Predicate<Metacard> hasIntrigueTag =
       metacard ->
           metacard.getTags().contains(WORKSPACE_TAG)
@@ -110,53 +105,30 @@ public class AccessControlAccessPlugin implements AccessPlugin {
             || ACCESS_GROUPS_READ_HAS_CHANGED.apply(prev, updated));
   }
 
-  private boolean isAccessControlAttribute(String attribute) {
-    return !isAnyObjectNull(attribute)
-        && (Security.ACCESS_ADMINISTRATORS.equals(attribute)
-            || Security.ACCESS_INDIVIDUALS.equals(attribute)
-            || Security.ACCESS_INDIVIDUALS_READ.equals(attribute));
-  }
-
-  private boolean isUserAccessControlRemoved(Metacard prev, Metacard updated) {
-    if (!isAnyObjectNull(prev, updated)
-        && (ACCESS_ADMIN_HAS_CHANGED.apply(prev, updated)
-            || ACCESS_INDIVIDUALS_HAS_CHANGED.apply(prev, updated)
-            || ACCESS_INDIVIDUALS_READ_HAS_CHANGED.apply(prev, updated))) {
-
-      Set<AttributeDescriptor> attributeDescriptors =
-          new HashSet<>(prev.getMetacardType().getAttributeDescriptors());
-      attributeDescriptors.addAll(updated.getMetacardType().getAttributeDescriptors());
-
-      List<AttributeDescriptor> updatedAttributes =
-          attributeDescriptors
-              .stream()
-              .filter(attribute -> attributeHasChanged(prev, updated, attribute.getName()))
-              .collect(Collectors.toList());
-
-      boolean nonAccessControlUpdated =
-          updatedAttributes.stream().anyMatch(attr -> !isAccessControlAttribute(attr.getName()));
-
-      return !nonAccessControlUpdated
-          && updatedAttributes
-              .stream()
-              .filter(attr -> isAccessControlAttribute(attr.getName()))
-              .allMatch(attr -> isUserOnlyRemoved(prev, updated, attr.getName()));
-    }
-    return false;
-  }
-
-  private boolean isUserOnlyRemoved(Metacard prev, Metacard updated, String attribute) {
-    List<String> prevValues = new ArrayList<>(getValuesOrEmpty(prev, attribute));
-    List<String> updatedValues = getValuesOrEmpty(updated, attribute);
-    if (prevValues.size() > updatedValues.size()) {
-      prevValues.removeAll(updatedValues);
-      return prevValues.size() == 1 && prevValues.contains(subjectSupplier.get());
-    }
-    return false;
-  }
-
   private boolean isOwnerChanged(Metacard prev, Metacard updated) {
     return !isAnyObjectNull(prev, updated) && OWNER_HAS_CHANGED.apply(prev, updated);
+  }
+
+  private boolean hasRemoveAccess(Metacard updated) {
+    Attribute attr = updated.getAttribute(Metacard.SECURITY);
+    if (attr == null) {
+      return false;
+    }
+    Map<String, Set<String>> map = (Map<String, Set<String>>) attr.getValue();
+    if (map == null) {
+      return false;
+    }
+    KeyValueCollectionPermission securityPermission =
+        new KeyValueCollectionPermission(CollectionPermission.UPDATE_ACTION, map);
+    return securityPermission
+        .getPermissionList()
+        .stream()
+        .filter(p -> p instanceof KeyValuePermission)
+        .map(p -> (KeyValuePermission) p)
+        .anyMatch(
+            p ->
+                "remove-user-access".equals(p.getKey())
+                    && p.getValues().contains(subjectSupplier.get()));
   }
 
   @Override
@@ -189,22 +161,9 @@ public class AccessControlAccessPlugin implements AccessPlugin {
         .stream()
         .filter(
             newVersionOfMetacard ->
-                isUserAccessControlRemoved(
-                    oldMetacard.apply(newVersionOfMetacard), newVersionOfMetacard))
-        .anyMatch(subjectIsOwner)) {
-      throw new StopProcessingException(FAILURE_OWNER_CANNOT_CHANGE);
-    }
-
-    if (newMetacards
-        .stream()
-        .filter(
-            newVersionOfMetacard ->
                 isAccessControlUpdated(
                     oldMetacard.apply(newVersionOfMetacard), newVersionOfMetacard))
-        .filter(
-            newVersionOfMetacard ->
-                !isUserAccessControlRemoved(
-                    oldMetacard.apply(newVersionOfMetacard), newVersionOfMetacard))
+        .filter(newVersionOfMetacard -> !hasRemoveAccess(newVersionOfMetacard))
         .filter(Objects::nonNull)
         .map(oldMetacard)
         .filter(Objects::nonNull)
