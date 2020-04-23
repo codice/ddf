@@ -74,9 +74,9 @@ module.exports = Marionette.LayoutView.extend({
     editorFilter: '> .editor-header > .header-filter',
     editorAdd: '> .editor-header > .is-addAttribute',
     editorRemove: '> .editor-header > .is-removeAttribute',
-    // editorRearrange: '> .editor-header > .is-rearrangeAttribute',
-    // editorShow: '> .editor-header > .is-showAttribute',
-    // editorHide: '> .editor-header > .is-hideAttribute'
+    editorRearrange: '> .editor-header > .is-rearrangeAttribute',
+    editorShow: '> .editor-header > .is-showAttribute',
+    editorHide: '> .editor-header > .is-hideAttribute'
   },
   attributesAdded: undefined,
   attributesRemoved: undefined,
@@ -165,33 +165,33 @@ module.exports = Marionette.LayoutView.extend({
       replaceElement: true,
     }
     )
-    // this.editorRearrange.show(
-    //   new AttributesRearrangeView({
-    //     model: new DropdownModel(),
-    //     selectionInterface: this.options.selectionInterface,
-    //   }),
-    //   {
-    //     replaceElement: true,
-    //   }
-    // )
-    // this.editorShow.show(
-    //   new ShowAttributeView({
-    //     model: new DropdownModel(),
-    //     selectionInterface: this.options.selectionInterface,
-    //   }),
-    //   {
-    //     replaceElement: true,
-    //   }
-    // )
-    // this.editorHide.show(
-    //   new HideAttributeView({
-    //     model: new DropdownModel(),
-    //     selectionInterface: this.options.selectionInterface,
-    //   }),
-    //   {
-    //     replaceElement: true,
-    //   }
-    // )
+    this.editorRearrange.show(
+      new AttributesRearrangeView({
+        model: new DropdownModel(),
+        selectionInterface: this.options.selectionInterface,
+      }),
+      {
+        replaceElement: true,
+      }
+    )
+    this.editorShow.show(
+      new ShowAttributeView({
+        model: new DropdownModel(),
+        selectionInterface: this.options.selectionInterface,
+      }),
+      {
+        replaceElement: true,
+      }
+    )
+    this.editorHide.show(
+      new HideAttributeView({
+        model: new DropdownModel(),
+        selectionInterface: this.options.selectionInterface,
+      }),
+      {
+        replaceElement: true,
+      }
+    )
     this.listenTo(
       this.editorAdd.currentView.model,
       'change:attributesToAdd',
