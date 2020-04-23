@@ -51,6 +51,11 @@ const DetailsInteractionsView = require('../details-interactions/details-interac
 const PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
 const user = require('../singletons/user-instance.js')
 const properties = require('../../js/properties.js')
+const AddAttributeView = require('../dropdown/add-attribute/dropdown.add-attribute.view.js')
+const RemoveAttributeView = require('../dropdown/remove-attribute/dropdown.remove-attribute.view.js')
+const AttributesRearrangeView = require('../dropdown/attributes-rearrange/dropdown.attributes-rearrange.view.js')
+const ShowAttributeView = require('../dropdown/show-attribute/dropdown.show-attribute.view.js')
+const HideAttributeView = require('../dropdown/hide-attribute/dropdown.hide-attribute.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   setDefaultModel() {
@@ -67,7 +72,11 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     editorProperties: '> .editor-properties',
     editorFilter: '> .editor-header > .header-filter',
-    editorActions: '> .editor-header > .header-actions',
+    editorAdd: '> .editor-header > .is-addAttribute',
+    editorRemove: '> .editor-header > .is-removeAttribute',
+    // editorRearrange: '> .editor-header > .is-rearrangeAttribute',
+    // editorShow: '> .editor-header > .is-showAttribute',
+    // editorHide: '> .editor-header > .is-hideAttribute'
   },
   attributesAdded: undefined,
   attributesRemoved: undefined,
@@ -138,32 +147,58 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   generateEditorActions() {
-    this.editorActions.show(
-      PopoutView.createSimpleDropdown(
-        _.extend({
-          componentToShow: DetailsInteractionsView,
-          dropdownCompanionBehaviors: {
-            navigation: {},
-          },
-          label: 'Actions',
-          rightIcon: 'fa fa-ellipsis-v',
-          selectionInterface: this.selectionInterface,
-          options: _.extend(
-            {
-              selectionInterface: this.selectionInterface,
-            },
-            this.getEditorActionsOptions()
-          ),
-        })
-      )
+    this.editorAdd.show(
+      new AddAttributeView({
+        model: new DropdownModel(),
+        selectionInterface: this.options.selectionInterface,
+      }),
+      {
+        replaceElement: true,
+      }
     )
+    this.editorRemove.show(
+    new RemoveAttributeView({
+      model: new DropdownModel(),
+      selectionInterface: this.options.selectionInterface,
+    }),
+    {
+      replaceElement: true,
+    }
+    )
+    // this.editorRearrange.show(
+    //   new AttributesRearrangeView({
+    //     model: new DropdownModel(),
+    //     selectionInterface: this.options.selectionInterface,
+    //   }),
+    //   {
+    //     replaceElement: true,
+    //   }
+    // )
+    // this.editorShow.show(
+    //   new ShowAttributeView({
+    //     model: new DropdownModel(),
+    //     selectionInterface: this.options.selectionInterface,
+    //   }),
+    //   {
+    //     replaceElement: true,
+    //   }
+    // )
+    // this.editorHide.show(
+    //   new HideAttributeView({
+    //     model: new DropdownModel(),
+    //     selectionInterface: this.options.selectionInterface,
+    //   }),
+    //   {
+    //     replaceElement: true,
+    //   }
+    // )
     this.listenTo(
-      this.editorActions.currentView.model,
+      this.editorAdd.currentView.model,
       'change:attributesToAdd',
       this.handleAttributeAdd
     )
     this.listenTo(
-      this.editorActions.currentView.model,
+      this.editorRemove.currentView.model,
       'change:attributesToRemove',
       this.handleAttributeRemove
     )
@@ -203,7 +238,7 @@ module.exports = Marionette.LayoutView.extend({
   handleAttributeRemove() {
     sync(
       this.attributesRemoved,
-      this.editorActions.currentView.model.get('attributesToRemove')[0]
+      this.editorRemove.currentView.model.get('attributesToRemove')[0]
     )
     const newAttributes = this.editorProperties.currentView.addProperties(
       this.attributesRemoved.pluck('id')
@@ -237,7 +272,7 @@ module.exports = Marionette.LayoutView.extend({
   handleAttributeAdd() {
     const difference = sync(
       this.attributesAdded,
-      this.editorActions.currentView.model.get('attributesToAdd')[0]
+      this.editorAdd.currentView.model.get('attributesToAdd')[0]
     )
     this.editorProperties.currentView.addProperties(
       this.attributesAdded.pluck('id')
