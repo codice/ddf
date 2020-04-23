@@ -81,12 +81,17 @@
     <service id="sessionListenerService" ref="sessionListener"
              interface="javax.servlet.http.HttpSessionListener"/>
 
+    <reference id="guestClaimsConfig"
+      interface="org.codice.ddf.security.claims.guest.GuestClaimsConfig"
+      ext:proxy-method="classes"/>
+
     <bean id="subjectIdentityImpl"
           class="ddf.security.impl.SubjectIdentityImpl">
         <cm:managed-properties
                 persistent-id="ddf.security.SubjectIdentity"
                 update-strategy="container-managed"/>
         <property name="identityAttribute" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
+        <property name="guestClaimsConfig" ref="guestClaimsConfig"/>
     </bean>
 
     <service id="subjectIdentity" ref="subjectIdentityImpl"

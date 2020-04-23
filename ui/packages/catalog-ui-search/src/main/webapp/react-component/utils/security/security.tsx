@@ -81,7 +81,7 @@ export class Security {
   private canAccess(user: any, accessLevel: Access) {
     return (
       this.res.owner === undefined ||
-      this.res.owner === user.getEmail() ||
+      this.res.owner === user.getUserId() ||
       this.getAccess(user) >= accessLevel
     )
   }
@@ -122,16 +122,16 @@ export class Security {
     return Access.None
   }
 
-  private getIndividualAccess(email: string) {
-    if (this.res.accessAdministrators.indexOf(email) > -1) {
+  private getIndividualAccess(userId: string) {
+    if (this.res.accessAdministrators.indexOf(userId) > -1) {
       return Access.Share
     }
 
-    if (this.res.accessIndividuals.indexOf(email) > -1) {
+    if (this.res.accessIndividuals.indexOf(userId) > -1) {
       return Access.Write
     }
 
-    if (this.res.accessIndividualsRead.indexOf(email) > -1) {
+    if (this.res.accessIndividualsRead.indexOf(userId) > -1) {
       return Access.Read
     }
 
@@ -140,7 +140,7 @@ export class Security {
 
   private getAccess(user: any): Access {
     return Math.max(
-      this.getIndividualAccess(user.getEmail()),
+      this.getIndividualAccess(user.getUserId()),
       ...user.getRoles().map((group: string) => this.getGroupAccess(group))
     )
   }
@@ -166,10 +166,10 @@ export class Security {
       this.res.accessIndividualsRead,
       this.res.accessAdministrators
     )
-      .map((username: string) => {
+      .map((userId: string) => {
         return {
-          value: username,
-          access: this.getIndividualAccess(username),
+          value: userId,
+          access: this.getIndividualAccess(userId),
         } as Entry
       })
       .sort(Security.compareFn)

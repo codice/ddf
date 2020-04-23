@@ -28,7 +28,7 @@ function getWorkspacesOwnedByUser() {
     workspace =>
       user.isGuest()
         ? workspace.get('localStorage') === true
-        : workspace.get('metacard.owner') === user.get('user').get('email')
+        : workspace.get('metacard.owner') === user.getUserId()
   )
 }
 

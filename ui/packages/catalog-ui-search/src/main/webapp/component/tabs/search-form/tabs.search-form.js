@@ -20,14 +20,14 @@ const FormContainer = require('../../search-form/form-tab-container.view')
 
 const tabChildViewOptions = {
   'My Search Forms': {
-    filter: child => child.get('createdBy') === user.getEmail(),
+    filter: child => child.get('createdBy') === user.getUserId(),
     showNewForm: true,
   },
   'Shared Search Forms': {
     type: 'Shared',
     filter: child =>
       child.get('createdBy') !== 'system' &&
-      child.get('createdBy') !== user.getEmail() &&
+      child.get('createdBy') !== user.getUserId() &&
       user.canRead(child),
   },
   'System Search Forms': {

@@ -38,13 +38,13 @@ function filterWorkspaces(workspaces: Backbone.Collection<Backbone.Model>) {
   return workspaces.filter((workspace: Backbone.Model) => {
     const localStorage = workspace.get('localStorage') || false
     const owner = workspace.get('metacard.owner')
-    const email = user.get('user').get('email')
+    const userId = user.getUserId()
 
     switch (preferences.get('homeFilter')) {
       case 'Not owned by me':
-        return !localStorage && email !== owner
+        return !localStorage && userId !== owner
       case 'Owned by me':
-        return localStorage || email === owner
+        return localStorage || userId === owner
       case 'Owned by anyone':
       default:
         return true

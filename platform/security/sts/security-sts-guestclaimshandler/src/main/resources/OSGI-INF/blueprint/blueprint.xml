@@ -21,9 +21,9 @@
         http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd"
            default-activation="lazy">
 
-    <bean class="org.codice.ddf.security.claims.guest.GuestClaimsHandler" id="guestHandler">
+    <bean class="org.codice.ddf.security.claims.guest.GuestClaimsConfig" id="guestClaimsConfig">
         <cm:managed-properties persistent-id="ddf.security.sts.guestclaims"
-                               update-strategy="container-managed"/>
+          update-strategy="container-managed"/>
         <!-- Default properties -->
         <property name="attributes">
             <array value-type="java.lang.String">
@@ -33,6 +33,11 @@
         </property>
     </bean>
 
+    <bean class="org.codice.ddf.security.claims.guest.GuestClaimsHandler" id="guestHandler">
+        <property name="guestClaimsConfig" ref="guestClaimsConfig"/>
+    </bean>
+
+    <service ref="guestClaimsConfig" interface="org.codice.ddf.security.claims.guest.GuestClaimsConfig"/>
     <service ref="guestHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
 
 </blueprint>
