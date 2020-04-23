@@ -21,6 +21,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.FailsafeException;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -72,12 +74,14 @@ public class SolrCloudClientFactory implements SolrClientFactory {
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String core) {
-    return newClient(core, null);
+    return newClient(core, new HashMap<>());
   }
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(
       String collection, Map<String, Object> properties) {
+    Validate.notNull(collection, "invalid null Solr core name");
+    Validate.notNull(properties, "invalid null properties.");
 
     String zookeeperHosts = System.getProperty("solr.cloud.zookeeper");
     checkConfig(zookeeperHosts);
@@ -87,7 +91,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
         collection,
         zookeeperHosts);
 
-    String alias = properties == null ? null : (String) properties.getOrDefault(ALIAS_PROP, null);
+    String alias = (String) properties.getOrDefault(ALIAS_PROP, null);
 
     return new SolrClientAdapter(
         collection,
@@ -123,14 +127,12 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     CollectionAdminResponse aliasResponse =
         new CollectionAdminRequest.ListAliases().process(client);
 
-    if (aliasResponse != null) {
-      Map<String, String> aliases = aliasResponse.getAliases();
-      if (aliases != null && aliases.containsKey(alias)) {
-        String[] collections = aliases.get(alias).split(",");
-        return Arrays.asList(collections);
-      }
-    }
-    return Collections.emptyList();
+    return Optional.ofNullable(aliasResponse)
+        .map(CollectionAdminResponse::getAliases)
+        .map(a -> a.get(alias))
+        .map(ca -> ca.split(","))
+        .map(Arrays::asList)
+        .orElse(Collections.emptyList());
   }
 
   /**
@@ -146,20 +148,16 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   private List<String> getCollectionsNotInAlias(
       CloudSolrClient client, List<String> currentAliases, String alias)
       throws SolrServerException, IOException {
-    if (StringUtils.isNotBlank(alias)) {
-      CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
-      if (response.getResponse() != null) {
-        List<String> collections = (List<String>) response.getResponse().get("collections");
-        return collections == null
-            ? Collections.emptyList()
-            : collections
-                .stream()
-                .filter(c -> c.startsWith(alias))
-                .filter(c -> currentAliases.contains(c))
-                .collect(Collectors.toList());
-      }
-    }
-    return Collections.emptyList();
+
+    CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
+    return Optional.ofNullable(response)
+        .map(CollectionAdminResponse::getResponse)
+        .map(resp -> (List<String>) resp.get("collections"))
+        .orElse(Collections.emptyList())
+        .stream()
+        .filter(c -> c.startsWith(alias))
+        .filter(c -> currentAliases.contains(c))
+        .collect(Collectors.toList());
   }
 
   private void createAlias(CloudSolrClient client, List<String> collections, String alias) {
@@ -209,9 +207,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
         try {
           if (createCollection(collection, client)) {
             waitForCollection(collection, client);
-            if (alias != null) {
-              addCollectionToAlias(alias, collection, client);
-            }
+            addCollectionToAlias(alias, collection, client);
           }
 
         } catch (SolrFactoryException e) {

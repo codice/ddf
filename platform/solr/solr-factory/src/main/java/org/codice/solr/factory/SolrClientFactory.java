@@ -45,7 +45,8 @@ public interface SolrClientFactory {
    * @param collection the name of the Solr collection to create to create a client for
    * @param properties the map of arbitrary key/value pairs for new client arguments
    * @return the newly created {@code SolrClient}
-   * @throws IllegalArgumentException if <code>collection</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>collection</code> or <code>properties</code> is
+   *     <code>null</code>
    */
   SolrClient newClient(String collection, Map<String, Object> properties);
 }

@@ -91,8 +91,6 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
 
   private static final long TIMEOUT = 10000L;
 
-  private static final String COLLECTION_HINT_PROP = "geocoderCollection";
-
   private static final String COLLECTION_HINT = "collection-hint";
 
   private CatalogFramework catalogFramework;
@@ -136,9 +134,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
         new SortByImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, SortOrder.DESCENDING);
     SortBy[] sortbys = {populationSortBy};
     properties.put(ADDITIONAL_SORT_BYS, sortbys);
-    if (StringUtils.isNotBlank(geocoderCollection)) {
-      properties.put(COLLECTION_HINT, geocoderCollection);
-    }
+    properties.put(COLLECTION_HINT, geocoderCollection);
 
     Query query = new QueryImpl(queryFilter, 1, maxResults, featureCodeSortBy, false, TIMEOUT);
     QueryRequest queryRequest = new QueryRequestImpl(query, properties);
@@ -168,9 +164,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     Filter queryFilter = filterBuilder.allOf(tagFilter, idFilter);
 
     Map<String, Serializable> properties = new HashMap<>();
-    if (StringUtils.isNotBlank(geocoderCollection)) {
-      properties.put(COLLECTION_HINT, geocoderCollection);
-    }
+    properties.put(COLLECTION_HINT, geocoderCollection);
 
     QueryResponse queryResponse;
     try {
@@ -195,10 +189,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     suggestProps.put(SUGGESTION_QUERY_KEY, queryString);
     suggestProps.put(SUGGESTION_CONTEXT_KEY, GAZETTEER_METACARD_TAG);
     suggestProps.put(SUGGESTION_DICT_KEY, SUGGEST_PLACE_KEY);
-
-    if (StringUtils.isNotBlank(geocoderCollection)) {
-      suggestProps.put(COLLECTION_HINT, geocoderCollection);
-    }
+    suggestProps.put(COLLECTION_HINT, geocoderCollection);
 
     Query suggestionQuery = new QueryImpl(filterBuilder.attribute(Core.TITLE).text(queryString));
 
@@ -298,9 +289,8 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     Query query = new QueryImpl(queryFilter, 1, maxResults, SortBy.NATURAL_ORDER, false, TIMEOUT);
 
     Map<String, Serializable> properties = new HashMap<>();
-    if (StringUtils.isNotBlank(geocoderCollection)) {
-      properties.put(COLLECTION_HINT, geocoderCollection);
-    }
+    properties.put(COLLECTION_HINT, geocoderCollection);
+
     QueryRequest queryRequest = new QueryRequestImpl(query, properties);
 
     QueryResponse queryResponse;
@@ -367,9 +357,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     Query query = new QueryImpl(queryFilter);
 
     Map<String, Serializable> properties = new HashMap<>();
-    if (StringUtils.isNotBlank(geocoderCollection)) {
-      properties.put(COLLECTION_HINT, geocoderCollection);
-    }
+    properties.put(COLLECTION_HINT, geocoderCollection);
     QueryRequest queryRequest = new QueryRequestImpl(query, properties);
     QueryResponse queryResponse;
     try {
@@ -389,6 +377,8 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
   }
 
   public void setGeocoderCollection(String geocoderCollection) {
-    this.geocoderCollection = geocoderCollection;
+    if (StringUtils.isNotBlank(geocoderCollection)) {
+      this.geocoderCollection = geocoderCollection;
+    }
   }
 }

@@ -188,11 +188,12 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     try {
       QueryResponse solrResponse;
-      Boolean doRealTimeGet =
-          (Boolean) request.getProperties().getOrDefault(DO_REALTIME_GET, false)
-              || filterAdapter.adapt(request.getQuery(), new RealTimeGetDelegate());
+      boolean doRealTimeGet =
+          (boolean) request.getProperties().getOrDefault(DO_REALTIME_GET, false)
+              || BooleanUtils.toBoolean(
+                  filterAdapter.adapt(request.getQuery(), new RealTimeGetDelegate()));
 
-      if (BooleanUtils.isTrue(doRealTimeGet)) {
+      if (doRealTimeGet) {
         LOGGER.debug("Performing real time query");
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
@@ -202,7 +203,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         solrResponse = client.query(query, METHOD.POST);
       }
 
-      handleFacetResponse(solrResponse, responseProps, isFacetedQuery);
+      if (isFacetedQuery) {
+        handleFacetResponse(solrResponse, responseProps);
+      }
+
       handleSuggestionResponse(solrResponse, responseProps);
 
       SolrDocumentList docs = solrResponse.getResults();
@@ -280,14 +284,12 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private void handleFacetResponse(
-      QueryResponse solrResponse, Map<String, Serializable> responseProps, boolean isFacetedQuery) {
-    if (isFacetedQuery) {
-      List<FacetField> facetFields = solrResponse.getFacetFields();
-      if (CollectionUtils.isNotEmpty(facetFields)) {
-        List<FacetAttributeResult> facetedAttributeResults =
-            facetFields.stream().map(this::convertFacetField).collect(Collectors.toList());
-        responseProps.put(EXPERIMENTAL_FACET_RESULTS_KEY, (Serializable) facetedAttributeResults);
-      }
+      QueryResponse solrResponse, Map<String, Serializable> responseProps) {
+    List<FacetField> facetFields = solrResponse.getFacetFields();
+    if (CollectionUtils.isNotEmpty(facetFields)) {
+      List<FacetAttributeResult> facetedAttributeResults =
+          facetFields.stream().map(this::convertFacetField).collect(Collectors.toList());
+      responseProps.put(EXPERIMENTAL_FACET_RESULTS_KEY, (Serializable) facetedAttributeResults);
     }
   }
 
