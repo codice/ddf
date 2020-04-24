@@ -52,52 +52,50 @@ export type Item = {
   access: Access
 }
 
-export const handleRemoveSharedMetacard = (id: number) => {
-  fetchMetacard(id).then((data: any) => {
-    const metacard = data
-    const res = Restrictions.from(metacard)
-    const security = new Security(res)
+export const handleRemoveSharedMetacard = async (id: number) => {
+  const metacard = await fetchMetacard(id)
+  const res = Restrictions.from(metacard)
+  const security = new Security(res)
 
-    const individuals = security
-      .getIndividuals()
-      .filter(e => e.value !== user.getEmail())
+  const individuals = security
+    .getIndividuals()
+    .filter(e => e.value !== user.getEmail())
 
-    const attributes = [
-      {
-        attribute: Restrictions.IndividualsWrite,
-        values: individuals
-          .filter(e => e.access === Access.Write)
-          .map(e => e.value),
-      },
-      {
-        attribute: Restrictions.IndividualsRead,
-        values: individuals
-          .filter(e => e.access === Access.Read)
-          .map(e => e.value),
-      },
-      {
-        attribute: Restrictions.GroupsWrite,
-        values: security
-          .getGroups([])
-          .filter(e => e.access === Access.Write)
-          .map(e => e.value),
-      },
-      {
-        attribute: Restrictions.GroupsRead,
-        values: security
-          .getGroups([])
-          .filter(e => e.access === Access.Read)
-          .map(e => e.value),
-      },
-      {
-        attribute: Restrictions.AccessAdministrators,
-        values: individuals
-          .filter(e => e.access === Access.Share)
-          .map(e => e.value),
-      },
-    ]
-    handleSave(attributes, id)
-  })
+  const attributes = [
+    {
+      attribute: Restrictions.IndividualsWrite,
+      values: individuals
+        .filter(e => e.access === Access.Write)
+        .map(e => e.value),
+    },
+    {
+      attribute: Restrictions.IndividualsRead,
+      values: individuals
+        .filter(e => e.access === Access.Read)
+        .map(e => e.value),
+    },
+    {
+      attribute: Restrictions.GroupsWrite,
+      values: security
+        .getGroups([])
+        .filter(e => e.access === Access.Write)
+        .map(e => e.value),
+    },
+    {
+      attribute: Restrictions.GroupsRead,
+      values: security
+        .getGroups([])
+        .filter(e => e.access === Access.Read)
+        .map(e => e.value),
+    },
+    {
+      attribute: Restrictions.AccessAdministrators,
+      values: individuals
+        .filter(e => e.access === Access.Share)
+        .map(e => e.value),
+    },
+  ]
+  return handleSave(attributes, id)
 }
 
 const fetchMetacard = async (id: number) => {
@@ -106,8 +104,8 @@ const fetchMetacard = async (id: number) => {
   return metacard.metacards[0]
 }
 
-const handleSave = async (attributes: any, id: number) => {
-  const res = await fetch(`/search/catalog/internal/metacards`, {
+const handleSave = (attributes: any, id: number) => {
+  return fetch(`/search/catalog/internal/metacards`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify([
@@ -117,11 +115,6 @@ const handleSave = async (attributes: any, id: number) => {
       },
     ]),
   })
-
-  if (res.status !== 200) {
-    throw new Error()
-  }
-  return await res.json()
 }
 
 export class Sharing extends React.Component<Props, State> {
@@ -261,10 +254,14 @@ export class Sharing extends React.Component<Props, State> {
   doSave = async (attributes: any) => {
     const res = await handleSave(attributes, this.props.id)
 
+    if (res.status !== 200) {
+      throw new Error()
+    }
+
     if (this.props.onUpdate) {
       this.props.onUpdate(attributes)
     }
-    return res
+    return await res.json()
   }
 
   unsubscribeUsers = async (usersToUnsubscribe: String[]) => {

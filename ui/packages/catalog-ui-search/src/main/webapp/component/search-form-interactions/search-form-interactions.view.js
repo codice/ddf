@@ -162,9 +162,22 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
         if (confirmation.get('choice')) {
           let loadingview = new LoadingView()
           const id = this.model.get('id')
-          handleRemoveSharedMetacard(id)
-          loadingview.remove()
-          this.model.trigger('destroy', this.model, this.model.collection)
+          handleRemoveSharedMetacard(id).then(res => {
+            if (res.status !== 200) {
+              announcement.announce(
+                {
+                  title: 'Error',
+                  message: `Unable to leave the ${formsTitleLowerCase}`,
+                  type: 'error',
+                },
+                2500
+              )
+              throw new Error()
+            } else {
+              this.model.trigger('destroy', this.model, this.model.collection)
+            }
+            loadingview.remove()
+          })
         }
       }
     )

@@ -24,6 +24,7 @@ const lightboxInstance = require('../../component/lightbox/lightbox.view.instanc
 const wreqr = require('../../js/wreqr.js')
 const LoadingView = require('../../component/loading/loading.view.js')
 const ConfirmationView = require('../../component/confirmation/confirmation.view.js')
+const announcement = require('../../component/announcement/index.jsx')
 
 type Props = {
   workspace: any
@@ -85,9 +86,22 @@ class WorkspaceInteractions extends React.Component<Props, State> {
       (confirmation: any) => {
         if (confirmation.get('choice')) {
           let loadingview = new LoadingView()
-          handleRemoveSharedMetacard(this.props.workspace.id)
-          loadingview.remove()
-          this.props.workspace.destroyLocal()
+          handleRemoveSharedMetacard(this.props.workspace.id).then(res => {
+            if (res.status !== 200) {
+              announcement.announce(
+                {
+                  title: 'Error',
+                  message: 'Unable to leave the $workspace',
+                  type: 'error',
+                },
+                2500
+              )
+              throw new Error()
+            } else {
+              this.props.workspace.destroyLocal()
+            }
+            loadingview.remove()
+          })
         }
       }
     )

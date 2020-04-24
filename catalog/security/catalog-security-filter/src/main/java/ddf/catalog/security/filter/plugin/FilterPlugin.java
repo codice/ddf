@@ -147,9 +147,7 @@ public class FilterPlugin implements AccessPlugin {
       if (oldMetacard == null) {
         unknownIds.add(id);
       } else {
-
         Attribute oldAttr = oldMetacard.getAttribute(Metacard.SECURITY);
-
         if (!checkPermissions(attr, securityPermission, subject, CollectionPermission.UPDATE_ACTION)
             || !checkPermissions(
                 oldAttr, securityPermission, subject, CollectionPermission.UPDATE_ACTION)) {
