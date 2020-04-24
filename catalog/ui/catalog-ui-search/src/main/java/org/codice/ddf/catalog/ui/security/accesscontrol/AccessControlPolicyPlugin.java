@@ -147,6 +147,7 @@ public class AccessControlPolicyPlugin implements PolicyPlugin {
 
   private boolean onlyUserAccessControlRemoved(Metacard prev, Metacard updated) {
     if (isAnyObjectNull(prev, updated)
+        || getOwner(prev).equals(subjectSupplier.get())
         || (!ACCESS_ADMIN_HAS_CHANGED.apply(prev, updated)
             && !ACCESS_INDIVIDUALS_HAS_CHANGED.apply(prev, updated)
             && !ACCESS_INDIVIDUALS_READ_HAS_CHANGED.apply(prev, updated))) {
