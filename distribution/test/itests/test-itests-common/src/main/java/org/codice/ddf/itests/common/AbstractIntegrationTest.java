@@ -38,6 +38,8 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExa
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
+import ddf.security.audit.impl.SecurityLoggerImpl;
+import ddf.security.service.impl.SubjectUtils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -368,6 +370,8 @@ public abstract class AbstractIntegrationTest {
     ddfHome = System.getProperty(DDF_HOME_PROPERTY);
     adminConfig = new AdminConfig(configAdmin);
     Security security = new org.codice.ddf.security.impl.Security();
+    ((org.codice.ddf.security.impl.Security) security)
+        .setSecurityLogger(new SecurityLoggerImpl(new SubjectUtils()));
 
     // This proxy runs the service manager as the system subject
     serviceManager =

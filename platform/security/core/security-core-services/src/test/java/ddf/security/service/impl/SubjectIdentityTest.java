@@ -21,10 +21,10 @@ import static org.mockito.Mockito.mock;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import ddf.security.Subject;
+import ddf.security.SubjectOperations;
 import ddf.security.assertion.Attribute;
 import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.impl.SubjectUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +45,7 @@ public class SubjectIdentityTest {
 
   @Before
   public void setUp() {
-    subjectIdentity = new SubjectIdentityImpl();
+    subjectIdentity = new SubjectIdentityImpl(new SubjectUtils());
   }
 
   @Test
@@ -62,7 +62,8 @@ public class SubjectIdentityTest {
   public void testUniqueIdentifierWithEmail() {
     final String email = "guest@localhost";
     Map<String, List<String>> attrs =
-        ImmutableMap.of(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, Collections.singletonList(email));
+        ImmutableMap.of(
+            SubjectOperations.EMAIL_ADDRESS_CLAIM_URI, Collections.singletonList(email));
     Subject subject = getSubjectWithAttributes(attrs);
     assertThat(subjectIdentity.getUniqueIdentifier(subject), is(email));
   }

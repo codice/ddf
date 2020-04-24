@@ -23,7 +23,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -76,6 +76,8 @@ public class ImportCommand extends CatalogCommands {
   @Reference private List<AttributeInjector> attributeInjectors;
 
   @Reference private StorageProvider storageProvider;
+
+  @Reference private SecurityLogger securityLogger;
 
   private DigitalSignature verifier;
 
@@ -142,7 +144,7 @@ public class ImportCommand extends CatalogCommands {
           return null;
         }
       }
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Skipping validation check of imported data. There are no "
               + "guarantees of integrity or authenticity of the imported data."
               + "File being imported: {}",
@@ -169,7 +171,7 @@ public class ImportCommand extends CatalogCommands {
         }
       }
     }
-    SecurityLogger.audit("Called catalog:import command on the file: {}", importFile);
+    securityLogger.audit("Called catalog:import command on the file: {}", importFile);
     console.println("Importing file");
     Instant start = Instant.now();
     try (InputStream fis = new FileInputStream(file);

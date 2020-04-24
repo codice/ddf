@@ -14,7 +14,7 @@
 package ddf.security.service.impl;
 
 import ddf.security.SubjectIdentity;
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +23,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.subject.Subject;
 
 public class SubjectIdentityImpl implements SubjectIdentity {
+
+  private final SubjectOperations subjectOperations;
+
   private String identityAttribute;
+
+  public SubjectIdentityImpl(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
+  }
 
   /**
    * Get a subject's unique identifier. 1. If the configured unique identifier if present 2. Email
@@ -39,16 +46,16 @@ public class SubjectIdentityImpl implements SubjectIdentity {
       return owner.get();
     }
 
-    String identifier = SubjectUtils.getEmailAddress(subject);
+    String identifier = subjectOperations.getEmailAddress(subject);
     if (StringUtils.isNotBlank(identifier)) {
       return identifier;
     }
 
-    return SubjectUtils.getName(subject);
+    return subjectOperations.getName(subject);
   }
 
   private SortedSet<String> getSubjectAttribute(Subject subject) {
-    Map<String, SortedSet<String>> attrs = SubjectUtils.getSubjectAttributes(subject);
+    Map<String, SortedSet<String>> attrs = subjectOperations.getSubjectAttributes(subject);
 
     if (attrs.containsKey(identityAttribute)) {
       return attrs.get(identityAttribute);

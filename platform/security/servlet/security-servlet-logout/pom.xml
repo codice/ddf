@@ -83,6 +83,11 @@
         <artifactId>token-storage-api</artifactId>
           <version>${project.version}</version>
       </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-services</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

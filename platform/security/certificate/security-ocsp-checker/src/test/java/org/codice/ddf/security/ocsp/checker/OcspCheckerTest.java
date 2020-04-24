@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
+import ddf.security.audit.SecurityLogger;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.cert.CertificateFactory;
@@ -180,6 +181,7 @@ public class OcspCheckerTest {
   @Test
   public void testConvertingX509CertificatesToBcCertificates() throws Exception {
     OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
 
     Certificate certificate = ocspChecker.convertToBouncyCastleCert(trustedCertX509);
     assertThat(certificate, is(notNullValue()));
@@ -196,6 +198,7 @@ public class OcspCheckerTest {
   @Test
   public void testGeneratingOcspRequest() throws Exception {
     OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     Certificate certificate = trustedCertBc;
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(certificate);
@@ -209,6 +212,7 @@ public class OcspCheckerTest {
   @Test(expected = OcspCheckerException.class)
   public void testGeneratingOcspRequestNonResolvableIssuer() throws Exception {
     OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
 
     ocspChecker.generateOcspRequest(notTrustedCertBc);
   }
@@ -221,6 +225,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -239,6 +244,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -257,6 +263,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -284,6 +291,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -304,6 +312,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -324,6 +333,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -345,6 +355,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -361,6 +372,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
@@ -382,6 +394,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -402,6 +415,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -420,6 +434,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -438,6 +453,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -463,6 +479,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -486,6 +503,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -511,6 +529,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -533,6 +552,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -558,6 +578,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -572,6 +593,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
 
     X509Certificate[] certs = new X509Certificate[] {trustedCertX509};
@@ -591,6 +613,7 @@ public class OcspCheckerTest {
 
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
@@ -603,6 +626,7 @@ public class OcspCheckerTest {
   public void testOcspCheckDisabled() throws Exception {
     ClientFactoryFactory clientFactoryFactory = mockClientFactory();
     OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(false);
 
     X509Certificate[] certs = new X509Certificate[] {trustedCertX509};

@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import ddf.security.audit.SecurityLogger;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -70,6 +71,7 @@ public class CrlGeneratorTest {
   public void testAddingRemovingCrlProperties() {
     String localCrlPath = "/local/crl/path";
     CrlGenerator crlGenerator = new CrlGenerator(mock(ClientFactoryFactory.class), eventAdmin);
+    crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
     crlGenerator.setCrlFileLocationInPropertiesFile(localCrlPath);
     assertTrue(
         PropertiesLoader.getInstance()
@@ -144,6 +146,7 @@ public class CrlGeneratorTest {
   public void testGettingPemCrlFromUrl() throws Exception {
     ClientFactoryFactory clientFactoryFactory = getCxfClient(getCRL());
     CrlGenerator crlGenerator = new CrlGenerator(clientFactoryFactory, eventAdmin);
+    crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
     crlGenerator.setCrlLocationUrl("https://testurl:8993");
     crlGenerator.setCrlByUrlEnabled(true);
     crlGenerator.run();
@@ -156,6 +159,7 @@ public class CrlGeneratorTest {
   public void testGettingDemCrlFromUrl() throws Exception {
     ClientFactoryFactory clientFactoryFactory = getCxfClient(demEncodedCrl);
     CrlGenerator crlGenerator = new CrlGenerator(clientFactoryFactory, eventAdmin);
+    crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
     crlGenerator.setCrlLocationUrl("https://testurl:8993");
     crlGenerator.setCrlByUrlEnabled(true);
     crlGenerator.run();
@@ -171,6 +175,7 @@ public class CrlGeneratorTest {
   public void testHttpUrl() {
     ClientFactoryFactory clientFactoryFactory = getCxfClient(demEncodedCrl);
     CrlGenerator crlGenerator = new CrlGenerator(clientFactoryFactory, eventAdmin);
+    crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
     crlGenerator.setCrlLocationUrl("http://testurl:8993");
     crlGenerator.setCrlByUrlEnabled(true);
     crlGenerator.run();
@@ -210,6 +215,7 @@ public class CrlGeneratorTest {
     ClientFactoryFactory clientFactoryFactory = getCxfClient(demEncodedCrl);
     ScheduledExecutorService scheduler = mock(ScheduledExecutorService.class);
     CrlGenerator crlGenerator = new CrlGenerator(clientFactoryFactory, eventAdmin, scheduler);
+    crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
     crlGenerator.setCrlByUrlEnabled(true);
 
     when(scheduler.scheduleAtFixedRate(crlGenerator, 0, 30, TimeUnit.MINUTES)).thenReturn(null);
@@ -231,6 +237,7 @@ public class CrlGeneratorTest {
     ClientFactoryFactory clientFactoryFactory = getCxfClient(demEncodedCrl);
     ScheduledExecutorService scheduler = mock(ScheduledExecutorService.class);
     CrlGenerator crlGenerator = new CrlGenerator(clientFactoryFactory, eventAdmin, scheduler);
+    crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
 
     crlGenerator.setCrlByUrlEnabled(false);
     Mockito.verify(scheduler, times(0)).submit(any(Callable.class));

@@ -13,11 +13,14 @@
  */
 package org.codice.ddf.security.command.listener;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 public class CommandAuditer implements EventHandler {
+
+  private SecurityLogger securityLogger;
+
   @Override
   public void handleEvent(Event event) {
     if (event.getTopic().equals("org/apache/karaf/shell/console/EXECUTING")) {
@@ -27,6 +30,10 @@ public class CommandAuditer implements EventHandler {
   }
 
   void writeAudit(String command) {
-    SecurityLogger.audit("Karaf Shell command executed: {}", command);
+    securityLogger.audit("Karaf Shell command executed: {}", command);
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

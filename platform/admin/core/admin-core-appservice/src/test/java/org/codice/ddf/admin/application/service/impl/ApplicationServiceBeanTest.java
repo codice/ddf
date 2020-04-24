@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.core.Appender;
+import ddf.security.audit.SecurityLogger;
 import java.lang.management.ManagementFactory;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -609,13 +610,16 @@ public class ApplicationServiceBeanTest {
   }
 
   private ApplicationServiceBean newApplicationServiceBean() throws ApplicationServiceException {
-    return new ApplicationServiceBean(
-        testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller, mockSystemService) {
-      @Override
-      protected BundleContext getContext() {
-        return bundleContext;
-      }
-    };
+    ApplicationServiceBean applicationServiceBean =
+        new ApplicationServiceBean(
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller, mockSystemService) {
+          @Override
+          protected BundleContext getContext() {
+            return bundleContext;
+          }
+        };
+    applicationServiceBean.setSecurityLogger(mock(SecurityLogger.class));
+    return applicationServiceBean;
   }
 
   public static interface WrapperManagerMXBean {

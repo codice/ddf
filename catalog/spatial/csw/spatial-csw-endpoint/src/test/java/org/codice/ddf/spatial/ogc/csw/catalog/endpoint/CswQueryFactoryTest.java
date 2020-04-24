@@ -51,6 +51,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryFilterTransformer;
 import ddf.catalog.transform.QueryFilterTransformerProvider;
+import ddf.security.permission.impl.PermissionsImpl;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
@@ -253,7 +254,8 @@ public class CswQueryFactoryTest {
     FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
     CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
-    queryFactory = new CswQueryFactory(cswRecordMap, filterBuilder, filterAdapter);
+    queryFactory =
+        new CswQueryFactory(cswRecordMap, filterBuilder, filterAdapter, new PermissionsImpl());
 
     AttributeRegistryImpl attributeRegistry = new AttributeRegistryImpl();
     attributeRegistry.registerMetacardType(getCswMetacardType());

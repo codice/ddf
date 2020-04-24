@@ -28,6 +28,7 @@ import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsParameters;
 import ddf.security.claims.impl.ClaimsParametersImpl;
+import ddf.security.service.impl.SubjectUtils;
 import java.util.HashMap;
 import java.util.HashSet;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
@@ -91,7 +92,7 @@ public class RoleClaimsHandlerTest {
     when(connection.search(anyString(), anyObject(), anyString(), matches("uid")))
         .thenReturn(membershipReader);
 
-    claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
+    claimsHandler = new RoleClaimsHandler(new AttributeMapLoader(new SubjectUtils()));
     ConnectionFactory mockConnectionFactory = mock(ConnectionFactory.class);
     when(mockConnectionFactory.getConnection()).thenReturn(connection);
     claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
@@ -155,7 +156,7 @@ public class RoleClaimsHandlerTest {
     when(connection.search(anyString(), anyObject(), anyString(), matches("cn")))
         .thenReturn(membershipReader);
 
-    claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
+    claimsHandler = new RoleClaimsHandler(new AttributeMapLoader(new SubjectUtils()));
     ConnectionFactory mockConnectionFactory = mock(ConnectionFactory.class);
     when(mockConnectionFactory.getConnection()).thenReturn(connection);
     claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
@@ -221,7 +222,7 @@ public class RoleClaimsHandlerTest {
     when(connection.search(anyString(), anyObject(), anyString(), matches("uid")))
         .thenReturn(membershipReader);
 
-    claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
+    claimsHandler = new RoleClaimsHandler(new AttributeMapLoader(new SubjectUtils()));
     ConnectionFactory mockConnectionFactory = mock(ConnectionFactory.class);
     when(mockConnectionFactory.getConnection()).thenReturn(connection);
     claimsHandler.setLdapConnectionFactory(mockConnectionFactory);

@@ -15,6 +15,7 @@ package org.codice.ddf.security.servlet.whoami;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ddf.security.SubjectOperations;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,8 @@ public class WhoAmIServlet extends HttpServlet {
           .serializeNulls()
           .create();
 
+  private SubjectOperations subjectOperations;
+
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
     resp.setHeader("Cache-Control", "no-cache, no-store");
@@ -48,7 +51,7 @@ public class WhoAmIServlet extends HttpServlet {
     Map<String, WhoAmI> realmToWhoMap = new HashMap<>();
 
     Subject subject = SecurityUtils.getSubject();
-    WhoAmI whoAmI = new WhoAmI(subject);
+    WhoAmI whoAmI = new WhoAmI(subject, subjectOperations);
     realmToWhoMap.put("default", whoAmI);
 
     resp.setContentType("application/json");
@@ -57,5 +60,9 @@ public class WhoAmIServlet extends HttpServlet {
     } catch (IOException ex) {
       LOGGER.debug("Unable to write to response for /whoami", ex);
     }
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

@@ -13,6 +13,8 @@
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <reference id="permissions" interface="ddf.security.permission.Permissions" />
     <bean id="resourceUriPlugin"
           class="org.codice.ddf.catalog.security.ResourceUriPolicy">
         <cm:managed-properties
@@ -28,6 +30,7 @@
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
             </array>
         </property>
+        <property name="permissions" ref="permissions"/>
     </bean>
     <service ref="resourceUriPlugin" auto-export="interfaces" ranking="100"/>
 </blueprint>

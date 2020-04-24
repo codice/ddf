@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.commands.catalog
 
-import java.io.File
-import java.util.regex.Pattern
 import ddf.catalog.CatalogFramework
 import ddf.catalog.content.StorageProvider
 import ddf.catalog.data.BinaryContent
@@ -31,6 +29,7 @@ import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.resource.impl.ResourceImpl
 import ddf.catalog.source.CatalogProvider
 import ddf.catalog.transform.MetacardTransformer
+import ddf.security.audit.SecurityLogger
 import org.apache.karaf.shell.api.console.Session
 import org.codice.ddf.commands.util.DigitalSignature
 import org.osgi.framework.BundleContext
@@ -86,6 +85,7 @@ class ExportCommandSpec extends Specification {
                 catalogFramework,
                 signer
         )
+        exportCommand.securityLogger = Mock(SecurityLogger)
     }
 
     void cleanup() {

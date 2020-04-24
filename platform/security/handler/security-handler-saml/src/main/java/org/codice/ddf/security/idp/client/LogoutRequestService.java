@@ -15,14 +15,14 @@ package org.codice.ddf.security.idp.client;
 
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.SubjectOperations;
 import ddf.security.assertion.AuthenticationStatement;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
-import ddf.security.impl.SubjectUtils;
 import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.LogoutSecurityException;
 import ddf.security.samlp.LogoutWrapper;
@@ -145,6 +145,10 @@ public class LogoutRequestService {
   private long logOutPageTimeOut = 3600000;
 
   private SamlSecurity samlSecurity;
+
+  private SubjectOperations subjectOperations;
+
+  private SecurityLogger securityLogger;
 
   public LogoutRequestService(
       SimpleSign simpleSign, IdpMetadata idpMetadata, RelayStates<String> relayStates) {
@@ -287,7 +291,7 @@ public class LogoutRequestService {
         .map(principalCollection -> new SessionToken(principalCollection, null, "127.0.0.1"))
         .map(this::extractSubject)
         .filter(Objects::nonNull)
-        .map(SubjectUtils::getName)
+        .map(subjectOperations::getName)
         .findFirst()
         .orElse(null);
   }
@@ -346,7 +350,7 @@ public class LogoutRequestService {
       httpSessionInvalidator.invalidateSession(
           logoutRequest.getNameID().getValue(), this::extractSubject);
 
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Subject logged out by backchannel request: {}", logoutRequest.getNameID().getValue());
 
       return getSamlpSoapLogoutResponse(logoutResponse);
@@ -578,7 +582,7 @@ public class LogoutRequestService {
     Element idpSecToken = getIdpSecurityToken();
     if (idpSecToken != null) {
       if (shouldAuditSubject(idpSecToken)) {
-        SecurityLogger.audit(
+        securityLogger.audit(
             "Subject with admin privileges has logged out: {}",
             new SecurityAssertionSaml(idpSecToken).getPrincipal().getName());
       }
@@ -735,5 +739,13 @@ public class LogoutRequestService {
 
   public void setSamlSecurity(SamlSecurity samlSecurity) {
     this.samlSecurity = samlSecurity;
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

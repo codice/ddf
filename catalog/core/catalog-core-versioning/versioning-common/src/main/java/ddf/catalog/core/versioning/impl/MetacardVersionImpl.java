@@ -28,7 +28,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -94,6 +94,8 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
     METACARD_VERSION = new MetacardTypeImpl(PREFIX, VERSION_DESCRIPTORS);
   }
 
+  private SubjectOperations subjectOperations;
+
   /**
    * Will convert the given {@link Metacard} to a {@link MetacardVersionImpl} by cloning it and
    * adding the current subject, time, and a random UUID. Cannot take a {@link MetacardVersionImpl}
@@ -103,12 +105,18 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
    * @param action Which action was done to modify the metacard
    * @throws IllegalArgumentException
    */
-  public MetacardVersionImpl(String id, Metacard sourceMetacard, Action action, Subject subject) {
+  public MetacardVersionImpl(
+      String id,
+      Metacard sourceMetacard,
+      Action action,
+      Subject subject,
+      SubjectOperations subjectOperations) {
     this(
         id,
         sourceMetacard,
         action,
         subject,
+        subjectOperations,
         Collections.singletonList(MetacardImpl.BASIC_METACARD));
   }
 
@@ -129,6 +137,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
       Metacard sourceMetacard,
       Action action,
       Subject subject,
+      SubjectOperations subjectOperations,
       List<MetacardType> types) {
     super(
         sourceMetacard,
@@ -142,9 +151,9 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
     this.setVersionType(sourceMetacard.getMetacardType().getName());
     this.setVersionTypeBinary(getVersionType(sourceMetacard));
 
-    String editedBy = SubjectUtils.getEmailAddress(subject);
+    String editedBy = subjectOperations.getEmailAddress(subject);
     if (isNullOrEmpty(editedBy)) {
-      editedBy = SubjectUtils.getName(subject);
+      editedBy = subjectOperations.getName(subject);
     }
     this.setEditedBy(editedBy);
 

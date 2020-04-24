@@ -14,8 +14,8 @@
 package org.codice.ddf.security.servlet.logout;
 
 import ddf.security.SecurityConstants;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
-import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -39,6 +39,8 @@ public class LocalLogoutServlet extends HttpServlet {
 
   private TokenStorage tokenStorage;
   private String redirectUri;
+
+  private SecurityLogger securityLogger;
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -77,7 +79,7 @@ public class LocalLogoutServlet extends HttpServlet {
               Arrays.stream(System.getProperty("security.audit.roles", "").split(","))
                   .anyMatch(subject::hasRole);
           if (hasSecurityAuditRole) {
-            SecurityLogger.audit("Subject with admin privileges has logged out", subject);
+            securityLogger.audit("Subject with admin privileges has logged out", subject);
           }
         }
         principalHolder.remove();
@@ -108,5 +110,9 @@ public class LocalLogoutServlet extends HttpServlet {
 
   public void setRedirectUri(String redirectUri) {
     this.redirectUri = redirectUri;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

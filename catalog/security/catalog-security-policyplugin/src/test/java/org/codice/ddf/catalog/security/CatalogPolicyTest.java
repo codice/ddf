@@ -28,6 +28,7 @@ import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.security.permission.impl.PermissionsImpl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +44,7 @@ public class CatalogPolicyTest {
 
   @Before
   public void setup() {
-    policyPlugin = new CatalogPolicy();
+    policyPlugin = new CatalogPolicy(new PermissionsImpl());
   }
 
   @Test

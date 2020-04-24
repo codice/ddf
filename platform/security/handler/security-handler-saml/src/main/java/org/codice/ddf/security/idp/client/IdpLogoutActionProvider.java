@@ -17,8 +17,8 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
 import ddf.security.SecurityConstants;
+import ddf.security.SubjectOperations;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.impl.SubjectUtils;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,6 +47,8 @@ public class IdpLogoutActionProvider implements ActionProvider {
 
   private EncryptionService encryptionService;
 
+  private SubjectOperations subjectOperations;
+
   /**
    * *
    *
@@ -65,7 +67,7 @@ public class IdpLogoutActionProvider implements ActionProvider {
     try {
       @SuppressWarnings("unchecked")
       Object subject = ((Map) subjectMap).get(SecurityConstants.SECURITY_SUBJECT);
-      String nameId = SubjectUtils.getName((Subject) subject, "You", true);
+      String nameId = subjectOperations.getName((Subject) subject, "You", true);
 
       String nameIdTimestamp = nameId + "\n" + System.currentTimeMillis();
       nameIdTimestamp =
@@ -108,7 +110,11 @@ public class IdpLogoutActionProvider implements ActionProvider {
       return false;
     }
 
-    String type = SubjectUtils.getType((Subject) subject);
+    String type = subjectOperations.getType((Subject) subject);
     return type != null && type.startsWith(SAML_TYPE_START);
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

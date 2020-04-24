@@ -17,7 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
 import ddf.security.service.SecurityManager;
@@ -52,6 +52,8 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
   private final Function<Message, SecurityAssertion> assertionRetriever;
 
   private SecurityManager securityManager;
+
+  private SecurityLogger securityLogger;
 
   public PEPAuthorizingInterceptor() {
     this(SecurityAssertionStore::getSecurityAssertion);
@@ -103,10 +105,10 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
           LOGGER.debug("Is user authenticated: {}", user.isAuthenticated());
 
           LOGGER.debug("Checking for permission");
-          SecurityLogger.audit("Is Subject authenticated? " + user.isAuthenticated(), user);
+          securityLogger.audit("Is Subject authenticated? " + user.isAuthenticated(), user);
 
           if (StringUtils.isEmpty(actionURI)) {
-            SecurityLogger.audit("Denying access to Subject for unknown action.", user);
+            securityLogger.audit("Denying access to Subject for unknown action.", user);
             throw new AccessDeniedException("Unauthorized");
           }
 
@@ -116,7 +118,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
           isPermitted = user.isPermitted(action);
 
           LOGGER.debug("Result of permission: {}", isPermitted);
-          SecurityLogger.audit("Is Subject  permitted? " + isPermitted, user);
+          securityLogger.audit("Is Subject  permitted? " + isPermitted, user);
           // store the subject so the DDF framework can use it later
           ThreadContext.bind(user);
           message.put(SecurityConstants.SECURITY_TOKEN_KEY, user);
@@ -124,7 +126,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
               "Added assertion information to message at key {}",
               SecurityConstants.SECURITY_TOKEN_KEY);
         } catch (SecurityServiceException e) {
-          SecurityLogger.audit(
+          securityLogger.audit(
               "Denying access : Caught exception when trying to authenticate user for service ["
                   + actionURI
                   + "]",
@@ -132,17 +134,17 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
           throw new AccessDeniedException("Unauthorized");
         }
         if (!isPermitted) {
-          SecurityLogger.audit(
+          securityLogger.audit(
               "Denying access to Subject for service: " + action.getAction(), user);
           throw new AccessDeniedException("Unauthorized");
         }
       } else {
-        SecurityLogger.audit(
+        securityLogger.audit(
             "Unable to retrieve the security assertion associated with the web service call.");
         throw new AccessDeniedException("Unauthorized");
       }
     } else {
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Unable to retrieve the current message associated with the web service call.");
       throw new AccessDeniedException("Unauthorized");
     }
@@ -249,5 +251,9 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
     }
 
     return XML_UTILS.prettyFormat(unformattedXml);
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

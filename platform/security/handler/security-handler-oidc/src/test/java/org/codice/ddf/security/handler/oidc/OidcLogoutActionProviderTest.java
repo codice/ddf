@@ -26,6 +26,7 @@ import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
 import ddf.security.common.PrincipalHolder;
+import ddf.security.service.impl.SubjectUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -55,6 +56,7 @@ public class OidcLogoutActionProviderTest {
     when(handlerConfiguration.getOidcLogoutActionBuilder()).thenReturn(oidcLogoutActionBuilder);
 
     oidcLogoutActionProvider = new OidcLogoutActionProvider(handlerConfiguration);
+    oidcLogoutActionProvider.setSubjectOperations(new SubjectUtils());
   }
 
   @Test

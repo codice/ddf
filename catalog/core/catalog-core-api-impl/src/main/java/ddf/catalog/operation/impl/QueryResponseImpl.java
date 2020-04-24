@@ -30,6 +30,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +42,11 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
   protected static final Result POISON_PILL_RESULT = new POISON_PILL_RESULT();
 
-  protected long hits;
+  protected AtomicLong hits = new AtomicLong(0);
 
   private Set<ProcessingDetails> details = new HashSet<ProcessingDetails>();
 
-  protected boolean isQueueClosed = false;
+  protected AtomicBoolean isQueueClosed = new AtomicBoolean(false);
 
   LinkedBlockingQueue<Result> queue = null;
 
@@ -144,7 +146,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
       timeoutMillis = request.getQuery().getTimeoutMillis();
     }
 
-    this.hits = hits;
+    this.hits.set(hits);
 
     queue = results == null ? new LinkedBlockingQueue<>() : new LinkedBlockingQueue<>(results);
 
@@ -201,11 +203,11 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
   @Override
   public long getHits() {
-    return hits;
+    return hits.get();
   }
 
   public void setHits(long hits) {
-    this.hits = hits;
+    this.hits.set(hits);
   }
 
   @Override
@@ -236,7 +238,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
    */
   public void addResult(Result result, boolean closeQueue) {
     if (result != null) {
-      if (isQueueClosed) {
+      if (isQueueClosed.get()) {
         throw new IllegalStateException("Cannot add new Results after the Queue has been closed");
       } else {
         if (closeQueue) {
@@ -260,7 +262,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
    */
   public void addResults(List<Result> results, boolean closeQueue) {
     if (results != null) {
-      if (isQueueClosed) {
+      if (isQueueClosed.get()) {
         throw new IllegalStateException("Cannot add new Results after the Queue has been closed");
       } else {
         if (closeQueue) {
@@ -275,11 +277,11 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
   @Override
   public boolean hasMoreResults() {
-    return !queue.isEmpty() || !isQueueClosed;
+    return !queue.isEmpty() || !isQueueClosed.get();
   }
 
-  public void closeResultQueue() {
-    isQueueClosed = true;
+  public synchronized void closeResultQueue() {
+    isQueueClosed.set(true);
     queue.add(POISON_PILL_RESULT);
   }
 

@@ -23,6 +23,8 @@
 
     <ext:property-placeholder />
 
+    <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
+
     <bean id="roleClaimsHandler"
           class="org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler">
         <cm:managed-properties
@@ -40,6 +42,7 @@
                 persistent-id="org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"
                 update-strategy="container-managed"/>
         <property name="usersAttributesFileLocation" value="${ddf.etc}/users.attributes"/>
+        <property name="subjectOperations" ref="subjectOperations" />
     </bean>
 
     <service ref="roleClaimsHandler" interface="ddf.security.claims.ClaimsHandler"/>

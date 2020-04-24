@@ -27,6 +27,7 @@ import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRet
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
+import ddf.security.service.impl.SubjectUtils;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -413,6 +414,7 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
     actionProvider = mock(ActionProvider.class);
     eventAdmin = mock(EventAdmin.class);
     publisher = new DownloadsStatusEventPublisher(eventAdmin, ImmutableList.of(actionProvider));
+    publisher.setSubjectOperations(new SubjectUtils());
     publisher.setNotificationEnabled(false);
     publisher.setActivityEnabled(false);
   }

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
 import java.io.PrintWriter;
 import java.security.cert.X509Certificate;
@@ -51,6 +52,7 @@ public class LogoutServletTest {
   @Before
   public void testsetup() throws Exception {
     localLogoutServlet = new MockLocalLogoutServlet();
+    localLogoutServlet.setSecurityLogger(mock(SecurityLogger.class));
     localLogoutServlet.setRedirectUri("/logout");
     request = mock(HttpServletRequest.class);
     response = mock(HttpServletResponse.class);

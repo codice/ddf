@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
+import ddf.security.service.impl.SubjectUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,6 +63,7 @@ public class AdminAlertImplTest {
   @Before
   public void setup() throws Exception {
     adminAlert = new AdminAlertImpl(persistentStore, eventAdmin);
+    adminAlert.setSubjectOperations(new SubjectUtils());
     solrMap = new HashMap<>();
     solrMap.put(SystemNotice.SYSTEM_NOTICE_ID_KEY + "_txt", "myId");
   }

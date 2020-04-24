@@ -23,7 +23,7 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.permission.impl.Permissions;
+import ddf.security.permission.Permissions;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,6 +53,12 @@ public class CatalogPolicy implements PolicyPlugin {
   private Map<String, Set<String>> deletePermissionMap = new HashMap<>();
 
   private Map<String, Set<String>> readPermissionMap = new HashMap<>();
+
+  private Permissions permissions;
+
+  public CatalogPolicy(Permissions permissions) {
+    this.permissions = permissions;
+  }
 
   /**
    * Getter used by the framework to populate the configuration ui
@@ -192,9 +198,9 @@ public class CatalogPolicy implements PolicyPlugin {
    * @param permStrings String array of permissions to parse
    */
   private void parsePermissionsFromString(
-      String[] permStrings, Map<String, Set<String>> permissions) {
-    permissions.clear();
-    permissions.putAll(Permissions.parsePermissionsFromString(permStrings));
+      String[] permStrings, Map<String, Set<String>> permissionSet) {
+    permissionSet.clear();
+    permissionSet.putAll(permissions.parsePermissionsFromString(permStrings));
   }
 
   @Override

@@ -18,11 +18,14 @@
 
     <bean id="pkiRealm" class="org.codice.ddf.security.pki.realm.PKIRealm">
         <property name="claimsHandlers" ref="claimsHandler"/>
+        <property name="subjectOperations" ref="subjectOperations" />
     </bean>
 
     <service ref="pkiRealm" interface="org.apache.shiro.realm.Realm"/>
 
     <reference-list id="claimsHandler" interface="ddf.security.claims.ClaimsHandler"
                     availability="optional"/>
+
+    <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
 
 </blueprint>

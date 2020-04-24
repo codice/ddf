@@ -44,6 +44,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
 import ddf.catalog.resourceretriever.ResourceRetriever;
+import ddf.security.service.impl.SubjectUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -147,7 +148,7 @@ public class ReliableResourceDownloadManagerTest {
 
   private Future<ByteArrayOutputStream> future;
 
-  private DownloadStatusInfo downloadStatusInfo;
+  private DownloadStatusInfoImpl downloadStatusInfo;
 
   @BeforeClass
   public static void oneTimeSetup() throws IOException {
@@ -166,7 +167,7 @@ public class ReliableResourceDownloadManagerTest {
     eventPublisher = mock(DownloadsStatusEventPublisher.class);
     eventListener = mock(DownloadsStatusEventListener.class);
     downloadStatusInfo = new DownloadStatusInfoImpl();
-
+    downloadStatusInfo.setSubjectOperations(new SubjectUtils());
     downloadMgr =
         new ReliableResourceDownloadManager(
             getDownloaderConfig(), downloadStatusInfo, Executors.newSingleThreadExecutor());

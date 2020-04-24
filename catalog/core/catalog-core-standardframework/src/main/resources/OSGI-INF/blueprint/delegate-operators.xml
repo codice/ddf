@@ -18,6 +18,10 @@
 
     <reference id="security" interface="org.codice.ddf.security.Security" />
 
+    <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
+
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean id="historian" class="ddf.catalog.history.Historian" init-method="init">
         <cm:managed-properties persistent-id="ddf.catalog.history.Historian"
                                update-strategy="container-managed"/>
@@ -30,6 +34,8 @@
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </property>
         <property name="security" ref="security" />
+        <property name="subjectOperations" ref="subjectOperations"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service interface="ddf.catalog.configuration.HistorianConfiguration">
@@ -92,6 +98,7 @@
             </list>
         </property>
         <property name="queryTimeoutMillis" value="300000"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <bean id="cfResourceOps" class="ddf.catalog.impl.operations.ResourceOperations">

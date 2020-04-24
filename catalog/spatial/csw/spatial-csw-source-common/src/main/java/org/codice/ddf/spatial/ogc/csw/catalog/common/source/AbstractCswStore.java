@@ -42,6 +42,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.permission.Permissions;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -97,22 +98,25 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
       Converter provider,
       ClientFactoryFactory clientFactoryFactory,
       EncryptionService encryptionService,
-      Security security) {
+      Security security,
+      Permissions permissions) {
     super(
         context,
         cswSourceConfiguration,
         provider,
         clientFactoryFactory,
         encryptionService,
-        security);
+        security,
+        permissions);
   }
 
   /** Instantiates a CswStore. */
   public AbstractCswStore(
       EncryptionService encryptionService,
       ClientFactoryFactory clientFactoryFactory,
-      Security security) {
-    super(encryptionService, clientFactoryFactory, security);
+      Security security,
+      Permissions permissions) {
+    super(encryptionService, clientFactoryFactory, security, permissions);
   }
 
   @Override

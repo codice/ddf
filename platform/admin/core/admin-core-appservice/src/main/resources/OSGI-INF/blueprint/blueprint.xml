@@ -34,6 +34,8 @@
     <reference-list id="bundleStateServices"
                     interface="org.apache.karaf.bundle.core.BundleStateService"/>
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean id="mBeanServer"
           class="java.lang.management.ManagementFactory"
           factory-method="getPlatformMBeanServer"/>
@@ -48,6 +50,7 @@
         <argument ref="systemInstaller" />
         <argument ref="systemService"/>
         <property name="applicationPlugins" ref="applicationPluginList"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <reference id="configurationAdmin"

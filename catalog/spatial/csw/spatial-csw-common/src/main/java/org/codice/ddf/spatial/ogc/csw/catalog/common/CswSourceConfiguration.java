@@ -14,7 +14,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.impl.Permissions;
+import ddf.security.permission.Permissions;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,8 +83,11 @@ public class CswSourceConfiguration {
 
   private Map<String, Set<String>> securityAttributes = new HashMap<>();
 
-  public CswSourceConfiguration(EncryptionService encryptionService) {
+  private Permissions permissions;
+
+  public CswSourceConfiguration(EncryptionService encryptionService, Permissions permissions) {
     this.encryptionService = encryptionService;
+    this.permissions = permissions;
   }
 
   @Deprecated
@@ -272,7 +275,7 @@ public class CswSourceConfiguration {
   public void setSecurityAttributes(String[] securityAttributStrings) {
     if (securityAttributStrings != null) {
       securityAttributes.clear();
-      securityAttributes.putAll(Permissions.parsePermissionsFromString(securityAttributStrings));
+      securityAttributes.putAll(permissions.parsePermissionsFromString(securityAttributStrings));
     }
   }
 

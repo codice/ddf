@@ -44,6 +44,7 @@
 
     <feature name="catalog-core-impl" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
+        <feature>security-core-services</feature>
         <feature>solr-factory-api</feature>
         <feature>solr-factory-impl</feature>
         <feature>catalog-core-api</feature>
@@ -116,6 +117,7 @@
     <feature name="catalog-core-plugins" version="${project.version}"
              description="Catalog core plugins">
         <feature>jackson</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-tagsfilterplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-commands/${project.version}</bundle>
@@ -236,17 +238,20 @@
 
     <feature name="catalog-security-filter" version="${project.version}"
              description="Catalog Security Filtering">
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-security-operationplugin" version="${project.version}"
              description="Catalog Security Operation Plugin">
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-operationplugin/${project.version}
         </bundle>
     </feature>
 
     <feature name="catalog-security-plugin" version="${project.version}"
              description="Catalog Security Plugins">
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-plugin/${project.version}</bundle>
     </feature>
 
@@ -258,6 +263,7 @@
 
     <feature name="catalog-security-policyplugin" version="${project.version}"
              description="Catalog Policy Plugins">
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-policyplugin/${project.version}</bundle>
     </feature>
 
@@ -364,6 +370,7 @@
     <feature name="catalog-confluence-source" version="${project.version}"
              description="Confluence source and transformer">
         <feature version="${cxf.version}">cxf-jaxrs</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.confluence/catalog-confluence-source/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
     </feature>
@@ -484,6 +491,7 @@
 
     <feature name="catalog-security-resourceplugin" version="${project.version}"
              description="Catalog Resource URI Policy Plugins">
+        <feature>security-core-services</feature>
         <feature>security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-resourceplugin/${project.version}</bundle>
     </feature>
@@ -491,6 +499,7 @@
     <feature name="catalog-security-pointofcontact-readonly"
              version="${project.version}"
              description="Point of Contact Read Only">
+        <feature>security-core-services</feature>
         <bundle>
             mvn:ddf.catalog.security/catalog-security-pointofcontact-policyplugin/${project.version}
         </bundle>
@@ -514,6 +523,7 @@
 
     <feature name="catalog-plugin-security-audit" version="${project.version}"
              description="Plugin to audit security changes on metacards.">
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-security-audit/${project.version}</bundle>
     </feature>
 

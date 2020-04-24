@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.security.handler;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.principal.impl.GuestPrincipal;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -29,11 +29,11 @@ public class GuestAuthenticationToken extends BaseAuthenticationToken {
 
   public static final String GUEST_CREDENTIALS = "Guest";
 
-  public GuestAuthenticationToken(String name) {
+  public GuestAuthenticationToken(String name, SecurityLogger securityLogger) {
     super(new GuestPrincipal(name), GUEST_CREDENTIALS, parseAddressFromName(name));
 
     if (!StringUtils.isEmpty(name)) {
-      SecurityLogger.audit("Guest token generated for IP address: " + name);
+      securityLogger.audit("Guest token generated for IP address: " + name);
     }
   }
 

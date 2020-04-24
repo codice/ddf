@@ -22,11 +22,15 @@ import com.connexta.arbitro.finder.PolicyFinderModule;
 import com.connexta.arbitro.finder.impl.CurrentEnvModule;
 import com.connexta.arbitro.finder.impl.SelectorModule;
 import com.google.common.collect.ImmutableList;
+import ddf.security.audit.SecurityLogger;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -84,6 +88,8 @@ public class XacmlClient {
 
   private final Parser parser;
 
+  private SecurityLogger securityLogger;
+
   /**
    * Creates the proxy to the real XACML PDP.
    *
@@ -92,8 +98,11 @@ public class XacmlClient {
    * @param parser for marshal and unmarshal
    * @throws PdpException
    */
-  public XacmlClient(String relativeXacmlPoliciesDirectoryPath, Parser parser) throws PdpException {
+  public XacmlClient(
+      String relativeXacmlPoliciesDirectoryPath, Parser parser, SecurityLogger securityLogger)
+      throws PdpException {
     this.parser = parser;
+    this.securityLogger = securityLogger;
     if (StringUtils.isEmpty(relativeXacmlPoliciesDirectoryPath)) {
       throw new PdpException(NULL_DIRECTORY_EXCEPTION_MSG);
     }
@@ -105,8 +114,16 @@ public class XacmlClient {
     } catch (IOException e) {
       throw new PdpException(e.getMessage(), e);
     }
-
-    initialize(xacmlPoliciesDirectory);
+    try {
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Object>)
+              () -> {
+                initialize(xacmlPoliciesDirectory);
+                return null;
+              });
+    } catch (PrivilegedActionException e) {
+      LOGGER.warn("Failed to initialize XACML PDP", e);
+    }
   }
 
   private void initialize(File xacmlPoliciesDirectory) throws PdpException {
@@ -183,7 +200,8 @@ public class XacmlClient {
         xacmlPolicyDirectories);
     PolicyFinder policyFinder = new PolicyFinder();
     PollingPolicyFinderModule policyFinderModule =
-        new PollingPolicyFinderModule(xacmlPolicyDirectories, defaultPollingIntervalInSeconds);
+        new PollingPolicyFinderModule(
+            xacmlPolicyDirectories, defaultPollingIntervalInSeconds, securityLogger);
     policyFinderModule.start();
     Set<PolicyFinderModule> policyFinderModules = new HashSet<>(1);
     policyFinderModules.add(policyFinderModule);

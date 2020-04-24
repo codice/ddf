@@ -15,7 +15,9 @@ package ddf.security.pdp.realm.xacml.processor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -160,7 +162,8 @@ public class XacmlClientTest {
       xacmlRequestType.getAttributes().add(subjectAttributes);
       xacmlRequestType.getAttributes().add(categoryAttributes);
 
-      XacmlClient pdp = new XacmlClient(destDir.getCanonicalPath(), new XmlParser());
+      XacmlClient pdp =
+          new XacmlClient(destDir.getCanonicalPath(), new XmlParser(), mock(SecurityLogger.class));
 
       // Perform Test
       ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
@@ -240,7 +243,8 @@ public class XacmlClientTest {
     xacmlRequestType.getAttributes().add(subjectAttributes);
     xacmlRequestType.getAttributes().add(categoryAttributes);
 
-    XacmlClient pdp = new XacmlClient(tempDir.getCanonicalPath(), new XmlParser());
+    XacmlClient pdp =
+        new XacmlClient(tempDir.getCanonicalPath(), new XmlParser(), mock(SecurityLogger.class));
 
     // Perform Test
     ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
@@ -261,7 +265,7 @@ public class XacmlClientTest {
 
     // Perform Test on new directory
     // Expect directory to be created
-    new XacmlClient(TEST_CREATION_DIR, new XmlParser());
+    new XacmlClient(TEST_CREATION_DIR, new XmlParser(), mock(SecurityLogger.class));
 
     // Delete the directory that was just created
     FileUtils.forceDelete(new File(TEST_CREATION_DIR));
@@ -280,7 +284,7 @@ public class XacmlClientTest {
       assertTrue(isDirEmpty(dir));
 
       // Perform Test
-      new XacmlClient(dir.getCanonicalPath(), new XmlParser());
+      new XacmlClient(dir.getCanonicalPath(), new XmlParser(), mock(SecurityLogger.class));
 
       // Cleanup
       LOGGER.debug("Deleting directory: {}", dir.getPath());
@@ -298,7 +302,8 @@ public class XacmlClientTest {
 
     XacmlClient.defaultPollingIntervalInSeconds = 1;
     // Perform Test
-    XacmlClient pdp = new XacmlClient(policyDir.getCanonicalPath(), new XmlParser());
+    XacmlClient pdp =
+        new XacmlClient(policyDir.getCanonicalPath(), new XmlParser(), mock(SecurityLogger.class));
 
     File srcFile =
         new File(
@@ -379,7 +384,8 @@ public class XacmlClientTest {
     File policyDir = folder.newFolder("tempDir");
 
     // Perform Test
-    XacmlClient pdp = new XacmlClient(policyDir.getCanonicalPath(), null);
+    XacmlClient pdp =
+        new XacmlClient(policyDir.getCanonicalPath(), null, mock(SecurityLogger.class));
 
     File srcFile =
         new File(

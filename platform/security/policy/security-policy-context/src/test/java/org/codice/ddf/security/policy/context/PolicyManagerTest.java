@@ -17,8 +17,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.ImmutableMap;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,6 +100,7 @@ public class PolicyManagerTest {
   @Before
   public void setup() {
     manager = new PolicyManager();
+    manager.setSecurityLogger(mock(SecurityLogger.class));
     manager.setTraversalDepth(10);
     manager.setGuestAccess(true);
     manager.setSessionAccess(true);
@@ -140,6 +143,7 @@ public class PolicyManagerTest {
     contextPolicies.put(SESSION_ACCESS, true);
 
     rollBackTestManager = new PolicyManager();
+    rollBackTestManager.setSecurityLogger(mock(SecurityLogger.class));
     rollBackTestManager.setPolicies(contextPolicies);
   }
 

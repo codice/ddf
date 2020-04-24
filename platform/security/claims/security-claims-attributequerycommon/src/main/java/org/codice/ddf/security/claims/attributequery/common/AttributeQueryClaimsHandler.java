@@ -13,13 +13,13 @@
  */
 package org.codice.ddf.security.claims.attributequery.common;
 
+import ddf.security.audit.SecurityLogger;
 import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsHandler;
 import ddf.security.claims.ClaimsParameters;
 import ddf.security.claims.impl.ClaimImpl;
 import ddf.security.claims.impl.ClaimsCollectionImpl;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.samlp.impl.SimpleSign;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
@@ -73,6 +73,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
   protected String issuer;
 
   protected String destination;
+
+  private SecurityLogger securityLogger;
 
   public AttributeQueryClaimsHandler() {
     LOGGER.debug("Creating {}", this.getClass());
@@ -251,14 +253,14 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
   private void auditRemoteConnection(URL wsdlURL) {
     try {
       InetAddress inetAddress = InetAddress.getByName(wsdlURL.getHost());
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Setting up remote connection to a SAML Attribute Store [{}].",
           inetAddress.getHostAddress());
     } catch (Exception e) {
       LOGGER.debug(
           "Unhandled exception while attempting to determine the IP address for a SAML Attribute Store, might be a DNS issue.",
           e);
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Unable to determine the IP address for a SAML Attribute Store LDAP [{}], might be a DNS issue.",
           wsdlURL.getHost());
     }
@@ -327,5 +329,9 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
 
   public void setSupportedClaims(List<String> supportedClaims) {
     this.supportedClaims = supportedClaims;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

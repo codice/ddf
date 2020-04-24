@@ -17,7 +17,7 @@ import static org.apache.commons.lang.Validate.isTrue;
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -77,6 +77,8 @@ public class SmtpClientImpl implements SmtpClient {
 
   private String password;
 
+  private SecurityLogger securityLogger;
+
   /**
    * Set the username for the email server.
    *
@@ -106,6 +108,10 @@ public class SmtpClientImpl implements SmtpClient {
     notNull(portNumber, "portNumber must be non-null");
     isTrue(portNumber > 0, "portNumber must be >0");
     this.portNumber = portNumber;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 
   @Override
@@ -147,7 +153,7 @@ public class SmtpClientImpl implements SmtpClient {
             Thread.currentThread().setContextClassLoader(classLoader);
           }
 
-          SecurityLogger.audit(
+          securityLogger.audit(
               "Sent an email: recipient={} subject={}",
               Arrays.toString(message.getAllRecipients()),
               message.getSubject());

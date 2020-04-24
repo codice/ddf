@@ -15,7 +15,11 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
                                http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <bean id="commandListener" class="org.codice.ddf.security.command.listener.CommandAuditer"/>
+    <bean id="commandListener" class="org.codice.ddf.security.command.listener.CommandAuditer">
+        <property name="securityLogger" ref="securityLogger"/>
+    </bean>
+
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
 
     <service id="commandListenerService" ref="commandListener"
              interface="org.osgi.service.event.EventHandler">

@@ -37,7 +37,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.util.impl.ResultIterable;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -75,6 +75,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.util.DigitalSignature;
@@ -201,6 +202,8 @@ public class DumpCommand extends CqlCommands {
   )
   String zipFileName;
 
+  @Reference protected SecurityLogger securityLogger;
+
   public DumpCommand() {}
 
   public DumpCommand(DigitalSignature signer) {
@@ -246,7 +249,7 @@ public class DumpCommand extends CqlCommands {
       zipFileName = zipFileName + ".zip";
     }
 
-    SecurityLogger.audit("Called catalog:dump command with path : {}", dirPath);
+    securityLogger.audit("Called catalog:dump command with path : {}", dirPath);
 
     CatalogFacade catalog = getCatalog();
 
@@ -333,7 +336,7 @@ public class DumpCommand extends CqlCommands {
     console.printf(" %d file(s) dumped in %s\t%n", resultCount.get(), elapsedTime);
     LOGGER.debug("{} file(s) dumped in {}", resultCount.get(), elapsedTime);
     console.println();
-    SecurityLogger.audit("Exported {} files to {}", resultCount.get(), dirPath);
+    securityLogger.audit("Exported {} files to {}", resultCount.get(), dirPath);
     return null;
   }
 

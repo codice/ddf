@@ -13,7 +13,7 @@
  */
 package ddf.security.pdp.realm;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.pdp.realm.xacml.XacmlPdp;
 import ddf.security.pdp.realm.xacml.processor.PdpException;
 import ddf.security.permission.CollectionPermission;
@@ -63,6 +63,10 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
   private static final String POLICY_EXTENSION_WARNING_MSG =
       "Policy Extension plugin did not complete correctly. This could allow access to a resource.";
 
+  private final String dirPath;
+
+  private final Parser parser;
+
   private List<PolicyExtension> policyExtensions = new ArrayList<>();
 
   private HashMap<String, String> matchAllMap = new HashMap<>();
@@ -73,9 +77,13 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
 
   private XacmlPdp xacmlPdp;
 
+  private SecurityLogger securityLogger;
+
   public AuthzRealm(String dirPath, Parser parser) throws PdpException {
     super();
-    xacmlPdp = new XacmlPdp(dirPath, parser, environmentAttributes);
+
+    this.dirPath = dirPath;
+    this.parser = parser;
   }
 
   // this realm is for authorization only
@@ -273,7 +281,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
         boolean matchAllXacml = subjectAllCollection.implies(matchAllPreXacmlCollection);
         boolean matchOne = subjectOneCollection.implies(matchOneCollection);
         if (!matchAll || !matchOne) {
-          SecurityLogger.audit(
+          securityLogger.audit(
               PERMISSION_FINISH_1_MSG
                   + curUser
                   + PERMISSION_FINISH_2_MSG
@@ -285,9 +293,10 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
         if (!matchAllXacml) {
           KeyValueCollectionPermission xacmlPermissions =
               new KeyValueCollectionPermissionImpl(kvcp.getAction(), matchAllPreXacmlPermissions);
+          configureXacmlPdp();
           matchAllXacml = xacmlPdp.isPermitted(curUser, authorizationInfo, xacmlPermissions);
           if (!matchAllXacml) {
-            SecurityLogger.audit(
+            securityLogger.audit(
                 PERMISSION_FINISH_1_MSG
                     + curUser
                     + PERMISSION_FINISH_2_MSG
@@ -305,13 +314,23 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
       }
     }
 
-    SecurityLogger.audit(
+    securityLogger.audit(
         PERMISSION_FINISH_1_MSG
             + curUser
             + PERMISSION_FINISH_2_MSG
             + permission
             + "] is not implied.");
     return false;
+  }
+
+  private void configureXacmlPdp() {
+    if (xacmlPdp == null) {
+      try {
+        xacmlPdp = new XacmlPdp(dirPath, parser, environmentAttributes, securityLogger);
+      } catch (PdpException e) {
+        LOGGER.warn("Unable to create XACML PDP.", e);
+      }
+    }
   }
 
   private KeyValueCollectionPermission isPermittedByExtensionAll(
@@ -328,7 +347,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
               policyExtension.isPermittedMatchAll(
                   subjectAllCollection, resultCollection, allPermissionsCollection);
         } catch (Exception e) {
-          SecurityLogger.auditWarn(POLICY_EXTENSION_WARNING_MSG, e);
+          securityLogger.auditWarn(POLICY_EXTENSION_WARNING_MSG, e);
           LOGGER.warn(POLICY_EXTENSION_WARNING_MSG, e);
         }
       }
@@ -351,7 +370,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
               policyExtension.isPermittedMatchOne(
                   subjectAllCollection, resultCollection, allPermissionsCollection);
         } catch (Exception e) {
-          SecurityLogger.auditWarn(POLICY_EXTENSION_WARNING_MSG, e);
+          securityLogger.auditWarn(POLICY_EXTENSION_WARNING_MSG, e);
           LOGGER.warn(POLICY_EXTENSION_WARNING_MSG, e);
         }
       }
@@ -473,7 +492,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
       for (String mapping : list) {
         values = mapping.split("=");
         if (values.length == 2) {
-          SecurityLogger.audit(
+          securityLogger.audit(
               "Adding mapping: {} = {} to matchAllMap.", values[1].trim(), values[0].trim());
           matchAllMap.put(values[1].trim(), values[0].trim());
         } else {
@@ -505,7 +524,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
       for (String mapping : list) {
         values = mapping.split("=");
         if (values.length == 2) {
-          SecurityLogger.audit(
+          securityLogger.audit(
               "Adding mapping: {} = {} to matchOneMap.", values[1].trim(), values[0].trim());
           matchOneMap.put(values[1].trim(), values[0].trim());
         } else {
@@ -520,5 +539,9 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
   public void setEnvironmentAttributes(List<String> environmentAttributes) {
     this.environmentAttributes.clear();
     this.environmentAttributes.addAll(environmentAttributes);
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

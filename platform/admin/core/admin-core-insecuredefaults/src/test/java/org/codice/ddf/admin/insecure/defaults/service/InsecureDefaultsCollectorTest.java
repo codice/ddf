@@ -20,6 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.security.audit.SecurityLogger;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +91,8 @@ public class InsecureDefaultsCollectorTest {
     System.setProperty(KEYSTORE_SYSTEM_PROPERTY, "TestKeystorePath");
     System.setProperty(TRUSTSTORE_SYSTEM_PROPERTY, "TestTruststorePath");
 
-    InsecureDefaultsCollector serviceBean = new InsecureDefaultsCollector(eventAdmin);
+    InsecureDefaultsCollector serviceBean =
+        new InsecureDefaultsCollector(eventAdmin, mock(SecurityLogger.class));
     List<Validator> result = serviceBean.getValidators();
     assertThat("Should create nine validators.", result.size(), is(9));
   }
@@ -110,7 +112,7 @@ public class InsecureDefaultsCollectorTest {
 
   private InsecureDefaultsCollector createInsecureDefaultsServiceBean(int validatorCount) {
     InsecureDefaultsCollector bean =
-        new InsecureDefaultsCollector(eventAdmin) {
+        new InsecureDefaultsCollector(eventAdmin, mock(SecurityLogger.class)) {
           @Override
           void addValidators() {
             return;

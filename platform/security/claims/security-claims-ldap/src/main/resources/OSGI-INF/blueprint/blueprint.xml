@@ -40,6 +40,10 @@
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
+    <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
+
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <cm:managed-service-factory
             id="ddf.security.sts.claimsHandler.ClaimsHandlerManager.id"
             factory-pid="Claims_Handler_Manager"
@@ -66,6 +70,8 @@
             <property name="propertyFileLocation" value="${ddf.etc}/ws-security/attributeMap.properties"/>
             <property name="overrideCertDn" value="false" />
             <property name="bindMethod" value="Simple" />
+            <property name="subjectOperations" ref="subjectOperations" />
+            <property name="securityLogger" ref="securityLogger" />
             <cm:managed-properties persistent-id=""
                                    update-strategy="component-managed" update-method="update"/>
         </cm:managed-component>

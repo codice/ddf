@@ -46,6 +46,10 @@
 
     <reference id="samlSecurity" interface="org.codice.ddf.security.jaxrs.SamlSecurity" availability="optional"/>
 
+    <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
+
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean id="crypto" class="ddf.security.samlp.impl.SystemCrypto">
         <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
         <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
@@ -77,6 +81,7 @@
             </list>
         </property>
         <property name="samlSecurity" ref="samlSecurity" />
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="idpHandler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>
@@ -111,6 +116,7 @@
         <property name="httpSessionInvalidator" ref="httpSessionInvalidator"/>
         <property name="securityManager" ref="securityManager"/>
         <property name="samlSecurity" ref="samlSecurity" />
+        <property name="subjectOperations" ref="subjectOperations"/>
     </bean>
 
     <jaxrs:server id="restService" address="/saml">
@@ -126,6 +132,7 @@
         </service-properties>
         <bean class="org.codice.ddf.security.idp.client.IdpLogoutActionProvider">
             <property name="encryptionService" ref="encryptionService"/>
+            <property name="subjectOperations" ref="subjectOperations"/>
         </bean>
     </service>
 

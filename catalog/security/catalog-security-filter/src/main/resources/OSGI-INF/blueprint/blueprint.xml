@@ -16,6 +16,8 @@
 
     <bean id="filterPlugin" class="ddf.catalog.security.filter.plugin.FilterPlugin">
         <argument ref="security" />
+        <property name="securityLogger" ref="securityLogger" />
+        <property name="subjectOperations" ref="subjectOperations" />
     </bean>
 
     <reference-list id="filterStrategies" interface="ddf.catalog.security.FilterStrategy"
@@ -25,6 +27,10 @@
     </reference-list>
 
     <reference id="security" interface="org.codice.ddf.security.Security" />
+
+    <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
+
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
 
     <service ref="filterPlugin" auto-export="interfaces" ranking="0"/>
 

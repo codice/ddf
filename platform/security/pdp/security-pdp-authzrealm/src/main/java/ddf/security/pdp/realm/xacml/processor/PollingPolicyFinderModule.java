@@ -14,7 +14,7 @@
 package ddf.security.pdp.realm.xacml.processor;
 
 import com.connexta.arbitro.finder.impl.FileBasedPolicyFinderModule;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -48,13 +48,17 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
   private Set<String> xacmlPolicyDirectories;
 
+  private SecurityLogger securityLogger;
+
   /**
    * @param xacmlPolicyDirectories - to search for policies
    * @param pollingInterval - in seconds
    */
-  public PollingPolicyFinderModule(Set<String> xacmlPolicyDirectories, long pollingInterval) {
+  public PollingPolicyFinderModule(
+      Set<String> xacmlPolicyDirectories, long pollingInterval, SecurityLogger securityLogger) {
     super(xacmlPolicyDirectories);
     this.xacmlPolicyDirectories = xacmlPolicyDirectories;
+    this.securityLogger = securityLogger;
     initialize(pollingInterval);
   }
 
@@ -82,7 +86,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
   public void onDirectoryChange(File changedDir) {
     try {
-      SecurityLogger.audit("Directory {} changed.", changedDir.getCanonicalPath());
+      securityLogger.audit("Directory {} changed.", changedDir.getCanonicalPath());
     } catch (IOException e) {
       LOGGER.info(e.getMessage(), e);
     }
@@ -92,7 +96,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
   public void onDirectoryCreate(File createdDir) {
     try {
-      SecurityLogger.audit("Directory {} was created.", createdDir.getCanonicalPath());
+      securityLogger.audit("Directory {} was created.", createdDir.getCanonicalPath());
     } catch (IOException e) {
       LOGGER.info(e.getMessage(), e);
     }
@@ -100,7 +104,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
   public void onDirectoryDelete(File deletedDir) {
     try {
-      SecurityLogger.audit("Directory {} was deleted.", deletedDir.getCanonicalPath());
+      securityLogger.audit("Directory {} was deleted.", deletedDir.getCanonicalPath());
     } catch (IOException e) {
       LOGGER.info(e.getMessage(), e);
     }
@@ -108,7 +112,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
   public void onFileChange(File changedFile) {
     try {
-      SecurityLogger.audit(
+      securityLogger.audit(
           "File {} changed to:\n{}",
           changedFile.getCanonicalPath(),
           new String(
@@ -123,7 +127,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
   public void onFileCreate(File createdFile) {
     try {
-      SecurityLogger.audit(
+      securityLogger.audit(
           "File {} was created with content:\n{}",
           createdFile.getCanonicalPath(),
           new String(
@@ -138,7 +142,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
   public void onFileDelete(File deleteFile) {
     try {
-      SecurityLogger.audit("File {} was deleted.", deleteFile.getCanonicalPath());
+      securityLogger.audit("File {} was deleted.", deleteFile.getCanonicalPath());
     } catch (IOException e) {
       LOGGER.info(e.getMessage(), e);
     }
@@ -206,7 +210,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     this.loadPolicies();
   }
 
-  private static class PrivilegedFileAlterationObserver extends FileAlterationObserver {
+  private class PrivilegedFileAlterationObserver extends FileAlterationObserver {
     public PrivilegedFileAlterationObserver(final File directory, final FileFilter fileFilter) {
       super(directory, fileFilter, null);
     }

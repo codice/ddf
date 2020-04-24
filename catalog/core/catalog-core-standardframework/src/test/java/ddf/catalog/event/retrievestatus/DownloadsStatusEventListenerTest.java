@@ -27,6 +27,7 @@ import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 import ddf.catalog.resource.download.ReliableResourceDownloaderConfig;
 import ddf.catalog.resource.impl.URLResourceReader;
 import ddf.catalog.resourceretriever.LocalResourceRetriever;
+import ddf.security.service.impl.SubjectUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -67,6 +68,7 @@ public class DownloadsStatusEventListenerTest {
     localResourcePath = testFolder.newFolder("resources").toPath();
     ReliableResourceDownloaderConfig downloaderConfig = new ReliableResourceDownloaderConfig();
     testDownloadStatusInfo = new DownloadStatusInfoImpl();
+    testDownloadStatusInfo.setSubjectOperations(new SubjectUtils());
     TestHazelcastInstanceFactory hcInstanceFactory = new TestHazelcastInstanceFactory(10);
     ResourceCacheImpl testResourceCache = new ResourceCacheImpl(productCacheDir);
     testResourceCache.setCache(hcInstanceFactory.newHazelcastInstance());

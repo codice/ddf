@@ -14,7 +14,7 @@
 package ddf.ldap.ldaplogin;
 
 import com.google.common.collect.ImmutableSet;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
 import java.security.Principal;
@@ -121,6 +121,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
   private boolean roleSearchSubtree = true;
 
   private GenericObjectPool<Connection> ldapConnectionPool;
+
+  private SecurityLogger securityLogger;
 
   protected boolean doLogin() throws LoginException {
 
@@ -363,6 +365,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
       Map<String, ?> options) {
     super.initialize(subject, callbackHandler, options);
     installEncryptionService();
+    installSecurityLogger();
     connectionUsername = (String) options.get(CONNECTION_USERNAME_OPTIONS_KEY);
     connectionPassword =
         getDecryptedPassword((String) options.get(CONNECTION_PASSWORD_OPTIONS_KEY));
@@ -408,11 +411,11 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     try {
       isLoggedIn = doLogin();
       if (!isLoggedIn) {
-        SecurityLogger.audit("Username [" + user + "] failed LDAP authentication.");
+        securityLogger.audit("Username [" + user + "] failed LDAP authentication.");
       }
       return isLoggedIn;
     } catch (InvalidCharactersException e) {
-      SecurityLogger.audit(e.getMessage());
+      securityLogger.audit(e.getMessage());
       throw new LoginException(String.format(LOGIN_ERROR_MESSAGE, user) + e.getMessage());
     } catch (LoginException e) {
       throw new LoginException(String.format(LOGIN_ERROR_MESSAGE, user) + e.getMessage());
@@ -457,6 +460,17 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     }
   }
 
+  private void installSecurityLogger() {
+
+    BundleContext bundleContext = getContext();
+    if (bundleContext != null) {
+      ServiceReference serviceReference =
+          bundleContext.getServiceReference(SecurityLogger.class.getName());
+      securityLogger = (SecurityLogger) bundleContext.getService(serviceReference);
+      bundleContext.ungetService(serviceReference);
+    }
+  }
+
   protected char[] getDecryptedPassword(String encryptedPassword) {
 
     char[] decryptedPassword = null;
@@ -487,6 +501,10 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
   void setBindMethod(String bindMethod) {
     this.bindMethod = bindMethod;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 
   // for testing

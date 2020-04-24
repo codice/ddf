@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.security.policy.context.impl;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -77,6 +77,8 @@ public class PolicyManager implements ContextPolicyManager {
   private boolean guestAccess;
 
   private boolean sessionAccess;
+
+  private SecurityLogger securityLogger;
 
   public PolicyManager() {
     policyStore.put(ROOT_CONTEXT, defaultPolicy);
@@ -247,7 +249,7 @@ public class PolicyManager implements ContextPolicyManager {
     }
     LOGGER.debug("Policy store initialized, now contains {} entries", policyStore.size());
 
-    SecurityLogger.audit(
+    securityLogger.audit(
         "Policy store changed from:\n{} \nto:\n{}", originalPolicyStore, getPolicyStore());
   }
 
@@ -500,6 +502,10 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     this.contextToAuth = contextToAuthTypes;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 
   /**

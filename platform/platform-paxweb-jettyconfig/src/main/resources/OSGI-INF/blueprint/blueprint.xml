@@ -13,6 +13,8 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" availability="optional" />
+
     <bean id="responseFilter" class="org.codice.ddf.pax.web.jetty.ResponseFilter">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.platform.response.filter.ResponseHeaderConfig"
@@ -51,6 +53,7 @@
                             <value>/services/oidc/logout.*=GET</value>
                         </array>
                     </property>
+                    <property name="securityLogger" ref="securityLogger"/>
                 </bean>
                 <ref component-id="responseFilter"/>
                 <bean class="org.codice.ddf.pax.web.jetty.SecurityJavaSubjectFilter"/>

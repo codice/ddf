@@ -16,7 +16,9 @@ package org.codice.ddf.admin.insecure.defaults.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
 
+import ddf.security.audit.SecurityLogger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ public class UsersPropertiesFileValidatorTest {
   public void testUsersPropertiesFileDoesNotExist() throws Exception {
     // Setup
     UsersPropertiesFileValidator propertiesFileValidator = new UsersPropertiesFileValidator();
+    propertiesFileValidator.setSecurityLogger(mock(SecurityLogger.class));
     propertiesFileValidator.setPath(Paths.get(FAKE_USERS_PROPERTIES_FILE));
     propertiesFileValidator.setDefaultAdminUser(DEFAULT_ADMIN_USER);
     propertiesFileValidator.setDefaultAdminUserPassword(DEFAULT_ADMIN_USER_PASSWORD);
@@ -66,6 +69,7 @@ public class UsersPropertiesFileValidatorTest {
     // Setup
     UsersPropertiesFileValidator propertiesFileValidator = new UsersPropertiesFileValidator();
     Path path = Paths.get(getClass().getResource(USERS_PROPERTIES_FILE_WITH_DEFAULTS).toURI());
+    propertiesFileValidator.setSecurityLogger(mock(SecurityLogger.class));
     propertiesFileValidator.setPath(path);
     propertiesFileValidator.setDefaultAdminUser(DEFAULT_ADMIN_USER);
     propertiesFileValidator.setDefaultAdminUserPassword(DEFAULT_ADMIN_USER_PASSWORD);
@@ -102,6 +106,7 @@ public class UsersPropertiesFileValidatorTest {
   public void testUsersPropertiesFileHasNondefaults() throws Exception {
     // Setup
     UsersPropertiesFileValidator propertiesFileValidator = new UsersPropertiesFileValidator();
+    propertiesFileValidator.setSecurityLogger(mock(SecurityLogger.class));
     propertiesFileValidator.setPath(
         Paths.get(getClass().getResource(USERS_PROPERTIES_FILE_WITH_NON_DEFAULTS).toURI()));
     propertiesFileValidator.setDefaultAdminUser(DEFAULT_ADMIN_USER);
@@ -120,6 +125,7 @@ public class UsersPropertiesFileValidatorTest {
   public void testUsersPropertiesFileHasNondefaultsWithAdminUser() throws Exception {
     // Setup
     UsersPropertiesFileValidator propertiesFileValidator = new UsersPropertiesFileValidator();
+    propertiesFileValidator.setSecurityLogger(mock(SecurityLogger.class));
     propertiesFileValidator.setPath(
         Paths.get(
             getClass()

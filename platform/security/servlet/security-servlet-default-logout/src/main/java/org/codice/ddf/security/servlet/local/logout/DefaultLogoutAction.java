@@ -18,7 +18,7 @@ import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -44,6 +44,8 @@ public class DefaultLogoutAction implements ActionProvider {
   private static final String PKI_TOKEN_TYPE = "pki";
 
   private static URL logoutUrl = null;
+
+  private SubjectOperations subjectOperations;
 
   static {
     try {
@@ -80,7 +82,7 @@ public class DefaultLogoutAction implements ActionProvider {
       return false;
     }
 
-    String type = SubjectUtils.getType((Subject) subject);
+    String type = subjectOperations.getType((Subject) subject);
     return type != null
         && (type.equals(GUEST_TOKEN_TYPE)
             || type.equals(USER_PASS_TOKEN_TYPE)
@@ -90,5 +92,9 @@ public class DefaultLogoutAction implements ActionProvider {
   @Override
   public String getId() {
     return ID;
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

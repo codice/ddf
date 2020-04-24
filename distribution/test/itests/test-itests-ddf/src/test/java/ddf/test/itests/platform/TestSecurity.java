@@ -916,8 +916,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-    configureRestForGuest(SERVICE_ROOT.getUrl());
-    getSecurityPolicy().waitForGuestAuthReady(url);
+    configureRestForGuest();
+    getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
 
     String testData = getFileContent(XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml");
     testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "B");
@@ -938,9 +938,9 @@ public class TestSecurity extends AbstractIntegrationTest {
               getAdminConfig());
 
       // configure for basic auth
-      configureRestForBasic(SERVICE_ROOT.getUrl());
-      waitForSecurityHandlers(url);
-      getSecurityPolicy().waitForBasicAuthReady(url);
+      configureRestForBasic();
+      waitForSecurityHandlers(SERVICE_ROOT.getUrl());
+      getSecurityPolicy().waitForBasicAuthReady(SERVICE_ROOT.getUrl());
 
       // user without permissions cannot get results
       queryWithBasicAuth(id, TRANSFORMER_XML, A_USER, USER_PASSWORD, HttpStatus.SC_NOT_FOUND);
@@ -951,7 +951,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
       // configure for guest
       configureRestForGuest(SERVICE_ROOT.getUrl());
-      getSecurityPolicy().waitForGuestAuthReady(url);
+      getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
 
       // guest cannot get results
       query(id, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
@@ -964,9 +964,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         configureMetacardAttributeSecurityFiltering(
             metacardAttributeSecurityFilterProperties, getAdminConfig());
       }
-      configureRestForGuest(SERVICE_ROOT.getUrl());
-      waitForSecurityHandlers(url);
-      getSecurityPolicy().waitForGuestAuthReady(url);
+      configureRestForGuest();
+      waitForSecurityHandlers(SERVICE_ROOT.getUrl());
+      getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
     }
   }
 

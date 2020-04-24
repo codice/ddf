@@ -15,7 +15,7 @@ package org.codice.ddf.security.idp.client;
 
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.Response;
@@ -195,6 +195,8 @@ public class IdpHandler implements AuthenticationHandler {
 
   private SamlSecurity samlSecurity;
 
+  private SecurityLogger securityLogger;
+
   public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, RelayStates<String> relayStates)
       throws IOException {
     LOGGER.debug("Creating IdP handler.");
@@ -262,7 +264,7 @@ public class IdpHandler implements AuthenticationHandler {
     }
 
     if (userAgentCheck && userAgentIsNotBrowser(httpRequest)) {
-      SecurityLogger.audit("Attempting to log client in as a legacy system.");
+      securityLogger.audit("Attempting to log client in as a legacy system.");
       // if we get here, it is most likely an older DDF that is federating
       // it isn't going to understand the redirect to the IdP and it doesn't support ECP
       // so we need to fall back to other handlers to allow it to log in using PKI, Basic or Guest
@@ -731,5 +733,9 @@ public class IdpHandler implements AuthenticationHandler {
 
   public void setSamlSecurity(SamlSecurity samlSecurity) {
     this.samlSecurity = samlSecurity;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

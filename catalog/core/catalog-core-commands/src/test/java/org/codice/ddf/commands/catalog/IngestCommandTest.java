@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.transform.InputTransformer;
+import ddf.security.audit.SecurityLogger;
 import java.io.InputStream;
 import java.util.ArrayList;
 import org.apache.commons.lang3.SystemUtils;
@@ -58,6 +59,7 @@ public class IngestCommandTest extends CommandCatalogFrameworkCommon {
         .verifyDigitalSignature(any(InputStream.class), any(InputStream.class), any(String.class));
 
     ingestCommand = new IngestCommand(verifier);
+    ingestCommand.securityLogger = mock(SecurityLogger.class);
     ingestCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
 
     BundleContext bundleContext = mock(BundleContext.class);

@@ -24,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.security.audit.SecurityLogger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -86,6 +87,7 @@ public class ProfileInstallCommandTest {
     this.featuresService = mock(FeaturesServiceImpl.class);
     this.bundleService = mock(BundleServiceImpl.class);
     profileInstallCommand = getProfileInstallCommand(profilePath);
+    profileInstallCommand.securityLogger = mock(SecurityLogger.class);
 
     Feature installerFeature = mock(Feature.class);
     when(installerFeature.getName()).thenReturn("admin-modules.installer/0.0.0");

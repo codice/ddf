@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mock;
 import com.thoughtworks.xstream.converters.Converter;
 import ddf.security.Subject;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.permission.Permissions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -38,14 +39,16 @@ public class CswSourceStub extends AbstractCswSource {
       Converter mockProvider,
       ClientFactoryFactory clientFactoryFactory,
       EncryptionService encryptionService,
-      Security security) {
+      Security security,
+      Permissions permissions) {
     super(
         mockContext,
         cswSourceConfiguration,
         mockProvider,
         clientFactoryFactory,
         encryptionService,
-        security);
+        security,
+        permissions);
     super.subscribeClientFactory = mock(SecureCxfClientFactory.class);
     initClientFactory();
   }

@@ -46,6 +46,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resource.download.ReliableResourceStatus.DownloadStatus;
 import ddf.catalog.resourceretriever.ResourceRetriever;
+import ddf.security.service.impl.SubjectUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -117,7 +118,9 @@ public class ReliableResourceDownloaderTest {
         new ReliableResourceDownloader(
             downloaderConfig, new AtomicBoolean(), DOWNLOAD_ID, mockResponse, getMockRetriever());
 
-    downloader.setupDownload(metacard, new DownloadStatusInfoImpl());
+    DownloadStatusInfoImpl downloadStatusInfo = new DownloadStatusInfoImpl();
+    downloadStatusInfo.setSubjectOperations(new SubjectUtils());
+    downloader.setupDownload(metacard, downloadStatusInfo);
     verify(mockCache, never()).addPendingCacheEntry(any(ReliableResource.class));
   }
 
@@ -128,11 +131,13 @@ public class ReliableResourceDownloaderTest {
 
     int retries = 5;
     downloaderConfig.setMaxRetryAttempts(retries);
+    DownloadStatusInfoImpl downloadStatusInfo = new DownloadStatusInfoImpl();
+    downloadStatusInfo.setSubjectOperations(new SubjectUtils());
 
     ReliableResourceDownloader downloader =
         new ReliableResourceDownloader(
             downloaderConfig, new AtomicBoolean(), DOWNLOAD_ID, mockResponse, getMockRetriever());
-    downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
+    downloader.setupDownload(mockMetacard, downloadStatusInfo);
     downloader.run();
 
     verify(mockPublisher, times(retries))
@@ -161,7 +166,9 @@ public class ReliableResourceDownloaderTest {
     ReliableResourceDownloader downloader =
         new ReliableResourceDownloader(
             downloaderConfig, new AtomicBoolean(), "123", mockResponse, getMockRetriever());
-    downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
+    DownloadStatusInfoImpl downloadStatusInfo = new DownloadStatusInfoImpl();
+    downloadStatusInfo.setSubjectOperations(new SubjectUtils());
+    downloader.setupDownload(mockMetacard, downloadStatusInfo);
 
     FileOutputStream mockFos = mock(FileOutputStream.class);
     doThrow(new IOException()).when(mockFos).write(any(byte[].class), anyInt(), anyInt());
@@ -257,7 +264,9 @@ public class ReliableResourceDownloaderTest {
             any(Object.class));
     doThrow(new CancellationException()).when(downloader).constructResourceRetrievalMonitor();
 
-    downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
+    DownloadStatusInfoImpl downloadStatusInfo = new DownloadStatusInfoImpl();
+    downloadStatusInfo.setSubjectOperations(new SubjectUtils());
+    downloader.setupDownload(mockMetacard, downloadStatusInfo);
     downloader.run();
 
     verify(mockPublisher, times(retries))

@@ -14,7 +14,7 @@
 package ddf.security.pdp.realm.xacml;
 
 import com.google.common.net.InetAddresses;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.pdp.realm.xacml.processor.PdpException;
 import ddf.security.pdp.realm.xacml.processor.XacmlClient;
 import ddf.security.permission.CollectionPermission;
@@ -98,11 +98,18 @@ public class XacmlPdp {
 
   private List<String> environmentAttributes;
 
+  private SecurityLogger securityLogger;
+
   /** Creates a general */
-  public XacmlPdp(String dirPath, Parser parser, List<String> environmentAttributes)
+  public XacmlPdp(
+      String dirPath,
+      Parser parser,
+      List<String> environmentAttributes,
+      SecurityLogger securityLogger)
       throws PdpException {
     super();
-    pdp = new XacmlClient(dirPath, parser);
+    this.securityLogger = securityLogger;
+    pdp = new XacmlClient(dirPath, parser, securityLogger);
     this.environmentAttributes = environmentAttributes;
     LOGGER.debug("Creating new PDP-backed Authorizing Realm");
   }
@@ -113,16 +120,15 @@ public class XacmlPdp {
     LOGGER.debug(
         "Checking if {} has access for action {}", primaryPrincipal, curPermission.getAction());
 
-    SecurityLogger.audit(
-        "Checking if ["
-            + primaryPrincipal
-            + "] has access for action "
-            + curPermission.getAction());
-
     if (CollectionUtils.isEmpty(info.getObjectPermissions())
         && CollectionUtils.isEmpty(info.getStringPermissions())
         && CollectionUtils.isEmpty(info.getRoles())
         && !CollectionUtils.isEmpty(curPermission.getKeyValuePermissionList())) {
+      securityLogger.audit(
+          "XACML short-circuit denied ["
+              + primaryPrincipal
+              + "] access for action "
+              + curPermission.getAction());
       return false;
     }
 
@@ -130,6 +136,11 @@ public class XacmlPdp {
             || !CollectionUtils.isEmpty(info.getStringPermissions())
             || !CollectionUtils.isEmpty(info.getRoles()))
         && CollectionUtils.isEmpty(curPermission.getKeyValuePermissionList())) {
+      securityLogger.audit(
+          "XACML short-circuit permitted ["
+              + primaryPrincipal
+              + "] access for action "
+              + curPermission.getAction());
       return true;
     }
 
@@ -138,6 +149,16 @@ public class XacmlPdp {
     LOGGER.debug("Created XACML request, calling PDP.");
 
     curResponse = isPermitted(curRequest);
+    if (curResponse) {
+      securityLogger.audit(
+          "XACML permitted ["
+              + primaryPrincipal
+              + "] access for action "
+              + curPermission.getAction());
+    } else {
+      securityLogger.audit(
+          "XACML denied [" + primaryPrincipal + "] access for action " + curPermission.getAction());
+    }
     return curResponse;
   }
 

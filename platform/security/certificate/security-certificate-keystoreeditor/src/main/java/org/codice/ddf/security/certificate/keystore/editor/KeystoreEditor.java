@@ -14,7 +14,7 @@
 package org.codice.ddf.security.certificate.keystore.editor;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -114,10 +114,16 @@ public class KeystoreEditor implements KeystoreEditorMBean {
 
   private KeyStore trustStore;
 
+  private SecurityLogger securityLogger;
+
   public KeystoreEditor() {
     registerMbean();
     addProvider();
     init();
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 
   private void addProvider() {
@@ -239,7 +245,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
       String type,
       String fileName)
       throws KeystoreEditorException {
-    SecurityLogger.audit("Adding alias {} to private key", alias);
+    securityLogger.audit("Adding alias {} to private key", alias);
     LOGGER.trace("Received data {}", data);
     Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
     if (!keyStoreFile.isAbsolute()) {
@@ -268,7 +274,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
       String type,
       String fileName)
       throws KeystoreEditorException {
-    SecurityLogger.audit("Adding alias {} to trust store", alias);
+    securityLogger.audit("Adding alias {} to trust store", alias);
     LOGGER.trace("Received data {}", data);
     Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
     if (!trustStoreFile.isAbsolute()) {
@@ -717,7 +723,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
 
   @Override
   public void deletePrivateKey(String alias) {
-    SecurityLogger.audit("Removing {} from System keystore.", alias);
+    securityLogger.audit("Removing {} from System keystore.", alias);
     Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
     if (!keyStoreFile.isAbsolute()) {
       Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
@@ -729,7 +735,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
 
   @Override
   public void deleteTrustedCertificate(String alias) {
-    SecurityLogger.audit("Removing {} from System truststore.", alias);
+    securityLogger.audit("Removing {} from System truststore.", alias);
     Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
     if (!trustStoreFile.isAbsolute()) {
       Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));

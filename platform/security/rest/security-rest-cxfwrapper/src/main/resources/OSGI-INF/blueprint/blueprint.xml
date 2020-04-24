@@ -14,6 +14,8 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <reference id="tokenStore" interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
 
     <bean id="oauthSecurity" class="org.codice.ddf.cxf.oauth.OAuthSecurityImpl">
@@ -25,6 +27,7 @@
     <bean id="clientFactoryFactory" class="org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl">
         <property name="oauthSecurity" ref="oauthSecurity"/>
         <property name="samlSecurity" ref="samlSecurity" />
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>

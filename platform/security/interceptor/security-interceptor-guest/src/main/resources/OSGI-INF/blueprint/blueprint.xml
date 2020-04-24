@@ -19,8 +19,11 @@
 >
     <reference id="securityManager" interface="ddf.security.service.SecurityManager" availability="optional"/>
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean id="guestInterceptor" class="org.codice.ddf.security.interceptor.GuestInterceptor">
         <argument ref="securityManager"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="guestInterceptor" interface="org.apache.cxf.phase.PhaseInterceptor">

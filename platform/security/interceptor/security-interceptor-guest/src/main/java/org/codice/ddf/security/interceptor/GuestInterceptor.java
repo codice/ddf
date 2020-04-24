@@ -18,6 +18,7 @@ import com.google.common.cache.CacheBuilder;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionPrincipalDefault;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.security.Principal;
@@ -47,6 +48,8 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
   private static final String WSS4J_CHECK_STRING = WSS4JInInterceptor.class.getName() + ".DONE";
 
   private SecurityManager securityManager;
+
+  private SecurityLogger securityLogger;
 
   private Cache<String, Subject> guestSubjectCache =
       CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES).build();
@@ -104,7 +107,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
         throw new AuthenticationException(
             "Unable to create the guest subject, system is not ready.");
       }
-      GuestAuthenticationToken token = new GuestAuthenticationToken(ipAddress);
+      GuestAuthenticationToken token = new GuestAuthenticationToken(ipAddress, securityLogger);
       LOGGER.debug("Getting new Guest user token for {}", ipAddress);
       try {
         subject = securityManager.getSubject(token);
@@ -118,5 +121,9 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
       LOGGER.debug("Using cached Guest user token for {}", ipAddress);
     }
     return subject;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

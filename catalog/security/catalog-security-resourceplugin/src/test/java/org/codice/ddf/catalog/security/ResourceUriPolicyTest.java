@@ -27,6 +27,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.security.permission.impl.PermissionsImpl;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -125,8 +126,11 @@ public class ResourceUriPolicyTest {
   }
 
   private ResourceUriPolicy getPolicyPlugin() {
-    return new ResourceUriPolicy(
-        new String[] {"role=admin", "fizzle=bang"}, new String[] {"role=admin", "fizzle=bang"});
+    ResourceUriPolicy resourceUriPolicy =
+        new ResourceUriPolicy(
+            new String[] {"role=admin", "fizzle=bang"}, new String[] {"role=admin", "fizzle=bang"});
+    resourceUriPolicy.setPermissions(new PermissionsImpl());
+    return resourceUriPolicy;
   }
 
   private Metacard getMockMetacard(String inputResourceUri) throws URISyntaxException {

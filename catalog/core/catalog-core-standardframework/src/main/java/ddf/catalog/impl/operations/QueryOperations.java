@@ -58,7 +58,7 @@ import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
@@ -124,6 +124,8 @@ public class QueryOperations extends DescribableImpl {
   private List<String> fanoutProxyTagBlacklist = new ArrayList<>();
 
   private long queryTimeoutMillis = 300000;
+
+  protected SecurityLogger securityLogger;
 
   public QueryOperations(
       FrameworkProperties frameworkProperties,
@@ -243,7 +245,7 @@ public class QueryOperations extends DescribableImpl {
     LOGGER.debug("source ids: {}", sourceIds);
 
     QuerySources querySources =
-        new QuerySources(frameworkProperties)
+        new QuerySources(frameworkProperties, securityLogger)
             .initializeSources(this, queryRequest, sourceIds)
             .addConnectedSources(this, frameworkProperties)
             .addCatalogProvider(this);
@@ -753,8 +755,11 @@ public class QueryOperations extends DescribableImpl {
 
     boolean needToAddCatalogProvider = false;
 
-    QuerySources(FrameworkProperties frameworkProperties) {
+    private SecurityLogger securityLogger;
+
+    QuerySources(FrameworkProperties frameworkProperties, SecurityLogger securityLogger) {
       this.frameworkProperties = frameworkProperties;
+      this.securityLogger = securityLogger;
     }
 
     QuerySources initializeSources(
@@ -784,7 +789,7 @@ public class QueryOperations extends DescribableImpl {
           }
         }
         if (!notPermittedSources.isEmpty()) {
-          SecurityLogger.audit(
+          securityLogger.audit(
               "Subject is not permitted to access sources {}", notPermittedSources);
         }
 
@@ -838,7 +843,7 @@ public class QueryOperations extends DescribableImpl {
             }
           }
           if (!notPermittedSources.isEmpty()) {
-            SecurityLogger.audit(
+            securityLogger.audit(
                 "Subject is not permitted to access sources {}", notPermittedSources);
           }
         }
@@ -888,5 +893,9 @@ public class QueryOperations extends DescribableImpl {
     boolean isCacheQuery(Operation operation) {
       return "cache".equals(operation.getPropertyValue("mode"));
     }
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

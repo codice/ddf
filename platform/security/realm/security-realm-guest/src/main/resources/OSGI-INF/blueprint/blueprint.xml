@@ -21,6 +21,8 @@
         http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd"
            default-activation="lazy">
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean class="org.codice.ddf.security.guest.realm.GuestRealm" id="guestRealm">
         <cm:managed-properties persistent-id="ddf.security.guest.realm"
                                update-strategy="container-managed"/>
@@ -31,6 +33,7 @@
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
             </array>
         </property>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="guestRealm" interface="org.apache.shiro.realm.Realm"/>

@@ -13,6 +13,7 @@
  */
 package ddf.security.permission.impl;
 
+import ddf.security.permission.Permissions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,13 +24,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
-public class Permissions {
+public class PermissionsImpl implements Permissions {
 
   private static final Pattern PATTERN = Pattern.compile(",");
 
-  private Permissions() {}
+  public PermissionsImpl() {}
 
-  public static Map<String, Set<String>> parsePermissionsFromString(List<String> permStrings) {
+  public Map<String, Set<String>> parsePermissionsFromString(List<String> permStrings) {
     return parsePermissionsFromString(permStrings.toArray(new String[permStrings.size()]));
   }
 
@@ -38,7 +39,7 @@ public class Permissions {
    *
    * @param permStrings array of permission strings in the format "permName=val1,val2"
    */
-  public static Map<String, Set<String>> parsePermissionsFromString(String... permStrings) {
+  public Map<String, Set<String>> parsePermissionsFromString(String... permStrings) {
     Map<String, Set<String>> permissions = new HashMap<>();
     if (permStrings != null) {
       for (String perm : permStrings) {
@@ -56,7 +57,7 @@ public class Permissions {
     return permissions;
   }
 
-  public static List<String> getPermissionsAsStrings(Map<String, Set<String>> attributes) {
+  public List<String> getPermissionsAsStrings(Map<String, Set<String>> attributes) {
     if (attributes == null) {
       return Collections.emptyList();
     }

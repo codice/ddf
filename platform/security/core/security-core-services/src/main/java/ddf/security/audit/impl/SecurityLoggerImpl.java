@@ -11,10 +11,10 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.common.audit;
+package ddf.security.audit.impl;
 
 import ddf.security.SecurityConstants;
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
 import java.security.AccessController;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +34,7 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 
 /** Class that contains utility methods for logging common security messages. */
-public final class SecurityLogger {
+public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogger {
 
   private static final Logger LOGGER = LogManager.getLogger(SecurityConstants.SECURITY_LOGGER);
 
@@ -48,9 +48,13 @@ public final class SecurityLogger {
 
   private static final String EXTRA_ATTRIBUTES_PROP = "security.logger.extra_attributes";
 
-  private SecurityLogger() {}
+  private final SubjectOperations subjectOperations;
 
-  private static String getUser(Subject subject) {
+  public SecurityLoggerImpl(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
+  }
+
+  private String getUser(Subject subject) {
     try {
       if (subject == null) {
         subject = ThreadContext.getSubject();
@@ -65,7 +69,7 @@ public final class SecurityLogger {
           }
         }
       } else {
-        return SubjectUtils.getName(subject, NO_USER);
+        return subjectOperations.getName(subject, NO_USER);
       }
     } catch (Exception e) {
       // ignore and return NO_USER
@@ -73,12 +77,11 @@ public final class SecurityLogger {
     return NO_USER;
   }
 
-  private static void requestIpAndPortAndUserMessage(
-      Message message, StringBuilder messageBuilder) {
+  private void requestIpAndPortAndUserMessage(Message message, StringBuilder messageBuilder) {
     requestIpAndPortAndUserMessage(null, message, messageBuilder);
   }
 
-  private static void requestIpAndPortAndUserMessage(
+  private void requestIpAndPortAndUserMessage(
       Subject subject, Message message, StringBuilder messageBuilder) {
     String user = getUser(subject);
     messageBuilder.append(SUBJECT).append(user);
@@ -114,7 +117,7 @@ public final class SecurityLogger {
    * @param subject the subject of the logging request
    * @param messageBuilder buffer to which to append attribute text, if any
    */
-  private static void appendConditionalAttributes(Subject subject, StringBuilder messageBuilder) {
+  private void appendConditionalAttributes(Subject subject, StringBuilder messageBuilder) {
     String attributes = System.getProperty(EXTRA_ATTRIBUTES_PROP);
     if (attributes == null) {
       return;
@@ -126,7 +129,7 @@ public final class SecurityLogger {
 
     List<String> attributeList = Arrays.asList(attributes.split(","));
     for (String attribute : attributeList) {
-      List<String> attributeValueList = SubjectUtils.getAttribute(subject, attribute);
+      List<String> attributeValueList = subjectOperations.getAttribute(subject, attribute);
       if (CollectionUtils.isNotEmpty(attributeValueList)) {
         messageBuilder.append(" ").append(attribute).append(" : ");
         if (attributeValueList.size() > 1) {
@@ -144,7 +147,7 @@ public final class SecurityLogger {
    * @param message
    * @return clean message
    */
-  private static String cleanAndEncode(String message) {
+  private String cleanAndEncode(String message) {
     String clean = message.replace('\n', '_').replace('\r', '_');
     if (REQUIRE_AUDIT_ENCODING) {
       clean = StringEscapeUtils.escapeHtml(clean);
@@ -158,7 +161,7 @@ public final class SecurityLogger {
    * @param message the message string to log.
    * @param subject the user subject to log
    */
-  public static void audit(String message, Subject subject) {
+  public void audit(String message, Subject subject) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
         subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -170,7 +173,7 @@ public final class SecurityLogger {
    *
    * @param message the message string to log.
    */
-  public static void audit(String message) {
+  public void audit(String message) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString());
@@ -183,7 +186,7 @@ public final class SecurityLogger {
    * @param subject the user subject to log
    * @param params parameters to the message.
    */
-  public static void audit(String message, Subject subject, Object... params) {
+  public void audit(String message, Subject subject, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
         subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -196,7 +199,7 @@ public final class SecurityLogger {
    * @param message the message to log; the format depends on the message factory.
    * @param params parameters to the message.
    */
-  public static void audit(String message, Object... params) {
+  public void audit(String message, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), params);
@@ -211,7 +214,7 @@ public final class SecurityLogger {
    * @param paramSuppliers An array of functions, which when called, produce the desired log message
    *     parameters.
    */
-  public static void audit(String message, Subject subject, Supplier... paramSuppliers) {
+  public void audit(String message, Subject subject, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
         subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -226,7 +229,7 @@ public final class SecurityLogger {
    * @param paramSuppliers An array of functions, which when called, produce the desired log message
    *     parameters.
    */
-  public static void audit(String message, Supplier... paramSuppliers) {
+  public void audit(String message, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), paramSuppliers);
@@ -240,7 +243,7 @@ public final class SecurityLogger {
    * @param subject the user subject to log
    * @param t the exception to log, including its stack trace.
    */
-  public static void audit(String message, Subject subject, Throwable t) {
+  public void audit(String message, Subject subject, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
         subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -254,7 +257,7 @@ public final class SecurityLogger {
    * @param message the message object to log.
    * @param t the exception to log, including its stack trace.
    */
-  public static void audit(String message, Throwable t) {
+  public void audit(String message, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), t);
@@ -266,7 +269,7 @@ public final class SecurityLogger {
    * @param message the message string to log.
    * @param subject the user subject to log
    */
-  public static void auditWarn(String message, Subject subject) {
+  public void auditWarn(String message, Subject subject) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
         subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -278,7 +281,7 @@ public final class SecurityLogger {
    *
    * @param message the message string to log.
    */
-  public static void auditWarn(String message) {
+  public void auditWarn(String message) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString());
@@ -291,7 +294,7 @@ public final class SecurityLogger {
    * @param subject the user subject to log
    * @param params parameters to the message.
    */
-  public static void auditWarn(String message, Subject subject, Object... params) {
+  public void auditWarn(String message, Subject subject, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
         subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -304,7 +307,7 @@ public final class SecurityLogger {
    * @param message the message to log; the format depends on the message factory.
    * @param params parameters to the message.
    */
-  public static void auditWarn(String message, Object... params) {
+  public void auditWarn(String message, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), params);
@@ -319,7 +322,7 @@ public final class SecurityLogger {
    * @param paramSuppliers An array of functions, which when called, produce the desired log message
    *     parameters.
    */
-  public static void auditWarn(String message, Subject subject, Supplier... paramSuppliers) {
+  public void auditWarn(String message, Subject subject, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
         subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -334,7 +337,7 @@ public final class SecurityLogger {
    * @param paramSuppliers An array of functions, which when called, produce the desired log message
    *     parameters.
    */
-  public static void auditWarn(String message, Supplier... paramSuppliers) {
+  public void auditWarn(String message, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), paramSuppliers);
@@ -348,7 +351,7 @@ public final class SecurityLogger {
    * @param subject the user subject to log
    * @param t the exception to log, including its stack trace.
    */
-  public static void auditWarn(String message, Subject subject, Throwable t) {
+  public void auditWarn(String message, Subject subject, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
         subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -362,7 +365,7 @@ public final class SecurityLogger {
    * @param message the message object to log.
    * @param t the exception to log, including its stack trace.
    */
-  public static void auditWarn(String message, Throwable t) {
+  public void auditWarn(String message, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), t);

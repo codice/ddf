@@ -32,6 +32,7 @@ import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -130,6 +131,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
   public void testNormalOperation() throws Exception {
     // given
     DumpCommand dumpCommand = new DumpCommand(signer);
+    dumpCommand.securityLogger = mock(SecurityLogger.class);
     dumpCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
     File outputDirectory = testFolder.newFolder("somedirectory");
@@ -153,6 +155,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
   public void testNormalOperationNoFiles() throws Exception {
     // given
     DumpCommand dumpCommand = new DumpCommand(signer);
+    dumpCommand.securityLogger = mock(SecurityLogger.class);
     dumpCommand.catalogFramework = givenCatalogFramework(getEmptyResultList());
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
     File outputDirectory = testFolder.newFolder("somedirectory");
@@ -183,6 +186,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     metacard2.setResourceURI(new URI("content:" + metacard2.getId() + "#preview"));
 
     DumpCommand dumpCommand = new DumpCommand(signer);
+    dumpCommand.securityLogger = mock(SecurityLogger.class);
     dumpCommand.catalogFramework = givenCatalogFramework(resultList);
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
     File outputDirectory = testFolder.newFolder("somedirectory");
@@ -224,6 +228,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     String outputDirectoryPath = outputDirectory.getAbsolutePath();
     dumpCommand.dirPath = outputDirectoryPath;
     dumpCommand.transformerId = "someOtherTransformer";
+    dumpCommand.securityLogger = mock(SecurityLogger.class);
 
     // when
     dumpCommand.executeWithSubject();
@@ -241,6 +246,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
             new ResultImpl(getMetacard("metacardId1")), new ResultImpl(getMetacard("metacardId2")));
 
     TestDumpCommand dumpCommand = new TestDumpCommand(Collections.emptyList(), signer);
+    dumpCommand.securityLogger = mock(SecurityLogger.class);
     dumpCommand.catalogFramework = givenCatalogFramework(results);
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
     dumpCommand.dirPath = outputDirectoryPath;

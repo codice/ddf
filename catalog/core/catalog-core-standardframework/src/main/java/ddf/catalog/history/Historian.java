@@ -53,7 +53,8 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.SubjectOperations;
+import ddf.security.audit.SecurityLogger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessController;
@@ -115,6 +116,10 @@ public class Historian {
   private UuidGenerator uuidGenerator;
 
   private SubjectIdentity subjectIdentity;
+
+  private SubjectOperations subjectOperations;
+
+  private SecurityLogger securityLogger;
 
   public void init() {
     Bundle bundle = FrameworkUtil.getBundle(Historian.class);
@@ -226,7 +231,7 @@ public class Historian {
 
     if (updatedMetacards.isEmpty()) {
       LOGGER.trace("No updated metacards applicable to versioning");
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Skipping versioning updated metacards with ids: {}",
           updateStorageResponse
               .getUpdatedContentItems()
@@ -272,7 +277,7 @@ public class Historian {
 
     if (createStorageResponse == null) {
       String message = "Could not version content items for: " + getList(originalMetacards);
-      SecurityLogger.audit(message);
+      securityLogger.audit(message);
       LOGGER.debug(message);
       return updateStorageResponse;
     }
@@ -315,7 +320,7 @@ public class Historian {
 
     if (originalMetacards.isEmpty()) {
       LOGGER.trace("No deleted metacards applicable to versioning");
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Skipping versioning deleted metacards with ids: {}",
           deleteResponse.getDeletedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
       return deleteResponse;
@@ -463,6 +468,14 @@ public class Historian {
 
   public void setSubjectIdentity(SubjectIdentity subjectIdentity) {
     this.subjectIdentity = subjectIdentity;
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 
   public void setSkipFlag(@Nullable Operation op) {
@@ -617,7 +630,8 @@ public class Historian {
                     uuidGenerator.generateUuid(),
                     metacard,
                     action.apply(metacard.getId()),
-                    subject))
+                    subject,
+                    subjectOperations))
         .collect(
             Collectors.toMap(
                 MetacardVersionImpl::getVersionOfId,

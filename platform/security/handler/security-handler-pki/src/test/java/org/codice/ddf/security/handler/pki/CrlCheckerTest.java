@@ -15,7 +15,9 @@ package org.codice.ddf.security.handler.pki;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
+import ddf.security.audit.SecurityLogger;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
@@ -106,7 +108,7 @@ public class CrlCheckerTest {
   public void testGetPropertiesFailsBothCertsPass() throws CertificateException {
 
     // should be unable to read default location during unit testing
-    CrlChecker crlChecker = new CrlChecker();
+    CrlChecker crlChecker = new CrlChecker(mock(SecurityLogger.class));
     crlChecker.setCrlLocation(null);
 
     // First cert
@@ -213,7 +215,7 @@ public class CrlCheckerTest {
   }
 
   private CrlChecker getConfiguredCrlChecker(String encryptionProperties) {
-    CrlChecker crlChecker = new CrlChecker();
+    CrlChecker crlChecker = new CrlChecker(mock(SecurityLogger.class));
     Properties prop = crlChecker.loadProperties(encryptionProperties);
     String crlPropertyValue = prop.getProperty(CrlChecker.CRL_PROPERTY_KEY);
 

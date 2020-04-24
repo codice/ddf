@@ -14,7 +14,9 @@
 package ddf.security.pep.interceptor;
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 
+import ddf.security.audit.SecurityLogger;
 import org.junit.Test;
 
 public class PepInterceptorTest {
@@ -22,6 +24,7 @@ public class PepInterceptorTest {
   @Test
   public void testConstructor() {
     PEPAuthorizingInterceptor interceptor = new PEPAuthorizingInterceptor();
+    interceptor.setSecurityLogger(mock(SecurityLogger.class));
     assertNotNull(interceptor);
   }
 }

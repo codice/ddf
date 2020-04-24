@@ -173,7 +173,7 @@ public class CswUnmarshallHelper {
               is = url.openStream();
               mc.setThumbnail(IOUtils.toByteArray(is));
             } catch (IOException e) {
-              LOGGER.debug("Error setting thumbnail data on metacard: {}", value, e);
+              mc.setThumbnail((byte[]) value);
             } finally {
               IOUtils.closeQuietly(is);
             }

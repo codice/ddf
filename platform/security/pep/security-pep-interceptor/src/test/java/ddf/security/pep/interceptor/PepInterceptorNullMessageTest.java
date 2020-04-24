@@ -13,6 +13,9 @@
  */
 package ddf.security.pep.interceptor;
 
+import static org.mockito.Mockito.mock;
+
+import ddf.security.audit.SecurityLogger;
 import org.apache.cxf.interceptor.security.AccessDeniedException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +28,7 @@ public class PepInterceptorNullMessageTest {
   @Test
   public void testNullMessage() {
     PEPAuthorizingInterceptor interceptor = new PEPAuthorizingInterceptor();
+    interceptor.setSecurityLogger(mock(SecurityLogger.class));
 
     expectedExForNullMessage.expect(AccessDeniedException.class);
     expectedExForNullMessage.expectMessage("Unauthorized");

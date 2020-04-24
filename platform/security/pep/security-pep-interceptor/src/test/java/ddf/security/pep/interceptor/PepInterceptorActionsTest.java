@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -49,6 +50,7 @@ public class PepInterceptorActionsTest {
   @Before
   public void setup() {
     interceptor = new PEPAuthorizingInterceptor(m -> mockSecurityAssertion);
+    interceptor.setSecurityLogger(mock(SecurityLogger.class));
   }
 
   @Test

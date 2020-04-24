@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.security.service.impl.SubjectUtils;
 import java.security.Principal;
 import java.util.Map;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -51,7 +52,7 @@ public class AttributeMapLoaderTest {
     "OU=LDAP", "OU=DEFAULT", "O=DDF", "C=US"
   };
 
-  AttributeMapLoader attributeMapLoader = new AttributeMapLoader();
+  AttributeMapLoader attributeMapLoader = new AttributeMapLoader(new SubjectUtils());
 
   /**
    * Tests loading the attributes from a file.

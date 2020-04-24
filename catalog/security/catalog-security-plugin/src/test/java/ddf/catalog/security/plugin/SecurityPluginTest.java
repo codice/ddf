@@ -34,10 +34,10 @@ import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
+import ddf.security.SubjectOperations;
 import ddf.security.assertion.Attribute;
 import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.impl.SubjectUtils;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -253,7 +253,7 @@ public class SecurityPluginTest {
     List<String> listOfAttributeValues = Arrays.asList(TEST_USER);
 
     Attribute mockAttribute = mock(Attribute.class);
-    when(mockAttribute.getName()).thenReturn(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI);
+    when(mockAttribute.getName()).thenReturn(SubjectOperations.EMAIL_ADDRESS_CLAIM_URI);
     when(mockAttribute.getValues()).thenReturn(listOfAttributeValues);
 
     List<Attribute> listOfAttributes = Arrays.asList(mockAttribute);

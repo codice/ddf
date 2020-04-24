@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.pax.web.jetty;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -75,6 +75,8 @@ public class CsrfFilter implements Filter {
   private List<String> trustedAuthorities;
 
   private boolean shouldFilter;
+
+  private SecurityLogger securityLogger;
 
   public CsrfFilter() {
     super();
@@ -338,7 +340,7 @@ public class CsrfFilter implements Filter {
    * @param msg logging & security audit message
    */
   private void respondForbidden(HttpServletResponse httpResponse, String msg) {
-    SecurityLogger.audit(msg);
+    securityLogger.audit(msg);
     LOGGER.debug(msg);
     try {
       httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -388,5 +390,9 @@ public class CsrfFilter implements Filter {
   @Override
   public void destroy() {
     LOGGER.debug("Destroying CSRF filter.");
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

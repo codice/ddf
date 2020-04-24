@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.impl.CollectionPermissionImpl;
 import ddf.security.permission.impl.KeyValuePermissionImpl;
@@ -54,6 +55,7 @@ public class AuthorizationFilterTest {
     ContextPolicyManager contextPolicyManager = new TestPolicyManager();
     contextPolicyManager.setContextPolicy(PATH, getMockContextPolicy());
     AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
+    loginFilter.setSecurityLogger(mock(SecurityLogger.class));
     loginFilter.init();
     Subject subject = mock(Subject.class);
     when(subject.isPermitted(any(CollectionPermission.class))).thenReturn(true);
@@ -80,6 +82,7 @@ public class AuthorizationFilterTest {
     ContextPolicyManager contextPolicyManager = new TestPolicyManager();
     contextPolicyManager.setContextPolicy(PATH, getMockContextPolicy());
     AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
+    loginFilter.setSecurityLogger(mock(SecurityLogger.class));
     loginFilter.init();
     Subject subject = mock(Subject.class);
     when(subject.isPermitted(any(CollectionPermission.class))).thenReturn(false);
@@ -103,6 +106,7 @@ public class AuthorizationFilterTest {
     ContextPolicyManager contextPolicyManager = new TestPolicyManager();
     contextPolicyManager.setContextPolicy(PATH, getMockContextPolicy());
     AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
+    loginFilter.setSecurityLogger(mock(SecurityLogger.class));
     loginFilter.init();
 
     HttpServletRequest servletRequest = getMockServletRequest();
@@ -122,6 +126,7 @@ public class AuthorizationFilterTest {
     ContextPolicyManager contextPolicyManager = new TestPolicyManager();
     contextPolicyManager.setContextPolicy(PATH, getMockContextPolicy());
     AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
+    loginFilter.setSecurityLogger(mock(SecurityLogger.class));
     loginFilter.init();
     HttpServletRequest servletRequest = getMockServletRequest();
     servletRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));

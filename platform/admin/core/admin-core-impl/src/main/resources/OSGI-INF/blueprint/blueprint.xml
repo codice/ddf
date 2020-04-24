@@ -24,6 +24,8 @@
 
     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
 
+    <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
+
     <bean id="propertiesFileSupport"
           class="org.codice.ddf.platform.util.properties.PropertiesFileReader"/>
 
@@ -65,6 +67,7 @@
     <bean id="adminAlerts" class="org.codice.ddf.admin.core.impl.AdminAlertImpl" init-method="init" destroy-method="destroy">
         <argument ref="persistentStore"/>
         <argument ref="eventAdmin"/>
+        <property name="subjectOperations" ref="subjectOperations" />
     </bean>
 
     <reference-list id="configurationAdminPluginList"

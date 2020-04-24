@@ -22,6 +22,7 @@
     <reference id="clientFactoryFactory"
                interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
     <bean id="crlCreator" class="org.codice.ddf.security.crl.generator.CrlGenerator"
           destroy-method="destroy">
         <cm:managed-properties persistent-id="org.codice.ddf.security.crl.generator.CrlGenerator"
@@ -29,6 +30,7 @@
         <argument ref="clientFactoryFactory"/>
         <argument ref="eventAdmin"/>
         <property name="crlByUrlEnabled" value="false"/>
+        <property name="securityLogger" ref="securityLogger" />
     </bean>
     <service ref="crlCreator" interface="java.lang.Runnable"/>
 </blueprint>

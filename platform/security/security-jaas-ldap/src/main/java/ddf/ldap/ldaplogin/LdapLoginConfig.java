@@ -23,7 +23,7 @@ import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_SEARCH_SUBTREE_OPTIONS_KEY;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
@@ -110,6 +110,8 @@ public class LdapLoginConfig {
   private final BundleContext context;
 
   private ServiceRegistration connectionPoolServiceRegistration;
+
+  private SecurityLogger securityLogger;
 
   public LdapLoginConfig(final BundleContext context) {
     this.context = context;
@@ -244,13 +246,13 @@ public class LdapLoginConfig {
   private void auditRemoteConnection(String host) {
     try {
       InetAddress inetAddress = InetAddress.getByName(host);
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Setting up remote connection to LDAP [{}].", inetAddress.getHostAddress());
     } catch (Exception e) {
       LOGGER.debug(
           "Unhandled exception while attempting to determine the IP address for an LDAP, might be a DNS issue.",
           e);
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Unable to determine the IP address for an LDAP [{}], might be a DNS issue.", host);
     }
   }
@@ -416,5 +418,9 @@ public class LdapLoginConfig {
 
   public void setLdapService(LdapService ldapService) {
     this.ldapService = ldapService;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

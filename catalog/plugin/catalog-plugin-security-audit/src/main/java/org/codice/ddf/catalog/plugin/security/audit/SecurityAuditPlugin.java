@@ -29,7 +29,7 @@ import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +38,21 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** SecurityAuditPlugin Allows changes to security attributes on a metacard to be audited */
 public class SecurityAuditPlugin implements AccessPlugin {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAuditPlugin.class);
+
   private List<String> auditAttributes = new ArrayList<>();
+
+  private SecurityLogger securityLogger;
+
+  public SecurityAuditPlugin(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
+  }
 
   @Override
   public CreateRequest processPreCreate(CreateRequest createRequest)
@@ -143,7 +153,7 @@ public class SecurityAuditPlugin implements AccessPlugin {
   }
 
   public void setAuditAttributes(List<String> auditAttributes) {
-    SecurityLogger.audit(
+    securityLogger.audit(
         String.format(
             "Security Audit Plugin configuration changed to audit : %s",
             StringUtils.join(auditAttributes, ",")));
@@ -151,11 +161,11 @@ public class SecurityAuditPlugin implements AccessPlugin {
   }
 
   public void init() {
-    SecurityLogger.audit("Security Audit Plugin started");
+    securityLogger.audit("Security Audit Plugin started");
   }
 
   public void destroy() {
-    SecurityLogger.audit("Security Audit Plugin stopped");
+    securityLogger.audit("Security Audit Plugin stopped");
   }
 
   public static boolean isLocal(Request req) {
@@ -171,7 +181,7 @@ public class SecurityAuditPlugin implements AccessPlugin {
   @VisibleForTesting
   void auditMetacardUpdate(
       String descriptorName, String metacardId, String originalValue, String updateValue) {
-    SecurityLogger.audit(
+    securityLogger.audit(
         String.format(
             "Attribute %s on metacard %s with value(s) %s was updated to value(s) %s",
             descriptorName, metacardId, originalValue, updateValue));

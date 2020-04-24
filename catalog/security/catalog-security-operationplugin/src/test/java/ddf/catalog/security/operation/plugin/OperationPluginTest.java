@@ -183,11 +183,6 @@ public class OperationPluginTest {
     }
 
     @Override
-    public boolean isGuest() {
-      return false;
-    }
-
-    @Override
     public String getName() {
       return "Mock Subject";
     }

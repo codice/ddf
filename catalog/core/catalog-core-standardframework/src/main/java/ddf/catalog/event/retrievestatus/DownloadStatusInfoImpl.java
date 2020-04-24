@@ -16,7 +16,7 @@ package ddf.catalog.event.retrievestatus;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.download.DownloadStatus;
 import ddf.catalog.resource.download.ReliableResourceDownloader;
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,15 +34,20 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
 
   private static final String UNKNOWN = "UNKNOWN";
 
-  private Map<String, ReliableResourceDownloader> downloaders =
-      new HashMap<String, ReliableResourceDownloader>();
+  private Map<String, ReliableResourceDownloader> downloaders = new HashMap<>();
 
-  private Map<String, String> downloadUsers = new HashMap<String, String>();
+  private Map<String, String> downloadUsers = new HashMap<>();
 
   private EventAdmin eventAdmin;
 
+  private SubjectOperations subjectOperations;
+
   public void setEventAdmin(EventAdmin eventAdmin) {
     this.eventAdmin = eventAdmin;
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 
   public void addDownloadInfo(
@@ -56,8 +61,11 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
     } catch (Exception e) {
       LOGGER.debug("Could not determine current user, using session id.");
     }
+    if (subjectOperations == null) {
+      throw new IllegalStateException("Unable to perform subject operations at this time.");
+    }
     String user =
-        SubjectUtils.getName(
+        subjectOperations.getName(
             shiroSubject, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
     downloadUsers.put(downloadIdentifier, user);
   }

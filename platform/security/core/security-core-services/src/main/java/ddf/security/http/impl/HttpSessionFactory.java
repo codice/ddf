@@ -15,8 +15,8 @@ package ddf.security.http.impl;
 
 import com.google.common.hash.Hashing;
 import ddf.security.SecurityConstants;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +26,8 @@ import javax.servlet.http.HttpSession;
 public class HttpSessionFactory implements SessionFactory {
 
   private int expirationTime;
+
+  private SecurityLogger securityLogger;
 
   /**
    * Synchronized method because of jettys getSession method is not thread safe. Additionally,
@@ -41,7 +43,7 @@ public class HttpSessionFactory implements SessionFactory {
     if (session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY) == null) {
       session.setMaxInactiveInterval(Math.toIntExact(TimeUnit.MINUTES.toSeconds(expirationTime)));
       session.setAttribute(SecurityConstants.SECURITY_TOKEN_KEY, new PrincipalHolder());
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Creating a new session with id {} for client {}.",
           Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString(),
           httpRequest.getRemoteAddr());
@@ -51,5 +53,9 @@ public class HttpSessionFactory implements SessionFactory {
 
   public void setExpirationTime(int expirationTime) {
     this.expirationTime = expirationTime;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

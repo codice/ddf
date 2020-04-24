@@ -26,7 +26,7 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.permission.impl.Permissions;
+import ddf.security.permission.Permissions;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
@@ -47,6 +47,8 @@ public class ResourceUriPolicy implements PolicyPlugin {
 
   private String[] updatePermissions;
 
+  private Permissions permissions;
+
   public ResourceUriPolicy() {}
 
   public ResourceUriPolicy(String[] createPermissions, String[] updatePermissions) {
@@ -65,7 +67,7 @@ public class ResourceUriPolicy implements PolicyPlugin {
     if (input.getResourceURI() != null
         && StringUtils.isNotEmpty(input.getResourceURI().toString())) {
       return new PolicyResponseImpl(
-          null, Permissions.parsePermissionsFromString(getCreatePermissions()));
+          null, permissions.parsePermissionsFromString(getCreatePermissions()));
     }
 
     return new PolicyResponseImpl();
@@ -81,7 +83,7 @@ public class ResourceUriPolicy implements PolicyPlugin {
 
     PolicyResponseImpl policyResponse =
         new PolicyResponseImpl(
-            null, Permissions.parsePermissionsFromString(getUpdatePermissions()));
+            null, permissions.parsePermissionsFromString(getUpdatePermissions()));
 
     List<Metacard> previousStateMetacards =
         ((OperationTransaction) properties.get(OPERATION_TRANSACTION_KEY))
@@ -169,5 +171,9 @@ public class ResourceUriPolicy implements PolicyPlugin {
 
   public void setUpdatePermissions(String[] updatePermissions) {
     this.updatePermissions = updatePermissions == null ? null : updatePermissions.clone();
+  }
+
+  public void setPermissions(Permissions permissions) {
+    this.permissions = permissions;
   }
 }

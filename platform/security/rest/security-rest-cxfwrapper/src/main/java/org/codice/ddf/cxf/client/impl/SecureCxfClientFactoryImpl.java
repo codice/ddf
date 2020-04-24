@@ -14,7 +14,7 @@
 package org.codice.ddf.cxf.client.impl;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.RequestBuilder;
@@ -152,6 +152,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
 
   private SamlSecurity samlSecurity;
 
+  private SecurityLogger securityLogger;
+
   static {
     OpenSAMLUtil.initSamlEngine();
     XMLObjectProviderRegistry xmlObjectProviderRegistry =
@@ -170,11 +172,14 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
 
   /**
    * @see #SecureCxfClientFactoryImpl(String, Class, java.util.List, Interceptor, boolean, boolean,
-   *     SamlSecurity)
+   *     SamlSecurity, SecurityLogger)
    */
   public SecureCxfClientFactoryImpl(
-      String endpointUrl, Class<T> interfaceClass, SamlSecurity samlSecurity) {
-    this(endpointUrl, interfaceClass, null, null, false, false, samlSecurity);
+      String endpointUrl,
+      Class<T> interfaceClass,
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
+    this(endpointUrl, interfaceClass, null, null, false, false, samlSecurity, securityLogger);
   }
 
   public SecureCxfClientFactoryImpl(
@@ -182,7 +187,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Class<T> interfaceClass,
       String username,
       String password,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
     this(
         endpointUrl,
         interfaceClass,
@@ -194,7 +200,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         null,
         username,
         password,
-        samlSecurity);
+        samlSecurity,
+        securityLogger);
   }
 
   public SecureCxfClientFactoryImpl(
@@ -206,7 +213,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       String clientSecret,
       String oauthFlow,
       OAuthSecurity oauthSecurity,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
     this(
         endpointUrl,
         interfaceClass,
@@ -222,7 +230,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         clientSecret,
         oauthFlow,
         oauthSecurity,
-        samlSecurity);
+        samlSecurity,
+        securityLogger);
   }
 
   public SecureCxfClientFactoryImpl(
@@ -232,7 +241,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Interceptor<? extends Message> interceptor,
       boolean disableCnCheck,
       boolean allowRedirects,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
     this(
         endpointUrl,
         interfaceClass,
@@ -241,7 +251,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         disableCnCheck,
         allowRedirects,
         new PropertyResolver(endpointUrl),
-        samlSecurity);
+        samlSecurity,
+        securityLogger);
   }
 
   public SecureCxfClientFactoryImpl(
@@ -252,7 +263,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       boolean disableCnCheck,
       boolean allowRedirects,
       PropertyResolver propertyResolver,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
     this(
         endpointUrl,
         interfaceClass,
@@ -262,7 +274,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         allowRedirects,
         propertyResolver,
         false,
-        samlSecurity);
+        samlSecurity,
+        securityLogger);
   }
 
   /**
@@ -289,7 +302,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       boolean allowRedirects,
       PropertyResolver propertyResolver,
       boolean useOauth,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
     if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
       throw new IllegalArgumentException(
           "Called without a valid URL, will not be able to connect.");
@@ -337,6 +351,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.useOauth = useOauth;
     this.clientFactory = jaxrsClientFactoryBean;
     this.samlSecurity = samlSecurity;
+    this.securityLogger = securityLogger;
   }
 
   /**
@@ -365,7 +380,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       boolean allowRedirects,
       Integer connectionTimeout,
       Integer receiveTimeout,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
 
     this(
         endpointUrl,
@@ -374,7 +390,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         interceptor,
         disableCnCheck,
         allowRedirects,
-        samlSecurity);
+        samlSecurity,
+        securityLogger);
 
     this.connectionTimeout = connectionTimeout;
 
@@ -419,7 +436,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       String clientSecret,
       String oauthFlow,
       OAuthSecurity oauthSecurity,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
 
     this(
         endpointUrl,
@@ -430,7 +448,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         allowRedirects,
         new PropertyResolver(endpointUrl),
         true,
-        samlSecurity);
+        samlSecurity,
+        securityLogger);
 
     this.connectionTimeout = connectionTimeout;
     this.receiveTimeout = receiveTimeout;
@@ -441,6 +460,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.oauthFlow = oauthFlow;
     this.oauthSecurity = oauthSecurity;
     this.samlSecurity = samlSecurity;
+    this.securityLogger = securityLogger;
   }
 
   /**
@@ -485,7 +505,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       String password,
       Map<String, String> additionalOauthParameters,
       OAuthSecurity oauthSecurity,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
     this(
         endpointUrl,
         interfaceClass,
@@ -495,7 +516,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         allowRedirects,
         new PropertyResolver(endpointUrl),
         true,
-        samlSecurity);
+        samlSecurity,
+        securityLogger);
 
     this.sourceId = sourceId;
     this.discoveryUrl = discoveryUrl;
@@ -507,6 +529,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.additionalOauthParameters = additionalOauthParameters;
     this.oauthSecurity = oauthSecurity;
     this.samlSecurity = samlSecurity;
+    this.securityLogger = securityLogger;
   }
 
   /**
@@ -539,7 +562,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Integer receiveTimeout,
       ClientKeyInfo keyInfo,
       String sslProtocol,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
 
     this(
         endpointUrl,
@@ -548,7 +572,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         interceptor,
         disableCnCheck,
         allowRedirects,
-        samlSecurity);
+        samlSecurity,
+        securityLogger);
 
     this.connectionTimeout = connectionTimeout;
 
@@ -601,7 +626,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       String clientSecret,
       String oauthFlow,
       OAuthSecurity oauthSecurity,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
 
     this(
         endpointUrl,
@@ -610,7 +636,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         interceptor,
         disableCnCheck,
         allowRedirects,
-        samlSecurity);
+        samlSecurity,
+        securityLogger);
 
     this.connectionTimeout = connectionTimeout;
     this.receiveTimeout = receiveTimeout;
@@ -657,7 +684,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Integer receiveTimeout,
       String username,
       String password,
-      SamlSecurity samlSecurity) {
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger) {
 
     this(
         endpointUrl,
@@ -668,7 +696,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         allowRedirects,
         connectionTimeout,
         receiveTimeout,
-        samlSecurity);
+        samlSecurity,
+        securityLogger);
 
     this.clientFactory.setPassword(password);
     this.clientFactory.setUsername(username);
@@ -791,13 +820,13 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       URI uri = new URI(asciiString);
       String host = uri.getHost();
       InetAddress inetAddress = InetAddress.getByName(host);
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Setting up remote connection to federated node [{}].", inetAddress.getHostAddress());
     } catch (Exception e) {
       LOGGER.debug(
           "Unhandled exception while attempting to determine the IP address for a federated node, might be a DNS issue.",
           e);
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Unable to determine the IP address for a federated node [{}], might be a DNS issue.",
           asciiString);
     }

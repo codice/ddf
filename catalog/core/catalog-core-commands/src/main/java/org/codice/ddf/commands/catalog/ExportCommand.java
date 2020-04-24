@@ -37,7 +37,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -131,6 +131,8 @@ public class ExportCommand extends CqlCommands {
 
   @Reference protected StorageProvider storageProvider;
 
+  @Reference protected SecurityLogger securityLogger;
+
   private DigitalSignature signer;
 
   @Option(
@@ -220,7 +222,7 @@ public class ExportCommand extends CqlCommands {
       }
     }
 
-    SecurityLogger.audit("Called catalog:export command with path : {}", output);
+    securityLogger.audit("Called catalog:export command with path : {}", output);
 
     try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
@@ -312,7 +314,7 @@ public class ExportCommand extends CqlCommands {
   }
 
   private void signJar(File outputFile) {
-    SecurityLogger.audit("Signing exported data. file: [{}]", outputFile.getName());
+    securityLogger.audit("Signing exported data. file: [{}]", outputFile.getName());
     console.println("Signing zip file...");
     Instant start = Instant.now();
 
@@ -359,7 +361,7 @@ public class ExportCommand extends CqlCommands {
   }
 
   private void writePartitionToLog(List<String> idList) {
-    SecurityLogger.audit(
+    securityLogger.audit(
         "Ids of exported metacards and content:\n{}",
         idList.stream().collect(Collectors.joining(SECURITY_AUDIT_DELIMITER, "[", "]")));
   }

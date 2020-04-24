@@ -18,9 +18,9 @@ import com.google.gson.GsonBuilder;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.security.SecurityConstants;
+import ddf.security.SubjectOperations;
 import ddf.security.common.PrincipalHolder;
 import ddf.security.http.SessionFactory;
-import ddf.security.impl.SubjectUtils;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.util.HashMap;
@@ -48,6 +48,8 @@ public class LogoutServiceImpl implements LogoutService {
 
   private SecurityManager securityManager;
 
+  private SubjectOperations subjectOperations;
+
   @Override
   public String getActionProviders(HttpServletRequest request, HttpServletResponse response)
       throws SecurityServiceException {
@@ -70,7 +72,7 @@ public class LogoutServiceImpl implements LogoutService {
       Action action = actionProvider.getAction(subjectMap);
 
       if (action != null) {
-        String displayName = SubjectUtils.getName(subject, "", true);
+        String displayName = subjectOperations.getName(subject, "", true);
         actionProperties.put("title", action.getTitle());
         actionProperties.put("auth", displayName);
         actionProperties.put("description", action.getDescription());
@@ -91,5 +93,9 @@ public class LogoutServiceImpl implements LogoutService {
 
   public void setSecurityManager(SecurityManager securityManager) {
     this.securityManager = securityManager;
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

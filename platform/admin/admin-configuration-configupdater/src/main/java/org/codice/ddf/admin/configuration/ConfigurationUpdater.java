@@ -17,7 +17,7 @@ import static com.google.common.io.Files.getFileExtension;
 import static java.lang.String.format;
 
 import com.google.common.annotations.VisibleForTesting;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -83,6 +83,8 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
   private final EncryptionService encryptionService;
 
   private final Map<String, CachedConfigData> pidDataMap;
+
+  private SecurityLogger securityLogger;
 
   /*
    * SortedServiceList implements java.util.List using generic parameter <T> and not a concrete type,
@@ -249,10 +251,10 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       LOGGER.debug("Deleting file because config was deleted for pid [{}]", pid);
       try {
         Files.delete(fileFromCache.toPath());
-        SecurityLogger.audit("Removed a deleted config [{}]", fileFromCache.getAbsolutePath());
+        securityLogger.audit("Removed a deleted config [{}]", fileFromCache.getAbsolutePath());
       } catch (IOException e) {
         LOGGER.debug("Problem deleting config file [{}]: ", fileFromCache.getAbsolutePath(), e);
-        SecurityLogger.audit("Failure to delete config file [{}]", fileFromCache.getAbsolutePath());
+        securityLogger.audit("Failure to delete config file [{}]", fileFromCache.getAbsolutePath());
         // Synchronous with config admin, so we can report the failure to the UI this way
         throw e;
       }
@@ -278,7 +280,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       encryptPasswords(appropriatePid, configAdminState, this::encryptValue);
       if (!cachedData.equalProps(configAdminState)) {
         writeConfigFile(dest, configAdminState);
-        SecurityLogger.audit("Updated config file [{}]", dest.getAbsolutePath());
+        securityLogger.audit("Updated config file [{}]", dest.getAbsolutePath());
         // Update the cache
         cachedData.setProps(configAdminState);
       }
@@ -327,7 +329,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       getAppropriateStrategy(dest.toPath()).write(outputStream, configState);
     } catch (IOException e) {
       LOGGER.debug("Writing to config file failed: ", e);
-      SecurityLogger.audit("Failure to update config file [{}]", dest.getAbsolutePath());
+      securityLogger.audit("Failure to update config file [{}]", dest.getAbsolutePath());
       throw e;
     }
   }
@@ -357,5 +359,9 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
               return new IllegalArgumentException(
                   format("File extension [%s] is not a supported config type", ext));
             });
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }
