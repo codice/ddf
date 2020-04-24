@@ -73,6 +73,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -430,7 +431,31 @@ public class DynamicSchemaResolver implements ConfigurationListener {
       return null;
     }
 
-    return centerPoint.getY() + "," + centerPoint.getX();
+    return normalize(centerPoint);
+  }
+
+  /**
+   * Normalizes point for coordinate boundary wrapping. Truncates coordinates to a reasonable
+   * precision.
+   *
+   * @return Solr formatted coordinate
+   */
+  private String normalize(Point center) {
+    return DistanceUtils.normLatDEG(truncate(center.getY()))
+        + ","
+        + DistanceUtils.normLonDEG(truncate(center.getX()));
+  }
+
+  /**
+   * Efficiently removes decimal coordinate precision at the millimeter scale to remove floating
+   * point noise.
+   *
+   * @param coordinate in decimal degrees
+   * @return coordinate truncated to the 8th place
+   */
+  private double truncate(double coordinate) {
+    double scale = Math.pow(10, 8);
+    return Math.round(coordinate * scale) / scale;
   }
 
   /**
