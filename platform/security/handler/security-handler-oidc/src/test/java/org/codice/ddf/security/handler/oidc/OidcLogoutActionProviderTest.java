@@ -25,7 +25,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -63,7 +63,7 @@ public class OidcLogoutActionProviderTest {
     HttpServletResponse response = mock(HttpServletResponse.class);
     HttpSession session = mock(HttpSession.class);
     Subject subject = mock(Subject.class);
-    SecurityTokenHolder tokenHolder = mock(SecurityTokenHolder.class);
+    PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
     SimplePrincipalCollection principalCollection = new SimplePrincipalCollection();
     SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
     OidcProfile profile = mock(OidcProfile.class);
@@ -71,9 +71,10 @@ public class OidcLogoutActionProviderTest {
     when(securityAssertion.getToken()).thenReturn(profile);
     when(securityAssertion.getTokenType()).thenReturn(SecurityAssertionJwt.JWT_TOKEN_TYPE);
     when(subject.getPrincipals()).thenReturn(principalCollection);
-    when(tokenHolder.getPrincipals()).thenReturn(principalCollection);
+    when(principalHolderMock.getPrincipals()).thenReturn(principalCollection);
     principalCollection.add(securityAssertion, "oidc");
-    when(session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY)).thenReturn(tokenHolder);
+    when(session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
+        .thenReturn(principalHolderMock);
     when(request.getSession(false)).thenReturn(session);
     when(request.getHeader("Referer"))
         .thenReturn("http://foo.bar?prevurl=https://localhost:8993/admin");

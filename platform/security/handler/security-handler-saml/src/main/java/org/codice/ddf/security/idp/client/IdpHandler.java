@@ -72,7 +72,7 @@ import org.codice.ddf.security.handler.HandlerResultImpl;
 import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.jaxrs.RestSecurity;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.codice.ddf.security.util.SAMLUtils;
 import org.joda.time.DateTime;
 import org.opensaml.core.config.ConfigurationService;
@@ -193,7 +193,7 @@ public class IdpHandler implements AuthenticationHandler {
 
   private List<String> authContextClasses;
 
-  private RestSecurity restSecurity;
+  private SamlSecurity samlSecurity;
 
   public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, RelayStates<String> relayStates)
       throws IOException {
@@ -298,11 +298,11 @@ public class IdpHandler implements AuthenticationHandler {
       String[] tokenizedAuthHeader = authHeader.split(" ");
       if (tokenizedAuthHeader.length == 2
           && tokenizedAuthHeader[0].equals("SAML")
-          && restSecurity != null) {
+          && samlSecurity != null) {
         String encodedSamlAssertion = tokenizedAuthHeader[1];
         LOGGER.trace("Header retrieved");
         try {
-          String tokenString = restSecurity.inflateBase64(encodedSamlAssertion);
+          String tokenString = samlSecurity.inflateBase64(encodedSamlAssertion);
           LOGGER.trace("Header value: {}", LogSanitizer.sanitize(tokenString));
           SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
           simplePrincipalCollection.add(
@@ -324,11 +324,11 @@ public class IdpHandler implements AuthenticationHandler {
     // Check for legacy SAML cookie
     Map<String, Cookie> cookies = HttpUtils.getCookieMap(httpRequest);
     Cookie samlCookie = cookies.get(SecurityConstants.SAML_COOKIE_NAME);
-    if (samlCookie != null && restSecurity != null) {
+    if (samlCookie != null && samlSecurity != null) {
       String cookieValue = samlCookie.getValue();
       LOGGER.trace("Cookie retrieved");
       try {
-        String tokenString = restSecurity.inflateBase64(cookieValue);
+        String tokenString = samlSecurity.inflateBase64(cookieValue);
         LOGGER.trace("Cookie value: {}", LogSanitizer.sanitize(tokenString));
         Element thisToken = StaxUtils.read(new StringReader(tokenString)).getDocumentElement();
         SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
@@ -670,10 +670,10 @@ public class IdpHandler implements AuthenticationHandler {
   }
 
   private String encodeRedirectRequest(String request) throws IOException {
-    if (restSecurity == null) {
+    if (samlSecurity == null) {
       throw new IOException("Unable to encode because encoder doesn't exist yet.");
     }
-    return URLEncoder.encode(restSecurity.deflateAndBase64Encode(request), "UTF-8");
+    return URLEncoder.encode(samlSecurity.deflateAndBase64Encode(request), "UTF-8");
   }
 
   private String encodePostRequest(String request) {
@@ -729,7 +729,7 @@ public class IdpHandler implements AuthenticationHandler {
     this.authContextClasses = authContextClasses;
   }
 
-  public void setRestSecurity(RestSecurity restSecurity) {
-    this.restSecurity = restSecurity;
+  public void setSamlSecurity(SamlSecurity samlSecurity) {
+    this.samlSecurity = samlSecurity;
   }
 }

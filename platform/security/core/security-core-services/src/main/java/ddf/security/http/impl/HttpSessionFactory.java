@@ -15,7 +15,7 @@ package ddf.security.http.impl;
 
 import com.google.common.hash.Hashing;
 import ddf.security.SecurityConstants;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import java.nio.charset.StandardCharsets;
@@ -29,7 +29,7 @@ public class HttpSessionFactory implements SessionFactory {
 
   /**
    * Synchronized method because of jettys getSession method is not thread safe. Additionally,
-   * assures a SAML {@link SecurityTokenHolder} has been set on the {@link
+   * assures a SAML {@link PrincipalHolder} has been set on the {@link
    * SecurityConstants#SECURITY_TOKEN_KEY} attribute
    *
    * @param httpRequest
@@ -40,7 +40,7 @@ public class HttpSessionFactory implements SessionFactory {
     HttpSession session = httpRequest.getSession(true);
     if (session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY) == null) {
       session.setMaxInactiveInterval(Math.toIntExact(TimeUnit.MINUTES.toSeconds(expirationTime)));
-      session.setAttribute(SecurityConstants.SECURITY_TOKEN_KEY, new SecurityTokenHolder());
+      session.setAttribute(SecurityConstants.SECURITY_TOKEN_KEY, new PrincipalHolder());
       SecurityLogger.audit(
           "Creating a new session with id {} for client {}.",
           Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString(),

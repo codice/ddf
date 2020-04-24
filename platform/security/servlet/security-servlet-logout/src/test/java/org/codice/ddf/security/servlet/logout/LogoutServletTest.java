@@ -21,7 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import java.io.PrintWriter;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
@@ -74,9 +74,9 @@ public class LogoutServletTest {
 
   @Test
   public void testLocalLogout() throws Exception {
-    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+    PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
-        .thenReturn(securityTokenHolder);
+        .thenReturn(principalHolderMock);
     try {
       localLogoutServlet.doGet(request, response);
     } catch (ServletException e) {
@@ -97,9 +97,9 @@ public class LogoutServletTest {
     when(request.getAttribute("javax.servlet.request.X509Certificate"))
         .thenReturn(new X509Certificate[] {mock(X509Certificate.class)});
 
-    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+    PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
-        .thenReturn(securityTokenHolder);
+        .thenReturn(principalHolderMock);
     try {
       localLogoutServlet.doGet(request, response);
     } catch (ServletException e) {
@@ -119,9 +119,9 @@ public class LogoutServletTest {
     when(request.getAttribute("javax.servlet.request.X509Certificate"))
         .thenReturn(new X509Certificate[] {mock(X509Certificate.class)});
 
-    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+    PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
-        .thenReturn(securityTokenHolder);
+        .thenReturn(principalHolderMock);
     try {
       localLogoutServlet.doGet(request, response);
     } catch (ServletException e) {

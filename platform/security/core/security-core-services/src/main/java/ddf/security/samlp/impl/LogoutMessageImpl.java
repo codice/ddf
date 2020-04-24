@@ -45,7 +45,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.security.jaxrs.impl.RestSecurity;
+import org.codice.ddf.security.jaxrs.impl.SamlSecurity;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.LogoutRequest;
@@ -293,10 +293,10 @@ public class LogoutMessageImpl implements LogoutMessage {
     try {
       Document doc = DOMUtils.createDocument();
       doc.appendChild(doc.createElement("root"));
-      RestSecurity restSecurity = new RestSecurity();
+      SamlSecurity samlSecurity = new SamlSecurity();
       String encodedResponse =
           URLEncoder.encode(
-              restSecurity.deflateAndBase64Encode(
+              samlSecurity.deflateAndBase64Encode(
                   DOM2Writer.nodeToString(
                       OpenSAMLUtil.toDom((XMLObject) samlObject.getMessage(), doc, false))),
               "UTF-8");

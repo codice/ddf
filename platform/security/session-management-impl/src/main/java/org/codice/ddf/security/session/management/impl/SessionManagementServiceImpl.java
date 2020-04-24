@@ -14,7 +14,7 @@
 package org.codice.ddf.security.session.management.impl;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.http.SessionFactory;
 import java.net.URI;
 import javax.servlet.http.HttpServletRequest;
@@ -37,8 +37,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
       return Long.toString(timeLeft);
     }
 
-    Object securityToken = session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
-    if (!(securityToken instanceof SecurityTokenHolder)) {
+    Object principalHolder = session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
+    if (!(principalHolder instanceof PrincipalHolder)) {
       return Long.toString(timeLeft);
     }
 

@@ -41,7 +41,7 @@ import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
-import org.codice.ddf.security.jaxrs.impl.RestSecurity;
+import org.codice.ddf.security.jaxrs.impl.SamlSecurity;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -88,7 +88,7 @@ public class IdpHandlerTest {
     httpResponse = mock(HttpServletResponse.class);
 
     idpHandler = new IdpHandler(simpleSign, idpMetadata, relayStates);
-    idpHandler.setRestSecurity(new RestSecurity());
+    idpHandler.setSamlSecurity(new SamlSecurity());
     idpHandler.setAuthContextClasses(
         Arrays.asList(
             "urn:oasis:names:tc:SAML:2.0:ac:classes:Password",

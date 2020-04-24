@@ -20,7 +20,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.impl.SubjectUtils;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -84,16 +84,16 @@ public class OidcLogoutActionProvider implements ActionProvider {
       J2EContext j2EContext = new J2EContext(request, response, sessionStore);
 
       HttpSession session = request.getSession(false);
-      SecurityTokenHolder tokenHolder = null;
+      PrincipalHolder principalHolder = null;
       if (session != null) {
-        tokenHolder =
-            (SecurityTokenHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
+        principalHolder =
+            (PrincipalHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
       }
 
       OidcProfile oidcProfile = null;
-      if (tokenHolder != null && tokenHolder.getPrincipals() != null) {
+      if (principalHolder != null && principalHolder.getPrincipals() != null) {
         Collection<SecurityAssertion> securityAssertions =
-            tokenHolder.getPrincipals().byType(SecurityAssertion.class);
+            principalHolder.getPrincipals().byType(SecurityAssertion.class);
         for (SecurityAssertion securityAssertion : securityAssertions) {
           if (SecurityAssertionJwt.JWT_TOKEN_TYPE.equals(securityAssertion.getTokenType())) {
             oidcProfile = (OidcProfile) securityAssertion.getToken();

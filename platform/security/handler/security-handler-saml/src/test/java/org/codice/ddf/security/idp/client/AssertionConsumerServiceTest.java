@@ -26,7 +26,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.impl.RelayStates;
@@ -46,7 +46,7 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.http.HttpStatus;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.platform.filter.SecurityFilter;
-import org.codice.ddf.security.jaxrs.impl.RestSecurity;
+import org.codice.ddf.security.jaxrs.impl.SamlSecurity;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -84,7 +84,7 @@ public class AssertionConsumerServiceTest {
   @Mock private SecurityFilter loginFilter;
   @Mock private Principal principal;
   @Mock private SecurityToken securityToken;
-  @Mock private SecurityTokenHolder securityTokenHolder;
+  @Mock private PrincipalHolder principalHolder;
   @Mock private SessionFactory sessionFactory;
   @Mock private HttpSession session;
   @Mock private HttpServletRequest httpRequest;
@@ -133,9 +133,9 @@ public class AssertionConsumerServiceTest {
 
     when(securityToken.getPrincipal()).thenReturn(principal);
 
-    when(securityTokenHolder.getPrincipals()).thenReturn(null);
+    when(principalHolder.getPrincipals()).thenReturn(null);
 
-    when(session.getAttribute(SAML_PROPERTY_KEY)).thenReturn(securityTokenHolder);
+    when(session.getAttribute(SAML_PROPERTY_KEY)).thenReturn(principalHolder);
     when(session.getId()).thenReturn(SESSION_ID);
 
     when(sessionFactory.getOrCreateSession(any(HttpServletRequest.class))).thenReturn(session);
@@ -157,7 +157,7 @@ public class AssertionConsumerServiceTest {
     assertionConsumerService.setLoginFilter(loginFilter);
     assertionConsumerService.setSessionFactory(sessionFactory);
     assertionConsumerService.setContextPolicyManager(contextPolicyManager);
-    assertionConsumerService.setRestSecurity(new RestSecurity());
+    assertionConsumerService.setSamlSecurity(new SamlSecurity());
   }
 
   @Test

@@ -19,7 +19,7 @@ import com.google.common.hash.Hashing;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
@@ -200,11 +200,11 @@ public class LoginFilter implements SecurityFilter {
     boolean nullSession = httpRequest.getSession(false) == null;
     PrincipalCollection principals = subject.getPrincipals();
     HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
-    SecurityTokenHolder holder =
-        (SecurityTokenHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
-    PrincipalCollection oldPrincipals = holder.getPrincipals();
+    PrincipalHolder principalHolder =
+        (PrincipalHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
+    PrincipalCollection oldPrincipals = principalHolder.getPrincipals();
     if (!principals.equals(oldPrincipals)) {
-      holder.setPrincipals(principals);
+      principalHolder.setPrincipals(principals);
     }
 
     if (nullSession) {

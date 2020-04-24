@@ -18,7 +18,7 @@ import com.google.gson.GsonBuilder;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.security.SecurityConstants;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.impl.SubjectUtils;
 import ddf.security.service.SecurityManager;
@@ -53,10 +53,10 @@ public class LogoutServiceImpl implements LogoutService {
       throws SecurityServiceException {
 
     HttpSession session = httpSessionFactory.getOrCreateSession(request);
-    Object token =
-        ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
+    Object principalCollection =
+        ((PrincipalHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
             .getPrincipals();
-    SessionToken sessionToken = new SessionToken(token, session.getId(), "127.0.0.1");
+    SessionToken sessionToken = new SessionToken(principalCollection, session.getId(), "127.0.0.1");
     Subject subject = securityManager.getSubject(sessionToken);
 
     Map<String, Object> subjectMap = new HashMap<>();

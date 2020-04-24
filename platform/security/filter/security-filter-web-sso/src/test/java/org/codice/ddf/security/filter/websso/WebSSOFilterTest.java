@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import java.io.IOException;
 import java.util.Collections;
 import javax.servlet.ServletRequest;
@@ -129,11 +129,11 @@ public class WebSSOFilterTest {
   public void testDoFilterSessionStorageDisabled() throws Exception {
     PrincipalCollection principalCollectionMock = mock(PrincipalCollection.class);
 
-    SecurityTokenHolder tokenHolderMock = mock(SecurityTokenHolder.class);
-    when(tokenHolderMock.getPrincipals()).thenReturn(principalCollectionMock);
+    PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
+    when(principalHolderMock.getPrincipals()).thenReturn(principalCollectionMock);
 
     HttpSession sessionMock = mock(HttpSession.class);
-    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(tokenHolderMock);
+    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(principalHolderMock);
 
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
     when(requestMock.getSession(any(Boolean.class))).thenReturn(sessionMock);
@@ -178,11 +178,11 @@ public class WebSSOFilterTest {
     PrincipalCollection principalCollectionMock = mock(PrincipalCollection.class);
     when(principalCollectionMock.byType(any())).thenReturn(Collections.singletonList("principal"));
 
-    SecurityTokenHolder tokenHolderMock = mock(SecurityTokenHolder.class);
-    when(tokenHolderMock.getPrincipals()).thenReturn(principalCollectionMock);
+    PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
+    when(principalHolderMock.getPrincipals()).thenReturn(principalCollectionMock);
 
     HttpSession sessionMock = mock(HttpSession.class);
-    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(tokenHolderMock);
+    when(sessionMock.getAttribute(SECURITY_TOKEN_KEY)).thenReturn(principalHolderMock);
 
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
     when(requestMock.getSession(any(Boolean.class))).thenReturn(sessionMock);

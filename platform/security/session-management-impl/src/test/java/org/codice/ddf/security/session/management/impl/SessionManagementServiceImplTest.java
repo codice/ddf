@@ -27,7 +27,7 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionDefault;
 import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
 import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
-import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.PrincipalHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.principal.impl.GuestPrincipal;
 import ddf.security.service.SecurityManager;
@@ -58,7 +58,7 @@ import org.xml.sax.SAXException;
 public class SessionManagementServiceImplTest {
   private HttpServletRequest request;
 
-  private SecurityTokenHolder tokenHolder;
+  private PrincipalHolder principalHolderMock;
 
   private SecurityManager manager;
 
@@ -109,17 +109,18 @@ public class SessionManagementServiceImplTest {
     request = mock(HttpServletRequest.class);
     principalCollection = new SimplePrincipalCollection();
     refreshedPrincipalCollection = mock(PrincipalCollection.class);
-    tokenHolder = mock(SecurityTokenHolder.class);
+    principalHolderMock = mock(PrincipalHolder.class);
     manager = mock(SecurityManager.class);
     sessionFactory = mock(SessionFactory.class);
     session = mock(HttpSession.class);
     Subject subject = mock(Subject.class);
 
     when(request.getSession(false)).thenReturn(session);
-    when(tokenHolder.getPrincipals()).thenReturn(principalCollection);
+    when(principalHolderMock.getPrincipals()).thenReturn(principalCollection);
     when(manager.getSubject(isA(BaseAuthenticationToken.class))).thenReturn(subject);
     when(sessionFactory.getOrCreateSession(any())).thenReturn(session);
-    when(session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY)).thenReturn(tokenHolder);
+    when(session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
+        .thenReturn(principalHolderMock);
     when(session.getMaxInactiveInterval()).thenReturn(Integer.MAX_VALUE);
     when(subject.getPrincipals()).thenReturn(refreshedPrincipalCollection);
 

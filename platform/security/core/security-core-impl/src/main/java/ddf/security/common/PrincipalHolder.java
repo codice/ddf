@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.shiro.subject.PrincipalCollection;
 
-public class SecurityTokenHolder implements Serializable {
+public class PrincipalHolder implements Serializable {
 
   private static final long serialVersionUID = 1L;
 

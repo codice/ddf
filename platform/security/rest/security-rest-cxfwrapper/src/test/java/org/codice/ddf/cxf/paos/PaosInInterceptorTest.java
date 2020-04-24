@@ -50,7 +50,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
-import org.codice.ddf.security.jaxrs.impl.RestSecurity;
+import org.codice.ddf.security.jaxrs.impl.SamlSecurity;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.core.config.ConfigurationService;
@@ -101,7 +101,7 @@ public class PaosInInterceptorTest {
     message.setExchange(exchange);
 
     PaosInInterceptor paosInInterceptor =
-        new PaosInInterceptor(Phase.RECEIVE, new RestSecurity()) {
+        new PaosInInterceptor(Phase.RECEIVE, new SamlSecurity()) {
           HttpResponseWrapper getHttpResponse(
               String responseConsumerURL, String soapResponse, Message message) throws IOException {
             HttpResponseWrapper httpResponseWrapper = new HttpResponseWrapper();
@@ -149,7 +149,7 @@ public class PaosInInterceptorTest {
     exchange.setOutMessage(outMessage);
     message.setExchange(exchange);
     PaosInInterceptor paosInInterceptor =
-        new PaosInInterceptor(Phase.RECEIVE, new RestSecurity()) {
+        new PaosInInterceptor(Phase.RECEIVE, new SamlSecurity()) {
           HttpResponseWrapper getHttpResponse(
               String responseConsumerURL, String soapResponse, Message message) throws IOException {
             HttpResponseWrapper httpResponseWrapper = new HttpResponseWrapper();
@@ -188,7 +188,7 @@ public class PaosInInterceptorTest {
     ExchangeImpl exchange = new ExchangeImpl();
     exchange.setOutMessage(outMessage);
     message.setExchange(exchange);
-    PaosInInterceptor paosInInterceptor = new PaosInInterceptor(Phase.RECEIVE, new RestSecurity());
+    PaosInInterceptor paosInInterceptor = new PaosInInterceptor(Phase.RECEIVE, new SamlSecurity());
     paosInInterceptor.handleMessage(message);
   }
 
@@ -208,7 +208,7 @@ public class PaosInInterceptorTest {
     exchange.setOutMessage(outMessage);
     message.setExchange(exchange);
     PaosInInterceptor paosInInterceptor =
-        new PaosInInterceptor(Phase.RECEIVE, new RestSecurity()) {
+        new PaosInInterceptor(Phase.RECEIVE, new SamlSecurity()) {
           HttpResponseWrapper getHttpResponse(
               String responseConsumerURL, String soapResponse, Message message) throws IOException {
             HttpResponseWrapper httpResponseWrapper = new HttpResponseWrapper();
@@ -244,7 +244,7 @@ public class PaosInInterceptorTest {
     protocolHeaders.put("X-Custom-Header", Collections.singletonList("Custom"));
 
     PaosInInterceptor paosInInterceptor =
-        spy(new PaosInInterceptor(Phase.RECEIVE, new RestSecurity()));
+        spy(new PaosInInterceptor(Phase.RECEIVE, new SamlSecurity()));
     doReturn(true)
         .when(paosInInterceptor)
         .isRedirect(any(HttpRequest.class), any(HttpResponse.class), any(String.class));
