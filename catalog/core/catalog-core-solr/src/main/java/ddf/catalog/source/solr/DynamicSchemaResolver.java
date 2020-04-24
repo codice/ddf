@@ -532,18 +532,12 @@ public class DynamicSchemaResolver implements ConfigurationListener {
    * @return the original field name
    */
   String resolveFieldName(String solrFieldName) {
-    String originalName = solrFieldName;
-    boolean suffixExists = true;
-    while (suffixExists) {
-      suffixExists = false;
-      for (String suffix : SchemaFields.SUFFIX_LIST) {
-        if (originalName.endsWith(suffix)) {
-          suffixExists = true;
-          originalName = originalName.substring(0, originalName.indexOf(suffix));
-        }
-      }
+    int firstIndexOfUndercore = solrFieldName.indexOf(FIRST_CHAR_OF_SUFFIX);
+
+    if (firstIndexOfUndercore != -1) {
+      return solrFieldName.substring(0, firstIndexOfUndercore);
     }
-    return originalName;
+    return solrFieldName;
   }
 
   boolean isPrivateField(String solrFieldName) {

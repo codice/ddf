@@ -42,6 +42,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.FacetAttributeResult;
 import ddf.catalog.operation.QueryRequest;
@@ -66,6 +67,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -366,13 +368,16 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     }
     Map<String, Map<String, Set<String>>> resultsHighlights = new HashMap<>();
     for (String metacardId : highlights.keySet()) {
+
       Map<String, List<String>> fieldHighlight = highlights.get(metacardId);
       Map<String, Set<String>> consolidated = new HashMap<>();
       if (fieldHighlight != null && fieldHighlight.size() > 0) {
         for (Map.Entry<String, List<String>> entry : fieldHighlight.entrySet()) {
           String solrField = entry.getKey();
           String normalizedKey = resolver.resolveFieldName(solrField);
-          if (isHighlightBlacklisted(normalizedKey) || isHighlightBlacklisted(solrField)) {
+          if (isHighlightBlacklisted(normalizedKey)
+              || isHighlightBlacklisted(solrField)
+              || !isMetacardAttribute(normalizedKey, metacardId, response)) {
             continue;
           }
           Set<String> consolidatedSet = consolidated.get(normalizedKey);
@@ -406,6 +411,32 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             .filter(item -> fieldName.matches(item))
             .collect(Collectors.toList());
     return !blacklist.isEmpty() || resolver.isPrivateField(fieldName);
+  }
+
+  private boolean isMetacardAttribute(String fieldName, String metacardId, QueryResponse response) {
+    MetacardType type = getMetacardType(metacardId, response);
+    if (type != null) {
+      return type.getAttributeDescriptor(fieldName) != null;
+    }
+
+    return false;
+  }
+
+  private MetacardType getMetacardType(String metacardId, QueryResponse response) {
+    Optional<SolrDocument> metacard =
+        response
+            .getResults()
+            .stream()
+            .filter(doc -> metacardId.equals(doc.getFirstValue(Core.ID + SchemaFields.TEXT_SUFFIX)))
+            .findFirst();
+    if (metacard.isPresent()) {
+      try {
+        return resolver.getMetacardType(metacard.get());
+      } catch (MetacardCreationException mce) {
+        LOGGER.debug("Unable to read metacard type", mce);
+      }
+    }
+    return null;
   }
 
   private boolean solrSpellcheckHasResults(QueryResponse solrResponse) {
