@@ -75,7 +75,7 @@ module.exports = Marionette.LayoutView.extend({
     editorRemove: '> .editor-header > .is-removeAttribute',
     editorRearrange: '> .editor-header > .is-rearrangeAttribute',
     editorShow: '> .editor-header > .is-showAttribute',
-    editorHide: '> .editor-header > .is-hideAttribute'
+    editorHide: '> .editor-header > .is-hideAttribute',
   },
   attributesAdded: undefined,
   attributesRemoved: undefined,
@@ -142,7 +142,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-owner', isOwner)
   },
   handleSummary() {
-    this.$el.toggleClass('is-summary', this.options.summary)
+    this.$el.toggleClass('is-summary', this.getEditorActionsOptions().summary)
   },
   getEditorActionsOptions() {
     return {
@@ -160,13 +160,13 @@ module.exports = Marionette.LayoutView.extend({
       }
     )
     this.editorRemove.show(
-    new RemoveAttributeView({
-      model: new DropdownModel(),
-      selectionInterface: this.options.selectionInterface,
-    }),
-    {
-      replaceElement: true,
-    }
+      new RemoveAttributeView({
+        model: new DropdownModel(),
+        selectionInterface: this.options.selectionInterface,
+      }),
+      {
+        replaceElement: true,
+      }
     )
     this.editorRearrange.show(
       new AttributesRearrangeView({
