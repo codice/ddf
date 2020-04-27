@@ -86,6 +86,7 @@ module.exports = Marionette.LayoutView.extend({
       this.setDefaultModel()
     }
     this.handleTypes()
+    this.handleSummary()
     this.attributesAdded = new Backbone.Collection([])
     this.attributesRemoved = new Backbone.Collection([])
     this.attributesMocked = new Backbone.Collection([])
@@ -140,6 +141,9 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-remote', types.remote !== undefined)
     this.$el.toggleClass('is-owner', isOwner)
   },
+  handleSummary() {
+    this.$el.toggleClass('is-summary', this.options.summary)
+  },
   getEditorActionsOptions() {
     return {
       summary: true,
@@ -168,6 +172,7 @@ module.exports = Marionette.LayoutView.extend({
       new AttributesRearrangeView({
         model: new DropdownModel(),
         selectionInterface: this.options.selectionInterface,
+        summary: this.getEditorActionsOptions().summary,
       }),
       {
         replaceElement: true,
