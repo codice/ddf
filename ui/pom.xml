@@ -23,6 +23,7 @@
     </parent>
     <groupId>org.codice.ddf</groupId>
     <artifactId>ui</artifactId>
+    <version>3.0.0</version>
     <name>DDF :: UI</name>
     <packaging>bundle</packaging>
     <properties>
