@@ -193,12 +193,12 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.listenTo(
       this.editorAdd.currentView.model,
-      'change:attributesToAdd',
+      'change:value',
       this.handleAttributeAdd
     )
     this.listenTo(
       this.editorRemove.currentView.model,
-      'change:attributesToRemove',
+      'change:value',
       this.handleAttributeRemove
     )
   },
@@ -237,7 +237,7 @@ module.exports = Marionette.LayoutView.extend({
   handleAttributeRemove() {
     sync(
       this.attributesRemoved,
-      this.editorRemove.currentView.model.get('attributesToRemove')[0]
+      this.editorRemove.currentView.model.get('value')[0]
     )
     const newAttributes = this.editorProperties.currentView.addProperties(
       this.attributesRemoved.pluck('id')
@@ -271,7 +271,7 @@ module.exports = Marionette.LayoutView.extend({
   handleAttributeAdd() {
     const difference = sync(
       this.attributesAdded,
-      this.editorAdd.currentView.model.get('attributesToAdd')[0]
+      this.editorAdd.currentView.model.get('value')[0]
     )
     this.editorProperties.currentView.addProperties(
       this.attributesAdded.pluck('id')
