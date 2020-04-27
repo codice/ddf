@@ -75,6 +75,31 @@ public class SolrProviderSpatial {
   }
 
   @Test
+  public void testSpatialOutOfBoundsSortingGeoCenterPoint() throws Exception {
+    deleteAll(provider);
+
+    MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+    metacard1.setLocation("POINT (-180.00000000000003 76.50325000000001)");
+
+    MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
+    metacard2.setTitle("Tampa");
+    metacard2.setLocation("POINT (-180 76.50321)");
+
+    List<Metacard> list = Arrays.asList(metacard1, metacard2);
+
+    create(list, provider);
+    QueryImpl query = pointRadius(-180.0, 76.50329, 20.0);
+    SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
+
+    assertThat("Failed to find the two records.", sourceResponse.getResults().size(), is(2));
+
+    assertThat(
+        "Failed to properly sort the two records.",
+        sourceResponse.getResults().get(0).getMetacard().getTitle(),
+        is(metacard1.getTitle()));
+  }
+
+  @Test
   public void testSpatialPointRadius() throws Exception {
 
     deleteAll(provider);
