@@ -59,7 +59,7 @@ export const handleRemoveSharedMetacard = async (id: number) => {
 
   const individuals = security
     .getIndividuals()
-    .filter(e => e.value !== user.getEmail())
+    .filter(e => e.value !== user.getUserId())
 
   const attributes = [
     {

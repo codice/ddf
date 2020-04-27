@@ -67,7 +67,7 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     return user.canShare(this.props.workspace)
   }
   isShared = () => {
-    return this.props.workspace.get('metacard.owner') !== user.getEmail()
+    return this.props.workspace.get('metacard.owner') !== user.getUserId()
   }
   hasGroupAccess = () => {
     return user.hasGroupAccess(this.props.workspace)

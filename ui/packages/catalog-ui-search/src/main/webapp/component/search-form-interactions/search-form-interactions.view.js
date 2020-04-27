@@ -143,7 +143,8 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
     this.$el.toggleClass(
       'is-not-shared-template',
       this.model.get('createdBy') === 'system' ||
-        this.model.get('createdBy') === user.getEmail()
+        this.model.get('createdBy') === user.getUserId() ||
+        user.hasGroupAccess(this.model)
     )
     this.$el.toggleClass(
       'is-group-shared-template',
