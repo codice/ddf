@@ -272,8 +272,9 @@ public class SortedQueryMonitorTest {
     List<String> errorFromMalformedQuery =
         Collections.singletonList("We do not support this query.");
 
+    final Exception exception = new Exception("test exception");
     ProcessingDetails processingDetailsForMalformedQuery =
-        new ProcessingDetailsImpl(idOfTestSource, null, errorFromMalformedQuery);
+        new ProcessingDetailsImpl(idOfTestSource, exception, errorFromMalformedQuery);
     processingDetailsOfMockedSourceResponse.add(processingDetailsForMalformedQuery);
 
     List<String> nonspecificError = Collections.singletonList("Something went wrong.");
@@ -308,6 +309,9 @@ public class SortedQueryMonitorTest {
     assertThat(queryResponse.getProcessingDetails())
         .extracting(byName("warnings"))
         .containsOnly(errorFromMalformedQuery, nonspecificError);
+    assertThat(queryResponse.getProcessingDetails())
+        .extracting(byName("exception"))
+        .contains(exception);
   }
 
   @Test
