@@ -23,6 +23,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,16 +76,35 @@ public class ClientInfoFilter implements Filter {
     }
   }
 
-  private Map<String, String> createClientInfoMap(ServletRequest request) {
+  private Map<String, String> createClientInfoMap(ServletRequest servletRequest) {
     Map<String, String> clientInfoMap = new HashMap<>();
-    clientInfoMap.put(SERVLET_REMOTE_ADDR, request.getRemoteAddr());
-    clientInfoMap.put(SERVLET_REMOTE_HOST, request.getRemoteHost());
-    clientInfoMap.put(SERVLET_SCHEME, request.getScheme());
-    ServletContext servletContext = request.getServletContext();
+    clientInfoMap.put(SERVLET_REMOTE_ADDR, servletRequest.getRemoteAddr());
+    clientInfoMap.put(SERVLET_REMOTE_HOST, servletRequest.getRemoteHost());
+    clientInfoMap.put(SERVLET_SCHEME, servletRequest.getScheme());
+    ServletContext servletContext = servletRequest.getServletContext();
     if (servletContext != null) {
       clientInfoMap.put(SERVLET_CONTEXT_PATH, servletContext.getContextPath());
     }
+
+    if (servletRequest instanceof HttpServletRequest) {
+      HttpServletRequest request = (HttpServletRequest) servletRequest;
+      addIfPresent(clientInfoMap, "Forwarded", request);
+      addIfPresent(clientInfoMap, "X-Forwarded-For", request);
+      addIfPresent(clientInfoMap, "X-Forwarded-Host", request);
+      addIfPresent(clientInfoMap, "X-Forwarded-Port", request);
+      addIfPresent(clientInfoMap, "X-Forwarded-Proto", request);
+      addIfPresent(clientInfoMap, "X-Forwarded-Prefix", request);
+      addIfPresent(clientInfoMap, "X-Forwarded-Ssl", request);
+    }
     LOGGER.debug("Creating client info map with the following pairs, {}", clientInfoMap);
     return clientInfoMap;
+  }
+
+  private void addIfPresent(
+      Map<String, String> clientInfoMap, String headerKey, HttpServletRequest request) {
+    String value = request.getHeader(headerKey);
+    if (value != null) {
+      clientInfoMap.put(headerKey, value);
+    }
   }
 }
