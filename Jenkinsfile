@@ -48,10 +48,10 @@ pipeline {
         // Use the pomfix tool to validate that bundle dependencies are properly declared
         stage('Validate Poms') {
             steps {
+                retry(3) {
+                    checkout scm
+                }
                 timeout(time: 20, unit: 'MINUTES') {
-                    retry(3) {
-                        checkout scm
-                    }
                     withMaven(maven: 'M3', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LINUX_MVN_RANDOM}') {
                         sh 'mvn clean install -DskipStatic=true -DskipTests=true -B -pl $POMFIX $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                     }
