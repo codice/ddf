@@ -1198,8 +1198,6 @@
         </pluginRepository>
     </pluginRepositories>
     <modules>
-        <!-- TODO move all code to Admin-UI repo -->
-        <!-- <module>ui</module> -->
         <module>gitsetup</module>
         <module>thirdparty</module>
         <module>libs</module>
