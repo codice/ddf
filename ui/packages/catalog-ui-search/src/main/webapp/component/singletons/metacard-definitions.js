@@ -26,9 +26,15 @@ function transformEnumResponse(metacardTypes, response) {
         case 'DATE':
           result[key] = value.map(subval => {
             if (subval) {
-              return moment(subval).toISOString()
+              return {
+                label: moment(subval).toISOString(),
+                value: moment(subval).toISOString(),
+              }
             }
-            return subval
+            return {
+              label: subval,
+              value: subval,
+            }
           })
           break
         case 'LONG':
@@ -38,10 +44,16 @@ function transformEnumResponse(metacardTypes, response) {
         case 'SHORT': //needed until enum response correctly returns numbers as numbers
           result[key] = value.map((
             subval //handle cases of unnecessary number padding -> 22.0000
-          ) => Number(subval))
+          ) => ({
+            label: Number(subval.label),
+            value: Number(subval.value),
+          }))
           break
         default:
-          result[key] = value
+          result[key] = value.map(subval => ({
+            label: subval.label,
+            value: subval.value,
+          }))
           break
       }
       return result

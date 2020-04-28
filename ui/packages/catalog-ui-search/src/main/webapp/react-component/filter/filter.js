@@ -131,14 +131,14 @@ class Filter extends React.Component {
     let suggestions = []
     if (metacardDefinitions.enums[attribute]) {
       suggestions = metacardDefinitions.enums[attribute].map(suggestion => {
-        return { label: suggestion, value: suggestion }
+        return { label: suggestion.label, value: suggestion.value }
       })
     } else if (this.props.suggester) {
       suggestions = (await this.props.suggester(
         metacardDefinitions.metacardTypes[attribute]
       )).map(suggestion => ({
-        label: suggestion,
-        value: suggestion,
+        label: suggestion.label,
+        value: suggestion.value,
       }))
     }
 

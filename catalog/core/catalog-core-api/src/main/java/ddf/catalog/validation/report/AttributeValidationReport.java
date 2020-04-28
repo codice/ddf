@@ -14,6 +14,7 @@
 package ddf.catalog.validation.report;
 
 import ddf.catalog.validation.violation.ValidationViolation;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -39,5 +40,5 @@ public interface AttributeValidationReport {
    *
    * @return the set of suggested values or an empty set if there are none
    */
-  Set<String> getSuggestedValues();
+  Set<Map<String, String>> getSuggestedValues();
 }

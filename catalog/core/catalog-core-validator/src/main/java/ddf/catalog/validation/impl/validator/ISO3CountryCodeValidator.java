@@ -16,16 +16,18 @@ package ddf.catalog.validation.impl.validator;
 import com.google.common.base.Preconditions;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.validation.AttributeValidator;
-import ddf.catalog.validation.impl.report.AttributeValidationReportImpl;
+import ddf.catalog.validation.impl.report.CountryCodeValidationReportImpl;
 import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
 import ddf.catalog.validation.report.AttributeValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.codice.countrycode.standard.CountryCode;
 import org.codice.countrycode.standard.StandardProvider;
 import org.codice.countrycode.standard.StandardRegistryImpl;
 
@@ -40,7 +42,7 @@ public class ISO3CountryCodeValidator implements AttributeValidator {
 
   private final boolean ignoreCase;
 
-  private final Set<String> countryCodes;
+  private final Map<String, String> countryCodes;
 
   public ISO3CountryCodeValidator(final boolean ignoreCase) {
     this.ignoreCase = ignoreCase;
@@ -57,8 +59,12 @@ public class ISO3CountryCodeValidator implements AttributeValidator {
         standardProvider
             .getStandardEntries()
             .stream()
-            .map(cc -> cc.getAsFormat("alpha3"))
-            .collect(Collectors.toSet());
+            .collect(
+                Collectors.toMap(
+                    cc -> cc.getAsFormat("alpha3"),
+                    CountryCode::getName,
+                    (cc1, cc2) -> cc1,
+                    TreeMap::new));
   }
 
   /**
@@ -78,7 +84,7 @@ public class ISO3CountryCodeValidator implements AttributeValidator {
   }
 
   private AttributeValidationReport buildReport(Attribute attribute) {
-    AttributeValidationReportImpl report = new AttributeValidationReportImpl();
+    CountryCodeValidationReportImpl report = new CountryCodeValidationReportImpl();
 
     attribute
         .getValues()
@@ -86,7 +92,7 @@ public class ISO3CountryCodeValidator implements AttributeValidator {
         .filter(String.class::isInstance)
         .map(String.class::cast)
         .map(ignoreCase ? String::toUpperCase : String::toString)
-        .filter(s -> !countryCodes.contains(s))
+        .filter(s -> !countryCodes.containsKey(s))
         .map(
             s ->
                 new ValidationViolationImpl(

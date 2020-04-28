@@ -22,6 +22,7 @@ import ddf.catalog.validation.violation.ValidationViolation;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
@@ -84,7 +85,7 @@ public class MatchAnyValidator implements AttributeValidator {
 
       Set<ValidationViolation> validationViolations =
           attributeValidationReport.getAttributeValidationViolations();
-      Set<String> suggestedValues = attributeValidationReport.getSuggestedValues();
+      Set<Map<String, String>> suggestedValues = attributeValidationReport.getSuggestedValues();
 
       result.addViolations(validationViolations);
 

@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class AttributeValidationReportImpl implements AttributeValidationReport {
+public class CountryCodeValidationReportImpl implements AttributeValidationReport {
   private final Set<ValidationViolation> attributeValidationViolations = new HashSet<>();
 
   private final Set<Map<String, String>> suggestedValues = new HashSet<>();
@@ -58,27 +58,13 @@ public class AttributeValidationReportImpl implements AttributeValidationReport 
    * @param value a suggested attribute value to add to the report
    * @throws IllegalArgumentException if {@code value} is null
    */
-  public void addSuggestedValue(final String label, final String value) {
-    Preconditions.checkArgument(value != null, "The suggested value cannot be null.");
+  public void addSuggestedValue(final String countryCode, final String countryName) {
+    Preconditions.checkArgument(countryCode != null, "The suggested countryCode cannot be null.");
+    Preconditions.checkArgument(countryName != null, "The suggested countryName cannot be null.");
 
     Map<String, String> suggestedValue = new HashMap<>();
-    suggestedValue.put("label", label);
-    suggestedValue.put("value", value);
-    suggestedValues.add(suggestedValue);
-  }
-
-  /**
-   * Adds a suggested attribute value to the report.
-   *
-   * @param value a suggested attribute value to add to the report
-   * @throws IllegalArgumentException if {@code value} is null
-   */
-  public void addSuggestedValue(final String value) {
-    Preconditions.checkArgument(value != null, "The suggested value cannot be null.");
-
-    Map<String, String> suggestedValue = new HashMap<>();
-    suggestedValue.put("label", value);
-    suggestedValue.put("value", value);
+    suggestedValue.put("label", countryCode + " (" + countryName + ")");
+    suggestedValue.put("value", countryCode);
     suggestedValues.add(suggestedValue);
   }
 
