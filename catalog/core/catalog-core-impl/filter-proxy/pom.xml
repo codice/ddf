@@ -46,11 +46,6 @@
             <artifactId>measure-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>geotools-suite</artifactId>
-            <version>${org.geotools.bundle.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
         </dependency>
