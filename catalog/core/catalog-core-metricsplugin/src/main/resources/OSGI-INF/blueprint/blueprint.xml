@@ -12,139 +12,20 @@
  **/
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    
-    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+
+  <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+  <reference id="meterRegistryService"
+    interface="org.codice.ddf.lib.metrics.registry.MeterRegistryService" availability="mandatory"/>
 
 
-	<bean id="catalogMetrics" class="ddf.catalog.metrics.CatalogMetrics">
-        <argument ref="filterAdapter"/>
-    </bean>
+  <bean id="catalogMetrics" class="ddf.catalog.metrics.CatalogMetrics">
+    <argument ref="filterAdapter"/>
+    <argument ref="meterRegistryService"/>
+  </bean>
 
-    <service ref="catalogMetrics" interface="ddf.catalog.plugin.PreQueryPlugin"/>
-	<service ref="catalogMetrics" interface="ddf.catalog.plugin.PostQueryPlugin"/>
-    <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostIngestPlugin"/>
-    <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostResourcePlugin"/>
+  <service ref="catalogMetrics" interface="ddf.catalog.plugin.PreQueryPlugin"/>
+  <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostQueryPlugin"/>
+  <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostIngestPlugin"/>
+  <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostResourcePlugin"/>
 
-
-    <!--
-    JMX Collectors for the catalog metrics. They are created by blueprint but never
-    referenced by the catalog-core-metricsplugin. They just need to be instantiated and
-    then they run in their own thread polling their respective JMX MBeans. When DDF is
-    shutdown, blueprint will destroy them. 
-    -->
-    <bean id="catalogExceptionsMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Exceptions"/>
-        <argument value="Count"/>
-        <argument value="catalogExceptions"/>
-    </bean>
-    
-    <bean id="catalogExceptionsFederationMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Exceptions.Federation"/>
-        <argument value="Count"/>
-        <argument value="catalogExceptionsFederation"/>
-    </bean>
-    
-    <bean id="catalogExceptionsSourceUnavailableMetric"
-          class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Exceptions.SourceUnavailable"/>
-        <argument value="Count"/>
-        <argument value="catalogExceptionsSourceUnavailable"/>
-    </bean>
-        
-    <bean id="catalogExceptionsUnsupportedQueryMetric"
-          class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Exceptions.UnsupportedQuery"/>
-        <argument value="Count"/>
-        <argument value="catalogExceptionsUnsupportedQuery"/>
-    </bean>
-            
-    <bean id="catalogQueriesMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Queries"/>
-        <argument value="Count"/>
-        <argument value="catalogQueries"/>
-    </bean>
-               
-    <bean id="catalogQueriesFederatedMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Queries.Federated"/>
-        <argument value="Count"/>
-        <argument value="catalogQueriesFederated"/>
-    </bean>
-                   
-    <bean id="catalogQueriesComparisonMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Queries.Comparison"/>
-        <argument value="Count"/>
-        <argument value="catalogQueriesComparison"/>
-    </bean>
-                      
-    <bean id="catalogQueriesFuzzyMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Queries.Fuzzy"/>
-        <argument value="Count"/>
-        <argument value="catalogQueriesFuzzy"/>
-    </bean>
-                         
-    <bean id="catalogQueriesTemporalMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Queries.Temporal"/>
-        <argument value="Count"/>
-        <argument value="catalogQueriesTemporal"/>
-    </bean>
-                             
-    <bean id="catalogQueriesSpatialMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Queries.Spatial"/>
-        <argument value="Count"/>
-        <argument value="catalogQueriesSpatial"/>
-    </bean>
-    
-    <bean id="catalogQueriesXpathMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Queries.Xpath"/>
-        <argument value="Count"/>
-        <argument value="catalogQueriesXpath"/>
-    </bean>
-        
-    <bean id="catalogQueriesTotalResultsMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Queries.TotalResults"/>
-        <argument value="Mean"/>
-        <argument value="catalogQueriesTotalResults"/>
-        <argument value="GAUGE"/>
-    </bean>
-    
-    <bean id="catalogIngestCreatedMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Ingest.Created"/>
-        <argument value="Count"/>
-        <argument value="catalogIngestCreated"/>
-    </bean>
-        
-    <bean id="catalogIngestUpdatedMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Ingest.Updated"/>
-        <argument value="Count"/>
-        <argument value="catalogIngestUpdated"/>
-    </bean>
-        
-    <bean id="catalogIngestDeletedMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Ingest.Deleted"/>
-        <argument value="Count"/>
-        <argument value="catalogIngestDeleted"/>
-    </bean>
-            
-    <bean id="catalogResourceRetrievalMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.catalog:name=Resource"/>
-        <argument value="Count"/>
-        <argument value="catalogResourceRetrieval"/>
-    </bean>
-    
 </blueprint>

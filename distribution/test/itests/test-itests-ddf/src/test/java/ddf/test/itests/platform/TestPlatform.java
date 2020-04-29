@@ -43,8 +43,8 @@ public class TestPlatform extends AbstractIntegrationTest {
           HTTPS_PORT,
           "/admin/jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents");
 
-  private static final DynamicUrl REPORT_GENERATION_URL =
-      new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT, "/services/internal/metrics/report.xls");
+  private static final DynamicUrl METRICS_ENDPOINT_URL =
+      new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT, "/services/metrics");
 
   public static final String ADMIN = "admin";
 
@@ -94,7 +94,7 @@ public class TestPlatform extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testPlatformMetricsReportGeneration() throws Exception {
+  public void testPlatformMetricsEndpoint() throws Exception {
     try {
       getSecurityPolicy().configureRestForBasic();
 
@@ -104,13 +104,13 @@ public class TestPlatform extends AbstractIntegrationTest {
               .preemptive()
               .basic(ADMIN, ADMIN)
               .header("X-Requested-With", "XMLHttpRequest")
-              .header("Origin", REPORT_GENERATION_URL.getUrl())
+              .header("Origin", METRICS_ENDPOINT_URL.getUrl())
               .expect()
               .statusCode(200)
               .when()
-              .get(REPORT_GENERATION_URL.getUrl());
+              .get(METRICS_ENDPOINT_URL.getUrl());
 
-      checkResponseBody(response, REPORT_GENERATION_URL);
+      checkResponseBody(response, METRICS_ENDPOINT_URL);
 
     } finally {
       getSecurityPolicy().configureRestForGuest();

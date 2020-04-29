@@ -41,5 +41,6 @@
         <module>alerts</module>
         <module>test-common</module>
         <module>bundles</module>
+        <module>metrics</module>
     </modules>
 </project>

@@ -8,18 +8,10 @@ The ${branding} contains many tools to monitor system functionality, usage, and 
 
 ==== Metrics Reporting
 
-Metrics are available in several formats and levels of detail.
+Metrics are exposed over a Prometheus endpoint at `/services/metrics`. In order to extract and store
+the metrics, a Prometheus server is required.
 
-Complete the following procedure now that several queries have been executed.
-
-. Select *${ddf-platform}*
-. Select *Metrics* tab
-. For individual metrics, choose the format desired from the desired timeframe column:
-.. PNG
-.. CSV
-.. XLS
-. For a detailed report of all metrics, at the bottom of the page are selectors to choose time frame and summary level.
-A report is generated in _xls_ format.
+A user interface like Grafana can be used to display metrics.
 
 ==== Managing Logging
 

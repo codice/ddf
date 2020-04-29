@@ -13,11 +13,6 @@
  */
 package ddf.catalog.metrics;
 
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SlidingTimeWindowReservoir;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateResponse;
@@ -36,11 +31,15 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.Requests;
-import java.util.Iterator;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.codice.ddf.configuration.SystemInfo;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 
 /**
  * Catalog plug-in to capture metrics on catalog operations.
@@ -50,94 +49,41 @@ import org.codice.ddf.configuration.SystemInfo;
 public final class CatalogMetrics
     implements PreQueryPlugin, PostQueryPlugin, PostIngestPlugin, PostResourcePlugin {
 
-  protected static final String EXCEPTIONS_SCOPE = "Exceptions";
+  protected static final String METRIC_PREFIX = "ddf.catalog";
 
-  protected static final String QUERIES_SCOPE = "Queries";
+  protected static final String EXCEPTIONS_SCOPE = "exceptions";
 
-  protected static final String INGEST_SCOPE = "Ingest";
+  protected static final String QUERIES_SCOPE = "queries";
 
-  protected static final String RESOURCE_SCOPE = "Resource";
+  protected static final String INGEST_SCOPE = "ingest";
 
-  protected final MetricRegistry metrics = new MetricRegistry();
+  protected static final String RESOURCE_SCOPE = "resource";
 
-  protected final JmxReporter reporter =
-      JmxReporter.forRegistry(metrics).inDomain("ddf.metrics.catalog").build();
+  protected final MeterRegistry meterRegistry;
 
-  protected final Histogram resultCount;
+  protected final DistributionSummary resultCount;
 
-  protected final Meter exceptions;
-
-  protected final Meter unsupportedQueryExceptions;
-
-  protected final Meter sourceUnavailableExceptions;
-
-  protected final Meter federationExceptions;
-
-  protected final Meter queries;
-
-  protected final Meter federatedQueries;
-
-  protected final Meter comparisonQueries;
-
-  protected final Meter spatialQueries;
-
-  protected final Meter xpathQueries;
-
-  protected final Meter fuzzyQueries;
-
-  protected final Meter functionQueries;
-
-  protected final Meter temporalQueries;
-
-  protected final Meter createdMetacards;
-
-  protected final Meter updatedMetacards;
-
-  protected final Meter deletedMetacards;
-
-  protected final Meter resourceRetrival;
+  protected final Counter resourceRetrival;
 
   private final FilterAdapter filterAdapter;
 
-  public CatalogMetrics(FilterAdapter filterAdapter) {
+  public CatalogMetrics(
+      @NotNull FilterAdapter filterAdapter, @NotNull MeterRegistryService meterRegistryService) {
+    Validate.notNull(filterAdapter, "Argument filterAdapter cannot be null");
+    Validate.notNull(meterRegistryService, "Argument meterRegistryService cannot be null");
 
     this.filterAdapter = filterAdapter;
+    meterRegistry = meterRegistryService.getMeterRegistry();
 
-    resultCount =
-        metrics.register(
-            MetricRegistry.name(QUERIES_SCOPE, "TotalResults"),
-            new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
-
-    queries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE));
-    federatedQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Federated"));
-    comparisonQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Comparison"));
-    spatialQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Spatial"));
-    xpathQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Xpath"));
-    fuzzyQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Fuzzy"));
-    temporalQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Temporal"));
-    functionQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Function"));
-
-    exceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE));
-    unsupportedQueryExceptions =
-        metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "UnsupportedQuery"));
-    sourceUnavailableExceptions =
-        metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "SourceUnavailable"));
-    federationExceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "Federation"));
-
-    createdMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Created"));
-    updatedMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Updated"));
-    deletedMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Deleted"));
-
-    resourceRetrival = metrics.meter(MetricRegistry.name(RESOURCE_SCOPE));
-
-    reporter.start();
+    resultCount = meterRegistry.summary(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "totalresults");
+    resourceRetrival = meterRegistry.counter(METRIC_PREFIX + "." + RESOURCE_SCOPE);
   }
 
   // PostQuery
   @Override
   public QueryResponse process(QueryResponse input)
       throws PluginExecutionException, StopProcessingException {
-    resultCount.update(input.getHits());
+    resultCount.record(input.getHits());
     recordSourceQueryExceptions(input);
 
     return input;
@@ -147,44 +93,78 @@ public final class CatalogMetrics
   @Override
   public QueryRequest process(QueryRequest input)
       throws PluginExecutionException, StopProcessingException {
-    if (isFederated(input)) {
-      federatedQueries.mark();
-    }
-    queries.mark();
-
+    final String scope = getQueryScope(input);
     QueryTypeFilterDelegate queryType = new QueryTypeFilterDelegate();
-    try {
-      filterAdapter.adapt(input.getQuery(), queryType);
-      if (queryType.isComparison()) {
-        comparisonQueries.mark();
+    Set<String> sourceIds = input.getSourceIds();
+    if (sourceIds != null) {
+      try {
+        filterAdapter.adapt(input.getQuery(), queryType);
+        if (queryType.isComparison()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "comparison", scope));
+        }
+        if (queryType.isSpatial()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "spatial", scope));
+        }
+        if (queryType.isFuzzy()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "fuzzy", scope));
+        }
+        if (queryType.isXpath()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "xpath", scope));
+        }
+        if (queryType.isTemporal()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "temporal", scope));
+        }
+        if (queryType.isFunction()) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "function", scope));
+        }
+        if (isNone(queryType)) {
+          sourceIds.forEach(sourceId -> pegQueryCounter(sourceId, "none", scope));
+        }
+      } catch (UnsupportedQueryException e) {
+        // ignore filters not supported by the QueryTypeFilterDelegate
       }
-      if (queryType.isSpatial()) {
-        spatialQueries.mark();
-      }
-      if (queryType.isFuzzy()) {
-        fuzzyQueries.mark();
-      }
-      if (queryType.isXpath()) {
-        xpathQueries.mark();
-      }
-      if (queryType.isTemporal()) {
-        temporalQueries.mark();
-      }
-      if (queryType.isFunction()) {
-        functionQueries.mark();
-      }
-    } catch (UnsupportedQueryException e) {
-      // ignore filters not supported by the QueryTypeFilterDelegate
     }
 
     return input;
+  }
+
+  private String getQueryScope(QueryRequest input) {
+    if (isFederated(input)) {
+      return "federated";
+    } else {
+      return "local";
+    }
+  }
+
+  private void pegQueryCounter(String sourceId, String queryType, String scope) {
+    meterRegistry
+        .counter(
+            METRIC_PREFIX + "." + QUERIES_SCOPE,
+            "type",
+            queryType,
+            "sourceId",
+            sourceId,
+            "scope",
+            scope)
+        .increment();
+  }
+
+  private boolean isNone(QueryTypeFilterDelegate queryType) {
+    return !(queryType.isComparison()
+        || queryType.isSpatial()
+        || queryType.isFuzzy()
+        || queryType.isXpath()
+        || queryType.isTemporal()
+        || queryType.isFunction());
   }
 
   // PostCreate
   @Override
   public CreateResponse process(CreateResponse input) throws PluginExecutionException {
     if (Requests.isLocal(input.getRequest())) {
-      createdMetacards.mark(input.getCreatedMetacards().size());
+      meterRegistry
+          .counter(METRIC_PREFIX + "." + INGEST_SCOPE, "type", "create")
+          .increment(input.getCreatedMetacards().size());
     }
     return input;
   }
@@ -193,7 +173,9 @@ public final class CatalogMetrics
   @Override
   public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
     if (Requests.isLocal(input.getRequest())) {
-      updatedMetacards.mark(input.getUpdatedMetacards().size());
+      meterRegistry
+          .counter(METRIC_PREFIX + "." + INGEST_SCOPE, "type", "update")
+          .increment(input.getUpdatedMetacards().size());
     }
     return input;
   }
@@ -202,7 +184,9 @@ public final class CatalogMetrics
   @Override
   public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
     if (Requests.isLocal(input.getRequest())) {
-      deletedMetacards.mark(input.getDeletedMetacards().size());
+      meterRegistry
+          .counter(METRIC_PREFIX + "." + INGEST_SCOPE, "type", "delete")
+          .increment(input.getDeletedMetacards().size());
     }
     return input;
   }
@@ -211,34 +195,58 @@ public final class CatalogMetrics
   @Override
   public ResourceResponse process(ResourceResponse input)
       throws PluginExecutionException, StopProcessingException {
-    resourceRetrival.mark();
+    resourceRetrival.increment();
     return input;
   }
 
   private void recordSourceQueryExceptions(QueryResponse response) {
-    Set<ProcessingDetails> processingDetails =
-        (Set<ProcessingDetails>) response.getProcessingDetails();
+    Set<ProcessingDetails> processingDetails = response.getProcessingDetails();
 
-    if (processingDetails == null || processingDetails.iterator() == null) {
+    if (processingDetails == null) {
       return;
     }
 
-    Iterator<ProcessingDetails> iterator = processingDetails.iterator();
-    while (iterator.hasNext()) {
-      ProcessingDetails next = iterator.next();
+    for (ProcessingDetails next : processingDetails) {
       if (next != null && next.getException() != null) {
         if (next.getException() instanceof UnsupportedQueryException) {
-          unsupportedQueryExceptions.mark();
+          meterRegistry
+              .counter(
+                  METRIC_PREFIX + "." + EXCEPTIONS_SCOPE,
+                  "type",
+                  "unsupportedquery",
+                  "sourceId",
+                  next.getSourceId())
+              .increment();
         } else if (next.getException() instanceof SourceUnavailableException) {
-          sourceUnavailableExceptions.mark();
+          meterRegistry
+              .counter(
+                  METRIC_PREFIX + "." + EXCEPTIONS_SCOPE,
+                  "type",
+                  "sourceunavailable",
+                  "sourceId",
+                  next.getSourceId())
+              .increment();
         } else if (next.getException() instanceof FederationException) {
-          federationExceptions.mark();
+          meterRegistry
+              .counter(
+                  METRIC_PREFIX + "." + EXCEPTIONS_SCOPE,
+                  "type",
+                  "federation",
+                  "sourceId",
+                  next.getSourceId())
+              .increment();
+        } else {
+          meterRegistry
+              .counter(
+                  METRIC_PREFIX + "." + EXCEPTIONS_SCOPE,
+                  "type",
+                  "unknown",
+                  "sourceId",
+                  next.getSourceId())
+              .increment();
         }
-        exceptions.mark();
       }
     }
-
-    return;
   }
 
   private boolean isFederated(QueryRequest queryRequest) {
