@@ -42,12 +42,10 @@ function sync(collection, array) {
 
 const Backbone = require('backbone')
 const Marionette = require('marionette')
-const _ = require('underscore')
 const template = require('./editor.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const DetailsFilterView = require('../dropdown/details-filter/dropdown.details-filter.view.js')
 const DropdownModel = require('../dropdown/dropdown.js')
-const PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
 const user = require('../singletons/user-instance.js')
 const properties = require('../../js/properties.js')
 const AddAttributeView = require('../dropdown/add-attribute/dropdown.add-attribute.view.js')
