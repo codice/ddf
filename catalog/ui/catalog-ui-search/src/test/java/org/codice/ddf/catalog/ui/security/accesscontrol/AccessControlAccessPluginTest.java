@@ -32,6 +32,8 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SubjectIdentity;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
@@ -58,6 +60,8 @@ public class AccessControlAccessPluginTest {
 
   private static final String RESOURCE_TAG = "resource";
 
+  private static final List<String> INTRIGUE_TAGS = new ArrayList<String>();
+
   private AccessPlugin accessPlugin;
 
   @Before
@@ -72,7 +76,7 @@ public class AccessControlAccessPluginTest {
     when(subjectIdentity.getUniqueIdentifier(subject)).thenReturn(user);
     ThreadContext.bind(subject);
 
-    accessPlugin = new AccessControlAccessPlugin(subjectIdentity);
+    accessPlugin = new AccessControlAccessPlugin(subjectIdentity, INTRIGUE_TAGS);
   }
 
   private UpdateRequest getUpdateRequest(String id, Metacard metacard) {

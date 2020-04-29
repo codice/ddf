@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.security.accesscontrol;
 
-import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
-import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
-import static org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants.WORKSPACE_TAG;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_ADMIN_HAS_CHANGED;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_GROUPS_HAS_CHANGED;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_GROUPS_READ_HAS_CHANGED;
@@ -66,8 +63,11 @@ public class AccessControlAccessPlugin implements AccessPlugin {
 
   private Supplier<String> subjectSupplier;
 
-  public AccessControlAccessPlugin(SubjectIdentity subjectIdentity) {
+  private List<String> intrigueTags;
+
+  public AccessControlAccessPlugin(SubjectIdentity subjectIdentity, List<String> intrigueTags) {
     this.subjectSupplier = () -> subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
+    this.intrigueTags = intrigueTags;
   }
 
   // Because embedding '!' in the following predicates might be easily overlooked
@@ -90,11 +90,18 @@ public class AccessControlAccessPlugin implements AccessPlugin {
                   .apply(newMetacard, Core.METACARD_OWNER)
                   .contains(subjectSupplier.get()));
 
-  private final Predicate<Metacard> hasIntrigueTag =
-      metacard ->
-          metacard.getTags().contains(WORKSPACE_TAG)
-              || metacard.getTags().contains(QUERY_TEMPLATE_TAG)
-              || metacard.getTags().contains(ATTRIBUTE_GROUP_TAG);
+  public void setIntrigueTags(List<String> intrigueTags) {
+    this.intrigueTags = intrigueTags;
+  }
+
+  private boolean hasIntrigueTag(Metacard metacard) {
+    for (String tag : intrigueTags) {
+      if (metacard.getTags().contains(tag)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   private boolean isAccessControlUpdated(Metacard prev, Metacard updated) {
     return !isAnyObjectNull(prev, updated)
@@ -151,7 +158,7 @@ public class AccessControlAccessPlugin implements AccessPlugin {
         existingMetacards
             .values()
             .stream()
-            .filter(hasIntrigueTag)
+            .filter(this::hasIntrigueTag)
             .collect(Collectors.toMap(Metacard::getId, Function.identity()));
 
     Function<Metacard, Metacard> oldMetacard =
