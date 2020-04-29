@@ -1,0 +1,26 @@
+:title: Prometheus Endpoint
+:type: endpoint
+:status: published
+:link: _prometheus_endpoint
+:operations: metrics
+:summary: Exposes a Prometheus endpoint of ${branding} metrics.
+:order: 10
+
+== {title}
+
+The Prometheus endpoint provides various metrics about ${branding} such as the number of queries made
+to a specific source and the amount of ingests.
+
+An external Prometheus server will need to be setup and configured to scrape from ${branding}. The
+endpoint is exposed at:
+
+.Prometheus URL
+[source,https]
+----
+https://<FQDN>:<PORT>/services/metrics
+----
+
+=== Visualising Metrics
+
+A visualization software, such as Grafana, can be connected to Prometheus and configured to display
+available metrics.
