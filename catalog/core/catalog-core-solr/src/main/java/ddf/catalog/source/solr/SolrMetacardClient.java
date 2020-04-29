@@ -13,6 +13,7 @@
  */
 package ddf.catalog.source.solr;
 
+import ddf.catalog.configuration.SearchCapabilityConfiguration;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
@@ -87,4 +88,12 @@ public interface SolrMetacardClient {
    * @throws SolrServerException if there is an error on the server
    */
   void deleteByQuery(String query) throws IOException, SolrServerException;
+
+  /**
+   * Sets the configuration to use for determining what search capabilities are enabled.
+   *
+   * @param searchCapabilityConfiguration The configuration to use for search capabilities
+   */
+  void setSearchCapabilityConfiguration(
+      SearchCapabilityConfiguration searchCapabilityConfiguration);
 }

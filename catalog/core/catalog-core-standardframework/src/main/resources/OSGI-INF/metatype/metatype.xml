@@ -36,6 +36,11 @@
             description="Enables versioning of both metacards and content."/>
     </OCD>
 
+    <OCD name="Search Capabilities" id="ddf.catalog.capability.SearchCapabilityConfiguration">
+        <AD name="Enable Result Highlighting" id="highlightingEnabled" type="Boolean" default="false"
+            description="Enables highlighting of result attributes that match query parameters"/>
+    </OCD>
+
     <OCD name="Status Source Poller Runner" id="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner">
         <AD name="Poll Interval (minutes)" id="pollIntervalMinutes" type="Integer" default="1" min="1"
             description="The interval (in minutes) at which to recheck the availability of all sources. Must be at least
@@ -76,6 +81,10 @@
 
     <Designate pid="ddf.catalog.history.Historian">
         <Object ocdref="ddf.catalog.history.Historian"/>
+    </Designate>
+
+    <Designate pid="ddf.catalog.capability.SearchCapabilityConfiguration">
+        <Object ocdref="ddf.catalog.capability.SearchCapabilityConfiguration"/>
     </Designate>
 
     <Designate pid="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner">

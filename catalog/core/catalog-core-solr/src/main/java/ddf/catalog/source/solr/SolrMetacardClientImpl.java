@@ -27,10 +27,9 @@ import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_CONTEXT_F
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_DICT;
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_Q;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import ddf.catalog.configuration.SearchCapabilityConfiguration;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.ContentType;
@@ -46,10 +45,14 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.FacetAttributeResult;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.ResultAttributeHighlight;
+import ddf.catalog.operation.ResultHighlight;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.TermFacetProperties;
 import ddf.catalog.operation.impl.FacetAttributeResultImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.operation.impl.ResultAttributeHighlightImpl;
+import ddf.catalog.operation.impl.ResultHighlightImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.measure.Distance;
@@ -142,7 +145,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private final DynamicSchemaResolver resolver;
 
-  private final ObjectMapper mapper;
+  private SearchCapabilityConfiguration searchCapabilityConfiguration;
 
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
@@ -171,11 +174,16 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     filterDelegateFactory = solrFilterDelegateFactory;
     filterAdapter = catalogFilterAdapter;
     resolver = dynamicSchemaResolver;
-    mapper = new ObjectMapper();
   }
 
   public SolrClient getClient() {
     return client;
+  }
+
+  @Override
+  public void setSearchCapabilityConfiguration(
+      SearchCapabilityConfiguration searchCapabilityConfiguration) {
+    this.searchCapabilityConfiguration = searchCapabilityConfiguration;
   }
 
   @Override
@@ -346,6 +354,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     Boolean userHighlight = false;
     if (request.getProperties().get(HIGHLIGHT_KEY) != null) {
       userHighlight = (Boolean) request.getProperties().get(HIGHLIGHT_KEY);
+    } else if (searchCapabilityConfiguration != null) {
+      userHighlight = searchCapabilityConfiguration.isHighlightingEnabled();
     }
     return userHighlight;
   }
@@ -366,7 +376,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     if (highlights == null) {
       return;
     }
-    Map<String, Map<String, Set<String>>> resultsHighlights = new HashMap<>();
+    List<ResultHighlight> resultsHighlights = new ArrayList<>();
     for (String metacardId : highlights.keySet()) {
 
       Map<String, List<String>> fieldHighlight = highlights.get(metacardId);
@@ -391,16 +401,18 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         }
       }
       if (!consolidated.isEmpty()) {
-        resultsHighlights.put(metacardId, consolidated);
+        List<ResultAttributeHighlight> attributeHighlights = new ArrayList<>();
+        for (Map.Entry<String, Set<String>> fieldEntry : consolidated.entrySet()) {
+          attributeHighlights.add(
+              new ResultAttributeHighlightImpl(
+                  fieldEntry.getKey(), new ArrayList<>(fieldEntry.getValue())));
+        }
+        resultsHighlights.add(new ResultHighlightImpl(metacardId, attributeHighlights));
       }
     }
 
     if (!resultsHighlights.isEmpty()) {
-      try {
-        responseProps.put(HIGHLIGHT_KEY, mapper.writeValueAsString(resultsHighlights));
-      } catch (JsonProcessingException jpe) {
-        LOGGER.debug("Unable to add highlight information to response", jpe);
-      }
+      responseProps.put(HIGHLIGHT_KEY, (Serializable) resultsHighlights);
     }
   }
 

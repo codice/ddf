@@ -13,6 +13,7 @@
  */
 package ddf.catalog.source.solr;
 
+import ddf.catalog.configuration.SearchCapabilityConfiguration;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
@@ -127,6 +128,11 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     solr.whenAvailable(this::addFieldsFromClientToResolver);
     this.client =
         new ProviderSolrMetacardClient(solrClient, adapter, solrFilterDelegateFactory, resolver);
+  }
+
+  public void setSearchCapabilityConfiguration(
+      SearchCapabilityConfiguration searchCapabilityConfiguration) {
+    client.setSearchCapabilityConfiguration(searchCapabilityConfiguration);
   }
 
   @Override
