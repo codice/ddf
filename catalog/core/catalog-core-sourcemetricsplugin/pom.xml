@@ -28,19 +28,6 @@
             <artifactId>catalog-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.metrics.collector</groupId>
-            <artifactId>metrics-collector</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.rrd4j</groupId>
-            <artifactId>rrd4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
@@ -48,6 +35,17 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.classic.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${micrometer.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -59,22 +57,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            metrics-core,
-                            metrics-collector,
-                            rrd4j;scope=compile|runtime;artifactId=!slf4j-api
-                        </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Import-Package><!-- START: imports specific for embedding rrd4j -->
-                            !com.mongodb*,
-                            !org.bson.conversions,
-                            !com.sleepycat.je,
-                            sun.misc;resolution:=optional,
-                            sun.nio.ch;resolution:=optional,
-                            com.sun.image.codec.jpeg;resolution:=optional,
-                            <!-- END: imports specific for embedding rrd4j -->
-                            *
-                        </Import-Package>
                         <Export-Package />
                     </instructions>
                 </configuration>
@@ -97,19 +80,18 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.74</minimum>
+                                            <minimum>0.99</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.54</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.54</minimum>
+                                            <minimum>0.80</minimum>
                                         </limit>
-                                        
                                     </limits>
                                 </rule>
                             </rules>

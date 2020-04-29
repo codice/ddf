@@ -121,6 +121,36 @@
         <bundle>mvn:ddf.platform/bootflag-api/${project.version}</bundle>
     </feature>
 
+    <feature name="metrics-micrometer" version="${project.version}" description="Micrometer core">
+        <bundle>mvn:org.codice.ddf.metrics/micrometer-bundle/${project.version}</bundle>
+    </feature>
+
+    <feature name="metrics-prometheus" version="${project.version}" description="Metrics Endpoint">
+        <feature>metrics-micrometer</feature>
+        <bundle>mvn:io.prometheus/simpleclient/${micrometer.prometheus-client.version}</bundle>
+        <bundle>mvn:io.prometheus/simpleclient_common/${micrometer.prometheus-client.version}</bundle>
+        <bundle>mvn:org.codice.ddf.metrics/micrometer-prometheus-bundle/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.metrics/metrics-prometheus-endpoint/${project.version}</bundle>
+    </feature>
+
+    <feature name="metrics-servlet-filter" version="${project.version}" description="Servlet metrics reporter">
+        <feature>pax-jetty</feature>
+        <feature>metrics-micrometer</feature>
+        <bundle>mvn:org.codice.ddf.metrics/metrics-servlet-filter/${project.version}</bundle>
+    </feature>
+
+    <feature name="metrics-system-reporter" version="${project.version}" description="System and JVM metrics reporter">
+        <feature>metrics-micrometer</feature>
+        <bundle>mvn:org.codice.ddf.metrics/metrics-system-reporter/${project.version}</bundle>
+    </feature>
+
+    <feature name="metrics-core" version="${project.version}" description="Core metric support">
+        <feature>metrics-micrometer</feature>
+        <feature>metrics-prometheus</feature>
+        <feature>metrics-servlet-filter</feature>
+        <feature>metrics-system-reporter</feature>
+    </feature>
+
     <!-- Start of app features -->
 
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>

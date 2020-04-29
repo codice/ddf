@@ -53,7 +53,10 @@ public class SecurityJavaSubjectFilter implements Filter {
         try {
           javax.security.auth.Subject.doAs(subject, action);
         } catch (PrivilegedActionException e) {
-          LOGGER.error("Could not attach java subject to thread for rest of filters.");
+          LOGGER.error("Could not attach Java subject to thread for rest of filters.");
+          LOGGER.debug(
+              "Encountered exception while attaching Java subject to thread for rest of filters.",
+              e);
         }
       }
     } else {

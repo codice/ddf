@@ -36,6 +36,7 @@
              description="Installs the platform boot features which all other applications depend upon.\nPlatform Core features installed by default include Actions, MIME, Security Logger, Error Pages, and UUID generator.">
         <feature>action-core-api</feature>
         <feature>action-core-impl</feature>
+        <feature>metrics-core</feature>
         <feature>mime-core</feature>
         <feature>mime-tika-resolver</feature>
         <feature>security-logger</feature>
@@ -80,8 +81,6 @@
         <feature>platform-configuration</feature>
         <feature>security-encryption</feature>
         <feature>security-core-api</feature>
-        <feature>metrics-reporting</feature>
-        <feature>metrics-services</feature>
         <feature>persistence-core</feature>
         <feature>io</feature>
         <feature>parser-xml</feature>

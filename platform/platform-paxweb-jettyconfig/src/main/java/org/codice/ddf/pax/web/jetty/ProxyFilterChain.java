@@ -15,65 +15,38 @@ package org.codice.ddf.pax.web.jetty;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.List;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import org.codice.ddf.platform.filter.AuthenticationException;
-import org.codice.ddf.platform.filter.FilterChain;
-import org.codice.ddf.platform.filter.SecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of filter chain that allows the ability to add new {@link SecurityFilter}s to a
- * chain. The {@link ProxyFilterChain} may not be reused. That is, once the {@link
- * ProxyFilterChain#doFilter} method is called, no more {@link SecurityFilter}s may be added.
+ * Implementation of filter chain that allows the ability to dynamically add new {@link Filter}s to
+ * a chain. The {@link ProxyFilterChain} may not be reused. That is, once the {@link
+ * ProxyFilterChain#doFilter} method is called, no more {@link Filter}s may be added.
  */
 public class ProxyFilterChain implements FilterChain {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProxyFilterChain.class);
 
-  private final LinkedList<SecurityFilter> filters;
+  private final Iterator<Filter> iterator;
 
-  private Iterator<SecurityFilter> iterator;
+  private final FilterChain chain;
 
-  /** Creates a new ProxyFilterChain */
-  public ProxyFilterChain() {
-    filters = new LinkedList<>();
-  }
-
-  /**
-   * Adds a single {@link SecurityFilter} to the start of the local filter chain.
-   *
-   * @param filter The servlet filter to add.
-   * @throws IllegalArgumentException when the {@param filer} is null
-   * @throws IllegalStateException when a trying to add a {@link Filter} to this when the {@link
-   *     ProxyFilterChain#doFilter} has been called at least once. This ensures that the {@link
-   *     ProxyFilterChain} may not be reused.
-   */
-  public void addSecurityFilter(SecurityFilter filter) {
-    if (filter == null) {
-      throw new IllegalArgumentException("Cannot add null filter to chain.");
-    }
-
-    // a null iterator indicates that the ProxyFilterChain is not yet running
-    if (iterator != null) {
-      throw new IllegalStateException("Cannot add filter to current running chain.");
-    }
-
-    filters.add(0, filter);
-    LOGGER.debug("Added filter {} to filter chain.", filter.getClass().getName());
+  public ProxyFilterChain(List<Filter> filters, FilterChain chain) {
+    iterator = filters.iterator();
+    this.chain = chain;
   }
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
-      throws IOException, AuthenticationException {
-    if (iterator == null) {
-      iterator = filters.iterator();
-    }
-
+      throws IOException, ServletException {
     if (iterator.hasNext()) {
-      SecurityFilter filter = iterator.next();
+      Filter filter = iterator.next();
       LOGGER.debug(
           "Calling filter {}.doFilter({}, {}, {})",
           filter.getClass().getName(),
@@ -81,6 +54,8 @@ public class ProxyFilterChain implements FilterChain {
           servletResponse,
           this);
       filter.doFilter(servletRequest, servletResponse, this);
+    } else {
+      chain.doFilter(servletRequest, servletResponse);
     }
   }
 }

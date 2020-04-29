@@ -111,6 +111,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>log-sanitizer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-logging</artifactId>
             <version>${project.version}</version>
@@ -157,6 +162,31 @@
             <artifactId>platform-io-internal-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.metrics</groupId>
+            <artifactId>micrometer-bundle</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.metrics</groupId>
+            <artifactId>micrometer-prometheus-bundle</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.metrics</groupId>
+            <artifactId>metrics-prometheus-endpoint</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.metrics</groupId>
+            <artifactId>metrics-servlet-filter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.metrics</groupId>
+            <artifactId>metrics-system-reporter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!--feature dependencies-->
         <dependency>
@@ -201,11 +231,6 @@
             <type>xml</type>
             <classifier>features</classifier>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>log-sanitizer</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

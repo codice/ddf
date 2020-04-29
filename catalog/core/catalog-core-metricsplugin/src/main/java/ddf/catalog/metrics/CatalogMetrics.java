@@ -13,191 +13,195 @@
  */
 package ddf.catalog.metrics;
 
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SlidingTimeWindowReservoir;
-import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.Request;
+import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.Response;
+import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.PostResourcePlugin;
+import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
+import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.impl.Requests;
-import java.util.Iterator;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.Metrics;
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.codice.ddf.configuration.SystemInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Catalog plug-in to capture metrics on catalog operations.
- *
- * @author Phillip Klinefelter
- */
+/** Catalog plug-in to capture metrics on catalog operations. */
 public final class CatalogMetrics
-    implements PreQueryPlugin, PostQueryPlugin, PostIngestPlugin, PostResourcePlugin {
+    implements PreQueryPlugin,
+        PostQueryPlugin,
+        PreIngestPlugin,
+        PostIngestPlugin,
+        PreResourcePlugin,
+        PostResourcePlugin {
 
-  protected static final String EXCEPTIONS_SCOPE = "Exceptions";
+  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogMetrics.class);
 
-  protected static final String QUERIES_SCOPE = "Queries";
+  private static final String METRIC_PREFIX = "ddf.catalog";
 
-  protected static final String INGEST_SCOPE = "Ingest";
+  private static final String EXCEPTIONS_SCOPE = "exceptions";
 
-  protected static final String RESOURCE_SCOPE = "Resource";
+  private static final String QUERY_SCOPE = "query";
 
-  protected final MetricRegistry metrics = new MetricRegistry();
+  private static final String CREATE_SCOPE = "create";
 
-  protected final JmxReporter reporter =
-      JmxReporter.forRegistry(metrics).inDomain("ddf.metrics.catalog").build();
+  private static final String UPDATE_SCOPE = "update";
 
-  protected final Histogram resultCount;
+  private static final String DELETE_SCOPE = "delete";
 
-  protected final Meter exceptions;
+  private static final String RESOURCE_SCOPE = "resource";
 
-  protected final Meter unsupportedQueryExceptions;
-
-  protected final Meter sourceUnavailableExceptions;
-
-  protected final Meter federationExceptions;
-
-  protected final Meter queries;
-
-  protected final Meter federatedQueries;
-
-  protected final Meter comparisonQueries;
-
-  protected final Meter spatialQueries;
-
-  protected final Meter fuzzyQueries;
-
-  protected final Meter functionQueries;
-
-  protected final Meter temporalQueries;
-
-  protected final Meter createdMetacards;
-
-  protected final Meter updatedMetacards;
-
-  protected final Meter deletedMetacards;
-
-  protected final Meter resourceRetrival;
+  private static final String METRICS_OPERATION_START = "metrics.catalog.operation.start";
 
   private final FilterAdapter filterAdapter;
 
+  private final DistributionSummary hits;
+
+  private final Counter createdMetacards;
+
+  private final Counter updatedMetacards;
+
+  private final Counter deletedMetacards;
+
   public CatalogMetrics(FilterAdapter filterAdapter) {
+    Validate.notNull(filterAdapter, "Argument filterAdapter cannot be null");
 
     this.filterAdapter = filterAdapter;
 
-    resultCount =
-        metrics.register(
-            MetricRegistry.name(QUERIES_SCOPE, "TotalResults"),
-            new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
-
-    queries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE));
-    federatedQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Federated"));
-    comparisonQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Comparison"));
-    spatialQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Spatial"));
-    fuzzyQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Fuzzy"));
-    temporalQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Temporal"));
-    functionQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Function"));
-
-    exceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE));
-    unsupportedQueryExceptions =
-        metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "UnsupportedQuery"));
-    sourceUnavailableExceptions =
-        metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "SourceUnavailable"));
-    federationExceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "Federation"));
-
-    createdMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Created"));
-    updatedMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Updated"));
-    deletedMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Deleted"));
-
-    resourceRetrival = metrics.meter(MetricRegistry.name(RESOURCE_SCOPE));
-
-    reporter.start();
-  }
-
-  // PostQuery
-  @Override
-  public QueryResponse process(QueryResponse input)
-      throws PluginExecutionException, StopProcessingException {
-    resultCount.update(input.getHits());
-    recordSourceQueryExceptions(input);
-
-    return input;
+    hits = Metrics.summary(metricName(METRIC_PREFIX, QUERY_SCOPE, "hits"));
+    createdMetacards = Metrics.counter(metricName(METRIC_PREFIX, CREATE_SCOPE));
+    updatedMetacards = Metrics.counter(metricName(METRIC_PREFIX, UPDATE_SCOPE));
+    deletedMetacards = Metrics.counter(metricName(METRIC_PREFIX, DELETE_SCOPE));
   }
 
   // PreQuery
   @Override
   public QueryRequest process(QueryRequest input)
       throws PluginExecutionException, StopProcessingException {
-    if (isFederated(input)) {
-      federatedQueries.mark();
-    }
-    queries.mark();
-
     QueryTypeFilterDelegate queryType = new QueryTypeFilterDelegate();
+
+    Set<String> sourceIds = getSourceIds(input);
+
     try {
       filterAdapter.adapt(input.getQuery(), queryType);
       if (queryType.isComparison()) {
-        comparisonQueries.mark();
+        sourceIds.forEach(sourceId -> incrementCounter(sourceId, "comparison"));
       }
       if (queryType.isSpatial()) {
-        spatialQueries.mark();
+        sourceIds.forEach(sourceId -> incrementCounter(sourceId, "spatial"));
       }
       if (queryType.isFuzzy()) {
-        fuzzyQueries.mark();
+        sourceIds.forEach(sourceId -> incrementCounter(sourceId, "fuzzy"));
       }
       if (queryType.isTemporal()) {
-        temporalQueries.mark();
+        sourceIds.forEach(sourceId -> incrementCounter(sourceId, "temporal"));
       }
       if (queryType.isFunction()) {
-        functionQueries.mark();
+        sourceIds.forEach(sourceId -> incrementCounter(sourceId, "function"));
+      }
+      if (isNone(queryType)) {
+        sourceIds.forEach(sourceId -> incrementCounter(sourceId, "none"));
       }
     } catch (UnsupportedQueryException e) {
-      // ignore filters not supported by the QueryTypeFilterDelegate
+      LOGGER.debug("Unable to detect query type due to unsupported query.", e);
+      sourceIds.forEach(sourceId -> incrementCounter(sourceId, "unsupported"));
     }
 
+    addStartTime(input);
+    return input;
+  }
+
+  // PostQuery
+  @Override
+  public QueryResponse process(QueryResponse input)
+      throws PluginExecutionException, StopProcessingException {
+    recordLatency(input, QUERY_SCOPE);
+    hits.record(input.getHits());
+    recordExceptions(input.getProcessingDetails(), QUERY_SCOPE);
+
+    return input;
+  }
+
+  // PreCreate
+  @Override
+  public CreateRequest process(CreateRequest input)
+      throws PluginExecutionException, StopProcessingException {
+    addStartTime(input);
     return input;
   }
 
   // PostCreate
   @Override
   public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-    if (Requests.isLocal(input.getRequest())) {
-      createdMetacards.mark(input.getCreatedMetacards().size());
-    }
+    recordLatency(input, CREATE_SCOPE);
+    createdMetacards.increment(input.getCreatedMetacards().size());
+    recordExceptions(input.getProcessingErrors(), CREATE_SCOPE);
+
+    return input;
+  }
+
+  // PreUpdate
+  @Override
+  public UpdateRequest process(UpdateRequest input)
+      throws PluginExecutionException, StopProcessingException {
+    addStartTime(input);
     return input;
   }
 
   // PostUpdate
   @Override
   public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
-    if (Requests.isLocal(input.getRequest())) {
-      updatedMetacards.mark(input.getUpdatedMetacards().size());
-    }
+    recordLatency(input, UPDATE_SCOPE);
+    updatedMetacards.increment(input.getUpdatedMetacards().size());
+    recordExceptions(input.getProcessingErrors(), UPDATE_SCOPE);
+
+    return input;
+  }
+
+  // PreDelete
+  @Override
+  public DeleteRequest process(DeleteRequest input)
+      throws PluginExecutionException, StopProcessingException {
+    addStartTime(input);
     return input;
   }
 
   // PostDelete
   @Override
   public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
-    if (Requests.isLocal(input.getRequest())) {
-      deletedMetacards.mark(input.getDeletedMetacards().size());
-    }
+    recordLatency(input, DELETE_SCOPE);
+    deletedMetacards.increment(input.getDeletedMetacards().size());
+    recordExceptions(input.getProcessingErrors(), DELETE_SCOPE);
+
+    return input;
+  }
+
+  // PreResource
+  @Override
+  public ResourceRequest process(ResourceRequest input)
+      throws PluginExecutionException, StopProcessingException {
+    addStartTime(input);
     return input;
   }
 
@@ -205,48 +209,95 @@ public final class CatalogMetrics
   @Override
   public ResourceResponse process(ResourceResponse input)
       throws PluginExecutionException, StopProcessingException {
-    resourceRetrival.mark();
+    recordLatency(input, RESOURCE_SCOPE);
+    recordExceptions(input.getProcessingErrors(), RESOURCE_SCOPE);
+
     return input;
   }
 
-  private void recordSourceQueryExceptions(QueryResponse response) {
-    Set<ProcessingDetails> processingDetails =
-        (Set<ProcessingDetails>) response.getProcessingDetails();
-
-    if (processingDetails == null || processingDetails.iterator() == null) {
+  private void recordExceptions(Set<ProcessingDetails> processingDetails, String operation) {
+    if (processingDetails == null) {
       return;
     }
 
-    Iterator<ProcessingDetails> iterator = processingDetails.iterator();
-    while (iterator.hasNext()) {
-      ProcessingDetails next = iterator.next();
+    for (ProcessingDetails next : processingDetails) {
       if (next != null && next.getException() != null) {
-        if (next.getException() instanceof UnsupportedQueryException) {
-          unsupportedQueryExceptions.mark();
-        } else if (next.getException() instanceof SourceUnavailableException) {
-          sourceUnavailableExceptions.mark();
-        } else if (next.getException() instanceof FederationException) {
-          federationExceptions.mark();
-        }
-        exceptions.mark();
+        String exceptionName = rootCauseExceptionName(next.getException());
+        Metrics.counter(
+                metricName(METRIC_PREFIX, operation, EXCEPTIONS_SCOPE),
+                "type",
+                exceptionName,
+                "source",
+                next.getSourceId())
+            .increment();
       }
     }
-
-    return;
   }
 
-  private boolean isFederated(QueryRequest queryRequest) {
-    Set<String> sourceIds = queryRequest.getSourceIds();
-
-    if (queryRequest.isEnterprise()) {
-      return true;
-    } else if (sourceIds == null) {
-      return false;
-    } else {
-      return (sourceIds.size() > 1)
-          || (sourceIds.size() == 1
-              && sourceIds.stream().noneMatch(StringUtils::isEmpty)
-              && !sourceIds.contains(SystemInfo.getSiteName()));
+  private String rootCauseExceptionName(Exception exception) {
+    Throwable rootCause = exception;
+    while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+      rootCause = rootCause.getCause();
     }
+    return rootCause.getClass().getName();
+  }
+
+  private String metricName(String... parts) {
+    return String.join(".", parts);
+  }
+
+  private Set<String> getSourceIds(QueryRequest query) {
+    if (query.isEnterprise()) {
+      return Collections.singleton("enterprise");
+    }
+
+    if (query.getSourceIds() == null || query.getSourceIds().isEmpty()) {
+      return Collections.singleton(SystemInfo.getSiteName());
+    }
+
+    return query.getSourceIds();
+  }
+
+  private void incrementCounter(String sourceId, String queryType) {
+    Metrics.counter(metricName(METRIC_PREFIX, QUERY_SCOPE, queryType), "source", sourceId)
+        .increment();
+  }
+
+  private boolean isNone(QueryTypeFilterDelegate queryType) {
+    return !(queryType.isComparison()
+        || queryType.isSpatial()
+        || queryType.isFuzzy()
+        || queryType.isTemporal()
+        || queryType.isFunction());
+  }
+
+  private void addStartTime(Request request) {
+    request.getProperties().put(METRICS_OPERATION_START, System.currentTimeMillis());
+  }
+
+  private void recordLatency(Response<? extends Request> response, String operation) {
+    Serializable start = response.getRequest().getPropertyValue(METRICS_OPERATION_START);
+    long latency = calculateLatency((Long) start);
+
+    if (latency <= 0) {
+      LOGGER.debug("Detected an invalid latency [{}] for given start time [{}]", latency, start);
+      return;
+    }
+
+    DistributionSummary.builder(metricName(METRIC_PREFIX, operation, "latency"))
+        .baseUnit("milliseconds")
+        .tags("successful", Boolean.toString(response.getProcessingErrors().isEmpty()))
+        .publishPercentiles(0.5, 0.95)
+        .register(Metrics.globalRegistry)
+        .record(latency);
+  }
+
+  private long calculateLatency(Long start) {
+    if (start == null) {
+      return 0;
+    }
+
+    long end = System.currentTimeMillis();
+    return end - start;
   }
 }
