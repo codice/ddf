@@ -37,7 +37,10 @@ module.exports = Marionette.CollectionView.extend({
   },
   initialize() {
     this.collection = new Backbone.Collection(this.options.list)
-    if (this.collection.first() && this.collection.first().get('filterChoice') === true) {
+    if (
+      this.collection.first() &&
+      this.collection.first().get('filterChoice') === true
+    ) {
       this.collection
         .first()
         .listenTo(
