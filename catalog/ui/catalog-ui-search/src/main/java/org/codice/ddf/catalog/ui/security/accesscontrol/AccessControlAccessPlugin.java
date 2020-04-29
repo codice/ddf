@@ -131,6 +131,14 @@ public class AccessControlAccessPlugin implements AccessPlugin {
                     && p.getValues().contains(subjectSupplier.get()));
   }
 
+  private void addRemoveAccess(Metacard prev, Metacard updated) {
+    Map<String, Set<String>> prevMap =
+        (Map<String, Set<String>>) prev.getAttribute(Metacard.SECURITY).getValue();
+    Map<String, Set<String>> updatedMap =
+        (Map<String, Set<String>>) updated.getAttribute(Metacard.SECURITY).getValue();
+    prevMap.put("remove-user-access", updatedMap.get("remove-user-access"));
+  }
+
   @Override
   public CreateRequest processPreCreate(CreateRequest input) {
     return input;
@@ -156,6 +164,13 @@ public class AccessControlAccessPlugin implements AccessPlugin {
     if (newMetacards.stream().anyMatch(m -> isOwnerChanged(oldMetacard.apply(m), m))) {
       throw new StopProcessingException(FAILURE_OWNER_CANNOT_CHANGE);
     }
+
+    newMetacards
+        .stream()
+        .filter(newVersionOfMetacard -> hasRemoveAccess(newVersionOfMetacard))
+        .forEach(
+            newVersionOfMetacard ->
+                addRemoveAccess(oldMetacard.apply(newVersionOfMetacard), newVersionOfMetacard));
 
     if (newMetacards
         .stream()
