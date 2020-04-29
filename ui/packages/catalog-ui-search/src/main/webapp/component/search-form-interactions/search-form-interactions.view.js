@@ -90,11 +90,6 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
         <div
           className="search-form-interaction interaction-remove-share"
           data-help={`Leave search ${formTitleLowerCase}.`}
-          title={
-            user.hasGroupAccess(this.model)
-              ? 'Form shared by group, cannot leave this form'
-              : 'Leave Form'
-          }
         >
           <div className="interaction-icon fa fa-trash-o" />
           <div className="interaction-text">Leave Shared {formTitle}</div>
@@ -146,10 +141,6 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
         this.model.get('createdBy') === user.getUserId() ||
         user.hasGroupAccess(this.model)
     )
-    this.$el.toggleClass(
-      'is-group-shared-template',
-      user.hasGroupAccess(this.model)
-    )
   },
   handleRemoveSharedForm() {
     this.listenTo(
@@ -173,7 +164,6 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
                 },
                 2500
               )
-              throw new Error()
             } else {
               this.model.trigger('destroy', this.model, this.model.collection)
             }
