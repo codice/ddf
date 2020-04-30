@@ -54,7 +54,6 @@
         </argument>
         <argument ref="dynamicSchemaResolver"/>
         <argument ref="cachePutSortedList"/>
-        <property name="searchCapabilityConfiguration" ref="searchCapabilitiesConfiguration"/>
     </bean>
 
     <bean id="cacheQueryFactory" class="ddf.catalog.cache.solr.impl.CacheQueryFactory">

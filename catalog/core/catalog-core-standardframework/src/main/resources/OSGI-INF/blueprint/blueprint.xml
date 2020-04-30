@@ -68,13 +68,6 @@
         <property name="masker" ref="sourceListener"/>
     </bean>
 
-    <bean id="searchCapabilitiesConfiguration" class="ddf.catalog.capability.SearchCapabilityConfigurationImpl">
-        <cm:managed-properties persistent-id="ddf.catalog.capability.SearchCapabilityConfiguration"
-                               update-strategy="container-managed"/>
-    </bean>
-
-    <service ref="searchCapabilitiesConfiguration" interface="ddf.catalog.configuration.SearchCapabilityConfiguration"/>
-
     <bean id="localCatalogIdSupplier" class="ddf.catalog.cache.solr.impl.LocalCatalogIdSupplier">
         <argument ref="catalogFramework"/>
     </bean>

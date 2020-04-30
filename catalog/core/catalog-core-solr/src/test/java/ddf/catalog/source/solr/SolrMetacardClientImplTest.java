@@ -14,7 +14,9 @@
 package ddf.catalog.source.solr;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -33,6 +35,9 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.ResultAttributeHighlight;
+import ddf.catalog.operation.ResultHighlight;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -47,6 +52,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -204,14 +210,58 @@ public class SolrMetacardClientImplTest {
     verify(queryResponse, times(2)).getResults();
   }
 
+  @Test
+  public void testHighlightOn() throws Exception {
+    System.setProperty(SolrMetacardClientImpl.HIGHLIGHT_ENABLE_PROPERTY, "true");
+
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+
+    List<String> docNames = Arrays.asList("id_txt", "title_txt", "description_txt");
+    List<String> attrNames = Arrays.asList("id", "title", "description");
+    List<String> values = Arrays.asList("123", "normal", "normal description");
+
+    Map<String, String> attributes = createAttributes(docNames, values);
+    Map<String, Map<String, String>> documents = new HashMap<>();
+    documents.put("123", attributes);
+
+    Map<String, Map<String, List<String>>> resultsHighlightData = new HashMap<>();
+    Map<String, List<String>> recordHighlights = new HashMap<>();
+    recordHighlights.put("title_txt", Collections.singletonList("<b>normal</b>"));
+    recordHighlights.put(
+        "description_txt_tokenized", Collections.singletonList("<b>normal</b> description"));
+    resultsHighlightData.put("123", recordHighlights);
+
+    when(queryResponse.getHighlighting()).thenReturn(resultsHighlightData);
+    when(queryResponse.getResults()).thenReturn(createSolrDocuments(documents));
+    mockDynamicSchemsolverCalls(createAttributeDescriptor(attrNames), attributes);
+
+    SourceResponse response = clientImpl.query(request);
+    List<Result> results = response.getResults();
+    assertThat(results.size(), is(1));
+    assertThat(results.get(0).getMetacard().getAttribute("title").getValue(), is("normal"));
+    List<ResultHighlight> highlights =
+        (List<ResultHighlight>) response.getPropertyValue(SolrMetacardClientImpl.HIGHLIGHT_KEY);
+    assertThat(highlights, notNullValue());
+    assertThat(highlights.size(), is(1));
+
+    List<String> highlightedAttributes =
+        highlights
+            .get(0)
+            .getAttributeHighlights()
+            .stream()
+            .map(ResultAttributeHighlight::getAttributeName)
+            .collect(Collectors.toList());
+    assertThat(highlightedAttributes, containsInAnyOrder("title", "description"));
+  }
+
   private void mockDynamicSchemsolverCalls(
       Set<AttributeDescriptor> descriptors, Map<String, String> attributes)
       throws MetacardCreationException {
     MetacardType metacardType = new MetacardTypeImpl(DDF_METACARD_TYPE, descriptors);
     when(dynamicSchemaResolver.getMetacardType(any())).thenReturn(metacardType);
+    when(dynamicSchemaResolver.resolveFieldName(any())).thenCallRealMethod();
 
     for (String name : attributes.keySet()) {
-      when(dynamicSchemaResolver.resolveFieldName(name)).thenReturn(name);
       List<Serializable> value = Collections.singletonList(attributes.get(name));
       when(dynamicSchemaResolver.getDocValues(name, (Collection) value)).thenReturn(value);
     }
@@ -252,6 +302,23 @@ public class SolrMetacardClientImplTest {
   private SolrDocument createSolrDocument(String name, String value) {
     SolrDocument solrDocument = new SolrDocument();
     solrDocument.addField(name, value);
+    return solrDocument;
+  }
+
+  private SolrDocumentList createSolrDocuments(Map<String, Map<String, String>> docs) {
+    SolrDocumentList solrDocumentList = new SolrDocumentList();
+    List<String> names = new ArrayList<>(docs.keySet());
+    for (String name : names) {
+      solrDocumentList.add(createSolrDocument(docs.get(name)));
+    }
+    return solrDocumentList;
+  }
+
+  private SolrDocument createSolrDocument(Map<String, String> attributes) {
+    SolrDocument solrDocument = new SolrDocument();
+    for (Map.Entry<String, String> attr : attributes.entrySet()) {
+      solrDocument.addField(attr.getKey(), attr.getValue());
+    }
     return solrDocument;
   }
 }

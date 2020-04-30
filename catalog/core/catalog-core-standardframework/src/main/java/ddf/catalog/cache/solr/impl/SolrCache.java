@@ -18,7 +18,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.cache.CachePutPlugin;
 import ddf.catalog.cache.SolrCacheMBean;
-import ddf.catalog.configuration.SearchCapabilityConfiguration;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
@@ -186,11 +185,6 @@ public class SolrCache implements SolrCacheMBean {
    */
   public void setAnyTextFieldBlacklist(List<String> anyTextFieldBlacklist) {
     ConfigurationStore.getInstance().setAnyTextFieldBlacklist(anyTextFieldBlacklist);
-  }
-
-  public void setSearchCapabilityConfiguration(
-      SearchCapabilityConfiguration searchCapabilityConfiguration) {
-    metacardClient.setSearchCapabilityConfiguration(searchCapabilityConfiguration);
   }
 
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {

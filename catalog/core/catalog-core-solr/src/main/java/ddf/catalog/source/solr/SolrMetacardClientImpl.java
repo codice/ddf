@@ -29,7 +29,6 @@ import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_Q;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import ddf.catalog.configuration.SearchCapabilityConfiguration;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.ContentType;
@@ -76,6 +75,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -145,8 +145,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private final DynamicSchemaResolver resolver;
 
-  private SearchCapabilityConfiguration searchCapabilityConfiguration;
-
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
 
@@ -159,6 +157,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private final int commitNrtCommitWithinMs =
       Math.max(NumberUtils.toInt(accessProperty(SOLR_COMMIT_NRT_COMMITWITHINMS, "1000")), 0);
+
+  public static final String HIGHLIGHT_ENABLE_PROPERTY = "solr.highlight.enabled";
 
   private static final String SOLR_HIGHLIGHT_BLACKLIST = "solr.highlight.blacklist";
 
@@ -178,12 +178,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public SolrClient getClient() {
     return client;
-  }
-
-  @Override
-  public void setSearchCapabilityConfiguration(
-      SearchCapabilityConfiguration searchCapabilityConfiguration) {
-    this.searchCapabilityConfiguration = searchCapabilityConfiguration;
   }
 
   @Override
@@ -351,13 +345,18 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private Boolean userHighlightIsOn(QueryRequest request) {
-    Boolean userHighlight = false;
+    Boolean userHighlight;
     if (request.getProperties().get(HIGHLIGHT_KEY) != null) {
       userHighlight = (Boolean) request.getProperties().get(HIGHLIGHT_KEY);
-    } else if (searchCapabilityConfiguration != null) {
-      userHighlight = searchCapabilityConfiguration.isHighlightingEnabled();
+    } else {
+      userHighlight = isSystemHighlightingEnabled();
     }
     return userHighlight;
+  }
+
+  protected boolean isSystemHighlightingEnabled() {
+    return BooleanUtils.toBoolean(
+        accessProperty(System.getProperty(HIGHLIGHT_ENABLE_PROPERTY), "false"));
   }
 
   private void enableHighlighter(SolrQuery query) {

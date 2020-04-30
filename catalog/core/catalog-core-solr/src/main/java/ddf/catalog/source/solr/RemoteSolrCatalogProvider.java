@@ -13,7 +13,6 @@
  */
 package ddf.catalog.source.solr;
 
-import ddf.catalog.configuration.SearchCapabilityConfiguration;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateRequest;
@@ -117,11 +116,6 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
    */
   public void setAnyTextFieldBlacklist(List<String> anyTextFieldBlacklist) {
     ConfigurationStore.getInstance().setAnyTextFieldBlacklist(anyTextFieldBlacklist);
-  }
-
-  public void setSearchCapabilityConfiguration(
-      SearchCapabilityConfiguration searchCapabilitiesConfiguration) {
-    provider.setSearchCapabilityConfiguration(searchCapabilitiesConfiguration);
   }
 
   @Override

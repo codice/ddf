@@ -16,6 +16,7 @@ package ddf.catalog.operation.impl;
 import ddf.catalog.operation.ResultAttributeHighlight;
 import ddf.catalog.operation.ResultHighlight;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ResultHighlightImpl implements ResultHighlight {
@@ -58,6 +59,6 @@ public class ResultHighlightImpl implements ResultHighlight {
 
   @Override
   public List<ResultAttributeHighlight> getAttributeHighlights() {
-    return attributeHighlights;
+    return Collections.unmodifiableList(attributeHighlights);
   }
 }
