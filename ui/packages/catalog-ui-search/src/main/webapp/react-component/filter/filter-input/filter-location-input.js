@@ -85,7 +85,10 @@ class LocationInput extends React.Component {
     wreqr.vent.trigger('search:drawend', this.locationModel)
   }
   updateMap = () => {
-    const mode = this.locationModel.get('mode') === 'keyword' ? 'poly' : this.locationModel.get('mode')
+    const mode =
+      this.locationModel.get('mode') === 'keyword'
+        ? 'poly'
+        : this.locationModel.get('mode')
     if (mode !== undefined && store.get('content').get('drawing') !== true) {
       wreqr.vent.trigger('search:' + mode + 'display', this.locationModel)
     }

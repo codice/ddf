@@ -128,6 +128,7 @@ DrawCircle.CircleView = Marionette.View.extend({
       typeof modelProp.lon !== 'number' ||
       Number.isNaN(modelProp.lon)
     ) {
+      this.options.map.scene.requestRender()
       return
     }
 

@@ -63,6 +63,7 @@ class PolygonRenderView extends GeometryRenderView {
   drawGeometry = model => {
     const json = model.toJSON()
     if (!Array.isArray(json.polygon)) {
+      this.map.scene.requestRender()
       return
     }
     const isMultiPolygon = ShapeUtils.isArray3D(json.polygon)

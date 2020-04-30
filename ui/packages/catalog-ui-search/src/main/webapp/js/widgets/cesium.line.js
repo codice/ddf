@@ -57,6 +57,7 @@ class LineRenderView extends GeometryRenderView {
       linePoints === undefined ||
       validateGeo('line', JSON.stringify(linePoints)).error
     ) {
+      this.map.scene.requestRender()
       return
     }
 
@@ -88,6 +89,7 @@ class LineRenderView extends GeometryRenderView {
     )
 
     this.map.scene.primitives.add(this.primitive)
+    this.map.scene.requestRender()
   }
 }
 
