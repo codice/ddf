@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.security.realm</groupId>
         <artifactId>realm</artifactId>
-        <version>2.23.2-SNAPSHOT</version>
+        <version>2.23.2</version>
     </parent>
     <artifactId>security-realm-saml</artifactId>
     <packaging>bundle</packaging>
