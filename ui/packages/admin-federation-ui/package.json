@@ -18,7 +18,7 @@
     "backbone": "1.1.2",
     "backbone-associations": "0.6.2",
     "backbone.marionette": "2.4.7",
-    "jquery": "3.2.1"
+    "jquery": "3.5.0"
   },
   "alias": {
     "marionette": "backbone.marionette"
