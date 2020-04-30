@@ -17,7 +17,7 @@
     <parent>
         <artifactId>test</artifactId>
         <groupId>ddf.test</groupId>
-        <version>2.23.2</version>
+        <version>2.23.3-SNAPSHOT</version>
     </parent>
     <artifactId>test-storageplugins</artifactId>
     <name>DDF :: SDK :: Plugin :: Sample Storage Plugins</name>
