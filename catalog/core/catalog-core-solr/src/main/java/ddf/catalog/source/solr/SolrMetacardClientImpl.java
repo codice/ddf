@@ -355,8 +355,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   protected boolean isSystemHighlightingEnabled() {
-    return BooleanUtils.toBoolean(
-        accessProperty(System.getProperty(HIGHLIGHT_ENABLE_PROPERTY), "false"));
+    return BooleanUtils.toBoolean(accessProperty(HIGHLIGHT_ENABLE_PROPERTY, "false"));
   }
 
   private void enableHighlighter(SolrQuery query) {
