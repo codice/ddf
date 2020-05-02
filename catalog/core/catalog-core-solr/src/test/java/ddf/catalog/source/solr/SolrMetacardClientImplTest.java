@@ -252,6 +252,7 @@ public class SolrMetacardClientImplTest {
             .map(ResultAttributeHighlight::getAttributeName)
             .collect(Collectors.toList());
     assertThat(highlightedAttributes, containsInAnyOrder("title", "description"));
+    System.setProperty(SolrMetacardClientImpl.HIGHLIGHT_ENABLE_PROPERTY, "false");
   }
 
   private void mockDynamicSchemsolverCalls(
