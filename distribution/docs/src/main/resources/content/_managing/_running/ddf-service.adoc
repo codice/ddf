@@ -64,7 +64,11 @@ LimitNOFILE=6815744
 Install the service and start it when the system boots, use `systemctl` From an OS console, execute:
 +
 `root${at-symbol}localhost# systemctl enable ${home_directory}/bin/${branding-lowercase}.service`
-
++
+[WARNING]
+====
+Some *NIX operating systems may require additional configuration if the .service script is located outside of the root filesystem, or is symlinked to a .service file in another partition.
+====
 . (Windows users skip this step) (*NIX _without_ `systemd`) Install the wrapper startup/shutdown scripts.
 +
 If the system does not use `systemd`, use the `init.d` system to install and configure the service.
