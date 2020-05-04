@@ -42,15 +42,17 @@ function sync(collection, array) {
 
 const Backbone = require('backbone')
 const Marionette = require('marionette')
-const _ = require('underscore')
 const template = require('./editor.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const DetailsFilterView = require('../dropdown/details-filter/dropdown.details-filter.view.js')
 const DropdownModel = require('../dropdown/dropdown.js')
-const DetailsInteractionsView = require('../details-interactions/details-interactions.view.js')
-const PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
 const user = require('../singletons/user-instance.js')
 const properties = require('../../js/properties.js')
+const AddAttributeView = require('../dropdown/add-attribute/dropdown.add-attribute.view.js')
+const RemoveAttributeView = require('../dropdown/remove-attribute/dropdown.remove-attribute.view.js')
+const AttributesRearrangeView = require('../dropdown/attributes-rearrange/dropdown.attributes-rearrange.view.js')
+const ShowAttributeView = require('../dropdown/show-attribute/dropdown.show-attribute.view.js')
+const HideAttributeView = require('../dropdown/hide-attribute/dropdown.hide-attribute.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   setDefaultModel() {
@@ -67,7 +69,11 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     editorProperties: '> .editor-properties',
     editorFilter: '> .editor-header > .header-filter',
-    editorActions: '> .editor-header > .header-actions',
+    editorAdd: '> .editor-header > .is-addAttribute',
+    editorRemove: '> .editor-header > .is-removeAttribute',
+    editorRearrange: '> .editor-header > .is-rearrangeAttribute',
+    editorShow: '> .editor-header > .is-showAttribute',
+    editorHide: '> .editor-header > .is-hideAttribute',
   },
   attributesAdded: undefined,
   attributesRemoved: undefined,
@@ -78,6 +84,7 @@ module.exports = Marionette.LayoutView.extend({
       this.setDefaultModel()
     }
     this.handleTypes()
+    this.handleSummary()
     this.attributesAdded = new Backbone.Collection([])
     this.attributesRemoved = new Backbone.Collection([])
     this.attributesMocked = new Backbone.Collection([])
@@ -132,39 +139,69 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-remote', types.remote !== undefined)
     this.$el.toggleClass('is-owner', isOwner)
   },
+  handleSummary() {
+    this.$el.toggleClass('is-summary', this.getEditorActionsOptions().summary)
+  },
   getEditorActionsOptions() {
     return {
       summary: true,
     }
   },
   generateEditorActions() {
-    this.editorActions.show(
-      PopoutView.createSimpleDropdown(
-        _.extend({
-          componentToShow: DetailsInteractionsView,
-          dropdownCompanionBehaviors: {
-            navigation: {},
-          },
-          label: 'Actions',
-          rightIcon: 'fa fa-ellipsis-v',
-          selectionInterface: this.selectionInterface,
-          options: _.extend(
-            {
-              selectionInterface: this.selectionInterface,
-            },
-            this.getEditorActionsOptions()
-          ),
-        })
-      )
+    this.editorAdd.show(
+      new AddAttributeView({
+        model: new DropdownModel(),
+        selectionInterface: this.options.selectionInterface,
+      }),
+      {
+        replaceElement: true,
+      }
+    )
+    this.editorRemove.show(
+      new RemoveAttributeView({
+        model: new DropdownModel(),
+        selectionInterface: this.options.selectionInterface,
+      }),
+      {
+        replaceElement: true,
+      }
+    )
+    this.editorRearrange.show(
+      new AttributesRearrangeView({
+        model: new DropdownModel(),
+        selectionInterface: this.options.selectionInterface,
+        summary: this.getEditorActionsOptions().summary,
+      }),
+      {
+        replaceElement: true,
+      }
+    )
+    this.editorShow.show(
+      new ShowAttributeView({
+        model: new DropdownModel(),
+        selectionInterface: this.options.selectionInterface,
+      }),
+      {
+        replaceElement: true,
+      }
+    )
+    this.editorHide.show(
+      new HideAttributeView({
+        model: new DropdownModel(),
+        selectionInterface: this.options.selectionInterface,
+      }),
+      {
+        replaceElement: true,
+      }
     )
     this.listenTo(
-      this.editorActions.currentView.model,
-      'change:attributesToAdd',
+      this.editorAdd.currentView.model,
+      'change:value',
       this.handleAttributeAdd
     )
     this.listenTo(
-      this.editorActions.currentView.model,
-      'change:attributesToRemove',
+      this.editorRemove.currentView.model,
+      'change:value',
       this.handleAttributeRemove
     )
   },
@@ -203,7 +240,7 @@ module.exports = Marionette.LayoutView.extend({
   handleAttributeRemove() {
     sync(
       this.attributesRemoved,
-      this.editorActions.currentView.model.get('attributesToRemove')[0]
+      this.editorRemove.currentView.model.get('value')[0]
     )
     const newAttributes = this.editorProperties.currentView.addProperties(
       this.attributesRemoved.pluck('id')
@@ -237,7 +274,7 @@ module.exports = Marionette.LayoutView.extend({
   handleAttributeAdd() {
     const difference = sync(
       this.attributesAdded,
-      this.editorActions.currentView.model.get('attributesToAdd')[0]
+      this.editorAdd.currentView.model.get('value')[0]
     )
     this.editorProperties.currentView.addProperties(
       this.attributesAdded.pluck('id')

@@ -16,6 +16,7 @@
     > div {
       display: inline-block;
       padding: 0px @minimumSpacing;
+      position: relative;
     }
   }
 
@@ -85,6 +86,32 @@
     font-size: @largeFontSize;
     min-height: @minimumButtonSize;
     line-height: @minimumButtonSize;
+  }
+
+  @{customElementNamespace}dropdown.is-showAttribute {
+    display: none;
+  }
+  @{customElementNamespace}dropdown.is-hideAttribute {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}editor.is-summary {
+  @{customElementNamespace}dropdown.is-showAttribute {
+    display: inline-block;
+  }
+  @{customElementNamespace}dropdown.is-hideAttribute {
+    display: none;
+  }
+}
+
+.is-editing-restricted @{customElementNamespace}editor,
+@{customElementNamespace}editor.is-revision,
+@{customElementNamespace}editor.is-deleted,
+@{customElementNamespace}editor.is-remote {
+  .is-addAttribute,
+  .is-removeAttribute {
+    display: none !important;
   }
 }
 
