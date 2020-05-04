@@ -64,26 +64,19 @@ function checkToken(token, filter) {
 }
 
 function matchesILIKE(value, filter) {
-  const valueToCheckFor = filter.value.toLowerCase()
+  filter.value = filter.value.toLowerCase()
   value = value.toString().toLowerCase()
-  const tokens = value.split(' ')
-  for (let i = 0; i <= tokens.length - 1; i++) {
-    if (checkToken(tokens[i], valueToCheckFor)) {
-      return true
-    }
-  }
-  return false
+  return matchesLIKE(value, filter)
 }
 
 function matchesLIKE(value, filter) {
-  const valueToCheckFor = filter.value
-  const tokens = value.toString().split(' ')
-  for (let i = 0; i <= tokens.length - 1; i++) {
-    if (checkToken(tokens[i], valueToCheckFor)) {
-      return true
-    }
+  if (!filter.value.startsWith('*')) {
+    filter.value = '*' + filter.value
   }
-  return false
+  if (!filter.value.endsWith('*')) {
+    filter.value = filter.value + '*'
+  }
+  return checkToken(value, filter.value)
 }
 
 function matchesEQUALS(value, filter) {
