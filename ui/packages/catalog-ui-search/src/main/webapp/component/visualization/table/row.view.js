@@ -14,6 +14,7 @@
  **/
 import * as React from 'react'
 import { ItemCheckbox } from '../../selection-checkbox/item-checkbox'
+import MarionetteRegionContainer from '../../../react-component/marionette-region-container'
 
 const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
@@ -29,9 +30,6 @@ module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('result-row'),
   events: {
     'click .result-download': 'triggerDownload',
-  },
-  regions: {
-    resultThumbnail: '.is-thumbnail',
   },
   attributes() {
     return {
@@ -57,43 +55,58 @@ module.exports = Marionette.LayoutView.extend({
               }`}
               data-value={`${property.value}`}
             >
-              <div>
-                {property.value.map(value => {
-                  return (
-                    <span data-value={`${value}`} title={`${alias}: ${value}`}>
-                      {value.toString().substring(0, 4) === 'http' ? (
-                        <a
-                          href={`${value}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+              {property.property === 'thumbnail' ? (
+                <MarionetteRegionContainer
+                  view={HoverPreviewDropdown}
+                  viewOptions={{
+                    model: new DropdownModel(),
+                    modelForComponent: this.model,
+                  }}
+                />
+              ) : (
+                <React.Fragment>
+                  <div>
+                    {property.value.map(value => {
+                      return (
+                        <span
+                          data-value={`${value}`}
+                          title={`${alias}: ${value}`}
                         >
-                          {HandleBarsHelpers.getAlias(property.property)}
-                        </a>
-                      ) : (
-                        `${value}`
-                      )}
-                    </span>
-                  )
-                })}
-              </div>
-              <div className="for-bold">
-                {property.value.map(value => (
-                  <span data-value={`${value}`}>
-                    {value.toString().substring(0, 4) === 'http' ? (
-                      <a
-                        href={`${value}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {HandleBarsHelpers.getAlias(property.property)}
-                      </a>
-                    ) : (
-                      `${value}`
-                    )}
-                    :{value}
-                  </span>
-                ))}
-              </div>
+                          {value.toString().substring(0, 4) === 'http' ? (
+                            <a
+                              href={`${value}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {HandleBarsHelpers.getAlias(property.property)}
+                            </a>
+                          ) : (
+                            `${value}`
+                          )}
+                        </span>
+                      )
+                    })}
+                  </div>
+                  <div className="for-bold">
+                    {property.value.map(value => (
+                      <span data-value={`${value}`}>
+                        {value.toString().substring(0, 4) === 'http' ? (
+                          <a
+                            href={`${value}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {HandleBarsHelpers.getAlias(property.property)}
+                          </a>
+                        ) : (
+                          `${value}`
+                        )}
+                        :{value}
+                      </span>
+                    ))}
+                  </div>
+                </React.Fragment>
+              )}
             </td>
           )
         })}
@@ -139,25 +152,6 @@ module.exports = Marionette.LayoutView.extend({
   onRender() {
     this.checkIfLinks()
     this.$el.attr(this.attributes())
-    this.handleResultThumbnail()
-  },
-  handleResultThumbnail() {
-    if (
-      this.model
-        .get('metacard')
-        .get('properties')
-        .get('thumbnail') &&
-      !this.isHidden('thumbnail')
-    ) {
-      if (this.resultThumbnail.$el) {
-        this.resultThumbnail.show(
-          new HoverPreviewDropdown({
-            model: new DropdownModel(),
-            modelForComponent: this.model,
-          })
-        )
-      }
-    }
   },
   checkIfLinks() {
     this.$el.toggleClass(
