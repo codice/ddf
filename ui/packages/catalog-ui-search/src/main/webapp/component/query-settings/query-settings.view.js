@@ -63,12 +63,8 @@ module.exports = plugin(
         'change:sortField change:sortOrder change:src change:federation',
         Common.safeCallback(this.onBeforeShow)
       )
-      this.resultFormCollection = ResultFormCollection.getCollection();
-      this.listenTo(
-        this.resultFormCollection,
-        'change',
-        this.renderResultForms
-      )
+      this.resultFormCollection = ResultFormCollection.getCollection()
+      this.listenTo(this.resultFormCollection, 'change', this.renderResultForms)
       this.listenTo(user.getQuerySettings(), 'change:defaultResultFormId', () =>
         this.renderResultForms(this.resultFormCollection.filteredList)
       )
@@ -87,10 +83,11 @@ module.exports = plugin(
       let resultForms = resultFormsCollection.map(resultTemplate => {
         const resultFormJson = resultTemplate.toJSON()
         return {
-        ...resultFormJson,
-        label: resultFormJson.title,
-        value: resultFormJson.title,
-      }});
+          ...resultFormJson,
+          label: resultFormJson.title,
+          value: resultFormJson.title,
+        }
+      })
       resultForms.push({
         label: 'All Fields',
         value: 'allFields',
@@ -106,9 +103,7 @@ module.exports = plugin(
       const propertyValue =
         this.model.get('detail-level') ||
         (defaultResultForm && defaultResultForm.value) ||
-        (resultForms &&
-          resultForms[lastIndex] &&
-          resultForms[lastIndex].value)
+        (resultForms && resultForms[lastIndex] && resultForms[lastIndex].value)
       let detailLevelProperty = new Property({
         label: 'Result Form',
         enum: resultForms,
