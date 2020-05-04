@@ -134,6 +134,12 @@ public class AccessControlPolicyExtension implements PolicyExtension {
       return match; // Simply imply nothing early on (essentially a no-op in this extension)
     }
 
+    SecurityPredicate hasReadAccess =
+        (sub, mc) ->
+            (READ_ACTION.equals(allPerms.getAction())
+                && (hasAccessGroupsReadOnly.apply(sub, mc)
+                    || hasAccessIndividualsReadOnly.apply(sub, mc)));
+
     // To be able to have viewing access to the metacard, you must satisfy the following criteria
     SecurityPredicate subjectImpliesACL =
         (sub, mc) ->
@@ -141,9 +147,7 @@ public class AccessControlPolicyExtension implements PolicyExtension {
                 || hasAccessIndividuals.apply(sub, mc)
                 || hasAccessGroups.apply(sub, mc)
                 || (UPDATE_ACTION.equals(allPerms.getAction()) && hasRemoveAccess.apply(sub, mc))
-                || (READ_ACTION.equals(allPerms.getAction())
-                    && (hasAccessGroupsReadOnly.apply(sub, mc)
-                        || hasAccessIndividualsReadOnly.apply(sub, mc)));
+                || hasReadAccess.apply(sub, mc);
 
     // get all permissions implied by the subject, this function returns what permissions
     // to filter from the key-value permission collection

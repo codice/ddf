@@ -168,12 +168,16 @@ public class AccessControlPolicyPlugin implements PolicyPlugin {
   @Override
   public PolicyResponse processPreUpdate(Metacard metacard, Map<String, Serializable> properties) {
     Map<String, Set<String>> policy = getPolicy(metacard);
+    OperationTransaction operationProperties =
+        ((OperationTransaction) properties.get(OPERATION_TRANSACTION_KEY));
     Optional<Metacard> oldMetacard =
-        ((OperationTransaction) properties.get(OPERATION_TRANSACTION_KEY))
-            .getPreviousStateMetacards()
-            .stream()
-            .filter(m -> metacard.getId().equals(m.getId()))
-            .findFirst();
+        operationProperties != null
+            ? operationProperties
+                .getPreviousStateMetacards()
+                .stream()
+                .filter(m -> metacard.getId().equals(m.getId()))
+                .findFirst()
+            : Optional.empty();
     if (oldMetacard.isPresent() && onlyUserAccessControlRemoved(oldMetacard.get(), metacard)) {
       policy.put("remove-user-access", Collections.singleton(subjectSupplier.get()));
     }
