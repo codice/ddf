@@ -32,32 +32,6 @@ deny {
     permission org.osgi.framework.ServicePermission "org.osgi.service.condpermadmin.ConditionalPermissionAdmin", "get";
 }
 
-grant
-  codeBase "file:/platform-migration/platform-migratable-api" {
-    permission java.io.FilePermission "<<ALL FILES>>", "read, readlink";
-    permission java.io.FilePermission "${ddf.home}", "write, delete";
-    permission java.io.FilePermission "${ddf.home.perm}-", "write, delete";
-
-    permission java.util.PropertyPermission "*", "read";
-    permission java.util.PropertyPermission "karaf.restart.jvm", "write";
-}
-
-grant
-  codeBase "file:/platform-migratable" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}bin${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "write";
-}
-
-grant
-  codeBase "file:/security-migratable/catalog-rest-endpoint/registry-publication-action-provider/platform-paxweb-jettyconfig/pax-web-jetty" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}encryption.properties", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}signature.properties", "read";
-    permission java.io.FilePermission "${ddf.home.perm}security${/}configurations.policy", "read";
-}
-
 grant codeBase "file:/admin-core-appservice" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read,write";
     permission java.util.PropertyPermission "karaf.restart.jvm", "write";

@@ -54,7 +54,6 @@
 
     <repository>mvn:ddf.features/admin/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/camel/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.features/migration/${project.version}/xml/features</repository>
     <repository>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</repository>
@@ -76,7 +75,6 @@
         <feature>tika</feature>
         <feature>platform-util</feature>
         <feature>platform-logging</feature>
-        <feature>platform-migrate-all</feature>
         <feature>platform-scheduler</feature>
         <feature>platform-commands</feature>
         <feature>platform-configuration</feature>
@@ -98,7 +96,6 @@
              description="Administration application for installation and management.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.">
         <feature>admin-core</feature>
         <feature>admin-ui</feature>
-        <feature>admin-core-migration-commands</feature>
         <feature>admin-configurator</feature>
         <feature>admin-config-updater</feature>
         <feature>admin-core-logviewer</feature>

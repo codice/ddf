@@ -150,4 +150,9 @@
         <bundle>mvn:org.codice.thirdparty/tika-bundle/${tika.thirdparty.bundle.version}</bundle>
     </feature>
 
+    <feature name="io" version="${project.version}" description="I/O Utilities">
+        <bundle>mvn:ddf.platform.io/platform-io-internal-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.io/platform-io-impl/${project.version}</bundle>
+    </feature>
+
 </features>

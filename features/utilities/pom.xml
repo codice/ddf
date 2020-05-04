@@ -130,6 +130,17 @@
             <artifactId>bootflag-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.io</groupId>
+            <artifactId>platform-io-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.io</groupId>
+            <artifactId>platform-io-internal-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!--feature dependencies-->
         <dependency>
             <groupId>ddf.features</groupId>

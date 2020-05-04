@@ -26,9 +26,6 @@ For example, type `catalog`, then press *TAB*.
 |<<{managing-prefix}catalog_command_descriptions, catalog>>
 |The Catalog Shell Commands are meant to be used with any `CatalogProvider` implementations. They provide general useful queries and functions against the Catalog API that can be used for debugging, printing, or scripting.
 
-|<<{managing-prefix}migrate_command_descriptions, migrate>>
-|The Migrate Shell Commands provide functions to perform data migrations.
-
 |<<{managing-prefix}platform_command_descriptions, platform>>
 |The ${branding} Platform Shell Commands provide generic platform management functions
 

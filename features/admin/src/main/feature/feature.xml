@@ -23,7 +23,6 @@
     <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.features/migration/${project.version}/xml/features</repository>
 
     <feature name="metrics-reporting" version="${project.version}"
              description="Metrics reporting for the platform.">
@@ -106,7 +105,6 @@
         <feature>cxf-jaxws</feature>
         <feature>cxf-jaxrs</feature>
         <feature>persistence-core</feature>
-        <feature>platform-migratable-api</feature>
         <feature>security-handler-api</feature>
         <feature>security-core-impl</feature>
         <feature>security-core-services</feature>
@@ -171,17 +169,7 @@
         <bundle>mvn:ddf.admin.modules/admin-security-certificate-ui/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-core-migration-commands" version="${project.version}"
-             description="Migration commands module">
-        <feature>security-expansion</feature>
-        <feature>platform-migration</feature>
-        <feature>javax-validation</feature>
-        <feature>cxf-jaxws</feature>
-        <feature>cxf-jaxrs</feature>
-        <feature>security-handler-api</feature>
 
-        <bundle>mvn:ddf.admin.core/admin-core-migration-commands/${project.version}</bundle>
-    </feature>
 
     <feature name="admin-core-logviewer" version="${project.version}"
              description="Admin UI's logviewer page to display karaf logs">

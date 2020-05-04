@@ -28,4 +28,4 @@ Set up <<{managing-prefix}configuring_user_access,Users>> with security attribut
 
 Connecting ${branding} to other data sources, including other instances of ${branding} is covered in the <<{managing-prefix}configuring_federation,Configuring Federation>> section.
 
-Lastly, see the <<{managing-prefix}configuring_for_special_deployments,Configuring for Special Deployments>> section for guidance on common specialized installations, such as <<{managing-prefix}configuring_for_a_fanout_proxy,fanout>> or <<{managing-prefix}reusing_configurations,multiple identical configurations>>.
+Lastly, see the <<{managing-prefix}configuring_for_special_deployments,Configuring for Special Deployments>> section for guidance on common specialized installations, such as <<{managing-prefix}configuring_for_a_fanout_proxy,fanout>>.

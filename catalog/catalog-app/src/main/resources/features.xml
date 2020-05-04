@@ -670,12 +670,6 @@
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-gazetteer/${project.version}</bundle>
     </feature>
 
-    <feature name="data-migration" version="${project.version}"
-             description="Provides a framework for data migration and karaf commands.">
-        <bundle>mvn:ddf.catalog.migrate/migration-api/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.migrate/migration-command/${project.version}</bundle>
-    </feature>
-
     <feature name="catalog-facet-attribute-access-plugin" version="${project.version}">
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-facet-attribute-access/${project.version}</bundle>
     </feature>
@@ -723,7 +717,6 @@
         <feature>catalog-metacardingest-network</feature>
         <feature>catalog-core-attachment</feature>
         <feature>catalog-plugin-gazetteer</feature>
-        <feature>data-migration</feature>
         <feature>catalog-facet-attribute-access-plugin</feature>
     </feature>
 
