@@ -28,7 +28,6 @@ import net.jodah.failsafe.FailsafeException;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -46,24 +45,12 @@ import org.slf4j.LoggerFactory;
  * Uses the following system properties when creating an instance:
  *
  * <ul>
- *   <li>solr.cloud.replicationFactor: Replication factor used when creating a new collection
- *   <li>solr.cloud.shardCount: Shard count used when creating a new collection
- *   <li>solr.cloud.maxShardPerNode: Maximum shard per node value used when creating a new
- *       collection
  *   <li>solr.cloud.zookeeper: Comma-separated list of Zookeeper hosts
  *   <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
  * </ul>
  */
 public class SolrCloudClientFactory implements SolrClientFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrCloudClientFactory.class);
-
-  private final int shardCount = NumberUtils.toInt(System.getProperty("solr.cloud.shardCount"), 2);
-
-  private final int replicationFactor =
-      NumberUtils.toInt(System.getProperty("solr.cloud.replicationFactor"), 2);
-
-  private final int maximumShardsPerNode =
-      NumberUtils.toInt(System.getProperty("solr.cloud.maxShardPerNode"), 2);
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String collection) {
@@ -151,16 +138,17 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       }
 
       if (!collectionExists(collection, client)) {
+        CollectionConfig config = new CollectionConfig(collection);
         CollectionAdminResponse response =
-            CollectionAdminRequest.createCollection(collection, collection, shardCount, shardCount)
-                .setMaxShardsPerNode(maximumShardsPerNode)
-                .setReplicationFactor(replicationFactor)
+            CollectionAdminRequest.createCollection(
+                    collection, collection, config.getShardCount(), config.getReplicationFactor())
+                .setMaxShardsPerNode(config.getMaximumShardsPerNode())
                 .process(client);
         if (!response.isSuccess()) {
           throw new SolrFactoryException(
               "Failed to create collection [" + collection + "]: " + response.getErrorMessages());
         }
-        if (!isCollectionReady(client, collection)) {
+        if (!isCollectionReady(client, collection, config.getShardCount())) {
           throw new SolrFactoryException(
               "Solr collection [" + collection + "] was not ready in time.");
         }
@@ -253,7 +241,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
         client.getZkStateReader().getZkClient().getZkServerAddress());
   }
 
-  private boolean isCollectionReady(CloudSolrClient client, String collection) {
+  private boolean isCollectionReady(CloudSolrClient client, String collection, int shardCount) {
     try {
       boolean collectionCreated =
           Failsafe.with(withRetry().retryWhen(false))

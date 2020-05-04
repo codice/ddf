@@ -543,6 +543,12 @@ public abstract class AbstractIntegrationTest {
         installStartupFile(
             getClass().getClassLoader().getResource("hazelcast.xml"), "/etc/hazelcast.xml"),
         installStartupFile(
+            getClass().getClassLoader().getResource("collection.properties"),
+            "/etc/solr/configsets/default/collection.properties"),
+        installStartupFile(
+            getClass().getClassLoader().getResource("collection.properties"),
+            "/etc/solr/configsets/catalog/collection.properties"),
+        installStartupFile(
             getClass()
                 .getClassLoader()
                 .getResource("ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
