@@ -73,7 +73,7 @@ module.exports = Marionette.LayoutView.extend({
           enum: allowedValues,
           values: this.model.get('descriptors'),
           value:
-            [this.model.get('descriptors')].size > 0
+            [this.model.get('descriptors')].length > 0
               ? [this.model.get('descriptors')]
               : [[allowedValues[0] && allowedValues[0].label]],
           id: 'Attributes',
