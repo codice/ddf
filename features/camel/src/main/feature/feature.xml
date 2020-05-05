@@ -22,8 +22,6 @@
 
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
 
-    <repository>mvn:ddf.features/karaf/${project.version}/xml/features</repository>
-
     <!--START Camel Features-->
     <!-- DO NOT EDIT
         All feature definitions come from 3rd party feature file:
