@@ -34,11 +34,12 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
-import org.pac4j.core.context.J2EContext;
+import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.J2ESessionStore;
+import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.core.exception.http.RedirectionAction;
+import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.http.ajax.DefaultAjaxRequestResolver;
-import org.pac4j.core.redirect.RedirectAction;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.slf4j.Logger;
@@ -82,8 +83,8 @@ public class OidcLogoutActionProvider implements ActionProvider {
       HttpServletRequest request = (HttpServletRequest) ((Map) subjectMap).get("http_request");
       HttpServletResponse response = (HttpServletResponse) ((Map) subjectMap).get("http_response");
 
-      J2ESessionStore sessionStore = new J2ESessionStore();
-      J2EContext j2EContext = new J2EContext(request, response, sessionStore);
+      JEESessionStore sessionStore = new JEESessionStore();
+      JEEContext jeeContext = new JEEContext(request, response, sessionStore);
 
       HttpSession session = request.getSession(false);
       PrincipalHolder principalHolder = null;
@@ -139,15 +140,18 @@ public class OidcLogoutActionProvider implements ActionProvider {
         }
       }
 
-      RedirectAction logoutAction =
-          logoutActionBuilder.getLogoutAction(
-              j2EContext, oidcProfile, urlBuilder.build().toString());
+      RedirectionAction logoutAction =
+          logoutActionBuilder
+              .getLogoutAction(jeeContext, oidcProfile, urlBuilder.build().toString())
+              .orElse(null);
 
-      logoutUrlString = logoutAction.getLocation();
+      if (logoutAction instanceof WithLocationAction) {
+        logoutUrlString = ((WithLocationAction) logoutAction).getLocation();
+      }
 
       logoutUrl = new URL(logoutUrlString);
     } catch (MalformedURLException | URISyntaxException e) {
-      LOGGER.info("Unable to resolve URL: {}", logoutUrlString);
+      LOGGER.info("Unable to resolve logout URL: {}", logoutUrlString);
     } catch (ClassCastException e) {
       LOGGER.debug("Unable to cast parameter to Map<String, Object>, {}", subjectMap, e);
     }

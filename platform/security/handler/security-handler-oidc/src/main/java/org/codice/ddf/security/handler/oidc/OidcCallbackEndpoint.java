@@ -25,8 +25,8 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.pac4j.core.context.J2EContext;
-import org.pac4j.core.context.session.J2ESessionStore;
+import org.pac4j.core.context.JEEContext;
+import org.pac4j.core.context.session.JEESessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +52,11 @@ public class OidcCallbackEndpoint {
           "Passed in request must have a corresponding session to logout.");
     }
 
-    J2ESessionStore sessionStore = new J2ESessionStore();
+    JEESessionStore sessionStore = new JEESessionStore();
 
-    J2EContext j2EContext = new J2EContext(request, response, sessionStore);
+    JEEContext jeeContext = new JEEContext(request, response, sessionStore);
 
-    sessionStore.destroySession(j2EContext);
+    sessionStore.destroySession(jeeContext);
 
     String localLogout = SystemBaseUrl.EXTERNAL.constructUrl("/logout/local");
     WebClient webClient = getWebClient(localLogout);

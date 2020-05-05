@@ -54,6 +54,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -69,6 +70,8 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 
 public class OidcRealmTest {
+
+  private static final String NONCE_SESSION_ATTRIBUTE = "session-attribute";
 
   private OidcRealm realm;
   private OidcAuthenticationToken authenticationToken;
@@ -249,8 +252,7 @@ public class OidcRealmTest {
   private WebContext getWebContext() {
     WebContext context = mock(WebContext.class);
     SessionStore sessionStore = mock(SessionStore.class);
-    when(sessionStore.get(context, OidcConfiguration.NONCE_SESSION_ATTRIBUTE))
-        .thenReturn("myNonce");
+    when(sessionStore.get(context, NONCE_SESSION_ATTRIBUTE)).thenReturn(Optional.of("myNonce"));
     when(context.getSessionStore()).thenReturn(sessionStore);
     return context;
   }

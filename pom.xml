@@ -254,8 +254,9 @@
         <opengis.bundle.version>${opengis.version}_3</opengis.bundle.version>
         <opengis.version>20.1</opengis.version>
         <opensaml.osgi.version>3.3.0_2</opensaml.osgi.version>
-        <nimbus.version>8.2</nimbus.version>
-        <nimbus.oidc.version>6.18</nimbus.oidc.version>
+        <nimbus.version>8.14.1</nimbus.version>
+        <nimbus.oidc.version>8.3</nimbus.oidc.version>
+        <nimbus.content-type.version>2.0</nimbus.content-type.version>
         <nimbus.langtag.version>1.4.4</nimbus.langtag.version>
         <org.geotools.bundle.version>${org.geotools.version}_2</org.geotools.bundle.version>
         <org.geotools.version>20.1</org.geotools.version>
@@ -267,7 +268,7 @@
         <owasp-html-sanitizer.version>20191001.1</owasp-html-sanitizer.version>
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
-        <pac4j.version>3.8.2</pac4j.version>
+        <pac4j.version>4.0.1</pac4j.version>
         <pdfbox.version>2.0.11</pdfbox.version>
         <poi.version>4.0.1</poi.version>
         <xlsx.transformer.poi.version>4.1.1</xlsx.transformer.poi.version>

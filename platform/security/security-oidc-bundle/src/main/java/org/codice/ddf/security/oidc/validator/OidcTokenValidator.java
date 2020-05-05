@@ -43,8 +43,10 @@ import com.nimbusds.openid.connect.sdk.validators.AccessTokenValidator;
 import java.security.Key;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 import net.minidev.json.JSONObject;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.creator.TokenValidator;
 import org.slf4j.Logger;
@@ -52,9 +54,9 @@ import org.slf4j.LoggerFactory;
 
 public class OidcTokenValidator {
 
-  private OidcTokenValidator() {}
-
   private static final Logger LOGGER = LoggerFactory.getLogger(OidcTokenValidator.class);
+
+  private OidcTokenValidator() {}
 
   /**
    * Validates id tokens.
@@ -69,7 +71,7 @@ public class OidcTokenValidator {
    * @param configuration - oidc configuration
    */
   public static IDTokenClaimsSet validateIdTokens(
-      JWT idToken, WebContext webContext, OidcConfiguration configuration)
+      JWT idToken, WebContext webContext, OidcConfiguration configuration, OidcClient client)
       throws OidcValidationException {
     if (configuration == null) {
       LOGGER.debug("Oidc configuration is null. Unable to validate ID token.");
@@ -85,10 +87,10 @@ public class OidcTokenValidator {
       // get nonce
       Nonce nonce = null;
       if (configuration.isUseNonce()) {
-        Object nonceString =
-            webContext.getSessionStore().get(webContext, OidcConfiguration.NONCE_SESSION_ATTRIBUTE);
-        if (nonceString != null) {
-          nonce = new Nonce((String) nonceString);
+        Optional<Object> optional =
+            webContext.getSessionStore().get(webContext, client.getNonceSessionAttributeName());
+        if (optional.isPresent()) {
+          nonce = new Nonce((String) optional.get());
         }
       }
 

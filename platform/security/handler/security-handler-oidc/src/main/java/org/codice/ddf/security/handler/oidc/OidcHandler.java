@@ -15,6 +15,7 @@ package org.codice.ddf.security.handler.oidc;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -27,12 +28,15 @@ import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
-import org.pac4j.core.context.J2EContext;
-import org.pac4j.core.context.Pac4jConstants;
-import org.pac4j.core.context.session.J2ESessionStore;
+import org.pac4j.core.context.JEEContext;
+import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.exception.TechnicalException;
+import org.pac4j.core.exception.http.RedirectionAction;
+import org.pac4j.core.http.adapter.JEEHttpActionAdapter;
 import org.pac4j.core.http.callback.QueryParameterCallbackUrlResolver;
+import org.pac4j.core.util.Pac4jConstants;
 import org.pac4j.oidc.client.OidcClient;
+import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.credentials.extractor.OidcExtractor;
 import org.slf4j.Logger;
@@ -93,8 +97,8 @@ public class OidcHandler implements AuthenticationHandler {
     LOGGER.debug(
         "Doing Oidc authentication and authorization for path {}.", httpRequest.getContextPath());
 
-    J2ESessionStore sessionStore = new J2ESessionStore();
-    J2EContext j2EContext = new J2EContext(httpRequest, httpResponse, sessionStore);
+    JEESessionStore sessionStore = new JEESessionStore();
+    JEEContext jeeContext = new JEEContext(httpRequest, httpResponse, sessionStore);
 
     StringBuffer requestUrlBuffer = httpRequest.getRequestURL();
     requestUrlBuffer.append(
@@ -102,7 +106,7 @@ public class OidcHandler implements AuthenticationHandler {
     String requestUrl = requestUrlBuffer.toString();
     String ipAddress = httpRequest.getRemoteAddr();
 
-    OidcClient oidcClient = configuration.getOidcClient(requestUrl);
+    OidcClient<OidcConfiguration> oidcClient = configuration.getOidcClient(requestUrl);
 
     OidcCredentials credentials;
     boolean isMachine = userAgentIsNotBrowser(httpRequest);
@@ -112,7 +116,7 @@ public class OidcHandler implements AuthenticationHandler {
       return noActionResult;
     } else { // check for Authorization Code Flow, Implicit Flow, or Hybrid Flow credentials
       try {
-        credentials = getCredentialsFromRequest(oidcClient, j2EContext);
+        credentials = getCredentialsFromRequest(oidcClient, jeeContext);
       } catch (IllegalArgumentException e) {
         LOGGER.debug(e.getMessage(), e);
         LOGGER.error(
@@ -121,7 +125,7 @@ public class OidcHandler implements AuthenticationHandler {
         return noActionResult;
       } catch (TechnicalException e) {
         LOGGER.debug("Problem extracting Oidc credentials from incoming user request.", e);
-        return redirectForCredentials(oidcClient, j2EContext, requestUrl);
+        return redirectForCredentials(oidcClient, jeeContext, requestUrl);
       }
     }
 
@@ -133,7 +137,7 @@ public class OidcHandler implements AuthenticationHandler {
           "Oidc credentials found/retrieved. Saving to session and continuing filter chain.");
 
       OidcAuthenticationToken token =
-          new OidcAuthenticationToken(credentials, j2EContext, ipAddress);
+          new OidcAuthenticationToken(credentials, jeeContext, ipAddress);
       HandlerResult handlerResult = new HandlerResultImpl(Status.COMPLETED, token);
       handlerResult.setSource(SOURCE);
       return handlerResult;
@@ -141,7 +145,7 @@ public class OidcHandler implements AuthenticationHandler {
       LOGGER.info(
           "No credentials found on user-agent request. "
               + "Redirecting user-agent to IdP for credentials.");
-      return redirectForCredentials(oidcClient, j2EContext, requestUrl);
+      return redirectForCredentials(oidcClient, jeeContext, requestUrl);
     }
   }
 
@@ -182,9 +186,10 @@ public class OidcHandler implements AuthenticationHandler {
             || userAgentHeader.contains("Chrome"));
   }
 
-  private OidcCredentials getCredentialsFromRequest(OidcClient oidcClient, J2EContext j2EContext) {
+  private OidcCredentials getCredentialsFromRequest(
+      OidcClient<OidcConfiguration> oidcClient, JEEContext jeeContext) {
     // Check that the request contains a code, an access token or an id token
-    Map<String, String[]> requestParams = j2EContext.getRequestParameters();
+    Map<String, String[]> requestParams = jeeContext.getRequestParameters();
     if (!requestParams.containsKey("code")
         && !requestParams.containsKey("access_token")
         && !requestParams.containsKey("id_token")) {
@@ -193,13 +198,24 @@ public class OidcHandler implements AuthenticationHandler {
     oidcClient.setCallbackUrlResolver(new QueryParameterCallbackUrlResolver());
 
     OidcExtractor oidcExtractor = new OidcExtractor(oidcClient.getConfiguration(), oidcClient);
-    return oidcExtractor.extract(j2EContext);
+    return oidcExtractor.extract(jeeContext).orElse(null);
   }
 
   private HandlerResult redirectForCredentials(
-      OidcClient oidcClient, J2EContext j2EContext, String requestUrl) {
-    j2EContext.getSessionStore().set(j2EContext, Pac4jConstants.REQUESTED_URL, requestUrl);
-    oidcClient.redirect(j2EContext);
-    return redirectedResult;
+      OidcClient<OidcConfiguration> oidcClient, JEEContext jeeContext, String requestUrl) {
+    jeeContext.getSessionStore().set(jeeContext, Pac4jConstants.REQUESTED_URL, requestUrl);
+    Optional<RedirectionAction> redirectionAction = oidcClient.getRedirectionAction(jeeContext);
+    if (!redirectionAction.isPresent()) {
+      LOGGER.debug("No redirect action found. Returning NO_ACTION instead");
+      return noActionResult;
+    }
+
+    try {
+      JEEHttpActionAdapter.INSTANCE.adapt(redirectionAction.get(), jeeContext);
+      return redirectedResult;
+    } catch (TechnicalException e) {
+      LOGGER.debug("Client redirect failed", e);
+      return noActionResult;
+    }
   }
 }

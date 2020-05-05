@@ -27,6 +27,7 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
 import ddf.security.common.PrincipalHolder;
 import ddf.security.service.impl.SubjectUtils;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -34,7 +35,7 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.junit.Before;
 import org.junit.Test;
-import org.pac4j.core.redirect.RedirectAction;
+import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -48,9 +49,10 @@ public class OidcLogoutActionProviderTest {
   @Before
   public void setup() {
     OidcLogoutActionBuilder oidcLogoutActionBuilder = mock(OidcLogoutActionBuilder.class);
-    RedirectAction redirectAction = mock(RedirectAction.class);
-    when(redirectAction.getLocation()).thenReturn(LOCATION);
-    when(oidcLogoutActionBuilder.getLogoutAction(any(), any(), any())).thenReturn(redirectAction);
+    FoundAction foundAction = mock(FoundAction.class);
+    when(foundAction.getLocation()).thenReturn(LOCATION);
+    when(oidcLogoutActionBuilder.getLogoutAction(any(), any(), any()))
+        .thenReturn(Optional.of(foundAction));
 
     OidcHandlerConfiguration handlerConfiguration = mock(OidcHandlerConfiguration.class);
     when(handlerConfiguration.getOidcLogoutActionBuilder()).thenReturn(oidcLogoutActionBuilder);
