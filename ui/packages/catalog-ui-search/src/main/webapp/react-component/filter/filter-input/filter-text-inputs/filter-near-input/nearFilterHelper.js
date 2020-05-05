@@ -15,7 +15,7 @@
 export const serialize = (value, distance) => {
   return {
     value,
-    distance: Math.max(1, parseInt(distance) || 0).toString(),
+    distance: Math.max(1, parseInt(distance) || 0),
   }
 }
 
