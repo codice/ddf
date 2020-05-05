@@ -314,7 +314,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         }
 
         if (highlightIsOn) {
-          extractHighlighing(highlightResponse, responseProps);
+          extractHighlighting(highlightResponse, responseProps);
         }
       }
 
@@ -368,7 +368,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     query.setParam("hl.method", "unified");
   }
 
-  private void extractHighlighing(QueryResponse response, Map<String, Serializable> responseProps) {
+  private void extractHighlighting(
+      QueryResponse response, Map<String, Serializable> responseProps) {
     Map<String, Map<String, List<String>>> highlights = response.getHighlighting();
     if (highlights == null) {
       return;
@@ -414,10 +415,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private String resolveHighlightFieldName(String solrFieldName) {
-    int firstIndexOfUndercore = solrFieldName.indexOf(FIRST_CHAR_OF_SUFFIX);
+    int firstIndexOfSuffix = solrFieldName.indexOf(FIRST_CHAR_OF_SUFFIX);
 
-    if (firstIndexOfUndercore != -1) {
-      return solrFieldName.substring(0, firstIndexOfUndercore);
+    if (firstIndexOfSuffix != -1) {
+      return solrFieldName.substring(0, firstIndexOfSuffix);
     }
     return solrFieldName;
   }

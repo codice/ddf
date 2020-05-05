@@ -16,8 +16,8 @@ package ddf.catalog.operation;
 import java.util.List;
 
 /**
- * ResultHighlight represents a list of attributes that matched a given query for a particular as
- * identified by the ID returned from the <code>getResultId</code> method.
+ * ResultHighlight represents a list of attributes that matched a given query for a particular
+ * result as identified by the ID returned from the <code>getResultId</code> method.
  */
 public interface ResultHighlight {
   String getResultId();
