@@ -16,6 +16,7 @@ package ddf.catalog.source.solr;
 import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_PROPERTIES_KEY;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
+import static ddf.catalog.Constants.QUERY_HIGHLIGHT_KEY;
 import static ddf.catalog.Constants.SUGGESTION_BUILD_KEY;
 import static ddf.catalog.Constants.SUGGESTION_CONTEXT_KEY;
 import static ddf.catalog.Constants.SUGGESTION_DICT_KEY;
@@ -126,8 +127,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   public static final String DID_YOU_MEAN_KEY = "didYouMean";
 
   public static final String SPELLCHECK_KEY = "spellcheck";
-
-  public static final String HIGHLIGHT_KEY = "highlight";
 
   public static final String SOLR_HIGHLIGHT_KEY = "hl";
 
@@ -346,8 +345,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private Boolean userHighlightIsOn(QueryRequest request) {
     Boolean userHighlight;
-    if (request.getProperties().get(HIGHLIGHT_KEY) != null) {
-      userHighlight = (Boolean) request.getProperties().get(HIGHLIGHT_KEY);
+    if (request.getProperties().get(QUERY_HIGHLIGHT_KEY) != null) {
+      userHighlight = (Boolean) request.getProperties().get(QUERY_HIGHLIGHT_KEY);
     } else {
       userHighlight = isSystemHighlightingEnabled();
     }
@@ -410,7 +409,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     }
 
     if (!resultsHighlights.isEmpty()) {
-      responseProps.put(HIGHLIGHT_KEY, (Serializable) resultsHighlights);
+      responseProps.put(QUERY_HIGHLIGHT_KEY, (Serializable) resultsHighlights);
     }
   }
 

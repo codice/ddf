@@ -13,6 +13,7 @@
  */
 package ddf.catalog.source.solr;
 
+import static ddf.catalog.Constants.QUERY_HIGHLIGHT_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
@@ -240,7 +241,7 @@ public class SolrMetacardClientImplTest {
     assertThat(results.size(), is(1));
     assertThat(results.get(0).getMetacard().getAttribute("title").getValue(), is("normal"));
     List<ResultHighlight> highlights =
-        (List<ResultHighlight>) response.getPropertyValue(SolrMetacardClientImpl.HIGHLIGHT_KEY);
+        (List<ResultHighlight>) response.getPropertyValue(QUERY_HIGHLIGHT_KEY);
     assertThat(highlights, notNullValue());
     assertThat(highlights.size(), is(1));
 
