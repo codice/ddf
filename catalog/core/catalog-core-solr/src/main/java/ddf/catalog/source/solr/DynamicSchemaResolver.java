@@ -532,10 +532,10 @@ public class DynamicSchemaResolver implements ConfigurationListener {
    * @return the original field name
    */
   String resolveFieldName(String solrFieldName) {
-    int firstIndexOfUndercore = solrFieldName.indexOf(FIRST_CHAR_OF_SUFFIX);
+    int lastIndexOfUndercore = solrFieldName.lastIndexOf(FIRST_CHAR_OF_SUFFIX);
 
-    if (firstIndexOfUndercore != -1) {
-      return solrFieldName.substring(0, firstIndexOfUndercore);
+    if (lastIndexOfUndercore != -1) {
+      return solrFieldName.substring(0, lastIndexOfUndercore);
     }
     return solrFieldName;
   }

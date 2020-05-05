@@ -382,7 +382,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       if (fieldHighlight != null && fieldHighlight.size() > 0) {
         for (Map.Entry<String, List<String>> entry : fieldHighlight.entrySet()) {
           String solrField = entry.getKey();
-          String normalizedKey = resolver.resolveFieldName(solrField);
+          String normalizedKey = resolveHighlightFieldName(solrField);
           if (isHighlightBlacklisted(normalizedKey)
               || isHighlightBlacklisted(solrField)
               || !isMetacardAttribute(normalizedKey, metacardId, response)) {
@@ -412,6 +412,15 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     if (!resultsHighlights.isEmpty()) {
       responseProps.put(HIGHLIGHT_KEY, (Serializable) resultsHighlights);
     }
+  }
+
+  private String resolveHighlightFieldName(String solrFieldName) {
+    int firstIndexOfUndercore = solrFieldName.indexOf(FIRST_CHAR_OF_SUFFIX);
+
+    if (firstIndexOfUndercore != -1) {
+      return solrFieldName.substring(0, firstIndexOfUndercore);
+    }
+    return solrFieldName;
   }
 
   private boolean isHighlightBlacklisted(String fieldName) {
