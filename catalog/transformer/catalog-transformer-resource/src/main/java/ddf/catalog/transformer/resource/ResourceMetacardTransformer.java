@@ -18,7 +18,7 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.impl.ResourceRequestById;
+import ddf.catalog.operation.impl.ResourceRequestByMetacard;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
@@ -72,9 +72,9 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
     }
 
     String id = metacard.getId();
-    LOGGER.debug("executing resource request with id '{}'", id);
+    LOGGER.debug("executing resource request with metacard '{}'", id);
 
-    final ResourceRequest resourceRequest = new ResourceRequestById(id, arguments);
+    final ResourceRequest resourceRequest = new ResourceRequestByMetacard(metacard, arguments);
 
     ResourceResponse resourceResponse = null;
 

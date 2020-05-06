@@ -15,6 +15,7 @@ package ddf.catalog.impl.operations;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
@@ -53,13 +54,17 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.codice.ddf.catalog.resource.download.DownloadException;
 import org.codice.ddf.configuration.SystemInfo;
 import org.opengis.filter.Filter;
@@ -344,7 +349,7 @@ public class ResourceOperations extends DescribableImpl {
             "Resource could not be found for the given attribute value: "
                 + resourceReq.getAttributeValue());
       }
-      final URI responseURI = resourceInfo.getResourceUri();
+      final URI responseURI = getResourceOrDerivedUri(resourceInfo, resourceReq);
       final Metacard metacard = resourceInfo.getMetacard();
 
       final String resolvedSourceId = resolvedSourceIdHolder.toString();
@@ -417,6 +422,58 @@ public class ResourceOperations extends DescribableImpl {
     }
 
     return resourceResponse;
+  }
+
+  private static URI getResourceOrDerivedUri(ResourceInfo resourceInfo, ResourceRequest resourceReq)
+      throws ResourceNotFoundException {
+    // check if the resource request included a qualifier in which case we are trying to retrieve
+    // a derived resource and not the resource
+    final Serializable qualifier = resourceReq.getPropertyValue(ResourceRequest.QUALIFIER);
+
+    if (qualifier == null) { // no qualifier means we are retrieving the resource
+      return resourceInfo.getResourceUri();
+    } // else we are retrieving a specific derived resource
+    LOGGER.debug("Derived resource qualifier = {}", qualifier);
+    final Attribute att = resourceInfo.getMetacard().getAttribute(Metacard.DERIVED_RESOURCE_URI);
+
+    if (att != null) {
+      final List<Serializable> values = att.getValues();
+
+      if (values != null) {
+        for (final Serializable v : values) {
+          try {
+            final URI uri = new URI(v.toString());
+
+            if (qualifier.equals(getQualifier(uri))) {
+              // override request URI property so that we use the derived resource uri from this
+              // point on
+              resourceReq.getProperties().put(Metacard.RESOURCE_URI, uri);
+              return uri;
+            }
+          } catch (URISyntaxException e) {
+            LOGGER.debug("Unable to create URI for: {}", v, e);
+          }
+        }
+      }
+    }
+    throw new ResourceNotFoundException(
+        "Derived resource '"
+            + qualifier
+            + "' could not be found for the given attribute value: "
+            + resourceReq.getAttributeValue());
+  }
+
+  @Nullable
+  private static String getQualifier(URI uri) {
+    if (StringUtils.equals(uri.getScheme(), ContentItem.CONTENT_SCHEME)) {
+      return uri.getFragment();
+    }
+    return URLEncodedUtils.parse(uri, StandardCharsets.UTF_8)
+        .stream()
+        .filter(pair -> ResourceRequest.QUALIFIER.equals(pair.getName()))
+        .map(NameValuePair::getValue)
+        .findFirst()
+        .orElse(null); // default
   }
 
   private ResourceResponse putPropertiesInResponse(
@@ -541,7 +598,7 @@ public class ResourceOperations extends DescribableImpl {
       boolean fanoutEnabled)
       throws ResourceNotSupportedException, ResourceNotFoundException {
 
-    ResourceInfo resourceInfo;
+    ResourceInfo resourceInfo = null;
     Query query = null;
     URI resourceUri = null;
     String name = resourceRequest.getAttributeName();
@@ -577,18 +634,35 @@ public class ResourceOperations extends DescribableImpl {
         String metacardId = (String) value;
         LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
         query = createMetacardIdQuery(metacardId);
+      } else if (ResourceRequest.GET_RESOURCE_BY_METACARD.equals(name)) {
+        // no need to actually perform the query, just create a resource info with the metacard
+        LOGGER.debug("get resource by metacard");
+        final Metacard metacard = (Metacard) value;
+        final String metacardId = metacard.getId();
+
+        LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
+        if (!requestProperties.containsKey(Metacard.ID)) {
+          requestProperties.put(Metacard.ID, metacardId);
+        }
+        resourceUri = metacard.getResourceURI();
+        if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
+          requestProperties.put(Metacard.RESOURCE_URI, resourceUri);
+        }
+        resourceInfo = new ResourceInfo(metacard, resourceUri);
       }
 
-      QueryRequest queryRequest =
-          new QueryRequestImpl(
-              anyTag(query, site, isEnterprise),
-              isEnterprise,
-              Collections.singletonList(site == null ? this.getId() : site),
-              resourceRequest.getProperties());
+      if (resourceInfo == null) {
+        QueryRequest queryRequest =
+            new QueryRequestImpl(
+                anyTag(query, site, isEnterprise),
+                isEnterprise,
+                Collections.singletonList(site == null ? this.getId() : site),
+                resourceRequest.getProperties());
 
-      resourceInfo =
-          getResourceInfo(
-              queryRequest, resourceUri, requestProperties, federatedSite, fanoutEnabled);
+        resourceInfo =
+            getResourceInfo(
+                queryRequest, resourceUri, requestProperties, federatedSite, fanoutEnabled);
+      }
     } catch (UnsupportedQueryException | FederationException e) {
 
       throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE, e);

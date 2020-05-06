@@ -22,11 +22,15 @@ public interface ResourceRequest extends Request {
 
   public static final String GET_RESOURCE_BY_PRODUCT_URI = Metacard.RESOURCE_URI;
 
+  public static final String GET_RESOURCE_BY_METACARD = "metacard";
+
   public static final String OPTION_ARGUMENT = "RESOURCE_OPTION";
 
   public static final String SOURCE_ID = "SOURCE_ID";
 
   public static final String IS_ENTERPRISE = "IS_ENTERPRISE";
+
+  public static final String QUALIFIER = "QUALIFIER";
 
   public String getAttributeName();
 
