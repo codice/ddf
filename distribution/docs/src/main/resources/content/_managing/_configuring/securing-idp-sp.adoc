@@ -80,5 +80,5 @@ Set the authentication types in the `WebContextPolicyManager` to SAML.
 . Under *Authentication Types for Web Pages* and *Authentication Types for Endpoints*, set the SAML authentication type_ as necessary.
 
 Other authentication types can also be used in conjunction with the SAML type.
-For example, if you wanted to secure the entire system with the IDP, but still allow legacy clients that don't understand the SAML ECP specification to connect, you could set *Authentication Types for Web Pages* and *Authentication Types for Endpoints* to `SAML|PKI`.
+For example, if you wanted to secure the entire system with the IDP, but still allow PKI authentication for legacy clients that don't understand the SAML ECP specification, you could set *Authentication Types for Web Pages* and *Authentication Types for Endpoints* to `PKI|SAML`.
 With that configuration, any clients that failed to connect using either the SAML 2.0 Web SSO Profile or the SAML ECP spec would fall back to 2-way TLS for authentication.
