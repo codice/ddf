@@ -28,7 +28,7 @@ describe('serialize', () => {
   it('prevents negative non-positive distance', () => {
     expect(serialize('value', -5)).to.deep.equal({
       value: 'value',
-      distance: '1',
+      distance: 1,
     })
   })
 })
