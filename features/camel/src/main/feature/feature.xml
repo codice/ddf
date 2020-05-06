@@ -22,7 +22,7 @@
 
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
 
-    <repository>mvn:ddf.features/karaf/${project.version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.features/enterprise/${karaf.version}/xml/features</repository>
 
     <!--START Camel Features-->
     <!-- DO NOT EDIT

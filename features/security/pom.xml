@@ -354,18 +354,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.migration</groupId>
-            <artifactId>platform-migration-utils</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.api</groupId>
             <artifactId>platform-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.migration</groupId>
-            <artifactId>security-migratable</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
