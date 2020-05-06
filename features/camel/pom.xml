@@ -34,9 +34,9 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>karaf</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>enterprise</artifactId>
+            <version>${karaf.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
