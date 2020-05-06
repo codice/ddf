@@ -76,11 +76,6 @@ class LocationInput extends React.Component {
       this.locationModel.setLatLon
     )
     this.props.listenTo(this.locationModel, 'change', this.updateMap)
-    this.props.listenTo(this.locationModel, 'change:polygon', () => {
-      if (this.locationModel.get('mode') !== 'poly') {
-        wreqr.vent.trigger('search:polydisplay', this.locationModel)
-      }
-    })
     this.props.listenTo(this.locationModel, 'change:mode', () => {
       this.clearLocation()
     })
@@ -90,7 +85,10 @@ class LocationInput extends React.Component {
     wreqr.vent.trigger('search:drawend', this.locationModel)
   }
   updateMap = () => {
-    const mode = this.locationModel.get('mode')
+    const mode =
+      this.locationModel.get('mode') === 'keyword'
+        ? 'poly'
+        : this.locationModel.get('mode')
     if (mode !== undefined && store.get('content').get('drawing') !== true) {
       wreqr.vent.trigger('search:' + mode + 'display', this.locationModel)
     }

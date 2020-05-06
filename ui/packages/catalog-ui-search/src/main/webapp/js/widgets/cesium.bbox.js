@@ -218,11 +218,7 @@ Draw.BboxView = Marionette.View.extend({
   updatePrimitive(model) {
     const rectangle = this.modelToRectangle(model)
     // make sure the current model has width and height before drawing
-    if (
-      rectangle &&
-      !_.isUndefined(rectangle) &&
-      (rectangle.north > rectangle.south && rectangle.east !== rectangle.west)
-    ) {
+    if (rectangle && !_.isUndefined(rectangle)) {
       this.drawBorderedRectangle(rectangle)
       //only call this if the mouse button isn't pressed, if we try to draw the border while someone is dragging
       //the filled in shape won't show up
@@ -234,37 +230,28 @@ Draw.BboxView = Marionette.View.extend({
 
   updateGeometry(model) {
     const rectangle = this.modelToRectangle(model)
-    if (
-      rectangle &&
-      !_.isUndefined(rectangle) &&
-      (rectangle.north > rectangle.south && rectangle.east !== rectangle.west)
-    ) {
+    if (rectangle && !_.isUndefined(rectangle)) {
       this.drawBorderedRectangle(rectangle)
     }
   },
 
   destroyOldPrimitive() {
-    // first destroy old one
     if (this.primitive && !this.primitive.isDestroyed()) {
       this.options.map.scene.primitives.remove(this.primitive)
+      this.options.map.scene.requestRender()
     }
   },
 
   drawBorderedRectangle(rectangle) {
-    if (!rectangle) {
-      // handles case where model changes to empty vars and we don't want to draw anymore
-      return
-    }
-
     this.destroyOldPrimitive()
 
     if (
-      isNaN(rectangle.north) ||
-      isNaN(rectangle.south) ||
-      isNaN(rectangle.east) ||
-      isNaN(rectangle.west)
+      [rectangle.north, rectangle.south, rectangle.west, rectangle.east].some(
+        coordinate => isNaN(coordinate)
+      ) ||
+      rectangle.north <= rectangle.south ||
+      rectangle.east === rectangle.west
     ) {
-      // handles case where model is incomplete and we don't want to draw anymore
       return
     }
 
@@ -299,7 +286,7 @@ Draw.BboxView = Marionette.View.extend({
   handleRegionStop() {
     this.enableInput()
     this.mouseHandler.destroy()
-    if (this.primitive) {
+    if (this.primitive && this.primitive.rectangle) {
       this.drawBorderedRectangle(this.primitive.rectangle)
     }
     this.stopListening(
