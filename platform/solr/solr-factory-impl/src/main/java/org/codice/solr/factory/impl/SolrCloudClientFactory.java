@@ -18,15 +18,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.FailsafeException;
 import net.jodah.failsafe.RetryPolicy;
@@ -36,7 +32,6 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient.RemoteSolrException;
 import org.apache.solr.client.solrj.impl.ZkClientClusterStateProvider;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
@@ -70,18 +65,9 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   private final int maximumShardsPerNode =
       NumberUtils.toInt(System.getProperty("solr.cloud.maxShardPerNode"), 2);
 
-  private static final String ALIAS_PROP = "alias";
-
   @Override
-  public org.codice.solr.client.solrj.SolrClient newClient(String core) {
-    return newClient(core, new HashMap<>());
-  }
-
-  @Override
-  public org.codice.solr.client.solrj.SolrClient newClient(
-      String collection, Map<String, Object> properties) {
+  public org.codice.solr.client.solrj.SolrClient newClient(String collection) {
     Validate.notNull(collection, "invalid null Solr core name");
-    Validate.notNull(properties, "invalid null properties.");
 
     String zookeeperHosts = System.getProperty("solr.cloud.zookeeper");
     checkConfig(zookeeperHosts);
@@ -91,107 +77,18 @@ public class SolrCloudClientFactory implements SolrClientFactory {
         collection,
         zookeeperHosts);
 
-    String alias = (String) properties.getOrDefault(ALIAS_PROP, null);
-
     return new SolrClientAdapter(
         collection,
         () ->
             AccessController.doPrivileged(
                 (PrivilegedAction<SolrClient>)
                     () -> {
-                      return createSolrCloudClient(zookeeperHosts, collection, alias);
+                      return createSolrCloudClient(zookeeperHosts, collection);
                     }));
   }
 
   @VisibleForTesting
-  void addCollectionToAlias(String alias, String collection, CloudSolrClient client) {
-    if (StringUtils.isBlank(alias) || StringUtils.isBlank(collection)) {
-      return;
-    }
-    try {
-      List<String> aliasedCollections = getCollectionsInAlias(client, alias);
-      if (!aliasedCollections.contains(collection)) {
-        List<String> collections = new ArrayList<>();
-        collections.addAll(aliasedCollections);
-        collections.add(collection);
-        collections.addAll(getCollectionsNotInAlias(client, aliasedCollections, alias));
-        createAlias(client, collections, alias);
-      }
-    } catch (SolrServerException | IOException e) {
-      LOGGER.warn("Failed to update alias [{}]", alias, e);
-    }
-  }
-
-  private List<String> getCollectionsInAlias(CloudSolrClient client, String alias)
-      throws SolrServerException, IOException {
-    CollectionAdminResponse aliasResponse =
-        new CollectionAdminRequest.ListAliases().process(client);
-
-    return Optional.ofNullable(aliasResponse)
-        .map(CollectionAdminResponse::getAliases)
-        .map(a -> a.get(alias))
-        .map(ca -> ca.split(","))
-        .map(Arrays::asList)
-        .orElse(Collections.emptyList());
-  }
-
-  /**
-   * Find existing collections in case parallel operations are creating collections
-   *
-   * @param client
-   * @param currentAliases
-   * @param alias
-   * @return
-   * @throws SolrServerException
-   * @throws IOException
-   */
-  private List<String> getCollectionsNotInAlias(
-      CloudSolrClient client, List<String> currentAliases, String alias)
-      throws SolrServerException, IOException {
-
-    CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
-    return Optional.ofNullable(response)
-        .map(CollectionAdminResponse::getResponse)
-        .map(resp -> (List<String>) resp.get("collections"))
-        .orElse(Collections.emptyList())
-        .stream()
-        .filter(c -> c.startsWith(alias))
-        .filter(c -> currentAliases.contains(c))
-        .collect(Collectors.toList());
-  }
-
-  private void createAlias(CloudSolrClient client, List<String> collections, String alias) {
-    String aliasedCollections = String.join(",", collections);
-    RetryPolicy retryPolicy =
-        new RetryPolicy()
-            .withDelay(100, TimeUnit.MILLISECONDS)
-            .withMaxDuration(3, TimeUnit.MINUTES)
-            .retryOn(RemoteSolrException.class);
-    CollectionAdminResponse response =
-        Failsafe.with(retryPolicy)
-            .get(
-                () ->
-                    CollectionAdminRequest.createAlias(alias, aliasedCollections).process(client));
-
-    if (response.getErrorMessages() != null && response.getErrorMessages().size() != 0) {
-      LOGGER.warn(
-          "Failed to update alias [{}] with collections: [{}], this will cause queries to be inconsistent. Error: {}",
-          alias,
-          aliasedCollections,
-          response.getErrorMessages());
-    }
-    if (!isAliasReady(client, alias)) {
-
-      LOGGER.debug(
-          "Alias [{}] was not updated with new list of collections: [{}]", alias, collections);
-    } else {
-      LOGGER.trace(
-          "Alias [{}] updated with new list of collections: [{}]", alias, aliasedCollections);
-    }
-  }
-
-  @VisibleForTesting
-  SolrClient createSolrCloudClient(String zookeeperHosts, String collection, String alias) {
+  SolrClient createSolrCloudClient(String zookeeperHosts, String collection) {
     try (final Closer closer = new Closer()) {
       CloudSolrClient client = closer.with(newCloudSolrClient(zookeeperHosts));
       client.connect();
@@ -207,7 +104,6 @@ public class SolrCloudClientFactory implements SolrClientFactory {
         try {
           if (createCollection(collection, client)) {
             waitForCollection(collection, client);
-            addCollectionToAlias(alias, collection, client);
           }
 
         } catch (SolrFactoryException e) {
@@ -405,23 +301,6 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       LOGGER.debug("Solr({}): Retry failure waiting for collection shards to start", collection, e);
       return false;
     }
-  }
-
-  private boolean isAliasReady(CloudSolrClient client, String alias) {
-    try {
-      boolean aliasReady =
-          Failsafe.with(withRetry().retryWhen(false))
-              .onFailure(
-                  failure -> LOGGER.debug("Unable to get status on alias: {}", alias, failure))
-              .get(() -> isAliasCollection(alias, client));
-      if (!aliasReady) {
-        LOGGER.debug("Solr ({}): Timeout while waiting for Alias to exist", alias);
-      }
-      return aliasReady;
-    } catch (FailsafeException e) {
-      LOGGER.debug("Solr({}): Failure waiting for Alias to exist", alias, e);
-    }
-    return false;
   }
 
   protected void checkConfig(String zookeeperHosts) {

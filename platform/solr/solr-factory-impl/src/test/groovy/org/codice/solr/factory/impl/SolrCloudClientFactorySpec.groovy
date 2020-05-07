@@ -57,25 +57,6 @@ class SolrCloudClientFactorySpec extends Specification {
 
   static final int AVAILABLE_TIMEOUT_IN_SECS = 45
 
-  @Shared
-  def aliasResponseWithAlias = Mock(NamedList) {
-    get("aliases") >> Collections.singletonMap("test_alias", CORE)
-  }
-
-  @Shared
-  def aliasResponseWithOtherAlias = Mock(NamedList) {
-    get("aliases") >> Collections.singletonMap("test_alias", "collection_1,collection_2")
-  }
-
-  @Shared
-  def aliasResponseWithNullAliases = Mock(NamedList) {
-    get("aliases") >> null
-  }
-
-  @Shared
-  def aliasResponseWithoutAlias = Mock(NamedList)
-
-
   @Rule
   TemporaryFolder tempFolder = new TemporaryFolder()
 
@@ -107,7 +88,7 @@ class SolrCloudClientFactorySpec extends Specification {
         // verify an actual Solr cloud client will be created
         // must be done in 'given' because it will be called from a different thread and if
         // declared in 'then', it will be out of scope and not matched
-        1 * createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, null) >> cloudClient
+        1 * createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE) >> cloudClient
       }
 
     when:
@@ -179,7 +160,7 @@ class SolrCloudClientFactorySpec extends Specification {
       def factory = Spy(SolrCloudClientFactory)
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, CORE)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "verify the Solr cloud client is created"
       1 * factory.newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
@@ -224,7 +205,7 @@ class SolrCloudClientFactorySpec extends Specification {
       def factory = Spy(SolrCloudClientFactory)
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, CORE)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "verify the Solr cloud client is created"
       1 * factory.newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
@@ -316,7 +297,7 @@ class SolrCloudClientFactorySpec extends Specification {
       def factory = Spy(SolrCloudClientFactory)
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, null)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "verify the Solr cloud client is created"
       1 * factory.newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
@@ -389,7 +370,7 @@ class SolrCloudClientFactorySpec extends Specification {
       }
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, null)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "verify zookeeper is consulted to see if the alias exists"
       1 * cloudClient.request({
@@ -432,7 +413,7 @@ class SolrCloudClientFactorySpec extends Specification {
       }
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, null)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "verify the Solr cloud client is created"
       1 * factory.newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
@@ -470,7 +451,7 @@ class SolrCloudClientFactorySpec extends Specification {
       }
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, null)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "fail when trying to list existing collections"
       2 * cloudClient.request({
@@ -506,7 +487,7 @@ class SolrCloudClientFactorySpec extends Specification {
       }
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, null)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "fail when trying to list existing collections"
       2 * cloudClient.request({
@@ -546,7 +527,7 @@ class SolrCloudClientFactorySpec extends Specification {
       }
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, null)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "fail when trying to create the collection"
       1 * cloudClient.request({ it instanceof CollectionAdminRequest.Create }, null) >> {
@@ -583,7 +564,7 @@ class SolrCloudClientFactorySpec extends Specification {
       }
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, null)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "fail when trying to create the collection"
       1 * cloudClient.request({
@@ -625,7 +606,7 @@ class SolrCloudClientFactorySpec extends Specification {
       }
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE, null)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "fail or not when checking if the collection was created"
       expected_retries_for_has_collection * factory.withRetry() >> {
@@ -659,40 +640,8 @@ class SolrCloudClientFactorySpec extends Specification {
       'a retry failure occurred while retrieving the shards' || 1                                   | true                 | 1                                     | true           | 1                               | false            | 0                                 | 0
   }
 
-
   @Unroll
-  def 'test adding collection to alias because #alias_creation_because'() {
-    given:
-      def zkClient = Mock(SolrZkClient)  {
-        exists(*_) >> true
-      }
-      def aliasCreateResponse = Mock(NamedList)
-      def zkStateProvider = Mock(ZkClientClusterStateProvider)
-      def cloudClient = Mock(CloudSolrClient) {
-        getZkStateReader() >> Mock(ZkStateReader) {
-          getZkClient() >> zkClient
-        }
-      }
-      def factory = Spy(SolrCloudClientFactory)
-
-    when: "add collection to alias"
-      factory.addCollectionToAlias("test_alias", CORE, cloudClient)
-
-    then: "list aliases called"
-      list_invocations * cloudClient.request({ it instanceof CollectionAdminRequest.ListAliases }, null) >>> alias_response
-
-    and: "create alias called"
-      create_invocations * cloudClient.request({ it instanceof CollectionAdminRequest.CreateAlias }, null) >> aliasCreateResponse
-
-    where:
-      alias_creation_because      || list_invocations | create_invocations | alias_response
-      'no existing alias'         || 3                | 1                  | [aliasResponseWithoutAlias, aliasResponseWithoutAlias, aliasResponseWithAlias]
-      'existing other aliases'    || 2                | 1                  | [aliasResponseWithOtherAlias, aliasResponseWithOtherAlias, aliasResponseWithAlias]
-      'alias already exists'      || 1                | 0                  | [aliasResponseWithAlias]
-  }
-
-  @Unroll
-  def 'test collections exists because #collection_exists_because'() {
+  def 'test #collection_exists_because'() {
     given:
       def zkStateProvider = Mock(ZkClientClusterStateProvider)
       def cloudClient = Mock(CloudSolrClient) {

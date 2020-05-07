@@ -91,8 +91,6 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
 
   private static final long TIMEOUT = 10000L;
 
-  private static final String COLLECTION_HINT = "collection-hint";
-
   private CatalogFramework catalogFramework;
 
   private FilterBuilder filterBuilder;
@@ -100,8 +98,6 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
   private Filter tagFilter;
 
   private List<Filter> featureCodeFilters;
-
-  private String geocoderCollection = "gazetteer";
 
   public GazetteerQueryCatalog(CatalogFramework catalogFramework, FilterBuilder filterBuilder) {
     this.catalogFramework = catalogFramework;
@@ -134,7 +130,6 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
         new SortByImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, SortOrder.DESCENDING);
     SortBy[] sortbys = {populationSortBy};
     properties.put(ADDITIONAL_SORT_BYS, sortbys);
-    properties.put(COLLECTION_HINT, geocoderCollection);
 
     Query query = new QueryImpl(queryFilter, 1, maxResults, featureCodeSortBy, false, TIMEOUT);
     QueryRequest queryRequest = new QueryRequestImpl(query, properties);
@@ -163,13 +158,9 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     Filter idFilter = filterBuilder.attribute(Core.ID).is().text(id);
     Filter queryFilter = filterBuilder.allOf(tagFilter, idFilter);
 
-    Map<String, Serializable> properties = new HashMap<>();
-    properties.put(COLLECTION_HINT, geocoderCollection);
-
     QueryResponse queryResponse;
     try {
-      queryResponse =
-          catalogFramework.query(new QueryRequestImpl(new QueryImpl(queryFilter), properties));
+      queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(queryFilter)));
     } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
       throw new GeoEntryQueryException(ERROR_MESSAGE, e);
     }
@@ -189,7 +180,6 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     suggestProps.put(SUGGESTION_QUERY_KEY, queryString);
     suggestProps.put(SUGGESTION_CONTEXT_KEY, GAZETTEER_METACARD_TAG);
     suggestProps.put(SUGGESTION_DICT_KEY, SUGGEST_PLACE_KEY);
-    suggestProps.put(COLLECTION_HINT, geocoderCollection);
 
     Query suggestionQuery = new QueryImpl(filterBuilder.attribute(Core.TITLE).text(queryString));
 
@@ -287,11 +277,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
 
     Filter queryFilter = filterBuilder.allOf(featureCodeFilter, tagFilter, textFilter);
     Query query = new QueryImpl(queryFilter, 1, maxResults, SortBy.NATURAL_ORDER, false, TIMEOUT);
-
-    Map<String, Serializable> properties = new HashMap<>();
-    properties.put(COLLECTION_HINT, geocoderCollection);
-
-    QueryRequest queryRequest = new QueryRequestImpl(query, properties);
+    QueryRequest queryRequest = new QueryRequestImpl(query);
 
     QueryResponse queryResponse;
     try {
@@ -355,10 +341,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     Filter filter = filterBuilder.attribute(Core.LOCATION).withinBuffer().wkt(wkt, radiusInMeters);
     Filter queryFilter = filterBuilder.allOf(tagFilter, filter);
     Query query = new QueryImpl(queryFilter);
-
-    Map<String, Serializable> properties = new HashMap<>();
-    properties.put(COLLECTION_HINT, geocoderCollection);
-    QueryRequest queryRequest = new QueryRequestImpl(query, properties);
+    QueryRequest queryRequest = new QueryRequestImpl(query);
     QueryResponse queryResponse;
     try {
       queryResponse = catalogFramework.query(queryRequest);
@@ -374,11 +357,5 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       return Optional.ofNullable(countryCode);
     }
     return Optional.empty();
-  }
-
-  public void setGeocoderCollection(String geocoderCollection) {
-    if (StringUtils.isNotBlank(geocoderCollection)) {
-      this.geocoderCollection = geocoderCollection;
-    }
   }
 }

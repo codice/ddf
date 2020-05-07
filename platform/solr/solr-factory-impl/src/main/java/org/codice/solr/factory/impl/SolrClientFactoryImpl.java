@@ -18,7 +18,6 @@ import static org.apache.commons.lang.Validate.notNull;
 import com.google.common.annotations.VisibleForTesting;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Map;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 
@@ -47,11 +46,6 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
   public SolrClient newClient(String core) {
     notNull(core, "Solr core name cannot be null");
     return factory.newClient(core);
-  }
-
-  @Override
-  public SolrClient newClient(String collection, Map<String, Object> properties) {
-    return factory.newClient(collection, properties);
   }
 
   @VisibleForTesting

@@ -210,7 +210,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       handleSuggestionResponse(solrResponse, responseProps);
 
       SolrDocumentList docs = solrResponse.getResults();
-      docs = handleSpellcheck(request, solrResponse, responseProps, query, docs, userSpellcheckIsOn);
+      docs =
+          handleSpellcheck(request, solrResponse, responseProps, query, docs, userSpellcheckIsOn);
       if (docs != null) {
         addDocsToResults(docs, results);
         totalHits = docs.getNumFound();
@@ -325,30 +326,30 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     QueryResponse highlightResponse = solrResponse;
     SolrDocumentList resultDocs = originalDocs;
     if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
-          Collation collation = getCollationToResend(query, solrResponse);
-          query.set("q", collation.getCollationQueryString());
-          query.set("spellcheck", false);
-          highlighter.processPreQuery(request, query);
-          QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
-          SolrDocumentList docs = solrResponseRequery.getResults();
-          if (docs != null && docs.size() > originalDocs.size()) {
-            resultDocs = docs;
-            highlightResponse = solrResponseRequery;
+      Collation collation = getCollationToResend(query, solrResponse);
+      query.set("q", collation.getCollationQueryString());
+      query.set("spellcheck", false);
+      highlighter.processPreQuery(request, query);
+      QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
+      SolrDocumentList docs = solrResponseRequery.getResults();
+      if (docs != null && docs.size() > originalDocs.size()) {
+        resultDocs = docs;
+        highlightResponse = solrResponseRequery;
 
-            Set<String> originals = new HashSet<>();
-            Set<String> corrections = new HashSet<>();
-            collation
-                .getMisspellingsAndCorrections()
-                .stream()
-                .forEach(
-                    correction -> {
-                      originals.add(correction.getOriginal());
-                      corrections.add(correction.getCorrection());
-                    });
-            responseProps.put(DID_YOU_MEAN_KEY, new ArrayList<>(originals));
-            responseProps.put(SHOWING_RESULTS_FOR_KEY, new ArrayList<>(corrections));
-          }
-        }
+        Set<String> originals = new HashSet<>();
+        Set<String> corrections = new HashSet<>();
+        collation
+            .getMisspellingsAndCorrections()
+            .stream()
+            .forEach(
+                correction -> {
+                  originals.add(correction.getOriginal());
+                  corrections.add(correction.getCorrection());
+                });
+        responseProps.put(DID_YOU_MEAN_KEY, new ArrayList<>(originals));
+        responseProps.put(SHOWING_RESULTS_FOR_KEY, new ArrayList<>(corrections));
+      }
+    }
     highlighter.processPostQuery(highlightResponse, responseProps);
     return resultDocs;
   }

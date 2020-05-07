@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpHead;
@@ -138,12 +137,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     }
     LOGGER.debug("Solr({}): Creating an HTTP Solr client using url [{}]", core, coreUrl);
     return new SolrClientAdapter(core, () -> createSolrHttpClient(solrUrl, core, coreUrl));
-  }
-
-  @Override
-  public org.codice.solr.client.solrj.SolrClient newClient(
-      String collection, Map<String, Object> properties) {
-    return newClient(collection);
   }
 
   @VisibleForTesting
