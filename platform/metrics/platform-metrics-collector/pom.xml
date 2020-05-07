@@ -17,7 +17,7 @@
     <parent>
         <artifactId>metrics</artifactId>
         <groupId>ddf.metrics</groupId>
-        <version>2.24.0-SNAPSHOT</version>
+        <version>2.24.0-build_202005070232</version>
     </parent>
     <groupId>ddf.metrics.collector</groupId>
     <artifactId>metrics-collector</artifactId>
