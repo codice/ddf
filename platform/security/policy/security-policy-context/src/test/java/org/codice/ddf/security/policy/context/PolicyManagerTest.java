@@ -16,6 +16,7 @@ package org.codice.ddf.security.policy.context;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.security.permission.CollectionPermission;
@@ -37,7 +38,9 @@ import org.junit.Test;
 /** Test for PolicyManager */
 public class PolicyManagerTest {
 
-  private static final String AUTH_TYPES = "authenticationTypes";
+  private static final String WEB_AUTH_TYPES = "webAuthenticationTypes";
+
+  private static final String ENDPOINT_AUTH_TYPES = "endpointAuthenticationTypes";
 
   private static final String REQ_ATTRS = "requiredAttributes";
 
@@ -51,10 +54,6 @@ public class PolicyManagerTest {
 
   private PolicyManager rollBackTestManager;
 
-  private String[] rollBackAuthTypesValues = {
-    "/=SAML|GUEST", "/A=a", "/A/B/C/testContext4=abcTestContext4"
-  };
-
   private String[] rollBackReqAttrValues = {
     "/=",
     "/A={A=a}",
@@ -65,13 +64,9 @@ public class PolicyManagerTest {
     "/A/B/C/testContext8={AbcTestContext8=abcTestContext8}"
   };
 
-  private final Map<String, List<String>> expectedRollBackAuthTypes =
-      new ImmutableMap.Builder<String, List<String>>()
-          .put("/testContext", DEFAULT_AUTH_TYPES)
-          .put("/1/2/3/testContext2", Arrays.asList("SAML", "GUEST"))
-          .put("/A/B/C/testContext3", Collections.singletonList("a"))
-          .put("/A/B/C/testContext4", Collections.singletonList("abcTestContext4"))
-          .build();
+  private final List<String> expectedRollBackWebAuthTypes = DEFAULT_AUTH_TYPES;
+
+  private final List<String> expectedRollBackEndpointAuthTypes = Arrays.asList("PKI", "BASIC");
 
   private final Map<String, List<String>> expectedRollBackReqAttrs =
       new ImmutableMap.Builder<String, List<String>>()
@@ -113,7 +108,8 @@ public class PolicyManagerTest {
         "/search/standard", new Policy("/search/standard", new ArrayList<>(), null));
     manager.setContextPolicy(
         "/search/simple", new Policy("/search/simple", new ArrayList<>(), null));
-    manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", new ArrayList<>(), null));
+    manager.setContextPolicy(
+        "/services/aaaaaa", new Policy("/services/aaaaaa", new ArrayList<>(), null));
     manager.setContextPolicy("/aaa", new Policy("/aaa", new ArrayList<>(), null));
     manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", new ArrayList<>(), null));
     manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", new ArrayList<>(), null));
@@ -137,7 +133,8 @@ public class PolicyManagerTest {
     manager.setWhiteListContexts(Arrays.asList("/foo"));
 
     Map<String, Object> contextPolicies = new HashMap<>();
-    contextPolicies.put(AUTH_TYPES, rollBackAuthTypesValues);
+    contextPolicies.put(WEB_AUTH_TYPES, "SAML|GUEST");
+    contextPolicies.put(ENDPOINT_AUTH_TYPES, "PKI|BASIC");
     contextPolicies.put(REQ_ATTRS, rollBackReqAttrValues);
     contextPolicies.put(GUEST_ACCESS, true);
     contextPolicies.put(SESSION_ACCESS, true);
@@ -217,10 +214,13 @@ public class PolicyManagerTest {
    */
   @Test
   public void testAuthTypesRollBack() {
-    for (String contextPath : expectedRollBackAuthTypes.keySet()) {
-      for (String authType :
-          rollBackTestManager.getContextPolicy(contextPath).getAuthenticationMethods()) {
-        assertThat(expectedRollBackAuthTypes.get(contextPath).contains(authType), is(true));
+    for (ContextPolicy policy : rollBackTestManager.getPolicyStore().values()) {
+      for (String authType : policy.getAuthenticationMethods()) {
+        if (policy.getContextPath().startsWith("/services")) {
+          assertThat(expectedRollBackEndpointAuthTypes.contains(authType), is(true));
+        } else {
+          assertThat(expectedRollBackWebAuthTypes.contains(authType), is(true));
+        }
       }
     }
   }
@@ -306,23 +306,15 @@ public class PolicyManagerTest {
   public void testConfiguration() {
     Map<String, Object> properties = new HashMap<>();
 
-    String[] authTypes =
-        new String[] {
-          "/=SAML|BASIC",
-          "/search=SAML|BASIC|GUEST",
-          "/admin=SAML|BASIC",
-          "/foo=BASIC",
-          "/blah=GUEST",
-          "/bleh=GUEST",
-          "/unprotected=",
-          "/unprotected2="
-        };
+    String webAuthTypes = "SAML|BASIC";
+    String endAuthTypes = "PKI";
     String[] requiredAttributes =
         new String[] {
           "/={}", "/blah=", "/search={role=user;control=foo;control=bar}", "/admin={role=admin}"
         };
 
-    properties.put("authenticationTypes", authTypes);
+    properties.put(WEB_AUTH_TYPES, webAuthTypes);
+    properties.put(ENDPOINT_AUTH_TYPES, endAuthTypes);
     properties.put("requiredAttributes", requiredAttributes);
     properties.put(GUEST_ACCESS, true);
     properties.put(SESSION_ACCESS, true);
@@ -333,22 +325,15 @@ public class PolicyManagerTest {
 
   @Test
   public void testSetPropertiesIgnoresNullMap() {
-    String[] authTypes =
-        new String[] {
-          "/=SAML|BASIC",
-          "/search=SAML|BASIC|GUEST",
-          "/admin=SAML|BASIC",
-          "/foo=BASIC",
-          "/blah=GUEST",
-          "/unprotected=",
-          "/unprotected2=",
-          "/bleh=GUEST"
-        };
+    String webAuthTypes = "SAML|BASIC";
+    String endAuthTypes = "PKI";
+
     String[] requiredAttributes =
         new String[] {
           "/={}", "/search={role=user;control=foo;control=bar}", "/admin={role=admin|supervisor}"
         };
-    manager.setAuthenticationTypes(Arrays.asList(authTypes));
+    manager.setWebAuthenticationTypes(webAuthTypes);
+    manager.setEndpointAuthenticationTypes(endAuthTypes);
     manager.setRequiredAttributes(Arrays.asList(requiredAttributes));
     manager.setGuestAccess(true);
     manager.setSessionAccess(true);
@@ -363,6 +348,37 @@ public class PolicyManagerTest {
     manager.setWhiteListContexts(
         Arrays.asList("/foo", "${org.codice.security.policy.context.test.bar}"));
     assertThat(manager.getWhiteListContexts().contains("/baz"), is(true));
+  }
+
+  @Test
+  public void testFileBasedConfig() {
+    manager.setPolicyFilePath("web-context-policy-config.properties");
+
+    Map<String, Object> properties = new HashMap<>();
+
+    String authTypes = "OIDC";
+    String[] requiredAttributes =
+        new String[] {
+          "/={}", "/blah=", "/search={role=user;control=foo;control=bar}", "/admin={role=admin}"
+        };
+
+    properties.put(WEB_AUTH_TYPES, authTypes);
+    properties.put(ENDPOINT_AUTH_TYPES, authTypes);
+    properties.put("requiredAttributes", requiredAttributes);
+    properties.put(GUEST_ACCESS, true);
+    properties.put(SESSION_ACCESS, true);
+    manager.setPolicies(properties);
+
+    testAllPolicies();
+    testAdditionalPolicies();
+
+    // test OIDC auth type is ignored
+    assertTrue(
+        manager
+            .getAllContextPolicies()
+            .stream()
+            .flatMap(contextPolicy -> contextPolicy.getAuthenticationMethods().stream())
+            .noneMatch(auth -> auth.equals("OIDC")));
   }
 
   private void testAllPolicies() {
@@ -404,13 +420,13 @@ public class PolicyManagerTest {
     }
 
     // check foo policy
-    policy = manager.getContextPolicy("/foo");
-    assertThat("/foo", is(policy.getContextPath()));
+    policy = manager.getContextPolicy("/services");
+    assertThat("/services", is(policy.getContextPath()));
     authIter = policy.getAuthenticationMethods().iterator();
     i = 0;
     while (authIter.hasNext()) {
       if (i == 0) {
-        assertThat("BASIC", is(authIter.next()));
+        assertThat("PKI", is(authIter.next()));
       }
 
       i++;
@@ -425,6 +441,21 @@ public class PolicyManagerTest {
       if (i == 0) {
         assertThat("SAML", is(authIter.next()));
       } else if (i == 1) {
+        assertThat("BASIC", is(authIter.next()));
+      }
+
+      i++;
+    }
+  }
+
+  private void testAdditionalPolicies() {
+    // check foo policy
+    ContextPolicy policy = manager.getContextPolicy("/foo");
+    assertThat("/foo", is(policy.getContextPath()));
+    Iterator authIter = policy.getAuthenticationMethods().iterator();
+    int i = 0;
+    while (authIter.hasNext()) {
+      if (i == 0) {
         assertThat("BASIC", is(authIter.next()));
       }
 

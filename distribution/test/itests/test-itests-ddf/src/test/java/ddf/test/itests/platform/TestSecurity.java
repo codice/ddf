@@ -745,10 +745,11 @@ public class TestSecurity extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testAdminConfigPolicyCreateAndModifyConfiguration() {
+  public void testAdminConfigPolicyCreateAndModifyConfiguration() throws Exception {
 
     // create config CreateFactoryConfiguration
 
+    configureRestForBasic();
     String createFactoryConfigPermittedResponse =
         sendPermittedRequest(
             "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/createFactoryConfiguration/testCreateFactoryPid");

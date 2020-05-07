@@ -400,6 +400,7 @@ public abstract class AbstractIntegrationTest {
       basePort = getBasePort();
       getServiceManager().startFeature(true, getDefaultRequiredApps());
       getServiceManager().waitForAllBundles();
+      getSecurityPolicy().configureRestForGuest();
       getCatalogBundle().waitForCatalogProvider();
 
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");

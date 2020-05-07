@@ -13,7 +13,10 @@
  **/
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0">
+
+    <ext:property-placeholder/>
 
     <bean id="policyMgr" class="org.codice.ddf.security.policy.context.impl.PolicyManager"
           init-method="configure">
@@ -21,12 +24,8 @@
                 persistent-id="org.codice.ddf.security.policy.context.impl.PolicyManager"
                 update-strategy="component-managed" update-method="setPolicies"/>
 
-        <property name="authenticationTypes">
-            <array value-type="java.lang.String">
-                <value>/=</value>
-                <value>/admin=PKI|BASIC</value>
-            </array>
-        </property>
+        <property name="webAuthenticationTypes" value="PKI|BASIC"/>
+        <property name="endpointAuthenticationTypes" value="PKI|BASIC"/>
         <property name="guestAccess" value="true" />
         <property name="sessionAccess" value="true" />
         <property name="requiredAttributes">
@@ -62,6 +61,7 @@
         <property name="traversalDepth">
             <value>20</value>
         </property>
+        <property name="policyFilePath" value="${ddf.etc}/web-context-policy-config.properties"/>
     </bean>
 
     <service ref="policyMgr"

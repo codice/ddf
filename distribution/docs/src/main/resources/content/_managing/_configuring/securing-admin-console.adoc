@@ -19,8 +19,7 @@ To set access restrictions on the ${admin-console}, consult the organization's s
 . Select the *Configuration* tab.
 . Select the *Web Context Policy Manager*.
 .. A dialogue will pop up that allows you to edit ${branding} access restrictions.
-.. Once you have configured your <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager,realms>> in your security infrastructure, you can associate them with ${branding} contexts.
-.. If your infrastructure supports multiple <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager,authentication methods>>, they may be specified on a per-context basis.
+.. If your infrastructure supports multiple <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager,authentication methods>>, you may specify them here.
 .. Role requirements may be enforced by configuring the <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager,required attributes>> for a given context.
 .. The <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager,white listed contexts>> allows child contexts to be excluded from the authentication constraints of their parents.
 

@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.PropertyResolver;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
@@ -42,7 +43,9 @@ public class PolicyManager implements ContextPolicyManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PolicyManager.class);
 
-  private static final String AUTH_TYPES = "authenticationTypes";
+  private static final String WEB_AUTH_TYPES = "webAuthenticationTypes";
+
+  private static final String ENDPOINT_AUTH_TYPES = "endpointAuthenticationTypes";
 
   private static final String REQ_ATTRS = "requiredAttributes";
 
@@ -52,15 +55,22 @@ public class PolicyManager implements ContextPolicyManager {
 
   private static final String SESSION_ACCESS = "sessionAccess";
 
+  private static final String ROOT_CONTEXT = "/";
+
+  private static final String SERVICES_CONTEXT = "/services";
+
   private static final int MAX_TRAVERSAL_DEPTH = 500;
 
   private Map<String, ContextPolicy> policyStore = new HashMap<>();
 
   private List<String> whiteListContexts = new ArrayList<>();
 
-  private ContextPolicy defaultPolicy = new Policy("/", new ArrayList<>(), new ArrayList<>());
+  private ContextPolicy defaultPolicy =
+      new Policy(ROOT_CONTEXT, new ArrayList<>(), new ArrayList<>());
 
   private Map<String, Object> policyProperties = new HashMap<>();
+
+  private Map<String, List<String>> contextToAuth;
 
   private int traversalDepth;
 
@@ -69,7 +79,7 @@ public class PolicyManager implements ContextPolicyManager {
   private boolean sessionAccess;
 
   public PolicyManager() {
-    policyStore.put("/", defaultPolicy);
+    policyStore.put(ROOT_CONTEXT, defaultPolicy);
   }
 
   @Override
@@ -96,7 +106,7 @@ public class PolicyManager implements ContextPolicyManager {
       } else {
         // this is just here for safety
         // if we get down to the point where we can never get an entry, return the default
-        return policyStore.get("/");
+        return policyStore.get(ROOT_CONTEXT);
       }
     }
   }
@@ -111,7 +121,7 @@ public class PolicyManager implements ContextPolicyManager {
     if (path == null) {
       throw new IllegalArgumentException("Context path cannot be null.");
     }
-    if (!path.startsWith("/")) {
+    if (!path.startsWith(ROOT_CONTEXT)) {
       throw new IllegalArgumentException("Context path must start with /");
     }
     if (newContextPolicy == null) {
@@ -182,7 +192,8 @@ public class PolicyManager implements ContextPolicyManager {
     setGuestAccess((boolean) properties.get(GUEST_ACCESS));
     setSessionAccess((boolean) properties.get(SESSION_ACCESS));
 
-    String[] authContexts = (String[]) properties.get(AUTH_TYPES);
+    String webAuthTypes = (String) properties.get(WEB_AUTH_TYPES);
+    String endpointAuthTypes = (String) properties.get(ENDPOINT_AUTH_TYPES);
     String[] attrContexts = (String[]) properties.get(REQ_ATTRS);
     String[] whiteList = (String[]) properties.get(WHITE_LIST);
 
@@ -190,28 +201,12 @@ public class PolicyManager implements ContextPolicyManager {
       setWhiteListContexts(Arrays.asList(whiteList));
     }
 
-    if (authContexts != null && attrContexts != null) {
+    if (webAuthTypes != null && endpointAuthTypes != null && attrContexts != null) {
 
-      Map<String, List<String>> contextToAuth = new HashMap<>();
       Map<String, List<ContextAttributeMapping>> contextToAttr = new HashMap<>();
-
-      List<String> authContextList = new ArrayList<>();
-      Collections.addAll(authContextList, authContexts);
 
       List<String> attrContextList = new ArrayList<>();
       Collections.addAll(attrContextList, attrContexts);
-
-      for (String auth : authContextList) {
-        String[] parts = auth.split("=");
-        if (parts.length == 2) {
-          String[] auths = parts[1].split("\\|");
-          if (auths.length > 0) {
-            contextToAuth.put(parts[0], Arrays.asList(auths));
-          }
-        } else if (parts.length == 1) {
-          contextToAuth.put(parts[0], new ArrayList<String>());
-        }
-      }
 
       for (String attr : attrContextList) {
         int index = attr.indexOf('=');
@@ -240,7 +235,15 @@ public class PolicyManager implements ContextPolicyManager {
         }
       }
 
-      setPolicyStore(contextToAuth, contextToAttr);
+      if (contextToAuth == null) {
+        Map<String, List<String>> contextToAuthMap = new HashMap<>();
+        contextToAuthMap.put(ROOT_CONTEXT, Arrays.asList(webAuthTypes.split("\\|")));
+        contextToAuthMap.put(SERVICES_CONTEXT, Arrays.asList(endpointAuthTypes.split("\\|")));
+
+        setPolicyStore(contextToAuthMap, contextToAttr);
+      } else {
+        setPolicyStore(contextToAuth, contextToAttr);
+      }
     }
     LOGGER.debug("Policy store initialized, now contains {} entries", policyStore.size());
 
@@ -253,12 +256,12 @@ public class PolicyManager implements ContextPolicyManager {
       Map<String, List<ContextAttributeMapping>> allContextsToAttrs) {
 
     // add default context values if they do not exist
-    if (allContextsToAttrs.get("/") == null) {
-      allContextsToAttrs.put("/", new ArrayList<>());
+    if (allContextsToAttrs.get(ROOT_CONTEXT) == null) {
+      allContextsToAttrs.put(ROOT_CONTEXT, new ArrayList<>());
     }
 
-    if (allContextsToAuths.get("/") == null) {
-      allContextsToAuths.put("/", new ArrayList<>());
+    if (allContextsToAuths.get(ROOT_CONTEXT) == null) {
+      allContextsToAuths.put(ROOT_CONTEXT, new ArrayList<>());
     }
 
     // gather all given context paths
@@ -267,7 +270,7 @@ public class PolicyManager implements ContextPolicyManager {
     allContextPaths.addAll(allContextsToAttrs.keySet());
 
     Map<String, ContextPolicy> newPolicyStore = new HashMap<>();
-    newPolicyStore.put("/", defaultPolicy);
+    newPolicyStore.put(ROOT_CONTEXT, defaultPolicy);
 
     // resolve all authorization types & required attributes
     for (String path : allContextPaths) {
@@ -392,8 +395,8 @@ public class PolicyManager implements ContextPolicyManager {
 
   public String rollbackPath(String path) {
     // Continue splitting by last "/"  down path until value found,
-    if (path.endsWith("/")) {
-      while (path.endsWith("/") && path.length() > 1) {
+    if (path.endsWith(ROOT_CONTEXT)) {
+      while (path.endsWith(ROOT_CONTEXT) && path.length() > 1) {
         path = path.substring(0, path.length() - 1);
       }
       return path;
@@ -406,13 +409,21 @@ public class PolicyManager implements ContextPolicyManager {
     }
   }
 
-  public void setAuthenticationTypes(List<String> authenticationTypes) {
-    LOGGER.debug("setAuthenticationTypes(List<String>) called with {}", authenticationTypes);
+  public void setWebAuthenticationTypes(String authenticationTypes) {
+    LOGGER.debug("setWebAuthenticationTypes(String) called with {}", authenticationTypes);
     if (authenticationTypes != null) {
-      policyProperties.put(
-          AUTH_TYPES, authenticationTypes.toArray(new String[authenticationTypes.size()]));
+      policyProperties.put(WEB_AUTH_TYPES, authenticationTypes);
     } else {
-      policyProperties.put(AUTH_TYPES, null);
+      policyProperties.put(WEB_AUTH_TYPES, null);
+    }
+  }
+
+  public void setEndpointAuthenticationTypes(String authenticationTypes) {
+    LOGGER.debug("setEndpointAuthenticationTypes(String) called with {}", authenticationTypes);
+    if (authenticationTypes != null) {
+      policyProperties.put(ENDPOINT_AUTH_TYPES, authenticationTypes);
+    } else {
+      policyProperties.put(ENDPOINT_AUTH_TYPES, null);
     }
   }
 
@@ -455,6 +466,40 @@ public class PolicyManager implements ContextPolicyManager {
   @Override
   public boolean getSessionAccess() {
     return sessionAccess;
+  }
+
+  public void setPolicyFilePath(String policyFilePath) {
+    Map<String, String> properties =
+        PropertiesLoader.getInstance()
+            .toMap(PropertiesLoader.getInstance().loadProperties(policyFilePath));
+
+    if (properties.isEmpty()) {
+      LOGGER.debug("File-based authentication type configuration not found.");
+      return;
+    }
+
+    LOGGER.info("Proceeding with file-based authentication type configuration ...");
+
+    Map<String, List<String>> contextToAuthTypes = new HashMap<>();
+
+    for (Map.Entry<String, String> authTypes : properties.entrySet()) {
+      List<String> finalAuthTypes = new ArrayList<>();
+      String[] auths = authTypes.getValue().trim().split("\\s+then\\s+");
+
+      if (auths.length == 0) {
+        continue;
+      }
+
+      for (String auth : auths) {
+        if (!StringUtils.isBlank(auth)) {
+          finalAuthTypes.add(auth);
+        }
+      }
+
+      contextToAuthTypes.put(authTypes.getKey(), finalAuthTypes);
+    }
+
+    this.contextToAuth = contextToAuthTypes;
   }
 
   /**

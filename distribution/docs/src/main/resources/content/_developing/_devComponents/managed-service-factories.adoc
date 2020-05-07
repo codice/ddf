@@ -142,14 +142,8 @@ See the documentation for https://docs.oracle.com/javase/7/docs/api/java/lang/Lo
 .Sample configuration file
 [source,linenums]
 ----
-authenticationTypes=[ \
-  "/\=", \
-  "/admin\=basic", \
-  "/system\=basic", \
-  "/sources\=basic", \
-  "/security-config\=basic", \
-  "/search\=basic", \
-  ]
+webAuthenticationTypes="basic"
+endpointAuthenticationTypes=""
 sessionAccess=B"true"
 guestAccess=B"true"
 realms=[ \
