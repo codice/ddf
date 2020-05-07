@@ -63,6 +63,8 @@ public class ResultHighlighter {
 
   private static final String HIGHLIGHT_POST_TAG = "</em>";
 
+  private static final int SURROUNDING_CONTEXT_SIZE = 20;
+
   private static final Pattern HIGHLIGHT_PATTERN =
       Pattern.compile(
           HIGHLIGHT_PRE_TAG + "(((?!" + HIGHLIGHT_PRE_TAG + ").)*?)" + HIGHLIGHT_POST_TAG);
@@ -74,8 +76,6 @@ public class ResultHighlighter {
 
   private final Set<String> highlightBlacklist =
       Sets.newHashSet(System.getProperty(SOLR_HIGHLIGHT_BLACKLIST, "").split("\\s*,\\s*"));
-
-  private int surroundingContextSize = 20;
 
   private DynamicSchemaResolver resolver;
 
@@ -323,7 +323,7 @@ public class ResultHighlighter {
     return null;
   }
 
-  class HighlightContext {
+  static class HighlightContext {
     String highlightedToken;
     String surroundingContext;
     int tokenContextOffset;
@@ -350,10 +350,10 @@ public class ResultHighlighter {
       surroundingContext = surroundingContext.replaceAll(HIGHLIGHT_POST_TAG, "");
 
       if (trimContext) {
-        if (surroundingContext.length() > surroundingContextSize * 2) {
-          int trimStart = Math.max(0, tokenContextOffset - surroundingContextSize);
+        if (surroundingContext.length() > SURROUNDING_CONTEXT_SIZE * 2) {
+          int trimStart = Math.max(0, tokenContextOffset - SURROUNDING_CONTEXT_SIZE);
           int trimEnd =
-              Math.min(surroundingContext.length(), tokenContextOffset + surroundingContextSize);
+              Math.min(surroundingContext.length(), tokenContextOffset + SURROUNDING_CONTEXT_SIZE);
           surroundingContext = surroundingContext.substring(trimStart, trimEnd);
           tokenContextOffset -= trimStart;
         }
@@ -389,7 +389,7 @@ public class ResultHighlighter {
     }
   }
 
-  class TagIndices {
+  static class TagIndices {
 
     List<Integer> startTagIndices = new ArrayList<>();
     List<Integer> endTagIndices = new ArrayList<>();
