@@ -291,7 +291,7 @@ public class ResultHighlighter {
   }
 
   private String getMetacardId(String resultId, QueryResponse response) {
-    if (!StringUtils.isBlank(mappedMetacardIdField)) {
+    if (StringUtils.isNotBlank(mappedMetacardIdField)) {
       Optional<SolrDocument> document = getResponseDocument(resultId, response);
       if (document.isPresent()) {
         Object val = document.get().getFirstValue(mappedMetacardIdField);

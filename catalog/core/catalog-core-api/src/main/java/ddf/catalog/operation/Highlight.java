@@ -17,6 +17,9 @@ package ddf.catalog.operation;
  * A Highlight represents a specific range of characters in an attribute that matched a query. The
  * begin and end indices are referenced to the specific attribute value. The value index refers to
  * multi-valued fields and indicates which value the highlight applies to.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
  */
 public interface Highlight {
   int getValueIndex();

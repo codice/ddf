@@ -18,6 +18,9 @@ import java.util.List;
 /**
  * ResultAttributeHighlight represents a specific attribute that matched a query and provides
  * indications of what the specific data the query matched on via a list of highlights.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
  */
 public interface ResultAttributeHighlight {
   String getAttributeName();

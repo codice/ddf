@@ -18,6 +18,9 @@ import java.util.List;
 /**
  * ResultHighlight represents a list of attributes that matched a given query for a particular
  * result as identified by the ID returned from the <code>getResultId</code> method.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
  */
 public interface ResultHighlight {
   String getResultId();

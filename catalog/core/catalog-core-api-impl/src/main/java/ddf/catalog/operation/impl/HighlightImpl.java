@@ -27,9 +27,7 @@ public class HighlightImpl implements Highlight {
   public HighlightImpl() {}
 
   public HighlightImpl(int beginIndex, int endIndex) {
-    this.valueIndex = 0;
-    this.beginIndex = beginIndex;
-    this.endIndex = endIndex;
+    this(beginIndex, endIndex, 0);
   }
 
   public HighlightImpl(int beginIndex, int endIndex, int valueIndex) {
