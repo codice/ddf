@@ -13,6 +13,7 @@
  */
 package ddf.catalog.operation.impl;
 
+import ddf.catalog.operation.Highlight;
 import ddf.catalog.operation.ResultAttributeHighlight;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,14 +23,14 @@ public class ResultAttributeHighlightImpl implements ResultAttributeHighlight {
 
   private String attributeName;
 
-  private List<String> highlights;
+  private List<Highlight> highlights;
 
   public ResultAttributeHighlightImpl(String attributeName) {
     this.attributeName = attributeName;
     highlights = new ArrayList<>();
   }
 
-  public ResultAttributeHighlightImpl(String attributeName, List<String> highlights) {
+  public ResultAttributeHighlightImpl(String attributeName, List<Highlight> highlights) {
     this(attributeName);
     this.highlights.addAll(highlights);
   }
@@ -40,7 +41,7 @@ public class ResultAttributeHighlightImpl implements ResultAttributeHighlight {
   }
 
   @Override
-  public List<String> getHighlights() {
+  public List<Highlight> getHighlights() {
     return Collections.unmodifiableList(highlights);
   }
 }

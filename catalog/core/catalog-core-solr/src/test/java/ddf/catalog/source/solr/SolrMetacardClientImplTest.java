@@ -35,10 +35,12 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.operation.Highlight;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResultAttributeHighlight;
 import ddf.catalog.operation.ResultHighlight;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.HighlightImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -52,6 +54,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -213,13 +216,14 @@ public class SolrMetacardClientImplTest {
 
   @Test
   public void testHighlightOn() throws Exception {
-    System.setProperty(SolrMetacardClientImpl.HIGHLIGHT_ENABLE_PROPERTY, "true");
+    System.setProperty(ResultHighlighter.HIGHLIGHT_ENABLE_PROPERTY, "true");
 
     QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
 
     List<String> docNames = Arrays.asList("id_txt", "title_txt", "description_txt");
     List<String> attrNames = Arrays.asList("id", "title", "description");
-    List<String> values = Arrays.asList("123", "normal", "normal description");
+    List<String> values =
+        Arrays.asList("123", "normal", "<em>Hello</em> normal description with two normal matches");
 
     Map<String, String> attributes = createAttributes(docNames, values);
     Map<String, Map<String, String>> documents = new HashMap<>();
@@ -227,9 +231,11 @@ public class SolrMetacardClientImplTest {
 
     Map<String, Map<String, List<String>>> resultsHighlightData = new HashMap<>();
     Map<String, List<String>> recordHighlights = new HashMap<>();
-    recordHighlights.put("title_txt", Collections.singletonList("<b>normal</b>"));
+    recordHighlights.put("title_txt", Collections.singletonList("<em>normal</em>"));
     recordHighlights.put(
-        "description_txt_tokenized", Collections.singletonList("<b>normal</b> description"));
+        "description_txt_tokenized",
+        Collections.singletonList(
+            "<em>Hello</em> <em>normal</em> description with two <em>normal</em> matches"));
     resultsHighlightData.put("123", recordHighlights);
 
     when(queryResponse.getHighlighting()).thenReturn(resultsHighlightData);
@@ -237,6 +243,9 @@ public class SolrMetacardClientImplTest {
     mockDynamicSchemsolverCalls(createAttributeDescriptor(attrNames), attributes);
 
     SourceResponse response = clientImpl.query(request);
+
+    System.setProperty(ResultHighlighter.HIGHLIGHT_ENABLE_PROPERTY, "false");
+
     List<Result> results = response.getResults();
     assertThat(results.size(), is(1));
     assertThat(results.get(0).getMetacard().getAttribute("title").getValue(), is("normal"));
@@ -245,15 +254,40 @@ public class SolrMetacardClientImplTest {
     assertThat(highlights, notNullValue());
     assertThat(highlights.size(), is(1));
 
-    List<String> highlightedAttributes =
-        highlights
-            .get(0)
-            .getAttributeHighlights()
+    List<ResultAttributeHighlight> highlightedAttributes =
+        highlights.get(0).getAttributeHighlights();
+
+    List<String> attributeNames =
+        highlightedAttributes
             .stream()
             .map(ResultAttributeHighlight::getAttributeName)
             .collect(Collectors.toList());
-    assertThat(highlightedAttributes, containsInAnyOrder("title", "description"));
-    System.setProperty(SolrMetacardClientImpl.HIGHLIGHT_ENABLE_PROPERTY, "false");
+    assertThat(attributeNames, containsInAnyOrder("title", "description"));
+
+    Optional<List<Highlight>> descriptionHighlights =
+        highlightedAttributes
+            .stream()
+            .filter(attr -> attr.getAttributeName().equals("description"))
+            .findFirst()
+            .map(ResultAttributeHighlight::getHighlights);
+    assertThat(descriptionHighlights.isPresent(), is(true));
+
+    assertThat(descriptionHighlights.get().size(), is(2));
+    verifyHighlight(descriptionHighlights.get(), new HighlightImpl(15, 21, 0));
+    verifyHighlight(descriptionHighlights.get(), new HighlightImpl(43, 49, 0));
+  }
+
+  private void verifyHighlight(List<Highlight> results, Highlight mustContain) {
+    boolean found = false;
+    for (Highlight highlight : results) {
+      if (highlight.getBeginIndex() == mustContain.getBeginIndex()
+          && highlight.getEndIndex() == mustContain.getEndIndex()
+          && highlight.getValueIndex() == mustContain.getValueIndex()) {
+        found = true;
+        break;
+      }
+    }
+    assertThat(found, is(true));
   }
 
   private void mockDynamicSchemsolverCalls(

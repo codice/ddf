@@ -13,14 +13,15 @@
  */
 package ddf.catalog.operation;
 
-import java.util.List;
-
 /**
- * ResultAttributeHighlight represents a specific attribute that matched a query and provides
- * indications of what the specific data the query matched on via a list of highlights.
+ * A Highlight represents a specific range of characters in an attribute that matched a query. The
+ * begin and end indices are referenced to the specific attribute value. The value index refers to
+ * multi-valued fields and indicates which value the highlight applies to.
  */
-public interface ResultAttributeHighlight {
-  String getAttributeName();
+public interface Highlight {
+  int getValueIndex();
 
-  List<Highlight> getHighlights();
+  int getBeginIndex();
+
+  int getEndIndex();
 }
