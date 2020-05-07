@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -54,6 +55,8 @@ public class ResultHighlighter {
 
   public static final String SOLR_HIGHLIGHT_BLACKLIST = "solr.highlight.blacklist";
 
+  public static final String SOLR_HIGHLIGHT_SNIPPETS = "solr.highlight.snippets";
+
   public static final String SOLR_HIGHLIGHT_KEY = "hl";
 
   private static final String HIGHLIGHT_PRE_TAG = "<em>";
@@ -61,7 +64,8 @@ public class ResultHighlighter {
   private static final String HIGHLIGHT_POST_TAG = "</em>";
 
   private static final Pattern HIGHLIGHT_PATTERN =
-      Pattern.compile(HIGHLIGHT_PRE_TAG + "(.*?)" + HIGHLIGHT_POST_TAG);
+      Pattern.compile(
+          HIGHLIGHT_PRE_TAG + "(((?!" + HIGHLIGHT_PRE_TAG + ").)*?)" + HIGHLIGHT_POST_TAG);
 
   private static final Pattern TAG_PATTERN =
       Pattern.compile("(" + HIGHLIGHT_PRE_TAG + "|" + HIGHLIGHT_POST_TAG + ")");
@@ -75,8 +79,14 @@ public class ResultHighlighter {
 
   private DynamicSchemaResolver resolver;
 
+  private String mappedMetacardIdField;
+
   public ResultHighlighter(DynamicSchemaResolver resolver) {
     this.resolver = resolver;
+  }
+
+  public void setMappedMetacardIdField(String mappedMetacardIdField) {
+    this.mappedMetacardIdField = mappedMetacardIdField;
   }
 
   public void processPreQuery(QueryRequest request, SolrQuery query) {
@@ -103,12 +113,17 @@ public class ResultHighlighter {
     return BooleanUtils.toBoolean(System.getProperty(HIGHLIGHT_ENABLE_PROPERTY, "false"));
   }
 
+  private String getSnippetSetting() {
+    return System.getProperty(SOLR_HIGHLIGHT_SNIPPETS, "20");
+  }
+
   protected void enableHighlighter(SolrQuery query) {
     query.setParam(SOLR_HIGHLIGHT_KEY, true);
     query.setParam("hl.fl", "*");
     query.setParam("hl.requireFieldMatch", true);
     query.setParam("hl.method", "unified");
     query.setParam("hl.preserveMulti", true);
+    query.setParam("hl.snippets", getSnippetSetting());
   }
 
   protected void extractHighlighting(
@@ -118,9 +133,9 @@ public class ResultHighlighter {
       return;
     }
     List<ResultHighlight> resultsHighlights = new ArrayList<>();
-    for (String metacardId : highlights.keySet()) {
+    for (String resultId : highlights.keySet()) {
 
-      Map<String, List<String>> fieldHighlight = highlights.get(metacardId);
+      Map<String, List<String>> fieldHighlight = highlights.get(resultId);
       Map<String, Set<Highlight>> consolidated = new HashMap<>();
       if (fieldHighlight != null && fieldHighlight.size() > 0) {
         for (Map.Entry<String, List<String>> entry : fieldHighlight.entrySet()) {
@@ -128,7 +143,7 @@ public class ResultHighlighter {
           String normalizedKey = resolveHighlightFieldName(solrField);
           if (isHighlightBlacklisted(normalizedKey)
               || isHighlightBlacklisted(solrField)
-              || !isMetacardAttribute(normalizedKey, metacardId, response)) {
+              || !isMetacardAttribute(normalizedKey, resultId, response)) {
             continue;
           }
           Set<Highlight> consolidatedSet = consolidated.get(normalizedKey);
@@ -138,8 +153,7 @@ public class ResultHighlighter {
           consolidatedSet.addAll(
               createHighlights(
                   entry.getValue(),
-                  getAttributeValue(
-                      metacardId, normalizedKey + SchemaFields.TEXT_SUFFIX, response)));
+                  getAttributeValue(resultId, normalizedKey + SchemaFields.TEXT_SUFFIX, response)));
           if (!consolidatedSet.isEmpty()) {
             consolidated.put(normalizedKey, consolidatedSet);
           }
@@ -152,7 +166,9 @@ public class ResultHighlighter {
               new ResultAttributeHighlightImpl(
                   fieldEntry.getKey(), new ArrayList<>(fieldEntry.getValue())));
         }
-        resultsHighlights.add(new ResultHighlightImpl(metacardId, attributeHighlights));
+
+        resultsHighlights.add(
+            new ResultHighlightImpl(getMetacardId(resultId, response), attributeHighlights));
       }
     }
 
@@ -184,12 +200,8 @@ public class ResultHighlighter {
   private List<Highlight> extractHighlights(
       String text, List<HighlightContext> values, int valueIndex) {
     List<Highlight> highlights = new ArrayList<>();
-    List<HighlightContext> sourceEmbededHighlights = getHighlightedValues(text);
     TagIndices sourceTagIndices = new TagIndices(text);
     for (HighlightContext context : values) {
-      if (sourceEmbededHighlights.contains(context)) {
-        continue;
-      }
       int index = -1;
       int length = context.highlightedToken.length();
       HighlightContext source = new HighlightContext();
@@ -201,6 +213,9 @@ public class ResultHighlighter {
         if (index > -1) {
           int beginIndex = index + context.tokenContextOffset;
           int endIndex = index + context.tokenContextOffset + length;
+          if (sourceTagIndices.getStartTagIndices().contains(beginIndex) && !context.embeded) {
+            continue;
+          }
           int sourceHighlightOffset =
               sourceTagIndices.countStartBefore(beginIndex) * HIGHLIGHT_PRE_TAG.length()
                   + sourceTagIndices.countEndBefore(beginIndex) * HIGHLIGHT_POST_TAG.length();
@@ -213,14 +228,16 @@ public class ResultHighlighter {
     return highlights;
   }
 
-  private List<HighlightContext> getHighlightedValues(String text) {
+  private List<HighlightContext> getHighlightedValues(String highlightedText) {
     List<HighlightContext> values = new ArrayList<>();
-    Matcher matcher = HIGHLIGHT_PATTERN.matcher(text);
+    Matcher matcher = HIGHLIGHT_PATTERN.matcher(highlightedText);
     while (matcher.find()) {
+      String token = matcher.group(1);
       HighlightContext context = new HighlightContext();
-      context.highlightedToken = matcher.group(1);
-      context.surroundingContext = text;
+      context.highlightedToken = token;
+      context.surroundingContext = highlightedText;
       context.tokenContextOffset = matcher.start();
+      context.embeded = isHighlightEmbeded(highlightedText, matcher.start());
       context.resolveSurroundingContext(true);
       values.add(context);
     }
@@ -228,9 +245,18 @@ public class ResultHighlighter {
     return values;
   }
 
+  private boolean isHighlightEmbeded(String text, int highlightIndex) {
+    if (highlightIndex - HIGHLIGHT_PRE_TAG.length() < 0) {
+      return false;
+    } else {
+      return text.substring(highlightIndex - HIGHLIGHT_PRE_TAG.length(), highlightIndex)
+          .equals(HIGHLIGHT_PRE_TAG);
+    }
+  }
+
   private Collection<Object> getAttributeValue(
-      String metacardId, String fieldName, QueryResponse response) {
-    Optional<SolrDocument> metacard = getResponseDocument(metacardId, response);
+      String resultId, String fieldName, QueryResponse response) {
+    Optional<SolrDocument> metacard = getResponseDocument(resultId, response);
     if (metacard.isPresent()) {
       return metacard.get().getFieldValues(fieldName);
     }
@@ -255,8 +281,8 @@ public class ResultHighlighter {
     return !blacklist.isEmpty() || resolver.isPrivateField(fieldName);
   }
 
-  private boolean isMetacardAttribute(String fieldName, String metacardId, QueryResponse response) {
-    MetacardType type = getMetacardType(metacardId, response);
+  private boolean isMetacardAttribute(String fieldName, String resultId, QueryResponse response) {
+    MetacardType type = getMetacardType(resultId, response);
     if (type != null) {
       return type.getAttributeDescriptor(fieldName) != null;
     }
@@ -264,16 +290,29 @@ public class ResultHighlighter {
     return false;
   }
 
-  private Optional<SolrDocument> getResponseDocument(String metacardId, QueryResponse response) {
+  private String getMetacardId(String resultId, QueryResponse response) {
+    if (!StringUtils.isBlank(mappedMetacardIdField)) {
+      Optional<SolrDocument> document = getResponseDocument(resultId, response);
+      if (document.isPresent()) {
+        Object val = document.get().getFirstValue(mappedMetacardIdField);
+        if (val != null) {
+          return val.toString();
+        }
+      }
+    }
+    return resultId;
+  }
+
+  private Optional<SolrDocument> getResponseDocument(String resultId, QueryResponse response) {
     return response
         .getResults()
         .stream()
-        .filter(doc -> metacardId.equals(doc.getFirstValue(Core.ID + SchemaFields.TEXT_SUFFIX)))
+        .filter(doc -> resultId.equals(doc.getFirstValue(Core.ID + SchemaFields.TEXT_SUFFIX)))
         .findFirst();
   }
 
-  private MetacardType getMetacardType(String metacardId, QueryResponse response) {
-    Optional<SolrDocument> metacard = getResponseDocument(metacardId, response);
+  private MetacardType getMetacardType(String resultId, QueryResponse response) {
+    Optional<SolrDocument> metacard = getResponseDocument(resultId, response);
     if (metacard.isPresent()) {
       try {
         return resolver.getMetacardType(metacard.get());
@@ -288,6 +327,7 @@ public class ResultHighlighter {
     String highlightedToken;
     String surroundingContext;
     int tokenContextOffset;
+    boolean embeded = false;
 
     public void resolveSurroundingContext(boolean trimContext) {
       int index = -1;
@@ -306,8 +346,8 @@ public class ResultHighlighter {
         }
       } while (index > -1);
       tokenContextOffset -= adjustment;
-      surroundingContext = surroundingContext.replace(HIGHLIGHT_PRE_TAG, "");
-      surroundingContext = surroundingContext.replace(HIGHLIGHT_POST_TAG, "");
+      surroundingContext = surroundingContext.replaceAll(HIGHLIGHT_PRE_TAG, "");
+      surroundingContext = surroundingContext.replaceAll(HIGHLIGHT_POST_TAG, "");
 
       if (trimContext) {
         if (surroundingContext.length() > surroundingContextSize * 2) {
@@ -378,11 +418,11 @@ public class ResultHighlighter {
     }
 
     public int countStartBefore(int index) {
-      return (int) getStartTagIndices().stream().filter(val -> val < index).count();
+      return (int) getStartTagIndices().stream().filter(val -> val <= index).count();
     }
 
     public int countEndBefore(int index) {
-      return (int) getEndTagIndices().stream().filter(val -> val < index).count();
+      return (int) getEndTagIndices().stream().filter(val -> val <= index).count();
     }
   }
 }

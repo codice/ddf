@@ -147,7 +147,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private final int commitNrtCommitWithinMs =
       Math.max(NumberUtils.toInt(accessProperty(SOLR_COMMIT_NRT_COMMITWITHINMS, "1000")), 0);
 
-  private ResultHighlighter highlighter;
+  protected ResultHighlighter highlighter;
 
   public SolrMetacardClientImpl(
       SolrClient client,

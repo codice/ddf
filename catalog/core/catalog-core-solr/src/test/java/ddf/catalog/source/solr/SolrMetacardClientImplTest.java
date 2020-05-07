@@ -223,7 +223,8 @@ public class SolrMetacardClientImplTest {
     List<String> docNames = Arrays.asList("id_txt", "title_txt", "description_txt");
     List<String> attrNames = Arrays.asList("id", "title", "description");
     List<String> values =
-        Arrays.asList("123", "normal", "<em>Hello</em> normal description with two normal matches");
+        Arrays.asList(
+            "123", "normal", "<em>normal</em> normal description with two normal <em>matches</em>");
 
     Map<String, String> attributes = createAttributes(docNames, values);
     Map<String, Map<String, String>> documents = new HashMap<>();
@@ -235,7 +236,7 @@ public class SolrMetacardClientImplTest {
     recordHighlights.put(
         "description_txt_tokenized",
         Collections.singletonList(
-            "<em>Hello</em> <em>normal</em> description with two <em>normal</em> matches"));
+            "<em><em>normal</em></em> <em>normal</em> description with two <em>normal</em> <em>matches</em>"));
     resultsHighlightData.put("123", recordHighlights);
 
     when(queryResponse.getHighlighting()).thenReturn(resultsHighlightData);
@@ -272,9 +273,10 @@ public class SolrMetacardClientImplTest {
             .map(ResultAttributeHighlight::getHighlights);
     assertThat(descriptionHighlights.isPresent(), is(true));
 
-    assertThat(descriptionHighlights.get().size(), is(2));
-    verifyHighlight(descriptionHighlights.get(), new HighlightImpl(15, 21, 0));
-    verifyHighlight(descriptionHighlights.get(), new HighlightImpl(43, 49, 0));
+    assertThat(descriptionHighlights.get().size(), is(3));
+    verifyHighlight(descriptionHighlights.get(), new HighlightImpl(4, 10, 0));
+    verifyHighlight(descriptionHighlights.get(), new HighlightImpl(16, 22, 0));
+    verifyHighlight(descriptionHighlights.get(), new HighlightImpl(44, 50, 0));
   }
 
   private void verifyHighlight(List<Highlight> results, Highlight mustContain) {
