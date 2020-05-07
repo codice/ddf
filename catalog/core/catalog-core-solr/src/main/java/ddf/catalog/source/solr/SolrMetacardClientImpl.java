@@ -147,6 +147,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private final int commitNrtCommitWithinMs =
       Math.max(NumberUtils.toInt(accessProperty(SOLR_COMMIT_NRT_COMMITWITHINMS, "1000")), 0);
 
+  protected ResultHighlighter highlighter;
+
   public SolrMetacardClientImpl(
       SolrClient client,
       FilterAdapter catalogFilterAdapter,
@@ -156,6 +158,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     filterDelegateFactory = solrFilterDelegateFactory;
     filterAdapter = catalogFilterAdapter;
     resolver = dynamicSchemaResolver;
+    highlighter = new ResultHighlighter(resolver);
   }
 
   public SolrClient getClient() {
@@ -230,6 +233,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         solrResponse = client.query(realTimeQuery, METHOD.POST);
       } else {
         query.setParam("spellcheck", userSpellcheckIsOn);
+        highlighter.processPreQuery(request, query);
         solrResponse = client.query(query, METHOD.POST);
       }
 
@@ -259,14 +263,19 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         totalHits = docs.getNumFound();
         addDocsToResults(docs, results);
 
+        QueryResponse highlightResponse = solrResponse;
+
         if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
           Collation collation = getCollationToResend(query, solrResponse);
           query.set("q", collation.getCollationQueryString());
           query.set("spellcheck", false);
+          highlighter.processPreQuery(request, query);
+
           QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
           docs = solrResponseRequery.getResults();
           if (docs != null && docs.size() > originalQueryResultsSize) {
             results = new ArrayList<>();
+            highlightResponse = solrResponseRequery;
             totalHits = docs.getNumFound();
             addDocsToResults(docs, results);
 
@@ -284,6 +293,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             responseProps.put(SHOWING_RESULTS_FOR_KEY, new ArrayList<>(corrections));
           }
         }
+
+        highlighter.processPostQuery(highlightResponse, responseProps);
       }
 
       if (isFacetedQuery) {

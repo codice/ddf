@@ -47,6 +47,7 @@ class CacheSolrMetacardClient extends SolrMetacardClientImpl {
         catalogFilterAdapter,
         solrFilterDelegateFactory,
         enhanceResolver(dynamicSchemaResolver));
+    highlighter.setMappedMetacardIdField(SolrCache.METACARD_ID_NAME);
   }
 
   private static DynamicSchemaResolver enhanceResolver(
