@@ -28,6 +28,8 @@ public interface ResourceRequest extends Request {
 
   public static final String IS_ENTERPRISE = "IS_ENTERPRISE";
 
+  public static final String QUALIFIER = "qualifier";
+
   public String getAttributeName();
 
   public Serializable getAttributeValue();
