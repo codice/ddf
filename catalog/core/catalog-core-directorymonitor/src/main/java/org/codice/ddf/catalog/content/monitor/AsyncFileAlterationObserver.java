@@ -49,6 +49,8 @@ import org.slf4j.LoggerFactory;
  */
 public class AsyncFileAlterationObserver {
 
+  private static final Logger CDM_LOGGER = LoggerFactory.getLogger("cdmLogger");
+
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileAlterationObserver.class);
 
   private final AsyncFileEntry rootFile;
@@ -212,6 +214,10 @@ public class AsyncFileAlterationObserver {
     if (success) {
       entry.commit();
       entry.getParent().ifPresent(e -> e.addChild(entry));
+      CDM_LOGGER.debug(
+          "File {} committed to {}",
+          entry.getName(),
+          entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
     }
     onFinish();
   }
@@ -249,6 +255,7 @@ public class AsyncFileAlterationObserver {
     LOGGER.debug("commitMatch({},{}): Starting...", entry.getName(), success);
     if (success) {
       entry.commit();
+      CDM_LOGGER.debug("{} commited", entry.getName());
     }
     onFinish();
   }

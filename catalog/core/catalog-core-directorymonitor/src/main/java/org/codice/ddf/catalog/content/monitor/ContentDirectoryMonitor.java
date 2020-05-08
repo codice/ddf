@@ -55,6 +55,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   public static final String IN_PLACE = "in_place";
 
+  private static final Logger CDM_LOGGER = LoggerFactory.getLogger("cdmLogger");
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
 
   private static final int MAX_THREAD_SIZE = 8;
@@ -184,6 +186,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       LOGGER.warn("Cannot setup camel route - must specify a directory to be monitored");
       return null;
     }
+    CDM_LOGGER.debug("Configuring monitor for {}", monitoredDirectory);
 
     attemptAddRoutes();
     return null;
