@@ -63,10 +63,10 @@ module.exports = plugin(
         'change:sortField change:sortOrder change:src change:federation',
         Common.safeCallback(this.onBeforeShow)
       )
-      this.resultFormCollection = ResultFormCollection.getCollection()
-      this.listenTo(this.resultFormCollection, 'change', this.renderResultForms)
+      this.resultForms = ResultFormCollection.getCollection()
+      this.listenTo(this.resultForms, 'change', this.renderResultForms)
       this.listenTo(user.getQuerySettings(), 'change:defaultResultFormId', () =>
-        this.renderResultForms(this.resultFormCollection.filteredList)
+        this.renderResultForms()
       )
     },
     onBeforeShow() {
@@ -79,8 +79,8 @@ module.exports = plugin(
       this.setupExtensions()
     },
     renderResultForms() {
-      let resultFormsCollection = ResultFormCollection.getCollection() || []
-      let resultForms = resultFormsCollection.map(resultTemplate => {
+      // Each item in a dropdown needs a label and value so we add those here
+      let resultFormsForDropdown = this.resultForms.map(resultTemplate => {
         const resultFormJson = resultTemplate.toJSON()
         return {
           ...resultFormJson,
@@ -88,25 +88,27 @@ module.exports = plugin(
           value: resultFormJson.title,
         }
       })
-      resultForms.push({
+      resultFormsForDropdown.push({
         label: 'All Fields',
         value: 'allFields',
         id: 'All Fields',
         descriptors: [],
         description: 'All Fields',
       })
-      resultForms = _.uniq(resultForms, 'id')
-      let lastIndex = resultForms.length - 1
-      let defaultResultForm = resultForms.find(
+      resultFormsForDropdown = _.uniq(resultFormsForDropdown, 'id')
+      let lastIndex = resultFormsForDropdown.length - 1
+      let defaultResultForm = resultFormsForDropdown.find(
         form => form.id === user.getQuerySettings().get('defaultResultFormId')
       )
       const propertyValue =
         this.model.get('detail-level') ||
         (defaultResultForm && defaultResultForm.value) ||
-        (resultForms && resultForms[lastIndex] && resultForms[lastIndex].value)
+        (resultFormsForDropdown &&
+          resultFormsForDropdown[lastIndex] &&
+          resultFormsForDropdown[lastIndex].value)
       let detailLevelProperty = new Property({
         label: 'Result Form',
-        enum: resultForms,
+        enum: resultFormsForDropdown,
         value: [propertyValue],
         showValidationIssues: false,
         id: 'Result Form',
