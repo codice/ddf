@@ -53,6 +53,18 @@ public class ClientInfoFilterTest {
 
   private static final String MOCK_CONTEXT_PATH = "/example/path";
 
+  private static final String MOCK_SERVER_NAME = "serverName";
+
+  private static final int MOCK_SERVER_PORT = 1337;
+
+  private static final String MOCK_PROTOCOL = "HTTP/1.1";
+
+  private static final String MOCK_LOCAL_NAME = "localName";
+
+  private static final String MOCK_LOCAL_ADDR = "localAddr";
+
+  private static final int MOCK_LOCAL_PORT = 8008;
+
   private static final String MOCK_FORWARDED_HEADER = "for=192.0.2.60;proto=http;by=203.0.113.43";
 
   private static final String MOCK_X_FORWARDED_FOR = "127.0.0.1";
@@ -128,7 +140,7 @@ public class ClientInfoFilterTest {
     assertThat(clientInfoMap.get("X-Forwarded-Proto"), is(MOCK_X_FORWARDED_PROTO_HEADER));
     assertThat(clientInfoMap.get("X-Forwarded-Prefix"), is(MOCK_X_FORWARDED_PREFIX_HEADER));
     assertThat(clientInfoMap.get("X-Forwarded-Ssl"), is(MOCK_X_FORWARDED_SSL_HEADER));
-    assertThat(clientInfoMap.size(), is(11));
+    assertThat(clientInfoMap.size(), is(17));
     return null;
   }
 
@@ -139,7 +151,13 @@ public class ClientInfoFilterTest {
     assertThat(clientInfoMap.get(SERVLET_REMOTE_HOST), is(MOCK_REMOTE_HOST));
     assertThat(clientInfoMap.get(SERVLET_SCHEME), is(MOCK_SCHEME));
     assertThat(clientInfoMap.get(SERVLET_CONTEXT_PATH), is(MOCK_CONTEXT_PATH));
-    assertThat(clientInfoMap.size(), is(4));
+    assertThat(clientInfoMap.get("serverName"), is(MOCK_SERVER_NAME));
+    assertThat(clientInfoMap.get("serverPort"), is(String.valueOf(MOCK_SERVER_PORT)));
+    assertThat(clientInfoMap.get("protocol"), is(MOCK_PROTOCOL));
+    assertThat(clientInfoMap.get("localName"), is(MOCK_LOCAL_NAME));
+    assertThat(clientInfoMap.get("localAddr"), is(MOCK_LOCAL_ADDR));
+    assertThat(clientInfoMap.get("localPort"), is(String.valueOf(MOCK_LOCAL_PORT)));
+    assertThat(clientInfoMap.size(), is(10));
     return null;
   }
 
@@ -154,6 +172,12 @@ public class ClientInfoFilterTest {
     when(httpServletRequest.getRemoteHost()).thenReturn(MOCK_REMOTE_HOST);
     when(httpServletRequest.getScheme()).thenReturn(MOCK_SCHEME);
     when(httpServletRequest.getServletContext()).thenReturn(mockServletContext);
+    when(httpServletRequest.getServerName()).thenReturn(MOCK_SERVER_NAME);
+    when(httpServletRequest.getServerPort()).thenReturn(MOCK_SERVER_PORT);
+    when(httpServletRequest.getProtocol()).thenReturn(MOCK_PROTOCOL);
+    when(httpServletRequest.getLocalName()).thenReturn(MOCK_LOCAL_NAME);
+    when(httpServletRequest.getLocalAddr()).thenReturn(MOCK_LOCAL_ADDR);
+    when(httpServletRequest.getLocalPort()).thenReturn(MOCK_LOCAL_PORT);
     when(httpServletRequest.getHeader("Forwarded")).thenReturn(MOCK_FORWARDED_HEADER);
     when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn(MOCK_X_FORWARDED_FOR);
     when(httpServletRequest.getHeader("X-Forwarded-Host")).thenReturn(MOCK_X_FORWARDED_HOST_HEADER);
@@ -172,6 +196,12 @@ public class ClientInfoFilterTest {
     when(httpServletRequest.getRemoteHost()).thenReturn(MOCK_REMOTE_HOST);
     when(httpServletRequest.getScheme()).thenReturn(MOCK_SCHEME);
     when(httpServletRequest.getServletContext()).thenReturn(mockServletContext);
+    when(httpServletRequest.getServerName()).thenReturn(MOCK_SERVER_NAME);
+    when(httpServletRequest.getServerPort()).thenReturn(MOCK_SERVER_PORT);
+    when(httpServletRequest.getProtocol()).thenReturn(MOCK_PROTOCOL);
+    when(httpServletRequest.getLocalName()).thenReturn(MOCK_LOCAL_NAME);
+    when(httpServletRequest.getLocalAddr()).thenReturn(MOCK_LOCAL_ADDR);
+    when(httpServletRequest.getLocalPort()).thenReturn(MOCK_LOCAL_PORT);
     return httpServletRequest;
   }
 }

@@ -86,6 +86,13 @@ public class ClientInfoFilter implements Filter {
       clientInfoMap.put(SERVLET_CONTEXT_PATH, servletContext.getContextPath());
     }
 
+    clientInfoMap.put("serverName", servletRequest.getServerName());
+    clientInfoMap.put("serverPort", String.valueOf(servletRequest.getServerPort()));
+    clientInfoMap.put("protocol", servletRequest.getProtocol());
+    clientInfoMap.put("localName", servletRequest.getLocalName());
+    clientInfoMap.put("localAddr", servletRequest.getLocalAddr());
+    clientInfoMap.put("localPort", String.valueOf(servletRequest.getLocalPort()));
+
     if (servletRequest instanceof HttpServletRequest) {
       HttpServletRequest request = (HttpServletRequest) servletRequest;
       addIfPresent(clientInfoMap, "Forwarded", request);
