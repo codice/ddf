@@ -528,6 +528,13 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:ddf.security.servlet/security-servlet-whoami/${project.version}</bundle>
     </feature>
 
+    <feature name="security-servlet-web-socket" version="${project.version}"
+             description="Defines a secure web socket servlet type.">
+        <feature>security-core-impl</feature>
+        <feature>pax-http-whiteboard</feature>
+        <bundle>mvn:ddf.security.servlet/security-servlet-web-socket/${project.version}</bundle>
+    </feature>
+
     <feature name="security-handler-saml" version="${project.version}"
              description="SAML Web SSO client">
         <feature>security-core-api</feature>
@@ -590,6 +597,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-pdp-authz</feature>
         <feature>security-servlet-whoami</feature>
         <feature>security-servlet-session-expiry</feature>
+        <feature>security-servlet-web-socket</feature>
         <feature>security-realm-saml</feature>
         <feature>security-guest-realm</feature>
         <feature>security-claims-property</feature>
