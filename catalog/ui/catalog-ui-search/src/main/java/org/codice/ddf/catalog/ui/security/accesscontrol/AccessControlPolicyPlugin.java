@@ -124,7 +124,7 @@ public class AccessControlPolicyPlugin implements PolicyPlugin {
     return new PolicyResponseImpl(Collections.emptyMap(), getPolicy(metacard));
   }
 
-  private boolean isUserOnlyRemoved(Metacard prev, Metacard updated, String attribute) {
+  private boolean isOnlyUserRemoved(Metacard prev, Metacard updated, String attribute) {
     List<String> prevValues = new ArrayList<>(getValuesOrEmpty(prev, attribute));
     List<String> updatedValues = getValuesOrEmpty(updated, attribute);
     if (prevValues.size() > updatedValues.size()) {
@@ -142,10 +142,10 @@ public class AccessControlPolicyPlugin implements PolicyPlugin {
     return (Security.ACCESS_ADMINISTRATORS.equals(attribute)
             || Security.ACCESS_INDIVIDUALS.equals(attribute)
             || Security.ACCESS_INDIVIDUALS_READ.equals(attribute))
-        && isUserOnlyRemoved(prev, updated, attribute);
+        && isOnlyUserRemoved(prev, updated, attribute);
   }
 
-  private boolean onlyUserAccessControlRemoved(Metacard prev, Metacard updated) {
+  private boolean isOnlyUserAccessControlRemoved(Metacard prev, Metacard updated) {
     if (isAnyObjectNull(prev, updated)
         || getOwner(prev).equals(subjectSupplier.get())
         || (!ACCESS_ADMIN_HAS_CHANGED.apply(prev, updated)
@@ -178,7 +178,7 @@ public class AccessControlPolicyPlugin implements PolicyPlugin {
                 .filter(m -> metacard.getId().equals(m.getId()))
                 .findFirst()
             : Optional.empty();
-    if (oldMetacard.isPresent() && onlyUserAccessControlRemoved(oldMetacard.get(), metacard)) {
+    if (oldMetacard.isPresent() && isOnlyUserAccessControlRemoved(oldMetacard.get(), metacard)) {
       policy.put("remove-user-access", Collections.singleton(subjectSupplier.get()));
     }
     return new PolicyResponseImpl(Collections.emptyMap(), policy);
