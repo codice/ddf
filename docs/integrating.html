@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.23.0. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.24.0. Copyright (c) Codice Foundation">
 <title>Integrating DDF</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Integrating DDF</h1>
 <div class="details">
-<span id="author" class="author">Version 2.23.0. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.24.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -553,32 +553,26 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_csw_endpoint_get_capabilities_examples">1.6.2.6. CSW Endpoint Get Capabilities Examples</a></li>
 </ul>
 </li>
-<li><a href="#_ftp_endpoint">1.6.3. FTP Endpoint</a>
+<li><a href="#_opensearch_endpoint">1.6.3. OpenSearch Endpoint</a>
 <ul class="sectlevel4">
-<li><a href="#_ftp_endpoint_create_examples">1.6.3.1. FTP Endpoint Create Examples</a></li>
-<li><a href="#_ftp_endpoint_rename_command">1.6.3.2. FTP Endpoint Rename Command</a></li>
-</ul>
-</li>
-<li><a href="#_opensearch_endpoint">1.6.4. OpenSearch Endpoint</a>
-<ul class="sectlevel4">
-<li><a href="#_opensearch_contextual_queries">1.6.4.1. OpenSearch Contextual Queries</a>
+<li><a href="#_opensearch_contextual_queries">1.6.3.1. OpenSearch Contextual Queries</a>
 <ul class="sectlevel5">
-<li><a href="#_complex_opensearch_contextual_query_format">1.6.4.1.1. Complex OpenSearch Contextual Query Format</a></li>
+<li><a href="#_complex_opensearch_contextual_query_format">1.6.3.1.1. Complex OpenSearch Contextual Query Format</a></li>
 </ul>
 </li>
-<li><a href="#_opensearch_temporal_queries">1.6.4.2. OpenSearch Temporal Queries</a></li>
-<li><a href="#_opensearch_geospatial_queries">1.6.4.3. OpenSearch Geospatial Queries</a></li>
-<li><a href="#_additional_opensearch_query_parameters">1.6.4.4. Additional OpenSearch Query Parameters</a></li>
+<li><a href="#_opensearch_temporal_queries">1.6.3.2. OpenSearch Temporal Queries</a></li>
+<li><a href="#_opensearch_geospatial_queries">1.6.3.3. OpenSearch Geospatial Queries</a></li>
+<li><a href="#_additional_opensearch_query_parameters">1.6.3.4. Additional OpenSearch Query Parameters</a></li>
 </ul>
 </li>
-<li><a href="#_queries_endpoint">1.6.5. Queries Endpoint</a>
+<li><a href="#_queries_endpoint">1.6.4. Queries Endpoint</a>
 <ul class="sectlevel4">
-<li><a href="#_queries_endpoint_create_examples">1.6.5.1. Queries Endpoint Create Examples</a></li>
-<li><a href="#_queries_endpoint_retrieve_all_examples">1.6.5.2. Queries Endpoint Retrieve All Examples</a></li>
-<li><a href="#_queries_endpoint_retrieve_all_fuzzy_examples">1.6.5.3. Queries Endpoint Retrieve All Fuzzy Examples</a></li>
-<li><a href="#_queries_endpoint_retrieve_examples">1.6.5.4. Queries Endpoint Retrieve Examples</a></li>
-<li><a href="#_queries_endpoint_update_examples">1.6.5.5. Queries Endpoint Update Examples</a></li>
-<li><a href="#_queries_endpoint_delete_examples">1.6.5.6. Queries Endpoint Delete Examples</a></li>
+<li><a href="#_queries_endpoint_create_examples">1.6.4.1. Queries Endpoint Create Examples</a></li>
+<li><a href="#_queries_endpoint_retrieve_all_examples">1.6.4.2. Queries Endpoint Retrieve All Examples</a></li>
+<li><a href="#_queries_endpoint_retrieve_all_fuzzy_examples">1.6.4.3. Queries Endpoint Retrieve All Fuzzy Examples</a></li>
+<li><a href="#_queries_endpoint_retrieve_examples">1.6.4.4. Queries Endpoint Retrieve Examples</a></li>
+<li><a href="#_queries_endpoint_update_examples">1.6.4.5. Queries Endpoint Update Examples</a></li>
+<li><a href="#_queries_endpoint_delete_examples">1.6.4.6. Queries Endpoint Delete Examples</a></li>
 </ul>
 </li>
 </ul>
@@ -659,10 +653,6 @@ table.CodeRay td.code>pre{padding:0}
 <dt class="hdlist1"><a href="#_csw_endpoint">CSW Endpoint</a></dt>
 <dd>
 <p>Searches collections of descriptive information (metadata) about geospatial data and services.</p>
-</dd>
-<dt class="hdlist1"><a href="#_ftp_endpoint">FTP Endpoint</a></dt>
-<dd>
-<p>Ingests files directly into the DDF catalog using the FTP protocol.</p>
 </dd>
 </dl>
 </div>
@@ -982,16 +972,16 @@ By default, the response body will include the XML representation of the Metacar
         <span class="tag">&lt;value&gt;</span>email@example.com<span class="tag">&lt;/value&gt;</span>
     <span class="tag">&lt;/string&gt;</span>
     <span class="tag">&lt;dateTime</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">metacard.created</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-        <span class="tag">&lt;value&gt;</span>2020-03-17<span class="tag">&lt;/value&gt;</span>
+        <span class="tag">&lt;value&gt;</span>2020-05-08<span class="tag">&lt;/value&gt;</span>
     <span class="tag">&lt;/dateTime&gt;</span>
     <span class="tag">&lt;dateTime</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">effective</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-        <span class="tag">&lt;value&gt;</span>2020-03-17<span class="tag">&lt;/value&gt;</span>
+        <span class="tag">&lt;value&gt;</span>2020-05-08<span class="tag">&lt;/value&gt;</span>
     <span class="tag">&lt;/dateTime&gt;</span>
     <span class="tag">&lt;dateTime</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">modified</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-        <span class="tag">&lt;value&gt;</span>2020-03-17<span class="tag">&lt;/value&gt;</span>
+        <span class="tag">&lt;value&gt;</span>2020-05-08<span class="tag">&lt;/value&gt;</span>
     <span class="tag">&lt;/dateTime&gt;</span>
     <span class="tag">&lt;dateTime</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">created</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-        <span class="tag">&lt;value&gt;</span>2020-03-17<span class="tag">&lt;/value&gt;</span>
+        <span class="tag">&lt;value&gt;</span>2020-05-08<span class="tag">&lt;/value&gt;</span>
     <span class="tag">&lt;/dateTime&gt;</span>
     <span class="tag">&lt;string</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">description</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
         <span class="tag">&lt;value&gt;</span>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.<span class="tag">&lt;/value&gt;</span>
@@ -1001,7 +991,7 @@ By default, the response body will include the XML representation of the Metacar
         <span class="tag">&lt;value&gt;</span>VALID<span class="tag">&lt;/value&gt;</span>
     <span class="tag">&lt;/string&gt;</span>
     <span class="tag">&lt;dateTime</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">metacard.modified</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-        <span class="tag">&lt;value&gt;</span>2020-03-17<span class="tag">&lt;/value&gt;</span>
+        <span class="tag">&lt;value&gt;</span>2020-05-08<span class="tag">&lt;/value&gt;</span>
     <span class="tag">&lt;/dateTime&gt;</span>
 <span class="tag">&lt;/metacard&gt;</span></pre></td>
 </tr></table></code></pre>
@@ -1050,21 +1040,21 @@ By default, the response body will include the XML representation of the Metacar
     <span class="key"><span class="delimiter">&quot;</span><span class="content">geometry</span><span class="delimiter">&quot;</span></span>: <span class="value">null</span>,
     <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Feature</span><span class="delimiter">&quot;</span></span>,
     <span class="key"><span class="delimiter">&quot;</span><span class="content">properties</span><span class="delimiter">&quot;</span></span>: {
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">effective</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-03-17</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">effective</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-05-08</span><span class="delimiter">&quot;</span></span>,
         <span class="key"><span class="delimiter">&quot;</span><span class="content">point-of-contact</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">email@example.com</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">created</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-03-17</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard.modified</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-03-17</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">created</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-05-08</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard.modified</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-05-08</span><span class="delimiter">&quot;</span></span>,
         <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard-tags</span><span class="delimiter">&quot;</span></span>: [
             <span class="string"><span class="delimiter">&quot;</span><span class="content">resource</span><span class="delimiter">&quot;</span></span>,
             <span class="string"><span class="delimiter">&quot;</span><span class="content">VALID</span><span class="delimiter">&quot;</span></span>
         ],
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">modified</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-03-17</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">modified</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-05-08</span><span class="delimiter">&quot;</span></span>,
         <span class="key"><span class="delimiter">&quot;</span><span class="content">description</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</span><span class="delimiter">&quot;</span></span>,
         <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">3a59483ba44e403a9f0044580343007e</span><span class="delimiter">&quot;</span></span>,
         <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard-type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">ddf.metacard</span><span class="delimiter">&quot;</span></span>,
         <span class="key"><span class="delimiter">&quot;</span><span class="content">title</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Test REST Metacard</span><span class="delimiter">&quot;</span></span>,
         <span class="key"><span class="delimiter">&quot;</span><span class="content">source-id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">ddf.distribution</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard.created</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-03-17</span><span class="delimiter">&quot;</span></span>
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard.created</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-05-08</span><span class="delimiter">&quot;</span></span>
     }
 }</pre></td>
 </tr></table></code></pre>
@@ -1254,7 +1244,7 @@ send a <code>GET</code> request to the endpoint.</p>
       <span class="key"><span class="delimiter">&quot;</span><span class="content">contentTypes</span><span class="delimiter">&quot;</span></span> :
          [
          ],
-      <span class="key"><span class="delimiter">&quot;</span><span class="content">version</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">2.23.0</span><span class="delimiter">&quot;</span></span>
+      <span class="key"><span class="delimiter">&quot;</span><span class="content">version</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">2.24.0</span><span class="delimiter">&quot;</span></span>
    },
    {
       <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">ddf.distribution</span><span class="delimiter">&quot;</span></span>,
@@ -1262,7 +1252,7 @@ send a <code>GET</code> request to the endpoint.</p>
       <span class="key"><span class="delimiter">&quot;</span><span class="content">contentTypes</span><span class="delimiter">&quot;</span></span> :
          [
          ],
-      <span class="key"><span class="delimiter">&quot;</span><span class="content">version</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">2.23.0</span><span class="delimiter">&quot;</span></span>
+      <span class="key"><span class="delimiter">&quot;</span><span class="content">version</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">2.24.0</span><span class="delimiter">&quot;</span></span>
    }
 ]</pre></td>
 </tr></table></code></pre>
@@ -1387,7 +1377,7 @@ Send a GET or POST request to obtain an accurate response.</p>
             <span class="tag">&lt;dc:type&gt;</span>http://purl.org/dc/dcmitype/Text<span class="tag">&lt;/dc:type&gt;</span>
             <span class="tag">&lt;dc:subject&gt;</span>Hydrography--Dictionaries<span class="tag">&lt;/dc:subject&gt;</span>
             <span class="tag">&lt;dc:format&gt;</span>application/pdf<span class="tag">&lt;/dc:format&gt;</span>
-            <span class="tag">&lt;dc:date&gt;</span>2020-03-17<span class="tag">&lt;/dc:date&gt;</span>
+            <span class="tag">&lt;dc:date&gt;</span>2020-05-08<span class="tag">&lt;/dc:date&gt;</span>
             <span class="tag">&lt;dct:abstract&gt;</span>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.<span class="tag">&lt;/dct:abstract&gt;</span>
             <span class="tag">&lt;ows:BoundingBox</span> <span class="attribute-name">crs</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">urn:x-ogc:def:crs:EPSG:6.11:4326</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
                 <span class="tag">&lt;ows:LowerCorner&gt;</span>44.792 -6.171<span class="tag">&lt;/ows:LowerCorner&gt;</span>
@@ -1672,7 +1662,7 @@ Optionally, set the <code>ElementSetName</code> to determine how much detail to 
                         <span class="attribute-name">xmlns:xs</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.w3.org/2001/XMLSchema</span><span class="delimiter">&quot;</span></span>
                         <span class="attribute-name">xmlns:xsi</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.w3.org/2001/XMLSchema-instance</span><span class="delimiter">&quot;</span></span>
                         <span class="attribute-name">xmlns:dc</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://purl.org/dc/elements/1.1/</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.0.2</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-  <span class="tag">&lt;csw:SearchStatus</span> <span class="attribute-name">timestamp</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2020-03-17</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+  <span class="tag">&lt;csw:SearchStatus</span> <span class="attribute-name">timestamp</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2020-05-08</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
   <span class="tag">&lt;csw:SearchResults</span> <span class="attribute-name">numberOfRecordsMatched</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">1</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">numberOfRecordsReturned</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">1</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">nextRecord</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">0</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">recordSchema</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/cat/csw/2.0.2</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">elementSet</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">summary</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     <span class="tag">&lt;csw:Record</span> <span class="attribute-name">xmlns:ows</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/ows</span><span class="delimiter">&quot;</span></span>
                 <span class="attribute-name">xmlns:csw</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/cat/csw/2.0.2</span><span class="delimiter">&quot;</span></span>
@@ -1684,7 +1674,7 @@ Optionally, set the <code>ElementSetName</code> to determine how much detail to 
         <span class="tag">&lt;dc:type&gt;</span>http://purl.org/dc/dcmitype/Text<span class="tag">&lt;/dc:type&gt;</span>
         <span class="tag">&lt;dc:subject&gt;</span>Hydrography--Dictionaries<span class="tag">&lt;/dc:subject&gt;</span>
         <span class="tag">&lt;dc:format&gt;</span>application/pdf<span class="tag">&lt;/dc:format&gt;</span>
-        <span class="tag">&lt;dc:date&gt;</span>2020-03-17<span class="tag">&lt;/dc:date&gt;</span>
+        <span class="tag">&lt;dc:date&gt;</span>2020-05-08<span class="tag">&lt;/dc:date&gt;</span>
         <span class="tag">&lt;dct:abstract&gt;</span>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.<span class="tag">&lt;/dct:abstract&gt;</span>
         <span class="tag">&lt;ows:BoundingBox</span> <span class="attribute-name">crs</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">urn:x-ogc:def:crs:EPSG:6.11:4326</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
             <span class="tag">&lt;ows:LowerCorner&gt;</span>44.792 -6.171<span class="tag">&lt;/ows:LowerCorner&gt;</span>
@@ -2419,7 +2409,7 @@ as there isn&#8217;t a way to specify the UTM <code>srsName</code> in CQL.</p>
             <span class="tag">&lt;dc:type&gt;</span>http://purl.org/dc/dcmitype/Text<span class="tag">&lt;/dc:type&gt;</span>
             <span class="tag">&lt;dc:subject&gt;</span>Hydrography--Dictionaries<span class="tag">&lt;/dc:subject&gt;</span>
             <span class="tag">&lt;dc:format&gt;</span>application/pdf<span class="tag">&lt;/dc:format&gt;</span>
-            <span class="tag">&lt;dc:date&gt;</span>2020-03-17<span class="tag">&lt;/dc:date&gt;</span>
+            <span class="tag">&lt;dc:date&gt;</span>2020-05-08<span class="tag">&lt;/dc:date&gt;</span>
             <span class="tag">&lt;dct:abstract&gt;</span>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.<span class="tag">&lt;/dct:abstract&gt;</span>
             <span class="tag">&lt;ows:BoundingBox</span> <span class="attribute-name">crs</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">urn:x-ogc:def:crs:EPSG:6.11:4326</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
                 <span class="tag">&lt;ows:LowerCorner&gt;</span>44.792 -6.171<span class="tag">&lt;/ows:LowerCorner&gt;</span>
@@ -2834,7 +2824,7 @@ The client will be assigned a <code>requestId</code> (URN).</p>
 <div class="title">Subscription <code>GetRecords</code> XML Response</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot; ?&gt;</span>
-<span class="tag">&lt;Acknowledgement</span> <span class="attribute-name">timeStamp</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2020-03-17T18:49:45</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/cat/csw/2.0.2</span><span class="delimiter">&quot;</span></span>
+<span class="tag">&lt;Acknowledgement</span> <span class="attribute-name">timeStamp</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2020-05-08T18:49:45</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/cat/csw/2.0.2</span><span class="delimiter">&quot;</span></span>
 <span class="attribute-name">xmlns:ogc</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/ogc</span><span class="delimiter">&quot;</span></span>
 <span class="attribute-name">xmlns:xsi</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.w3.org/2001/XMLSchema-instance</span><span class="delimiter">&quot;</span></span>
 <span class="attribute-name">xsi:schemaLocation</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
@@ -2900,7 +2890,7 @@ The client will be assigned a <code>requestId</code> (URN).</p>
 <div class="title">Subscription <code>HTTP GET</code> Sample Response</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot; ?&gt;</span>
-<span class="tag">&lt;Acknowledgement</span> <span class="attribute-name">timeStamp</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2020-03-17T18:49:45</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/cat/csw/2.0.2</span><span class="delimiter">&quot;</span></span>
+<span class="tag">&lt;Acknowledgement</span> <span class="attribute-name">timeStamp</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2020-05-08T18:49:45</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/cat/csw/2.0.2</span><span class="delimiter">&quot;</span></span>
                                                  <span class="attribute-name">xmlns:ogc</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/ogc</span><span class="delimiter">&quot;</span></span>
                                                  <span class="attribute-name">xmlns:xsi</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.w3.org/2001/XMLSchema-instance</span><span class="delimiter">&quot;</span></span>
                                                  <span class="attribute-name">xsi:schemaLocation</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
@@ -3352,56 +3342,7 @@ This XML document is defined by the <a href="http://schemas.opengis.net/csw/2.0.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_ftp_endpoint"><a class="anchor" href="#_ftp_endpoint"></a><a class="link" href="#_ftp_endpoint">1.6.3. FTP Endpoint</a></h4>
-<div class="paragraph">
-<p>The FTP endpoint provides a method for ingesting files directly into the DDF catalog using the FTP protocol.</p>
-</div>
-<div class="paragraph">
-<p>The FTP endpoint can be accessed from any FTP client of choice.
-Some common clients are FileZilla, PuTTY, or the FTP client provided in the terminal.
-The default port number is <strong>8021</strong>.
-If FTPS is enabled with 2-way TLS, a client that supports client authentication is required.</p>
-</div>
-<div class="sect4">
-<h5 id="_ftp_endpoint_create_examples"><a class="anchor" href="#_ftp_endpoint_create_examples"></a><a class="link" href="#_ftp_endpoint_create_examples">1.6.3.1. FTP Endpoint Create Examples</a></h5>
-<div class="paragraph">
-<p>To ingest files into DDF send an FTP <code>PUT</code> request to the DDF server.</p>
-</div>
-<div class="listingblock">
-<div class="title">FTP Endpoint URL</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="ftp">ftp://&lt;FQDN&gt;:&lt;PORT&gt;</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_ftp_endpoint_rename_command"><a class="anchor" href="#_ftp_endpoint_rename_command"></a><a class="link" href="#_ftp_endpoint_rename_command">1.6.3.2. FTP Endpoint Rename Command</a></h5>
-<div class="paragraph">
-<p>The FTP endpoint also supports renaming files as they are ingested with the FTP <code>RNTO</code> operation.</p>
-</div>
-<div class="paragraph">
-<p>Files named with a leading <code>.</code>, such as <code>.&lt;FILENAME&gt;</code>,  are held by DDF without being ingested until the <code>rename</code> command is sent.</p>
-</div>
-<div class="listingblock">
-<div class="title">PUT Command Example</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="ftp">PUT .&lt;FILENAME&gt;.txt</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Rename Command Example</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="ftp">rename .&lt;NEW_FILENAME&gt;.txt</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The endpoint will complete the ingest process when the rename command is sent.
-The filename on the original file system will NOT be changed.</p>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_opensearch_endpoint"><a class="anchor" href="#_opensearch_endpoint"></a><a class="link" href="#_opensearch_endpoint">1.6.4. OpenSearch Endpoint</a></h4>
+<h4 id="_opensearch_endpoint"><a class="anchor" href="#_opensearch_endpoint"></a><a class="link" href="#_opensearch_endpoint">1.6.3. OpenSearch Endpoint</a></h4>
 <div class="paragraph">
 <p>The OpenSearch Endpoint enables a client to send query parameters and receive search results.
 This endpoint uses the input query parameters to create an OpenSearch query.
@@ -3413,7 +3354,7 @@ This file is XML-based and is used to programatically retrieve a site&#8217;s en
 The parameters are defined via the <a href="http://www.opensearch.org/Specifications/OpenSearch/1.1">OpenSearch</a> <span class="image"><a class="image" href="_opensearch_endpoint"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="OpenSearch Endpoint"></a></span> and <a href="https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-search">CDR IPT</a> <span class="image"><a class="image" href="_opensearch_endpoint"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="OpenSearch Endpoint"></a></span> Specifications.</p>
 </div>
 <div class="sect4">
-<h5 id="_opensearch_contextual_queries"><a class="anchor" href="#_opensearch_contextual_queries"></a><a class="link" href="#_opensearch_contextual_queries">1.6.4.1. OpenSearch Contextual Queries</a></h5>
+<h5 id="_opensearch_contextual_queries"><a class="anchor" href="#_opensearch_contextual_queries"></a><a class="link" href="#_opensearch_contextual_queries">1.6.3.1. OpenSearch Contextual Queries</a></h5>
 <div class="paragraph">
 <p>To use the OpenSearch endpoint for a query, send a <code>GET</code> request with the query options as parameters</p>
 </div>
@@ -3478,7 +3419,7 @@ The parameters are defined via the <a href="http://www.opensearch.org/Specificat
 </div>
 </div>
 <div class="sect5">
-<h6 id="_complex_opensearch_contextual_query_format"><a class="anchor" href="#_complex_opensearch_contextual_query_format"></a><a class="link" href="#_complex_opensearch_contextual_query_format">1.6.4.1.1. Complex OpenSearch Contextual Query Format</a></h6>
+<h6 id="_complex_opensearch_contextual_query_format"><a class="anchor" href="#_complex_opensearch_contextual_query_format"></a><a class="link" href="#_complex_opensearch_contextual_query_format">1.6.3.1.1. Complex OpenSearch Contextual Query Format</a></h6>
 <div class="paragraph">
 <p>The OpenSearch Endpoint supports the following operators: <code>AND</code>, <code>OR</code>, and <code>NOT</code>.
 These operators are case sensitive.
@@ -3500,7 +3441,7 @@ Use quotes to group keywords into literal expressions.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_opensearch_temporal_queries"><a class="anchor" href="#_opensearch_temporal_queries"></a><a class="link" href="#_opensearch_temporal_queries">1.6.4.2. OpenSearch Temporal Queries</a></h5>
+<h5 id="_opensearch_temporal_queries"><a class="anchor" href="#_opensearch_temporal_queries"></a><a class="link" href="#_opensearch_temporal_queries">1.6.3.2. OpenSearch Temporal Queries</a></h5>
 <div class="paragraph">
 <p>Queries can also specify a start and end time to narrow results.</p>
 </div>
@@ -3540,7 +3481,7 @@ Use quotes to group keywords into literal expressions.</p>
 <div class="listingblock">
 <div class="title">OpenSearch Temporal Query Example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="https">https://&lt;FQDN&gt;:&lt;PORT&gt;/services/catalog/query?q='*'&amp;dtstart=2020-03-17T00:00:00Z&amp;dtend=2020-03-17T18:00:00Z</code></pre>
+<pre class="CodeRay highlight"><code data-lang="https">https://&lt;FQDN&gt;:&lt;PORT&gt;/services/catalog/query?q='*'&amp;dtstart=2020-05-08T00:00:00Z&amp;dtend=2020-05-08T18:00:00Z</code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -3554,7 +3495,7 @@ Use quotes to group keywords into literal expressions.</p>
 <p>The start and end temporal criteria must be of the format specified above. Other formats are currently not supported. Example:</p>
 </div>
 <div class="paragraph">
-<p><code>2020-03-17T12:00:00.111-04:00</code>.</p>
+<p><code>2020-05-08T12:00:00.111-04:00</code>.</p>
 </div>
 <div class="paragraph">
 <p><strong>The start and end temporal elements are based on <a href="metadata.html#_modified">modified</a> timestamps for a metacard.</strong></p>
@@ -3565,7 +3506,7 @@ Use quotes to group keywords into literal expressions.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_opensearch_geospatial_queries"><a class="anchor" href="#_opensearch_geospatial_queries"></a><a class="link" href="#_opensearch_geospatial_queries">1.6.4.3. OpenSearch Geospatial Queries</a></h5>
+<h5 id="_opensearch_geospatial_queries"><a class="anchor" href="#_opensearch_geospatial_queries"></a><a class="link" href="#_opensearch_geospatial_queries">1.6.3.3. OpenSearch Geospatial Queries</a></h5>
 <div class="paragraph">
 <p>Query by location.</p>
 </div>
@@ -3643,7 +3584,7 @@ Use quotes to group keywords into literal expressions.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_additional_opensearch_query_parameters"><a class="anchor" href="#_additional_opensearch_query_parameters"></a><a class="link" href="#_additional_opensearch_query_parameters">1.6.4.4. Additional OpenSearch Query Parameters</a></h5>
+<h5 id="_additional_opensearch_query_parameters"><a class="anchor" href="#_additional_opensearch_query_parameters"></a><a class="link" href="#_additional_opensearch_query_parameters">1.6.3.4. Additional OpenSearch Query Parameters</a></h5>
 <div class="paragraph">
 <p>The OpenSearch Endpoint can also use these additional parameters to refine queries</p>
 </div>
@@ -3708,12 +3649,6 @@ However, when <code>&lt;sbfield&gt;</code> is <code>relevance</code>, <code>&lt;
 <td class="tableblock halign-left valign-top"><p class="tableblock">Comma-delimited list of strings (e.g. 20,30)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Version values for which to search.</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>selector</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>selector</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Comma-delimited list of XPath string selectors (e.g. <code>//namespace:example</code>, <code>//example</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Selectors to narrow the query.</p></td>
-</tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
@@ -3744,7 +3679,7 @@ However, when <code>&lt;sbfield&gt;</code> is <code>relevance</code>, <code>&lt;
 </div>
 </div>
 <div class="sect3">
-<h4 id="_queries_endpoint"><a class="anchor" href="#_queries_endpoint"></a><a class="link" href="#_queries_endpoint">1.6.5. Queries Endpoint</a></h4>
+<h4 id="_queries_endpoint"><a class="anchor" href="#_queries_endpoint"></a><a class="link" href="#_queries_endpoint">1.6.4. Queries Endpoint</a></h4>
 <div class="paragraph">
 <p>The queries endpoint enables an application to create, retrieve, update, and delete query metacards.</p>
 </div>
@@ -3780,7 +3715,7 @@ However, when <code>&lt;sbfield&gt;</code> is <code>relevance</code>, <code>&lt;
 </div>
 </div>
 <div class="sect4">
-<h5 id="_queries_endpoint_create_examples"><a class="anchor" href="#_queries_endpoint_create_examples"></a><a class="link" href="#_queries_endpoint_create_examples">1.6.5.1. Queries Endpoint Create Examples</a></h5>
+<h5 id="_queries_endpoint_create_examples"><a class="anchor" href="#_queries_endpoint_create_examples"></a><a class="link" href="#_queries_endpoint_create_examples">1.6.4.1. Queries Endpoint Create Examples</a></h5>
 <div class="paragraph">
 <p>To create a query metacard through the queries endpoint, send a <code>POST</code> request to the queries endpoint.</p>
 </div>
@@ -3894,7 +3829,7 @@ However, when <code>&lt;sbfield&gt;</code> is <code>relevance</code>, <code>&lt;
 </div>
 </div>
 <div class="sect4">
-<h5 id="_queries_endpoint_retrieve_all_examples"><a class="anchor" href="#_queries_endpoint_retrieve_all_examples"></a><a class="link" href="#_queries_endpoint_retrieve_all_examples">1.6.5.2. Queries Endpoint Retrieve All Examples</a></h5>
+<h5 id="_queries_endpoint_retrieve_all_examples"><a class="anchor" href="#_queries_endpoint_retrieve_all_examples"></a><a class="link" href="#_queries_endpoint_retrieve_all_examples">1.6.4.2. Queries Endpoint Retrieve All Examples</a></h5>
 <div class="paragraph">
 <p>To retrieve a query metacard through the queries endpoint, send a <code>GET</code> request to the queries endpoint.</p>
 </div>
@@ -3959,7 +3894,7 @@ However, when <code>&lt;sbfield&gt;</code> is <code>relevance</code>, <code>&lt;
 </div>
 </div>
 <div class="sect4">
-<h5 id="_queries_endpoint_retrieve_all_fuzzy_examples"><a class="anchor" href="#_queries_endpoint_retrieve_all_fuzzy_examples"></a><a class="link" href="#_queries_endpoint_retrieve_all_fuzzy_examples">1.6.5.3. Queries Endpoint Retrieve All Fuzzy Examples</a></h5>
+<h5 id="_queries_endpoint_retrieve_all_fuzzy_examples"><a class="anchor" href="#_queries_endpoint_retrieve_all_fuzzy_examples"></a><a class="link" href="#_queries_endpoint_retrieve_all_fuzzy_examples">1.6.4.3. Queries Endpoint Retrieve All Fuzzy Examples</a></h5>
 <div class="paragraph">
 <p>To retrieve all query metacards based on some text based value through the queries endpoint, send a <code>GET</code> request to the queries endpoint specifying a value for <code>text</code> as a query parameters.</p>
 </div>
@@ -3974,7 +3909,7 @@ However, when <code>&lt;sbfield&gt;</code> is <code>relevance</code>, <code>&lt;
 </div>
 </div>
 <div class="sect4">
-<h5 id="_queries_endpoint_retrieve_examples"><a class="anchor" href="#_queries_endpoint_retrieve_examples"></a><a class="link" href="#_queries_endpoint_retrieve_examples">1.6.5.4. Queries Endpoint Retrieve Examples</a></h5>
+<h5 id="_queries_endpoint_retrieve_examples"><a class="anchor" href="#_queries_endpoint_retrieve_examples"></a><a class="link" href="#_queries_endpoint_retrieve_examples">1.6.4.4. Queries Endpoint Retrieve Examples</a></h5>
 <div class="listingblock">
 <div class="title">Retrieve Specific Query Endpoint URL</div>
 <div class="content">
@@ -4006,7 +3941,7 @@ However, when <code>&lt;sbfield&gt;</code> is <code>relevance</code>, <code>&lt;
 </div>
 </div>
 <div class="sect4">
-<h5 id="_queries_endpoint_update_examples"><a class="anchor" href="#_queries_endpoint_update_examples"></a><a class="link" href="#_queries_endpoint_update_examples">1.6.5.5. Queries Endpoint Update Examples</a></h5>
+<h5 id="_queries_endpoint_update_examples"><a class="anchor" href="#_queries_endpoint_update_examples"></a><a class="link" href="#_queries_endpoint_update_examples">1.6.4.5. Queries Endpoint Update Examples</a></h5>
 <div class="listingblock">
 <div class="title">Update Query Endpoint URL</div>
 <div class="content">
@@ -4126,7 +4061,7 @@ However, when <code>&lt;sbfield&gt;</code> is <code>relevance</code>, <code>&lt;
 </div>
 </div>
 <div class="sect4">
-<h5 id="_queries_endpoint_delete_examples"><a class="anchor" href="#_queries_endpoint_delete_examples"></a><a class="link" href="#_queries_endpoint_delete_examples">1.6.5.6. Queries Endpoint Delete Examples</a></h5>
+<h5 id="_queries_endpoint_delete_examples"><a class="anchor" href="#_queries_endpoint_delete_examples"></a><a class="link" href="#_queries_endpoint_delete_examples">1.6.4.6. Queries Endpoint Delete Examples</a></h5>
 <div class="listingblock">
 <div class="title">Delete Query Endpoint URL</div>
 <div class="content">
@@ -4248,7 +4183,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-03-17 19:26:46 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-05-08 01:50:19 UTC
 </div>
 </div>
 </body>

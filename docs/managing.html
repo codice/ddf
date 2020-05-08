@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.23.0. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.24.0. Copyright (c) Codice Foundation">
 <title>Managing</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Managing</h1>
 <div class="details">
-<span id="author" class="author">Version 2.23.0. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.24.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -779,9 +779,8 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel4">
 <li><a href="#_configuring_catalog_rest_endpoint">3.8.6.1. Configuring Catalog REST Endpoint</a></li>
 <li><a href="#_configuring_csw_endpoint">3.8.6.2. Configuring CSW Endpoint</a></li>
-<li><a href="#_configuring_ftp_endpoint">3.8.6.3. Configuring FTP Endpoint</a></li>
-<li><a href="#_configuring_kml_endpoint">3.8.6.4. Configuring KML Endpoint</a></li>
-<li><a href="#_configuring_opensearch_endpoint">3.8.6.5. Configuring OpenSearch Endpoint</a></li>
+<li><a href="#_configuring_kml_endpoint">3.8.6.3. Configuring KML Endpoint</a></li>
+<li><a href="#_configuring_opensearch_endpoint">3.8.6.4. Configuring OpenSearch Endpoint</a></li>
 </ul>
 </li>
 </ul>
@@ -795,12 +794,7 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel3">
 <li><a href="#_multiple_installations">3.10.1. Multiple Installations</a>
 <ul class="sectlevel4">
-<li><a href="#_reusing_configurations">3.10.1.1. Reusing Configurations</a>
-<ul class="sectlevel5">
-<li><a href="#_reusing_configurations_across_different_versions">3.10.1.1.1. Reusing Configurations Across Different Versions</a></li>
-</ul>
-</li>
-<li><a href="#_isolating_solrcloud_and_zookeeper">3.10.1.2. Isolating SolrCloud and Zookeeper</a></li>
+<li><a href="#_isolating_solrcloud_and_zookeeper">3.10.1.1. Isolating SolrCloud and Zookeeper</a></li>
 </ul>
 </li>
 <li><a href="#_configuring_for_a_fanout_proxy">3.10.2. Configuring for a Fanout Proxy</a></li>
@@ -876,8 +870,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_solr_commands">4.3.1.3.2. Solr Commands</a></li>
 <li><a href="#_subscriptions_commands">4.3.1.3.3. Subscriptions Commands</a></li>
 <li><a href="#_platform_commands">4.3.1.3.4. Platform Commands</a></li>
-<li><a href="#_migrate_commands">4.3.1.3.5. Migrate Commands</a></li>
-<li><a href="#_persistence_store_commands">4.3.1.3.6. Persistence Store Commands</a></li>
+<li><a href="#_persistence_store_commands">4.3.1.3.5. Persistence Store Commands</a></li>
 </ul>
 </li>
 <li><a href="#_command_scheduler">4.3.1.4. Command Scheduler</a>
@@ -941,22 +934,21 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 <li><a href="#_backing_up_the_catalog">5.3. Backing Up the Catalog</a></li>
 <li><a href="#_removing_expired_records_from_the_catalog">5.4. Removing Expired Records from the Catalog</a></li>
-<li><a href="#_migrating_data">5.5. Migrating Data</a></li>
-<li><a href="#_automatically_added_metacard_attributes">5.6. Automatically Added Metacard Attributes</a>
+<li><a href="#_automatically_added_metacard_attributes">5.5. Automatically Added Metacard Attributes</a>
 <ul class="sectlevel3">
-<li><a href="#_attributes_added_on_ingest">5.6.1. Attributes Added on Ingest</a>
+<li><a href="#_attributes_added_on_ingest">5.5.1. Attributes Added on Ingest</a>
 <ul class="sectlevel4">
-<li><a href="#_attributes_added_by_input_transformers">5.6.1.1. Attributes Added by Input Transformers</a></li>
-<li><a href="#_attributes_added_by_attribute_injection">5.6.1.2. Attributes Added by Attribute Injection</a></li>
-<li><a href="#_attributes_added_by_default_attribute_types">5.6.1.3. Attributes Added by Default Attribute Types</a></li>
-<li><a href="#_attributes_added_by_attribute_overrides_ingest">5.6.1.4. Attributes Added by Attribute Overrides (Ingest)</a></li>
-<li><a href="#_attributes_added_by_pre_authorization_plugins">5.6.1.5. Attributes Added by Pre-Authorization Plugins</a></li>
-<li><a href="#_attributes_added_by_pre_ingest_plugins">5.6.1.6. Attributes Added by Pre-Ingest Plugins</a></li>
+<li><a href="#_attributes_added_by_input_transformers">5.5.1.1. Attributes Added by Input Transformers</a></li>
+<li><a href="#_attributes_added_by_attribute_injection">5.5.1.2. Attributes Added by Attribute Injection</a></li>
+<li><a href="#_attributes_added_by_default_attribute_types">5.5.1.3. Attributes Added by Default Attribute Types</a></li>
+<li><a href="#_attributes_added_by_attribute_overrides_ingest">5.5.1.4. Attributes Added by Attribute Overrides (Ingest)</a></li>
+<li><a href="#_attributes_added_by_pre_authorization_plugins">5.5.1.5. Attributes Added by Pre-Authorization Plugins</a></li>
+<li><a href="#_attributes_added_by_pre_ingest_plugins">5.5.1.6. Attributes Added by Pre-Ingest Plugins</a></li>
 </ul>
 </li>
-<li><a href="#_attributes_added_on_query">5.6.2. Attributes Added on Query</a>
+<li><a href="#_attributes_added_on_query">5.5.2. Attributes Added on Query</a>
 <ul class="sectlevel4">
-<li><a href="#_attributes_added_by_attribute_overrides_query">5.6.2.1. Attributes Added by Attribute Overrides (Query)</a></li>
+<li><a href="#_attributes_added_by_attribute_overrides_query">5.5.2.1. Attributes Added by Attribute Overrides (Query)</a></li>
 </ul>
 </li>
 </ul>
@@ -1733,7 +1725,7 @@ su - DDF_USER</pre>
 </div>
 </li>
 <li>
-<p>Change the current directory to the location of the zip file (ddf-2.23.0.zip).</p>
+<p>Change the current directory to the location of the zip file (ddf-2.24.0.zip).</p>
 <div class="listingblock">
 <div class="title">*NIX (Example assumes DDF has been downloaded to a CD/DVD)</div>
 <div class="content">
@@ -1748,17 +1740,17 @@ su - DDF_USER</pre>
 </div>
 </li>
 <li>
-<p>Copy ddf-2.23.0.zip to &lt;DDF_HOME&gt;.</p>
+<p>Copy ddf-2.24.0.zip to &lt;DDF_HOME&gt;.</p>
 <div class="listingblock">
 <div class="title">*NIX</div>
 <div class="content">
-<pre>cp ddf-2.23.0.zip &lt;DDF_HOME&gt;</pre>
+<pre>cp ddf-2.24.0.zip &lt;DDF_HOME&gt;</pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Windows</div>
 <div class="content">
-<pre>copy ddf-2.23.0.zip &lt;DDF_HOME&gt;</pre>
+<pre>copy ddf-2.24.0.zip &lt;DDF_HOME&gt;</pre>
 </div>
 </div>
 </li>
@@ -1772,11 +1764,11 @@ su - DDF_USER</pre>
 </div>
 </li>
 <li>
-<p>The DDF zip is now located within the <code>&lt;DDF_HOME&gt;</code>. Unzip ddf-2.23.0.zip.</p>
+<p>The DDF zip is now located within the <code>&lt;DDF_HOME&gt;</code>. Unzip ddf-2.24.0.zip.</p>
 <div class="listingblock">
 <div class="title">*NIX</div>
 <div class="content">
-<pre>unzip ddf-2.23.0.zip</pre>
+<pre>unzip ddf-2.24.0.zip</pre>
 </div>
 </div>
 <div class="admonitionblock warning">
@@ -1795,7 +1787,7 @@ Instead, use the java jar command line utility to unzip the distribution (see ex
 <div class="listingblock">
 <div class="title">Use Java to Unzip in Windows(Replace <code>&lt;PATH_TO_JAVA&gt;</code> with correct path <code>and &lt;JAVA_VERSION&gt;</code> with current version.)</div>
 <div class="content">
-<pre>"&lt;PATH_TO_JAVA&gt;\jdk&lt;JAVA_VERSION&gt;\bin\jar.exe" xf ddf-2.23.0.zip</pre>
+<pre>"&lt;PATH_TO_JAVA&gt;\jdk&lt;JAVA_VERSION&gt;\bin\jar.exe" xf ddf-2.24.0.zip</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1815,7 +1807,7 @@ The command prompt will stop responding to input during this time.</p>
 <p>Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.</p>
 </div>
 <div class="paragraph">
-<p>Within the <code>&lt;DDF_HOME&gt;</code>, a directory is created named ddf-2.23.0.
+<p>Within the <code>&lt;DDF_HOME&gt;</code>, a directory is created named ddf-2.24.0.
 This directory will be referred to in the documentation as <code>&lt;DDF_HOME&gt;</code>.</p>
 </div>
 <div class="olist arabic">
@@ -3132,8 +3124,7 @@ the normal steps can be followed for installing, configuring, and hardening.</p>
 <p>Optional: If hardening the first DDF node (excluding setting directory permissions). See the <a href="#_security_hardening">Hardening Section</a>.</p>
 </li>
 <li>
-<p>Export the first DDF node&#8217;s configurations, install the second DDF node, and import the exported configurations on that node.
-See <a href="#_reusing_configurations">Reusing Configurations</a>.</p>
+<p>Export the first DDF node&#8217;s configurations, install the second DDF node, and import the exported configurations on that node.</p>
 </li>
 <li>
 <p>If hardening, set directory permissions on both DDF nodes. See <a href="#_setting_directory_permissions">Setting Directory Permissions</a>.</p>
@@ -3334,7 +3325,7 @@ Set up <a href="#_configuring_user_access">Users</a> with security attributes, t
 <p>Connecting DDF to other data sources, including other instances of DDF is covered in the <a href="#_configuring_federation">Configuring Federation</a> section.</p>
 </div>
 <div class="paragraph">
-<p>Lastly, see the <a href="#_configuring_for_special_deployments">Configuring for Special Deployments</a> section for guidance on common specialized installations, such as <a href="#_configuring_for_a_fanout_proxy">fanout</a> or <a href="#_reusing_configurations">multiple identical configurations</a>.</p>
+<p>Lastly, see the <a href="#_configuring_for_special_deployments">Configuring for Special Deployments</a> section for guidance on common specialized installations, such as <a href="#_configuring_for_a_fanout_proxy">fanout</a>.</p>
 </div>
 <div class="sect2">
 <h3 id="_admin_console_tutorial"><a class="anchor" href="#_admin_console_tutorial"></a><a class="link" href="#_admin_console_tutorial">3.1. Admin Console Tutorial</a></h3>
@@ -3491,16 +3482,16 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 <div class="listingblock">
 <div class="content">
 <pre>State         Version            Name                                     Repository                           Description
-[installed  ] [2.23.0  ] security-handler-api                     security-services-app-2.23.0 API for authentication handlers for web applications.
-[installed  ] [2.23.0  ] security-core                            security-services-app-2.23.0 DDF Security Core
-[uninstalled] [2.23.0  ] security-expansion                       security-services-app-2.23.0 DDF Security Expansion
-[installed  ] [2.23.0  ] security-pdp-authz                       security-services-app-2.23.0 DDF Security PDP.
-[uninstalled] [2.23.0  ] security-pep-serviceauthz                security-services-app-2.23.0 DDF Security PEP Service AuthZ
-[uninstalled] [2.23.0  ] security-expansion-user-attributes       security-services-app-2.23.0 DDF Security Expansion User Attributes Expansion
-[uninstalled] [2.23.0  ] security-expansion-metacard-attributes   security-services-app-2.23.0 DDF Security Expansion Metacard Attributes Expansion
-[installed  ] [2.23.0  ] security-realm-saml                       security-services-app-2.23.0 DDF Security SAML Realm.
-[uninstalled] [2.23.0  ] security-jaas-ldap                   security-services-app-2.23.0 DDF Security JAAS LDAP Login.
-[uninstalled] [2.23.0  ] security-claims-ldap           security-services-app-2.23.0 Retrieves claims attributes from an LDAP store.</pre>
+[installed  ] [2.24.0  ] security-handler-api                     security-services-app-2.24.0 API for authentication handlers for web applications.
+[installed  ] [2.24.0  ] security-core                            security-services-app-2.24.0 DDF Security Core
+[uninstalled] [2.24.0  ] security-expansion                       security-services-app-2.24.0 DDF Security Expansion
+[installed  ] [2.24.0  ] security-pdp-authz                       security-services-app-2.24.0 DDF Security PDP.
+[uninstalled] [2.24.0  ] security-pep-serviceauthz                security-services-app-2.24.0 DDF Security PEP Service AuthZ
+[uninstalled] [2.24.0  ] security-expansion-user-attributes       security-services-app-2.24.0 DDF Security Expansion User Attributes Expansion
+[uninstalled] [2.24.0  ] security-expansion-metacard-attributes   security-services-app-2.24.0 DDF Security Expansion Metacard Attributes Expansion
+[installed  ] [2.24.0  ] security-realm-saml                       security-services-app-2.24.0 DDF Security SAML Realm.
+[uninstalled] [2.24.0  ] security-jaas-ldap                   security-services-app-2.24.0 DDF Security JAAS LDAP Login.
+[uninstalled] [2.24.0  ] security-claims-ldap           security-services-app-2.24.0 Retrieves claims attributes from an LDAP store.</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -3532,11 +3523,11 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 <div class="listingblock">
 <div class="content">
 <pre>State         Version          Name                          Repository  		   Description
-[installed  ] [2.23.0         ] ddf-core                      ddf-2.23.0
-[uninstalled] [2.23.0         ] ddf-sts                       ddf-2.23.0
-[installed  ] [2.23.0         ] ddf-security-common           ddf-2.23.0
-[installed  ] [2.23.0         ] ddf-resource-impl             ddf-2.23.0
-[installed  ] [2.23.0         ] ddf-source-dummy              ddf-2.23.0</pre>
+[installed  ] [2.24.0         ] ddf-core                      ddf-2.24.0
+[uninstalled] [2.24.0         ] ddf-sts                       ddf-2.24.0
+[installed  ] [2.24.0         ] ddf-security-common           ddf-2.24.0
+[installed  ] [2.24.0         ] ddf-resource-impl             ddf-2.24.0
+[installed  ] [2.24.0         ] ddf-source-dummy              ddf-2.24.0</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -3572,11 +3563,11 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 <div class="listingblock">
 <div class="content">
 <pre>State         Version          Name                          Repository  Description
-[installed  ] [2.23.0         ] ddf-core                      ddf-2.23.0
-[uninstalled] [2.23.0         ] ddf-sts                       ddf-2.23.0
-[installed  ] [2.23.0         ] ddf-security-common           ddf-2.23.0
-[installed  ] [2.23.0         ] ddf-resource-impl             ddf-2.23.0
-[uninstalled] [2.23.0         ] ddf-source-dummy              ddf-2.23.0</pre>
+[installed  ] [2.24.0         ] ddf-core                      ddf-2.24.0
+[uninstalled] [2.24.0         ] ddf-sts                       ddf-2.24.0
+[installed  ] [2.24.0         ] ddf-security-common           ddf-2.24.0
+[installed  ] [2.24.0         ] ddf-resource-impl             ddf-2.24.0
+[uninstalled] [2.24.0         ] ddf-source-dummy              ddf-2.24.0</pre>
 </div>
 </div>
 </div>
@@ -3887,7 +3878,7 @@ Does not change the address the system runs on.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The version of DDF that is running.</p>
 <p class="tableblock">This value should not be changed from the factory default.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.23.0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.24.0</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
 </tr>
 <tr>
@@ -4469,7 +4460,7 @@ DDF needs to be connected to an external Identity Provider (IdP) which supports 
 <p>Select the <strong>Web Context Policy Manager</strong>.</p>
 </li>
 <li>
-<p>Under <code>Authentication Types</code>, add the context type of the endpoint you wish to protect with OIDC. For example <code>/search=OIDC</code>.</p>
+<p>Under <code>Authentication Types for Web Pages</code> and <code>Authentication Types for Endpoints</code> add OIDC.</p>
 </li>
 </ol>
 </div>
@@ -4627,7 +4618,7 @@ To idenify the ones it can interoperate with use the <a href="https://github.com
 <p>Select <strong>Web Context Policy Manager</strong></p>
 </li>
 <li>
-<p>Under <strong>Authentication Types</strong>, remove the SAML authentication type from all context paths.</p>
+<p>Under <strong>Authentication Types for Web Pages</strong> and <strong>Authentication Types for Endpoints</strong>, remove the SAML authentication type.</p>
 </li>
 </ol>
 </div>
@@ -4855,10 +4846,7 @@ To set access restrictions on the Admin Console, consult the organization&#8217;
 <p>A dialogue will pop up that allows you to edit DDF access restrictions.</p>
 </li>
 <li>
-<p>Once you have configured your <a href="reference.html#_org.codice.ddf.security.policy.context.impl.PolicyManager">realms</a> in your security infrastructure, you can associate them with DDF contexts.</p>
-</li>
-<li>
-<p>If your infrastructure supports multiple <a href="reference.html#_org.codice.ddf.security.policy.context.impl.PolicyManager">authentication methods</a>, they may be specified on a per-context basis.</p>
+<p>If your infrastructure supports multiple <a href="reference.html#_org.codice.ddf.security.policy.context.impl.PolicyManager">authentication methods</a>, you may specify them here.</p>
 </li>
 <li>
 <p>Role requirements may be enforced by configuring the <a href="reference.html#_org.codice.ddf.security.policy.context.impl.PolicyManager">required attributes</a> for a given context.</p>
@@ -5066,10 +5054,7 @@ Authenticators are stored in an external identity management solution. However, 
 <div class="ulist">
 <ul>
 <li>
-<p>For example: <code>/search=PKI</code> will disallow login without certificates to the Search UI.</p>
-</li>
-<li>
-<p>The format for the policy should be: <code>/&lt;CONTEXT&gt;=PKI</code></p>
+<p>For example, just configuring <code>PKI</code> as the authentication type for web pages will disallow login without certificates to DDF.</p>
 </li>
 </ul>
 </div>
@@ -5205,7 +5190,7 @@ $&gt; openssl ca -gencrl -out crl-tokenissuer-revoked.pem</pre>
 </div>
 <div class="paragraph">
 <p>Adding this property will also enable CRL revocation for any context policy implementing PKI authentication.
-For example, adding an authentication policy in the Web Context Policy Manager of <code>/search=PKI</code> will disable basic authentication and require a certificate for the search UI.
+For example, setting PKI as the authentication type for web pages in the Web Context Policy Manager will disable basic authentication and require a certificate.
 If a certificate is not in the CRL, it will be allowed through, otherwise it will get a 401 error.
 If no certificate is provided, and guest access is enabled on the web context policy, guest access will be granted.</p>
 </div>
@@ -5252,7 +5237,7 @@ The STS CRL Interceptor monitors the same <code>encryption.properties</code> fil
 <p>After enabling revocation (see above), open the <strong>Web Context Policy Manager</strong>.</p>
 </li>
 <li>
-<p>Add or modify a Web Context to use PKI in authentication. For example, enabling CRL for the search ui endpoint would require adding an authorization policy of <code>/search=PKI</code></p>
+<p>Add or modify the <strong>Authentication Types for Web Pages</strong> and <strong>Authentication Types for Endpoints</strong> configurations to use PKI.</p>
 </li>
 <li>
 <p>If guest access is also required, check the <code>Allow Guest Access</code> box in the policy.</p>
@@ -5473,7 +5458,7 @@ For example:</p>
 <div class="sect4">
 <h5 id="_hardening_solr"><a class="anchor" href="#_hardening_solr"></a><a class="link" href="#_hardening_solr">3.5.1.2. Hardening Solr</a></h5>
 <div class="paragraph">
-<p>Follow instructions on <a href="https://lucene.apache.org/solr/guide/7_7/securing-solr.html">Securing Solr</a> <span class="image"><a class="image" href="_configuring_guest_claims_attribute_page"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Hardening Solr"></a></span>.</p>
+<p>Follow instructions on <a href="https://lucene.apache.org/solr/guide/8_5/securing-solr.html">Securing Solr</a> <span class="image"><a class="image" href="_configuring_guest_claims_attribute_page"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Hardening Solr"></a></span>.</p>
 </div>
 <div class="sect5">
 <h6 id="_configuring_solr_encryption"><a class="anchor" href="#_configuring_solr_encryption"></a><a class="link" href="#_configuring_solr_encryption">3.5.1.2.1. Configuring Solr Encryption</a></h6>
@@ -5490,7 +5475,7 @@ on which the index is located.</p>
 <h5 id="_accessing_the_solr_admin_ui"><a class="anchor" href="#_accessing_the_solr_admin_ui"></a><a class="link" href="#_accessing_the_solr_admin_ui">3.5.1.3. Accessing the Solr Admin UI</a></h5>
 <div class="paragraph">
 <p>The Solr Admin UI for Solr server configurations can be accessed from a web browser.
-See <a href="https://lucene.apache.org/solr/guide/7_7/using-the-solr-administration-user-interface.html">Using the Solr Administration User Interface</a> <span class="image"><a class="image" href="_configuring_guest_claims_attribute_page"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Accessing the Solr Admin UI"></a></span> for more details.</p>
+See <a href="https://lucene.apache.org/solr/guide/8_5/using-the-solr-administration-user-interface.html">Using the Solr Administration User Interface</a> <span class="image"><a class="image" href="_configuring_guest_claims_attribute_page"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Accessing the Solr Admin UI"></a></span> for more details.</p>
 </div>
 </div>
 </div>
@@ -6260,13 +6245,13 @@ It defines:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>the realms a context should authenticate against.</p>
+<p>the type of authentication for web pages (such as /admin and /search) and endpoints (context paths that start with /services)</p>
 </li>
 <li>
-<p>the type of authentication that a context requires.</p>
+<p>any user attributes required for authorization</p>
 </li>
 <li>
-<p>any user attributes required for authorization.</p>
+<p>a list of whitelisted contexts</p>
 </li>
 </ul>
 </div>
@@ -6291,15 +6276,46 @@ Note that the <code>SAML</code> and <code>OIDC</code> authentication types requi
 <div class="sect4">
 <h5 id="_authentication_types"><a class="anchor" href="#_authentication_types"></a><a class="link" href="#_authentication_types">3.6.1.3. Authentication Types</a></h5>
 <div class="paragraph">
-<p>As you add REST endpoints, you may need to add different types of authentication through the Web Context Policy Manager.</p>
-</div>
-<div class="paragraph">
-<p>Any web context that allows or requires specific authentication types should be added here with the following format:</p>
+<p>Through the Web Context Policy Manager, authentication types for DDF may be configured with the following format:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>/&lt;CONTEXT&gt;=&lt;AUTH_TYPE&gt;|&lt;AUTH_TYPE|...</pre>
+<pre>&lt;AUTH_TYPE&gt;|&lt;AUTH_TYPE|...</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Authentication types can be configured separately for:
+* web pages (these are all context paths that do not start with <code>/services</code> such as <code>/admin</code> and <code>/search</code>)
+* endpoints (these are all context paths that start with <code>/services</code>)</p>
+</div>
+<div class="paragraph">
+<p>Configuring separate authentication types for specific contexts is supported through the <code>web-context-policy-config.properties</code> configuration file.
+* Navigate to <code>&lt;DDF_HOME&gt;/etc/</code>
+* Edit the <code>web-context-policy-config.properties</code> file
+* Restart DDF</p>
+</div>
+<div class="paragraph">
+<p>The <code>web-context-policy-config.properties</code> file format is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>/&lt;CONTEXT&gt;=&lt;AUTH_TYPE&gt; then &lt;AUTH_TYPE then ...</pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If the file-based configuration is used, the <strong>authentication type</strong> configuration for web pages and endpoints in the Admin Console is ignored.
+All other configurations in the Web Context Policy Manager such as Guest Access, Required Attributes, and White Listed Contexts will <strong>not</strong> be ignored.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 8. Default Types of Authentication</caption>
@@ -6344,11 +6360,11 @@ If the client supports the non-terminating authentication type&#8217;s method of
 However if the client does not support the non-terminating authentication type&#8217;s method of obtaining credentials, the system will continue to the next configured authentication type.</p>
 </div>
 <div class="paragraph">
-<p><code>BASIC</code> is the only terminating authentication type.
-Every other authentication type is non-terminating.</p>
+<p><code>PKI</code> is the only non-terminating authentication type.
+<code>BASIC</code>, <code>OIDC</code>, and <code>SAML</code> are terminating authentication types.</p>
 </div>
 <div class="paragraph">
-<p>For example: assume a context is protected by the non-terminating <code>SAML</code> authorization type.
+<p>For example: assume DDF is protected by the terminating <code>SAML</code> authorization type.
 The system first checks to see if the client supports the acquisition of SAML credentials.</p>
 </div>
 <div class="ulist">
@@ -6366,11 +6382,10 @@ The system first checks to see if the client supports the acquisition of SAML cr
 </div>
 <div class="paragraph">
 <p>If the system can acquire SAML credentials from the client, the system will attempt to acquire said credentials and either allow or forbid access.
-If the system cannot acquire SAML credentials from the client, the system will continue to the next configured authentication type.</p>
+If the system cannot acquire SAML credentials from the client, the system will forbid access.</p>
 </div>
 <div class="paragraph">
-<p>Contrarily, assume a context is protected by the terminating <code>BASIC</code> authentication type.
-Once this authentication type is hit, the system either allows or forbids access to the system, without checking if the client supports the acquisition of BASIC credentials.</p>
+<p>Otherwise, if DDF is protected by the non-terminating <code>PKI</code> authorization type and the system cannot acquire PKI certificates from the client, the system will continue to the next configured authentication type.</p>
 </div>
 </div>
 </div>
@@ -7397,10 +7412,10 @@ Configuration shared between Solr Server instances is managed by Zookeeper.</p>
 <div class="title">SolrCloud Prerequisites</div>
 <ul>
 <li>
-<p><a href="https://lucene.apache.org/solr/downloads.html">Solr 7.7.2</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
+<p><a href="https://lucene.apache.org/solr/downloads.html">Solr 8.5.0</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
 </li>
 <li>
-<p><a href="https://zookeeper.apache.org/releases.html#download">ZooKeeper 3.4.14</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
+<p><a href="https://zookeeper.apache.org/releases.html#download">ZooKeeper 3.5.5</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
 </li>
 <li>
 <p>JRE 8 or greater</p>
@@ -7419,7 +7434,7 @@ Configuration shared between Solr Server instances is managed by Zookeeper.</p>
 Three Zookeeper nodes are needed to form a quorum.
 A three Zookeeper ensemble allows for a single server to fail and the service will still be available.
 More Zookeeper nodes can be added to achieve greater fault tolerance. The total number of nodes must always be an odd number.
-See <a href="https://lucene.apache.org/solr/guide/7_7/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble">
+See <a href="https://lucene.apache.org/solr/guide/8_5/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble">
 Setting Up an External Zoo Keeper Ensemble</a> for more information.</p>
 </div>
 </td>
@@ -7433,19 +7448,19 @@ Setting Up an External Zoo Keeper Ensemble</a> for more information.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://lucene.apache.org/solr/guide/7_7/getting-started.html">Getting Started</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
+<p><a href="https://lucene.apache.org/solr/guide/8_5/getting-started.html">Getting Started</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
 </li>
 <li>
-<p><a href="https://zookeeper.apache.org/doc/r3.4.14/zookeeperStarted.html">ZooKeeper Getting Started Guide</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
+<p><a href="https://zookeeper.apache.org/doc/r3.5.5/zookeeperStarted.html">ZooKeeper Getting Started Guide</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
 </li>
 <li>
-<p><a href="https://lucene.apache.org/solr/guide/7_7/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble">Setting Up an External Zookeeper Ensemble</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
+<p><a href="https://lucene.apache.org/solr/guide/8_5/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble">Setting Up an External Zookeeper Ensemble</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
 </li>
 <li>
-<p><a href="https://lucene.apache.org/solr/guide/7_7/taking-solr-to-production.html">Taking Solr to Production</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
+<p><a href="https://lucene.apache.org/solr/guide/8_5/taking-solr-to-production.html">Taking Solr to Production</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
 </li>
 <li>
-<p><a href="https://lucene.apache.org/solr/guide/7_7/securing-solr.html">Securing Solr</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
+<p><a href="https://lucene.apache.org/solr/guide/8_5/securing-solr.html">Securing Solr</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
 </li>
 </ul>
 </div>
@@ -7467,19 +7482,16 @@ The two shards enables the document mapping to be restored if one shard becomes 
 </div>
 <div class="paragraph">
 <div class="title">Configuring SolrCloud</div>
-<p>The following jars are needed to support geospatial and XPath queries and need to be installed on every Solr server instance.
-The <code>jute.maxbuffer</code> property needs to be set on Zookeeper and SolrCloud nodes to support large dictionary files.</p>
+<p>The <code>jute.maxbuffer</code> property needs to be set on Zookeeper and SolrCloud nodes to support large dictionary files.
+The following JAR is needed to support WKT geospatial queries and needs to be installed on every Solr server instance.</p>
 </div>
 <div class="paragraph">
-<p>The JARs can be downloaded from:</p>
+<p>The JAR can be downloaded from:</p>
 </div>
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
 <p><a href="http://artifacts.codice.org/content/groups/public/org/locationtech/jts/jts-core/1.16.0/jts-core-1.16.0.jar">jts-core-1.16.0.jar</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
-</li>
-<li>
-<p><a href="http://artifacts.codice.org/service/local/repositories/releases/content/ddf/platform/solr/solr-xpath/2.23.0/solr-xpath-2.23.0.jar">solr-xpath-2.23.0.jar</a> <span class="image"><a class="image" href="_solr_catalog_provider"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Solr Catalog Provider"></a></span></p>
 </li>
 </ol>
 </div>
@@ -7496,9 +7508,6 @@ The <code>jute.maxbuffer</code> property needs to be set on Zookeeper and SolrCl
 </li>
 <li>
 <p>Copy <code>jts-core-1.16.0.jar</code> to: <code>&lt;SOLR_INSTALL_DIR&gt;/server/solr-webapp/webapp/WEB-INF/lib/</code>.</p>
-</li>
-<li>
-<p>Copy <code>solr-xpath-2.23.0.jar</code> to: <code>&lt;SOLR_INSTALL_DIR&gt;/plugins/</code>.</p>
 </li>
 </ol>
 </div>
@@ -7761,7 +7770,7 @@ In this particular case, since we mapped the state name to title in the metacard
 6
 7
 </pre></td>
-  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">geoserver-states</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.23.0</span><span class="delimiter">&quot;</span></span>
+  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">geoserver-states</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.24.0</span><span class="delimiter">&quot;</span></span>
     <span class="attribute-name">description</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">WFS Feature to Metacard mappings for GeoServer Example {http://www.openplans.org/topp}states</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     <span class="tag">&lt;config</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper-geoserver.http://www.openplans.org/topp.states</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
         featureType = {http://www.openplans.org/topp}states
@@ -7839,55 +7848,7 @@ The default thread pool is 2 * Number Processors.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_ftp_endpoint"><a class="anchor" href="#_configuring_ftp_endpoint"></a><a class="link" href="#_configuring_ftp_endpoint">3.8.6.3. Configuring FTP Endpoint</a></h5>
-<div class="paragraph">
-<p>The FTP endpoint provides a method for ingesting files directly into the DDF Catalog using the FTP protocol
-The files sent over FTP are not first written to the file system, as the <a href="#_content_directory_monitor">Directory Monitor</a> does, but instead the FTP stream of the file is ingested directly into the DDF catalog, thus avoiding extra I/O overhead.</p>
-</div>
-<div class="paragraph">
-<p>To install the FTP endpoint:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the <strong>Admin Console</strong>.</p>
-</li>
-<li>
-<p>Select <strong>System</strong>.</p>
-</li>
-<li>
-<p>Select <strong>Features</strong>.</p>
-</li>
-<li>
-<p>Install the <code>catalog-ftp</code> feature.</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>To configure the FTP endpoint:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the <strong>Admin Console</strong>.</p>
-</li>
-<li>
-<p>Select <strong>System</strong>.</p>
-</li>
-<li>
-<p>Select <strong>Features</strong>.</p>
-</li>
-<li>
-<p>Select <strong>FTP Endpoint</strong>.</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>See <a href="reference.html#_ddf.catalog.ftp.FtpServerManager">FTP Endpoint configurations</a> for all possible configurations.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_configuring_kml_endpoint"><a class="anchor" href="#_configuring_kml_endpoint"></a><a class="link" href="#_configuring_kml_endpoint">3.8.6.4. Configuring KML Endpoint</a></h5>
+<h5 id="_configuring_kml_endpoint"><a class="anchor" href="#_configuring_kml_endpoint"></a><a class="link" href="#_configuring_kml_endpoint">3.8.6.3. Configuring KML Endpoint</a></h5>
 <div class="paragraph">
 <p>Keyhole Markup Language (<em>KML</em>) is an XML notation for describing geographic annotation and visualization for 2- and 3- dimensional maps.</p>
 </div>
@@ -7949,7 +7910,7 @@ This may contain the general purpose of the network and URLs to external resourc
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_opensearch_endpoint"><a class="anchor" href="#_configuring_opensearch_endpoint"></a><a class="link" href="#_configuring_opensearch_endpoint">3.8.6.5. Configuring OpenSearch Endpoint</a></h5>
+<h5 id="_configuring_opensearch_endpoint"><a class="anchor" href="#_configuring_opensearch_endpoint"></a><a class="link" href="#_configuring_opensearch_endpoint">3.8.6.4. Configuring OpenSearch Endpoint</a></h5>
 <div class="paragraph">
 <p>The OpenSearch endpoint enables a client to send query parameters and receive search results. This endpoint uses the input query parameters to create an OpenSearch query. The client does not need to specify all of the query parameters, only the query parameters of interest.</p>
 </div>
@@ -8275,281 +8236,7 @@ DDF includes a whitelist of allowed shell commands in
 <p>One common specialized configuration is installing multiple instances of DDF.</p>
 </div>
 <div class="sect4">
-<h5 id="_reusing_configurations"><a class="anchor" href="#_reusing_configurations"></a><a class="link" href="#_reusing_configurations">3.10.1.1. Reusing Configurations</a></h5>
-<div class="paragraph">
-<p>The Migration Export/Import capability allows administrators to export the current DDF configuration and use it to restore the same state for either a brand new installation or a second node for a Highly Available Cluster.</p>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Important</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>There are some key limitations when following this process to reuse configurations for a different versions of DDF. See <a href="#_reusing_configurations_across_different_versions">Reusing Configurations Across Different Versions</a> below.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>To export the current configuration settings:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Run the command migration:export from the Command Console.</p>
-</li>
-<li>
-<p>Files named <code>ddf-2.23.0.dar</code>, <code>ddf-2.23.0.dar.key</code>, and <code>ddf-2.23.0.dar.sha256</code> will be created in the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.
-The <code>.dar</code> file contains the encrypted information. The <code>.key</code> and <code>.sha256</code> files contains the encryption key and a validation checksum. Copy the '.dar' file to a secure location and copy the '.key' and '.sha256' to a different secure location.
-Keeping all 3 files together represents a security risk and should be avoided.</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>To import previously exported configuration settings:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Unzip the DDF distribution.</p>
-</li>
-<li>
-<p>Restore all external files, softlinks, and directories that would not have been exported and for which warnings would have been generated during export. This could include (but is not limited to) external certificates or monitored directories.</p>
-</li>
-<li>
-<p>Start up the newly unzipped DDF distribution.</p>
-</li>
-<li>
-<p>Make sure to install and re-enable the DDF <a href="#_managed_services">service</a> on the new system if it was installed and enabled on the original system.</p>
-</li>
-<li>
-<p>Copy the previously exported files from your secure locations to the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.</p>
-</li>
-<li>
-<p>Either:</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>If an administrator wishes to restore the original profile along with the configuration (experimental, see 'NOTE' below this list):</p>
-<div class="olist lowerroman">
-<ol class="lowerroman" type="i">
-<li>
-<p>Run the command migration:import with the option <code>--profile</code> from the Command Console (see 'NOTE' below this list)</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Otherwise:</p>
-<div class="olist lowerroman">
-<ol class="lowerroman" type="i">
-<li>
-<p>Step through the installation process one of 2 ways:</p>
-<div class="olist upperalpha">
-<ol class="upperalpha" type="A">
-<li>
-<p>If network profile needs to be configured, install through the <a href="#_completing_installation_from_the_admin_console">UI Admin Console</a>.</p>
-</li>
-<li>
-<p>Else, install by running the command <code>profile:install standard</code> in the Command Console.</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Run the command migration:import from the Command Console.</p>
-</li>
-</ol>
-</div>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>DDF will automatically restart if the command is successful. Otherwise address any generated warnings before manually restarting DDF.</p>
-</li>
-</ol>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>The <code>--profile</code> command enables the installed profile from the original system to be restored. It cannot be used if upgrading from an older version.</p>
-</div>
-<div class="paragraph">
-<p>'Experimental' in this context denotes the continuing development of using migration:import along with --profile to restore the original profile with the configuration.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>It is possible to decrypt the previously exported configuration settings but doing so is insecure and appropriate measures should be taken to secure the resulting decrypted file.
-To decrypt the exported file:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Copy all 3 exported files (i.e. <code>.dar</code>, <code>.key</code>, and <code>.sha256</code>) to the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.</p>
-</li>
-<li>
-<p>Run the command migration:decrypt from the Command Console.</p>
-</li>
-<li>
-<p>A file named <code>ddf-2.23.0.zip</code> will be created in the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.
-This file represents the decrypted version of the <code>.dar</code> file.</p>
-</li>
-</ol>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Important</div>
-</td>
-<td class="content">
-<div class="ulist">
-<ul>
-<li>
-<p>The following is currently not supported when importing configuration files:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>importing from a system installed on a different OS</p>
-</li>
-<li>
-<p>importing from a system installed in a different directory location</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>To keep the export/import process simple and consistent, all system configuration files are required to be under the <code>&lt;DDF_HOME&gt;</code> directory and not be softlinks. Presence of external files or symbolic links during export will not fail the export; they will yield warnings. It will be up to the administrator to manually copy these files over to the new system before proceeding with the import. The import process will verify their presence and consistency and yield warnings if they don&#8217;t match the original files.</p>
-</li>
-<li>
-<p>The import process will restore all configurations done on the original system as part of the <a href="reference.html#_hardening_checklist">hardening process</a> including changes to starting scripts and certificates.</p>
-</li>
-<li>
-<p>The import process can also restore the profile from the original system by restoring all applications, features, and/or bundles to the same state (i.e., installed, uninstalled, started, stopped, &#8230;&#8203;) they were in originally. Doing so is currently experimental and was tested only with the standard and HA profiles.</p>
-</li>
-</ul>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="sect5">
-<h6 id="_reusing_configurations_across_different_versions"><a class="anchor" href="#_reusing_configurations_across_different_versions"></a><a class="link" href="#_reusing_configurations_across_different_versions">3.10.1.1.1. Reusing Configurations Across Different Versions</a></h6>
-<div class="paragraph">
-<p>The same step-by-step process above can be followed when migrating configurations between DDF instances of different versions, with a few key constraints:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Only a subset of configuration files are currently imported:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Files under <code>etc/ws-security</code></p>
-</li>
-<li>
-<p>Files under <code>etc/pdp</code></p>
-</li>
-<li>
-<p><code>etc/users.attributes</code> and <code>etc/users.properties</code></p>
-</li>
-<li>
-<p><code>security/configurations.policy</code></p>
-</li>
-<li>
-<p><code>etc/system.properties</code></p>
-</li>
-<li>
-<p><code>etc/custom.system.properties</code> (the <code>solr.password</code> property will be preserved)</p>
-</li>
-<li>
-<p>Keystores</p>
-</li>
-<li>
-<p>Truststores</p>
-</li>
-<li>
-<p>Service wrapper <code>*.conf</code> files, if the DDF is installed as a service</p>
-</li>
-<li>
-<p>Select Admin Console configurations, including:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Content Directory Monitor</p>
-</li>
-<li>
-<p>URL Resource Reader</p>
-</li>
-<li>
-<p>Web Context Policy Manager</p>
-</li>
-<li>
-<p>Guest Claims Configuration</p>
-</li>
-<li>
-<p>Security STS Server</p>
-</li>
-<li>
-<p>Session</p>
-</li>
-<li>
-<p>Catalog Federation Strategy</p>
-</li>
-<li>
-<p>Catalog Standard Framework</p>
-</li>
-<li>
-<p>Metacard Validation Filter Plugin</p>
-</li>
-<li>
-<p>Metacard Validation Marker Plugin</p>
-</li>
-<li>
-<p>All Catalog Source configurations</p>
-</li>
-<li>
-<p>All Registry configurations</p>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Warning</div>
-</td>
-<td class="content">
-If a supported configuration is being imported across versions, any corresponding <code>.config</code> files in the <code>etc</code> directory will not be put into the <code>etc</code> directory of the importing system.
-</td>
-</tr>
-</table>
-</div>
-</li>
-</ul>
-</div>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>There is a list of specific DDF versions that have been tested that can be found in <code>etc/migration.properties</code> under the property <code>supported.versions</code>, as a comma-delimited list. The system will only allow importing configurations from those versions.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_isolating_solrcloud_and_zookeeper"><a class="anchor" href="#_isolating_solrcloud_and_zookeeper"></a><a class="link" href="#_isolating_solrcloud_and_zookeeper">3.10.1.2. Isolating SolrCloud and Zookeeper</a></h5>
+<h5 id="_isolating_solrcloud_and_zookeeper"><a class="anchor" href="#_isolating_solrcloud_and_zookeeper"></a><a class="link" href="#_isolating_solrcloud_and_zookeeper">3.10.1.1. Isolating SolrCloud and Zookeeper</a></h5>
 <div class="ulist">
 <ul>
 <li>
@@ -9202,7 +8889,7 @@ in this document are inadequate.</p>
 <div class="sect3">
 <h4 id="_run_solr_as_managed_service"><a class="anchor" href="#_run_solr_as_managed_service"></a><a class="link" href="#_run_solr_as_managed_service">4.2.1. Run Solr as Managed Service</a></h4>
 <div class="paragraph">
-<p>Refer to <a href="https://lucene.apache.org/solr/guide/7_7/taking-solr-to-production.html">Taking Solr to Production</a> <span class="image"><a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Run Solr as Managed Service"></a></span> in the Solr documentation for configuring Solr as a Windows or init.d service.</p>
+<p>Refer to <a href="https://lucene.apache.org/solr/guide/8_5/taking-solr-to-production.html">Taking Solr to Production</a> <span class="image"><a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Run Solr as Managed Service"></a></span> in the Solr documentation for configuring Solr as a Windows or init.d service.</p>
 </div>
 <div class="paragraph">
 <p>Follow the below steps to start and stop DDF.</p>
@@ -9459,10 +9146,6 @@ ddf@local&gt;store:delete --cql "id='fdc150b157754138a997fe7143a98cfa'" --type n
 <td class="tableblock halign-left valign-top"><p class="tableblock">The Catalog Shell Commands are meant to be used with any <code>CatalogProvider</code> implementations. They provide general useful queries and functions against the Catalog API that can be used for debugging, printing, or scripting.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_migrate_command_descriptions">migrate</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The Migrate Shell Commands provide functions to perform data migrations.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_platform_command_descriptions">platform</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The DDF Platform Shell Commands provide generic platform management functions</p></td>
 </tr>
@@ -9573,12 +9256,6 @@ No pre/post plugins are executed and no message validation is performed if the <
 </div></div></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>catalog:migrate</code></p></td>
-<td class="tableblock halign-left valign-top"><div><div class="paragraph">
-<p>Allows two <code>CatalogProvider</code> s to be configured and migrates the data from the primary to the secondary.</p>
-</div></div></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>catalog:range</code></p></td>
 <td class="tableblock halign-left valign-top"><div><div class="paragraph">
 <p>Searches by the given range arguments (exclusively).</p>
@@ -9664,46 +9341,46 @@ offset            = 'Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]]</p
 <pre>ddf@local&gt;// Given we've ingested a few metacards
 ddf@local&gt;catalog:latest
 #       ID                                Modified Date              Title
-1       a6e9ae09c792438e92a3c9d7452a449f  2020-03-17
-2       b4aced45103a400da42f3b319e58c3ed  2020-03-17
-3       a63ab22361e14cee9970f5284e8eb4e0  2020-03-17 myTitle
+1       a6e9ae09c792438e92a3c9d7452a449f  2020-05-08
+2       b4aced45103a400da42f3b319e58c3ed  2020-05-08
+3       a63ab22361e14cee9970f5284e8eb4e0  2020-05-08 myTitle
 
 ddf@local&gt;// Filter out older files
-ddf@local&gt;catalog:dump --created-after 2020-03-17 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --created-after 2020-05-08 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
 
 ddf@local&gt;// Filter out new file
-ddf@local&gt;catalog:dump --created-before 2020-03-17 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --created-before 2020-05-08 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.023 seconds
 
 ddf@local&gt;// Choose middle file
-ddf@local&gt;catalog:dump --created-after 2020-03-17 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --created-after 2020-05-08 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.020 seconds
 
 ddf@local&gt;// Modified dates work the same way
-ddf@local&gt;catalog:dump --modified-after 2020-03-17 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2020-05-08 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
 
 ddf@local&gt;// Can mix and match, most restrictive limits apply
-ddf@local&gt;catalog:dump --modified-after 2020-03-17 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2020-05-08 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.024 seconds
 
 ddf@local&gt;// Can use UTC instead of (or in combination with) explicit time zone offset
-ddf@local&gt;catalog:dump --modified-after 2020-03-17 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2020-05-08 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.020 seconds
-ddf@local&gt;catalog:dump --modified-after 2020-03-17 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2020-05-08 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
 
 ddf@local&gt;// Can leave off time zone, but default (local time on server) may not match what you expect!
-ddf@local&gt;catalog:dump --modified-after 2020-03-17 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2020-05-08 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.018 seconds
 
 ddf@local&gt;// Can leave off trailing minutes / seconds
-ddf@local&gt;catalog:dump --modified-after 2020-03-17 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2020-05-08 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.024 seconds
 
 ddf@local&gt;// Can use year and day number
-ddf@local&gt;catalog:dump --modified-after 2020-03-17 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2020-05-08 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.027 seconds</pre>
 </div>
 </div>
@@ -9969,69 +9646,7 @@ Deleted 2 subscriptions out of 2 subscriptions found.</code></pre>
 </table>
 </div>
 <div class="sect5">
-<h6 id="_migrate_commands"><a class="anchor" href="#_migrate_commands"></a><a class="link" href="#_migrate_commands">4.3.1.3.5. Migrate Commands</a></h6>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="title"><a id="_migrate_command_descriptions"></a>Migrate Command Descriptions</div>
-<div class="paragraph">
-<p>Performing a data migration creates, updates, or deletes existing metacards within the system.
-A data migration needs to be run when the structure of the data changes to ensure that existing resources function as expected.
-The effects of this command cannot be reverted or undone. It is highly recommended to back up the catalog before performing a data migration.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>The syntax for the migration command is</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>migrate:data --list</code></p>
-</li>
-<li>
-<p><code>migrate:data --all</code></p>
-</li>
-<li>
-<p><code>migrate:data &lt;serviceId&gt;</code></p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Select the <code>&lt;serviceId&gt;</code> based on which data migration task you wish to run.
-To see a list of all data migrations tasks that are currently available, run the
-<code>migrate:data --list</code> command.</p>
-</div>
-<div class="paragraph">
-<p>The <code>--all</code> option runs every data migration task that is available.</p>
-</div>
-<div class="paragraph">
-<p>The <code>--list</code> option lists all available data migration tasks.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>If an error occurrs performing a data migration the specifics of that error are
-available in the logs or are printed to the karaf console.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect5">
-<h6 id="_persistence_store_commands"><a class="anchor" href="#_persistence_store_commands"></a><a class="link" href="#_persistence_store_commands">4.3.1.3.6. Persistence Store Commands</a></h6>
+<h6 id="_persistence_store_commands"><a class="anchor" href="#_persistence_store_commands"></a><a class="link" href="#_persistence_store_commands">4.3.1.3.5. Persistence Store Commands</a></h6>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 17. <a id="_store_command_descriptions"></a>Persistence Store Command Descriptions</caption>
 <colgroup>
@@ -11222,40 +10837,12 @@ Whether the data store is a search server, a No-SQL database, or a relational da
 </div>
 </div>
 <div class="sect2">
-<h3 id="_migrating_data"><a class="anchor" href="#_migrating_data"></a><a class="link" href="#_migrating_data">5.5. Migrating Data</a></h3>
-<div class="paragraph">
-<p>Data migration is the process of moving metacards from one catalog provider to another.
-It is also the process of translating metadata from one format to another. 
-Data migration is necessary when a user decides to use metadata from one catalog provider in another catalog provider.</p>
-</div>
-<div class="paragraph">
-<p>The process for changing catalog providers involves first exporting the metadata from the original catalog provider and ingesting it into another.</p>
-</div>
-<div class="paragraph">
-<p>From the Command Console, use these commands to export data from the existing catalog and then import into the new one.</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"><code>catalog:export</code></dt>
-<dd>
-<p>Exports metacards, history, and their associated resources from the current Catalog to an auto-generated file inside &lt;DDF_HOME&gt;.<br>
-Use the <code>catalog:export --help</code> command to see all available options.</p>
-</dd>
-<dt class="hdlist1"><code>catalog:import &lt;FILE_NAME&gt;</code></dt>
-<dd>
-<p>Imports Metacards and history into the current Catalog.<br>
-Use the <code>catalog:import --help</code> command to see all available options.</p>
-</dd>
-</dl>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_automatically_added_metacard_attributes"><a class="anchor" href="#_automatically_added_metacard_attributes"></a><a class="link" href="#_automatically_added_metacard_attributes">5.6. Automatically Added Metacard Attributes</a></h3>
+<h3 id="_automatically_added_metacard_attributes"><a class="anchor" href="#_automatically_added_metacard_attributes"></a><a class="link" href="#_automatically_added_metacard_attributes">5.5. Automatically Added Metacard Attributes</a></h3>
 <div class="paragraph">
 <p>This section describes how attributes are automatically added to metacards.</p>
 </div>
 <div class="sect3">
-<h4 id="_attributes_added_on_ingest"><a class="anchor" href="#_attributes_added_on_ingest"></a><a class="link" href="#_attributes_added_on_ingest">5.6.1. Attributes Added on Ingest</a></h4>
+<h4 id="_attributes_added_on_ingest"><a class="anchor" href="#_attributes_added_on_ingest"></a><a class="link" href="#_attributes_added_on_ingest">5.5.1. Attributes Added on Ingest</a></h4>
 <div class="paragraph">
 <p>A metacard is first created and populated by parsing the ingested resource with an <a href="#_attributes_added_by_input_transformers">Input Transformer</a>.<br>
 Then <a href="#_attributes_added_by_attribute_injection">Attributes Are Injected</a>, <a href="developing.html#_metacard_groomer">Default Attribute Types</a> are applied, and <a href="#_attributes_added_by_attribute_overrides_ingest">Attribute are Overridden</a>.<br>
@@ -11268,7 +10855,7 @@ Finally the metacard is passed through a series of <a href="architecture.html#_a
 <div class="title">Ingest Attribute Flow</div>
 </div>
 <div class="sect4">
-<h5 id="_attributes_added_by_input_transformers"><a class="anchor" href="#_attributes_added_by_input_transformers"></a><a class="link" href="#_attributes_added_by_input_transformers">5.6.1.1. Attributes Added by Input Transformers</a></h5>
+<h5 id="_attributes_added_by_input_transformers"><a class="anchor" href="#_attributes_added_by_input_transformers"></a><a class="link" href="#_attributes_added_by_input_transformers">5.5.1.1. Attributes Added by Input Transformers</a></h5>
 <div class="paragraph">
 <p><a href="architecture.html#_available_input_transformers">Input Transformers</a> create and populate metacards by parsing a resource.
 See <a href="metadata.html#_file_format_specific_attributes">File Format Specific Attributes</a> to see the attributes used for specific file formats.</p>
@@ -11310,7 +10897,7 @@ For example: a resource ingested through Intrigue may not produce the same metac
 </div>
 </div>
 <div class="sect4">
-<h5 id="_attributes_added_by_attribute_injection"><a class="anchor" href="#_attributes_added_by_attribute_injection"></a><a class="link" href="#_attributes_added_by_attribute_injection">5.6.1.2. Attributes Added by Attribute Injection</a></h5>
+<h5 id="_attributes_added_by_attribute_injection"><a class="anchor" href="#_attributes_added_by_attribute_injection"></a><a class="link" href="#_attributes_added_by_attribute_injection">5.5.1.2. Attributes Added by Attribute Injection</a></h5>
 <div class="paragraph">
 <p><a href="#_injecting_attributes">Attribute Injection</a> is the act of adding attributes to a metacard&#8217;s <a href="documentation.html#_metacard_type">Metacard Type</a>.
 A <a href="documentation.html#_metacard_type">Metacard Type</a> indicates the attributes available for a particular metacard, and is created at the same time as the metacard.<br></p>
@@ -11339,7 +10926,7 @@ See <a href="developing.html#_developing_attribute_injections">Developing Attrib
 </div>
 </div>
 <div class="sect4">
-<h5 id="_attributes_added_by_default_attribute_types"><a class="anchor" href="#_attributes_added_by_default_attribute_types"></a><a class="link" href="#_attributes_added_by_default_attribute_types">5.6.1.3. Attributes Added by Default Attribute Types</a></h5>
+<h5 id="_attributes_added_by_default_attribute_types"><a class="anchor" href="#_attributes_added_by_default_attribute_types"></a><a class="link" href="#_attributes_added_by_default_attribute_types">5.5.1.3. Attributes Added by Default Attribute Types</a></h5>
 <div class="paragraph">
 <p><a href="developing.html#_metacard_groomer">Developing Default Attribute Types</a> is a configurable way to assign default values to a metacard&#8217;s attributes.</p>
 </div>
@@ -11349,7 +10936,7 @@ See <a href="#_attributes_added_by_attribute_injection">Attributes Added By Attr
 </div>
 </div>
 <div class="sect4">
-<h5 id="_attributes_added_by_attribute_overrides_ingest"><a class="anchor" href="#_attributes_added_by_attribute_overrides_ingest"></a><a class="link" href="#_attributes_added_by_attribute_overrides_ingest">5.6.1.4. Attributes Added by Attribute Overrides (Ingest)</a></h5>
+<h5 id="_attributes_added_by_attribute_overrides_ingest"><a class="anchor" href="#_attributes_added_by_attribute_overrides_ingest"></a><a class="link" href="#_attributes_added_by_attribute_overrides_ingest">5.5.1.4. Attributes Added by Attribute Overrides (Ingest)</a></h5>
 <div class="paragraph">
 <p><a href="#_overriding_attributes">Attribute Overriding</a> is the act of replacing existing attribute values with a new value.</p>
 </div>
@@ -11362,7 +10949,7 @@ See <a href="#_attributes_added_by_attribute_injection">Attributes Added By Attr
 </div>
 </div>
 <div class="sect4">
-<h5 id="_attributes_added_by_pre_authorization_plugins"><a class="anchor" href="#_attributes_added_by_pre_authorization_plugins"></a><a class="link" href="#_attributes_added_by_pre_authorization_plugins">5.6.1.5. Attributes Added by Pre-Authorization Plugins</a></h5>
+<h5 id="_attributes_added_by_pre_authorization_plugins"><a class="anchor" href="#_attributes_added_by_pre_authorization_plugins"></a><a class="link" href="#_attributes_added_by_pre_authorization_plugins">5.5.1.5. Attributes Added by Pre-Authorization Plugins</a></h5>
 <div class="paragraph">
 <p>The <a href="architecture.html#_pre_authorization_plugins">Pre-Authorization Plugins</a> provide an opportunity to take action before any security rules are applied.</p>
 </div>
@@ -11376,7 +10963,7 @@ See <a href="architecture.html#_configuring_the_metacard_ingest_network_plugin">
 </div>
 </div>
 <div class="sect4">
-<h5 id="_attributes_added_by_pre_ingest_plugins"><a class="anchor" href="#_attributes_added_by_pre_ingest_plugins"></a><a class="link" href="#_attributes_added_by_pre_ingest_plugins">5.6.1.6. Attributes Added by Pre-Ingest Plugins</a></h5>
+<h5 id="_attributes_added_by_pre_ingest_plugins"><a class="anchor" href="#_attributes_added_by_pre_ingest_plugins"></a><a class="link" href="#_attributes_added_by_pre_ingest_plugins">5.5.1.6. Attributes Added by Pre-Ingest Plugins</a></h5>
 <div class="paragraph">
 <p>The <a href="architecture.html#_pre_ingest_plugins">Pre-Ingest Plugins</a> are responsible for setting attribute fields on metacards before they are stored in the catalog.</p>
 </div>
@@ -11396,12 +10983,12 @@ See <a href="architecture.html#_configuring_the_metacard_ingest_network_plugin">
 </div>
 </div>
 <div class="sect3">
-<h4 id="_attributes_added_on_query"><a class="anchor" href="#_attributes_added_on_query"></a><a class="link" href="#_attributes_added_on_query">5.6.2. Attributes Added on Query</a></h4>
+<h4 id="_attributes_added_on_query"><a class="anchor" href="#_attributes_added_on_query"></a><a class="link" href="#_attributes_added_on_query">5.5.2. Attributes Added on Query</a></h4>
 <div class="paragraph">
 <p>Metacards resulting from a query will undergo <a href="#_attributes_added_by_attribute_injection">Attribute Injection</a>, then have their <a href="#_attributes_added_by_attribute_overrides_query">Attributes Overridden</a>.</p>
 </div>
 <div class="sect4">
-<h5 id="_attributes_added_by_attribute_overrides_query"><a class="anchor" href="#_attributes_added_by_attribute_overrides_query"></a><a class="link" href="#_attributes_added_by_attribute_overrides_query">5.6.2.1. Attributes Added by Attribute Overrides (Query)</a></h5>
+<h5 id="_attributes_added_by_attribute_overrides_query"><a class="anchor" href="#_attributes_added_by_attribute_overrides_query"></a><a class="link" href="#_attributes_added_by_attribute_overrides_query">5.5.2.1. Attributes Added by Attribute Overrides (Query)</a></h5>
 <div class="paragraph">
 <p><a href="#_overriding_attributes">Attribute Overriding</a> is the act of replacing existing attribute values with a new value.</p>
 </div>
@@ -11517,7 +11104,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-03-17 19:26:39 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-05-08 01:50:12 UTC
 </div>
 </div>
 </body>

@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.23.0. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.24.0. Copyright (c) Codice Foundation">
 <title>DDF Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.23.0. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.24.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -546,13 +546,6 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_platform_application_prerequisites">Platform Application Prerequisites</a></li>
 <li><a href="#_installing_platform">Installing Platform</a></li>
 <li><a href="#_configuring_the_platform_application">Configuring the Platform Application</a></li>
-</ul>
-</li>
-<li><a href="#_resource_management_application_reference">Resource Management Application Reference</a>
-<ul class="sectlevel3">
-<li><a href="#_resource_management_prerequisites">Resource Management Prerequisites</a></li>
-<li><a href="#_installing_resource_management">Installing Resource Management</a></li>
-<li><a href="#_configuring_the_resource_management_application">Configuring the Resource Management Application</a></li>
 </ul>
 </li>
 <li><a href="#_security_application_reference">Security Application Reference</a>
@@ -602,8 +595,8 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 <li><a href="#_ddf_dependency_list">DDF Dependency List</a>
 <ul class="sectlevel2">
-<li><a href="#_ddf_2_23_0_dependency_list">DDF 2.23.0 Dependency List.</a></li>
-<li><a href="#_ddf_2_23_0_javascript_dependency_list">DDF 2.23.0 Javascript Dependency List.</a></li>
+<li><a href="#_ddf_2_24_0_dependency_list">DDF 2.24.0 Dependency List.</a></li>
+<li><a href="#_ddf_2_24_0_javascript_dependency_list">DDF 2.24.0 Javascript Dependency List.</a></li>
 </ul>
 </li>
 <li><a href="#_hardening_checklist">Hardening Checklist</a></li>
@@ -923,11 +916,6 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin">Expiration Date Pre-Ingest Plugin</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Catalog pre-ingest plugin to set an expiration date on metacards.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.catalog.ftp.FtpServerManager">FTP Endpoint</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ddf.catalog.ftp.FtpServerManager</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">FTP Endpoint configurations.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.catalog.history.Historian">Historian</a></p></td>
@@ -1613,46 +1601,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 13. <a id="_ddf.catalog.ftp.FtpServerManager"></a>FTP Endpoint</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">FTP Port Number</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>port</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The port number for the FTP server to listen on.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">8021</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Client Authentication</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>clientAuth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Whether or not client authentication is required or wanted. A value of "Need" requires client auth, a value of "Want" leaves it up to the client.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">want</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 14. <a id="_ddf.catalog.history.Historian"></a>Historian</caption>
+<caption class="title">Table 13. <a id="_ddf.catalog.history.Historian"></a>Historian</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -1683,7 +1632,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 15. <a id="_org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin"></a>Metacard Attribute Security Policy Plugin</caption>
+<caption class="title">Table 14. <a id="_org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin"></a>Metacard Attribute Security Policy Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -1742,7 +1691,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 16. <a id="_org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin"></a>Catalog Metacard Ingest Network Plugin</caption>
+<caption class="title">Table 15. <a id="_org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin"></a>Catalog Metacard Ingest Network Plugin</caption>
 <colgroup>
 <col style="width: 10%;">
 <col style="width: 10%;">
@@ -1789,7 +1738,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 17. <a id="_ddf.catalog.metacard.validation.MetacardValidityFilterPlugin"></a>Metacard Validation Filter Plugin</caption>
+<caption class="title">Table 16. <a id="_ddf.catalog.metacard.validation.MetacardValidityFilterPlugin"></a>Metacard Validation Filter Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -1836,7 +1785,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 18. <a id="_ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin"></a>Metacard Validation Marker Plugin</caption>
+<caption class="title">Table 17. <a id="_ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin"></a>Metacard Validation Marker Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -1875,7 +1824,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 19. <a id="_Metacard_File_Storage_Route"></a>Metacard Backup File Storage Provider</caption>
+<caption class="title">Table 18. <a id="_Metacard_File_Storage_Route"></a>Metacard Backup File Storage Provider</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -1930,7 +1879,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 20. <a id="_Metacard_S3_Storage_Route"></a>Metacard Backup S3 Storage Provider</caption>
+<caption class="title">Table 19. <a id="_Metacard_S3_Storage_Route"></a>Metacard Backup S3 Storage Provider</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2027,7 +1976,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 21. <a id="_OpenSearchSource"></a>Catalog OpenSearch Federated Source</caption>
+<caption class="title">Table 20. <a id="_OpenSearchSource"></a>Catalog OpenSearch Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2208,7 +2157,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 22. <a id="_ddf.catalog.resource.download.ReliableResourceDownloadManager"></a>Resource Download Settings</caption>
+<caption class="title">Table 21. <a id="_ddf.catalog.resource.download.ReliableResourceDownloadManager"></a>Resource Download Settings</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2283,7 +2232,7 @@ Without configuration, the product cache directory is &lt;DDF_HOME&gt;/data/prod
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 23. <a id="_ddf.services.schematron.SchematronValidationService"></a>Schematron Validation Services</caption>
+<caption class="title">Table 22. <a id="_ddf.services.schematron.SchematronValidationService"></a>Schematron Validation Services</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2332,7 +2281,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 24. <a id="_org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin"></a>Security Audit Plugin</caption>
+<caption class="title">Table 23. <a id="_org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin"></a>Security Audit Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2363,7 +2312,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 25. <a id="_ddf.catalog.transformer.input.tika.TikaInputTransformer"></a>Tika Input Transformer</caption>
+<caption class="title">Table 24. <a id="_ddf.catalog.transformer.input.tika.TikaInputTransformer"></a>Tika Input Transformer</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2394,7 +2343,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 26. <a id="_ddf.catalog.resource.impl.URLResourceReader"></a>URL Resource Reader</caption>
+<caption class="title">Table 25. <a id="_ddf.catalog.resource.impl.URLResourceReader"></a>URL Resource Reader</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -2429,7 +2378,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 27. <a id="_org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin"></a>Video Thumbnail Plugin</caption>
+<caption class="title">Table 26. <a id="_org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin"></a>Video Thumbnail Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2460,7 +2409,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 28. <a id="_org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin"></a>XML Attribute Security Policy Plugin</caption>
+<caption class="title">Table 27. <a id="_org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin"></a>XML Attribute Security Policy Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2507,7 +2456,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 29. <a id="_ddf.catalog.transformer.xml.XmlResponseQueueTransformer"></a>Xml Query Transformer</caption>
+<caption class="title">Table 28. <a id="_ddf.catalog.transformer.xml.XmlResponseQueueTransformer"></a>Xml Query Transformer</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2538,7 +2487,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 30. <a id="_ddf.catalog.transformer.input.pdf.PdfInputTransformer"></a>PDF Input Transformer</caption>
+<caption class="title">Table 29. <a id="_ddf.catalog.transformer.input.pdf.PdfInputTransformer"></a>PDF Input Transformer</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2585,7 +2534,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 31. <a id="_org.codice.ddf.transformer.preview"></a>Catalog Preview</caption>
+<caption class="title">Table 30. <a id="_org.codice.ddf.transformer.preview"></a>Catalog Preview</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2624,7 +2573,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 32. <a id="_org.codice.ddf.catalog.security.CatalogPolicy"></a>Catalog Policy Plugin</caption>
+<caption class="title">Table 31. <a id="_org.codice.ddf.catalog.security.CatalogPolicy"></a>Catalog Policy Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2679,7 +2628,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 33. <a id="_org.codice.ddf.catalog.security.ResourceUriPolicy"></a>Resource URI Policy Plugin</caption>
+<caption class="title">Table 32. <a id="_org.codice.ddf.catalog.security.ResourceUriPolicy"></a>Resource URI Policy Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2718,7 +2667,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 34. <a id="_org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner"></a>Status Source Poller Runner</caption>
+<caption class="title">Table 33. <a id="_org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner"></a>Status Source Poller Runner</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2824,7 +2773,7 @@ These building blocks include subsets of:</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 35. Platform Available Configurations</caption>
+<caption class="title">Table 34. Platform Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -2881,7 +2830,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 36. <a id="_DDF_Custom_Mime_Type_Resolver"></a>MIME Custom Types</caption>
+<caption class="title">Table 35. <a id="_DDF_Custom_Mime_Type_Resolver"></a>MIME Custom Types</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2928,7 +2877,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 37. <a id="_org.codice.ddf.platform.logging.LoggingService"></a>Logging Service</caption>
+<caption class="title">Table 36. <a id="_org.codice.ddf.platform.logging.LoggingService"></a>Logging Service</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2959,7 +2908,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 38. <a id="_MetricsReporting"></a>Metrics Reporting</caption>
+<caption class="title">Table 37. <a id="_MetricsReporting"></a>Metrics Reporting</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2990,7 +2939,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 39. <a id="_org.codice.ddf.security.response.filter.ResponseHeaderConfig"></a>HTTP Response Security</caption>
+<caption class="title">Table 38. <a id="_org.codice.ddf.security.response.filter.ResponseHeaderConfig"></a>HTTP Response Security</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3037,7 +2986,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 40. <a id="_org.codice.ddf.platform.email.impl.SmtpClientImpl"></a>Email Service</caption>
+<caption class="title">Table 39. <a id="_org.codice.ddf.platform.email.impl.SmtpClientImpl"></a>Email Service</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3092,7 +3041,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 41. <a id="_org.codice.ddf.distribution.landingpage.properties"></a>Landing Page</caption>
+<caption class="title">Table 40. <a id="_org.codice.ddf.distribution.landingpage.properties"></a>Landing Page</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3187,7 +3136,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 42. <a id="_ddf.platform.ui.config"></a>Platform UI Configuration</caption>
+<caption class="title">Table 41. <a id="_ddf.platform.ui.config"></a>Platform UI Configuration</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3282,7 +3231,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 43. <a id="_ddf.platform.scheduler.Command"></a>Platform Command Scheduler</caption>
+<caption class="title">Table 42. <a id="_ddf.platform.scheduler.Command"></a>Platform Command Scheduler</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3324,157 +3273,6 @@ These building blocks include subsets of:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Interval Type</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">cronString</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_resource_management_application_reference"><a class="anchor" href="#_resource_management_application_reference"></a><a class="link" href="#_resource_management_application_reference">Resource Management Application Reference</a></h3>
-<div class="paragraph">
-<p>The Resource Management Application provides administrative functionality to monitor and manage data usage on the system.
-This application allows an administrator to:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>View data usage.</p>
-</li>
-<li>
-<p>Set limits on users.</p>
-</li>
-<li>
-<p>View and terminate searches that are in progress.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Components of the Resource Management application include:</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Resource Management Data Usage Tab</dt>
-<dd>
-<p>View data usage and configure users' data limits and reset times for those limits.</p>
-</dd>
-<dt class="hdlist1">Resource Management Queries Tab</dt>
-<dd>
-<p>View and cancel actively running queries.</p>
-</dd>
-</dl>
-</div>
-<div class="sect3">
-<h4 id="_resource_management_prerequisites"><a class="anchor" href="#_resource_management_prerequisites"></a><a class="link" href="#_resource_management_prerequisites">Resource Management Prerequisites</a></h4>
-<div class="paragraph">
-<p>To use the Resource Management Application, the following apps/features must be installed:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Platform</p>
-</li>
-<li>
-<p>Security</p>
-</li>
-<li>
-<p>Admin</p>
-</li>
-<li>
-<p>Catalog</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_installing_resource_management"><a class="anchor" href="#_installing_resource_management"></a><a class="link" href="#_installing_resource_management">Installing Resource Management</a></h4>
-<div class="paragraph">
-<p>Install the Resource Management application through the Admin Console.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the <strong>Admin Console</strong>.</p>
-</li>
-<li>
-<p>Select the <strong>System</strong> tab.</p>
-</li>
-<li>
-<p>Select the <strong>Features</strong> tab.</p>
-</li>
-<li>
-<p>Install the <code>resourcemanagement-app</code> feature.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_configuring_the_resource_management_application"><a class="anchor" href="#_configuring_the_resource_management_application"></a><a class="link" href="#_configuring_the_resource_management_application">Configuring the Resource Management Application</a></h4>
-<div class="paragraph">
-<p>To configure the Resource Management Application:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the Admin Console.</p>
-</li>
-<li>
-<p>Select the <strong>Resource Management</strong> application.</p>
-</li>
-<li>
-<p>Select the <strong>Configuration</strong> tab.</p>
-</li>
-</ol>
-</div>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 44. Resource Management Available Configurations</caption>
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Property</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.resourcemanagement.usage">Data Usage</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.resourcemanagement.usage</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Data Usage configurations.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 45. <a id="_org.codice.ddf.resourcemanagement.usage"></a>Data Usage</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Monitor Local Sources</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>monitorLocalSources</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">When checked, the Data Usage Plugin will also consider data usage from local sources.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 </tbody>
@@ -3561,7 +3359,7 @@ These services comprise both a framework that developers and integrators can ext
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 46. Security Available Configurations</caption>
+<caption class="title">Table 43. Security Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -3653,7 +3451,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 47. <a id="_Claims_Handler_Manager"></a>Security STS LDAP and Roles Claims Handler</caption>
+<caption class="title">Table 44. <a id="_Claims_Handler_Manager"></a>Security STS LDAP and Roles Claims Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -3772,7 +3570,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 48. <a id="_org.codice.ddf.security.interceptor.GuestInterceptor"></a>Security SOAP Guest Interceptor</caption>
+<caption class="title">Table 45. <a id="_org.codice.ddf.security.interceptor.GuestInterceptor"></a>Security SOAP Guest Interceptor</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3803,7 +3601,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 49. <a id="_org.codice.ddf.security.idp.client.IdpMetadata"></a>IdP Client</caption>
+<caption class="title">Table 46. <a id="_org.codice.ddf.security.idp.client.IdpMetadata"></a>IdP Client</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -3838,7 +3636,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 50. <a id="_org.codice.ddf.security.idp.client.LogoutRequestService"></a>Logout Page</caption>
+<caption class="title">Table 47. <a id="_org.codice.ddf.security.idp.client.LogoutRequestService"></a>Logout Page</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -3866,7 +3664,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 51. <a id="_org.codice.ddf.security.handler.oidc.OidcHandler"></a>OIDC Handler</caption>
+<caption class="title">Table 48. <a id="_org.codice.ddf.security.handler.oidc.OidcHandler"></a>OIDC Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -3964,7 +3762,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 52. <a id="_org.codice.ddf.security.policy.context.impl.PolicyManager"></a>Web Context Policy Manager</caption>
+<caption class="title">Table 49. <a id="_org.codice.ddf.security.policy.context.impl.PolicyManager"></a>Web Context Policy Manager</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4009,33 +3807,49 @@ These services comprise both a framework that developers and integrators can ext
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Types</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationTypes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Types for Web Pages</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>webAuthenticationTypes</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of authentication types required for each context. List of default valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: /context=AUTH1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of authentication types required for all web pages (these are all context paths except /services). List of valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: AUTH1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">AUTH2</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">AUTH3</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">/=,/admin=PKI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PKI</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>BASIC</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Required Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">requiredAttributes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Types for Endpoints</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">endpointAuthenticationTypes</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes required for each Web Context. Example: /context={role=role1;type=type1}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of authentication types required for all endpoints (these are context paths that start with /services). List of valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: AUTH1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>AUTH2</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AUTH3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PKI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BASIC</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">White Listed Contexts</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">whiteListContexts</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Required Attributes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>requiredAttributes</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes required for each Web Context. Example: /context={role=role1;type=type1}</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">White Listed Contexts</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>whiteListContexts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of contexts that will not use security. Note that sub-contexts to ones listed here will also skip security, unless authentication types are provided for it. For example: if /foo is listed here, then /foo/bar will also not require any sort of authentication. However, if /foo is listed and /foo/bar has authentication types provided in the 'Authentication Types' field, then that more specific policy will be used.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${org.codice.ddf.system.rootContext}/SecurityTokenService,${org.codice.ddf.system.rootContext}/internal/metrics,/proxy,${org.codice.ddf.system.rootContext}/saml,${org.codice.ddf.system.rootContext}/idp,/idp,${org.codice.ddf.system.rootContext}/platform/config/ui,/logout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 53. <a id="_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"></a>File Based Claims Handler</caption>
+<caption class="title">Table 50. <a id="_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"></a>File Based Claims Handler</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4090,7 +3904,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 54. <a id="_org.codice.ddf.security.filter.login.Session"></a>Session</caption>
+<caption class="title">Table 51. <a id="_org.codice.ddf.security.filter.login.Session"></a>Session</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4123,7 +3937,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 55. <a id="_org.codice.ddf.security.idp.client.IdpHandler"></a>SAML Handler</caption>
+<caption class="title">Table 52. <a id="_org.codice.ddf.security.idp.client.IdpHandler"></a>SAML Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4151,7 +3965,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 56. <a id="_ddf.security.pdp.realm.AuthzRealm"></a>Security AuthZ Realm</caption>
+<caption class="title">Table 53. <a id="_ddf.security.pdp.realm.AuthzRealm"></a>Security AuthZ Realm</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4198,7 +4012,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 57. <a id="_ddf.security.service.SecurityManager"></a>SAML NameID Policy</caption>
+<caption class="title">Table 54. <a id="_ddf.security.service.SecurityManager"></a>SAML NameID Policy</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4229,7 +4043,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 58. <a id="_ddf.security.sts"></a>Security STS Server</caption>
+<caption class="title">Table 55. <a id="_ddf.security.sts"></a>Security STS Server</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4284,7 +4098,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 59. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
+<caption class="title">Table 56. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4395,7 +4209,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 60. <a id="_ddf.security.guest.realm"></a>Guest Claims Configuration</caption>
+<caption class="title">Table 57. <a id="_ddf.security.guest.realm"></a>Guest Claims Configuration</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4426,7 +4240,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 61. <a id="_org.codice.ddf.security.validator.pki"></a>Security STS PKI Token Validator</caption>
+<caption class="title">Table 58. <a id="_org.codice.ddf.security.validator.pki"></a>Security STS PKI Token Validator</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4528,7 +4342,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 62. Solr Catalog Available Configurations</caption>
+<caption class="title">Table 59. Solr Catalog Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -4550,7 +4364,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 63. <a id="_ddf.catalog.solr.provider.SolrCatalogProvider"></a>Solr Catalog Provider</caption>
+<caption class="title">Table 60. <a id="_ddf.catalog.solr.provider.SolrCatalogProvider"></a>Solr Catalog Provider</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4578,14 +4392,6 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disable Text Path indexing</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>disableTextPath</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -4610,7 +4416,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <p>The <code>gazetteer</code> commands provide the ability to interact with the local GeoNames metacard collection in the core catalog. These GeoNames metacards are used by the <code>offline-gazetteer</code> feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the <code>offline-gazetteer</code> feature is installed.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 64. Gazetteer Command Descriptions</caption>
+<caption class="title">Table 61. Gazetteer Command Descriptions</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 80%;">
@@ -4730,7 +4536,7 @@ index again.</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 65. Spatial Available Configurations</caption>
+<caption class="title">Table 62. Spatial Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -4802,7 +4608,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 66. <a id="_Csw_Federated_Source"></a>CSW Specification Profile Federated Source</caption>
+<caption class="title">Table 63. <a id="_Csw_Federated_Source"></a>CSW Specification Profile Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5017,7 +4823,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 67. <a id="_Csw_Federation_Profile_Source"></a>CSW Federation Profile Source</caption>
+<caption class="title">Table 64. <a id="_Csw_Federation_Profile_Source"></a>CSW Federation Profile Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5144,7 +4950,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 68. <a id="_Csw_Transactional_Federated_Source"></a>CSW Transactional Profile Federated Source</caption>
+<caption class="title">Table 65. <a id="_Csw_Transactional_Federated_Source"></a>CSW Transactional Profile Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5359,7 +5165,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 69. <a id="_org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin"></a>GeoCoder Plugin</caption>
+<caption class="title">Table 66. <a id="_org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin"></a>GeoCoder Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5389,7 +5195,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 70. <a id="_Gmd_Csw_Federated_Source"></a>GMD CSW ISO Federated Source</caption>
+<caption class="title">Table 67. <a id="_Gmd_Csw_Federated_Source"></a>GMD CSW ISO Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5588,7 +5394,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 71. <a id="_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"></a>Spatial KML Endpoint</caption>
+<caption class="title">Table 68. <a id="_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"></a>Spatial KML Endpoint</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5667,7 +5473,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 72. <a id="_org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"></a>Metacard to WFS Feature Map</caption>
+<caption class="title">Table 69. <a id="_org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"></a>Metacard to WFS Feature Map</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5802,7 +5608,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 73. <a id="_Wfs_v1_1_0_Federated_Source"></a>WFS v1.1.0 Federated Source</caption>
+<caption class="title">Table 70. <a id="_Wfs_v1_1_0_Federated_Source"></a>WFS v1.1.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5937,7 +5743,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 74. <a id="_Wfs_v2_0_0_Connected_Source"></a>WFS 2.0.0 Connected Source</caption>
+<caption class="title">Table 71. <a id="_Wfs_v2_0_0_Connected_Source"></a>WFS 2.0.0 Connected Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6064,7 +5870,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 75. <a id="_Wfs_v2_0_0_Federated_Source"></a>WFS 2.0.0 Federated Source</caption>
+<caption class="title">Table 72. <a id="_Wfs_v2_0_0_Federated_Source"></a>WFS 2.0.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6199,7 +6005,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 76. <a id="_org.codice.ddf.spatial.kml.style"></a>Spatial KML Style Map Entry</caption>
+<caption class="title">Table 73. <a id="_org.codice.ddf.spatial.kml.style"></a>Spatial KML Style Map Entry</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6309,7 +6115,7 @@ index again.</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 77. Search UI Available Configurations</caption>
+<caption class="title">Table 74. Search UI Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -6361,7 +6167,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 78. <a id="_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"></a>Catalog UI Search Email Notifier</caption>
+<caption class="title">Table 75. <a id="_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"></a>Catalog UI Search Email Notifier</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6408,7 +6214,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 79. <a id="_org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist"></a>Facet Attribute Whitelist</caption>
+<caption class="title">Table 76. <a id="_org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist"></a>Facet Attribute Whitelist</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6440,7 +6246,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 80. <a id="_org.codice.ddf.ui.searchui.filter.RedirectServlet"></a>Search UI Redirect</caption>
+<caption class="title">Table 77. <a id="_org.codice.ddf.ui.searchui.filter.RedirectServlet"></a>Search UI Redirect</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6471,7 +6277,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 81. <a id="_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"></a>Catalog UI Search Transformer Blacklists</caption>
+<caption class="title">Table 78. <a id="_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"></a>Catalog UI Search Transformer Blacklists</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6510,7 +6316,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 82. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"></a>Catalog UI Search Workspace Query Monitor</caption>
+<caption class="title">Table 79. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"></a>Catalog UI Search Workspace Query Monitor</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6550,7 +6356,7 @@ Note: This will query for results from the interval to the time the query is sen
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 83. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl"></a>Catalog UI Search Workspace Service</caption>
+<caption class="title">Table 80. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl"></a>Catalog UI Search Workspace Service</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6581,7 +6387,7 @@ Note: This will query for results from the interval to the time the query is sen
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 84. <a id="_org.codice.ddf.catalog.ui.security"></a>Catalog UI Search Workspace Security</caption>
+<caption class="title">Table 81. <a id="_org.codice.ddf.catalog.ui.security"></a>Catalog UI Search Workspace Security</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7599,7 +7405,7 @@ Note: This will query for results from the interval to the time the query is sen
 <p>This list of DDF dependencies is automatically generated:</p>
 </div>
 <div class="sect2">
-<h3 id="_ddf_2_23_0_dependency_list"><a class="anchor" href="#_ddf_2_23_0_dependency_list"></a><a class="link" href="#_ddf_2_23_0_dependency_list">DDF 2.23.0 Dependency List.</a></h3>
+<h3 id="_ddf_2_24_0_dependency_list"><a class="anchor" href="#_ddf_2_24_0_dependency_list"></a><a class="link" href="#_ddf_2_24_0_dependency_list">DDF 2.24.0 Dependency List.</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -8422,12 +8228,6 @@ Note: This will query for results from the interval to the time the query is sen
 <p>org.mockito:mockito-core:jar:1.10.19</p>
 </li>
 <li>
-<p>org.noggit:noggit:jar:0.6</p>
-</li>
-<li>
-<p>org.noggit:noggit:jar:0.8</p>
-</li>
-<li>
 <p>org.objenesis:objenesis:jar:2.5.1</p>
 </li>
 <li>
@@ -8623,7 +8423,7 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ddf_2_23_0_javascript_dependency_list"><a class="anchor" href="#_ddf_2_23_0_javascript_dependency_list"></a><a class="link" href="#_ddf_2_23_0_javascript_dependency_list">DDF 2.23.0 Javascript Dependency List.</a></h3>
+<h3 id="_ddf_2_24_0_javascript_dependency_list"><a class="anchor" href="#_ddf_2_24_0_javascript_dependency_list"></a><a class="link" href="#_ddf_2_24_0_javascript_dependency_list">DDF 2.24.0 Javascript Dependency List.</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -10271,7 +10071,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-03-17 19:26:53 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-05-08 01:50:25 UTC
 </div>
 </div>
 </body>
