@@ -181,7 +181,7 @@ public class CsvQueryResponseTransformerTest {
 
     Answer<Serializable> answer =
         invocation -> {
-          String key = invocation.getArgumentAt(0, String.class);
+          String key = invocation.getArgument(0);
           return METACARD_DATA_MAP.get(key);
         };
 

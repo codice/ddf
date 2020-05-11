@@ -55,7 +55,7 @@ public class PollerRunnerTest {
             any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
         .thenAnswer(
             invocation -> {
-              invocation.getArgumentAt(0, Runnable.class).run();
+              ((Runnable) invocation.getArgument(0)).run();
               return mock(ScheduledFuture.class);
             });
 
@@ -101,7 +101,7 @@ public class PollerRunnerTest {
             any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
         .thenAnswer(
             invocation -> {
-              invocation.getArgumentAt(0, Runnable.class).run();
+              ((Runnable) invocation.getArgument(0)).run();
               return mockFirstScheduledPollingFuture;
             });
 
@@ -167,7 +167,7 @@ public class PollerRunnerTest {
             any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
         .thenAnswer(
             invocation -> {
-              invocation.getArgumentAt(0, Runnable.class).run();
+              ((Runnable) invocation.getArgument(0)).run();
               return mock(ScheduledFuture.class);
             });
 
@@ -205,7 +205,7 @@ public class PollerRunnerTest {
             any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
         .thenAnswer(
             invocation -> {
-              invocation.getArgumentAt(0, Runnable.class).run();
+              ((Runnable) invocation.getArgument(0)).run();
               return mockScheduledFuture;
             });
 
@@ -249,7 +249,7 @@ public class PollerRunnerTest {
             any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
         .thenAnswer(
             invocation -> {
-              invocation.getArgumentAt(0, Runnable.class).run();
+              ((Runnable) invocation.getArgument(0)).run();
               return mockScheduledFuture;
             });
 

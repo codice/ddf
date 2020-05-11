@@ -245,7 +245,7 @@ public class FileSystemTokenStorageTest {
     when(crypter.decrypt(any(InputStream.class)))
         .thenReturn(new ByteArrayInputStream(json.getBytes()));
     when(crypter.encrypt(any(InputStream.class)))
-        .thenAnswer(i -> i.getArgumentAt(0, InputStream.class));
+        .thenAnswer(i -> i.getArgument(0));
 
     int deleted = tokenStorage.delete(USERNAME);
     assertEquals(SC_OK, deleted);
@@ -281,7 +281,7 @@ public class FileSystemTokenStorageTest {
     when(crypter.decrypt(any(InputStream.class)))
         .thenReturn(new ByteArrayInputStream(json.getBytes()));
     when(crypter.encrypt(any(InputStream.class)))
-        .thenAnswer(i -> i.getArgumentAt(0, InputStream.class));
+        .thenAnswer(i -> i.getArgument(0));
 
     int deleted = tokenStorage.delete(USERNAME, SOURCE_ID);
     assertEquals(SC_OK, deleted);
@@ -311,7 +311,7 @@ public class FileSystemTokenStorageTest {
     when(crypter.decrypt(any(InputStream.class)))
         .thenReturn(new ByteArrayInputStream(json.getBytes()));
     when(crypter.encrypt(any(InputStream.class)))
-        .thenAnswer(i -> i.getArgumentAt(0, InputStream.class));
+        .thenAnswer(i -> i.getArgument(0));
 
     int deleted = tokenStorage.delete(USERNAME, SOURCE_ID);
     assertEquals(SC_OK, deleted);
