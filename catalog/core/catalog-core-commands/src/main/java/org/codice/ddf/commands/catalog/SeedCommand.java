@@ -31,11 +31,7 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -69,9 +65,6 @@ import org.slf4j.LoggerFactory;
 public class SeedCommand extends CqlCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SeedCommand.class);
-
-  private static final Map<String, Serializable> CACHE_UPDATE_PROPERTIES =
-      Collections.singletonMap("mode", "update");
 
   private static final String RESOURCE_CACHE_STATUS = "internal.local-resource";
 
@@ -140,7 +133,6 @@ public class SeedCommand extends CqlCommands {
       } else {
         queryRequest = new QueryRequestImpl(query, true);
       }
-      queryRequest.setProperties(new HashMap<>(CACHE_UPDATE_PROPERTIES));
 
       final QueryResponse queryResponse = catalogFramework.query(queryRequest);
 

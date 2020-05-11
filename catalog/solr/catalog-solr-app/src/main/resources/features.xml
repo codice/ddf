@@ -28,9 +28,20 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
+    <feature name="catalog-solr-cache" version="${project.version}"
+             description="Catalog Cache to interface with Solr ${solr.version}">
+        <bundle>mvn:ddf.catalog.solr/catalog-solr-cache/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-solr-defaultmetacardtagscacheplugin/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-solr-provider" version="${project.version}"
              description="Catalog Provider to interface with Solr ${solr.version}">
         <bundle>mvn:ddf.catalog.solr/catalog-solr-provider/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-solr-commands" version="${project.version}"
+             description="Commands to interface with Solr ${solr.version}">
+        <bundle>mvn:ddf.catalog.solr/catalog-solr-commands/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-solr-solrclient" version="${project.version}"
@@ -40,8 +51,12 @@
 
     <feature name="catalog-solr-app" version="${project.version}"
              description="The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr ${solr.version} as a data store.\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.">
+        <feature>solr-factory-api</feature>
+        <feature>solr-factory-impl</feature>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <feature>catalog-solr-provider</feature>
         <feature>catalog-solr-solrclient</feature>
+        <feature>catalog-solr-commands</feature>
     </feature>
+
 </features>

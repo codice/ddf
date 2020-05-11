@@ -20,11 +20,8 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -127,9 +124,6 @@ public class QueryResultIterable implements Iterable<Result> {
 
     private void queryNext(int index) {
       try {
-        Map<String, Serializable> props = new HashMap<>();
-        // Avoid caching all results while dumping with native query mode
-        props.put("mode", "native");
         response = catalog.query(filter.apply(index));
       } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
         throw new CatalogCommandRuntimeException(e);

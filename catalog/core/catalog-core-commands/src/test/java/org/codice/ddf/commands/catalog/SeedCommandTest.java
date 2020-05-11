@@ -16,7 +16,6 @@ package org.codice.ddf.commands.catalog;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -128,14 +127,6 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
           Query query = request.getQuery();
           assertThat(ECQL.toCQL(query), is("anyText ILIKE '*'"));
         });
-  }
-
-  @Test
-  public void testCacheMetacards() throws Exception {
-    mockQueryResponse(1, new String[0], new boolean[0]);
-
-    runCommandAndVerifyQueryRequest(
-        request -> assertThat(request.getProperties(), hasEntry("mode", "update")));
   }
 
   private void runCommandAndVerifyQueryRequest(Consumer<QueryRequest> queryRequestAssertions)

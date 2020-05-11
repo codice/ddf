@@ -260,10 +260,6 @@ public class DumpCommand extends CqlCommands {
     query.setPageSize(pageSize);
     query.setSortBy(sort);
 
-    Map<String, Serializable> props = new HashMap<>();
-    // Avoid caching all results while dumping with native query mode
-    props.put("mode", "native");
-
     final AtomicLong resultCount = new AtomicLong(0);
     long start = System.currentTimeMillis();
 
@@ -279,7 +275,7 @@ public class DumpCommand extends CqlCommands {
             StandardThreadFactoryBuilder.newThreadFactory("dumpCommandThread"),
             rejectedExecutionHandler);
 
-    QueryRequest queryRequest = new QueryRequestImpl(query, props);
+    QueryRequest queryRequest = new QueryRequestImpl(query);
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Hits for Search: {}", catalog.query(queryRequest).getHits());
     }

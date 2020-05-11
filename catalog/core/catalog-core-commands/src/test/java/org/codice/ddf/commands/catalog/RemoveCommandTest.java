@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -68,39 +67,9 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
   @Before
   public void setup() {
     metacardList = populateMetacardList(5);
-    SolrCacheMBean solrCacheMock = mock(SolrCacheMBean.class);
     deleteResponse = mock(DeleteResponse.class);
-    removeCommand =
-        new RemoveCommand() {
-          @Override
-          protected SolrCacheMBean getCacheProxy() {
-            return solrCacheMock;
-          }
-        };
+    removeCommand = new RemoveCommand();
     removeCommand.catalogFramework = mock(CatalogFramework.class);
-    removeCommand.cache = false;
-  }
-
-  @Test
-  public void testDeleteSingleMetacardFromCache() throws Exception {
-    Set<String> ids = oneIdToDelete();
-    removeCommand.ids = ids;
-    removeCommand.cache = true;
-    removeCommand.executeWithSubject();
-    String[] idsArray = new String[ids.size()];
-    idsArray = ids.toArray(idsArray);
-    verify(removeCommand.getCacheProxy(), times(1)).removeById(idsArray);
-  }
-
-  @Test
-  public void testDeleteMultipleMetacardsFromCache() throws Exception {
-    Set<String> ids = threeIdsToDelete();
-    removeCommand.ids = ids;
-    removeCommand.cache = true;
-    removeCommand.executeWithSubject();
-    String[] idsArray = new String[ids.size()];
-    idsArray = ids.toArray(idsArray);
-    verify(removeCommand.getCacheProxy(), times(1)).removeById(idsArray);
   }
 
   /**
@@ -166,14 +135,6 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
       totalDeleted += request.getAttributeValues().size();
     }
     assertThat(totalDeleted, equalTo(sizeOfDeleteRequest));
-  }
-
-  @Test
-  public void testCacheAndFilter() throws Exception {
-    removeCommand.cqlFilter = DUMMY_FILTER;
-    removeCommand.cache = true;
-    removeCommand.executeWithSubject();
-    assertThat(consoleOutput.getOutput(), containsString("Cache does not support filtering."));
   }
 
   @Test

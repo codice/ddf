@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <ext:property-placeholder/>
+
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+
+    <reference-list id="cachePutPlugins" interface="org.codice.ddf.catalog.solr.cache.CachePutPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="cachePutSortedList"/>
+    </reference-list>
+
+    <bean id="cachePutSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+
+    <bean id="queryThreadPool" class="java.util.concurrent.Executors"
+          factory-method="newCachedThreadPool">
+        <argument ref="federationStrategyThreadFactory"/>
+    </bean>
+
+    <bean id="federationStrategyThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="federationStrategyThread"/>
+    </bean>
+
+    <reference id="solrClientFactory" interface="org.codice.solr.factory.SolrClientFactory"/>
+
+    <bean id="dynamicSchemaResolver" class="ddf.catalog.source.solr.DynamicSchemaResolver"/>
+
+    <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
+        <reference-listener bind-method="addMetacardType" ref="dynamicSchemaResolver"/>
+    </reference-list>
+
+    <bean id="solrCache"
+          class="org.codice.ddf.catalog.solr.cache.impl.SolrCache"
+          destroy-method="shutdown">
+        <cm:managed-properties persistent-id="org.codice.ddf.catalog.solr.cache.impl.SolrCache"
+                               update-strategy="container-managed"/>
+        <argument ref="filterAdapter"/>
+        <argument ref="solrClientFactory"/>
+        <argument>
+            <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
+        </argument>
+        <argument ref="dynamicSchemaResolver"/>
+        <argument ref="cachePutSortedList"/>
+    </bean>
+
+    <bean id="cacheQueryFactory" class="org.codice.ddf.catalog.solr.cache.impl.CacheQueryFactory">
+        <argument ref="filterBuilder"/>
+    </bean>
+
+    <bean id="cacheFederatedSource"
+          depends-on="solrCache"
+          class="org.codice.ddf.catalog.solr.cache.impl.SolrCacheSource">
+        <argument ref="solrCache"/>
+        <argument ref="cacheQueryFactory"/>
+    </bean>
+
+    <service ref="cacheFederatedSource" interface="ddf.catalog.source.FederatedSource">
+        <service-properties>
+            <entry key="id" value="cache"/>
+        </service-properties>
+    </service>
+
+    <bean id="cacheThreadPool" class="java.util.concurrent.Executors"
+          factory-method="newFixedThreadPool">
+        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument ref="federationStrategyThreadFactory"/>
+    </bean>
+
+    <bean id="queryResultCachePlugin"
+          depends-on="solrCache"
+          class="org.codice.ddf.catalog.solr.cache.impl.QueryResultCachePlugin"
+          destroy-method="shutdown">
+        <cm:managed-properties persistent-id="org.codice.ddf.catalog.solr.cache.impl.QueryResultCachePlugin"
+                               update-strategy="container-managed"/>
+        <argument ref="solrCache"/>
+        <argument ref="cacheFederatedSource"/>
+        <argument ref="cacheThreadPool"/>
+    </bean>
+
+    <service ref="queryResultCachePlugin" interface="ddf.catalog.plugin.PostFederatedQueryPlugin" />
+
+    <bean id="cacheModeQueryPlugin" class="org.codice.ddf.catalog.solr.cache.impl.CacheModeQueryPlugin" />
+    <service ref="cacheModeQueryPlugin" interface="ddf.catalog.plugin.PreQueryPlugin" />
+
+</blueprint>

@@ -27,52 +27,15 @@
         <argument value="federationStrategyThread"/>
     </bean>
 
-    <bean id="cacheThreadPool" class="java.util.concurrent.Executors"
-          factory-method="newFixedThreadPool">
-        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
-        <argument ref="federationStrategyThreadFactory"/>
-    </bean>
-
-    <reference id="solrClientFactory" interface="org.codice.solr.factory.SolrClientFactory"/>
-
-    <bean id="dynamicSchemaResolver" class="ddf.catalog.source.solr.DynamicSchemaResolver"/>
-
-    <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
-        <reference-listener bind-method="addMetacardType" ref="dynamicSchemaResolver"/>
-    </reference-list>
-
-    <bean id="solrCatalogCache"
-          depends-on="cachePutSortedList"
-          class="ddf.catalog.cache.solr.impl.SolrCache"
-          destroy-method="shutdown">
-        <cm:managed-properties persistent-id="ddf.catalog.solr.provider.SolrCacheProvider"
-                               update-strategy="container-managed"/>
-        <argument ref="filterAdapter"/>
-        <argument ref="solrClientFactory"/>
-        <argument>
-            <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
-        </argument>
-        <argument ref="dynamicSchemaResolver"/>
-        <argument ref="cachePutSortedList"/>
-    </bean>
-
-    <bean id="cacheQueryFactory" class="ddf.catalog.cache.solr.impl.CacheQueryFactory">
-        <argument ref="filterBuilder"/>
-    </bean>
-
     <bean id="federationStrategy"
-          depends-on="queryThreadPool preFederatedQuerySortedList postFederatedQuerySortedList solrCatalogCache cacheThreadPool cacheQueryFactory"
-          class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
-          destroy-method="shutdown">
+          depends-on="queryThreadPool preFederatedQuerySortedList postFederatedQuerySortedList"
+          class="ddf.catalog.federation.impl.SortedFederationStrategy">
         <cm:managed-properties
-                persistent-id="ddf.catalog.federation.impl.CachingFederationStrategy"
+                persistent-id="ddf.catalog.federation.impl.SortedFederationStrategy"
                 update-strategy="container-managed"/>
         <argument ref="queryThreadPool"/>
         <argument ref="preFederatedQuerySortedList"/>
         <argument ref="postFederatedQuerySortedList"/>
-        <argument ref="solrCatalogCache"/>
-        <argument ref="cacheThreadPool"/>
-        <argument ref="cacheQueryFactory"/>
         <property name="maxStartIndex" value="50000"/>
     </bean>
 
@@ -82,7 +45,5 @@
             <entry key="shortname" value="federationStrategy"/>
         </service-properties>
     </service>
-
-    <service ref="federationStrategy" interface="ddf.catalog.plugin.PostIngestPlugin"/>
 
 </blueprint>

@@ -25,8 +25,8 @@
     <description>Catalog Provider that connects to Solr</description>
     <dependencies>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-solr</artifactId>
+            <groupId>ddf.catalog.solr</groupId>
+            <artifactId>catalog-solr-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -67,7 +67,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-solr,
+                            catalog-solr-core,
                             catalog-core-api-impl
                         </Embed-Dependency>
                         <Include-Resource>
@@ -94,7 +94,7 @@
                             org.apache.zookeeper.proto;version=${solr.zookeeper.version},
                             com.fasterxml.jackson.*;version=${jackson.version},
 
-                            <!-- dependencies used by catalog-core-solr-->
+                            <!-- dependencies used by catalog-solr-core-->
                             org.locationtech.spatial4j.*;version=${solr.spatial4j.version},
                             org.locationtech.jts.*;version=${jts.spatial4j.version},
                             com.saxonica.config;resolution:=optional,

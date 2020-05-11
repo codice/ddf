@@ -27,7 +27,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -169,33 +168,6 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
 
     // then
     verify(catalogFrameworkMock, times(numCatalogCalls)).delete(isA(DeleteRequest.class));
-  }
-
-  /**
-   * Checks the forced (-f) generic case with (--cache) option
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testExecuteWithSubjectWithCache() throws Exception {
-
-    int numCatalogCalls = 1;
-
-    final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
-
-    RemoveAllCommand removeAllCommand =
-        new RemoveAllCommand() {
-          @Override
-          protected SolrCacheMBean getCacheProxy() {
-            return mbean;
-          }
-        };
-
-    removeAllCommand.force = true;
-    removeAllCommand.cache = true;
-    removeAllCommand.executeWithSubject();
-
-    verify(mbean, times(numCatalogCalls)).removeAll();
   }
 
   @Test

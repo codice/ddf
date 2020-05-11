@@ -24,19 +24,13 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.util.XPathHelper;
-import java.io.IOException;
 import java.util.List;
-import javax.management.InstanceNotFoundException;
-import javax.management.MalformedObjectNameException;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
-import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.codice.ddf.commands.util.CatalogCommandException;
 import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +64,7 @@ public class SearchCommand extends CqlCommands {
     multiValued = false,
     required = false
   )
-  int numberOfItems = -1;
+  int numberOfItems = DEFAULT_NUMBER_OF_ITEMS;
 
   @Argument(
     name = "SEARCH_PHRASE",
@@ -82,26 +76,13 @@ public class SearchCommand extends CqlCommands {
   )
   String searchPhraseArgument = WILDCARD;
 
-  @Option(
-    name = "--cache",
-    required = false,
-    multiValued = false,
-    aliases = {},
-    description = "Only search cached entries."
-  )
-  boolean cache = false;
-
   @Override
   protected Object executeWithSubject() throws Exception {
     searchPhrase = searchPhraseArgument;
 
     final Filter filter = getFilter();
 
-    if (this.cache) {
-      return executeSearchCache(filter);
-    } else {
-      return executeSearchStore(filter);
-    }
+    return executeSearchStore(filter);
   }
 
   private Object executeSearchStore(Filter filter) {
@@ -205,45 +186,5 @@ public class SearchCommand extends CqlCommands {
       LOGGER.debug("Unable to get hits for catalog:search command", e);
       return -1;
     }
-  }
-
-  private Object executeSearchCache(Filter filter) throws CatalogCommandException {
-    String formatString = "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %n";
-
-    long start = System.currentTimeMillis();
-
-    try {
-      List<Metacard> results = getCacheProxy().query(filter);
-
-      long end = System.currentTimeMillis();
-
-      console.println();
-      console.printf(
-          " %d result(s) in %3.3f seconds", (results.size()), (end - start) / MS_PER_SECOND);
-      console.printf(formatString, "", "", "");
-      printHeaderMessage(String.format(formatString, ID, DATE, TITLE));
-
-      for (Metacard metacard : results) {
-        String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");
-        String modifiedDate = "";
-
-        if (metacard.getModifiedDate() != null) {
-          DateTime dt = new DateTime(DateTimeZone.UTC);
-          modifiedDate = dt.toString(DATETIME_FORMATTER);
-        }
-
-        console.printf(
-            formatString,
-            metacard.getId(),
-            modifiedDate,
-            title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)));
-      }
-    } catch (UnsupportedQueryException
-        | IOException
-        | MalformedObjectNameException
-        | InstanceNotFoundException e) {
-      throw new CatalogCommandException("Error executing catalog:search", e);
-    }
-    return null;
   }
 }
