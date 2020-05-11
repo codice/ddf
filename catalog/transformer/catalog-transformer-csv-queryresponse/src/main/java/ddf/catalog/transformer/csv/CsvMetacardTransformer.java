@@ -49,7 +49,9 @@ public class CsvMetacardTransformer implements MetacardTransformer {
     Map<String, String> aliases =
         (Map<String, String>) arguments.getOrDefault("aliases", new HashMap<>());
     String attributeString =
-        arguments.get("columnOrder") != null ? (String) arguments.get("columnOrder") : "";
+        arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY) != null
+            ? (String) arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY)
+            : "";
     List<String> attributes = Arrays.asList((attributeString).split(","));
     List<AttributeDescriptor> allAttributes =
         new ArrayList<AttributeDescriptor>(metacard.getMetacardType().getAttributeDescriptors());
