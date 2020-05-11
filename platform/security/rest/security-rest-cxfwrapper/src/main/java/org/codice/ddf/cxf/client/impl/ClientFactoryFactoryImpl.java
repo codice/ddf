@@ -91,6 +91,44 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
       boolean disableCnCheck,
       boolean allowRedirects,
       Integer connectionTimeout,
+      Integer receiveTimeout,
+      String certAlias,
+      String keystorePath,
+      String sslProtocol,
+      String sourceId,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String oauthFlow) {
+    return new SecureCxfClientFactoryImpl<>(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        connectionTimeout,
+        receiveTimeout,
+        new ClientKeyInfo(certAlias, keystorePath),
+        sslProtocol,
+        sourceId,
+        discoveryUrl,
+        clientId,
+        clientSecret,
+        oauthFlow,
+        oauthSecurity,
+        restSecurity);
+  }
+
+  @Override
+  public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      Integer connectionTimeout,
       Integer receiveTimeout) {
     return new SecureCxfClientFactoryImpl<>(
         endpointUrl,

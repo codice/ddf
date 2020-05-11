@@ -97,6 +97,46 @@ public interface ClientFactoryFactory {
    * @param allowRedirects
    * @param connectionTimeout
    * @param receiveTimeout
+   * @param certAlias
+   * @param keystorePath
+   * @param sslProtocol
+   * @param sourceId
+   * @param discoveryUrl
+   * @param clientId
+   * @param clientSecret
+   * @param oauthFlow
+   * @return
+   */
+  @SuppressWarnings("squid:S00107")
+  <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      Integer connectionTimeout,
+      Integer receiveTimeout,
+      String certAlias,
+      String keystorePath,
+      String sslProtocol,
+      String sourceId,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String oauthFlow);
+
+  /**
+   * Returns an initialized SecureCxfClientFactory
+   *
+   * @param endpointUrl
+   * @param interfaceClass
+   * @param providers
+   * @param interceptor
+   * @param disableCnCheck
+   * @param allowRedirects
+   * @param connectionTimeout
+   * @param receiveTimeout
    * @param <T>
    * @return
    */

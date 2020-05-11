@@ -565,6 +565,72 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
    *
    * <p>This factory can and should be cached. The clients it constructs should not be.
    *
+   * @param endpointUrl the remote url to connect to
+   * @param interfaceClass an interface representing the resource at the remote url
+   * @param providers optional list of providers to further configure the client
+   * @param interceptor optional message interceptor for the client
+   * @param disableCnCheck disable ssl check for common name / host name match
+   * @param allowRedirects allow this client to follow redirects
+   * @param connectionTimeout timeout for the connection
+   * @param receiveTimeout timeout for receiving responses
+   * @param keyInfo client key info for 2-way ssl
+   * @param sslProtocol SSL protocol to use (e.g. TLSv1.2)
+   * @param sourceId the id of the source
+   * @param discoveryUrl the oauth provider's discovery url
+   * @param clientId the client id registered with the oauth provider
+   * @param clientSecret the client secret registered with the oauth provider
+   * @param oauthFlow the oauth flow to use
+   * @param oauthSecurity class used to set oauth tokens on clients
+   */
+  @SuppressWarnings("squid:S00107")
+  public SecureCxfClientFactoryImpl(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      Integer connectionTimeout,
+      Integer receiveTimeout,
+      ClientKeyInfo keyInfo,
+      String sslProtocol,
+      String sourceId,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String oauthFlow,
+      OAuthSecurity oauthSecurity,
+      RestSecurity restSecurity) {
+
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        restSecurity);
+
+    this.connectionTimeout = connectionTimeout;
+    this.receiveTimeout = receiveTimeout;
+    this.keyInfo = keyInfo;
+    this.sslProtocol = sslProtocol;
+    this.sourceId = sourceId;
+    this.discoveryUrl = discoveryUrl;
+    this.clientId = clientId;
+    this.clientSecret = clientSecret;
+    this.oauthFlow = oauthFlow;
+    this.restSecurity = restSecurity;
+    this.oauthSecurity = oauthSecurity;
+  }
+
+  /**
+   * Constructs a factory that will return security-aware cxf clients. Once constructed, use the
+   * getClient* methods to retrieve a fresh client with the same configuration. Providing {@link
+   * WebClient} to interfaceClass will create a generic web client.
+   *
+   * <p>This factory can and should be cached. The clients it constructs should not be.
+   *
    * <p>This constructor represents a quick fix only.
    *
    * @param endpointUrl the remote url to connect to
