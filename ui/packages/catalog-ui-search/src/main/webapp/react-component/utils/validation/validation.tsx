@@ -379,13 +379,20 @@ function validateLongitudes(west: any, east: any, isUsngOrUtmUps: boolean) {
 }
 
 function validateBoundingBox(key: string, value: any) {
-  const { north, south, west, east } = value.isDms
-    ? getDmsCoords(value)
-    : value.isUsng
-      ? getUsngCoords(value.upperLeft, value.lowerRight)
-      : value.isUtmUps
-        ? getUtmUpsCoords(value.upperLeft, value.lowerRight)
-        : getDdCoords(value)
+  let coords, north, south, east, west
+  if (value.isDms) {
+    coords = getDmsCoords(value)
+  } else if (value.isUsng) {
+    coords = getUsngCoords(value.upperLeft, value.lowerRight)
+  } else if (value.isUtmUps) {
+    coords = getUtmUpsCoords(value.upperLeft, value.lowerRight)
+  } else {
+    coords = getDdCoords(value)
+  }
+  north = coords.north
+  south = coords.south
+  west = coords.west
+  east = coords.east
   const isUsngOrUtmUps = value.isUsng || value.isUtmUps
   if (key.toLowerCase().includes('lon')) {
     const { error, message } = validateLongitudes(west, east, isUsngOrUtmUps)
