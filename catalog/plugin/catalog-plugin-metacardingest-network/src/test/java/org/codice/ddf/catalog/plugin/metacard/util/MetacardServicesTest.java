@@ -32,7 +32,7 @@ import javax.xml.bind.DatatypeConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /** Validate all the helpers within the {@link MetacardServices} utility operations class. */
 @RunWith(MockitoJUnitRunner.class)
