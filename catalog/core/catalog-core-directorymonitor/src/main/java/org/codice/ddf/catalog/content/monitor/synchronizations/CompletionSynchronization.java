@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor.synchronizations;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.function.BiConsumer;
@@ -24,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class CompletionSynchronization implements Synchronization {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CompletionSynchronization.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private final AsyncFileEntry asyncFileEntry;
 
@@ -49,6 +51,11 @@ public class CompletionSynchronization implements Synchronization {
     if (!connected) {
       LOGGER.debug(
           "a network error occurred, The file [{}] failed to process", asyncFileEntry.getName());
+    } else if (exchange.getException() != null) {
+      LOGGER.debug(
+          "Exchange {} failed synchronization on exception: {}",
+          exchange.getExchangeId(),
+          exchange.getException());
     }
 
     callback.accept(asyncFileEntry, false);

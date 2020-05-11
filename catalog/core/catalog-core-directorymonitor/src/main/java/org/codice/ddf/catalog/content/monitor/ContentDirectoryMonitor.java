@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
 import java.io.Serializable;
@@ -55,9 +57,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   public static final String IN_PLACE = "in_place";
 
-  private static final Logger CDM_LOGGER = LoggerFactory.getLogger("cdmLogger");
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private static final int MAX_THREAD_SIZE = 8;
 
@@ -174,6 +174,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * called whenever an existing route is updated.
    */
   public void init() {
+    LOGGER.debug("Configuring monitor for {}", monitoredDirectory);
     security.runAsAdmin(
         () -> {
           CompletableFuture.runAsync(this::configure, configurationExecutor);
@@ -182,11 +183,11 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   }
 
   private Object configure() {
+    LOGGER.debug("Configuring monitor for {}", monitoredDirectory);
     if (StringUtils.isEmpty(monitoredDirectory)) {
       LOGGER.warn("Cannot setup camel route - must specify a directory to be monitored");
       return null;
     }
-    CDM_LOGGER.debug("Configuring monitor for {}", monitoredDirectory);
 
     attemptAddRoutes();
     return null;

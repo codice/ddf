@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
@@ -35,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 public class JsonPersistantStore implements ObjectPersistentStore {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(JsonPersistantStore.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private static final String PERSISTED_FILE_SUFFIX = ".json";
 

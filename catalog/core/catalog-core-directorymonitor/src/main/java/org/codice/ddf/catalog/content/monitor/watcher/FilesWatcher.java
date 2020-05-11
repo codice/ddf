@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor.watcher;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import java.io.File;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,7 +29,7 @@ import org.slf4j.LoggerFactory;
 /** Periodically calls {@link FileWatcher#check()} on all watched {@link FileWatcher}s. */
 public class FilesWatcher {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FilesWatcher.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private static final long DEFAULT_POLL_TIME_SEC = 5;
 

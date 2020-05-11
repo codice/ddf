@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import java.io.File;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileSystemFileConsumer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private DurableFileAlterationListener listener;
 

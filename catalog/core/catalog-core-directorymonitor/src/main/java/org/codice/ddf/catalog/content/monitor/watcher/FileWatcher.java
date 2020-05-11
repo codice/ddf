@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor.watcher;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import java.io.File;
 import java.util.function.Consumer;
 import org.apache.commons.lang.Validate;
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FileWatcher {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FileWatcher.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private final File watchedFile;
 

@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
 import java.io.BufferedInputStream;
@@ -48,7 +50,7 @@ import org.slf4j.LoggerFactory;
 public class FileSystemPersistenceProvider
     implements MapLoader<String, Object>, MapStore<String, Object> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemPersistenceProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private static final String PERSISTED_FILE_SUFFIX = ".ser";
 

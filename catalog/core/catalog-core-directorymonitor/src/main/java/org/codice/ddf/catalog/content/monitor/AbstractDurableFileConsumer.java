@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -32,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<File> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDurableFileConsumer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   //  Implement these to serialize the observers states.
   protected FileSystemPersistenceProvider fileSystemPersistenceProvider;
