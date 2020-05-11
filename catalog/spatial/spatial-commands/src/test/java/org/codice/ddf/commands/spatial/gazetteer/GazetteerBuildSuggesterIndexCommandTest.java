@@ -16,7 +16,7 @@ package org.codice.ddf.commands.spatial.gazetteer;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
 import ddf.catalog.CatalogFramework;

@@ -13,8 +13,8 @@
  */
 package ddf.security.sts.claimsHandler;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -27,7 +27,7 @@ import ddf.security.encryption.EncryptionService;
 import java.util.Dictionary;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -50,7 +50,7 @@ public class ClaimsHandlerManagerTest {
     when(context.registerService(
             eq(ClaimsHandler.class),
             any(ClaimsHandler.class),
-            Matchers.<Dictionary<String, Object>>any()))
+            ArgumentMatchers.<Dictionary<String, Object>>any()))
         .thenReturn(handlerReg);
   }
 
@@ -92,7 +92,7 @@ public class ClaimsHandlerManagerTest {
         .registerService(
             eq(ClaimsHandler.class),
             any(ClaimsHandler.class),
-            Matchers.<Dictionary<String, Object>>any());
+            ArgumentMatchers.<Dictionary<String, Object>>any());
     verify(handlerReg, never()).unregister();
   }
 }

@@ -40,7 +40,7 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -239,6 +239,6 @@ public class MetadataConfigurationParserTest {
               return null;
             })
         .when(handler)
-        .handle(Matchers.any(), Matchers.any(), Matchers.any());
+        .handle(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
   }
 }

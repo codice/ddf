@@ -20,8 +20,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,7 +37,7 @@ import org.apache.karaf.jaas.config.JaasRealm;
 import org.apache.karaf.jaas.config.impl.Module;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -58,7 +58,7 @@ public class LdapLoginConfigTest {
     context = mock(BundleContext.class);
     jaasRealm = mock(ServiceRegistration.class);
     when(context.registerService(
-            eq(JaasRealm.class), any(JaasRealm.class), Matchers.<Dictionary<String, Object>>any()))
+            eq(JaasRealm.class), any(JaasRealm.class), ArgumentMatchers.<Dictionary<String, Object>>any()))
         .thenReturn(jaasRealm);
   }
 
@@ -77,7 +77,7 @@ public class LdapLoginConfigTest {
     // Verify the JaasRealm is registered.
     verify(context)
         .registerService(
-            eq(JaasRealm.class), any(JaasRealm.class), Matchers.<Dictionary<String, Object>>any());
+            eq(JaasRealm.class), any(JaasRealm.class), ArgumentMatchers.<Dictionary<String, Object>>any());
 
     LdapLoginConfig ldapConfigTwo = createLdapConfig(ldapService, LDAP_URL_1, LDAP_URL_2);
     ldapConfigTwo.configure();
@@ -105,7 +105,7 @@ public class LdapLoginConfigTest {
     // Verify the JaasRealm has only been registered once.
     verify(context, times(1))
         .registerService(
-            eq(JaasRealm.class), any(JaasRealm.class), Matchers.<Dictionary<String, Object>>any());
+            eq(JaasRealm.class), any(JaasRealm.class), ArgumentMatchers.<Dictionary<String, Object>>any());
 
     // Destroy the first ldap module.
     ldapConfigOne.destroy(1);

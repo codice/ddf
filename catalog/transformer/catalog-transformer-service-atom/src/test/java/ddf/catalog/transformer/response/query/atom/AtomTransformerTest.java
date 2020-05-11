@@ -19,8 +19,8 @@ import static org.custommonkey.xmlunit.XMLAssert.assertXpathNotExists;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

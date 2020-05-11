@@ -54,6 +54,7 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.FeaturesService.Option;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
@@ -71,7 +72,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -258,7 +259,7 @@ public class ApplicationServiceBeanTest {
     ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.installFeature("profile-name");
 
-    verify(mockSyncInstaller).installFeatures(Matchers.any(EnumSet.class), eq("profile-name"));
+    verify(mockSyncInstaller).installFeatures(ArgumentMatchers.<EnumSet<Option>>any(), eq("profile-name"));
   }
 
   @Test
@@ -267,7 +268,7 @@ public class ApplicationServiceBeanTest {
     serviceBean.installFeature("profile-name");
 
     verify(mockSyncInstaller, privileged(times(1)))
-        .installFeatures(Matchers.any(EnumSet.class), eq("profile-name"));
+        .installFeatures(ArgumentMatchers.<EnumSet<Option>>any(), eq("profile-name"));
   }
 
   @Test
@@ -277,7 +278,7 @@ public class ApplicationServiceBeanTest {
     stackCaptor
         .doCaptureStack()
         .when(mockSyncInstaller)
-        .uninstallFeatures(Matchers.any(EnumSet.class), anyString());
+        .uninstallFeatures(ArgumentMatchers.<EnumSet<Option>>any(), anyString());
 
     ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.uninstallFeature("profile-name");

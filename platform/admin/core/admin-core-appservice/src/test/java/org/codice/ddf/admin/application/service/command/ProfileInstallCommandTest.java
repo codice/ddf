@@ -14,7 +14,7 @@
 package org.codice.ddf.admin.application.service.command;
 
 import static org.codice.mockito.PrivilegedVerificationMode.privileged;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
