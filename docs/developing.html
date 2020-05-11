@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.23.0. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.24.0. Copyright (c) Codice Foundation">
 <title>Developing DDF Components: Developer&#8217;s Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Developing DDF Components: Developer&#8217;s Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.23.0. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.24.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -7552,14 +7552,8 @@ See the documentation for <a href="https://docs.oracle.com/javase/7/docs/api/jav
 <div class="listingblock">
 <div class="title">Sample configuration file</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="linenums">authenticationTypes=[ \
-  &quot;/\=&quot;, \
-  &quot;/admin\=basic&quot;, \
-  &quot;/system\=basic&quot;, \
-  &quot;/sources\=basic&quot;, \
-  &quot;/security-config\=basic&quot;, \
-  &quot;/search\=basic&quot;, \
-  ]
+<pre class="CodeRay highlight"><code data-lang="linenums">webAuthenticationTypes=&quot;basic&quot;
+endpointAuthenticationTypes=&quot;&quot;
 sessionAccess=B&quot;true&quot;
 guestAccess=B&quot;true&quot;
 realms=[ \
@@ -8642,7 +8636,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-03-17 19:26:52 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-05-08 01:50:25 UTC
 </div>
 </div>
 </body>
