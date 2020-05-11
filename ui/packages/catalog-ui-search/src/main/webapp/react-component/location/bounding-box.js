@@ -59,12 +59,16 @@ const BoundingBoxLatLonDd = props => {
         validateGeo('bbox', {
           north: key.includes('north') ? value : opposite,
           south: key.includes('south') ? value : opposite,
+          west,
+          east,
         })
       )
     } else if (!error && label === 'lon') {
       const opposite = key.includes('west') ? east : west
       setDdError(
         validateGeo('bbox', {
+          north,
+          south,
           west: key.includes('west') ? value : opposite,
           east: key.includes('east') ? value : opposite,
         })
@@ -182,8 +186,12 @@ const BoundingBoxLatLonDms = props => {
           isDms: true,
           dmsNorthDirection,
           dmsSouthDirection,
+          dmsWestDirection,
+          dmsEastDirection,
           north: key.includes('North') ? value : opposite,
           south: key.includes('South') ? value : opposite,
+          west: dmsWest,
+          east: dmsEast,
         })
       )
     } else if (!error && label === 'dmsLon') {
@@ -191,8 +199,12 @@ const BoundingBoxLatLonDms = props => {
       setDmsError(
         validateGeo('bbox', {
           isDms: true,
+          dmsNorthDirection,
+          dmsSouthDirection,
           dmsWestDirection,
           dmsEastDirection,
+          north: dmsNorth,
+          south: dmsSouth,
           west: key.includes('West') ? value : opposite,
           east: key.includes('East') ? value : opposite,
         })
