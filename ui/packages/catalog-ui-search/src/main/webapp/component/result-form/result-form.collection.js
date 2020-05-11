@@ -37,7 +37,6 @@ module.exports = Backbone.AssociatedModel.extend({
   model: ResultForm,
   defaults: {
     doneLoading: false,
-    added: false,
     resultForms: [],
   },
   initialize() {
@@ -69,21 +68,6 @@ module.exports = Backbone.AssociatedModel.extend({
   ],
   addResultForms() {
     if (!this.isDestroyed) {
-      this.filteredList = _.map(resultTemplates, resultForm => ({
-        label: resultForm.title,
-        value: resultForm.title,
-        id: resultForm.id,
-        descriptors: resultForm.descriptors,
-        description: resultForm.description,
-        owner: resultForm.owner,
-        created: resultForm.created,
-        creator: resultForm.creator,
-        createdBy: resultForm.creator,
-        accessGroups: resultForm.accessGroups,
-        accessIndividuals: resultForm.accessIndividuals,
-        accessAdministrators: resultForm.accessAdministrators,
-      }))
-
       resultTemplates.forEach((value, index) => {
         this.addResultForm(
           new ResultForm({
@@ -113,9 +97,6 @@ module.exports = Backbone.AssociatedModel.extend({
   getDoneLoading() {
     return this.get('doneLoading')
   },
-  toggleUpdate() {
-    this.set('added', !this.get('added'))
-  },
   doneLoading() {
     this.set('doneLoading', true)
   },
@@ -123,13 +104,6 @@ module.exports = Backbone.AssociatedModel.extend({
     return this.get('resultForms')
   },
   deleteCachedTemplateById(id) {
-    if (this.filteredList) {
-      this.filteredList = _.filter(
-        this.filteredList,
-        template => template.id !== id
-      )
-      this.toggleUpdate()
-    }
     if (resultTemplates) {
       resultTemplates = _.filter(
         resultTemplates,

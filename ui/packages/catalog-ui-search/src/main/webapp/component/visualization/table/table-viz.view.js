@@ -26,7 +26,7 @@ const CustomElements = require('../../../js/CustomElements.js')
 const TableVisibility = require('./table-visibility.view')
 const TableRearrange = require('./table-rearrange.view')
 const ResultsTableView = require('../../table/results/table-results.view.js')
-const ResultForm = require('../../../component/result-form/result-form.js')
+const ResultFormCollection = require('../../result-form/result-form-collection-instance')
 
 const filterAttributesWithResultForm = (
   attributes,
@@ -114,6 +114,13 @@ module.exports = Marionette.LayoutView.extend({
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
+    this.resultForms = ResultFormCollection.getCollection()
+    this.listenTo(
+      this.resultForms,
+      'change',
+      this.filterActiveSearchResultsAttributes
+    )
+
     this.filteredAttributes = new filteredAttributesModel()
     this.filterActiveSearchResultsAttributes()
 
@@ -131,19 +138,20 @@ module.exports = Marionette.LayoutView.extend({
   filterActiveSearchResultsAttributes() {
     const currentQuery = this.options.selectionInterface.getCurrentQuery()
     const resultFormName = currentQuery ? currentQuery.get('detail-level') : ''
-    const selectedResultTemplate = ResultForm.getResultCollection().filteredList.filter(
-      form => form.id === resultFormName || form.value === resultFormName
-    )
+    const selectedResultTemplate = this.resultForms.findWhere({
+      title: resultFormName,
+    })
     let filteredAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
 
-    if (selectedResultTemplate.length > 0) {
+    if (selectedResultTemplate) {
       const attrs = this.options.selectionInterface.getActiveSearchResultsAttributes()
       filteredAttributes = filterAttributesWithResultForm(
         attrs,
-        selectedResultTemplate[0].descriptors
+        selectedResultTemplate.get('descriptors')
       )
     }
     this.filteredAttributes.set('filteredAttributes', filteredAttributes)
+    this.render()
   },
   handleEmpty() {
     this.$el.toggleClass(
