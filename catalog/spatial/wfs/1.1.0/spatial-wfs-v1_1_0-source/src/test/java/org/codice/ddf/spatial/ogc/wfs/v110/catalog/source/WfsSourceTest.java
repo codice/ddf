@@ -1493,7 +1493,7 @@ public class WfsSourceTest {
   }
 
   private static class IsDescribeFeatureTypeRequestForTypeName
-      extends ArgumentMatcher<DescribeFeatureTypeRequest> {
+      implements ArgumentMatcher<DescribeFeatureTypeRequest> {
     private final String typeName;
 
     private IsDescribeFeatureTypeRequestForTypeName(final String typeName) {
@@ -1501,9 +1501,8 @@ public class WfsSourceTest {
     }
 
     @Override
-    public boolean matches(final Object request) {
-      return request instanceof DescribeFeatureTypeRequest
-          && Objects.equals(((DescribeFeatureTypeRequest) request).getTypeName(), typeName);
+    public boolean matches(final DescribeFeatureTypeRequest request) {
+      return Objects.equals(request.getTypeName(), typeName);
     }
   }
 
@@ -1511,7 +1510,7 @@ public class WfsSourceTest {
     return argThat(new IsGetFeatureRequestWithResultType(resultType));
   }
 
-  private static class IsGetFeatureRequestWithResultType extends ArgumentMatcher<GetFeatureType> {
+  private static class IsGetFeatureRequestWithResultType implements ArgumentMatcher<GetFeatureType> {
     private final ResultTypeType resultType;
 
     private IsGetFeatureRequestWithResultType(final ResultTypeType resultType) {
@@ -1519,9 +1518,8 @@ public class WfsSourceTest {
     }
 
     @Override
-    public boolean matches(final Object o) {
-      return o instanceof GetFeatureType
-          && Objects.equals(((GetFeatureType) o).getResultType(), resultType);
+    public boolean matches(final GetFeatureType featureType) {
+      return Objects.equals(featureType.getResultType(), resultType);
     }
   }
 }

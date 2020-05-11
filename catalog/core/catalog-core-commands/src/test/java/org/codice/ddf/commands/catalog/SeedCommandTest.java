@@ -317,7 +317,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
     return mockResponse;
   }
 
-  private class QueryWithStartIndex extends ArgumentMatcher<QueryRequest> {
+  private static class QueryWithStartIndex implements ArgumentMatcher<QueryRequest> {
     private final Predicate<QueryRequest> test;
 
     private QueryWithStartIndex(Predicate<QueryRequest> test) {
@@ -325,8 +325,8 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
     }
 
     @Override
-    public boolean matches(Object o) {
-      return test.test((QueryRequest) o);
+    public boolean matches(QueryRequest request) {
+      return test.test(request);
     }
   }
 

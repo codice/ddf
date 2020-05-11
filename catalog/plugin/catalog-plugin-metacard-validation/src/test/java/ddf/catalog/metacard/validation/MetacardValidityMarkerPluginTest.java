@@ -554,7 +554,7 @@ public class MetacardValidityMarkerPluginTest {
     return metacardValidator;
   }
 
-  private class IsMetacardWithTitle extends ArgumentMatcher<Metacard> {
+  private static class IsMetacardWithTitle implements ArgumentMatcher<Metacard> {
     private final String title;
 
     private IsMetacardWithTitle(String title) {
@@ -562,8 +562,8 @@ public class MetacardValidityMarkerPluginTest {
     }
 
     @Override
-    public boolean matches(Object o) {
-      return ((Metacard) o).getTitle().equals(title);
+    public boolean matches(Metacard metacard) {
+      return metacard.getTitle().equals(title);
     }
   }
 
