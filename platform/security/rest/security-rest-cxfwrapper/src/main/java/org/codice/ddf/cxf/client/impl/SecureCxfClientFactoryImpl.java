@@ -169,7 +169,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
   }
 
   /**
-   * @see #SecureCxfClientFactoryImpl(String, Class, java.util.List, Interceptor, boolean, boolean)
+   * @see #SecureCxfClientFactoryImpl(String, Class, java.util.List, Interceptor, boolean, boolean,
+   *     SamlSecurity)
    */
   public SecureCxfClientFactoryImpl(
       String endpointUrl, Class<T> interfaceClass, SamlSecurity samlSecurity) {
@@ -600,7 +601,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       String clientSecret,
       String oauthFlow,
       OAuthSecurity oauthSecurity,
-      RestSecurity restSecurity) {
+      SamlSecurity samlSecurity) {
 
     this(
         endpointUrl,
@@ -609,7 +610,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         interceptor,
         disableCnCheck,
         allowRedirects,
-        restSecurity);
+        samlSecurity);
 
     this.connectionTimeout = connectionTimeout;
     this.receiveTimeout = receiveTimeout;
@@ -620,7 +621,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.oauthFlow = oauthFlow;
-    this.restSecurity = restSecurity;
+    this.samlSecurity = samlSecurity;
     this.oauthSecurity = oauthSecurity;
   }
 
