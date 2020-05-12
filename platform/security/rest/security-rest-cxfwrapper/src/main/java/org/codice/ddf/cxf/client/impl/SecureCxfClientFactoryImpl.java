@@ -169,8 +169,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
   }
 
   /**
-   * @see #SecureCxfClientFactoryImpl(String, Class, java.util.List, Interceptor, boolean, boolean)
-   * @see #SecureCxfClientFactoryImpl(String, Class, java.util.List, Interceptor, boolean, boolean, SamlSecurity)
+   * @see #SecureCxfClientFactoryImpl(String, Class, java.util.List, Interceptor, boolean, boolean,
+   *     SamlSecurity)
    */
   public SecureCxfClientFactoryImpl(
       String endpointUrl, Class<T> interfaceClass, SamlSecurity samlSecurity) {
