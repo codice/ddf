@@ -17,10 +17,9 @@ import static ddf.catalog.Constants.CDM_LOGGER_NAME;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.catalog.content.monitor.synchronizations.CompletionSynchronization;
@@ -56,7 +55,7 @@ public class AsyncFileAlterationObserver {
 
   private final AsyncFileEntry rootFile;
   private AsyncFileAlterationListener listener = null;
-  private final Set<String> processingIds = ConcurrentHashMap.newKeySet();
+  private final Set<AsyncFileEntry> processing = ConcurrentHashMap.newKeySet();
   private final Object listenerLock = new Object();
   private final ObjectPersistentStore serializer;
   private final Object processingLock = new Object();
@@ -69,6 +68,9 @@ public class AsyncFileAlterationObserver {
     }
     this.serializer = serializer;
     rootFile = new AsyncFileEntry(fileToObserve);
+
+    Timer timer = new Timer();
+    timer.scheduleAtFixedRate(new Processing(), 500, 5000);
   }
 
   private AsyncFileAlterationObserver(AsyncFileEntry entry, ObjectPersistentStore serializer) {
@@ -132,19 +134,10 @@ public class AsyncFileAlterationObserver {
   public boolean checkAndNotify() {
 
     AsyncFileAlterationListener listenerCopy;
-
     synchronized (processingLock) {
-      if (processingIds.size() != 0) {
-        if (LOGGER.isTraceEnabled()) {
-          LOGGER.trace(
-              "{} files are still processing:\n{}\nWaiting until the list is empty",
-              processingIds.size(),
-              processingIds.toString());
-        } else {
-          LOGGER.debug(
-              "{} files are still processing. Waiting until the list is empty",
-              processingIds.size());
-        }
+      if (!processing.isEmpty()) {
+        LOGGER.debug(
+            "{} files are still processing. Waiting until the list is empty", processing.size());
         return false;
       } else if (isProcessing) {
         LOGGER.debug("Another thread is currently running, returning until next poll");
@@ -190,7 +183,7 @@ public class AsyncFileAlterationObserver {
    */
   private void doCreate(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
 
-    processingIds.add(entry.getName());
+    processing.add(entry);
 
     if (!entry.getFile().isDirectory()) {
 
@@ -230,7 +223,7 @@ public class AsyncFileAlterationObserver {
     } else {
       LOGGER.debug("Create task failed for {}", entry.getName());
     }
-    onFinish(entry.getName());
+    onFinish(entry);
   }
 
   /**
@@ -244,7 +237,7 @@ public class AsyncFileAlterationObserver {
       return;
     }
 
-    processingIds.add(entry.getName());
+    processing.add(entry);
 
     LOGGER.trace("{} has changed", entry.getName());
     if (!entry.getFile().isDirectory()) {
@@ -270,7 +263,7 @@ public class AsyncFileAlterationObserver {
     } else {
       LOGGER.debug("Match task failed for {}", entry.getName());
     }
-    onFinish(entry.getName());
+    onFinish(entry);
   }
 
   /**
@@ -280,7 +273,7 @@ public class AsyncFileAlterationObserver {
    */
   private void doDelete(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
     if (!entry.isDirectory()) {
-      processingIds.add(entry.getName());
+      processing.add(entry);
       LOGGER.trace("Sending Delete Request for {}...", entry.getName());
       listenerCopy.onFileDelete(
           entry.getFile(), new CompletionSynchronization(entry, this::commitDelete));
@@ -288,7 +281,7 @@ public class AsyncFileAlterationObserver {
     //  Once there are no more children we can delete directories.
     //  Check that there are no children, and that no locked files have it as it's parent.
     else if (!entry.hasChildren()) {
-      processingIds.add(entry.getName());
+      processing.add(entry);
       commitDelete(entry, true);
     }
     //  If there are still children, we're going to keep it within the tree until all the
@@ -314,7 +307,7 @@ public class AsyncFileAlterationObserver {
     } else {
       LOGGER.debug("Delete task failed for {}", entry.getName());
     }
-    onFinish(entry.getName());
+    onFinish(entry);
   }
 
   /**
@@ -393,12 +386,28 @@ public class AsyncFileAlterationObserver {
     }
   }
 
-  private void onFinish(String name) {
+  private void onFinish(AsyncFileEntry entry) {
     synchronized (processingLock) {
-      processingIds.remove(name);
-      if (processingIds.isEmpty()) {
+      processing.remove(entry);
+      if (processing.isEmpty()) {
         serializer.store(rootFile.getName(), rootFile);
         isProcessing = false;
+      }
+    }
+  }
+
+  private class Processing extends TimerTask {
+
+    /** Log files still in processing at scheduled intervals */
+    public void run() {
+      if (LOGGER.isTraceEnabled() && !processing.isEmpty()) {
+        String files =
+            processing
+                .stream()
+                .map(AsyncFileEntry::getName)
+                .collect(Collectors.toList())
+                .toString();
+        LOGGER.trace("{} files being processed: {}", processing.size(), files);
       }
     }
   }
