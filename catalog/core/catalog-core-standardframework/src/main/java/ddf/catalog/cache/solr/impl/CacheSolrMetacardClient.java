@@ -60,8 +60,10 @@ class CacheSolrMetacardClient extends SolrMetacardClientImpl {
   public MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
     MetacardImpl metacard = super.createMetacard(doc);
 
-    metacard.setSourceId(getMetacardSource(doc));
-    metacard.setId(getMetacardId(doc));
+    if (metacard != null) {
+      metacard.setSourceId(getMetacardSource(doc));
+      metacard.setId(getMetacardId(doc));
+    }
 
     return metacard;
   }

@@ -19,12 +19,15 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
@@ -63,6 +66,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse.Collation;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.codice.solr.client.solrj.SolrClient;
@@ -93,6 +97,11 @@ public class SolrMetacardClientImplTest {
         DynamicSchemaResolver dynamicSchemaResolver) {
       super(client, catalogFilterAdapter, solrFilterDelegateFactory, dynamicSchemaResolver);
     }
+
+    @Override
+    protected SolrQuery getRealTimeQuery(SolrQuery originalQuery, Collection<String> ids) {
+      return originalQuery;
+    }
   }
 
   @Before
@@ -113,6 +122,10 @@ public class SolrMetacardClientImplTest {
     when(solrFilterDelegateFactory.newInstance(
             dynamicSchemaResolver, Collections.singletonMap("spellcheck", new Boolean("true"))))
         .thenReturn(mock(SolrFilterDelegate.class));
+    when(solrFilterDelegateFactory.newInstance(
+            dynamicSchemaResolver,
+            Collections.singletonMap(SolrMetacardClientImpl.DO_REALTIME_GET, new Boolean("true"))))
+        .thenReturn(mock(SolrFilterDelegate.class));
 
     when(catalogFilterAdapter.adapt(any(), any()))
         .thenAnswer(
@@ -131,9 +144,56 @@ public class SolrMetacardClientImplTest {
   }
 
   @Test
+  public void testDeleteByIds() throws SolrServerException, IOException {
+    when(client.deleteById(anyList())).thenReturn(new UpdateResponse());
+    List<String> terms = Arrays.asList("1234");
+    clientImpl.deleteByIds(Metacard.ID, terms, false);
+  }
+
+  @Test
+  public void testDeleteEmpty() throws SolrServerException, IOException {
+    when(client.deleteById(anyList())).thenReturn(new UpdateResponse());
+    clientImpl.deleteByIds(Metacard.ID, null, false);
+  }
+
+  @Test
+  public void testDeleteSingle() throws SolrServerException, IOException {
+    when(client.deleteByQuery(anyString())).thenReturn(new UpdateResponse());
+    List<String> terms = Arrays.asList("title");
+    clientImpl.deleteByIds(Metacard.TITLE, terms, false);
+  }
+
+  @Test
+  public void testDeleteLargeSet() throws SolrServerException, IOException {
+    when(client.deleteByQuery(anyString())).thenReturn(new UpdateResponse());
+    List<String> terms = new ArrayList<>(SolrCatalogProviderImpl.MAX_BOOLEAN_CLAUSES + 1);
+    for (int i = 0; i < SolrCatalogProviderImpl.MAX_BOOLEAN_CLAUSES + 1; i++) {
+      terms.add("title");
+    }
+    clientImpl.deleteByIds(Metacard.TITLE, terms, false);
+  }
+
+  @Test
   public void testQueryOneResults() throws Exception {
     QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
 
+    List<String> names = Collections.singletonList("title");
+    List<String> values = Collections.singletonList("normal");
+
+    Map<String, String> attributes = createAttributes(names, values);
+
+    when(queryResponse.getResults()).thenReturn(createSolrDocumentList(attributes));
+    mockDynamicSchemsolverCalls(createAttributeDescriptor(names), attributes);
+
+    List<Result> results = clientImpl.query(request).getResults();
+    assertThat(results.size(), is(1));
+    assertThat(results.get(0).getMetacard().getAttribute("title").getValue(), is("normal"));
+  }
+
+  @Test
+  public void testRealTimeQuery() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request.getProperties().put(SolrMetacardClientImpl.DO_REALTIME_GET, true);
     List<String> names = Collections.singletonList("title");
     List<String> values = Collections.singletonList("normal");
 

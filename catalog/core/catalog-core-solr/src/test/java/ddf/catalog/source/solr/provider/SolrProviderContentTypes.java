@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.ContentTypeImpl;
-import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrCatalogProviderImpl;
 import ddf.catalog.source.solr.SolrProviderTest;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,7 +50,7 @@ public class SolrProviderContentTypes {
 
   private static final String SAMPLE_CONTENT_VERSION_4 = "vers+4";
 
-  private static SolrCatalogProvider provider;
+  private static SolrCatalogProviderImpl provider;
 
   @BeforeClass
   public static void setUp() {
