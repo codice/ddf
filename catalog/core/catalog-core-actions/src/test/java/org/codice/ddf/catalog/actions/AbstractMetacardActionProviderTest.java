@@ -207,9 +207,6 @@ public class AbstractMetacardActionProviderTest {
   public void getActionsWhenHostUnknown() throws Exception {
     MetacardActionProvider actionProvider = createMetacardActionProvider();
     when(actionProvider.canHandleMetacard(metacard)).thenReturn(true);
-    when(actionProvider.createMetacardAction(eq(ACTION_ID), eq(TITLE), eq(DESCRIPTION), any()))
-        .thenReturn(action);
-    when(actionProvider.getMetacardActionUrl(SOURCE_ID, metacard)).thenReturn(url);
     System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "0.0.0.0");
 
     Action action = actionProvider.getAction(metacard);

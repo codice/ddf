@@ -152,7 +152,6 @@ public class VideoThumbnailPluginTest {
     // then
     final List<ContentItem> processedContentItems =
         processedCreateResponse.getCreatedContentItems();
-    ContentItem processedItem = processedContentItems.get(0);
     assertThat(
         "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
     verifyThumbnailIsGif(mockContentItem, processedContentItems.get(0));

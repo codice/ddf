@@ -177,8 +177,6 @@ public class JettyAuthenticatorTest {
     final SecurityFilter securityFilter = registerSecurityFilter(dictionary);
 
     // when
-    when((servletRequest).getSession()).thenReturn(httpSession);
-    when(httpSession.getServletContext()).thenReturn(servletContext);
     jettyAuthenticator.validateRequest(servletRequest, mock(ServletResponse.class), false);
 
     // then
@@ -220,8 +218,6 @@ public class JettyAuthenticatorTest {
     final SecurityFilter securityFilter = registerSecurityFilter(dictionary);
 
     // when
-    when((servletRequest).getSession()).thenReturn(httpSession);
-    when(httpSession.getServletContext()).thenReturn(servletContext);
     jettyAuthenticator.validateRequest(servletRequest, mock(ServletResponse.class), false);
 
     // then

@@ -213,6 +213,7 @@ public class GazetteerUpdateCommandTest {
 
     gazetteerUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
     gazetteerUpdateCommand.setResource("temp");
+    gazetteerUpdateCommand.setGeoEntryExtractor(mock(GeoEntryExtractor.class));
     gazetteerUpdateCommand.executeWithSubject();
 
     assertThat(consoleInterceptor.getOutput(), containsString(errorText));

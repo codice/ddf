@@ -68,7 +68,6 @@ public class ResourceDownloadTest {
   public void testCopyToLocalSiteWhenNullResourceResponse() throws Exception {
     // Setup
     setupMockResourceCacheServiceMBean(true);
-    setupMockDownloadManager(true);
     setupMockCatalogFramework(null, null);
     ResourceDownloadMBean resourceDownloadMBean = createResourceDownloadMBean();
 
@@ -80,7 +79,6 @@ public class ResourceDownloadTest {
   public void testCopyToLocalSiteWhenCacheDisabled() throws Exception {
     // Setup
     setupMockResourceCacheServiceMBean(false);
-    setupMockDownloadManager(false);
     ResourceDownloadMBean resourceDownloadMBean = createResourceDownloadMBean();
 
     // Perform Test
@@ -91,7 +89,6 @@ public class ResourceDownloadTest {
   public void testCopyToLocalSiteWhenCatalogFrameworkThrowsIOException() throws Exception {
     // Setup
     setupMockResourceCacheServiceMBean(true);
-    setupMockDownloadManager(true);
     setupMockCatalogFramework(mockResourceResponse, IOException.class);
     ResourceDownloadMBean resourceDownloadMBean = createResourceDownloadMBean();
 
@@ -104,7 +101,6 @@ public class ResourceDownloadTest {
       throws Exception {
     // Setup
     setupMockResourceCacheServiceMBean(true);
-    setupMockDownloadManager(true);
     setupMockCatalogFramework(mockResourceResponse, ResourceNotSupportedException.class);
     ResourceDownloadMBean resourceDownloadMBean = createResourceDownloadMBean();
 
@@ -117,7 +113,6 @@ public class ResourceDownloadTest {
       throws Exception {
     // Setup
     setupMockResourceCacheServiceMBean(true);
-    setupMockDownloadManager(true);
     setupMockCatalogFramework(mockResourceResponse, ResourceNotFoundException.class);
     ResourceDownloadMBean resourceDownloadMBean = createResourceDownloadMBean();
 
@@ -129,7 +124,6 @@ public class ResourceDownloadTest {
   public void testCopyToLocalSite() throws Exception {
     // Setup
     setupMockResourceCacheServiceMBean(true);
-    setupMockDownloadManager(true);
     setupMockCatalogFramework(mockResourceResponse, null);
     ResourceDownloadMBean resourceDownloadMBean = createResourceDownloadMBean();
 
@@ -209,10 +203,6 @@ public class ResourceDownloadTest {
   private ResourceDownloadMBean createResourceDownloadMBean() throws MalformedObjectNameException {
     return new ResourceDownload(
         mockMBeanServer, mockCatalogFramework, mockResourceCacheServiceMBean);
-  }
-
-  private void setupMockDownloadManager(boolean isCacheEnabled) {
-    when(mockDownloadManager.isCacheEnabled()).thenReturn(isCacheEnabled);
   }
 
   private void setupMockCatalogFramework(

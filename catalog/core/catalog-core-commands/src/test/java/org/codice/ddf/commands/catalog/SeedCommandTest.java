@@ -348,6 +348,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
       when(resultMock.getMetacard()).thenReturn(metacardMock);
       when(metacardMock.getId()).thenReturn("MOCK METACARD " + (i + 1));
+      when(metacardMock.getSourceId()).thenReturn("Source-123");
 
       resultMockList.add(resultMock);
     }

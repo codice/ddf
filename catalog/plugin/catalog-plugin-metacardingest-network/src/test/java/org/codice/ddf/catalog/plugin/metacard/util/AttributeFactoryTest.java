@@ -121,7 +121,6 @@ public class AttributeFactoryTest {
   public void testCreateMultiValuedAttributesWithEmptyElements() throws Exception {
     when(mockDescriptor.isMultiValued()).thenReturn(true);
     when(mockDescriptor.getName()).thenReturn(LANGUAGE);
-    when(mockType.getAttributeFormat()).thenReturn(STRING);
 
     attributeFactory.createAttribute(mockDescriptor, COMMA_SEPARATED_WHITE_SPACE);
   }

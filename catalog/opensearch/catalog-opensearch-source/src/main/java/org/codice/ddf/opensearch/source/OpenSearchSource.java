@@ -1161,7 +1161,9 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
    */
   private WebClient newOpenSearchClient(String url, Subject subj) {
     SecureCxfClientFactory<OpenSearch> clientFactory = createClientFactory(url, username, password);
-    return clientFactory.getWebClientForSubject(subj);
+    return (subj != null)
+        ? clientFactory.getWebClientForSubject(subj)
+        : clientFactory.getWebClient();
   }
 
   private List<Metacard> processAdditionalForeignMarkups(Element element, String id)

@@ -77,7 +77,6 @@ public class ResourceCacheServiceTest {
   @Before
   public void before() throws Exception {
     resourceCacheServiceObjectName = new ObjectName(ResourceCacheServiceMBean.OBJECT_NAME);
-    setupMockMetacard();
   }
 
   @Test
@@ -310,9 +309,5 @@ public class ResourceCacheServiceTest {
   private void setupMockQueryResponse(int numberOfResults) {
     when(mockQueryResponse.getResults().size()).thenReturn(numberOfResults);
     when(mockQueryResponse.getResults().get(0).getMetacard()).thenReturn(mockMetacard);
-  }
-
-  private void setupMockMetacard() {
-    when(mockMetacard.getId()).thenReturn(METACARD_ID);
   }
 }

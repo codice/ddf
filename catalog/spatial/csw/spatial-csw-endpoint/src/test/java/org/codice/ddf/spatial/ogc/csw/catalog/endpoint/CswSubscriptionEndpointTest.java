@@ -440,7 +440,7 @@ public class CswSubscriptionEndpointTest {
   public void testUpdateEvent() throws Exception {
 
     cswSubscriptionEndpoint.updateEvent(getRecordsResponse(2));
-    verify(eventProcessor).notifyUpdated(any(Metacard.class), any(Metacard.class));
+    verify(eventProcessor).notifyUpdated(any(Metacard.class), isNull());
   }
 
   @Test

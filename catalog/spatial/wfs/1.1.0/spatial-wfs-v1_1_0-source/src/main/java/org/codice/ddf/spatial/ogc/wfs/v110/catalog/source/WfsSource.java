@@ -230,7 +230,7 @@ public class WfsSource extends AbstractWfsSource {
 
   private String srsName;
 
-  private boolean allowRedirects;
+  private boolean allowRedirects = Boolean.FALSE;
 
   private Character wildcardChar;
 

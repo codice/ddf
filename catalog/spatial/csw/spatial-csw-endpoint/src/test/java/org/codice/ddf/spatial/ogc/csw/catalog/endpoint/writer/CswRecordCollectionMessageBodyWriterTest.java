@@ -81,6 +81,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     collection.setOutputSchema(exampleSchema);
     collection.setById(true);
     collection.setResultType(ResultType.HITS);
+    collection.setSourceResponse(mock(SourceResponse.class));
     QName example = new QName("example");
 
     collection.setElementName(Arrays.asList(example));
@@ -117,6 +118,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     collection.setNumberOfRecordsReturned(6);
     collection.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     collection.setById(true);
+    collection.setSourceResponse(mock(SourceResponse.class));
     QName example = new QName("example");
 
     collection.setElementName(Arrays.asList(example));
@@ -155,6 +157,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     collection.setById(true);
     collection.setResultType(ResultType.RESULTS);
     collection.setMimeType(MediaType.APPLICATION_JSON);
+    collection.setSourceResponse(mock(SourceResponse.class));
     QName example = new QName("example");
 
     collection.setElementName(Arrays.asList(example));

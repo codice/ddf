@@ -105,6 +105,9 @@ public class OpenSearchSourceTest {
 
   private static final String SAMPLE_ID = "abcdef12345678900987654321fedcba";
 
+  private static final URI SAMPLE_QUERY_URL =
+      URI.create("http://localhost:8181/services/catalog/abcdef12345678900987654321fedcba");
+
   private static final String SAMPLE_SEARCH_PHRASE = "foobar";
 
   private static final List<String> DEFAULT_PARAMETERS =
@@ -403,6 +406,7 @@ public class OpenSearchSourceTest {
     doReturn(getSampleXmlStream()).when(response).getEntity();
     when(response.getHeaderString(eq("Accept-Ranges"))).thenReturn("bytes");
     when(webClient.replaceQueryParam(any(String.class), any(Object.class))).thenReturn(webClient);
+    when(webClient.getCurrentURI()).thenReturn(SAMPLE_QUERY_URL);
 
     doReturn(webClient)
         .when(factory)
@@ -465,7 +469,7 @@ public class OpenSearchSourceTest {
     Filter filter = FILTER_BUILDER.attribute(ID_ATTRIBUTE_NAME).equalTo().text(SAMPLE_ID);
 
     // when
-    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    SourceResponse response = source.query(getQueryRequest(filter));
 
     // then
     assertThat(response.getHits(), is(1L));
@@ -478,13 +482,8 @@ public class OpenSearchSourceTest {
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter));
-    Map<String, Serializable> properties = new HashMap<>();
-    properties.put(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));
-    queryRequest.setProperties(properties);
-
     // when
-    SourceResponse response = source.query(queryRequest);
+    SourceResponse response = source.query(getQueryRequest(filter));
 
     // then
     assertThat(response.getHits(), is(1L));
@@ -503,13 +502,8 @@ public class OpenSearchSourceTest {
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter));
-    Map<String, Serializable> properties = new HashMap<>();
-    properties.put(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));
-    queryRequest.setProperties(properties);
-
     // when
-    SourceResponse response = source.query(queryRequest);
+    SourceResponse response = source.query(getQueryRequest(filter));
 
     // then
     assertThat(response.getHits(), is(1L));
@@ -541,7 +535,7 @@ public class OpenSearchSourceTest {
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
-    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    SourceResponse response = source.query(getQueryRequest(filter));
 
     assertThat(response.getHits(), is(1L));
     List<Result> results = response.getResults();
@@ -573,7 +567,7 @@ public class OpenSearchSourceTest {
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
-    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    SourceResponse response = source.query(getQueryRequest(filter));
 
     assertThat(response.getHits(), is(1L));
     List<Result> results = response.getResults();
@@ -591,7 +585,7 @@ public class OpenSearchSourceTest {
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    SourceResponse response = source.query(getQueryRequest(filter));
     assertThat(response.getHits(), is(1L));
   }
 
@@ -604,7 +598,7 @@ public class OpenSearchSourceTest {
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    source.query(getQueryRequest(filter));
   }
 
   @Test(expected = UnsupportedQueryException.class)
@@ -614,7 +608,7 @@ public class OpenSearchSourceTest {
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    source.query(getQueryRequest(filter));
   }
 
   @Test
@@ -625,7 +619,7 @@ public class OpenSearchSourceTest {
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    SourceResponse response = source.query(getQueryRequest(filter));
     assertThat(response.getHits(), is(1L));
     List<Result> results = response.getResults();
     assertThat(results, hasSize(1));
@@ -712,8 +706,8 @@ public class OpenSearchSourceTest {
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     // Perform Test (Query by ID followed by Any Text Query)
-    SourceResponse response1 = source.query(new QueryRequestImpl(new QueryImpl(idFilter)));
-    SourceResponse response2 = source.query(new QueryRequestImpl(new QueryImpl(anyTextFilter)));
+    SourceResponse response1 = source.query(getQueryRequest(idFilter));
+    SourceResponse response2 = source.query(getQueryRequest(anyTextFilter));
 
     // Verification - Verify that we don't see any exceptions when
     // processing the input stream from the endpoint.
@@ -736,8 +730,8 @@ public class OpenSearchSourceTest {
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     // Perform Test (Query by ID followed by Any Text Query)
-    SourceResponse response1 = source.query(new QueryRequestImpl(new QueryImpl(idFilter)));
-    SourceResponse response2 = source.query(new QueryRequestImpl(new QueryImpl(anyTextFilter)));
+    SourceResponse response1 = source.query(getQueryRequest(idFilter));
+    SourceResponse response2 = source.query(getQueryRequest(anyTextFilter));
 
     // Verification - Verify that we don't see any exceptions when
     // processing the input stream from the endpoint.
@@ -815,7 +809,7 @@ public class OpenSearchSourceTest {
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    source.query(getQueryRequest(filter));
 
     assertThat(foreignMarkupConsumer.getTotalResults(), is(1L));
   }
@@ -850,7 +844,7 @@ public class OpenSearchSourceTest {
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    source.query(getQueryRequest(filter));
 
     ArgumentCaptor<List> elementListCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -882,7 +876,7 @@ public class OpenSearchSourceTest {
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    SourceResponse response = source.query(getQueryRequest(filter));
     assertSourceId(response);
   }
 
@@ -920,6 +914,14 @@ public class OpenSearchSourceTest {
     Long getTotalResults() {
       return totalResults;
     }
+  }
+
+  private QueryRequestImpl getQueryRequest(Filter filter) {
+    QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter));
+    Map<String, Serializable> properties = new HashMap<>();
+    properties.put(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));
+    queryRequest.setProperties(properties);
+    return queryRequest;
   }
 
   private class OverriddenOpenSearchSource extends OpenSearchSource {

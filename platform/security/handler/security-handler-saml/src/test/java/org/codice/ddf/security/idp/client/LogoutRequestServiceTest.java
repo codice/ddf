@@ -149,7 +149,7 @@ public class LogoutRequestServiceTest {
     when(sessionFactory.getOrCreateSession(request)).thenReturn(session);
     when(session.getAttribute(eq(SecurityConstants.SECURITY_TOKEN_KEY)))
         .thenReturn(principalHolder);
-    when(request.getRequestURL()).thenReturn(new StringBuffer("www.url.com/url"));
+    when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.url.com/url"));
     when(idpMetadata.getSigningCertificate()).thenReturn("signingCertificate");
     when(idpMetadata.getSingleLogoutBinding()).thenReturn(SamlProtocol.REDIRECT_BINDING);
     when(idpMetadata.getSingleLogoutLocation()).thenReturn(redirectLogoutUrl);
@@ -171,8 +171,13 @@ public class LogoutRequestServiceTest {
   public void testSendLogoutRequestGetRedirectRequest() throws Exception {
     String encryptedNameIdWithTime = nameId + "\n" + time;
     when(encryptionService.decrypt(any(String.class))).thenReturn(nameId + "\n" + time);
+    LogoutRequest logoutRequest = new LogoutRequestBuilder().buildObject();
+    LogoutWrapper<LogoutRequest> requestLogoutWrapper = new LogoutWrapperImpl<>(logoutRequest);
+    when(logoutMessage.buildLogoutRequest(eq(nameId), anyString(), anyList()))
+        .thenReturn(requestLogoutWrapper);
     when(logoutMessage.signSamlGetRequest(any(LogoutWrapper.class), any(URI.class), anyString()))
         .thenReturn(new URI(logoutUrl));
+    when(relayStates.encode(nameId)).thenReturn("token");
     Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
     assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     assertTrue(
@@ -350,7 +355,6 @@ public class LogoutRequestServiceTest {
     LogoutWrapper<LogoutResponse> responseLogoutWrapper = new LogoutWrapperImpl<>(logoutResponse);
     when(logoutMessage.extractSamlLogoutResponse(any(String.class)))
         .thenReturn(responseLogoutWrapper);
-    when(request.getRequestURL()).thenReturn(new StringBuffer("www.url.com/url"));
     when(logoutResponse.getIssuer()).thenReturn(issuer);
     when(logoutResponse.getIssueInstant()).thenReturn(new DateTime());
     when(logoutResponse.getVersion()).thenReturn(SAMLVersion.VERSION_20);
@@ -391,6 +395,10 @@ public class LogoutRequestServiceTest {
     doReturn(true).when(simpleSign).validateSignature(anyString(), anyString(), anyString(), any());
     initializeLogutRequestService();
     insertLogoutRequest();
+    LogoutResponse logoutResponse = mock(LogoutResponse.class);
+    LogoutWrapper<LogoutResponse> responseLogoutWrapper = new LogoutWrapperImpl<>(logoutResponse);
+    when(logoutMessage.buildLogoutResponse(anyString(), anyString(), anyString()))
+        .thenReturn(responseLogoutWrapper);
     when(logoutMessage.signSamlGetResponse(any(LogoutWrapper.class), any(URI.class), anyString()))
         .thenReturn(new URI(redirectLogoutUrl));
     Response response =
@@ -522,6 +530,10 @@ public class LogoutRequestServiceTest {
     doReturn(logoutRequestWrapper)
         .when(logoutMessage)
         .extractSamlLogoutRequest(eq(UNENCODED_SAML_REQUEST));
+    LogoutResponse logoutResponse = mock(LogoutResponse.class);
+    LogoutWrapper<LogoutResponse> responseLogoutWrapper = new LogoutWrapperImpl<>(logoutResponse);
+    when(logoutMessage.buildLogoutResponse(anyString(), anyString(), anyString()))
+        .thenReturn(responseLogoutWrapper);
     when(logoutMessage.signSamlGetResponse(any(LogoutWrapper.class), any(URI.class), anyString()))
         .thenReturn(new URI(redirectLogoutUrl));
     Response response =

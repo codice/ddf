@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -61,7 +62,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.TimeZone;
 import org.junit.Before;
@@ -178,8 +178,7 @@ public class TikaInputTransformerTest {
     TikaInputTransformer tikaInputTransformer =
         new TikaInputTransformer(mockBundleContext, getMetacardType(COMMON_METACARDTYPE_NAME));
     verify(mockBundleContext)
-        .registerService(
-            eq(InputTransformer.class), eq(tikaInputTransformer), any(Hashtable.class));
+        .registerService(eq(InputTransformer.class), eq(tikaInputTransformer), notNull());
   }
 
   @Test

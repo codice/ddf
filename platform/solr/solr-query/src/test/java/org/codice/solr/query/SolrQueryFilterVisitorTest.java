@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -43,14 +43,14 @@ public class SolrQueryFilterVisitorTest {
 
   @Mock private org.apache.solr.client.solrj.SolrClient solrjClient;
 
-  @Mock private NamedList namedList;
+  @Mock private NamedList<Object> namedList;
 
   private SolrQueryFilterVisitor solrVisitor;
 
   @Before
   public void setup() throws Exception {
     when(solrClient.getClient()).thenReturn(solrjClient);
-    when(solrjClient.request(any(), anyString())).thenReturn(namedList);
+    when(solrjClient.request(any(), isNull())).thenReturn(namedList);
     solrVisitor = new SolrQueryFilterVisitor(solrClient, "alerts");
   }
 

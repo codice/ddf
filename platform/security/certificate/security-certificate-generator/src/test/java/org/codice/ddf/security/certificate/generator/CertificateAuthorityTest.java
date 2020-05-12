@@ -76,9 +76,7 @@ public class CertificateAuthorityTest {
     when(mockBuilder.build(any(ContentSigner.class))).thenReturn(mockHolder);
     when(mockConverter.getCertificate(any(X509CertificateHolder.class))).thenReturn(mockSignedCert);
     when(csr.getSubjectPrivateKey()).thenReturn(mockPrivateKey);
-    when(csr.getSubjectPublicKey()).thenReturn(mockPublicKey);
     when(mockPrivateKey.getAlgorithm()).thenReturn("RSA");
-    when(mockPublicKey.getAlgorithm()).thenReturn("RSA");
 
     KeyStore.PrivateKeyEntry newObject = demoCa.sign(csr);
     assertThat(

@@ -213,7 +213,8 @@ public class AdminPollerTest {
   private MultiActionProvider getHandleableTestActionProvider(Action action) {
     MultiActionProvider actionProvider = mock(MultiActionProvider.class);
     when(actionProvider.canHandle(any(Configuration.class))).thenReturn(true);
-    when(actionProvider.getActions(any(Class.class))).thenReturn(CollectionUtils.asList(action));
+    when(actionProvider.getActions(any(Configuration.class)))
+        .thenReturn(CollectionUtils.asList(action));
 
     return actionProvider;
   }

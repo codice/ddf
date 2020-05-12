@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -38,7 +37,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.RequestStatusState;
-import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -256,8 +254,7 @@ public class RestoreCommandTest extends SolrCommandTest {
   @Test
   public void testSolrCloudRestoreFailsWithErrorMessages() throws Exception {
     setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
-    SolrClient mockSolrClient =
-        getMockSolrClientForRestoreFailure(DEFAULT_CORE_NAME, getErrorMessages(2));
+    SolrClient mockSolrClient = getMockSolrClientForRestoreFailure(getErrorMessages(2));
     RestoreCommand restoreCommand =
         getSynchronousRestoreCommand(getBackupLocation(), DEFAULT_CORE_NAME, mockSolrClient);
     restoreCommand.execute();
@@ -330,29 +327,16 @@ public class RestoreCommandTest extends SolrCommandTest {
     return errorMessages;
   }
 
-  private SolrClient getMockSolrClientForRestoreFailure(
-      String collection, NamedList<String> restoreErrorMessages) throws Exception {
-    return getMockSolrClientForRestore(
-        collection, SUCCESS_STATUS_CODE, FAILURE_STATUS_CODE, restoreErrorMessages);
-  }
-
   /**
    * See
    * https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-BACKUP:BackupCollection
    * for requests and responses.
    */
-  private SolrClient getMockSolrClientForRestore(
-      String collection,
-      int optimizationStatusCode,
-      int restoreStatusCode,
-      NamedList<String> restoreErrorMessages)
-      throws Exception {
+  private SolrClient getMockSolrClientForRestoreFailure(NamedList<String> restoreErrorMessages) {
 
     SolrClient mockSolrClient = mock(SolrClient.class);
-    UpdateResponse optimizationResponse = getMockOptimizationResponse(optimizationStatusCode);
-    when(mockSolrClient.optimize(eq(collection))).thenReturn(optimizationResponse);
 
-    NamedList<Object> responseHeader = getResponseHeader(restoreStatusCode);
+    NamedList<Object> responseHeader = getResponseHeader(FAILURE_STATUS_CODE);
 
     NamedList<Object> mockResponse = new NamedList<>();
     mockResponse.add("responseHeader", responseHeader);
@@ -362,9 +346,6 @@ public class RestoreCommandTest extends SolrCommandTest {
       mockResponse.add("success", new Object());
     }
 
-    if (collection != null) {
-      when(mockSolrClient.request(any(SolrRequest.class), eq(collection))).thenReturn(mockResponse);
-    }
     return mockSolrClient;
   }
 
@@ -382,12 +363,6 @@ public class RestoreCommandTest extends SolrCommandTest {
     when(mockSolrClient.request(any(SolrRequest.class), isNull()))
         .thenThrow(SolrServerException.class);
     return mockSolrClient;
-  }
-
-  private UpdateResponse getMockOptimizationResponse(int status) {
-    UpdateResponse mockOptimizationResponse = mock(UpdateResponse.class);
-    when(mockOptimizationResponse.getStatus()).thenReturn(status);
-    return mockOptimizationResponse;
   }
 
   private RestoreCommand getSynchronousRestoreCommand(

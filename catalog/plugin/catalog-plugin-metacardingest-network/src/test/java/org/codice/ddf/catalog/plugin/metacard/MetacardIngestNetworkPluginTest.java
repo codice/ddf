@@ -183,7 +183,6 @@ public class MetacardIngestNetworkPluginTest {
   @Test
   public void testPassthroughMethods() throws Exception {
     ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
-    when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(true);
 
     UpdateRequest updateRequest = mock(UpdateRequest.class);
     DeleteRequest deleteRequest = mock(DeleteRequest.class);

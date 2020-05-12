@@ -129,7 +129,7 @@ public class SendEventTest {
     AccessPlugin accessPlugin = mock(AccessPlugin.class);
     accessPlugins.add(accessPlugin);
     when(mockCxfClientFactory.getWebClient()).thenReturn(webclient);
-    when(webclient.invoke(anyString(), any(QueryResponse.class))).thenReturn(response);
+    when(webclient.invoke(anyString(), isNull())).thenReturn(response);
     when(response.getHeaders()).thenReturn(headers);
     when(accessPlugin.processPostQuery(any(QueryResponse.class)))
         .thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
