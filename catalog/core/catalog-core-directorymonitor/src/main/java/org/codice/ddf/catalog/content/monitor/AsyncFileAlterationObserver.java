@@ -17,7 +17,11 @@ import static ddf.catalog.Constants.CDM_LOGGER_NAME;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -69,8 +73,10 @@ public class AsyncFileAlterationObserver {
     this.serializer = serializer;
     rootFile = new AsyncFileEntry(fileToObserve);
 
-    Timer timer = new Timer();
-    timer.scheduleAtFixedRate(new Processing(), 500, 5000);
+    if (LOGGER.isTraceEnabled()) {
+      Timer timer = new Timer();
+      timer.scheduleAtFixedRate(new LogProcessing(), 500, 5000);
+    }
   }
 
   private AsyncFileAlterationObserver(AsyncFileEntry entry, ObjectPersistentStore serializer) {
@@ -296,8 +302,8 @@ public class AsyncFileAlterationObserver {
    * @param success Boolean that shows if the task failed or completed successfully
    */
   private void commitDelete(AsyncFileEntry entry, boolean success) {
+    LOGGER.debug("commitDelete({},{}): Starting...", entry.getName(), success);
     if (success) {
-      LOGGER.debug("commitDelete({},{}): Starting...", entry.getName(), success);
       entry.getParent().ifPresent(e -> e.removeChild(entry));
       entry.destroy();
       LOGGER.debug(
@@ -396,11 +402,11 @@ public class AsyncFileAlterationObserver {
     }
   }
 
-  private class Processing extends TimerTask {
+  private class LogProcessing extends TimerTask {
 
     /** Log files still in processing at scheduled intervals */
     public void run() {
-      if (LOGGER.isTraceEnabled() && !processing.isEmpty()) {
+      if (!processing.isEmpty()) {
         String files =
             processing
                 .stream()
