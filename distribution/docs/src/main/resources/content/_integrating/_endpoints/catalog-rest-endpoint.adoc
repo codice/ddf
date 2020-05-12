@@ -240,7 +240,7 @@ Optionally, specify the transformer to use when parsing an override of a metadat
 .Update Request URL
 [source,http]
 ----
-https://<FQDN>:<PORT>/<metacardId>?transform=<input transformer>
+https://<FQDN>:<PORT>/services/catalog/<metacardId>?transform=<input transformer>
 ----
 
 .Update Error Response Examples
