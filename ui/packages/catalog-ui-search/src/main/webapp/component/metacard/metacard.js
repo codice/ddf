@@ -71,7 +71,9 @@ module.exports = new (Backbone.AssociatedModel.extend({
     this.handleRoute()
   },
   handleRoute() {
-    if (router.toJSON().name === 'openMetacard') {
+    const name = router.toJSON().name
+    if (name === 'openMetacard' || name === 'openDetails') {
+      const federation = name === 'openDetails' ? 'local' : 'enterprise'
       const metacardId = router.toJSON().args[0]
       const queryForMetacard = new Query.Model({
         cql: cql.write({
@@ -89,7 +91,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
             },
           ],
         }),
-        federation: 'enterprise',
+        federation: federation,
       })
       if (this.get('currentQuery')) {
         this.get('currentQuery').cancelCurrentSearches()

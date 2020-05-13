@@ -19,6 +19,7 @@ export const openAlert = require('!./routes-loader!./base/openAlert.js')
 export const openForms = require('!./routes-loader!./base/openForms.js')
 export const openIngest = require('!./routes-loader!./base/openIngest.js')
 export const openMetacard = require('!./routes-loader!./base/openMetacard.js')
+export const openDetails = require('!./routes-loader!./base/openDetails.js')
 export const openResultForm = require('!./routes-loader!./base/openResultForm.js')
 export const openSources = require('!./routes-loader!./base/openSources.js')
 export const openUpload = require('!./routes-loader!./base/openUpload.js')
@@ -32,6 +33,7 @@ const base = {
   ...openForms,
   ...openIngest,
   ...openMetacard,
+  ...openDetails,
   ...openResultForm,
   ...openSources,
   ...openUpload,
