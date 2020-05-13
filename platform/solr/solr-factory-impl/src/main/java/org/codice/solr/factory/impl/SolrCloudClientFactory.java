@@ -27,6 +27,7 @@ import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.FailsafeException;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -65,23 +66,24 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       NumberUtils.toInt(System.getProperty("solr.cloud.maxShardPerNode"), 2);
 
   @Override
-  public org.codice.solr.client.solrj.SolrClient newClient(String core) {
-    String zookeeperHosts = System.getProperty("solr.cloud.zookeeper");
+  public org.codice.solr.client.solrj.SolrClient newClient(String collection) {
+    Validate.notNull(collection, "invalid null Solr core name");
 
-    if (StringUtils.isBlank(zookeeperHosts)) {
-      LOGGER.warn(
-          "Cannot create SolrCloud client without Zookeeper host list system property [solr.cloud.zookeeper] being set.");
-      throw new IllegalStateException("system property 'solr.cloud.zookeeper' is not configured");
-    }
+    String zookeeperHosts = System.getProperty("solr.cloud.zookeeper");
+    checkConfig(zookeeperHosts);
+
     LOGGER.debug(
-        "Solr({}): Creating a SolrCloud client using Zookeeper hosts [{}]", core, zookeeperHosts);
+        "Solr({}): Creating a Solr Cloud client with configuration using Zookeeper hosts [{}]",
+        collection,
+        zookeeperHosts);
+
     return new SolrClientAdapter(
-        core,
+        collection,
         () ->
             AccessController.doPrivileged(
                 (PrivilegedAction<SolrClient>)
                     () -> {
-                      return createSolrCloudClient(zookeeperHosts, core);
+                      return createSolrCloudClient(zookeeperHosts, collection);
                     }));
   }
 
@@ -91,20 +93,24 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       CloudSolrClient client = closer.with(newCloudSolrClient(zookeeperHosts));
       client.connect();
 
-      try {
-        uploadCoreConfiguration(collection, client);
-      } catch (SolrFactoryException e) {
-        LOGGER.debug("Solr({}): Unable to upload configuration to SolrCloud", collection, e);
-        return null;
-      }
+      if (!isAliasCollection(collection, client)) {
+        try {
+          uploadCoreConfiguration(collection, client);
+        } catch (SolrFactoryException e) {
+          LOGGER.debug("Unable to create collection: {} ", collection, e);
+          return null;
+        }
 
-      try {
-        createCollection(collection, client);
-      } catch (SolrFactoryException e) {
-        LOGGER.debug("Solr({}): Unable to create collection on SolrCloud", collection, e);
-        return null;
-      }
+        try {
+          if (createCollection(collection, client)) {
+            waitForCollection(collection, client);
+          }
 
+        } catch (SolrFactoryException e) {
+          LOGGER.debug("Solr({}): Unable to create collection on SolrCloud", collection, e);
+          return null;
+        }
+      }
       client.setDefaultCollection(collection);
       return closer.returning(client);
     } catch (LinkageError | Exception e) {
@@ -123,16 +129,25 @@ public class SolrCloudClientFactory implements SolrClientFactory {
 
   @VisibleForTesting
   RetryPolicy withRetry() {
-    return new RetryPolicy().withMaxRetries(30).withDelay(1, TimeUnit.SECONDS);
+    return new RetryPolicy().withMaxRetries(120).withDelay(1, TimeUnit.SECONDS);
   }
 
-  public void createCollection(String collection, CloudSolrClient client)
+  private void waitForCollection(final String collection, final CloudSolrClient client) {
+    RetryPolicy retryPolicy =
+        new RetryPolicy()
+            .withDelay(100, TimeUnit.MILLISECONDS)
+            .withMaxDuration(3, TimeUnit.MINUTES)
+            .retryWhen(false);
+    Failsafe.with(retryPolicy).run(() -> collectionExists(collection, client));
+  }
+
+  public boolean createCollection(String collection, CloudSolrClient client)
       throws SolrFactoryException {
     try {
-      if (aliasExists(collection, client)) {
+      if (isAliasCollection(collection, client)) {
         LOGGER.debug(
             "Solr({}): Collection exists as an Alias, will not create collection", collection);
-        return;
+        return false;
       }
 
       if (!collectionExists(collection, client)) {
@@ -151,13 +166,16 @@ public class SolrCloudClientFactory implements SolrClientFactory {
         }
       } else {
         LOGGER.debug("Solr({}): Collection already exists", collection);
+        return false;
       }
     } catch (SolrServerException | SolrException | IOException e) {
       throw new SolrFactoryException("Failed to create collection: " + collection, e);
     }
+
+    return true;
   }
 
-  private boolean aliasExists(String collection, CloudSolrClient client)
+  private boolean isAliasCollection(String collection, CloudSolrClient client)
       throws IOException, SolrServerException {
     CollectionAdminResponse aliasResponse =
         new CollectionAdminRequest.ListAliases().process(client);
@@ -172,7 +190,8 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     return false;
   }
 
-  private boolean collectionExists(String collection, CloudSolrClient client)
+  @VisibleForTesting
+  boolean collectionExists(String collection, CloudSolrClient client)
       throws SolrFactoryException, IOException, SolrServerException {
     CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
 
@@ -193,7 +212,8 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     "deprecation" /* Pre-existing use of ConfigurationFileProxy until redesigned */,
     "squid:CallToDeprecatedMethod" /* Pre-existing use of ConfigurationFileProxy until redesigned */
   })
-  private void uploadCoreConfiguration(String collection, CloudSolrClient client)
+  @VisibleForTesting
+  void uploadCoreConfiguration(String collection, CloudSolrClient client)
       throws SolrFactoryException {
     boolean configExistsInZk;
 
@@ -280,6 +300,18 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     } catch (FailsafeException e) {
       LOGGER.debug("Solr({}): Retry failure waiting for collection shards to start", collection, e);
       return false;
+    }
+  }
+
+  protected void checkConfig(String zookeeperHosts) {
+    if (StringUtils.isBlank(zookeeperHosts)) {
+      zookeeperHosts = System.getProperty("solr.cloud.zookeeper");
+    }
+
+    if (StringUtils.isBlank(zookeeperHosts)) {
+      LOGGER.warn(
+          "Cannot create Solr Cloud client without Zookeeper host list system property [solr.cloud.zookeeper] being set.");
+      throw new IllegalStateException("system property 'solr.cloud.zookeeper' is not configured");
     }
   }
 }

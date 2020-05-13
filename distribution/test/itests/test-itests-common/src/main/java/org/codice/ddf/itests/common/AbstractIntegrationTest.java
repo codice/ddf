@@ -16,7 +16,6 @@ package org.codice.ddf.itests.common;
 import static com.jayway.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
-import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
 import static org.hamcrest.Matchers.hasXPath;
@@ -140,8 +139,6 @@ public abstract class AbstractIntegrationTest {
   public static final String RESOURCE_VARIABLE_DELIMETER = "$";
 
   public static final String REMOVE_ALL = "catalog:removeall -f -p";
-
-  public static final long REMOVE_ALL_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
 
   private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
 
@@ -328,9 +325,6 @@ public abstract class AbstractIntegrationTest {
 
   public static final DynamicUrl SERVICE_ROOT =
       new DynamicUrl(SECURE_ROOT, HTTPS_PORT, "/services");
-
-  public static final DynamicUrl INSECURE_SERVICE_ROOT =
-      new DynamicUrl(INSECURE_ROOT, HTTP_PORT, "/services");
 
   public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
 

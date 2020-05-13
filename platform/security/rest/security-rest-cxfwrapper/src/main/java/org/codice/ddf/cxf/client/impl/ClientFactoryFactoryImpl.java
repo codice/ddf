@@ -117,7 +117,7 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
         clientSecret,
         oauthFlow,
         oauthSecurity,
-        restSecurity);
+        samlSecurity);
   }
 
   @Override
