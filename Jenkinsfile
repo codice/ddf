@@ -66,10 +66,10 @@ pipeline {
             }
             steps {
                 // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
-                // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
+                // -Dmaven.test.skip=${skipITs} is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                     sh 'mvn install -B -DskipStatic=true -DskipTests=true $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                    sh 'mvn clean install -B -DskipITs -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                    sh 'mvn clean install -B -Dmaven.test.skip=${skipITs} -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                 }
             }
         }
@@ -84,9 +84,9 @@ pipeline {
             }
             steps {
                 // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
-                // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
+                // -Dmaven.test.skip=${skipITs} is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
-                    sh 'mvn clean install -B -DskipITs -pl !$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                    sh 'mvn clean install -B -Dmaven.test.skip=${skipITs} -pl !$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                 }
             }
         }
@@ -168,10 +168,10 @@ pipeline {
             steps {
                 //catchError trap added here to prevent job failure when SonarCloud analysis upload fails
                 catchError(buildResult: null, stageResult: 'FAILURE', message: 'SonarCloud Analysis upload failed') {
-                    // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
+                    // -Dmaven.test.skip=${skipITs} is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                     withMaven(maven: 'maven-latest', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                         script {
-                            sh 'mvn -q -B -DskipITs -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN  -Dsonar.organization=codice -Dsonar.projectKey=ddf -Dsonar.exclusions=${COVERAGE_EXCLUSIONS} -pl !$DOCS,!$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                            sh 'mvn -q -B -Dmaven.test.skip=${skipITs} -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN  -Dsonar.organization=codice -Dsonar.projectKey=ddf -Dsonar.exclusions=${COVERAGE_EXCLUSIONS} -pl !$DOCS,!$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                         }
                     }
                 }
