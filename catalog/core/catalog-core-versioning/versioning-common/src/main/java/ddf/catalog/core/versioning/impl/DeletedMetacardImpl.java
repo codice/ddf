@@ -27,6 +27,7 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +57,9 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
     DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             DELETED_METACARD_TAGS, true, true, false, true, BasicTypes.STRING_TYPE));
+    DESCRIPTORS.add(
+        new AttributeDescriptorImpl(
+            METACARD_DELETED_DATE, true, true, false, false, BasicTypes.DATE_TYPE));
     METACARD_TYPE = new MetacardTypeImpl(PREFIX, DESCRIPTORS);
   }
 
@@ -77,6 +81,7 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
     this.setLastVersionId(lastVersionId);
     this.setTags(ImmutableSet.of(DELETED_TAG));
     this.setId(id);
+    this.setDeletedDate(new Date());
   }
 
   public static boolean isNotDeleted(@Nullable Metacard metacard) {
@@ -140,5 +145,9 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
       return Collections.emptySet();
     }
     return deletedTags.getValues().stream().map(String::valueOf).collect(Collectors.toSet());
+  }
+
+  public void setDeletedDate(Date date) {
+    setAttribute(METACARD_DELETED_DATE, date);
   }
 }
