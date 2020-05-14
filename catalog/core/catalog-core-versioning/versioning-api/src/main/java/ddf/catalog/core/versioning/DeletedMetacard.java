@@ -34,4 +34,6 @@ public interface DeletedMetacard extends Metacard {
   String LAST_VERSION_ID = PREFIXER.apply("version");
 
   String DELETED_METACARD_TAGS = PREFIXER.apply("tags");
+
+  String METACARD_DELETED_DATE = PREFIXER.apply("date");
 }
