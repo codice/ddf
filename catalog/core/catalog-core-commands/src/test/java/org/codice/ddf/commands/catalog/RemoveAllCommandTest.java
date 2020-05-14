@@ -151,7 +151,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
   public void testExecuteWithSubjectWithoutForceOption() throws Exception {
     // given
     final Session mockSession = mock(Session.class);
-    when(mockSession.readLine(anyString(), isNull(Character.class))).thenReturn("yes");
+    when(mockSession.readLine(anyString(), isNull())).thenReturn("yes");
 
     batchSize = 11;
     numCatalogCalls = 1;
@@ -202,8 +202,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
   public void testInvalidWarningPromptInput() throws Exception {
     // given
     final Session mockSession = mock(Session.class);
-    when(mockSession.readLine(anyString(), isNull(Character.class)))
-        .thenReturn("something that isn't yes nor no");
+    when(mockSession.readLine(anyString(), isNull())).thenReturn("something that isn't yes nor no");
 
     batchSize = 11;
     numCatalogCalls = 1;
@@ -227,7 +226,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
   public void testWarningPromptInputOfNo() throws Exception {
     // given
     final Session mockSession = mock(Session.class);
-    when(mockSession.readLine(anyString(), isNull(Character.class))).thenReturn("no");
+    when(mockSession.readLine(anyString(), isNull())).thenReturn("no");
 
     batchSize = 11;
     numCatalogCalls = 1;
@@ -251,7 +250,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
   public void testWarningPromptException() throws Exception {
     // given
     final Session mockSession = mock(Session.class);
-    when(mockSession.readLine(anyString(), isNull(Character.class))).thenThrow(IOException.class);
+    when(mockSession.readLine(anyString(), isNull())).thenThrow(IOException.class);
 
     batchSize = 11;
     numCatalogCalls = 1;

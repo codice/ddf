@@ -15,7 +15,7 @@ package ddf.catalog.core.resourcestatus.metacard;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -220,9 +220,9 @@ public class MetacardResourceStatusTest {
     when(cachedResource.getSize()).thenReturn(999L);
     when(cachedResource.hasProduct()).thenReturn(true);
     if (isResourceCached) {
-      when(cache.getValid(anyString(), anyObject())).thenReturn(cachedResource);
+      when(cache.getValid(anyString(), any())).thenReturn(cachedResource);
     } else {
-      when(cache.getValid(anyString(), anyObject())).thenReturn(null);
+      when(cache.getValid(anyString(), any())).thenReturn(null);
     }
   }
 

@@ -17,7 +17,6 @@ import static ddf.security.SecurityConstants.AUTHENTICATION_TOKEN_KEY;
 import static ddf.security.SecurityConstants.SECURITY_TOKEN_KEY;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyBoolean;
@@ -168,8 +167,7 @@ public class WebSSOFilterTest {
     filter.doFilter(requestMock, responseMock, filterChain);
 
     verify(sessionMock, times(0)).getAttribute(SECURITY_TOKEN_KEY);
-    verify(handlerMock, times(1))
-        .getNormalizedToken(anyObject(), anyObject(), anyObject(), anyBoolean());
+    verify(handlerMock, times(1)).getNormalizedToken(any(), any(), any(), anyBoolean());
     verify(requestMock, times(1)).setAttribute(eq(AUTHENTICATION_TOKEN_KEY), any());
   }
 
@@ -217,8 +215,7 @@ public class WebSSOFilterTest {
     filter.doFilter(requestMock, responseMock, filterChain);
 
     verify(sessionMock, times(1)).getAttribute(SECURITY_TOKEN_KEY);
-    verify(handlerMock, times(0))
-        .getNormalizedToken(anyObject(), anyObject(), anyObject(), anyBoolean());
+    verify(handlerMock, times(0)).getNormalizedToken(any(), any(), any(), anyBoolean());
     verify(requestMock, times(1)).setAttribute(eq(AUTHENTICATION_TOKEN_KEY), any());
   }
 

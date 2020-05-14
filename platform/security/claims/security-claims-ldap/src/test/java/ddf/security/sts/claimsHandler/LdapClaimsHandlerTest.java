@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -102,8 +101,7 @@ public class LdapClaimsHandlerTest {
     mockConnection = mock(Connection.class);
     when(mockConnection.bind(anyString(), any(char[].class))).thenReturn(mockBindResult);
     when(mockConnection.bind(any(BindRequest.class))).thenReturn(mockBindResult);
-    when(mockConnection.search(anyObject(), anyObject(), anyObject(), anyObject()))
-        .thenReturn(mockEntryReader);
+    when(mockConnection.search(any(), any(), any(), any())).thenReturn(mockEntryReader);
     // two item list (reference and entry)
     when(mockEntryReader.hasNext()).thenReturn(true, true, false);
     // first time indicate a reference followed by entries

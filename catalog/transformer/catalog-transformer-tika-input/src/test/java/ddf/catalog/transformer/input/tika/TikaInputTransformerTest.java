@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -189,7 +188,7 @@ public class TikaInputTransformerTest {
         Thread.currentThread().getContextClassLoader().getResourceAsStream("testPDF.pdf");
     tikaInputTransformer.addContentMetadataExtractor(serviceRefCme);
     Metacard metacard = tikaInputTransformer.transform(stream);
-    verify(cme).process(anyString(), anyObject());
+    verify(cme).process(anyString(), any());
     verify(cme).getMetacardAttributes();
     assertThat(metacard.getMetacardType().getName(), is(PDF_METACARDTYPE_NAME));
     List<String> actualNames =
@@ -226,8 +225,8 @@ public class TikaInputTransformerTest {
     tikaInputTransformer.removeContentMetadataExtractor(serviceRefCme);
     tikaInputTransformer.removeMetadataExtractor(serviceRefMe);
     tikaInputTransformer.transform(stream);
-    verify(cme, never()).process(anyString(), anyObject());
-    verify(me, never()).process(anyString(), anyObject());
+    verify(cme, never()).process(anyString(), any());
+    verify(me, never()).process(anyString(), any());
     verify(cme, never()).getMetacardAttributes();
   }
 

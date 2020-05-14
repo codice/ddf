@@ -14,7 +14,7 @@
 package ddf.catalog.cache.solr.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyCollectionOf;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -89,7 +89,7 @@ public class CacheBulkProcessorTest {
   public void nullResult() throws Exception {
     cacheBulkProcessor.add(Collections.singletonList((Result) null));
 
-    verify(mockSolrCache, never()).put(anyCollectionOf(Metacard.class));
+    verify(mockSolrCache, never()).put(anyCollection());
   }
 
   @Test
@@ -99,7 +99,7 @@ public class CacheBulkProcessorTest {
 
     cacheBulkProcessor.add(Collections.singletonList(mockResult));
 
-    verify(mockSolrCache, never()).put(anyCollectionOf(Metacard.class));
+    verify(mockSolrCache, never()).put(anyCollection());
   }
 
   @Test
@@ -107,15 +107,12 @@ public class CacheBulkProcessorTest {
     cacheBulkProcessor.setMaximumBacklogSize(0);
     cacheBulkProcessor.add(getMockResults(10));
 
-    verify(mockSolrCache, never()).put(anyCollectionOf(Metacard.class));
+    verify(mockSolrCache, never()).put(anyCollection());
   }
 
   @Test
   public void cacheThrowsExcpetion() throws Exception {
-    doThrow(new RuntimeException())
-        .doNothing()
-        .when(mockSolrCache)
-        .put(anyCollectionOf(Metacard.class));
+    doThrow(new RuntimeException()).doNothing().when(mockSolrCache).put(anyCollection());
     List<Result> mockResults = getMockResults(10);
 
     cacheBulkProcessor.add(mockResults);

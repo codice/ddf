@@ -246,8 +246,7 @@ public class CswSubscriptionEndpointTest {
     when(mockContext.getService(eq(configAdminRef))).thenReturn(configAdmin);
     when(mockContext.getService(eq(subscriptionReference))).thenReturn(subscription);
     when(configAdmin.listConfigurations(eq(FILTER_STR))).thenReturn(configArry);
-    when(configAdmin.createFactoryConfiguration(anyString(), isNull(String.class)))
-        .thenReturn(config);
+    when(configAdmin.createFactoryConfiguration(anyString(), isNull())).thenReturn(config);
 
     cswSubscriptionEndpoint =
         new CswSubscriptionEndpointStub(

@@ -14,7 +14,6 @@
 package org.codice.ddf.commands.catalog;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -76,7 +75,7 @@ public class ValidateCommandTest {
     // mock out validators
     // good validator will mock out passing validation
     goodValidator = mock(MetacardValidator.class);
-    doNothing().when(goodValidator).validate(anyObject());
+    doNothing().when(goodValidator).validate(any());
 
     // bad validator will mock out failing validation
     badValidator = mock(MetacardValidator.class);
@@ -99,7 +98,7 @@ public class ValidateCommandTest {
               }
             })
         .when(badValidator)
-        .validate(anyObject());
+        .validate(any());
 
     // mock out catalog
     validateCommand = new ValidateCommandUnderTest(mockPrinter);
@@ -222,7 +221,7 @@ public class ValidateCommandTest {
   private void setupEmptyCatalog() throws Exception {
     QueryResponse mockResponse = mock(QueryResponseImpl.class);
     doReturn(null).when(mockResponse).getResults();
-    doReturn(mockResponse).when(mockCatalog).query(anyObject());
+    doReturn(mockResponse).when(mockCatalog).query(any());
   }
 
   private void setupNonEmptyCatalog() throws Exception {
@@ -236,7 +235,7 @@ public class ValidateCommandTest {
     results.add(fakeResult);
 
     doReturn(results).when(mockResponse).getResults();
-    doReturn(mockResponse).when(mockCatalog).query(anyObject());
+    doReturn(mockResponse).when(mockCatalog).query(any());
   }
 
   // test cqlQuery with no results

@@ -76,7 +76,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand = new ReplicateCommand();
 
     final Session session = mock(Session.class);
-    when(session.readLine(anyString(), isNull(Character.class))).thenReturn("sourceId1");
+    when(session.readLine(anyString(), isNull())).thenReturn("sourceId1");
     replicateCommand.session = session;
 
     replicateCommand.catalogFramework = catalogFramework;

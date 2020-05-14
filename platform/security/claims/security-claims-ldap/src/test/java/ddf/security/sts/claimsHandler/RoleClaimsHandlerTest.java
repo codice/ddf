@@ -16,9 +16,8 @@ package ddf.security.sts.claimsHandler;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.anyVararg;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.mock;
@@ -82,14 +81,14 @@ public class RoleClaimsHandlerTest {
     when(groupNameReader.isEntry()).thenReturn(true);
     when(groupNameReader.readEntry()).thenReturn(groupNameSearchResult);
 
-    when(connection.bind(anyObject())).thenReturn(bindResult);
+    when(connection.bind(any())).thenReturn(bindResult);
     when(connection.search(
-            anyObject(),
-            anyObject(),
+            any(),
+            any(),
             eq("(&(objectClass=groupOfNames)(|(member=uid=tstark,)(member=uid=tstark,)))"),
-            anyVararg()))
+            any()))
         .thenReturn(groupNameReader);
-    when(connection.search(anyString(), anyObject(), anyString(), matches("uid")))
+    when(connection.search(anyString(), any(), anyString(), matches("uid")))
         .thenReturn(membershipReader);
 
     claimsHandler = new RoleClaimsHandler(new AttributeMapLoader(new SubjectUtils()));
@@ -145,15 +144,15 @@ public class RoleClaimsHandlerTest {
     when(groupNameReader.isEntry()).thenReturn(true);
     when(groupNameReader.readEntry()).thenReturn(groupNameSearchResult);
 
-    when(connection.bind(anyObject())).thenReturn(bindResult);
+    when(connection.bind(any())).thenReturn(bindResult);
     when(connection.search(
-            anyObject(),
-            anyObject(),
+            any(),
+            any(),
             eq(
                 "(&(objectClass=groupOfNames)(|(member=cn=tstark,OU=nested,)(member=uid=tstark,OU=nested,)))"),
-            anyVararg()))
+            any()))
         .thenReturn(groupNameReader);
-    when(connection.search(anyString(), anyObject(), anyString(), matches("cn")))
+    when(connection.search(anyString(), any(), anyString(), matches("cn")))
         .thenReturn(membershipReader);
 
     claimsHandler = new RoleClaimsHandler(new AttributeMapLoader(new SubjectUtils()));
@@ -212,14 +211,14 @@ public class RoleClaimsHandlerTest {
     when(groupNameReader.isEntry()).thenReturn(false, true);
     when(groupNameReader.readEntry()).thenReturn(groupNameSearchResult);
 
-    when(connection.bind(anyObject())).thenReturn(bindResult);
+    when(connection.bind(any())).thenReturn(bindResult);
     when(connection.search(
-            anyObject(),
-            anyObject(),
+            any(),
+            any(),
             eq("(&(objectClass=groupOfNames)(|(member=uid=tstark,)(member=uid=tstark,)))"),
-            anyVararg()))
+            any()))
         .thenReturn(groupNameReader);
-    when(connection.search(anyString(), anyObject(), anyString(), matches("uid")))
+    when(connection.search(anyString(), any(), anyString(), matches("uid")))
         .thenReturn(membershipReader);
 
     claimsHandler = new RoleClaimsHandler(new AttributeMapLoader(new SubjectUtils()));

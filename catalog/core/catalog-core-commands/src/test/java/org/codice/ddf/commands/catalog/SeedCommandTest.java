@@ -277,15 +277,19 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
     when(response.getResults()).thenReturn(results);
     doReturn(response)
         .when(catalogFramework)
-        .query(argThat(queryWithStartIndex(
-            request -> request.getQuery().getStartIndex() < stopReturningResultsAtIndex)));
+        .query(
+            argThat(
+                queryWithStartIndex(
+                    request -> request.getQuery().getStartIndex() < stopReturningResultsAtIndex)));
 
     QueryResponse noResults = mock(QueryResponse.class);
     when(noResults.getResults()).thenReturn(Collections.emptyList());
     doReturn(noResults)
         .when(catalogFramework)
-        .query(argThat(queryWithStartIndex(
-            request -> request.getQuery().getStartIndex() >= stopReturningResultsAtIndex)));
+        .query(
+            argThat(
+                queryWithStartIndex(
+                    request -> request.getQuery().getStartIndex() >= stopReturningResultsAtIndex)));
   }
 
   private QueryWithStartIndex queryWithStartIndex(Predicate<QueryRequest> test) {

@@ -687,11 +687,11 @@ public class BackupCommandTest extends SolrCommandTest {
       throws Exception {
     NamedList<Object> response =
         getResponseForStatus(FAILURE_STATUS_CODE, RequestStatusState.FAILED, backupErrorMessages);
-    when(mockSolrClient.request(any(SolrRequest.class), isNull(String.class))).thenReturn(response);
+    when(mockSolrClient.request(any(SolrRequest.class), isNull())).thenReturn(response);
   }
 
   private void setupMockSolrClientForStatusThrowsException() throws Exception {
-    when(mockSolrClient.request(any(SolrRequest.class), isNull(String.class)))
+    when(mockSolrClient.request(any(SolrRequest.class), isNull()))
         .thenThrow(SolrServerException.class);
   }
 

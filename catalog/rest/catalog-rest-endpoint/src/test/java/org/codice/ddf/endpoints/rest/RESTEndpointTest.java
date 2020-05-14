@@ -27,7 +27,6 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
@@ -147,8 +146,7 @@ public class RESTEndpointTest {
 
     QueryResponse queryResponse = mock(QueryResponse.class);
     when(queryResponse.getResults()).thenReturn(list);
-    when(framework.query(isA(QueryRequest.class), isNull(FederationStrategy.class)))
-        .thenReturn(queryResponse);
+    when(framework.query(isA(QueryRequest.class), isNull())).thenReturn(queryResponse);
 
     metacard = new MetacardImpl();
     metacard.setSourceId(GET_SITENAME);
@@ -307,8 +305,7 @@ public class RESTEndpointTest {
   private String mockTestSetup(CatalogFramework framework, TestType testType) throws Exception {
     String transformer = null;
     QueryResponse queryResponse = mock(QueryResponse.class);
-    when(framework.query(isA(QueryRequest.class), isNull(FederationStrategy.class)))
-        .thenReturn(queryResponse);
+    when(framework.query(isA(QueryRequest.class), isNull())).thenReturn(queryResponse);
 
     List<Result> list = null;
     MetacardImpl metacard = null;

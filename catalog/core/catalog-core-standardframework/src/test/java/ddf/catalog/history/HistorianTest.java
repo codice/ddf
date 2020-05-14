@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -438,7 +437,7 @@ public class HistorianTest {
     historian.version(storageRequest, storageResponse, updateResponse);
 
     // Verify that it wasn't updated
-    verify(catalogProvider, times(0)).create(anyObject());
+    verify(catalogProvider, times(0)).create(any());
   }
 
   @Test(expected = IngestException.class)

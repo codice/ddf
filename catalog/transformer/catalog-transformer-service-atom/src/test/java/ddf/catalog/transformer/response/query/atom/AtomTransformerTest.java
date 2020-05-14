@@ -311,7 +311,7 @@ public class AtomTransformerTest {
 
     // given
     MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
-    when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+    when(metacardTransformer.transform(isA(Metacard.class), isNull()))
         .thenThrow(CatalogTransformerException.class);
 
     AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
@@ -345,7 +345,7 @@ public class AtomTransformerTest {
 
     // given
     MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
-    when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+    when(metacardTransformer.transform(isA(Metacard.class), isNull()))
         .thenThrow(RuntimeException.class);
 
     AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
@@ -377,7 +377,7 @@ public class AtomTransformerTest {
     MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
     BinaryContent metacardTransformation = mock(BinaryContent.class);
     when(metacardTransformation.getByteArray()).thenReturn(null);
-    when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+    when(metacardTransformer.transform(isA(Metacard.class), isNull()))
         .thenReturn(metacardTransformation);
 
     AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
@@ -409,7 +409,7 @@ public class AtomTransformerTest {
     MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
     BinaryContent metacardTransformation = mock(BinaryContent.class);
     when(metacardTransformation.getByteArray()).thenReturn(new byte[0]);
-    when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+    when(metacardTransformer.transform(isA(Metacard.class), isNull()))
         .thenReturn(metacardTransformation);
 
     AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
@@ -441,7 +441,7 @@ public class AtomTransformerTest {
     MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
     BinaryContent metacardTransformation = mock(BinaryContent.class);
     when(metacardTransformation.getByteArray()).thenThrow(IOException.class);
-    when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+    when(metacardTransformer.transform(isA(Metacard.class), isNull()))
         .thenReturn(metacardTransformation);
 
     AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
@@ -470,7 +470,7 @@ public class AtomTransformerTest {
       throws IOException, CatalogTransformerException, XpathException, SAXException {
     // given
     MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
-    when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(null);
+    when(metacardTransformer.transform(isA(Metacard.class), isNull())).thenReturn(null);
 
     AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
 

@@ -21,7 +21,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -46,7 +45,7 @@ public class HttpProxyTest {
   @Test
   public void testStartingAndStoppingProxyWithDifferentConfigurations() throws Exception {
     HttpProxyServiceImpl httpProxyService = mock(HttpProxyServiceImpl.class);
-    when(httpProxyService.start(eq("0.0.0.0:8181"), anyString(), eq(120000), eq(true), anyObject()))
+    when(httpProxyService.start(eq("0.0.0.0:8181"), anyString(), eq(120000), eq(true), any()))
         .thenReturn("endpointName");
     HttpProxy httpProxy =
         new HttpProxy(httpProxyService) {
@@ -66,7 +65,7 @@ public class HttpProxyTest {
         };
     httpProxy.startProxy();
     verify(httpProxyService, times(1))
-        .start(eq("0.0.0.0:8181"), anyString(), eq(120000), eq(true), anyObject());
+        .start(eq("0.0.0.0:8181"), anyString(), eq(120000), eq(true), any());
 
     httpProxy.stopProxy();
     verify(httpProxyService, times(1)).stop("endpointName");
@@ -75,7 +74,7 @@ public class HttpProxyTest {
 
     httpProxy.startProxy();
     verify(httpProxyService, times(1))
-        .start(eq("0.0.0.0:8181"), eq("https://blah:8993"), eq(120000), eq(true), anyObject());
+        .start(eq("0.0.0.0:8181"), eq("https://blah:8993"), eq(120000), eq(true), any());
 
     httpProxy.startProxy();
     verify(httpProxyService, times(3)).stop("endpointName");
@@ -99,13 +98,13 @@ public class HttpProxyTest {
         };
     httpProxy.startProxy();
     verify(httpProxyService, times(3))
-        .start(eq("0.0.0.0:8181"), anyString(), eq(120000), eq(true), anyObject());
+        .start(eq("0.0.0.0:8181"), anyString(), eq(120000), eq(true), any());
   }
 
   @Test
   public void testStartingWithNoProperties() throws Exception {
     HttpProxyServiceImpl httpProxyService = mock(HttpProxyServiceImpl.class);
-    when(httpProxyService.start(anyString(), anyString(), anyInt(), anyBoolean(), anyObject()))
+    when(httpProxyService.start(anyString(), anyString(), anyInt(), anyBoolean(), any()))
         .thenReturn("endpointName");
     HttpProxy httpProxy =
         new HttpProxy(httpProxyService) {
@@ -115,7 +114,7 @@ public class HttpProxyTest {
         };
     httpProxy.startProxy();
     verify(httpProxyService, times(0))
-        .start(anyString(), anyString(), anyInt(), anyBoolean(), anyObject());
+        .start(anyString(), anyString(), anyInt(), anyBoolean(), any());
   }
 
   @Test

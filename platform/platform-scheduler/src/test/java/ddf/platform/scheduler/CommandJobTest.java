@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
-import java.io.InputStream;
 import java.util.concurrent.Callable;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.karaf.shell.api.console.SessionFactory;
@@ -85,8 +84,7 @@ public class CommandJobTest {
           @Override
           protected SessionFactory getSessionFactory() {
             SessionFactory sessionFactory = mock(SessionFactory.class);
-            when(sessionFactory.create(notNull(InputStream.class), any(), any()))
-                .thenReturn(session);
+            when(sessionFactory.create(notNull(), any(), any())).thenReturn(session);
             return sessionFactory;
           }
         };

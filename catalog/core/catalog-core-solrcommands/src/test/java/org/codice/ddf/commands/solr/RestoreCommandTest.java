@@ -373,13 +373,13 @@ public class RestoreCommandTest extends SolrCommandTest {
     SolrClient mockSolrClient = mock(SolrClient.class);
     NamedList<Object> response =
         getResponseForStatus(FAILURE_STATUS_CODE, RequestStatusState.FAILED, restoreErrorMessages);
-    when(mockSolrClient.request(any(SolrRequest.class), isNull(String.class))).thenReturn(response);
+    when(mockSolrClient.request(any(SolrRequest.class), isNull())).thenReturn(response);
     return mockSolrClient;
   }
 
   private SolrClient getMockSolrClientForStatusThrowsException() throws Exception {
     SolrClient mockSolrClient = mock(SolrClient.class);
-    when(mockSolrClient.request(any(SolrRequest.class), isNull(String.class)))
+    when(mockSolrClient.request(any(SolrRequest.class), isNull()))
         .thenThrow(SolrServerException.class);
     return mockSolrClient;
   }

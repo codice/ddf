@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,7 +42,7 @@ public class MetacardResourceSizePluginTest {
     ReliableResource cachedResource = mock(ReliableResource.class);
     when(cachedResource.getSize()).thenReturn(999L);
     when(cachedResource.hasProduct()).thenReturn(true);
-    when(cache.getValid(anyString(), (Metacard) anyObject())).thenReturn(cachedResource);
+    when(cache.getValid(anyString(), any())).thenReturn(cachedResource);
 
     MetacardImpl metacard = new MetacardImpl();
     metacard.setId("abc123");
@@ -79,7 +79,7 @@ public class MetacardResourceSizePluginTest {
     ReliableResource cachedResource = mock(ReliableResource.class);
     when(cachedResource.getSize()).thenReturn(999L);
     when(cachedResource.hasProduct()).thenReturn(false);
-    when(cache.getValid(anyString(), (Metacard) anyObject())).thenReturn(cachedResource);
+    when(cache.getValid(anyString(), any())).thenReturn(cachedResource);
 
     MetacardImpl metacard = new MetacardImpl();
     metacard.setId("abc123");
@@ -124,7 +124,7 @@ public class MetacardResourceSizePluginTest {
   @Test
   public void testWhenNoCachedResourceFound() throws Exception {
     ResourceCacheInterface cache = mock(ResourceCacheInterface.class);
-    when(cache.getValid(anyString(), (Metacard) anyObject())).thenReturn(null);
+    when(cache.getValid(anyString(), any())).thenReturn(null);
 
     MetacardImpl metacard = new MetacardImpl();
     metacard.setId("abc123");
@@ -154,7 +154,7 @@ public class MetacardResourceSizePluginTest {
     ResourceCacheInterface cache = mock(ResourceCacheInterface.class);
     ReliableResource cachedResource = mock(ReliableResource.class);
     when(cachedResource.getSize()).thenReturn(0L);
-    when(cache.getValid(anyString(), (Metacard) anyObject())).thenReturn(cachedResource);
+    when(cache.getValid(anyString(), any())).thenReturn(cachedResource);
 
     MetacardImpl metacard = new MetacardImpl();
     metacard.setId("abc123");

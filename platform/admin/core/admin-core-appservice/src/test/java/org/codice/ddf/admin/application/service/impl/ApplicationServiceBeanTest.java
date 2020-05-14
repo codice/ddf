@@ -259,7 +259,8 @@ public class ApplicationServiceBeanTest {
     ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.installFeature("profile-name");
 
-    verify(mockSyncInstaller).installFeatures(ArgumentMatchers.<EnumSet<Option>>any(), eq("profile-name"));
+    verify(mockSyncInstaller)
+        .installFeatures(ArgumentMatchers.<EnumSet<Option>>any(), eq("profile-name"));
   }
 
   @Test

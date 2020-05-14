@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -233,7 +233,7 @@ public class ConfigurationUpdaterTest {
     assertThat(propsAfter.get(PASSWORD_ID), is(PASSWORD_ENCRYPTED));
 
     // Confirm we wrote to disk using the strategy
-    verify(mockStrategy).write(anyObject(), eq(propsAfter));
+    verify(mockStrategy).write(any(), eq(propsAfter));
   }
 
   @Test

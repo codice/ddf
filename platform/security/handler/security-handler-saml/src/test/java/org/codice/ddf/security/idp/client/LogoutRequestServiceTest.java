@@ -20,7 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyListOf;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -187,7 +187,7 @@ public class LogoutRequestServiceTest {
     when(idpMetadata.getSingleLogoutLocation()).thenReturn(postLogoutUrl);
     LogoutRequest logoutRequest = new LogoutRequestBuilder().buildObject();
     LogoutWrapper<LogoutRequest> requestLogoutWrapper = new LogoutWrapperImpl<>(logoutRequest);
-    when(logoutMessage.buildLogoutRequest(eq(nameId), anyString(), anyListOf(String.class)))
+    when(logoutMessage.buildLogoutRequest(eq(nameId), anyString(), anyList()))
         .thenReturn(requestLogoutWrapper);
     Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
     assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());

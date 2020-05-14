@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.admin.insecure.defaults.service;
 
-import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -56,7 +56,7 @@ public class UsersPropertiesCollectorTest {
     collector.run();
 
     verify(scheduler, times(1)).installationDate();
-    verify(eventAdmin, times(1)).postEvent(anyObject());
+    verify(eventAdmin, times(1)).postEvent(any());
   }
 
   @Test
@@ -68,7 +68,7 @@ public class UsersPropertiesCollectorTest {
 
     collector.run();
 
-    verify(eventAdmin, times(1)).postEvent(anyObject());
+    verify(eventAdmin, times(1)).postEvent(any());
   }
 
   @Test

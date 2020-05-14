@@ -1510,7 +1510,8 @@ public class WfsSourceTest {
     return argThat(new IsGetFeatureRequestWithResultType(resultType));
   }
 
-  private static class IsGetFeatureRequestWithResultType implements ArgumentMatcher<GetFeatureType> {
+  private static class IsGetFeatureRequestWithResultType
+      implements ArgumentMatcher<GetFeatureType> {
     private final ResultTypeType resultType;
 
     private IsGetFeatureRequestWithResultType(final ResultTypeType resultType) {

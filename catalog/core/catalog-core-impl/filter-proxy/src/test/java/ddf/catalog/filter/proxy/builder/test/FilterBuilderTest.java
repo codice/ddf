@@ -14,7 +14,7 @@
 package ddf.catalog.filter.proxy.builder.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.spy;
@@ -101,8 +101,8 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(13)).visit(isA(PropertyIsEqualTo.class), anyObject());
-    inOrder.verify(visitor, times(1)).visit(isA(During.class), anyObject());
+    inOrder.verify(visitor, times(13)).visit(isA(PropertyIsEqualTo.class), any());
+    inOrder.verify(visitor, times(1)).visit(isA(During.class), any());
   }
 
   @Test
@@ -119,7 +119,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(3)).visit(isA(PropertyIsNotEqualTo.class), anyObject());
+    inOrder.verify(visitor, times(3)).visit(isA(PropertyIsNotEqualTo.class), any());
   }
 
   @Test
@@ -147,7 +147,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(8)).visit(isA(PropertyIsBetween.class), anyObject());
+    inOrder.verify(visitor, times(8)).visit(isA(PropertyIsBetween.class), any());
   }
 
   @Test
@@ -183,16 +183,16 @@ public class FilterBuilderTest {
 
     filter.accept(visitor, null);
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(And.class), anyObject());
-    inOrder.verify(visitor).visit(isA(Or.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(And.class), any());
+    inOrder.verify(visitor).visit(isA(Or.class), any());
 
     ArgumentCaptor<PropertyIsNull> propertyIsNullArgument =
         ArgumentCaptor.forClass(PropertyIsNull.class);
-    verify(visitor).visit(propertyIsNullArgument.capture(), anyObject());
+    verify(visitor).visit(propertyIsNullArgument.capture(), any());
     ExpressionVisitor expVisitor = spy(new DefaultExpressionVisitor() {});
     propertyIsNullArgument.getValue().getExpression().accept(expVisitor, null);
     ArgumentCaptor<PropertyName> propertyNameArgument = ArgumentCaptor.forClass(PropertyName.class);
-    verify(expVisitor).visit(propertyNameArgument.capture(), anyObject());
+    verify(expVisitor).visit(propertyNameArgument.capture(), any());
     assertEquals(FOO_ATTRIBUTE, propertyNameArgument.getValue().getPropertyName());
   }
 
@@ -205,8 +205,8 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(And.class), anyObject());
-    inOrder.verify(visitor).visit(isA(PropertyIsNull.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(And.class), any());
+    inOrder.verify(visitor).visit(isA(PropertyIsNull.class), any());
   }
 
   @Test
@@ -218,8 +218,8 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(Or.class), anyObject());
-    inOrder.verify(visitor).visit(isA(PropertyIsNull.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(Or.class), any());
+    inOrder.verify(visitor).visit(isA(PropertyIsNull.class), any());
   }
 
   @Test
@@ -231,8 +231,8 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(Not.class), anyObject());
-    inOrder.verify(visitor).visit(isA(PropertyIsNull.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(Not.class), any());
+    inOrder.verify(visitor).visit(isA(PropertyIsNull.class), any());
   }
 
   @Test
@@ -246,18 +246,18 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     ArgumentCaptor<After> expressionArgument = ArgumentCaptor.forClass(After.class);
-    verify(visitor).visit(expressionArgument.capture(), anyObject());
+    verify(visitor).visit(expressionArgument.capture(), any());
 
     ExpressionVisitor expVisitor = spy(new DefaultExpressionVisitor() {});
 
     expressionArgument.getValue().getExpression1().accept(expVisitor, null);
     ArgumentCaptor<PropertyName> propertyNameArgument = ArgumentCaptor.forClass(PropertyName.class);
-    verify(expVisitor).visit(propertyNameArgument.capture(), anyObject());
+    verify(expVisitor).visit(propertyNameArgument.capture(), any());
     assertEquals(FOO_ATTRIBUTE, propertyNameArgument.getValue().getPropertyName());
 
     expressionArgument.getValue().getExpression2().accept(expVisitor, null);
     ArgumentCaptor<Literal> literalArgument = ArgumentCaptor.forClass(Literal.class);
-    verify(expVisitor).visit(literalArgument.capture(), anyObject());
+    verify(expVisitor).visit(literalArgument.capture(), any());
     assertEquals(date, ((Instant) literalArgument.getValue().getValue()).getPosition().getDate());
   }
 
@@ -270,7 +270,7 @@ public class FilterBuilderTest {
 
     filter.accept(visitor, null);
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsEqualTo.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsEqualTo.class), any());
   }
 
   @Test
@@ -284,7 +284,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(2)).visit(isA(After.class), anyObject());
+    inOrder.verify(visitor, times(2)).visit(isA(After.class), any());
   }
 
   @Test
@@ -298,7 +298,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(2)).visit(isA(Before.class), anyObject());
+    inOrder.verify(visitor, times(2)).visit(isA(Before.class), any());
   }
 
   @Test
@@ -329,7 +329,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(6)).visit(isA(During.class), anyObject());
+    inOrder.verify(visitor, times(6)).visit(isA(During.class), any());
   }
 
   @Test
@@ -341,7 +341,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsLike.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsLike.class), any());
 
     // TODO check case sensitivity
 
@@ -356,7 +356,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsLike.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsLike.class), any());
 
     // TODO check case sensitivity
   }
@@ -368,7 +368,7 @@ public class FilterBuilderTest {
     Filter filter = builder.attribute(FOO_ATTRIBUTE).is().like().fuzzyText("bar");
     filter.accept(visitor, null);
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsLike.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsLike.class), any());
 
     // TODO check for fuzzy
   }
@@ -384,7 +384,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(2)).visit(isA(PropertyIsLike.class), anyObject());
+    inOrder.verify(visitor, times(2)).visit(isA(PropertyIsLike.class), any());
   }
 
   @Test
@@ -396,7 +396,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsLike.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsLike.class), any());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -408,7 +408,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsLike.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(PropertyIsLike.class), any());
 
     filter = builder.xpath(null).is().like().text(null);
   }
@@ -482,7 +482,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(1)).visit(isA(Intersects.class), anyObject());
+    inOrder.verify(visitor, times(1)).visit(isA(Intersects.class), any());
   }
 
   @Test
@@ -496,7 +496,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(2)).visit(isA(Beyond.class), anyObject());
+    inOrder.verify(visitor, times(2)).visit(isA(Beyond.class), any());
     // TODO check arguments
   }
 
@@ -511,7 +511,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(2)).visit(isA(Within.class), anyObject());
+    inOrder.verify(visitor, times(2)).visit(isA(Within.class), any());
   }
 
   @Test
@@ -529,7 +529,7 @@ public class FilterBuilderTest {
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
-    inOrder.verify(visitor, times(4)).visit(isA(DWithin.class), anyObject());
+    inOrder.verify(visitor, times(4)).visit(isA(DWithin.class), any());
   }
 
   /** */
