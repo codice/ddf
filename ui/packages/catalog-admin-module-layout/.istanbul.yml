@@ -1,8 +1,0 @@
-reporting:
-    dir: ./target/coverage
-check:
-    global:
-        statements: 35
-        branches: 35
-        lines: 40
-        functions: 15

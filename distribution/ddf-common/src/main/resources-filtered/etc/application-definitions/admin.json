@@ -4,6 +4,6 @@
   "bundleLocations": [
     "mvn:ddf.admin.core/admin-core-configpolicy/${project.version}",
     "mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}",
-    "mvn:ddf.admin/admin-ui/${project.version}"
+    "mvn:ddf.admin/admin-ui/${ddf-admin-ui.version.version}"
   ]
 }
