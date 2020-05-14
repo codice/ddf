@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+// eslint-disable-next-line no-extra-semi
 ;({
   openDetails: {
     patterns: ['details/:id'],
@@ -21,4 +22,3 @@
     },
   },
 })
-
