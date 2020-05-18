@@ -528,16 +528,6 @@ Query.Model = PartialAssociatedModel.extend({
   getStartIndexForSource(src) {
     return currentIndexForSource(this.state)[src] || 1
   },
-  // if the server page size changes, reset our indices and let them get
-  // recalculated on the next fetch
-  lengthWithDuplicates(resultsCollection) {
-    const lengthWithoutDuplicates = resultsCollection.length
-    const numberOfDuplicates = resultsCollection.reduce((count, result) => {
-      count += result.duplicates ? result.duplicates.length : 0
-      return count
-    }, 0)
-    return lengthWithoutDuplicates + numberOfDuplicates
-  },
   getResultsRangeLabel(resultsCollection) {
     const results = resultsCollection.length
     const hits = _.filter(
@@ -555,8 +545,7 @@ Query.Model = PartialAssociatedModel.extend({
 
     const serverPageSize = user.get('user>preferences>resultCount')
     const startingIndex = serverPageIndex(this.state) * serverPageSize
-    const endingIndex =
-      startingIndex + this.lengthWithDuplicates(resultsCollection)
+    const endingIndex = startingIndex + resultsCollection.length
 
     return startingIndex + 1 + '-' + endingIndex + ' of ' + hits
   },

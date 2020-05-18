@@ -64,7 +64,7 @@ const ResultSelector = Marionette.LayoutView.extend({
       .get('result')
       .get('results')
       .generateFilteredVersion(resultFilter)
-    const collapsedResults = filteredResults.collapseDuplicates()
+    const collapsedResults = filteredResults
     collapsedResults.updateSorting(
       user
         .get('user')
