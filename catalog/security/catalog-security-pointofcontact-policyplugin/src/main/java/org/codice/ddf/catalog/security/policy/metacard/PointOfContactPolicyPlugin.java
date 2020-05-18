@@ -26,7 +26,7 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
-import ddf.security.permission.impl.Permissions;
+import ddf.security.permission.Permissions;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -41,10 +41,15 @@ public class PointOfContactPolicyPlugin implements PolicyPlugin {
     "read-only=Cannot update the point-of-contact field"
   };
 
-  private static final Map<String, Set<String>> PERMISSION_MAP =
-      Permissions.parsePermissionsFromString(PERMISSION_STRING);
+  private final Map<String, Set<String>> permissionMap;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PointOfContactPolicyPlugin.class);
+
+  private Permissions permissions;
+
+  public PointOfContactPolicyPlugin(Permissions permissions) {
+    permissionMap = permissions.parsePermissionsFromString(PERMISSION_STRING);
+  }
 
   @Override
   public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
@@ -73,7 +78,7 @@ public class PointOfContactPolicyPlugin implements PolicyPlugin {
             .orElse(null);
 
     return pointOfContactChanged(newMetacard, previous)
-        ? new PolicyResponseImpl(null, PERMISSION_MAP)
+        ? new PolicyResponseImpl(null, permissionMap)
         : new PolicyResponseImpl();
   }
 

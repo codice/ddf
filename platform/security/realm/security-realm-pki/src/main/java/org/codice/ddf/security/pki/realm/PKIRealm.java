@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.pki.realm;
 
+import ddf.security.SubjectOperations;
 import ddf.security.assertion.Attribute;
 import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
@@ -23,7 +24,6 @@ import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsHandler;
 import ddf.security.claims.impl.ClaimsParametersImpl;
-import ddf.security.impl.SubjectUtils;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
@@ -51,6 +51,8 @@ public class PKIRealm extends AuthenticatingRealm {
   private List<ClaimsHandler> claimsHandlers = new ArrayList<>();
 
   private Duration fourHours = Duration.ofHours(4);
+
+  private SubjectOperations subjectOperations;
 
   private static final String PKI_TOKEN_TYPE = "pki";
 
@@ -130,13 +132,13 @@ public class PKIRealm extends AuthenticatingRealm {
   private HashMap<String, Object> createProperties(X500Principal subjectX500Principal) {
     HashMap<String, Object> props = new HashMap<>();
     try {
-      String emailAddress = SubjectUtils.getEmailAddress(subjectX500Principal);
+      String emailAddress = subjectOperations.getEmailAddress(subjectX500Principal);
       if (emailAddress != null) {
-        props.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, emailAddress);
+        props.put(SubjectOperations.EMAIL_ADDRESS_CLAIM_URI, emailAddress);
       }
-      String country = SubjectUtils.getCountry(subjectX500Principal);
+      String country = subjectOperations.getCountry(subjectX500Principal);
       if (country != null) {
-        props.put(SubjectUtils.COUNTRY_CLAIM_URI, country);
+        props.put(SubjectOperations.COUNTRY_CLAIM_URI, country);
       }
     } catch (Exception e) {
       LOGGER.debug("Unable to set email address or country from certificate.", e);
@@ -167,5 +169,9 @@ public class PKIRealm extends AuthenticatingRealm {
 
   public void setClaimsHandlers(List<ClaimsHandler> claimsHandlers) {
     this.claimsHandlers = claimsHandlers;
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

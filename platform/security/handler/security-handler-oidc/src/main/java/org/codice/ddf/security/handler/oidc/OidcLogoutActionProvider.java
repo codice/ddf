@@ -18,10 +18,10 @@ import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.SubjectOperations;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
 import ddf.security.common.PrincipalHolder;
-import ddf.security.impl.SubjectUtils;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -56,6 +56,8 @@ public class OidcLogoutActionProvider implements ActionProvider {
       "Logging out of the Identity Provider(IdP) will logout all external clients signed in via that Identity Provider.";
 
   private final OidcHandlerConfiguration handlerConfiguration;
+
+  private SubjectOperations subjectOperations;
 
   public OidcLogoutActionProvider(OidcHandlerConfiguration handlerConfiguration) {
     this.handlerConfiguration = handlerConfiguration;
@@ -167,7 +169,11 @@ public class OidcLogoutActionProvider implements ActionProvider {
       return false;
     }
 
-    String type = SubjectUtils.getType((org.apache.shiro.subject.Subject) subject);
+    String type = subjectOperations.getType((org.apache.shiro.subject.Subject) subject);
     return type != null && type.equals(SecurityAssertionJwt.JWT_TOKEN_TYPE);
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

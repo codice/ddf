@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.security.handler.pki;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -59,6 +59,12 @@ public class CrlChecker {
         .scheduleWithFixedDelay(REFRESH, 0, 1, TimeUnit.HOURS);
   }
 
+  private SecurityLogger securityLogger;
+
+  public CrlChecker(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
+  }
+
   /**
    * Checks the given certs against the CRL. The CRL is configured in this class's constructor
    * method.
@@ -88,7 +94,7 @@ public class CrlChecker {
       LOGGER.debug("Got {} certificate(s) in the incoming request", certs.length);
       for (X509Certificate curCert : certs) {
         if (crlCache.get() != null && crlCache.get().isRevoked(curCert)) {
-          SecurityLogger.audit(
+          securityLogger.audit(
               "Denying access for subject DN: "
                   + curCert.getSubjectDN()
                   + " due to certificate being revoked by CRL.");

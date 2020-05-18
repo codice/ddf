@@ -57,6 +57,11 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-services</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

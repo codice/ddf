@@ -14,7 +14,11 @@
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    <bean id="pointOfContactPolicyPlugin" class="org.codice.ddf.catalog.security.policy.metacard.PointOfContactPolicyPlugin"/>
+    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
+
+    <bean id="pointOfContactPolicyPlugin" class="org.codice.ddf.catalog.security.policy.metacard.PointOfContactPolicyPlugin">
+        <argument ref="permissions"/>
+    </bean>
 
     <service ref="pointOfContactPolicyPlugin" interface="ddf.catalog.plugin.PolicyPlugin"/>
 </blueprint>

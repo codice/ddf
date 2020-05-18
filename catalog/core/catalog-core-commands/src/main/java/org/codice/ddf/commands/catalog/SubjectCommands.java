@@ -18,6 +18,8 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.console.Session;
@@ -77,7 +79,10 @@ public abstract class SubjectCommands extends CommandSupport {
       if (isNotBlank(user)) {
         return runWithUserName();
       } else {
-        return security.runWithSubjectOrElevate(this::executeWithSubject);
+        return security.runWithSubjectOrElevate(
+            () ->
+                AccessController.doPrivileged(
+                    (PrivilegedExceptionAction<Object>) this::executeWithSubject));
       }
     } catch (SecurityServiceException e) {
       printErrorMessage(e.getMessage());

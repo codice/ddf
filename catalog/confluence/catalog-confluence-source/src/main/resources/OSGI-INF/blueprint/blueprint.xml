@@ -39,6 +39,10 @@
 
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
+    <reference id="permissions" interface="ddf.security.permission.Permissions" />
+
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean id="confluenceMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
         <argument value="confluence"/>
         <argument>
@@ -100,6 +104,8 @@
                 </list>
             </property>
             <property name="availabilityPollInterval" value="60000"/>
+            <property name="securityLogger" ref="securityLogger"/>
+            <property name="permissions" ref="permissions"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="container-managed"/>
         </cm:managed-component>

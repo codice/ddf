@@ -28,6 +28,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.plugin.PolicyResponse;
+import ddf.security.permission.impl.PermissionsImpl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +49,8 @@ public class PointOfContactPolicyPluginTest {
 
   public static final String TEST_ID = "test-id";
 
-  private PointOfContactPolicyPlugin pointOfContactPolicyPlugin = new PointOfContactPolicyPlugin();
+  private PointOfContactPolicyPlugin pointOfContactPolicyPlugin =
+      new PointOfContactPolicyPlugin(new PermissionsImpl());
 
   private List<Metacard> listWithMetacard = new ArrayList<Metacard>();
 

@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.plugin.security.audit;
 
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -24,6 +25,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.security.audit.SecurityLogger;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public class SecurityAuditPluginTest {
   public void setup() {
     List<String> auditAttributes = new ArrayList<>();
     auditAttributes.add(Metacard.TITLE);
-    securityAuditPlugin = spy(new SecurityAuditPlugin());
+    securityAuditPlugin = spy(new SecurityAuditPlugin(mock(SecurityLogger.class)));
     securityAuditPlugin.setAuditAttributes(auditAttributes);
   }
 

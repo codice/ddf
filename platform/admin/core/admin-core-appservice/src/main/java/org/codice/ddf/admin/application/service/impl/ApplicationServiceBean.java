@@ -15,7 +15,7 @@ package org.codice.ddf.admin.application.service.impl;
 
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Paths;
 import java.security.AccessController;
@@ -115,6 +115,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   private ServiceTracker<Object, Object> serviceTracker;
 
   private SynchronizedInstaller syncInstaller;
+
+  private SecurityLogger securityLogger;
 
   /**
    * Creates an instance of an ApplicationServiceBean
@@ -556,13 +558,13 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
                   return null;
                 });
       }
-      SecurityLogger.audit("Restarting system");
+      securityLogger.audit("Restarting system");
       LOGGER.info("Restarting the system.");
     } catch (PrivilegedActionException e) {
-      SecurityLogger.audit("Failed to restart system");
+      securityLogger.audit("Failed to restart system");
       LOGGER.debug("failed to request a restart: ", e.getException());
     } catch (Exception e) {
-      SecurityLogger.audit("Failed to restart system");
+      securityLogger.audit("Failed to restart system");
       LOGGER.debug("failed to request a restart: ", e);
     }
   }
@@ -610,5 +612,9 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       super(message, null, false, false);
       this.setStackTrace(new StackTraceElement[0]);
     }
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

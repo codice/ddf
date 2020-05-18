@@ -52,6 +52,7 @@ import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.permission.Permissions;
 import ddf.security.service.SecurityManager;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -250,6 +251,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   private ScheduledExecutorService scheduler;
   private AvailabilityTask availabilityTask;
   private boolean isConstraintCql;
+  private Permissions permissions;
 
   /**
    * Instantiates a CswSource. This constructor is for unit tests
@@ -265,12 +267,14 @@ public abstract class AbstractCswSource extends MaskableImpl
       Converter provider,
       ClientFactoryFactory clientFactoryFactory,
       EncryptionService encryptionService,
-      Security security) {
+      Security security,
+      Permissions permissions) {
     this.encryptionService = encryptionService;
     this.context = context;
     this.cswSourceConfiguration = cswSourceConfiguration;
     this.security = security;
     this.clientFactoryFactory = clientFactoryFactory;
+    this.permissions = permissions;
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
@@ -281,14 +285,16 @@ public abstract class AbstractCswSource extends MaskableImpl
   public AbstractCswSource(
       EncryptionService encryptionService,
       ClientFactoryFactory clientFactoryFactory,
-      Security security) {
+      Security security,
+      Permissions permissions) {
     this.encryptionService = encryptionService;
-    cswSourceConfiguration = new CswSourceConfiguration(encryptionService);
+    cswSourceConfiguration = new CswSourceConfiguration(encryptionService, permissions);
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
     this.clientFactoryFactory = clientFactoryFactory;
     this.security = security;
+    this.permissions = permissions;
   }
 
   private static JAXBContext initJaxbContext() {

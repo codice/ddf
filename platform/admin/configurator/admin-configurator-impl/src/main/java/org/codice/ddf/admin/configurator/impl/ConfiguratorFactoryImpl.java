@@ -13,12 +13,20 @@
  */
 package org.codice.ddf.admin.configurator.impl;
 
+import ddf.security.audit.SecurityLogger;
 import org.codice.ddf.admin.configurator.Configurator;
 import org.codice.ddf.admin.configurator.ConfiguratorFactory;
 
 public class ConfiguratorFactoryImpl implements ConfiguratorFactory {
+
+  private SecurityLogger securityLogger;
+
   @Override
   public Configurator getConfigurator() {
-    return new ConfiguratorImpl();
+    return new ConfiguratorImpl(securityLogger);
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

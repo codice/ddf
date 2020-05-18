@@ -11,8 +11,9 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.impl;
+package ddf.security.service.impl;
 
+import ddf.security.SubjectOperations;
 import ddf.security.assertion.Attribute;
 import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
@@ -47,60 +48,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Utility class used to perform operations on Subjects. */
-public final class SubjectUtils {
-
-  public static final String GUEST_DISPLAY_NAME = "Guest";
+public final class SubjectUtils implements SubjectOperations {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SubjectUtils.class);
-
-  public static final String EMAIL_ADDRESS_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
-
-  public static final String EMAIL_ADDRESS_CLAIM_ALTERNATE = "email";
-
-  /** Street address */
-  public static final String STREET_ADDRESS_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/streetaddress";
-
-  /** Postal address */
-  public static final String POSTAL_CODE_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/postalcode";
-
-  /** City address */
-  public static final String LOCALITY_CODE_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/locality";
-
-  /** Country address */
-  public static final String COUNTRY_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country";
-
-  /** Username */
-  public static final String NAME_IDENTIFIER_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
-
-  public static final String NAME_IDENTIFIER_CLAIM_ALTERNATE = "name";
-
-  /** Full name */
-  public static final String NAME_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
-
-  /** First name */
-  public static final String GIVEN_NAME_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname";
-
-  /** Last name */
-  public static final String SURNAME_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname";
-
-  /** Roles */
-  public static final String ROLE_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
-
-  /** Mobile phone */
-  public static final String MOBILE_PHONE_CLAIM_URI =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone";
-
-  private SubjectUtils() {}
 
   /**
    * Converts the given principal name to a formatted display name.
@@ -109,7 +59,7 @@ public final class SubjectUtils {
    * @param defaultName
    * @return
    */
-  private static String getDisplayName(Principal principal, String defaultName) {
+  private String getDisplayName(Principal principal, String defaultName) {
 
     String displayName = defaultName;
 
@@ -133,7 +83,7 @@ public final class SubjectUtils {
    * @return String representation of the user name if available or null if no user name could be
    *     found.
    */
-  public static String getName(org.apache.shiro.subject.Subject subject) {
+  public String getName(org.apache.shiro.subject.Subject subject) {
     return getName(subject, null, false);
   }
 
@@ -144,7 +94,7 @@ public final class SubjectUtils {
    * @return String representation of the user name if available or null if no user name could be
    *     found.
    */
-  public static String getName(Subject subject, String defaultName) {
+  public String getName(Subject subject, String defaultName) {
     return getName(subject, defaultName, false);
   }
 
@@ -157,7 +107,7 @@ public final class SubjectUtils {
    * @return String representation of the user name if available or defaultName if no user name
    *     could be found or incoming subject was null.
    */
-  public static String getName(Subject subject, String defaultName, boolean returnDisplayName) {
+  public String getName(Subject subject, String defaultName, boolean returnDisplayName) {
     String name = defaultName;
     if (subject != null) {
       PrincipalCollection principals = subject.getPrincipals();
@@ -203,7 +153,7 @@ public final class SubjectUtils {
     return name;
   }
 
-  private static String getExtendedCertAttribute(
+  private String getExtendedCertAttribute(
       X500Principal principal, ASN1ObjectIdentifier identifier) {
     RDN[] rdNs = new X500Name(principal.getName()).getRDNs(identifier);
     if (rdNs != null && rdNs.length > 0) {
@@ -215,19 +165,19 @@ public final class SubjectUtils {
     return null;
   }
 
-  public static String getCommonName(X500Principal principal) {
+  public String getCommonName(X500Principal principal) {
     return getExtendedCertAttribute(principal, BCStyle.CN);
   }
 
-  public static String getEmailAddress(X500Principal principal) {
+  public String getEmailAddress(X500Principal principal) {
     return getExtendedCertAttribute(principal, BCStyle.EmailAddress);
   }
 
-  public static String getCountry(X500Principal principal) {
+  public String getCountry(X500Principal principal) {
     return getExtendedCertAttribute(principal, BCStyle.C);
   }
 
-  public static String filterDN(X500Principal principal, Predicate<RDN> predicate) {
+  public String filterDN(X500Principal principal, Predicate<RDN> predicate) {
     RDN[] rdns =
         Arrays.stream(new X500Name(principal.getName()).getRDNs())
             .filter(predicate)
@@ -243,7 +193,7 @@ public final class SubjectUtils {
    * @return email or null if not found.
    */
   @Nullable
-  public static String getEmailAddress(Subject subject) {
+  public String getEmailAddress(Subject subject) {
     List<String> values = getAttribute(subject, EMAIL_ADDRESS_CLAIM_URI);
 
     if (values.isEmpty()) {
@@ -263,7 +213,7 @@ public final class SubjectUtils {
    * @param key
    * @return attribute values or an empty list if not found.
    */
-  public static List<String> getAttribute(@Nullable Subject subject, String key) {
+  public List<String> getAttribute(@Nullable Subject subject, String key) {
     Validate.notNull(key);
 
     if (subject == null) {
@@ -302,7 +252,7 @@ public final class SubjectUtils {
    * @param subject the Subject to check
    * @return Map of attributes with the collected values for each
    */
-  public static Map<String, SortedSet<String>> getSubjectAttributes(Subject subject) {
+  public Map<String, SortedSet<String>> getSubjectAttributes(Subject subject) {
     if (subject == null) {
       return Collections.emptyMap();
     }
@@ -333,7 +283,7 @@ public final class SubjectUtils {
    * @return String representation of the user name if available or defaultName if no user name
    *     could be found or incoming subject was null.
    */
-  public static String getType(Subject subject) {
+  public String getType(Subject subject) {
     if (subject == null) {
       LOGGER.debug("Incoming subject was null, cannot look up security assertion type.");
       return null;
@@ -359,11 +309,11 @@ public final class SubjectUtils {
     return assertionList.get(0).getTokenType();
   }
 
-  public static boolean isGuest(Subject subject) {
+  public boolean isGuest(Subject subject) {
     Collection<SecurityAssertion> securityAssertions =
         subject.getPrincipals().byType(SecurityAssertion.class);
     List<SecurityAssertion> assertionList = new ArrayList<>(securityAssertions);
-    assertionList.sort(SubjectUtils.getAssertionComparator());
+    assertionList.sort(getAssertionComparator());
     return assertionList.get(0).getWeight() == SecurityAssertion.NO_AUTH_WEIGHT;
   }
 
@@ -371,7 +321,7 @@ public final class SubjectUtils {
     return new TreeSet<>(attribute.getValues());
   }
 
-  public static Comparator<SecurityAssertion> getAssertionComparator() {
+  public Comparator<SecurityAssertion> getAssertionComparator() {
     return new SecurityAssertionComparator();
   }
 

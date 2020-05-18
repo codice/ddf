@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security;
+package ddf.security.service.impl;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.empty;
@@ -28,7 +28,6 @@ import com.google.common.collect.ImmutableSet;
 import ddf.security.assertion.Attribute;
 import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.impl.SubjectUtils;
 import ddf.security.principal.impl.GuestPrincipal;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +51,7 @@ import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.hamcrest.CoreMatchers;
@@ -72,6 +72,8 @@ public class SubjectUtilsTest {
 
   private X500Principal dnPrincipal;
 
+  SubjectUtils subjectUtils;
+
   @Before
   public void setup()
       throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
@@ -87,6 +89,8 @@ public class SubjectUtilsTest {
     keywords.put("E", BCStyle.EmailAddress.getId());
 
     dnPrincipal = new X500Principal(X500_DN, keywords);
+
+    subjectUtils = new SubjectUtils();
   }
 
   @Test
@@ -100,7 +104,7 @@ public class SubjectUtilsTest {
             .session(new SimpleSession())
             .authenticated(true)
             .buildSubject();
-    assertEquals(TEST_NAME, SubjectUtils.getName(subject));
+    assertEquals(TEST_NAME, subjectUtils.getName(subject));
   }
 
   @Test
@@ -109,37 +113,38 @@ public class SubjectUtilsTest {
     org.apache.shiro.mgt.SecurityManager secManager = new DefaultSecurityManager();
     PrincipalCollection principals = new SimplePrincipalCollection();
     subject =
-        new Subject.Builder(secManager)
+        new ddf.security.Subject.Builder(secManager)
             .principals(principals)
             .session(new SimpleSession())
             .authenticated(true)
             .buildSubject();
-    assertEquals(DEFAULT_NAME, SubjectUtils.getName(subject, DEFAULT_NAME));
-    assertEquals(DEFAULT_NAME, SubjectUtils.getName(null, DEFAULT_NAME));
+    assertEquals(DEFAULT_NAME, subjectUtils.getName(subject, DEFAULT_NAME));
+    assertEquals(DEFAULT_NAME, subjectUtils.getName(null, DEFAULT_NAME));
   }
 
   @Test
   public void testGuestDisplayName() {
-    Subject subject = getSubjectWithPrincipal(new GuestPrincipal("127.0.0.1"));
-    assertEquals(SubjectUtils.GUEST_DISPLAY_NAME, SubjectUtils.getName(subject, null, true));
+    ddf.security.Subject subject = getSubjectWithPrincipal(new GuestPrincipal("127.0.0.1"));
+    assertEquals(SubjectUtils.GUEST_DISPLAY_NAME, subjectUtils.getName(subject, null, true));
   }
 
   @Test
   public void testKerberosDisplayName() {
-    Subject subject = getSubjectWithPrincipal(new KerberosPrincipal("kerby/ddf.org@REALM"));
-    assertEquals("kerby", SubjectUtils.getName(subject, null, true));
+    ddf.security.Subject subject =
+        getSubjectWithPrincipal(new KerberosPrincipal("kerby/ddf.org@REALM"));
+    assertEquals("kerby", subjectUtils.getName(subject, null, true));
   }
 
   @Test
   public void testX509DisplayName() {
-    Subject subject = getSubjectWithPrincipal(dnPrincipal);
-    assertEquals("Foo", SubjectUtils.getName(subject, null, true));
+    ddf.security.Subject subject = getSubjectWithPrincipal(dnPrincipal);
+    assertEquals("Foo", subjectUtils.getName(subject, null, true));
   }
 
   @Test
   public void testX509Name() {
-    Subject subject = getSubjectWithPrincipal(dnPrincipal);
-    assertEquals(X500_DN, SubjectUtils.getName(subject));
+    ddf.security.Subject subject = getSubjectWithPrincipal(dnPrincipal);
+    assertEquals(X500_DN, subjectUtils.getName(subject));
   }
 
   @Test
@@ -149,16 +154,16 @@ public class SubjectUtilsTest {
 
     X500Principal x500EmailPrincipal = new X500Principal("E=foo@bar.baz," + X500_DN, keywords);
 
-    assertEquals("foo@bar.baz", SubjectUtils.getEmailAddress(x500EmailPrincipal));
+    assertEquals("foo@bar.baz", subjectUtils.getEmailAddress(x500EmailPrincipal));
   }
 
   @Test
   public void testX509Country() {
-    assertEquals("US", SubjectUtils.getCountry(dnPrincipal));
+    assertEquals("US", subjectUtils.getCountry(dnPrincipal));
   }
 
-  private Subject getSubjectWithPrincipal(Principal principal) {
-    Subject subject = mock(Subject.class);
+  private ddf.security.Subject getSubjectWithPrincipal(Principal principal) {
+    ddf.security.Subject subject = mock(ddf.security.Subject.class);
     PrincipalCollection pc = mock(PrincipalCollection.class);
     SecurityAssertion assertion = mock(SecurityAssertion.class);
 
@@ -172,25 +177,25 @@ public class SubjectUtilsTest {
 
   @Test
   public void testGetCommonName() {
-    assertThat(SubjectUtils.getCommonName(new X500Principal(principal.getName())), is("localhost"));
+    assertThat(subjectUtils.getCommonName(new X500Principal(principal.getName())), is("localhost"));
   }
 
   @Test
   public void testGetCommonNameNull() {
-    assertNull(SubjectUtils.getCommonName(new X500Principal("o=stuff")));
+    assertNull(subjectUtils.getCommonName(new X500Principal("o=stuff")));
   }
 
   @Test
   public void testFilterDNKeepOne() {
     Predicate<RDN> predicate = rdn -> rdn.getTypesAndValues()[0].getType().equals(BCStyle.CN);
-    String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
+    String baseDN = subjectUtils.filterDN(dnPrincipal, predicate);
     assertThat(baseDN, is("CN=Foo"));
   }
 
   @Test
   public void testFilterDNDropOne() {
     Predicate<RDN> predicate = rdn -> !rdn.getTypesAndValues()[0].getType().equals(BCStyle.CN);
-    String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
+    String baseDN = subjectUtils.filterDN(dnPrincipal, predicate);
     assertThat(baseDN, is("OU=Engineering,OU=Dev,O=DDF,ST=AZ,C=US"));
   }
 
@@ -199,14 +204,14 @@ public class SubjectUtilsTest {
     Predicate<RDN> predicate =
         rdn ->
             !ImmutableSet.of(BCStyle.C, BCStyle.ST).contains(rdn.getTypesAndValues()[0].getType());
-    String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
+    String baseDN = subjectUtils.filterDN(dnPrincipal, predicate);
     assertThat(baseDN, is("CN=Foo,OU=Engineering,OU=Dev,O=DDF"));
   }
 
   @Test
   public void testFilterDNDropMultivalue() {
     Predicate<RDN> predicate = rdn -> !rdn.getTypesAndValues()[0].getType().equals(BCStyle.OU);
-    String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
+    String baseDN = subjectUtils.filterDN(dnPrincipal, predicate);
     assertThat(baseDN, is("CN=Foo,O=DDF,ST=AZ,C=US"));
   }
 
@@ -216,7 +221,7 @@ public class SubjectUtilsTest {
         rdn ->
             !ImmutableSet.of(BCStyle.OU, BCStyle.CN, BCStyle.O, BCStyle.ST, BCStyle.C)
                 .contains(rdn.getTypesAndValues()[0].getType());
-    String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
+    String baseDN = subjectUtils.filterDN(dnPrincipal, predicate);
     assertThat(baseDN, is(""));
   }
 
@@ -236,9 +241,9 @@ public class SubjectUtilsTest {
     return mockAttribute;
   }
 
-  private Subject getSubjectWithAttributes(Map<String, List<String>> attributes) {
+  private ddf.security.Subject getSubjectWithAttributes(Map<String, List<String>> attributes) {
 
-    Subject subject = mock(Subject.class);
+    ddf.security.Subject subject = mock(ddf.security.Subject.class);
     PrincipalCollection principalCollection = mock(PrincipalCollection.class);
     SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
     AttributeStatement attributeStatement = mock(AttributeStatement.class);
@@ -266,33 +271,33 @@ public class SubjectUtilsTest {
     final String key = "random";
     final List<String> values = Arrays.asList("one", "two", "three");
     Map<String, List<String>> attrs = ImmutableMap.of(key, values);
-    Subject subject = getSubjectWithAttributes(attrs);
-    assertThat(SubjectUtils.getAttribute(subject, key), is(values));
+    ddf.security.Subject subject = getSubjectWithAttributes(attrs);
+    assertThat(subjectUtils.getAttribute(subject, key), is(values));
   }
 
   @Test
   public void testGetAttributeNotPresent() {
-    Subject subject = getSubjectWithAttributes(Collections.emptyMap());
-    assertThat(SubjectUtils.getAttribute(subject, "any"), is(Collections.emptyList()));
+    ddf.security.Subject subject = getSubjectWithAttributes(Collections.emptyMap());
+    assertThat(subjectUtils.getAttribute(subject, "any"), is(Collections.emptyList()));
   }
 
   @Test
   public void testGetAttributeOnNullSubject() {
-    assertThat(SubjectUtils.getAttribute(null, "any"), is(Collections.emptyList()));
+    assertThat(subjectUtils.getAttribute(null, "any"), is(Collections.emptyList()));
   }
 
   @Test
   public void testGetAttributeNullPrincipal() {
-    Subject s = mock(Subject.class);
-    assertThat(SubjectUtils.getAttribute(s, "any"), is(Collections.emptyList()));
+    ddf.security.Subject s = mock(ddf.security.Subject.class);
+    assertThat(subjectUtils.getAttribute(s, "any"), is(Collections.emptyList()));
   }
 
   @Test
   public void testGetAttributeNullAssertion() {
-    Subject s = mock(Subject.class);
+    ddf.security.Subject s = mock(ddf.security.Subject.class);
     PrincipalCollection principals = mock(PrincipalCollection.class);
     doReturn(principals).when(s).getPrincipals();
-    assertThat(SubjectUtils.getAttribute(s, "any"), is(Collections.emptyList()));
+    assertThat(subjectUtils.getAttribute(s, "any"), is(Collections.emptyList()));
   }
 
   @Test
@@ -300,19 +305,19 @@ public class SubjectUtilsTest {
     final String email = "guest@localhost";
     Map<String, List<String>> attrs =
         ImmutableMap.of(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, Collections.singletonList(email));
-    Subject subject = getSubjectWithAttributes(attrs);
-    assertThat(SubjectUtils.getEmailAddress(subject), is(email));
+    ddf.security.Subject subject = getSubjectWithAttributes(attrs);
+    assertThat(subjectUtils.getEmailAddress(subject), is(email));
   }
 
   @Test
   public void testGetEmailNull() {
-    Subject subject = getSubjectWithAttributes(Collections.emptyMap());
-    assertNull(SubjectUtils.getEmailAddress(subject));
+    ddf.security.Subject subject = getSubjectWithAttributes(Collections.emptyMap());
+    assertNull(subjectUtils.getEmailAddress(subject));
   }
 
   @Test
   public void testRetrieveAttributesNoSubject() throws Exception {
-    Map<String, SortedSet<String>> subjectAttributes = SubjectUtils.getSubjectAttributes(null);
+    Map<String, SortedSet<String>> subjectAttributes = subjectUtils.getSubjectAttributes(null);
     assertThat(subjectAttributes.entrySet(), is(empty()));
   }
 
@@ -324,9 +329,9 @@ public class SubjectUtilsTest {
     final List<String> values2 = Arrays.asList("four", "five");
     Map<String, List<String>> attrs = ImmutableMap.of(key1, values1, key2, values2);
 
-    Subject subject = getSubjectWithAttributes(attrs);
+    ddf.security.Subject subject = getSubjectWithAttributes(attrs);
 
-    Map<String, SortedSet<String>> subjectAttributes = SubjectUtils.getSubjectAttributes(subject);
+    Map<String, SortedSet<String>> subjectAttributes = subjectUtils.getSubjectAttributes(subject);
     assertThat(subjectAttributes.keySet(), hasItems("attr1", "attr2"));
     assertThat(subjectAttributes.get("attr1"), CoreMatchers.hasItems("one", "two", "three"));
     assertThat(subjectAttributes.get("attr2"), CoreMatchers.hasItems("four", "five"));

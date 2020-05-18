@@ -14,6 +14,7 @@
 package org.codice.ddf.security.servlet.whoami
 
 import ddf.security.service.SecurityManager
+import ddf.security.service.impl.SubjectUtils
 import groovy.json.JsonSlurper
 import org.apache.shiro.util.ThreadContext
 
@@ -26,6 +27,7 @@ class WhoAmIServletSpec extends SubjectSpec {
 
     def setup() {
         whoAmIServlet = new WhoAmIServlet()
+        whoAmIServlet.setSubjectOperations(new SubjectUtils())
 
         def securityManager = Mock(SecurityManager)
         securityManager.getSubject(_) >> mockSubject()

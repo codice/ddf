@@ -19,11 +19,14 @@
     <reference id="contextPolicyManager"
                interface="org.codice.ddf.security.policy.context.ContextPolicyManager"/>
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean id="filter" class="org.codice.ddf.security.filter.authorization.AuthorizationFilter">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.security.filter.authorization.AuthorizationFilter"
                 update-strategy="container-managed"/>
         <argument ref="contextPolicyManager"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="filter"

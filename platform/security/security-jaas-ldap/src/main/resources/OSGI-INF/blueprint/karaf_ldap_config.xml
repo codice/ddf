@@ -18,6 +18,8 @@
         <bean class="ddf.ldap.ldaplogin.PropertiesConverter"/>
     </type-converters>
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <cm:managed-service-factory
             id="ddf.ldap.ldaplogin.LdapLoginConfig.id"
             factory-pid="Ldap_Login_Config"
@@ -41,6 +43,7 @@
             <property name="loginUserAttribute" value="uid"/>
             <property name="membershipUserAttribute" value="uid"/>
             <property name="memberNameAttribute" value="member"/>
+            <property name="securityLogger" ref="securityLogger"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="component-managed" update-method="update"/>
         </cm:managed-component>

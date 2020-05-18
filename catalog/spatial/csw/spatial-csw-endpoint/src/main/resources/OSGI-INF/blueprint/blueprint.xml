@@ -22,6 +22,7 @@
     <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
     <reference id="security" interface="org.codice.ddf.security.Security" />
     <reference id="securityManager" interface="ddf.security.service.SecurityManager" />
+    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
 
     <bean id="CswResourceComparator"
           class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator">
@@ -163,6 +164,7 @@
         <argument ref="metacardCswRecordMap"/>
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>
+        <argument ref="permissions"/>
         <property name="attributeRegistry" ref="attributeRegistry"/>
         <property name="schemaToTagsMapping">
             <array value-type="java.lang.String">

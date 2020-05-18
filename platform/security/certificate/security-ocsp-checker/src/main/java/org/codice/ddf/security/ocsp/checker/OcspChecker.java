@@ -18,7 +18,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.SecurityConstants;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,6 +89,8 @@ public class OcspChecker implements OcspService {
   private boolean ocspEnabled; // metatype value
   private List<String> ocspServerUrls = new ArrayList<>(); // metatype value
 
+  private SecurityLogger securityLogger;
+
   public OcspChecker(ClientFactoryFactory factory, EventAdmin eventAdmin) {
     this.factory = factory;
     this.eventAdmin = eventAdmin;
@@ -117,7 +119,7 @@ public class OcspChecker implements OcspService {
         Map<String, CertificateStatus> ocspStatuses = sendOcspRequests(cert, ocspRequest);
         String revokedStatusUrl = getFirstRevokedStatusUrl(ocspStatuses);
         if (revokedStatusUrl != null) {
-          SecurityLogger.audit(
+          securityLogger.audit(
               "Certificate {} has been revoked by the OCSP server at URL {}.",
               cert,
               revokedStatusUrl);
@@ -214,7 +216,7 @@ public class OcspChecker implements OcspService {
     try (InputStream truststoreInputStream = new FileInputStream(trustStorePath)) {
       truststore = SecurityConstants.newTruststore();
       truststore.load(truststoreInputStream, trustStorePass.toCharArray());
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Truststore on path {} was read by {}.", trustStorePath, this.getClass().getSimpleName());
     } catch (CertificateException | IOException | KeyStoreException | NoSuchAlgorithmException e) {
       throw new OcspCheckerException(
@@ -466,8 +468,8 @@ public class OcspChecker implements OcspService {
             SystemNotice.SYSTEM_NOTICE_BASE_TOPIC + "crl",
             new SystemNotice(this.getClass().getName(), NoticePriority.CRITICAL, title, details)
                 .getProperties()));
-    SecurityLogger.audit(title);
-    SecurityLogger.audit(errorMessage);
+    securityLogger.audit(title);
+    securityLogger.audit(errorMessage);
     LOGGER.debug(errorMessage);
   }
 
@@ -689,5 +691,9 @@ public class OcspChecker implements OcspService {
 
   private static <T> T getValueOrDefault(T value, T defaultValue) {
     return value == null ? defaultValue : value;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

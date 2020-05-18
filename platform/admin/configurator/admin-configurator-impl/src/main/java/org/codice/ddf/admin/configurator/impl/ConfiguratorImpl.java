@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.admin.configurator.impl;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
@@ -51,6 +51,12 @@ public class ConfiguratorImpl implements Configurator {
 
   private final Map<UUID, Operation> configHandlers = new LinkedHashMap<>();
 
+  private SecurityLogger securityLogger;
+
+  public ConfiguratorImpl(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
+  }
+
   /**
    * Sequentially invokes all the {@link Operation}s, committing their changes. If a failure occurs
    * during the processing, a rollback is attempted of those handlers that had already been
@@ -69,7 +75,7 @@ public class ConfiguratorImpl implements Configurator {
   public OperationReport commit(String auditMessage, String... auditParams) {
     OperationReport report = commit();
     if (report.hasTransactionSucceeded()) {
-      SecurityLogger.audit(auditMessage, (Object[]) auditParams);
+      securityLogger.audit(auditMessage, (Object[]) auditParams);
     }
 
     return report;

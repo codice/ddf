@@ -11,13 +11,12 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.permission;
+package ddf.security.permission.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-import ddf.security.permission.impl.Permissions;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,38 +24,40 @@ import org.junit.Test;
 
 public class PermissionsTest {
 
+  private PermissionsImpl permissions = new PermissionsImpl();
+
   @Test
   public void testParsePermissions() throws Exception {
-    Map<String, Set<String>> map = Permissions.parsePermissionsFromString((String) null);
+    Map<String, Set<String>> map = permissions.parsePermissionsFromString((String) null);
     assertThat(map.size(), is(0));
 
-    map = Permissions.parsePermissionsFromString("someRandomString");
+    map = permissions.parsePermissionsFromString("someRandomString");
     assertThat(map.size(), is(0));
 
-    map = Permissions.parsePermissionsFromString("too=many=equals");
+    map = permissions.parsePermissionsFromString("too=many=equals");
     assertThat(map.size(), is(0));
 
-    map = Permissions.parsePermissionsFromString("too=many=equals", "valid=permission");
+    map = permissions.parsePermissionsFromString("too=many=equals", "valid=permission");
     assertThat(map.size(), is(1));
     assertThat(map.get("valid").iterator().next(), equalTo("permission"));
 
-    map = Permissions.parsePermissionsFromString("name=value1");
+    map = permissions.parsePermissionsFromString("name=value1");
     assertThat(map.size(), is(1));
     assertThat(map.get("name").iterator().next(), equalTo("value1"));
 
-    map = Permissions.parsePermissionsFromString("name=value1,value2");
+    map = permissions.parsePermissionsFromString("name=value1,value2");
     assertThat(map.size(), is(1));
     assertThat(map.get("name").size(), is(2));
   }
 
   @Test
   public void testGetPermissions() throws Exception {
-    List<String> permStrings = Permissions.getPermissionsAsStrings(null);
+    List<String> permStrings = permissions.getPermissionsAsStrings(null);
     assertThat(permStrings.size(), is(0));
 
     Map<String, Set<String>> map =
-        Permissions.parsePermissionsFromString("name=value1,value2", "name2=value3");
-    permStrings = Permissions.getPermissionsAsStrings(map);
+        permissions.parsePermissionsFromString("name=value1,value2", "name2=value3");
+    permStrings = permissions.getPermissionsAsStrings(map);
     assertThat(
         permStrings.contains("name=value1,value2") || permStrings.contains("name=value2,value1"),
         is(true));

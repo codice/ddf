@@ -13,8 +13,8 @@
  */
 package ddf.security.interceptor;
 
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
+import ddf.security.audit.SecurityLogger;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
@@ -25,8 +25,20 @@ import org.apache.shiro.util.ThreadContext;
 
 public class SecurityLoggerOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
+  private SubjectOperations subjectOperations;
+
+  private SecurityLogger securityLogger;
+
   public SecurityLoggerOutInterceptor() {
     super(Phase.WRITE);
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 
   @Override
@@ -34,10 +46,13 @@ public class SecurityLoggerOutInterceptor extends AbstractPhaseInterceptor<Messa
     if (MessageUtils.isRequestor(message)) {
       Subject subject = ThreadContext.getSubject();
       if (subject != null) {
-        String username = SubjectUtils.getName(subject);
-        SecurityLogger.audit("{} is making an outbound request.", username);
+        if (subjectOperations == null) {
+          throw new IllegalStateException("Unable to audit at this time.");
+        }
+        String username = subjectOperations.getName(subject);
+        securityLogger.audit("{} is making an outbound request.", username);
       } else {
-        SecurityLogger.audit("No subject associated with outbound request.");
+        securityLogger.audit("No subject associated with outbound request.");
       }
     }
   }

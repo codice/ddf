@@ -30,7 +30,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputCollectionTransformer;
 import ddf.catalog.transform.InputTransformer;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -250,6 +250,8 @@ public class IngestCommand extends CatalogCommands {
 
   @Reference StorageProvider storageProvider;
 
+  @Reference SecurityLogger securityLogger;
+
   private Map<String, List<File>> metacardFileMapping;
 
   private File failedIngestDirectory = null;
@@ -367,14 +369,14 @@ public class IngestCommand extends CatalogCommands {
       }
     }
     console.println();
-    SecurityLogger.audit("Ingested {} file(s) from {}", ingestCount.get(), filePath);
+    securityLogger.audit("Ingested {} file(s) from {}", ingestCount.get(), filePath);
     return null;
   }
 
   private File getInputFile() {
     final File inputFile = new File(filePath);
 
-    SecurityLogger.audit("Called catalog:ingest command with path : {}", filePath);
+    securityLogger.audit("Called catalog:ingest command with path : {}", filePath);
 
     if (!inputFile.exists()) {
       printErrorMessage(String.format("File or directory [%s] must exist.", filePath));

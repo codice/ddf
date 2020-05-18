@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -74,6 +75,8 @@ public class SecureCxfClientFactoryTest {
 
   private SamlSecurity samlSecurity = new SamlSecurity();
 
+  private SecurityLogger securityLogger = mock(SecurityLogger.class);
+
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
@@ -105,21 +108,24 @@ public class SecureCxfClientFactoryTest {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory;
     boolean invalid = false;
     try { // test empty string for url
-      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>("", IDummy.class, samlSecurity);
+      secureCxfClientFactory =
+          new SecureCxfClientFactoryImpl<>("", IDummy.class, samlSecurity, securityLogger);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertThat(invalid, is(true));
     invalid = false;
     try { // null for url
-      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>(null, IDummy.class, samlSecurity);
+      secureCxfClientFactory =
+          new SecureCxfClientFactoryImpl<>(null, IDummy.class, samlSecurity, securityLogger);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertThat(invalid, is(true));
     invalid = false;
     try { // null for url and class
-      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>(null, null, samlSecurity);
+      secureCxfClientFactory =
+          new SecureCxfClientFactoryImpl<>(null, null, samlSecurity, securityLogger);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -127,7 +133,7 @@ public class SecureCxfClientFactoryTest {
     invalid = false;
     try { // null for class
       secureCxfClientFactory =
-          new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, null, samlSecurity);
+          new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, null, samlSecurity, securityLogger);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -146,7 +152,8 @@ public class SecureCxfClientFactoryTest {
               0,
               new ClientKeyInfo("alias", "keystore"),
               "TLSv1.1",
-              samlSecurity);
+              samlSecurity,
+              securityLogger);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -156,7 +163,8 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testInsecureWebClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, IDummy.class, samlSecurity);
+        new SecureCxfClientFactoryImpl<>(
+            INSECURE_ENDPOINT, IDummy.class, samlSecurity, securityLogger);
     WebClient client = secureCxfClientFactory.getWebClient();
 
     assertThat(hasEcpEnabled(client), is(false));
@@ -166,7 +174,8 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testSecureClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class, samlSecurity);
+        new SecureCxfClientFactoryImpl<>(
+            SECURE_ENDPOINT, IDummy.class, samlSecurity, securityLogger);
     IDummy client = secureCxfClientFactory.getClient();
 
     assertThat(hasEcpEnabled(client), is(true));
@@ -175,7 +184,8 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testSecureWebClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class, samlSecurity);
+        new SecureCxfClientFactoryImpl<>(
+            SECURE_ENDPOINT, IDummy.class, samlSecurity, securityLogger);
     WebClient client = secureCxfClientFactory.getWebClient();
 
     assertThat(hasEcpEnabled(client), is(true));
@@ -186,7 +196,7 @@ public class SecureCxfClientFactoryTest {
   public void validateConduit() {
     IDummy clientForSubject =
         new SecureCxfClientFactoryImpl<>(
-                SECURE_ENDPOINT, IDummy.class, null, null, true, true, samlSecurity)
+                SECURE_ENDPOINT, IDummy.class, null, null, true, true, samlSecurity, securityLogger)
             .getClient();
     HTTPConduit httpConduit =
         WebClient.getConfig(WebClient.client(clientForSubject)).getHttpConduit();
@@ -206,7 +216,8 @@ public class SecureCxfClientFactoryTest {
             false,
             false,
             mockPropertyResolver,
-            samlSecurity);
+            samlSecurity,
+            securityLogger);
     Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
     assertThat(unsecuredClient.getBaseURI().toASCIIString(), is(SECURE_ENDPOINT));
     verify(mockPropertyResolver).getResolvedString();
@@ -294,11 +305,6 @@ public class SecureCxfClientFactoryTest {
     public DummySubject(
         org.apache.shiro.mgt.SecurityManager manager, PrincipalCollection principals) {
       super(principals, true, null, new SimpleSession(UUID.randomUUID().toString()), manager);
-    }
-
-    @Override
-    public boolean isGuest() {
-      return false;
     }
 
     @Override

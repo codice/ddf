@@ -18,6 +18,8 @@
 
     <ext:property-placeholder/>
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean id="policyMgr" class="org.codice.ddf.security.policy.context.impl.PolicyManager"
           init-method="configure">
         <cm:managed-properties
@@ -62,6 +64,7 @@
             <value>20</value>
         </property>
         <property name="policyFilePath" value="${ddf.etc}/web-context-policy-config.properties"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="policyMgr"

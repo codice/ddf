@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.sdk.rest;
 
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -23,9 +23,15 @@ import org.apache.shiro.SecurityUtils;
 @Path("/")
 public class WhoAmIEndpoint {
 
+  private SubjectOperations subjectOperations;
+
   @GET
   @Produces("text/plain")
   public Response whoAmI() {
-    return Response.ok(SubjectUtils.getName(SecurityUtils.getSubject())).build();
+    return Response.ok(subjectOperations.getName(SecurityUtils.getSubject())).build();
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

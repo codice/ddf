@@ -14,7 +14,7 @@
 package org.codice.ddf.admin.application.service.command;
 
 import com.google.gson.reflect.TypeToken;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,6 +37,7 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
@@ -68,6 +69,8 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
   private static final String RESTART_WARNING =
       "An unexpected error occurred during the installation process. The system is in unknown state. It is strongly recommended to restart the installation from the beginning.";
   private static final Logger LOGGER = LoggerFactory.getLogger(ProfileInstallCommand.class);
+
+  @Reference protected SecurityLogger securityLogger;
 
   @Override
   protected final void doExecute(
@@ -128,7 +131,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
           stopBundles(bundleService, profile.get(ADVANCED_PROFILE_STOP_BUNDLES));
           uninstallInstallerModule(featuresService);
           printSuccess("Installation Complete");
-          SecurityLogger.audit("Installed profile: {}", profile);
+          securityLogger.audit("Installed profile: {}", profile);
         } else {
           printError(String.format("Profile: %s not found", profileName));
         }
@@ -137,7 +140,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
         | ResolutionException
         | BundleException
         | IllegalArgumentException e) {
-      SecurityLogger.audit("Failed to install profile: {}", profileName);
+      securityLogger.audit("Failed to install profile: {}", profileName);
       printError(RESTART_WARNING);
       throw e;
     }
@@ -246,7 +249,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
               JsonUtils.fromJson(
                   FileUtils.readFileToString(profileFile, StandardCharsets.UTF_8),
                   new TypeToken<Map<String, List<String>>>() {}.getType());
-      SecurityLogger.audit("Read profile {} from {}", profileName, profileFile.getAbsolutePath());
+      securityLogger.audit("Read profile {} from {}", profileName, profileFile.getAbsolutePath());
     } catch (FileNotFoundException e) {
       LOGGER.debug(
           "The file associated with profile: {} was not found under {}", profileName, profilePath);

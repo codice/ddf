@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -47,6 +48,7 @@ public class PepInterceptorInvalidSubjectTest {
     SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
     PEPAuthorizingInterceptor interceptor =
         spy(new PEPAuthorizingInterceptor(m -> mockSecurityAssertion));
+    interceptor.setSecurityLogger(mock(SecurityLogger.class));
 
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);

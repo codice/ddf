@@ -22,6 +22,8 @@
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean id="crypto" class="ddf.security.samlp.impl.SystemCrypto">
         <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
         <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
@@ -55,6 +57,7 @@
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role</value>
             </list>
         </property>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <bean id="encryptionProperties" class="org.codice.ddf.security.claims.attributequery.common.PropertiesWrapper">

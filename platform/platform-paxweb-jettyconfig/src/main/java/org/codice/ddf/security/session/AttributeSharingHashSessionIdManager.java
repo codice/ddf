@@ -30,7 +30,6 @@
 //
 package org.codice.ddf.security.session;
 
-import ddf.security.common.audit.SecurityLogger;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Iterator;
@@ -136,7 +135,6 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
   /** @see org.eclipse.jetty.server.SessionIdManager#invalidateAll(String) */
   @Override
   public void invalidateAll(String id) {
-    SecurityLogger.audit("Invalidating session ID {}", id);
     deleteId(id);
     super.invalidateAll(id);
   }
@@ -150,7 +148,6 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
   /** @see org.eclipse.jetty.server.SessionIdManager#expireAll(String) */
   @Override
   public void expireAll(String id) {
-    SecurityLogger.audit("Expiring session ID {}", id);
     deleteId(id);
     super.expireAll(id);
   }
@@ -161,7 +158,6 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
    * @param id the session id
    */
   private void invalidateSession(String id) {
-    SecurityLogger.audit("Invalidating session ID {}", id);
     Iterator handlerIterator = this.getSessionHandlers().iterator();
 
     while (handlerIterator.hasNext()) {

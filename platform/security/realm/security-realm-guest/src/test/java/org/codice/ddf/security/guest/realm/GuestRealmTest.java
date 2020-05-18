@@ -17,9 +17,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import ddf.security.assertion.Attribute;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.audit.SecurityLogger;
 import java.util.Arrays;
 import java.util.Iterator;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -36,6 +38,7 @@ public class GuestRealmTest {
   @BeforeClass
   public static void setup() {
     guestRealm = new GuestRealm();
+    guestRealm.setSecurityLogger(mock(SecurityLogger.class));
     guestRealm.setAttributes(
         Arrays.asList("claim1=value1", "claim2=value2|value3", "bad", ":=invalid"));
   }

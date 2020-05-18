@@ -19,6 +19,10 @@
     <reference-list id="logoutActionProvidersList" interface="ddf.action.ActionProvider"
                     filter="(id=security.logout.*)" availability="optional"/>
 
+    <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
+
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean id="logoutService" class="org.codice.ddf.security.servlet.logout.LogoutServiceImpl">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.security.servlet.logout.LogoutServiceImpl"
@@ -28,6 +32,7 @@
         <property name="httpSessionFactory">
             <reference interface="ddf.security.http.SessionFactory" filter="(id=http)"/>
         </property>
+        <property name="subjectOperations" ref="subjectOperations" />
     </bean>
 
     <service ref="logoutService" interface="org.codice.ddf.security.logout.service.LogoutService"/>
@@ -39,6 +44,7 @@
     <bean id="logoutServlet" class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet">
         <property name="tokenStorage" ref="tokenStorage"/>
         <property name="redirectUri" value="/logout/logout-response.html"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="logoutServlet" interface="javax.servlet.Servlet">

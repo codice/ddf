@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableList;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
+import ddf.security.service.impl.SubjectUtils;
 import java.net.URL;
 
 /** Tests that the notification events are properly published when simulating download events. */
@@ -35,6 +36,7 @@ public class NotificationEventPublisherTest extends AbstractDownloadsStatusEvent
       LOGGER.warn("Could not set download action URL", e);
     }
     publisher = new DownloadsStatusEventPublisher(eventAdmin, ImmutableList.of(actionProvider));
+    publisher.setSubjectOperations(new SubjectUtils());
     publisher.setActivityEnabled(false);
   }
 }

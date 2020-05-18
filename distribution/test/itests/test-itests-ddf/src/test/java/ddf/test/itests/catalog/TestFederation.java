@@ -40,9 +40,9 @@ import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSubscription
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearch;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -223,6 +223,8 @@ public class TestFederation extends AbstractIntegrationTest {
       Map<String, Object> openSearchProperties =
           getOpenSearchSourceProperties(
               OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
+      openSearchProperties.put("username", "localhost");
+      openSearchProperties.put("password", "localhost");
       openSearchPid =
           getServiceManager()
               .createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties)
@@ -248,6 +250,8 @@ public class TestFederation extends AbstractIntegrationTest {
           getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
 
       cswProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
+      cswProperties.put("username", "localhost");
+      cswProperties.put("password", "localhost");
       cswPid2 =
           getServiceManager()
               .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties)
@@ -258,6 +262,8 @@ public class TestFederation extends AbstractIntegrationTest {
               CSW_SOURCE_WITH_METACARD_XML_ID, CSW_PATH.getUrl(), getServiceManager());
       cswProperties2.put("outputSchema", "urn:catalog:metacard");
       cswProperties2.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
+      cswProperties2.put("username", "localhost");
+      cswProperties2.put("password", "localhost");
       cswPid3 =
           getServiceManager()
               .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties2)
@@ -859,7 +865,7 @@ public class TestFederation extends AbstractIntegrationTest {
           .body(
               containsString("\"fpid\":\"OpenSearchSource\""),
               containsString("\"fpid\":\"Csw_Federated_Source\"") /*,
-                containsString("\"fpid\":\"Csw_Connected_Source\"")*/);
+                  containsString("\"fpid\":\"Csw_Connected_Source\"")*/);
     } finally {
       getSecurityPolicy().configureRestForGuest();
     }
@@ -909,55 +915,55 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   // TODO: Connected csw/wfs sources are broken. Ticket: DDF-1366
-  @Ignore
-  @Test
-  public void testConnectedSourceStatus() throws Exception {
-    try {
-      setupConnectedSources();
-    } catch (IOException e) {
-      LOGGER.error("Couldn't create connected sources", e);
-    }
-
-    try {
-      getSecurityPolicy().configureRestForBasic();
-
-      String json =
-          given()
-              .auth()
-              .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-              .header("X-Requested-With", "XMLHttpRequest")
-              .header("Origin", ADMIN_ALL_SOURCES_PATH.getUrl())
-              .when()
-              .get(ADMIN_ALL_SOURCES_PATH.getUrl())
-              .asString();
-
-      List<Map<String, Object>> sources =
-          with(json)
-              .param("name", "Csw_Connected_Source")
-              .get("value.findAll { source -> source.id == name}");
-      String connectedSourcePid =
-          (String)
-              ((ArrayList<Map<String, Object>>) (sources.get(0).get("configurations")))
-                  .get(0)
-                  .get("id");
-
-      // Test CSW Connected Source status
-      given()
-          .auth()
-          .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-          .header("X-Requested-With", "XMLHttpRequest")
-          .header("Origin", ADMIN_STATUS_PATH.getUrl())
-          .when()
-          .get(ADMIN_STATUS_PATH.getUrl() + connectedSourcePid)
-          .then()
-          .assertThat()
-          .body(containsString("\"value\":true"));
-
-    } finally {
-      getSecurityPolicy().configureRestForGuest();
-      cleanupConnectedSources();
-    }
-  }
+  //  @Ignore
+  //  @Test
+  //  public void testConnectedSourceStatus() throws Exception {
+  //    try {
+  //      setupConnectedSources();
+  //    } catch (IOException e) {
+  //      LOGGER.error("Couldn't create connected sources", e);
+  //    }
+  //
+  //    try {
+  //      getSecurityPolicy().configureRestForBasic();
+  //
+  //      String json =
+  //          given()
+  //              .auth()
+  //              .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+  //              .header("X-Requested-With", "XMLHttpRequest")
+  //              .header("Origin", ADMIN_ALL_SOURCES_PATH.getUrl())
+  //              .when()
+  //              .get(ADMIN_ALL_SOURCES_PATH.getUrl())
+  //              .asString();
+  //
+  //      List<Map<String, Object>> sources =
+  //          with(json)
+  //              .param("name", "Csw_Connected_Source")
+  //              .get("value.findAll { source -> source.id == name}");
+  //      String connectedSourcePid =
+  //          (String)
+  //              ((ArrayList<Map<String, Object>>) (sources.get(0).get("configurations")))
+  //                  .get(0)
+  //                  .get("id");
+  //
+  //      // Test CSW Connected Source status
+  //      given()
+  //          .auth()
+  //          .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+  //          .header("X-Requested-With", "XMLHttpRequest")
+  //          .header("Origin", ADMIN_STATUS_PATH.getUrl())
+  //          .when()
+  //          .get(ADMIN_STATUS_PATH.getUrl() + connectedSourcePid)
+  //          .then()
+  //          .assertThat()
+  //          .body(containsString("\"value\":true"));
+  //
+  //    } finally {
+  //      getSecurityPolicy().configureRestForGuest();
+  //      cleanupConnectedSources();
+  //    }
+  //  }
 
   @Test
   public void testCatalogEndpointExposure() {
@@ -1403,10 +1409,10 @@ public class TestFederation extends AbstractIntegrationTest {
   public void testEnterpriseSearch() throws Exception {
 
     try {
+      getSecurityPolicy().configureRestForGuest();
+
       String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + RECORD_TITLE_1 + "&format=xml";
       given()
-          .auth()
-          .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
           .get(queryUrl)
           .then()
           .statusCode(200)
@@ -1652,6 +1658,7 @@ public class TestFederation extends AbstractIntegrationTest {
           .get(startDownloadUrl);
     } finally {
       getSecurityPolicy().configureRestForGuest();
+      getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
       getCatalogBundle().setupCaching(false);
     }
   }
@@ -1828,7 +1835,9 @@ public class TestFederation extends AbstractIntegrationTest {
               Condition.parameter("request", "GetRecordById"),
               Condition.parameter("id", metacardId2));
     } finally {
+      getCatalogBundle().setupCaching(false);
       getSecurityPolicy().configureRestForGuest();
+      getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
     }
   }
 
@@ -1859,7 +1868,7 @@ public class TestFederation extends AbstractIntegrationTest {
               + "&metacard="
               + metacardId;
 
-      // Download product via async and then sync, should only call the stub server to download once
+      // Download product via async and then sync, should only call the stub server to download
       given()
           .auth()
           .preemptive()
@@ -1874,7 +1883,9 @@ public class TestFederation extends AbstractIntegrationTest {
 
       verifyCswStubCall(1, metacardId);
     } finally {
+      getCatalogBundle().setupCaching(false);
       getSecurityPolicy().configureRestForGuest();
+      getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
     }
   }
 
@@ -1912,7 +1923,9 @@ public class TestFederation extends AbstractIntegrationTest {
 
       verifyCswStubCall(1, metacardId);
     } finally {
+      getCatalogBundle().setupCaching(false);
       getSecurityPolicy().configureRestForGuest();
+      getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
     }
   }
 

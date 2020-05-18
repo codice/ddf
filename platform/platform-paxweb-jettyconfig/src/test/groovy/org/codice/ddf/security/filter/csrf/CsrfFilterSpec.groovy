@@ -15,6 +15,7 @@ package org.codice.ddf.security.filter.csrf
 
 import com.google.common.collect.ImmutableList
 import com.google.common.net.HttpHeaders
+import ddf.security.audit.SecurityLogger
 import org.codice.ddf.pax.web.jetty.CsrfFilter
 import org.codice.ddf.platform.filter.AuthenticationException
 import org.eclipse.jetty.http.HttpMethod
@@ -78,6 +79,7 @@ class CsrfFilterSpec extends Specification {
             String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader, String method) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
+        csrfFilter.setSecurityLogger(Mock(SecurityLogger))
         csrfFilter.init()
         HttpServletResponse response = Mock(HttpServletResponse)
         FilterChain chain = Mock(FilterChain)
@@ -158,6 +160,7 @@ class CsrfFilterSpec extends Specification {
             String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader, String method) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
+        csrfFilter.setSecurityLogger(Mock(SecurityLogger))
         csrfFilter.init()
         HttpServletResponse response = Mock(HttpServletResponse)
         FilterChain chain = Mock(FilterChain)
@@ -224,6 +227,7 @@ class CsrfFilterSpec extends Specification {
             String requestContext, String userAgent, String method, String param) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
+        csrfFilter.setSecurityLogger(Mock(SecurityLogger))
         csrfFilter.init()
         HttpServletResponse response = Mock(HttpServletResponse)
         FilterChain chain = Mock(FilterChain)
@@ -292,6 +296,7 @@ class CsrfFilterSpec extends Specification {
             String requestContext, String userAgent, String method, String param) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
+        csrfFilter.setSecurityLogger(Mock(SecurityLogger))
         csrfFilter.init()
         HttpServletResponse response = Mock(HttpServletResponse)
         FilterChain chain = Mock(FilterChain)

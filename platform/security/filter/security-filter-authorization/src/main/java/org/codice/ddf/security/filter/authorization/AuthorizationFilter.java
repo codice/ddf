@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.security.filter.authorization;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import java.io.IOException;
 import javax.servlet.ServletRequest;
@@ -37,6 +37,8 @@ public class AuthorizationFilter implements SecurityFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationFilter.class);
 
   private final ContextPolicyManager contextPolicyManager;
+
+  private SecurityLogger securityLogger;
 
   /**
    * Default constructor
@@ -92,12 +94,12 @@ public class AuthorizationFilter implements SecurityFilter {
       }
 
       if (!permitted) {
-        SecurityLogger.audit("Subject not authorized to view resource {}", path);
+        securityLogger.audit("Subject not authorized to view resource {}", path);
         LOGGER.debug("Subject not authorized.");
         returnNotAuthorized(httpResponse);
       } else {
         if (!permissions.isEmpty()) {
-          SecurityLogger.audit("Subject is authorized to view resource {}", path);
+          securityLogger.audit("Subject is authorized to view resource {}", path);
         }
         LOGGER.debug("Subject is authorized!");
         chain.doFilter(request, response);
@@ -123,5 +125,9 @@ public class AuthorizationFilter implements SecurityFilter {
   @Override
   public void destroy() {
     LOGGER.debug("Destroying AuthZ filter.");
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

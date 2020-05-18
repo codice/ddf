@@ -14,19 +14,20 @@
 package org.codice.ddf.security.servlet.whoami
 
 import ddf.security.Subject
-import ddf.security.impl.SubjectUtils
+import ddf.security.SubjectOperations
+import ddf.security.service.impl.SubjectUtils
 
 class WhoAmISpec extends SubjectSpec {
 
     WhoAmI whoami
 
     def setup() {
-        whoami = new WhoAmI(mockSubject())
+        whoami = new WhoAmI(mockSubject(), new SubjectUtils())
     }
 
     def 'subject must not be null'() {
         when:
-        new WhoAmI(null)
+        new WhoAmI(null, new SubjectUtils())
 
         then:
         thrown(IllegalArgumentException)
@@ -34,7 +35,7 @@ class WhoAmISpec extends SubjectSpec {
 
     def 'assertion must not be null'() {
         when:
-        new WhoAmI(Mock(Subject))
+        new WhoAmI(Mock(Subject), new SubjectUtils())
 
         then:
         thrown(IllegalArgumentException)
@@ -69,7 +70,7 @@ class WhoAmISpec extends SubjectSpec {
         def claims = whoami.whoAmISubjects.get(0).getClaims()
 
         then:
-        claims.containsKey(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI)
+        claims.containsKey(SubjectOperations.EMAIL_ADDRESS_CLAIM_URI)
     }
 
     def 'returns guest status of subject'() {

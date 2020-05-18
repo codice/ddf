@@ -51,7 +51,7 @@ import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
@@ -70,6 +70,8 @@ public class SecurityLoggingPlugin
         PreUpdateStoragePlugin,
         PostCreateStoragePlugin,
         PostUpdateStoragePlugin {
+
+  private SecurityLogger securityLogger;
 
   @Override
   public CreateRequest process(CreateRequest input)
@@ -259,9 +261,9 @@ public class SecurityLoggingPlugin
   private void logOperation(
       CatalogOperationType operationType, Request request, String additionalInfo) {
     if (Requests.isLocal(request)) {
-      SecurityLogger.audit("Performing {} operation {} on catalog.", operationType, additionalInfo);
+      securityLogger.audit("Performing {} operation {} on catalog.", operationType, additionalInfo);
     } else {
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Performing {} operation {} on {}", operationType, additionalInfo, request.getStoreIds());
     }
   }
@@ -269,10 +271,10 @@ public class SecurityLoggingPlugin
   private void logOperation(
       CatalogOperationType operationType, Response response, String additionalInfo) {
     if (Requests.isLocal(response.getRequest())) {
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Receiving results of {} operation {} on catalog.", operationType, additionalInfo);
     } else {
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Receiving results of {} operation {} on {}",
           operationType,
           additionalInfo,
@@ -291,5 +293,9 @@ public class SecurityLoggingPlugin
     DELETE_RESPONSE,
     QUERY_RESPONSE,
     RESOURCE_RESPONSE
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

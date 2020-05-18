@@ -47,6 +47,7 @@ import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustStoreTrustManager;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,6 +102,7 @@ public class LdapModuleTest {
 
     server = TestServer.getInstance();
     LdapLoginConfig ldapLoginConfig = new LdapLoginConfig(null);
+    ldapLoginConfig.setSecurityLogger(mock(SecurityLogger.class));
     ConnectionFactory ldapConnectionFactory =
         ldapLoginConfig.createLdapConnectionFactory(TestServer.getUrl("ldap"), false);
     module =
@@ -219,6 +221,7 @@ public class LdapModuleTest {
       TestModule object = new TestModule();
       object.options = new HashMap<>(options);
       object.realModule = new SslLdapLoginModule();
+      object.realModule.setSecurityLogger(mock(SecurityLogger.class));
       EncryptionService mockEncryptionService = mock(EncryptionService.class);
       when(mockEncryptionService.decryptValue(anyString())).then(returnsFirstArg());
       object.realModule.setEncryptionService(mockEncryptionService);

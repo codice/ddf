@@ -13,35 +13,39 @@
  */
 package org.codice.ddf.security.claims.certificate;
 
+import ddf.security.SubjectOperations;
 import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsHandler;
 import ddf.security.claims.ClaimsParameters;
 import ddf.security.claims.impl.ClaimImpl;
 import ddf.security.claims.impl.ClaimsCollectionImpl;
-import ddf.security.impl.SubjectUtils;
 import java.util.List;
 import java.util.Map;
 import org.apache.cxf.common.util.StringUtils;
 
 public class CertificateClaimsHandler implements ClaimsHandler {
 
-  private String emailClaim = SubjectUtils.EMAIL_ADDRESS_CLAIM_URI;
+  private String emailClaim = SubjectOperations.EMAIL_ADDRESS_CLAIM_URI;
 
-  private String countryClaim = SubjectUtils.COUNTRY_CLAIM_URI;
+  private String countryClaim = SubjectOperations.COUNTRY_CLAIM_URI;
 
   @Override
   public ClaimsCollection retrieveClaims(ClaimsParameters parameters) {
     ClaimsCollection claimsColl = new ClaimsCollectionImpl();
     Map<String, Object> additionalProperties = parameters.getAdditionalProperties();
     if (additionalProperties != null) {
-      if (additionalProperties.containsKey(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI)) {
+      if (additionalProperties.containsKey(SubjectOperations.EMAIL_ADDRESS_CLAIM_URI)) {
         buildClaim(
-            claimsColl, emailClaim, additionalProperties.get(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
+            claimsColl,
+            emailClaim,
+            additionalProperties.get(SubjectOperations.EMAIL_ADDRESS_CLAIM_URI));
       }
-      if (additionalProperties.containsKey(SubjectUtils.COUNTRY_CLAIM_URI)) {
+      if (additionalProperties.containsKey(SubjectOperations.COUNTRY_CLAIM_URI)) {
         buildClaim(
-            claimsColl, countryClaim, additionalProperties.get(SubjectUtils.COUNTRY_CLAIM_URI));
+            claimsColl,
+            countryClaim,
+            additionalProperties.get(SubjectOperations.COUNTRY_CLAIM_URI));
       }
     }
     return claimsColl;
@@ -65,11 +69,11 @@ public class CertificateClaimsHandler implements ClaimsHandler {
 
   public void setEmailClaim(String emailClaim) {
     this.emailClaim =
-        StringUtils.isEmpty(emailClaim) ? SubjectUtils.EMAIL_ADDRESS_CLAIM_URI : emailClaim;
+        StringUtils.isEmpty(emailClaim) ? SubjectOperations.EMAIL_ADDRESS_CLAIM_URI : emailClaim;
   }
 
   public void setCountryClaim(String countryClaim) {
     this.countryClaim =
-        StringUtils.isEmpty(countryClaim) ? SubjectUtils.COUNTRY_CLAIM_URI : countryClaim;
+        StringUtils.isEmpty(countryClaim) ? SubjectOperations.COUNTRY_CLAIM_URI : countryClaim;
   }
 }

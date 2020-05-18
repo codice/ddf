@@ -14,7 +14,7 @@
 package ddf.security.listener;
 
 import com.google.common.hash.Hashing;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
@@ -22,11 +22,13 @@ import javax.servlet.http.HttpSessionListener;
 
 public class AuditingHttpSessionListener implements HttpSessionListener {
 
+  private SecurityLogger securityLogger;
+
   @Override
   public void sessionCreated(HttpSessionEvent se) {
     HttpSession session = se.getSession();
 
-    SecurityLogger.audit(
+    securityLogger.audit(
         "Session {} created.",
         Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString());
   }
@@ -35,8 +37,12 @@ public class AuditingHttpSessionListener implements HttpSessionListener {
   public void sessionDestroyed(HttpSessionEvent se) {
     HttpSession session = se.getSession();
 
-    SecurityLogger.audit(
+    securityLogger.audit(
         "Session {} destroyed.",
         Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString());
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

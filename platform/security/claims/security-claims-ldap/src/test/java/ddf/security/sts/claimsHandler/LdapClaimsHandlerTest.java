@@ -13,7 +13,6 @@
  */
 package ddf.security.sts.claimsHandler;
 
-import static ddf.security.impl.SubjectUtils.NAME_IDENTIFIER_CLAIM_URI;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -28,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import ddf.security.SubjectOperations;
 import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsParameters;
@@ -89,7 +89,7 @@ public class LdapClaimsHandlerTest {
     mockEntryReader = mock(ConnectionEntryReader.class);
     mockBindRequest = mock(BindRequest.class);
     Map<String, String> map = new HashMap<>();
-    map.put(NAME_IDENTIFIER_CLAIM_URI, ATTRIBUTE_NAME);
+    map.put(SubjectOperations.NAME_IDENTIFIER_CLAIM_URI, ATTRIBUTE_NAME);
     AttributeMapLoader mockAttributeMapLoader = mock(AttributeMapLoader.class);
     when(mockAttributeMapLoader.buildClaimsMapFile(anyString())).thenReturn(map);
     when(mockAttributeMapLoader.getUser(any(Principal.class)))

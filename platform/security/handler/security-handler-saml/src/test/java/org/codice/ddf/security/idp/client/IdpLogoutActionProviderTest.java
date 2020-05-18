@@ -22,6 +22,7 @@ import ddf.action.Action;
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.service.impl.SubjectUtils;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Collections;
@@ -65,7 +66,7 @@ public class IdpLogoutActionProviderTest {
 
     Subject subject = mock(Subject.class);
     when(subject.getPrincipals()).thenReturn(principalCollection);
-
+    idpLogoutActionProvider.setSubjectOperations(new SubjectUtils());
     Action action =
         idpLogoutActionProvider.getAction(
             ImmutableMap.of(SecurityConstants.SECURITY_SUBJECT, subject));

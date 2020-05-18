@@ -21,12 +21,4 @@ import java.security.Principal;
  * {@link java.security.Principal} in order for the Subject to be accessible through the {@link
  * ddf.catalog.operation.Operation} property map.
  */
-public interface Subject extends org.apache.shiro.subject.Subject, Serializable, Principal {
-
-  /**
-   * Returns true if the Subject is guest
-   *
-   * @return true if Subject is guest
-   */
-  public boolean isGuest();
-}
+public interface Subject extends org.apache.shiro.subject.Subject, Serializable, Principal {}

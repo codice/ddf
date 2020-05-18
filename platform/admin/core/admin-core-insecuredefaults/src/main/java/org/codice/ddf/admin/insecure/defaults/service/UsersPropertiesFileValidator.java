@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.admin.insecure.defaults.service;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
@@ -48,6 +48,8 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
 
   private String defaultCertificateUserPassword;
 
+  private SecurityLogger securityLogger;
+
   public void setDefaultAdminUser(String user) {
     this.defaultAdminUser = user;
   }
@@ -64,6 +66,10 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
     this.defaultCertificateUserPassword = password;
   }
 
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
+  }
+
   @Override
   public List<Alert> validate() {
     resetAlerts();
@@ -71,7 +77,7 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
 
     if (properties != null && properties.size() > 0) {
       // the existence of the properties file is an insecure default
-      SecurityLogger.audit("System is running with the users.properties file.");
+      securityLogger.audit("System is running with the users.properties file.");
       alerts.add(
           new Alert(Level.WARN, String.format(USERS_PROPERTIES_FILE_EXISTS_MSG, path.toString())));
       validateAdminUser(properties);

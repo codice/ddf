@@ -15,11 +15,8 @@ package ddf.catalog.core.versioning.impl
 
 import ddf.catalog.core.versioning.MetacardVersion
 import ddf.catalog.data.Metacard
-import ddf.catalog.data.impl.AttributeDescriptorImpl
-import ddf.catalog.data.impl.AttributeImpl
-import ddf.catalog.data.impl.BasicTypes
-import ddf.catalog.data.impl.MetacardImpl
-import ddf.catalog.data.impl.MetacardTypeImpl
+import ddf.catalog.data.impl.*
+import ddf.security.service.impl.SubjectUtils
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.util.ThreadContext
@@ -50,7 +47,7 @@ class MetacardVersionImplSpec extends Specification {
         MetacardVersionImpl history = new MetacardVersionImpl("anId",
                 meta.metacard,
                 action,
-                SecurityUtils.subject)
+                SecurityUtils.subject, new SubjectUtils())
 
         then: $/All the original attributes should be there except for:
                     - Old tags should be stored in `tagsHistory
@@ -79,7 +76,7 @@ class MetacardVersionImplSpec extends Specification {
         MetacardVersionImpl history = new MetacardVersionImpl("anId",
                 meta.metacard as Metacard,
                 action,
-                SecurityUtils.subject)
+                SecurityUtils.subject, new SubjectUtils())
 
         when:
         Metacard metacard = history.getMetacard([MetacardImpl.BASIC_METACARD])
@@ -102,6 +99,7 @@ class MetacardVersionImplSpec extends Specification {
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject,
+                new SubjectUtils(),
                 [MetacardImpl.BASIC_METACARD, meta.metacardType])
 
         then: "The metacard type should contain non default attribute descriptors"
@@ -132,7 +130,7 @@ class MetacardVersionImplSpec extends Specification {
         MetacardVersionImpl history = new MetacardVersionImpl("anId",
                 meta.metacard as Metacard,
                 action,
-                SecurityUtils.subject)
+                SecurityUtils.subject, new SubjectUtils())
 
         then: "ensure the type-binary attribute is there"
         history.getAttribute(MetacardVersion.VERSION_TYPE_BINARY)?.value != null

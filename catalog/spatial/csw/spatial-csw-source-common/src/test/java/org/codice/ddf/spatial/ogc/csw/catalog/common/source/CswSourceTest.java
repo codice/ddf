@@ -56,6 +56,8 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.permission.Permissions;
+import ddf.security.permission.impl.PermissionsImpl;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -116,6 +118,8 @@ public class CswSourceTest extends TestCswSourceBase {
   private Converter mockProvider = mock(Converter.class);
 
   private EncryptionService encryptionService = mock(EncryptionService.class);
+
+  private Permissions permissions = new PermissionsImpl();
 
   @Test
   public void testParseCapabilities() throws CswException, SecurityServiceException {
@@ -931,9 +935,10 @@ public class CswSourceTest extends TestCswSourceBase {
 
   @Test
   public void testRefreshWithNullConfiguration() throws SecurityServiceException {
-    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null, encryptionService);
+    AbstractCswSource cswSource =
+        getCswSource(null, null, "type", null, null, encryptionService, permissions);
     CswSourceConfiguration defaultCswSourceConfiguration =
-        getStandardCswSourceConfiguration(null, null, null, encryptionService);
+        getStandardCswSourceConfiguration(null, null, null, encryptionService, permissions);
 
     // Assert that the default configuration is set
     assertDefaultCswSourceConfiguration(
@@ -948,9 +953,10 @@ public class CswSourceTest extends TestCswSourceBase {
 
   @Test
   public void testRefreshWithEmptyConfiguration() throws SecurityServiceException {
-    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null, encryptionService);
+    AbstractCswSource cswSource =
+        getCswSource(null, null, "type", null, null, encryptionService, permissions);
     CswSourceConfiguration defaultCswSourceConfiguration =
-        getStandardCswSourceConfiguration(null, null, null, encryptionService);
+        getStandardCswSourceConfiguration(null, null, null, encryptionService, permissions);
 
     Map<String, Object> configuration = new HashMap<>();
 
@@ -969,7 +975,8 @@ public class CswSourceTest extends TestCswSourceBase {
   public void testRefresh() throws SecurityServiceException {
     AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, "contentType");
     CswSourceConfiguration defaultCswSourceConfiguration =
-        getStandardCswSourceConfiguration("contentType", "qname", "queryprefix", encryptionService);
+        getStandardCswSourceConfiguration(
+            "contentType", "qname", "queryprefix", encryptionService, permissions);
 
     // Assert Defaults
     assertDefaultCswSourceConfiguration(
@@ -991,7 +998,8 @@ public class CswSourceTest extends TestCswSourceBase {
 
   @Test
   public void testSetPassword() {
-    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null, encryptionService);
+    AbstractCswSource cswSource =
+        getCswSource(null, null, "type", null, null, encryptionService, permissions);
     when(encryptionService.decryptValue("secret")).thenReturn("secret");
 
     cswSource.setPassword("secret");
@@ -1005,7 +1013,8 @@ public class CswSourceTest extends TestCswSourceBase {
 
   @Test
   public void testSetPasswordWithEmptyPassword() {
-    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null, encryptionService);
+    AbstractCswSource cswSource =
+        getCswSource(null, null, "type", null, null, encryptionService, permissions);
     when(encryptionService.decryptValue("")).thenReturn("");
 
     cswSource.setPassword("");
@@ -1019,7 +1028,7 @@ public class CswSourceTest extends TestCswSourceBase {
 
   @Test
   public void testSetPasswordWithNullEncryptionService() {
-    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null, null);
+    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null, null, permissions);
 
     cswSource.setPassword("secret");
 
@@ -1175,7 +1184,8 @@ public class CswSourceTest extends TestCswSourceBase {
             null,
             expectedQname.getPrefix() + ":" + expectedQname.getLocalPart(),
             expectedQname.getNamespaceURI(),
-            null);
+            null,
+            permissions);
 
     cswSource.setCswUrl(URL);
     cswSource.setId(ID);
@@ -1221,7 +1231,8 @@ public class CswSourceTest extends TestCswSourceBase {
     query.setPageSize(pageSize);
 
     // Verify passing a null config for qname/prefix falls back to CSW Record
-    AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null, null);
+    AbstractCswSource cswSource =
+        getCswSource(mockCsw, mockContext, null, null, null, null, permissions);
     cswSource.setCswUrl(URL);
     cswSource.setId(ID);
 
@@ -1247,7 +1258,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testCreateResults() throws SecurityServiceException {
     AbstractCswSource cswSource =
-        getCswSource(mockCsw, mockContext, null, null, null, encryptionService);
+        getCswSource(mockCsw, mockContext, null, null, null, encryptionService, permissions);
     CswRecordCollection recordCollection = new CswRecordCollection();
     final int total = 2;
     List<Metacard> metacards = new ArrayList<>(total);
@@ -1287,7 +1298,8 @@ public class CswSourceTest extends TestCswSourceBase {
       throws URISyntaxException, ResourceNotFoundException, IOException,
           ResourceNotSupportedException, CswException {
     configureMockCsw();
-    AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null, null);
+    AbstractCswSource cswSource =
+        getCswSource(mockCsw, mockContext, null, null, null, null, permissions);
     ResourceReader reader = mock(ResourceReader.class);
     when(reader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(mock(ResourceResponse.class));
@@ -1305,7 +1317,8 @@ public class CswSourceTest extends TestCswSourceBase {
       throws URISyntaxException, ResourceNotFoundException, IOException,
           ResourceNotSupportedException, CswException {
     configureMockCsw();
-    AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null, null);
+    AbstractCswSource cswSource =
+        getCswSource(mockCsw, mockContext, null, null, null, null, permissions);
     ResourceReader reader = mock(ResourceReader.class);
     when(reader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(mock(ResourceResponse.class));
@@ -1335,7 +1348,8 @@ public class CswSourceTest extends TestCswSourceBase {
     Resource resource = mock(Resource.class);
     when(collection.getResource()).thenReturn(resource);
     when(csw.getRecordById(any(GetRecordByIdRequest.class), anyString())).thenReturn(collection);
-    AbstractCswSource cswSource = getCswSource(csw, mockContext, null, null, null, null);
+    AbstractCswSource cswSource =
+        getCswSource(csw, mockContext, null, null, null, null, permissions);
     ResourceReader reader = mock(ResourceReader.class);
     when(reader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(mock(ResourceResponse.class));
@@ -1357,7 +1371,8 @@ public class CswSourceTest extends TestCswSourceBase {
     Resource resource = mock(Resource.class);
     when(collection.getResource()).thenReturn(resource);
     when(csw.getRecordById(any(GetRecordByIdRequest.class), anyString())).thenReturn(collection);
-    AbstractCswSource cswSource = getCswSource(csw, mockContext, null, null, null, null);
+    AbstractCswSource cswSource =
+        getCswSource(csw, mockContext, null, null, null, null, permissions);
     ResourceReader reader = mock(ResourceReader.class);
     when(reader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(mock(ResourceResponse.class));
@@ -1371,8 +1386,10 @@ public class CswSourceTest extends TestCswSourceBase {
       String contentTypeMapping,
       String queryTypeQName,
       String queryTypePrefix,
-      EncryptionService encryptionService) {
-    CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration(encryptionService);
+      EncryptionService encryptionService,
+      Permissions permissions) {
+    CswSourceConfiguration cswSourceConfiguration =
+        new CswSourceConfiguration(encryptionService, permissions);
     if (encryptionService != null) {
       when(encryptionService.decryptValue("pass")).thenReturn("pass");
     }
@@ -1405,7 +1422,8 @@ public class CswSourceTest extends TestCswSourceBase {
         contentMapping,
         CswConstants.CSW_RECORD,
         CswConstants.CSW_OUTPUT_SCHEMA,
-        encryptionService);
+        encryptionService,
+        permissions);
   }
 
   private AbstractCswSource getCswSource(
@@ -1414,11 +1432,12 @@ public class CswSourceTest extends TestCswSourceBase {
       String contentMapping,
       String queryTypeQName,
       String queryTypePrefix,
-      EncryptionService encryptionService) {
+      EncryptionService encryptionService,
+      Permissions permissions) {
 
     CswSourceConfiguration cswSourceConfiguration =
         getStandardCswSourceConfiguration(
-            contentMapping, queryTypeQName, queryTypePrefix, encryptionService);
+            contentMapping, queryTypeQName, queryTypePrefix, encryptionService, permissions);
     cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentMapping);
 
     SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
@@ -1470,7 +1489,8 @@ public class CswSourceTest extends TestCswSourceBase {
             mockProvider,
             clientFactoryFactory,
             encryptionService,
-            new Security());
+            new Security(),
+            permissions);
     cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
     cswSource.setFilterBuilder(builder);
     cswSource.setContext(context);

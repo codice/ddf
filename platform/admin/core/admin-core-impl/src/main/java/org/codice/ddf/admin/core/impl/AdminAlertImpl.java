@@ -14,7 +14,7 @@
 package org.codice.ddf.admin.core.impl;
 
 import com.google.common.html.HtmlEscapers;
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,6 +47,8 @@ public class AdminAlertImpl extends BasicMBean implements AdminAlertMBean {
   private final PersistentStore persistentStore;
 
   private final EventAdmin eventAdmin;
+
+  private SubjectOperations subjectOperations;
 
   public AdminAlertImpl(PersistentStore persistentStore, EventAdmin eventAdmin)
       throws NotCompliantMBeanException {
@@ -117,7 +119,11 @@ public class AdminAlertImpl extends BasicMBean implements AdminAlertMBean {
       return;
     }
 
-    String subjectName = SubjectUtils.getName(SecurityUtils.getSubject());
+    if (subjectOperations == null) {
+      throw new IllegalStateException("Unable to resolve user's name.");
+    }
+
+    String subjectName = subjectOperations.getName(SecurityUtils.getSubject());
     if (subjectName == null) {
       LOGGER.debug("No Subject Name! Could not dismiss alert {}", LogSanitizer.sanitize(id));
       return;
@@ -127,5 +133,9 @@ public class AdminAlertImpl extends BasicMBean implements AdminAlertMBean {
     props.put(Alert.SYSTEM_NOTICE_ID_KEY, id);
     props.put(Alert.ALERT_DISMISSED_BY, subjectName);
     eventAdmin.postEvent(new Event(Alert.ALERT_DISMISS_TOPIC, props));
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

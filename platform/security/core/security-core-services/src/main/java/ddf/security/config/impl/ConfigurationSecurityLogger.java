@@ -13,7 +13,7 @@
  */
 package ddf.security.config.impl;
 
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import javax.security.auth.Subject;
@@ -22,6 +22,8 @@ import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.SynchronousConfigurationListener;
 
 public class ConfigurationSecurityLogger implements SynchronousConfigurationListener {
+
+  private SecurityLogger securityLogger;
 
   @Override
   public final void configurationEvent(ConfigurationEvent event) {
@@ -33,11 +35,11 @@ public class ConfigurationSecurityLogger implements SynchronousConfigurationList
               // check if there is a subject associated with the configuration change
               if (ThreadContext.getSubject() != null
                   || Subject.getSubject(AccessController.getContext()) != null) {
-                SecurityLogger.audit("Configuration {} for {}.", type, event.getPid());
+                securityLogger.audit("Configuration {} for {}.", type, event.getPid());
               } else {
                 // there was no subject change was caused by an update to the config file on the
                 // filesystem
-                SecurityLogger.auditWarn(
+                securityLogger.auditWarn(
                     "Configuration {} via filesystem for {}.", type, event.getPid());
               }
               return null;
@@ -55,5 +57,9 @@ public class ConfigurationSecurityLogger implements SynchronousConfigurationList
       default:
         return "unknown";
     }
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

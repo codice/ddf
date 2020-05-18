@@ -36,9 +36,9 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.impl.Permissions;
+import ddf.security.permission.Permissions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -128,6 +128,10 @@ public class ConfluenceSource extends MaskableImpl
 
   private AttributeRegistry attributeRegistry;
 
+  private SecurityLogger securityLogger;
+
+  private Permissions permissions;
+
   public ConfluenceSource(
       FilterAdapter adapter,
       EncryptionService encryptionService,
@@ -151,12 +155,12 @@ public class ConfluenceSource extends MaskableImpl
     if (BASIC.equals(authenticationType)
         && StringUtils.isNotBlank(username)
         && StringUtils.isNotBlank(password)) {
-      SecurityLogger.audit("Setting up confluence client for user {}", username);
+      securityLogger.audit("Setting up confluence client for user {}", username);
       factory =
           clientFactoryFactory.getSecureCxfClientFactory(
               endpointUrl, SearchResource.class, username, password);
     } else {
-      SecurityLogger.audit("Setting up confluence client for anonymous access");
+      securityLogger.audit("Setting up confluence client for anonymous access");
       factory = clientFactoryFactory.getSecureCxfClientFactory(endpointUrl, SearchResource.class);
     }
   }
@@ -370,7 +374,7 @@ public class ConfluenceSource extends MaskableImpl
   }
 
   public void setAttributeOverrides(List<String> attributes) {
-    attributeOverrides = Permissions.parsePermissionsFromString(attributes);
+    attributeOverrides = permissions.parsePermissionsFromString(attributes);
   }
 
   public void setBodyExpansion(String bodyExpansion) {
@@ -488,5 +492,13 @@ public class ConfluenceSource extends MaskableImpl
       return sb.toString();
     }
     return query;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
+  }
+
+  public void setPermissions(Permissions permissions) {
+    this.permissions = permissions;
   }
 }

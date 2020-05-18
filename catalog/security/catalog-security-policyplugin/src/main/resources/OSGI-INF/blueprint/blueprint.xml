@@ -13,6 +13,8 @@
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <reference id="permissions" interface="ddf.security.permission.Permissions" />
+
     <bean id="ingestPlugin" class="org.codice.ddf.catalog.security.CatalogPolicy">
         <cm:managed-properties persistent-id="org.codice.ddf.catalog.security.CatalogPolicy"
                                update-strategy="container-managed" />
@@ -36,6 +38,7 @@
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
             </array>
         </property>
+        <argument ref="permissions"/>
     </bean>
 
     <service ref="ingestPlugin" auto-export="interfaces" ranking="100" />

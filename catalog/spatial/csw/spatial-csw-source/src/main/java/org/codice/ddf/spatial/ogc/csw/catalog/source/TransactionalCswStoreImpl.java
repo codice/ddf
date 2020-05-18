@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import com.thoughtworks.xstream.converters.Converter;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.permission.Permissions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -36,15 +37,24 @@ public class TransactionalCswStoreImpl extends AbstractCswStore {
       Converter provider,
       ClientFactoryFactory factory,
       EncryptionService encryptionService,
-      Security security) {
-    super(context, cswSourceConfiguration, provider, factory, encryptionService, security);
+      Security security,
+      Permissions permissions) {
+    super(
+        context,
+        cswSourceConfiguration,
+        provider,
+        factory,
+        encryptionService,
+        security,
+        permissions);
   }
 
   public TransactionalCswStoreImpl(
       EncryptionService encryptionService,
       ClientFactoryFactory clientFactoryFactory,
-      Security security) {
-    super(encryptionService, clientFactoryFactory, security);
+      Security security,
+      Permissions permissions) {
+    super(encryptionService, clientFactoryFactory, security, permissions);
   }
 
   @Override

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.security.audit.SecurityLogger;
 import ddf.security.claims.ClaimsHandler;
 import ddf.security.encryption.EncryptionService;
 import java.util.Dictionary;
@@ -70,6 +71,7 @@ public class ClaimsHandlerManagerTest {
         "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
     System.setProperty("https.protocols", "TLSv1.1,TLSv1.2");
 
+    manager.setSecurityLogger(mock(SecurityLogger.class));
     manager.setLdapBindUserDn("cn=admin");
     manager.setUserBaseDn("ou=users,dc=example,dc=com");
     manager.setGroupBaseDn("ou=groups,dc=example,dc=com");

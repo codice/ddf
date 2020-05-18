@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.handler.pki;
 
+import ddf.security.audit.SecurityLogger;
 import java.security.cert.X509Certificate;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -42,8 +43,9 @@ public class PKIHandler implements AuthenticationHandler {
 
   protected OcspService ocspService;
 
+  private SecurityLogger securityLogger;
+
   public PKIHandler() {
-    crlChecker = new CrlChecker();
     LOGGER.debug("Creating PKI handler.");
   }
 
@@ -96,6 +98,9 @@ public class PKIHandler implements AuthenticationHandler {
 
     // CRL was specified, check against CRL and return the result or throw a ServletException to the
     // WebSSOFilter
+    if (crlChecker == null) {
+      crlChecker = new CrlChecker(securityLogger);
+    }
     if (crlChecker.passesCrlCheck(certs) && ocspService.passesOcspCheck(certs)) {
       handlerResult.setToken(token);
       handlerResult.setStatus(HandlerResult.Status.COMPLETED);
@@ -135,5 +140,9 @@ public class PKIHandler implements AuthenticationHandler {
 
   public void setOcspService(OcspService ocspService) {
     this.ocspService = ocspService;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

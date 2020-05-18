@@ -13,8 +13,10 @@
  */
 package ddf.security.pdp.realm.test;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.security.audit.SecurityLogger;
 import ddf.security.pdp.realm.AuthzRealm;
 import ddf.security.pdp.realm.xacml.processor.PdpException;
 import ddf.security.permission.CollectionPermission;
@@ -36,7 +38,6 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 /** User: tustisos Date: 3/20/13 Time: 9:35 AM */
 public class AuthzRealmTest {
@@ -79,7 +80,9 @@ public class AuthzRealmTest {
           }
         };
 
-    mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
+    testRealm.setSecurityLogger(mock(SecurityLogger.class));
+
+    mockSubjectPrincipal = mock(PrincipalCollection.class);
     when(mockSubjectPrincipal.getPrimaryPrincipal()).thenReturn("user");
 
     // setup the resource permissions
@@ -205,6 +208,7 @@ public class AuthzRealmTest {
             return authorizationInfo;
           }
         };
+    testRealm.setSecurityLogger(mock(SecurityLogger.class));
     testRealm.setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
     testRealm.setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
     testRealm.setRolePermissionResolver(

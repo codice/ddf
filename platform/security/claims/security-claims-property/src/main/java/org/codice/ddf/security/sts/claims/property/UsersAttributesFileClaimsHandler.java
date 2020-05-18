@@ -20,13 +20,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import ddf.security.SubjectOperations;
 import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsHandler;
 import ddf.security.claims.ClaimsParameters;
 import ddf.security.claims.impl.ClaimImpl;
 import ddf.security.claims.impl.ClaimsCollectionImpl;
-import ddf.security.impl.SubjectUtils;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Type;
@@ -62,6 +62,8 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
   private volatile Map<String, Map<String, Set<String>>> json;
 
   private volatile Map<String, Set<String>> systemHighUserAttributes;
+
+  private SubjectOperations subjectOperations;
 
   /**
    * @throws IllegalStateException when the users attributes file cannot be read or when the
@@ -119,7 +121,7 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
 
     String name;
     if (principal instanceof X500Principal) {
-      name = SubjectUtils.getCommonName((X500Principal) principal);
+      name = subjectOperations.getCommonName((X500Principal) principal);
     } else {
       name = principal.getName();
     }
@@ -233,5 +235,9 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
     return String.format(
         "Unexpected error reading the users attributes file at location \"%s\": %s. Try restarting, or check that the users attributes file exists and that it meets all of the assumptions described in the Documentation.",
         usersAttributesFileLocation, reason);
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

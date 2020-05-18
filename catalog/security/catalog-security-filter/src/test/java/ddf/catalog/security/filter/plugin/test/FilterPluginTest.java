@@ -43,9 +43,11 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.security.filter.plugin.FilterPlugin;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.service.impl.SubjectUtils;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -127,6 +129,8 @@ public class FilterPluginTest {
             return systemSubject;
           }
         };
+    plugin.setSubjectOperations(new SubjectUtils());
+    plugin.setSecurityLogger(mock(SecurityLogger.class));
     QueryRequestImpl request = getSampleRequest();
     Map<String, Serializable> properties = new HashMap<>();
 
@@ -206,6 +210,8 @@ public class FilterPluginTest {
   @Test
   public void testPluginFilterNoStrategies() {
     plugin = new FilterPlugin(new Security());
+    plugin.setSubjectOperations(new SubjectUtils());
+    plugin.setSecurityLogger(mock(SecurityLogger.class));
     try {
       QueryResponse response = plugin.processPostQuery(incomingResponse);
       verifyFilterResponse(response);
@@ -466,11 +472,6 @@ public class FilterPluginTest {
 
     public MockSubject(SecurityManager manager, PrincipalCollection principals) {
       super(principals, true, null, new SimpleSession(UUID.randomUUID().toString()), manager);
-    }
-
-    @Override
-    public boolean isGuest() {
-      return false;
     }
 
     @Override

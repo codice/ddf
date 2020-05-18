@@ -28,10 +28,13 @@
                interface="ddf.security.encryption.EncryptionService"
                availability="mandatory"/>
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger"/>
+
     <bean id="configUpdater" class="org.codice.ddf.admin.configuration.ConfigurationUpdater">
         <argument ref="configAdmin"/>
         <argument ref="strategiesBean"/>
         <argument ref="encryptionService"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="configUpdater"

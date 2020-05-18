@@ -16,7 +16,7 @@ package org.codice.ddf.security.crl.generator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteSource;
 import com.google.common.io.FileBackedOutputStream;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -96,6 +96,7 @@ public class CrlGenerator implements Runnable {
   private boolean crlByUrlEnabled;
   private ScheduledFuture<?> handle;
   private Future<?> removalHandle;
+  private SecurityLogger securityLogger;
 
   public CrlGenerator(ClientFactoryFactory factory, EventAdmin eventAdmin) {
     this.factory = factory;
@@ -225,7 +226,7 @@ public class CrlGenerator implements Runnable {
                 try (OutputStream outStream = new FileOutputStream(crlFile);
                     InputStream inputStream = byteSource.openStream()) {
                   IOUtils.copy(inputStream, outStream);
-                  SecurityLogger.audit(
+                  securityLogger.audit(
                       "Copied the content of the CRl at {} to the local CRL at {}.",
                       crlLocationUrl,
                       crlFile.getPath());
@@ -251,7 +252,7 @@ public class CrlGenerator implements Runnable {
     addProperty(issuerEncryptionPropertiesLocation, localCrlPath);
     addProperty(serverSignaturePropertiesLocation, localCrlPath);
     addProperty(serverEncryptionPropertiesLocation, localCrlPath);
-    SecurityLogger.audit(
+    securityLogger.audit(
         "Setting the {} property to {} as signature and encryption properties.",
         CRL_PROPERTY_KEY,
         localCrlPath);
@@ -289,7 +290,7 @@ public class CrlGenerator implements Runnable {
                 removeProperty(issuerEncryptionPropertiesLocation);
                 removeProperty(serverSignaturePropertiesLocation);
                 removeProperty(serverEncryptionPropertiesLocation);
-                SecurityLogger.audit(
+                securityLogger.audit(
                     "Removing the {} property from signature and encryption properties.",
                     CRL_PROPERTY_KEY);
                 return null;
@@ -386,7 +387,11 @@ public class CrlGenerator implements Runnable {
             SystemNotice.SYSTEM_NOTICE_BASE_TOPIC + "crl",
             new SystemNotice(this.getClass().getName(), NoticePriority.CRITICAL, title, details)
                 .getProperties()));
-    SecurityLogger.audit(title);
-    SecurityLogger.audit(errorMessage);
+    securityLogger.audit(title);
+    securityLogger.audit(errorMessage);
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

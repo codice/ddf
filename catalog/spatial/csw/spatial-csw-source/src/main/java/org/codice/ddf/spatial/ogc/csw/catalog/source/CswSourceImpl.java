@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import com.thoughtworks.xstream.converters.Converter;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.permission.Permissions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -31,21 +32,24 @@ public class CswSourceImpl extends AbstractCswSource {
       Converter provider,
       ClientFactoryFactory clientFactoryFactory,
       EncryptionService encryptionService,
-      Security security) {
+      Security security,
+      Permissions permissions) {
     super(
         context,
         cswSourceConfiguration,
         provider,
         clientFactoryFactory,
         encryptionService,
-        security);
+        security,
+        permissions);
   }
 
   public CswSourceImpl(
       EncryptionService encryptionService,
       ClientFactoryFactory clientFactoryFactory,
-      Security security) {
-    super(encryptionService, clientFactoryFactory, security);
+      Security security,
+      Permissions permissions) {
+    super(encryptionService, clientFactoryFactory, security, permissions);
   }
 
   @Override

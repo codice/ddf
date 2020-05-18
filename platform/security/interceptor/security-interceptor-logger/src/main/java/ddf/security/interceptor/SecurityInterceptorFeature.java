@@ -13,6 +13,8 @@
  */
 package ddf.security.interceptor;
 
+import ddf.security.SubjectOperations;
+import ddf.security.audit.SecurityLogger;
 import org.apache.cxf.Bus;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.InterceptorProvider;
@@ -24,6 +26,14 @@ public class SecurityInterceptorFeature extends AbstractFeature {
 
   private static final SecurityLoggerOutInterceptor SECURITY_LOGGER_OUT =
       new SecurityLoggerOutInterceptor();
+
+  public SecurityInterceptorFeature(
+      SubjectOperations subjectOperations, SecurityLogger securityLogger) {
+    SECURITY_LOGGER_IN.setSubjectOperations(subjectOperations);
+    SECURITY_LOGGER_IN.setSecurityLogger(securityLogger);
+    SECURITY_LOGGER_OUT.setSubjectOperations(subjectOperations);
+    SECURITY_LOGGER_OUT.setSecurityLogger(securityLogger);
+  }
 
   @Override
   protected void initializeProvider(InterceptorProvider provider, Bus bus) {

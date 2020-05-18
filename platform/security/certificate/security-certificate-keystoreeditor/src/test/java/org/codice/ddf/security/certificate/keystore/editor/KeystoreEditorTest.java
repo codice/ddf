@@ -17,6 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -242,31 +243,38 @@ public class KeystoreEditorTest {
   }
 
   private KeystoreEditor getNonVerifyingKeystoreEditor() {
-    return new KeystoreEditor() {
-      SSLSocket createNonVerifyingSslSocket(String decodedUrl)
-          throws IOException, KeyStoreException {
-        SSLSession sslSession = mock(SSLSession.class);
-        SSLSocket sslSocket = mock(SSLSocket.class);
-        when(sslSocket.getSession()).thenReturn(sslSession);
-        KeyStore trustStore = SecurityConstants.newTruststore();
-        String trustStorePassword = SecurityConstants.getTruststorePassword();
-        try (InputStream tfis = Files.newInputStream(Paths.get(trustStoreFile.getAbsolutePath()))) {
-          trustStore.load(tfis, trustStorePassword.toCharArray());
-        } catch (CertificateException | NoSuchAlgorithmException e) {
-          // ignore
-        }
-        X509Certificate[] certificates = new X509Certificate[2];
-        certificates[0] = (X509Certificate) trustStore.getCertificate("asdf");
-        certificates[1] = (X509Certificate) trustStore.getCertificate("localhost");
-        when(sslSession.getPeerCertificates()).thenReturn(certificates);
-        return sslSocket;
-      }
-    };
+    KeystoreEditor keystoreEditor =
+        new KeystoreEditor() {
+          SSLSocket createNonVerifyingSslSocket(String decodedUrl)
+              throws IOException, KeyStoreException {
+            SSLSession sslSession = mock(SSLSession.class);
+            SSLSocket sslSocket = mock(SSLSocket.class);
+            when(sslSocket.getSession()).thenReturn(sslSession);
+            KeyStore trustStore = SecurityConstants.newTruststore();
+            String trustStorePassword = SecurityConstants.getTruststorePassword();
+            try (InputStream tfis =
+                Files.newInputStream(Paths.get(trustStoreFile.getAbsolutePath()))) {
+              trustStore.load(tfis, trustStorePassword.toCharArray());
+            } catch (CertificateException | NoSuchAlgorithmException e) {
+              // ignore
+            }
+            X509Certificate[] certificates = new X509Certificate[2];
+            certificates[0] = (X509Certificate) trustStore.getCertificate("asdf");
+            certificates[1] = (X509Certificate) trustStore.getCertificate("localhost");
+            when(sslSession.getPeerCertificates()).thenReturn(certificates);
+            return sslSocket;
+          }
+        };
+
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
+
+    return keystoreEditor;
   }
 
   @Test
   public void testGetKeystoreInfo() {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
     Assert.assertThat(keystore.size(), Is.is(0));
   }
@@ -274,6 +282,7 @@ public class KeystoreEditorTest {
   @Test
   public void testGetTruststoreInfo() {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
     Assert.assertThat(truststore.size(), Is.is(0));
   }
@@ -281,6 +290,7 @@ public class KeystoreEditorTest {
   @Test
   public void testAddKey() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     addCertChain(keystoreEditor);
     List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
     Assert.assertThat(keystore.size(), Is.is(2));
@@ -305,6 +315,7 @@ public class KeystoreEditorTest {
   @Test
   public void testAddPem() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     addPrivateKey(keystoreEditor, pemFile, KeystoreEditor.PEM_TYPE);
     List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
     Assert.assertThat(keystore.size(), Is.is(1));
@@ -316,6 +327,7 @@ public class KeystoreEditorTest {
   @Test
   public void testAddDer() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     addPrivateKey(keystoreEditor, derFile, KeystoreEditor.DER_TYPE);
     List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
     Assert.assertThat(keystore.size(), Is.is(1));
@@ -355,6 +367,7 @@ public class KeystoreEditorTest {
   @Test
   public void testAddKeyJks() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     FileInputStream fileInputStream = new FileInputStream(jksFile);
     byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
     IOUtils.closeQuietly(fileInputStream);
@@ -376,6 +389,7 @@ public class KeystoreEditorTest {
   @Test
   public void testAddKeyP12() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     FileInputStream fileInputStream = new FileInputStream(pkcs12StoreFile);
     byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
     IOUtils.closeQuietly(fileInputStream);
@@ -397,6 +411,7 @@ public class KeystoreEditorTest {
   @Test
   public void testAddKeyLocal() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     FileInputStream fileInputStream = new FileInputStream(localhostCrtFile);
     byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
     IOUtils.closeQuietly(fileInputStream);
@@ -414,6 +429,7 @@ public class KeystoreEditorTest {
     Assert.assertThat(truststore.size(), Is.is(0));
 
     keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     fileInputStream = new FileInputStream(localhostKeyFile);
     byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
     IOUtils.closeQuietly(fileInputStream);
@@ -435,6 +451,7 @@ public class KeystoreEditorTest {
   @Test
   public void testReplaceSystemStores() throws Exception {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
     Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
 
@@ -478,6 +495,7 @@ public class KeystoreEditorTest {
 
   private void replaceSystemStores(String fqdn) throws Exception {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
     Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
 
@@ -504,6 +522,7 @@ public class KeystoreEditorTest {
   @Test
   public void testReplaceSystemStoresBadInput() throws Exception {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
     Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
 
@@ -523,6 +542,7 @@ public class KeystoreEditorTest {
   @Test
   public void testReplaceSystemStoresBadEncoding() throws Exception {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
     Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
 
@@ -549,6 +569,7 @@ public class KeystoreEditorTest {
   @Test
   public void testAddCert() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     FileInputStream fileInputStream = new FileInputStream(crtFile);
     byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
     IOUtils.closeQuietly(fileInputStream);
@@ -570,6 +591,7 @@ public class KeystoreEditorTest {
   @Test
   public void testDeleteCert() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     addCertChain(keystoreEditor);
     List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
     Assert.assertThat(keystore.size(), Is.is(2));
@@ -582,6 +604,7 @@ public class KeystoreEditorTest {
   @Test
   public void testDeleteTrustedCert() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     FileInputStream fileInputStream = new FileInputStream(crtFile);
     byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
     IOUtils.closeQuietly(fileInputStream);
@@ -609,6 +632,7 @@ public class KeystoreEditorTest {
   @Test
   public void testDeleteKey() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     addCertChain(keystoreEditor);
     List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
     Assert.assertThat(keystore.size(), Is.is(2));
@@ -624,6 +648,7 @@ public class KeystoreEditorTest {
   @Test
   public void testEncryptedData() throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     FileInputStream fileInputStream = new FileInputStream(p7bFile);
     byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
     IOUtils.closeQuietly(fileInputStream);
@@ -645,6 +670,7 @@ public class KeystoreEditorTest {
   @Test(expected = KeystoreEditor.KeystoreEditorException.class)
   public void testBadData() throws KeystoreEditor.KeystoreEditorException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     keystoreEditor.addPrivateKey("asdf", password, password, "*$%^*", "", "file.pem");
   }
 
@@ -686,6 +712,7 @@ public class KeystoreEditorTest {
   private void addPrivateKey(String alias, File file)
       throws KeystoreEditor.KeystoreEditorException, IOException {
     KeystoreEditor keystoreEditor = new KeystoreEditor();
+    keystoreEditor.setSecurityLogger(mock(SecurityLogger.class));
     FileInputStream fileInputStream = new FileInputStream(file);
     byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
     IOUtils.closeQuietly(fileInputStream);

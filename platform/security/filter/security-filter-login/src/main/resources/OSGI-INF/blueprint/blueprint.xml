@@ -26,10 +26,13 @@
     <reference id="contextPolicyManager"
       interface="org.codice.ddf.security.policy.context.ContextPolicyManager"/>
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger"/>
+
     <bean id="filter" class="org.codice.ddf.security.filter.login.LoginFilter">
         <property name="securityManager" ref="securityManager"/>
         <property name="sessionFactory" ref="sessionFactory" />
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="filter" interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="99">

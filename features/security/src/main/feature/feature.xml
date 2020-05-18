@@ -112,6 +112,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>apache-commons</feature>
         <feature>security-core-api</feature>
         <feature>security-core-impl</feature>
+        <feature>security-core-services</feature>
         <feature>security-filter-api</feature>
         <feature>pax-http-jetty</feature>
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/${pax.web.version}</bundle>
@@ -169,21 +170,14 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
     </feature>
 
-    <feature name="security-realms" version="${project.version}"
-             description="Default authentication realms">
-        <feature>security-core-impl</feature>
-        <feature>security-handler-impl</feature>
-        <bundle>mvn:ddf.security.realm/security-realm-pki/${project.version}</bundle>
-        <bundle>mvn:ddf.security.realm/security-realm-userpass/${project.version}</bundle>
-    </feature>
-
     <feature name="security-core-services" version="${project.version}"
              description="Main security services">
         <feature>security-core-impl</feature>
         <feature>security-handler-impl</feature>
-        <feature>security-realms</feature>
         <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
+        <bundle>mvn:ddf.security.realm/security-realm-pki/${project.version}</bundle>
+        <bundle>mvn:ddf.security.realm/security-realm-userpass/${project.version}</bundle>
     </feature>
 
     <feature name="security-expansion" version="${project.version}"
@@ -210,6 +204,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>parser-xml</feature>
         <feature>security-handler-api</feature>
         <feature>platform-util</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
     </feature>
 
@@ -223,6 +218,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-handler-api</feature>
         <feature dependency="true">oidc-dependencies</feature>
         <feature>security-core-impl</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.pep/security-pep-interceptor/${project.version}</bundle>
     </feature>
 
@@ -254,6 +250,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-handler-impl</feature>
         <feature>platform-util</feature>
         <feature prerequisite="true">wrap</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
         <bundle>mvn:ddf.security.certificate/security-ocsp-checker/${project.version}</bundle>
         <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>
@@ -275,6 +272,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-policy-context</feature>
         <feature dependency="true">saml-validator</feature>
         <feature dependency="true">oidc-dependencies</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.realm/security-realm-saml/${project.version}</bundle>
     </feature>
 
@@ -289,6 +287,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>cxf-frontend-javascript</feature>
         <feature>cxf-jaxrs</feature>
         <feature dependency="true">oidc-dependencies</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.realm/security-realm-guest/${project.version}</bundle>
     </feature>
 
@@ -296,6 +295,7 @@ org.ops4j.pax.web.default.realmname=DDF
              description="Security JAAS LDAP Login.">
         <feature>security-core-misc</feature>
         <feature>javax-validation</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:org.apache.commons/commons-pool2/2.5.0</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.jaas/security-jaas-ldap/${project.version}</bundle>
@@ -306,6 +306,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <feature>security-core-misc</feature>
         <feature>security-encryption</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.claims/security-claims-ldap/${project.version}</bundle>
     </feature>
 
@@ -337,6 +338,7 @@ org.ops4j.pax.web.default.realmname=DDF
              description="Basic Authentication Handler for web applications.">
         <feature>security-core-misc</feature>
         <feature>parser-xml</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.handler/security-handler-basic/${project.version}</bundle>
     </feature>
 
@@ -362,6 +364,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>action-core-impl</feature>
         <feature>security-core-impl</feature>
         <feature>security-handler-impl</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.handler/security-handler-oidc/${project.version}</bundle>
     </feature>
 
@@ -370,6 +373,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>oidc-dependencies</feature>
         <feature>security-core-impl</feature>
         <feature>security-handler-impl</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.handler/security-handler-oauth/${project.version}</bundle>
     </feature>
 
@@ -386,6 +390,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-core-impl</feature>
         <feature>security-handler-api</feature>
         <feature>security-handler-oidc</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.realm/security-realm-oidc/${project.version}</bundle>
     </feature>
 
@@ -401,6 +406,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-handler-api</feature>
         <feature>security-handler-impl</feature>
         <feature dependency="true">oidc-dependencies</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.filter/security-filter-login/${project.version}</bundle>
     </feature>
 
@@ -414,6 +420,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>cxf-jaxrs</feature>
         <feature>security-handler-api</feature>
         <feature dependency="true">oidc-dependencies</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.filter/security-filter-authorization/${project.version}</bundle>
     </feature>
 
@@ -425,6 +432,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-handler-api</feature>
         <feature>security-policy-context</feature>
         <feature>security-handler-impl</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.filter/security-filter-web-sso/${project.version}</bundle>
     </feature>
 
@@ -432,6 +440,7 @@ org.ops4j.pax.web.default.realmname=DDF
              description="Web Context policy manager">
         <feature>security-core-api</feature>
         <feature>security-core-impl</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.policy/security-policy-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.policy/security-policy-context/${project.version}</bundle>
     </feature>
@@ -465,6 +474,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-core-impl</feature>
         <feature>security-encryption</feature>
         <feature dependency="true">oidc-dependencies</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.interceptor/security-interceptor-guest/${project.version}</bundle>
     </feature>
 
@@ -475,6 +485,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <feature>security-core-misc</feature>
         <feature>security-encryption</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.claims/security-claims-attributequery/${project.version}
         </bundle>
     </feature>
@@ -504,6 +515,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-handler-api</feature>
         <feature>security-core-impl</feature>
         <feature dependency="true">oidc-dependencies</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.platform.security/session-management-service/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/session-management-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-session-expiry/${project.version}</bundle>
@@ -512,6 +524,7 @@ org.ops4j.pax.web.default.realmname=DDF
     <feature name="security-servlet-whoami" version="${project.version}"
              description="Who Am I servlet.">
         <feature>security-core-impl</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.servlet/security-servlet-whoami/${project.version}</bundle>
     </feature>
 
@@ -534,6 +547,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature dependency="true">oidc-dependencies</feature>
         <feature>security-core-impl</feature>
         <feature>saml-validator</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security/security-saml-util/${project.version}</bundle>
         <bundle>mvn:ddf.security.handler/security-handler-saml/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
@@ -554,6 +568,7 @@ org.ops4j.pax.web.default.realmname=DDF
              description="Audits all commands entered on the Karaf command line.">
         <feature>security-core-api</feature>
         <feature>security-core-impl</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.command/security-command-listener/${project.version}</bundle>
     </feature>
 
@@ -578,7 +593,6 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-realm-saml</feature>
         <feature>security-guest-realm</feature>
         <feature>security-claims-property</feature>
-        <feature>security-realms</feature>
         <feature>security-core-services</feature>
     </feature>
 
@@ -663,6 +677,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>guava</feature>
         <bundle>mvn:ddf.platform.email/platform-email-api/${project.version}</bundle>
         <feature>security-logger</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.platform.email/platform-email-impl/${project.version}</bundle>
     </feature>
 

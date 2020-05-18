@@ -27,6 +27,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.security.audit.SecurityLogger;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
@@ -130,6 +131,7 @@ public class LdapLoginConfigTest {
     ldapConfig.setBindMethod("Simple");
     ldapConfig.setRealm("");
     ldapConfig.setKdcAddress("");
+    ldapConfig.setSecurityLogger(mock(SecurityLogger.class));
     return ldapConfig;
   }
 

@@ -16,6 +16,8 @@ package org.codice.ddf.itests.common.security;
 import static com.jayway.restassured.RestAssured.when;
 import static org.awaitility.Awaitility.await;
 
+import ddf.security.audit.impl.SecurityLoggerImpl;
+import ddf.security.service.impl.SubjectUtils;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
@@ -160,6 +162,7 @@ public class SecurityPolicyConfigurator {
     final ContextPolicyManager ctxPolicyMgr = services.getService(ContextPolicyManager.class);
 
     final PolicyManager targetPolicies = new PolicyManager();
+    targetPolicies.setSecurityLogger(new SecurityLoggerImpl(new SubjectUtils()));
     targetPolicies.setPolicies(policyProperties);
 
     return () -> {

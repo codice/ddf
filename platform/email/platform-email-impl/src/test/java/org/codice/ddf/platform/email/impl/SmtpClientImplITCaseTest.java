@@ -18,9 +18,11 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 import com.dumbster.smtp.SimpleSmtpServer;
 import com.dumbster.smtp.SmtpMessage;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -79,6 +81,7 @@ public class SmtpClientImplITCaseTest {
     SimpleSmtpServer server = SimpleSmtpServer.start(port);
 
     SmtpClientImpl emailService = new SmtpClientImpl();
+    emailService.setSecurityLogger(mock(SecurityLogger.class));
 
     emailService.setHostName(HOSTNAME);
     emailService.setPortNumber(port);
@@ -134,6 +137,7 @@ public class SmtpClientImplITCaseTest {
     SimpleSmtpServer server = SimpleSmtpServer.start(port);
 
     SmtpClientImpl emailService = new SmtpClientImpl();
+    emailService.setSecurityLogger(mock(SecurityLogger.class));
 
     emailService.setHostName(HOSTNAME);
     emailService.setPortNumber(port);

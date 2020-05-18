@@ -19,8 +19,8 @@ import com.google.common.hash.Hashing;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -56,6 +56,8 @@ import org.slf4j.LoggerFactory;
 public class LoginFilter implements SecurityFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoginFilter.class);
+
+  private SecurityLogger securityLogger;
 
   private static final ThreadLocal<DocumentBuilder> BUILDER =
       new ThreadLocal<DocumentBuilder>() {
@@ -208,7 +210,7 @@ public class LoginFilter implements SecurityFilter {
     }
 
     if (nullSession) {
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Added token for user [{}] to session [{}]",
           principals.getPrimaryPrincipal(),
           Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString());
@@ -225,6 +227,10 @@ public class LoginFilter implements SecurityFilter {
 
   public void setContextPolicyManager(ContextPolicyManager contextPolicyManager) {
     this.contextPolicyManager = contextPolicyManager;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 
   @Override

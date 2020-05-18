@@ -16,11 +16,11 @@ package org.codice.ddf.security.servlet.whoami;
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
+import ddf.security.SubjectOperations;
 import ddf.security.assertion.Attribute;
 import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.AuthenticationStatement;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.impl.SubjectUtils;
 import ddf.security.principal.impl.GuestPrincipal;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,14 +57,17 @@ public class WhoAmI {
 
   final List<WhoAmISubject> whoAmISubjects;
 
-  public WhoAmI(final Subject subject) {
+  public WhoAmI(final Subject subject, SubjectOperations subjectOperations) {
     notNull(subject);
 
     Collection<SecurityAssertion> assertions = extractSecurityAssertions(subject);
     notEmpty(assertions);
 
     whoAmISubjects =
-        assertions.stream().map(a -> getWhoAmI(a, subject)).collect(Collectors.toList());
+        assertions
+            .stream()
+            .map(a -> getWhoAmI(a, subject, subjectOperations))
+            .collect(Collectors.toList());
   }
 
   private Collection<SecurityAssertion> extractSecurityAssertions(Subject subject) {
@@ -77,8 +80,9 @@ public class WhoAmI {
     return subject.getPrincipals().byType(SecurityAssertion.class);
   }
 
-  private WhoAmISubject getWhoAmI(SecurityAssertion assertion, Subject subject) {
-    return new WhoAmISubject(assertion, subject);
+  private WhoAmISubject getWhoAmI(
+      SecurityAssertion assertion, Subject subject, SubjectOperations subjectOperations) {
+    return new WhoAmISubject(assertion, subject, subjectOperations);
   }
 
   public static class WhoAmISubject {
@@ -106,11 +110,12 @@ public class WhoAmI {
 
     private final Map<String, SortedSet<String>> claims;
 
-    public WhoAmISubject(SecurityAssertion assertion, Subject subject) {
-      name = SubjectUtils.getName(subject);
+    public WhoAmISubject(
+        SecurityAssertion assertion, Subject subject, SubjectOperations subjectOperations) {
+      name = subjectOperations.getName(subject);
       principalName = assertion.getPrincipal().getName();
-      displayName = SubjectUtils.getName(subject, null, true);
-      email = SubjectUtils.getEmailAddress(subject);
+      displayName = subjectOperations.getName(subject, null, true);
+      email = subjectOperations.getEmailAddress(subject);
       claims = Collections.unmodifiableMap(getAttributes(assertion));
 
       issuer = assertion.getIssuer();

@@ -33,8 +33,8 @@ import ddf.catalog.security.FilterResult;
 import ddf.catalog.security.FilterStrategy;
 import ddf.catalog.util.impl.ServiceComparator;
 import ddf.security.SecurityConstants;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
@@ -68,6 +68,10 @@ public class FilterPlugin implements AccessPlugin {
       Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
 
   private Security security;
+
+  private SubjectOperations subjectOperations;
+
+  private SecurityLogger securityLogger;
 
   public FilterPlugin(Security security) {
     this.security = security;
@@ -111,9 +115,13 @@ public class FilterPlugin implements AccessPlugin {
       }
     }
     if (!userNotPermittedTitles.isEmpty()) {
+      String userName = "unknown";
+      if (subjectOperations != null) {
+        userName = subjectOperations.getName(subject);
+      }
       throw new StopProcessingException(
           "Metacard creation not permitted for "
-              + SubjectUtils.getName(subject)
+              + userName
               + ": [ "
               + listToString(userNotPermittedTitles)
               + " ]");
@@ -219,7 +227,7 @@ public class FilterPlugin implements AccessPlugin {
     }
 
     if (filteredMetacards > 0) {
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Filtered " + filteredMetacards + " metacards, returned " + newResults.size(), subject);
     }
 
@@ -269,7 +277,7 @@ public class FilterPlugin implements AccessPlugin {
     }
 
     if (filteredMetacards > 0) {
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Filtered " + filteredMetacards + " metacards, returned " + newResults.size(), subject);
     }
 
@@ -352,5 +360,13 @@ public class FilterPlugin implements AccessPlugin {
       securityPermission = new KeyValueCollectionPermissionImpl(action, map);
     }
     return subject.isPermitted(securityPermission);
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

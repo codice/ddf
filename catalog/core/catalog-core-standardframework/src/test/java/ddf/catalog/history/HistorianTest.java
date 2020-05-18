@@ -64,6 +64,8 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
+import ddf.security.SubjectOperations;
+import ddf.security.audit.SecurityLogger;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
@@ -124,6 +126,11 @@ public class HistorianTest {
     SubjectIdentity subjectIdentity = mock(SubjectIdentity.class);
     when(subjectIdentity.getUniqueIdentifier(any())).thenReturn("test");
     historian.setSubjectIdentity(subjectIdentity);
+    SubjectOperations subjectOperations = mock(SubjectOperations.class);
+    when(subjectOperations.getEmailAddress(any(Subject.class))).thenReturn("test@test.com");
+    when(subjectOperations.getName(any(Subject.class))).thenReturn("test");
+    historian.setSubjectOperations(subjectOperations);
+    historian.setSecurityLogger(mock(SecurityLogger.class));
 
     Security security = mock(Security.class);
     Subject subject = mock(MockSubject.class);

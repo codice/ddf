@@ -26,6 +26,7 @@ import ddf.security.common.PrincipalHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import ddf.security.service.impl.SubjectUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.servlet.http.HttpSession;
@@ -61,6 +62,7 @@ public class LogoutServiceImplTest {
     Action defaultLogoutAction = mockLogoutActionProvider.getAction(null);
 
     LogoutServiceImpl logoutServiceImpl = new LogoutServiceImpl();
+    logoutServiceImpl.setSubjectOperations(new SubjectUtils());
     logoutServiceImpl.setHttpSessionFactory(sessionFactory);
     logoutServiceImpl.setSecurityManager(sm);
     logoutServiceImpl.setLogoutActionProviders(ImmutableList.of(mockLogoutActionProvider));

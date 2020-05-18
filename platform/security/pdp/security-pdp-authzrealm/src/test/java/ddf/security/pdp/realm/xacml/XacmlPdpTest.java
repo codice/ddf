@@ -17,7 +17,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
+import ddf.security.audit.SecurityLogger;
 import ddf.security.pdp.realm.xacml.processor.PdpException;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
@@ -125,7 +127,8 @@ public class XacmlPdpTest {
             Arrays.asList(
                 "item0=item0Val1",
                 "item1=item1Val1,item1Val2",
-                "item2=item2Val1,item2Val2,item2Val3"));
+                "item2=item2Val1,item2Val2,item2Val3"),
+            mock(SecurityLogger.class));
   }
 
   @After
@@ -135,12 +138,14 @@ public class XacmlPdpTest {
 
   @Test(expected = PdpException.class)
   public void testBadSetupNull() throws PdpException {
-    XacmlPdp xacmlPdp = new XacmlPdp(null, new XmlParser(), new ArrayList<>());
+    XacmlPdp xacmlPdp =
+        new XacmlPdp(null, new XmlParser(), new ArrayList<>(), mock(SecurityLogger.class));
   }
 
   @Test(expected = PdpException.class)
   public void testBadSetupEmpty() throws PdpException {
-    XacmlPdp xacmlPdp = new XacmlPdp("", new XmlParser(), new ArrayList<>());
+    XacmlPdp xacmlPdp =
+        new XacmlPdp("", new XmlParser(), new ArrayList<>(), mock(SecurityLogger.class));
   }
 
   @Test

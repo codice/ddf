@@ -18,10 +18,13 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <bean id="smtpClient" class="org.codice.ddf.platform.email.impl.SmtpClientImpl">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.platform.email.impl.SmtpClientImpl"
                 update-strategy="container-managed"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="smtpClient" interface="org.codice.ddf.platform.email.SmtpClient">

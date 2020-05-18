@@ -18,10 +18,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
+import ddf.security.SubjectOperations;
 import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsParameters;
 import ddf.security.claims.impl.ClaimsParametersImpl;
-import ddf.security.impl.SubjectUtils;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.HashMap;
@@ -45,8 +45,8 @@ public class CertificateClaimsHandlerTest {
   public void testRetrieveClaimValuesWithCertValues() throws URISyntaxException {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
     Map<String, Object> map = new HashMap<>();
-    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
-    map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
+    map.put(SubjectOperations.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
+    map.put(SubjectOperations.COUNTRY_CLAIM_URI, "USA");
     ClaimsParameters parameters =
         new ClaimsParametersImpl(mock(Principal.class), new HashSet<>(), map);
     ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
@@ -56,7 +56,8 @@ public class CertificateClaimsHandlerTest {
             .stream()
             .map(ddf.security.claims.Claim::getName)
             .collect(Collectors.toList()),
-        containsInAnyOrder(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, SubjectUtils.COUNTRY_CLAIM_URI));
+        containsInAnyOrder(
+            SubjectOperations.EMAIL_ADDRESS_CLAIM_URI, SubjectOperations.COUNTRY_CLAIM_URI));
   }
 
   @Test
@@ -65,8 +66,8 @@ public class CertificateClaimsHandlerTest {
     certificateClaimsHandler.setCountryClaim("Country");
     certificateClaimsHandler.setEmailClaim("Email");
     Map<String, Object> map = new HashMap<>();
-    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
-    map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
+    map.put(SubjectOperations.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
+    map.put(SubjectOperations.COUNTRY_CLAIM_URI, "USA");
     ClaimsParameters parameters =
         new ClaimsParametersImpl(mock(Principal.class), new HashSet<>(), map);
     ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
@@ -83,7 +84,7 @@ public class CertificateClaimsHandlerTest {
   public void testRetrieveClaimValuesWithEmail() throws URISyntaxException {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
     Map<String, Object> map = new HashMap<>();
-    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
+    map.put(SubjectOperations.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
     ClaimsParameters parameters =
         new ClaimsParametersImpl(mock(Principal.class), new HashSet<>(), map);
     ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
@@ -93,14 +94,14 @@ public class CertificateClaimsHandlerTest {
             .stream()
             .map(ddf.security.claims.Claim::getName)
             .collect(Collectors.toList()),
-        containsInAnyOrder(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
+        containsInAnyOrder(SubjectOperations.EMAIL_ADDRESS_CLAIM_URI));
   }
 
   @Test
   public void testRetrieveClaimValuesWithCountry() throws URISyntaxException {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
     Map<String, Object> map = new HashMap<>();
-    map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
+    map.put(SubjectOperations.COUNTRY_CLAIM_URI, "USA");
     ClaimsParameters parameters =
         new ClaimsParametersImpl(mock(Principal.class), new HashSet<>(), map);
     ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
@@ -110,6 +111,6 @@ public class CertificateClaimsHandlerTest {
             .stream()
             .map(ddf.security.claims.Claim::getName)
             .collect(Collectors.toList()),
-        containsInAnyOrder(SubjectUtils.COUNTRY_CLAIM_URI));
+        containsInAnyOrder(SubjectOperations.COUNTRY_CLAIM_URI));
   }
 }

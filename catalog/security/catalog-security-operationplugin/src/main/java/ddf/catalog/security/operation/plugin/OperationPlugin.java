@@ -28,7 +28,7 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
@@ -40,6 +40,8 @@ import java.util.Set;
  * subject has the appropriate attributes to make the request.
  */
 public class OperationPlugin implements AccessPlugin {
+
+  private SubjectOperations subjectOperations;
 
   @Override
   public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
@@ -116,11 +118,16 @@ public class OperationPlugin implements AccessPlugin {
         new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION, perms);
 
     if (!subject.isPermitted(securityPermission)) {
+      String userName = "UNKNOWN";
+      if (subjectOperations != null) {
+        userName = subjectOperations.getName(subject, userName);
+      }
       throw new StopProcessingException(
-          "User "
-              + SubjectUtils.getName(subject, "UNKNOWN")
-              + " does not have the required attributes "
-              + perms);
+          "User " + userName + " does not have the required attributes " + perms);
     }
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

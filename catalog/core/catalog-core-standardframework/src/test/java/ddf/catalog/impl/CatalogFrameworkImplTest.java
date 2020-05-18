@@ -143,6 +143,7 @@ import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.mapper.MimeTypeMapperImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.KeyValueCollectionPermission;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -404,6 +405,7 @@ public class CatalogFrameworkImplTest {
 
     QueryOperations queryOperations =
         new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
+    queryOperations.setSecurityLogger(mock(SecurityLogger.class));
     OperationsStorageSupport opsStorage =
         new OperationsStorageSupport(sourceOperations, queryOperations);
     opsStorage.setHistorian(historian);
@@ -1409,6 +1411,7 @@ public class CatalogFrameworkImplTest {
             mockContentTypesSourcePoller);
     QueryOperations queryOperations =
         new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
+    queryOperations.setSecurityLogger(mock(SecurityLogger.class));
     OperationsStorageSupport opsStorage =
         new OperationsStorageSupport(sourceOperations, queryOperations);
     OperationsCatalogStoreSupport opsCatStore =
@@ -2747,6 +2750,7 @@ public class CatalogFrameworkImplTest {
             mockStatusSourcePoller,
             mockContentTypesSourcePoller);
     QueryOperations queryOps = new QueryOperations(frameworkProperties, sourceOps, null, null);
+    queryOps.setSecurityLogger(mock(SecurityLogger.class));
     ResourceOperations resOps = new ResourceOperations(frameworkProperties, queryOps, null);
     resOps.setId(DDF);
 

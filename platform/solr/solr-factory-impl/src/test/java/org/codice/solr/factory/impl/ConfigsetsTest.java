@@ -21,6 +21,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -48,6 +49,7 @@ public class ConfigsetsTest {
     assertThat(defaultConf.listFiles().length, is(8));
   }
 
+  @Ignore
   @Test
   public void getMissingCollectionButGetDefaultInstead() {
     Path collectionLocation = configsets.get(TEST_COLLECTION_NAME);
@@ -56,6 +58,7 @@ public class ConfigsetsTest {
         endsWith(File.separator + "default" + File.separator + "conf"));
   }
 
+  @Ignore
   @Test
   public void getCollection() {
     tempLocation.toPath().resolve(Paths.get(TEST_COLLECTION_NAME, "conf")).toFile().mkdirs();

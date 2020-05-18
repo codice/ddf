@@ -53,7 +53,9 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.permission.impl.PermissionsImpl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -143,6 +145,8 @@ public class ConfluenceSourceTest {
             registry,
             factory,
             clientFactoryFactory);
+    confluence.setSecurityLogger(mock(SecurityLogger.class));
+    confluence.setPermissions(new PermissionsImpl());
     confluence.setAvailabilityPollInterval(1);
     confluence.setConfigurationPid("configPid");
     confluence.setEndpointUrl("https://confluence/rest/api/content");

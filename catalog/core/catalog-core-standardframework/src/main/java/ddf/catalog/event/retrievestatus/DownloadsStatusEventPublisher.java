@@ -18,7 +18,7 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -62,11 +62,17 @@ public class DownloadsStatusEventPublisher {
 
   private boolean activityEnabled = true;
 
+  private SubjectOperations subjectOperations;
+
   /** Used to publish product retrieval status updates via the OSGi Event Service */
   public DownloadsStatusEventPublisher(
       EventAdmin eventAdmin, List<ActionProvider> actionProviders) {
     this.eventAdmin = eventAdmin;
     this.actionProviders = actionProviders;
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 
   /**
@@ -134,7 +140,11 @@ public class DownloadsStatusEventPublisher {
       LOGGER.debug("Could not determine current user, using session id.");
     }
 
-    String user = SubjectUtils.getName(shiroSubject, "");
+    if (subjectOperations == null) {
+      throw new IllegalStateException("Unable to perform subject operations at this time.");
+    }
+
+    String user = subjectOperations.getName(shiroSubject, "");
 
     LOGGER.debug(
         "User: {}, session: {}", user, getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY));

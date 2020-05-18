@@ -38,6 +38,7 @@ import ddf.catalog.source.FederatedSource
 import ddf.catalog.source.UnsupportedQueryException
 import ddf.security.SecurityConstants
 import ddf.security.Subject
+import ddf.security.audit.SecurityLogger
 import org.apache.commons.collections.CollectionUtils
 import spock.lang.Shared
 import spock.lang.Specification
@@ -95,7 +96,7 @@ class QueryOperationsSpec extends Specification {
         request.isEnterprise() >> { false }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources = sources.initializeSources(mockForQueryOps, request, sourceIds)
 
         then:
@@ -122,7 +123,7 @@ class QueryOperationsSpec extends Specification {
         request.isEnterprise() >> { true }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources = sources.initializeSources(mockForQueryOps, request, null)
 
         then:
@@ -146,7 +147,7 @@ class QueryOperationsSpec extends Specification {
         request.isEnterprise() >> { true }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources = sources.initializeSources(mockForQueryOps, request, null)
 
         then:
@@ -170,7 +171,7 @@ class QueryOperationsSpec extends Specification {
         request.isEnterprise() >> { true }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources = sources.initializeSources(mockForQueryOps, request, null)
 
         then:
@@ -196,7 +197,7 @@ class QueryOperationsSpec extends Specification {
         request.isEnterprise() >> { false }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources = sources.initializeSources(mockForQueryOps, request, [SOURCE_ID] as Set)
 
         then:
@@ -222,7 +223,7 @@ class QueryOperationsSpec extends Specification {
         request.isEnterprise() >> { false }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources = sources.initializeSources(mockForQueryOps, request, ["fed1"] as Set)
 
         then:
@@ -248,7 +249,7 @@ class QueryOperationsSpec extends Specification {
         request.isEnterprise() >> { false }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources = sources.initializeSources(mockForQueryOps, request, ["unknown"] as Set)
 
         then:
@@ -274,7 +275,7 @@ class QueryOperationsSpec extends Specification {
         request.isEnterprise() >> { false }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources = sources.initializeSources(mockForQueryOps, request, ["fed1"] as Set)
 
         then:
@@ -291,7 +292,7 @@ class QueryOperationsSpec extends Specification {
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources.sourcesToQuery = []
         sources.exceptions = []
 
@@ -310,7 +311,7 @@ class QueryOperationsSpec extends Specification {
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources.sourcesToQuery = []
         sources.exceptions = []
         def connectedCount = frameworkProperties.getConnectedSources().size()
@@ -332,7 +333,7 @@ class QueryOperationsSpec extends Specification {
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources.sourcesToQuery = []
         sources.exceptions = []
 
@@ -352,7 +353,7 @@ class QueryOperationsSpec extends Specification {
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources.sourcesToQuery = []
         sources.exceptions = []
         sources.needToAddCatalogProvider = true
@@ -373,7 +374,7 @@ class QueryOperationsSpec extends Specification {
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        def sources = new QueryOperations.QuerySources(frameworkProperties)
+        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
         sources.sourcesToQuery = []
         sources.exceptions = []
         sources.needToAddCatalogProvider = true

@@ -18,8 +18,8 @@ import static ddf.security.SecurityConstants.AUTHENTICATION_TOKEN_KEY;
 import com.google.common.hash.Hashing;
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -65,6 +65,8 @@ public class WebSSOFilter implements SecurityFilter {
   private ContextPolicyManager contextPolicyManager;
 
   private SessionFactory sessionFactory;
+
+  private SecurityLogger securityLogger;
 
   @Override
   public void init() {
@@ -205,7 +207,7 @@ public class WebSSOFilter implements SecurityFilter {
     HttpSession session = httpRequest.getSession(false);
     String requestedSessionId = httpRequest.getRequestedSessionId();
     if (requestedSessionId != null && !httpRequest.isRequestedSessionIdValid()) {
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Incoming HTTP Request contained possible unknown session ID [{}] for this server.",
           Hashing.sha256().hashString(requestedSessionId, StandardCharsets.UTF_8).toString());
     }
@@ -265,7 +267,9 @@ public class WebSSOFilter implements SecurityFilter {
             throw new AuthenticationFailureException(
                 "No handlers were able to determine required credentials");
           }
-          result = new HandlerResultImpl(Status.COMPLETED, new GuestAuthenticationToken(ipAddress));
+          result =
+              new HandlerResultImpl(
+                  Status.COMPLETED, new GuestAuthenticationToken(ipAddress, securityLogger));
           result.setSource("default");
           // fall through
         case COMPLETED:
@@ -418,5 +422,9 @@ public class WebSSOFilter implements SecurityFilter {
 
   public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

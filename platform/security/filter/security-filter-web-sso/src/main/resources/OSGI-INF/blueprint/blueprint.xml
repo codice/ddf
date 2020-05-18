@@ -21,6 +21,8 @@
 
     <reference id="sessionFactory" interface="ddf.security.http.SessionFactory" availability="optional" />
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <reference-list id="handlerList"
                     interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
                     availability="optional"/>
@@ -29,6 +31,7 @@
         <property name="handlerList" ref="handlerList"/>
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
         <property name="sessionFactory" ref="sessionFactory" />
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="filter"

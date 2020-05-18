@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.admin.insecure.defaults.service;
 
+import ddf.security.audit.SecurityLogger;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,8 +83,11 @@ public class InsecureDefaultsCollector implements Runnable {
 
   private final EventAdmin eventAdmin;
 
-  public InsecureDefaultsCollector(EventAdmin eventAdmin) {
+  private SecurityLogger securityLogger;
+
+  public InsecureDefaultsCollector(EventAdmin eventAdmin, SecurityLogger securityLogger) {
     this.eventAdmin = eventAdmin;
+    this.securityLogger = securityLogger;
     addValidators();
   }
 
@@ -202,6 +206,7 @@ public class InsecureDefaultsCollector implements Runnable {
 
   private void addUsersPropertiesFileValidator() {
     UsersPropertiesFileValidator userPropertiesFileValidator = new UsersPropertiesFileValidator();
+    userPropertiesFileValidator.setSecurityLogger(securityLogger);
     userPropertiesFileValidator.setPath(Paths.get(USERS_PROPERTIES_FILE));
     userPropertiesFileValidator.setDefaultAdminUser(DEFAULT_ADMIN_USER);
     userPropertiesFileValidator.setDefaultAdminUserPassword(DEFAULT_ADMIN_USER_PASSWORD);

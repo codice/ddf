@@ -16,6 +16,7 @@ package ddf.security.pep.interceptor;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
+import ddf.security.audit.SecurityLogger;
 import org.apache.cxf.interceptor.security.AccessDeniedException;
 import org.apache.cxf.message.Message;
 import org.junit.Rule;
@@ -28,6 +29,7 @@ public class PepInterceptorNullAssertionTest {
   @Test
   public void testMessageNullSecurityAssertion() {
     PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor(m -> null));
+    interceptor.setSecurityLogger(mock(SecurityLogger.class));
 
     Message messageWithNullSecurityAssertion = mock(Message.class);
     // SecurityLogger is already stubbed out

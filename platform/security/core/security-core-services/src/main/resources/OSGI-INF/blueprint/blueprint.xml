@@ -19,7 +19,21 @@
 
     <ext:property-placeholder/>
 
-    <bean id="adminAlertAppender" class="ddf.security.common.audit.LogFailoverAlertAppender">
+    <bean id="permissions" class="ddf.security.permission.impl.PermissionsImpl" />
+
+    <service ref="permissions" interface="ddf.security.permission.Permissions" />
+
+    <bean id="subjectOperations" class="ddf.security.service.impl.SubjectUtils" />
+
+    <service ref="subjectOperations" interface="ddf.security.SubjectOperations" />
+
+    <bean id="securityLogger" class="ddf.security.audit.impl.SecurityLoggerImpl">
+        <argument ref="subjectOperations" />
+    </bean>
+
+    <service ref="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
+    <bean id="adminAlertAppender" class="ddf.security.audit.impl.LogFailoverAlertAppender">
         <argument ref="eventAdmin"/>
     </bean>
 
@@ -29,7 +43,7 @@
              interface="org.ops4j.pax.logging.spi.PaxAppender">
         <service-properties>
             <entry key="org.ops4j.pax.logging.appender.name"
-                   value="ddf.security.common.audit.LogFailoverAlertAppender"/>
+                   value="ddf.security.audit.impl.LogFailoverAlertAppender"/>
         </service-properties>
     </service>
 
@@ -49,7 +63,9 @@
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
-    <bean id="configSecurityLogger" class="ddf.security.config.impl.ConfigurationSecurityLogger"/>
+    <bean id="configSecurityLogger" class="ddf.security.config.impl.ConfigurationSecurityLogger">
+        <property name="securityLogger" ref="securityLogger"/>
+    </bean>
 
     <bean id="crypto" class="ddf.security.samlp.impl.SystemCrypto">
         <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
@@ -76,6 +92,7 @@
         <cm:managed-properties persistent-id="ddf.security.http.impl.HttpSessionFactory"
                                update-strategy="container-managed"/>
         <property name="expirationTime" value="30" />
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service interface="ddf.security.http.SessionFactory" ref="sessionFactory">
@@ -84,7 +101,9 @@
         </service-properties>
     </service>
 
-    <bean id="sessionListener" class="ddf.security.listener.AuditingHttpSessionListener"/>
+    <bean id="sessionListener" class="ddf.security.listener.AuditingHttpSessionListener">
+        <property name="securityLogger" ref="securityLogger"/>
+    </bean>
 
     <service id="sessionListenerService" ref="sessionListener"
              interface="javax.servlet.http.HttpSessionListener"/>
@@ -94,13 +113,16 @@
         <cm:managed-properties
                 persistent-id="ddf.security.SubjectIdentity"
                 update-strategy="container-managed"/>
+        <argument ref="subjectOperations" />
         <property name="identityAttribute" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
     </bean>
 
     <service id="subjectIdentity" ref="subjectIdentityImpl"
              interface="ddf.security.SubjectIdentity"/>
 
-    <bean id="security" class="org.codice.ddf.security.impl.Security" />
+    <bean id="security" class="org.codice.ddf.security.impl.Security">
+        <property name="securityLogger" ref="securityLogger" />
+    </bean>
 
     <service ref="security" interface="org.codice.ddf.security.Security" />
 

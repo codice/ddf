@@ -22,12 +22,15 @@
 
     <reference id="ocspService" interface="org.codice.ddf.security.OcspService"/>
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger"/>
+
     <bean id="tokenFactory"
           class="org.codice.ddf.security.handler.AuthenticationTokenFactory"/>
 
     <bean id="handler" class="org.codice.ddf.security.handler.pki.PKIHandler">
         <property name="tokenFactory" ref="tokenFactory"/>
         <property name="ocspService" ref="ocspService"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"

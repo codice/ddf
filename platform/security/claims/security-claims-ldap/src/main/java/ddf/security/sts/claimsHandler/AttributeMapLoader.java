@@ -13,7 +13,7 @@
  */
 package ddf.security.sts.claimsHandler;
 
-import ddf.security.impl.SubjectUtils;
+import ddf.security.SubjectOperations;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Map;
@@ -33,6 +33,12 @@ import org.slf4j.LoggerFactory;
 public class AttributeMapLoader {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AttributeMapLoader.class);
+
+  private SubjectOperations subjectOperations;
+
+  public AttributeMapLoader(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
+  }
 
   /**
    * Parses a file of attributes and returns them as a map.
@@ -107,7 +113,7 @@ public class AttributeMapLoader {
     String baseDN = null;
     if (principal instanceof X500Principal && !overrideCertDn) {
       Predicate<RDN> predicate = rdn -> !rdn.getTypesAndValues()[0].getType().equals(BCStyle.CN);
-      baseDN = SubjectUtils.filterDN((X500Principal) principal, predicate);
+      baseDN = subjectOperations.filterDN((X500Principal) principal, predicate);
     }
 
     if (StringUtils.isEmpty(baseDN)) {

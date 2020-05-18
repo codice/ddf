@@ -13,8 +13,9 @@
  */
 package ddf.security.sts.claimsHandler;
 
+import ddf.security.SubjectOperations;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.claims.ClaimsHandler;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -97,6 +98,10 @@ public class ClaimsHandlerManager {
   private ServiceRegistration<ClaimsHandler> ldapHandlerRegistration = null;
 
   private Map<String, Object> ldapProperties = new HashMap<>();
+
+  private SecurityLogger securityLogger;
+
+  private SubjectOperations subjectOperations;
 
   /**
    * Creates a new instance of the ClaimsHandlerManager.
@@ -271,13 +276,13 @@ public class ClaimsHandlerManager {
   private void auditRemoteConnection(String host) {
     try {
       InetAddress inetAddress = InetAddress.getByName(host);
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Setting up remote connection to LDAP [{}].", inetAddress.getHostAddress());
     } catch (Exception e) {
       LOGGER.debug(
           "Unhandled exception while attempting to determine the IP address for an LDAP, might be a DNS issue.",
           e);
-      SecurityLogger.audit(
+      securityLogger.audit(
           "Unable to determine the IP address for an LDAP [{}], might be a DNS issue.", host);
     }
   }
@@ -306,7 +311,8 @@ public class ClaimsHandlerManager {
       String bindMethod,
       String realm,
       String kdcAddress) {
-    RoleClaimsHandler roleHandler = new RoleClaimsHandler(new AttributeMapLoader());
+    RoleClaimsHandler roleHandler =
+        new RoleClaimsHandler(new AttributeMapLoader(subjectOperations));
     roleHandler.setLdapConnectionFactory(connection);
     roleHandler.setPropertyFileLocation(propertyFileLoc);
     roleHandler.setUserBaseDn(userBaseDn);
@@ -344,7 +350,8 @@ public class ClaimsHandlerManager {
       String bindMethod,
       String realm,
       String kdcAddress) {
-    LdapClaimsHandler ldapHandler = new LdapClaimsHandler(new AttributeMapLoader());
+    LdapClaimsHandler ldapHandler =
+        new LdapClaimsHandler(new AttributeMapLoader(subjectOperations));
     ldapHandler.setLdapConnectionFactory(connection);
     ldapHandler.setPropertyFileLocation(propertyFileLoc);
     ldapHandler.setUserBaseDN(userBaseDn);
@@ -545,5 +552,13 @@ public class ClaimsHandlerManager {
       throw new IOException("Unable to read keystore. " + trustStoreLoc, e);
     }
     return tmf;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
+  }
+
+  public void setSubjectOperations(SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
   }
 }

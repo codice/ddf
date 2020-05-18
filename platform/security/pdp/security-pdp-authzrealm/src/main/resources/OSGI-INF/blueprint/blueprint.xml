@@ -18,6 +18,8 @@
 
     <ext:property-placeholder />
 
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                availability="mandatory"/>
 
@@ -26,6 +28,7 @@
                                update-strategy="container-managed"/>
         <argument value="${ddf.etc}/pdp/policies"/>
         <argument ref="xmlParser"/>
+        <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <reference-list id="userAttributeExpansionList" interface="ddf.security.expansion.Expansion"

@@ -17,7 +17,7 @@ import static org.apache.commons.lang.Validate.notNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.Subject;
-import ddf.security.common.audit.SecurityLogger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.io.File;
@@ -77,6 +77,8 @@ public class Security implements org.codice.ddf.security.Security {
   private Subject cachedSystemSubject;
 
   private static final javax.security.auth.Subject JAVA_ADMIN_SUBJECT = getAdminJavaSubject();
+
+  private SecurityLogger securityLogger;
 
   /**
    * Gets the {@link Subject} given a user name and password.
@@ -193,7 +195,7 @@ public class Security implements org.codice.ddf.security.Security {
       security.checkPermission(Security.GET_SYSTEM_SUBJECT_PERMISSION);
     }
     if (!javaSubjectHasAdminRole()) {
-      SecurityLogger.audit("Unable to retrieve system subject.");
+      securityLogger.audit("Unable to retrieve system subject.");
       return null;
     }
 
@@ -251,7 +253,7 @@ public class Security implements org.codice.ddf.security.Security {
    */
   public Subject getGuestSubject(String ipAddress) {
     Subject subject = null;
-    GuestAuthenticationToken token = new GuestAuthenticationToken(ipAddress);
+    GuestAuthenticationToken token = new GuestAuthenticationToken(ipAddress, securityLogger);
     LOGGER.debug("Getting new Guest user token for {}", ipAddress);
     try {
       SecurityManager securityManager = getSecurityManager();
@@ -326,22 +328,22 @@ public class Security implements org.codice.ddf.security.Security {
 
   @VisibleForTesting
   void auditFailedCodeExecutionForSystemSubject(ExecutionException e) {
-    SecurityLogger.auditWarn("Failed to execute code as System subject", e.getCause());
+    securityLogger.auditWarn("Failed to execute code as System subject", e.getCause());
   }
 
   @VisibleForTesting
   void auditInsufficientPermissions() {
-    SecurityLogger.audit(INSUFFICIENT_PERMISSIONS_ERROR);
+    securityLogger.audit(INSUFFICIENT_PERMISSIONS_ERROR);
   }
 
   @VisibleForTesting
   void auditSystemSubjectElevation() {
-    SecurityLogger.auditWarn("Elevating current user permissions to use System subject");
+    securityLogger.auditWarn("Elevating current user permissions to use System subject");
   }
 
   @VisibleForTesting
   void auditSystemSubjectAccess() {
-    SecurityLogger.audit("Attempting to get System Subject");
+    securityLogger.audit("Attempting to get System Subject");
   }
 
   private AuthenticationTokenFactory createBasicTokenFactory() {
@@ -387,5 +389,9 @@ public class Security implements org.codice.ddf.security.Security {
     }
 
     return keyStore;
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
   }
 }

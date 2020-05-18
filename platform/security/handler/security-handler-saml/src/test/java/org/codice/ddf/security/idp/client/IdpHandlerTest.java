@@ -26,6 +26,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.samlp.impl.RelayStates;
 import ddf.security.samlp.impl.SimpleSign;
@@ -95,6 +96,7 @@ public class IdpHandlerTest {
             "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
             "urn:oasis:names:tc:SAML:2.0:ac:classes:X509",
             "urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient"));
+    idpHandler.setSecurityLogger(mock(SecurityLogger.class));
 
     StringWriter writer = new StringWriter();
     InputStream inputStream = this.getClass().getResourceAsStream("/IDPmetadata.xml");

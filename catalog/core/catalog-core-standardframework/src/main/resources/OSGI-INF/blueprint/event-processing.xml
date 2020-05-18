@@ -51,6 +51,7 @@
           class="ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher">
         <argument ref="eventAdmin"/>
         <argument ref="resourceActionProviderList"/>
+        <property name="subjectOperations" ref="subjectOperationsWait" />
     </bean>
 
     <bean id="retrieveStatusEventListener"
@@ -58,7 +59,10 @@
 
     <bean id="downloadStatusInfo" class="ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl">
         <property name="eventAdmin" ref="eventAdmin"/>
+        <property name="subjectOperations" ref="subjectOperationsWait" />
     </bean>
+
+    <reference id="subjectOperationsWait" interface="ddf.security.SubjectOperations" />
 
     <service ref="eventProcessorService" interface="ddf.catalog.event.EventProcessor"/>
 

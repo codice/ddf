@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import ddf.security.Subject;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.lang.reflect.InvocationTargetException;
@@ -71,6 +72,8 @@ public class SecurityTest {
     System.setProperty("org.codice.ddf.system.hostname", "localhost");
 
     security = spy(security);
+
+    security.setSecurityLogger(mock(SecurityLogger.class));
   }
 
   @Test

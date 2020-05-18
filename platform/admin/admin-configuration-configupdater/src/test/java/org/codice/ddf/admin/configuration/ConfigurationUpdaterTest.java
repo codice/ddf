@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.File;
 import java.util.Collections;
@@ -100,6 +101,7 @@ public class ConfigurationUpdaterTest {
     installer =
         new ConfigurationUpdater(
             configurationAdmin, Collections.singletonList(mockStrategy), mockEncryptionService);
+    installer.setSecurityLogger(mock(SecurityLogger.class));
   }
 
   @Test
