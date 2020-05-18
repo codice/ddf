@@ -14,6 +14,12 @@
 package org.codice.ddf.security.policy.context.impl;
 
 import ddf.security.audit.SecurityLogger;
+import java.io.File;
+import java.io.FileFilter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,7 +29,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.apache.commons.io.monitor.FileAlterationListener;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.platform.util.properties.PropertiesLoader;
@@ -70,7 +80,11 @@ public class PolicyManager implements ContextPolicyManager {
 
   private Map<String, Object> policyProperties = new HashMap<>();
 
-  private Map<String, List<String>> contextToAuth;
+  private Map<String, List<String>> contextToAuthFile;
+
+  private Map<String, List<String>> contextToAuthConfig;
+
+  private Map<String, List<ContextAttributeMapping>> contextToAttr;
 
   private int traversalDepth;
 
@@ -79,6 +93,8 @@ public class PolicyManager implements ContextPolicyManager {
   private boolean sessionAccess;
 
   private SecurityLogger securityLogger;
+
+  private FileAlterationMonitor fileAlterationMonitor;
 
   public PolicyManager() {
     policyStore.put(ROOT_CONTEXT, defaultPolicy);
@@ -236,15 +252,16 @@ public class PolicyManager implements ContextPolicyManager {
           contextToAttr.put(context, attrMaps);
         }
       }
-
-      if (contextToAuth == null) {
+      this.contextToAttr = contextToAttr;
+      if (contextToAuthFile == null) {
         Map<String, List<String>> contextToAuthMap = new HashMap<>();
         contextToAuthMap.put(ROOT_CONTEXT, Arrays.asList(webAuthTypes.split("\\|")));
         contextToAuthMap.put(SERVICES_CONTEXT, Arrays.asList(endpointAuthTypes.split("\\|")));
 
+        contextToAuthConfig = contextToAuthMap;
         setPolicyStore(contextToAuthMap, contextToAttr);
       } else {
-        setPolicyStore(contextToAuth, contextToAttr);
+        setPolicyStore(contextToAuthFile, contextToAttr);
       }
     }
     LOGGER.debug("Policy store initialized, now contains {} entries", policyStore.size());
@@ -471,12 +488,81 @@ public class PolicyManager implements ContextPolicyManager {
   }
 
   public void setPolicyFilePath(String policyFilePath) {
+    if (fileAlterationMonitor != null) {
+      try {
+        fileAlterationMonitor.stop();
+      } catch (Exception e) {
+        LOGGER.debug("Exception while stopping file monitor for web context policy.", e);
+      }
+    }
+
+    fileAlterationMonitor = new FileAlterationMonitor(TimeUnit.MINUTES.toMillis(1));
+
+    Path path = Paths.get(policyFilePath);
+
+    FileAlterationObserver fileAlterationObserver =
+        new PrivilegedFileAlterationObserver(
+            path.toAbsolutePath().toFile().getParentFile(),
+            f -> f.equals(path.toAbsolutePath().toFile()));
+    fileAlterationObserver.addListener(new PolicyAlterationListener());
+    fileAlterationMonitor.addObserver(fileAlterationObserver);
+
+    try {
+      fileAlterationMonitor.start();
+    } catch (Exception e) {
+      LOGGER.debug("Exception while starting the file monitor for web context policy.", e);
+    }
+    updateFileConfiguration(policyFilePath);
+  }
+
+  public void setSecurityLogger(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
+  }
+
+  private class PolicyAlterationListener implements FileAlterationListener {
+
+    @Override
+    public void onStart(FileAlterationObserver observer) {}
+
+    @Override
+    public void onDirectoryCreate(File directory) {}
+
+    @Override
+    public void onDirectoryChange(File directory) {}
+
+    @Override
+    public void onDirectoryDelete(File directory) {}
+
+    @Override
+    public void onFileCreate(File file) {
+      updateFileConfiguration(file.getAbsolutePath());
+    }
+
+    @Override
+    public void onFileChange(File file) {
+      updateFileConfiguration(file.getAbsolutePath());
+    }
+
+    @Override
+    public void onFileDelete(File file) {
+      updateFileConfiguration(file.getAbsolutePath());
+    }
+
+    @Override
+    public void onStop(FileAlterationObserver observer) {}
+  }
+
+  private void updateFileConfiguration(String policyFilePath) {
     Map<String, String> properties =
         PropertiesLoader.getInstance()
             .toMap(PropertiesLoader.getInstance().loadProperties(policyFilePath));
 
     if (properties.isEmpty()) {
       LOGGER.debug("File-based authentication type configuration not found.");
+      contextToAuthFile = null;
+      if (contextToAttr != null && contextToAuthConfig != null) {
+        setPolicyStore(contextToAuthConfig, contextToAttr);
+      }
       return;
     }
 
@@ -501,11 +587,10 @@ public class PolicyManager implements ContextPolicyManager {
       contextToAuthTypes.put(authTypes.getKey(), finalAuthTypes);
     }
 
-    this.contextToAuth = contextToAuthTypes;
-  }
-
-  public void setSecurityLogger(SecurityLogger securityLogger) {
-    this.securityLogger = securityLogger;
+    contextToAuthFile = contextToAuthTypes;
+    if (contextToAttr != null) {
+      setPolicyStore(contextToAuthFile, contextToAttr);
+    }
   }
 
   /**
@@ -515,5 +600,21 @@ public class PolicyManager implements ContextPolicyManager {
   public void configure() {
     LOGGER.debug("configure called.");
     setPolicies(policyProperties);
+  }
+
+  private class PrivilegedFileAlterationObserver extends FileAlterationObserver {
+    public PrivilegedFileAlterationObserver(final File directory, final FileFilter fileFilter) {
+      super(directory, fileFilter, null);
+    }
+
+    @Override
+    public void checkAndNotify() {
+      AccessController.doPrivileged(
+          (PrivilegedAction)
+              () -> {
+                super.checkAndNotify();
+                return null;
+              });
+    }
   }
 }
