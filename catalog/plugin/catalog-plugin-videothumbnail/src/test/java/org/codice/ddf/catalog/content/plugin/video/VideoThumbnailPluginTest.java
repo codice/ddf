@@ -152,6 +152,7 @@ public class VideoThumbnailPluginTest {
     // then
     final List<ContentItem> processedContentItems =
         processedCreateResponse.getCreatedContentItems();
+    ContentItem processedItem = processedContentItems.get(0);
     assertThat(
         "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
     verifyThumbnailIsGif(mockContentItem, processedContentItems.get(0));
@@ -347,12 +348,12 @@ public class VideoThumbnailPluginTest {
     URL ffmpegBinaryUrl;
 
     if (SystemUtils.IS_OS_LINUX) {
-      ffmpegResourcePath = "linux/ffmpeg-4.0";
+      ffmpegResourcePath = "linux/ffmpeg-4.2.2";
     } else if (SystemUtils.IS_OS_MAC) {
-      ffmpegResourcePath = "osx/ffmpeg-4.0";
+      ffmpegResourcePath = "osx/ffmpeg-4.2.2";
       //      Skip unit tests on Windows. See DDF-3503.
       //    } else if (SystemUtils.IS_OS_WINDOWS) {
-      //      ffmpegResourcePath = "windows/ffmpeg.exe";
+      //      ffmpegResourcePath = "windows/ffmpeg-4.2.2.exe";
     } else {
       fail(
           "Platform is not Linux, Mac, or Windows. No FFmpeg binaries are provided for this platform.");
