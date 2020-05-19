@@ -24,7 +24,7 @@ const QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js')
 const QueryResultCollection = require('./QueryResult.collection.js')
 const QueryResult = require('./QueryResult.js')
 const spliceAmount = 10
-const processQueueTimeoutLength = 100
+const processQueueTimeoutLength = 60
 
 let rpc = null
 
@@ -283,7 +283,7 @@ module.exports = Backbone.AssociatedModel.extend({
       this.get('queuedResults').reset(this.processedResults)
       this.set('processingResults', false)
       this.trigger('sync')
-    } else {
+    } else if (this.queuedResults.length !== 0) {
       if (this.get('processingResults') === false) {
         this.set('processingResults', true)
       }
@@ -292,14 +292,32 @@ module.exports = Backbone.AssociatedModel.extend({
       this.processedResults = this.processedResults.concat(
         slice.map(plainResult => new QueryResult(plainResult))
       )
+      // sorry for this awful attempt to keep the page churning
       this.processQueueTimeoutId = setTimeout(() => {
-        this.processQueueTimeoutId = undefined
-        this.processQueue()
+        this.processQueueTimeoutId = window.requestAnimationFrame(() => {
+          this.processQueueTimeoutId = window.requestAnimationFrame(() => {
+            this.processQueueTimeoutId = window.requestAnimationFrame(() => {
+              this.processQueueTimeoutId = window.requestAnimationFrame(() => {
+                this.processQueueTimeoutId = window.requestAnimationFrame(
+                  () => {
+                    this.processQueueTimeoutId = window.requestAnimationFrame(
+                      () => {
+                        this.processQueueTimeoutId = undefined
+                        this.processQueue()
+                      }
+                    )
+                  }
+                )
+              })
+            })
+          })
+        })
       }, processQueueTimeoutLength)
     }
   },
   emptyQueue() {
     clearTimeout(this.processQueueTimeoutId)
+    cancelAnimationFrame(this.processQueueTimeoutId)
     this.processQueueTimeoutId = undefined
     this.set('processingResults', false)
     this.trigger('sync')
@@ -427,7 +445,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.set('merged', this.get('queuedResults').length === 0)
   },
   isUnmerged() {
-    return !this.get('merged')
+    return !this.get('merged') && this.get('queuedResults').length > 0
   },
   mergeNewResults() {
     this.mergeQueue(true)
@@ -438,12 +456,13 @@ module.exports = Backbone.AssociatedModel.extend({
       this.mergeNewResults()
     }
   },
-  isSearching() {
-    return (
-      this.get('status').some(
-        status => status.get('successful') === undefined
-      ) || this.get('processingResults')
+  isJustSearching() {
+    return this.get('status').some(
+      status => status.get('successful') === undefined
     )
+  },
+  isSearching() {
+    return this.isJustSearching() || this.get('processingResults')
   },
   setQueryId(queryId) {
     this.set('queryId', queryId)

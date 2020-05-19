@@ -51,7 +51,7 @@ module.exports = Marionette.ItemView.extend({
     this.updateSelectionInterface = _debounce(
       this.updateSelectionInterface,
       200,
-      { leading: true, trailing: true }
+      { leading: false, trailing: true }
     )
   },
   updateSelectionInterface() {
