@@ -220,7 +220,7 @@ Query.Model = PartialAssociatedModel.extend({
     this.listenTo(this, 'change:cql', () => this.set('isOutdated', true))
 
     const sync = () => {
-      this.dispatch(updateResults(this.get('result').toJSON()))
+      // this.dispatch(updateResults(this.get('result').toJSON()))  do we need this?  It's expensive
       this.set('serverPageIndex', serverPageIndex(this.state))
 
       const totalHits = this.get('result')
@@ -337,6 +337,7 @@ Query.Model = PartialAssociatedModel.extend({
     let result
     if (this.get('result') && this.get('result').get('results')) {
       result = this.get('result')
+      result.emptyQueue()
       result.setColor(this.getColor())
       result.setQueryId(this.getId())
       result.set('selectedResultTemplate', this.get('detail-level'))
@@ -462,6 +463,10 @@ Query.Model = PartialAssociatedModel.extend({
     this.currentSearches.forEach(request => {
       request.abort('Canceled')
     })
+    const result = this.get('result')
+    if (result) {
+      result.emptyQueue()
+    }
     this.currentSearches = []
   },
   clearResults() {

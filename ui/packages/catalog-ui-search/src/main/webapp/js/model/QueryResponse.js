@@ -22,6 +22,9 @@ const Common = require('../Common.js')
 require('backbone-associations')
 const QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js')
 const QueryResultCollection = require('./QueryResult.collection.js')
+const QueryResult = require('./QueryResult.js')
+const spliceAmount = 10
+const processQueueTimeoutLength = 100
 
 let rpc = null
 
@@ -63,6 +66,7 @@ module.exports = Backbone.AssociatedModel.extend({
     showingResultsForFields: [],
     didYouMeanFields: [],
     userSpellcheckIsOn: false,
+    processingResults: false,
   },
   relations: [
     {
@@ -93,7 +97,7 @@ module.exports = Backbone.AssociatedModel.extend({
     )
     this.listenTo(
       this.get('queuedResults'),
-      'add',
+      'reset',
       _.throttle(this.mergeQueue, 30, {
         leading: false,
       })
@@ -102,6 +106,8 @@ module.exports = Backbone.AssociatedModel.extend({
     this.listenTo(this, 'error', this.handleError)
     this.listenTo(this, 'sync', this.handleSync)
     this.resultCountsBySource = {}
+    this.queuedResults = []
+    this.processedResults = []
   },
   sync(method, model, options) {
     if (rpc !== null) {
@@ -255,15 +261,54 @@ module.exports = Backbone.AssociatedModel.extend({
       )
     }
 
+    this.addToQueue(resp.results)
+
     return {
       showingResultsForFields: resp.showingResultsForFields,
       didYouMeanFields: resp.didYouMeanFields,
       userSpellcheckIsOn: resp.userSpellcheckIsOn,
-      queuedResults: resp.results,
+      queuedResults: [],
       results: [],
       status: resp.status,
       merged: this.get('merged') === false ? false : resp.results.length === 0,
     }
+  },
+  processQueue() {
+    if (this.processQueueTimeoutId !== undefined) {
+      return
+    }
+
+    if (this.queuedResults.length === 0 && this.processedResults.length > 0) {
+      // stop and update actual models
+      this.get('queuedResults').reset(this.processedResults)
+      this.set('processingResults', false)
+      this.trigger('sync')
+    } else {
+      if (this.get('processingResults') === false) {
+        this.set('processingResults', true)
+      }
+      // make some models and add to processed queue
+      const slice = this.queuedResults.splice(0, spliceAmount)
+      this.processedResults = this.processedResults.concat(
+        slice.map(plainResult => new QueryResult(plainResult))
+      )
+      this.processQueueTimeoutId = setTimeout(() => {
+        this.processQueueTimeoutId = undefined
+        this.processQueue()
+      }, processQueueTimeoutLength)
+    }
+  },
+  emptyQueue() {
+    clearTimeout(this.processQueueTimeoutId)
+    this.processQueueTimeoutId = undefined
+    this.set('processingResults', false)
+    this.trigger('sync')
+    this.queuedResults = []
+    this.processedResults = []
+  },
+  addToQueue(results) {
+    this.queuedResults = this.queuedResults.concat(results)
+    this.processQueue()
   },
   // we have to do a reset because adding is so slow that it will cause a partial merge to initiate
   addQueuedResults(results) {
@@ -278,7 +323,10 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
   mergeQueue(userTriggered) {
-    if (userTriggered === true || this.allowAutoMerge()) {
+    if (
+      userTriggered === true ||
+      (this.allowAutoMerge() && this.get('queuedResults').length > 0)
+    ) {
       this.lastMerge = Date.now()
 
       const resultsIncludingDuplicates = this.get('results')
@@ -391,8 +439,10 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
   isSearching() {
-    return this.get('status').some(
-      status => status.get('successful') === undefined
+    return (
+      this.get('status').some(
+        status => status.get('successful') === undefined
+      ) || this.get('processingResults')
     )
   },
   setQueryId(queryId) {
