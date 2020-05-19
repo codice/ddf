@@ -23,8 +23,7 @@ require('backbone-associations')
 const QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js')
 const QueryResultCollection = require('./QueryResult.collection.js')
 const QueryResult = require('./QueryResult.js')
-const spliceAmount = 10
-const processQueueTimeoutLength = 60
+const spliceAmount = 5
 
 let rpc = null
 
@@ -288,31 +287,20 @@ module.exports = Backbone.AssociatedModel.extend({
         this.set('processingResults', true)
       }
       // make some models and add to processed queue
-      const slice = this.queuedResults.splice(0, spliceAmount)
+      const slice = this.queuedResults.splice(
+        0,
+        window.spliceAmount | spliceAmount
+      )
       this.processedResults = this.processedResults.concat(
         slice.map(plainResult => new QueryResult(plainResult))
       )
       // sorry for this awful attempt to keep the page churning
-      this.processQueueTimeoutId = setTimeout(() => {
+      this.processQueueTimeoutId = window.requestAnimationFrame(() => {
         this.processQueueTimeoutId = window.requestAnimationFrame(() => {
-          this.processQueueTimeoutId = window.requestAnimationFrame(() => {
-            this.processQueueTimeoutId = window.requestAnimationFrame(() => {
-              this.processQueueTimeoutId = window.requestAnimationFrame(() => {
-                this.processQueueTimeoutId = window.requestAnimationFrame(
-                  () => {
-                    this.processQueueTimeoutId = window.requestAnimationFrame(
-                      () => {
-                        this.processQueueTimeoutId = undefined
-                        this.processQueue()
-                      }
-                    )
-                  }
-                )
-              })
-            })
-          })
+          this.processQueueTimeoutId = undefined
+          this.processQueue()
         })
-      }, processQueueTimeoutLength)
+      })
     }
   },
   emptyQueue() {
