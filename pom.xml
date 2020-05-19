@@ -546,7 +546,7 @@
                                 <goal>verify</goal>
                             </goals>
                             <configuration>
-							    <skipITs>${skipITs}</skipITs>
+                                <skipITs>${skipITs}</skipITs>
                                 <argLine>${failsafe.argline}</argLine>
                                 <skipAfterFailureCount>1</skipAfterFailureCount>
                             </configuration>
