@@ -66,6 +66,33 @@ module.exports = Backbone.AssociatedModel.extend({
       this.addAllForms()
       this.doneLoading()
     })
+
+    // subscribe for messages
+    var source = new EventSource('./internal/events', {
+      withCredentials: true,
+    })
+
+    // handle messages
+    source.onmessage = function(event) {
+      console.log('SSE onmessage')
+      // Do something with the data:
+      console.log(event.data)
+
+      bootstrapPromise.then(() => {
+        this.addAllForms()
+        this.doneLoading()
+      })
+    }
+
+    source.onerror = function(event) {
+      console.log('SSE onerror ')
+      console.log(event)
+      console.log(event.description)
+      // source.close()
+    }
+    source.onopen = function() {
+      console.log('SSE onopen')
+    }
   },
   relations: [
     {

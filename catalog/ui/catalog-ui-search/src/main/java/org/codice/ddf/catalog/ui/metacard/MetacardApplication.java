@@ -83,10 +83,7 @@ import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -256,6 +253,26 @@ public class MetacardApplication implements SparkApplication {
 
   @Override
   public void init() {
+    get(
+        "/events",
+        (req, res) -> {
+          res.type("text/event-stream, charset=UTF-8");
+          res.header("Connection", "keep-alive");
+          res.header("Cache-Control", "no-cache");
+          //          res.raw().setCharacterEncoding("UTF-8");
+          res.status(200);
+          PrintWriter out = res.raw().getWriter();
+          //                synchronized (listeners) {
+          //                    listeners.add(out);
+          //                }
+          out.write("event: message\n");
+          out.write("retry: 300000\n");
+          out.write("data: " + "start" + "\r\n");
+          out.flush();
+          //          processRequest(req.raw(), res.raw());
+          return res;
+        });
+
     get("/metacardtype", (req, res) -> util.getJson(util.getMetacardTypeMap()));
 
     get(
@@ -341,6 +358,11 @@ public class MetacardApplication implements SparkApplication {
             res.status(500);
             return updateResponse.getProcessingErrors();
           }
+
+          // processRequest(req.raw(), res.raw());
+
+          // // go thru metacardChange.attributes broadcast which users were updated
+          // // front end listen for that and if I am that user then re render?
 
           return body;
         });
