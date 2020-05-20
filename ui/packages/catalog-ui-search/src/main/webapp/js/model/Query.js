@@ -363,7 +363,7 @@ Query.Model = PartialAssociatedModel.extend({
 
     result.set('initiated', Date.now())
     result.set('resultCountOnly', options.resultCountOnly)
-    ResultSort.sortResults(this.get('sorts'), result.get('results'))
+    // ResultSort.sortResults(this.get('sorts'), result.get('results')) // why sort before searching?
 
     if (!properties.isCacheDisabled) {
       sources.unshift('cache')

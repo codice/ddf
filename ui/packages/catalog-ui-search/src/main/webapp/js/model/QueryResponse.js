@@ -244,7 +244,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
       if (this.allowAutoMerge()) {
         this.lastMerge = Date.now()
-        options.resort = true
+        // options.resort = true
       }
     }
 
@@ -313,7 +313,16 @@ module.exports = Backbone.AssociatedModel.extend({
     this.processedResults = []
   },
   addToQueue(results) {
-    this.queuedResults = this.queuedResults.concat(results)
+    this.queuedResults = this.queuedResults.concat(
+      //dedupe results ahead of time
+      results.filter(result => {
+        return (
+          this.queuedResults.find(
+            queuedResult => queuedResult.id === result.id
+          ) === undefined
+        )
+      })
+    )
     this.processQueue()
   },
   // we have to do a reset because adding is so slow that it will cause a partial merge to initiate
@@ -350,7 +359,7 @@ module.exports = Backbone.AssociatedModel.extend({
         merge: true,
       })
       interimCollection.comparator = this.get('results').comparator
-      interimCollection.sort()
+      // interimCollection.sort()
       const maxResults = user
         .get('user')
         .get('preferences')
