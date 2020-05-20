@@ -18,6 +18,8 @@ const $ = require('jquery')
 const Backbone = require('backbone')
 const SearchForm = require('./search-form')
 
+import { EventSourcePolyfill } from 'event-source-polyfill'
+
 const fixFilter = function(filter) {
   if (filter.filters) {
     filter.filters.forEach(fixFilter)
@@ -68,8 +70,13 @@ module.exports = Backbone.AssociatedModel.extend({
     })
 
     // subscribe for messages
+    var EventSource = EventSourcePolyfill
     var source = new EventSource('./internal/events', {
       withCredentials: true,
+      headers: {
+        Origin: 'https://localhost:8993/',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
     })
 
     // handle messages

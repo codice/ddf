@@ -256,12 +256,11 @@ public class MetacardApplication implements SparkApplication {
     get(
         "/events",
         (req, res) -> {
-          res.type("text/event-stream, charset=UTF-8");
+          res.type("text/event-stream; charset=UTF-8");
           res.header("Connection", "keep-alive");
           res.header("Cache-Control", "no-cache");
-          //          res.raw().setCharacterEncoding("UTF-8");
           res.status(200);
-          PrintWriter out = res.raw().getWriter();
+          PrintWriter out = res.getWriter();
           //                synchronized (listeners) {
           //                    listeners.add(out);
           //                }
