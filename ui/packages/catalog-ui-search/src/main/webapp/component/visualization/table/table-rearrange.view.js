@@ -15,7 +15,6 @@
 import * as React from 'react'
 const _ = require('underscore')
 const Marionette = require('marionette')
-const CustomElements = require('../../../js/CustomElements.js')
 const user = require('../../singletons/user-instance.js')
 const properties = require('../../../js/properties.js')
 const Sortable = require('sortablejs')
