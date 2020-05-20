@@ -508,6 +508,17 @@ class DefinitionParserSpec extends Specification {
         1 * mockBundleContext.registerService(_, _ as ReportingMetacardValidator, _)
     }
 
+    def "test registering for nonexistent validator fails "() {
+        setup:
+        file.withPrintWriter { it.write(nonexistentAttributeValidator) }
+
+        when:
+        definitionParser.install(file)
+
+        then:
+        thrown(Exception)
+    }
+
 
     String valid = '''
 {
@@ -766,6 +777,18 @@ class DefinitionParserSpec extends Specification {
             {
                 "validator": "relationship",
                 "arguments": [null, "mustHave", "description", null]
+            }
+        ]
+    }
+}
+'''
+
+    String nonexistentAttributeValidator = '''
+{
+    "validators": {
+        "title": [
+            {
+                "validator": "nonexistentAttributeValidator::AttributeValidator"
             }
         ]
     }

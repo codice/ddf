@@ -103,6 +103,8 @@ import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -633,9 +635,71 @@ public class DefinitionParser {
           break;
         }
       default:
-        throw new IllegalStateException("Validator does not exist. (" + validator.validator + ")");
+        {
+          String[] validators = validator.validator.split("::");
+          if (validators.length != 2) {
+            throw new IllegalStateException(
+                "Validator does not exist. (" + validator.validator + ")");
+          }
+
+          String serviceId = validators[0];
+          String validatorType = validators[1];
+          String filter = String.format("(id=%s)", serviceId);
+
+          try {
+            findAndRegisterValidator(wrapper, validatorType, serviceId, filter);
+          } catch (IllegalStateException ise) {
+            throw new IllegalStateException(
+                "Validator does not exist. (" + validator.validator + ")", ise);
+          }
+          break;
+        }
     }
     return wrapper;
+  }
+
+  private void findAndRegisterValidator(
+      ValidatorWrapper wrapper, String validatorType, String serviceId, String filter) {
+    switch (validatorType) {
+      case "AttributeValidator":
+        AttributeValidator av = getAttributeValidator(AttributeValidator.class.getName(), filter);
+        if (av != null) {
+          wrapper.attributeValidator(av);
+        } else {
+          String errorMsg =
+              String.format(
+                  "Appropriate service not found for validatorType=%s, serviceId=%s, filter=%s",
+                  validatorType, serviceId, filter);
+          throw new IllegalStateException(errorMsg);
+        }
+        break;
+      default:
+        String errorMsg =
+            String.format("ValidatorType of %s is not a supported validator type", validatorType);
+        throw new IllegalStateException(errorMsg);
+    }
+  }
+
+  private Object getService(String clazz, String filter) {
+    BundleContext bundleContext = getBundleContext();
+    ServiceReference<?>[] ref;
+    try {
+      ref = bundleContext.getServiceReferences(clazz, filter);
+      if (ref.length > 1)
+        throw new InvalidSyntaxException("Multiple service references found", filter);
+      if (ref.length < 1) throw new InvalidSyntaxException("No service references found", filter);
+      return bundleContext.getService(ref[0]);
+    } catch (InvalidSyntaxException e) {
+      LOGGER.error(String.format("Invalid filter: %s", filter));
+    } catch (NullPointerException e) {
+      LOGGER.debug(
+          String.format("Service Reference for class %s not found. Returning NULL", clazz));
+    }
+    return null;
+  }
+
+  private AttributeValidator getAttributeValidator(String clazz, String filter) {
+    return (AttributeValidator) this.getService(clazz, filter);
   }
 
   /** TODO DDF-3578 once MetacardValidator is eliminated, this pattern can be cleaned up */

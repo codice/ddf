@@ -105,6 +105,9 @@
                             !com.sun.management,
                             *
                         </Import-Package>
+                        <Export-Package>
+                            AttributeValidator
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
