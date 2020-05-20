@@ -207,11 +207,13 @@ module.exports = Backbone.AssociatedModel.extend({
     this.updateStatus()
     if (sent) {
       const dataJSON = JSON.parse(sent.data)
-      this.updateMessages(
-        response.status.messages,
-        dataJSON.src,
-        response.status
-      )
+      if (response.status) {
+        this.updateMessages(
+          response.status.messages,
+          dataJSON.src,
+          response.status
+        )
+      }
     }
   },
   parse(resp, options) {
@@ -224,7 +226,7 @@ module.exports = Backbone.AssociatedModel.extend({
           resp.types[result.metacard.properties['metacard-type']]
         result.metacardType = result.metacard.properties['metacard-type']
         result.metacard.id = result.metacard.properties.id
-        if (resp.status.id !== 'cache') {
+        if (resp.statusBySource.cache === undefined) {
           result.uncached = true
         }
         result.id = result.metacard.id + result.metacard.properties['source-id']
@@ -241,7 +243,10 @@ module.exports = Backbone.AssociatedModel.extend({
             thumbnailAction.url
           )
         }
-        result.src = resp.status.id // store the name of the source that this result came from
+
+        result.src = result.metacard.properties['source-id']
+        // Andrew, what do we do here?
+        // result.src = resp.statusBySource.id // store the name of the source that this result came from
       })
 
       if (this.allowAutoMerge()) {
@@ -264,13 +269,19 @@ module.exports = Backbone.AssociatedModel.extend({
 
     this.addToQueue(resp.results)
 
+    const status = Object.keys(resp.statusBySource).map(id => {
+      return {
+        ...resp.statusBySource[id],
+      }
+    })
+
     return {
       showingResultsForFields: resp.showingResultsForFields,
       didYouMeanFields: resp.didYouMeanFields,
       userSpellcheckIsOn: resp.userSpellcheckIsOn,
       queuedResults: [],
       results: [],
-      status: resp.status,
+      status,
       merged: this.get('merged') === false ? false : resp.results.length === 0,
     }
   },

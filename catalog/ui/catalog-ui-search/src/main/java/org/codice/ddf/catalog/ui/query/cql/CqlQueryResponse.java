@@ -55,13 +55,13 @@ public class CqlQueryResponse {
 
   private final Map<String, Map<String, MetacardAttribute>> types;
 
-  private final Status status;
-
   private final Map<String, List<FacetValueCount>> facets;
 
   private final List<String> showingResultsForFields, didYouMeanFields;
 
   private final Boolean userSpellcheckIsOn;
+
+  private final Map<String, Status> statusBySource;
 
   // Transient so as not to be serialized to/from JSON
   private final transient QueryResponse queryResponse;
@@ -71,7 +71,6 @@ public class CqlQueryResponse {
       QueryRequest request,
       QueryResponse queryResponse,
       String source,
-      long elapsedTime,
       boolean normalize,
       FilterAdapter filterAdapter,
       ActionRegistry actionRegistry,
@@ -79,8 +78,6 @@ public class CqlQueryResponse {
     this.id = id;
 
     this.queryResponse = queryResponse;
-
-    status = new Status(queryResponse, source, elapsedTime);
 
     AtomicBoolean logOnceState = new AtomicBoolean(false);
     Consumer<String> logOnce =
@@ -150,6 +147,8 @@ public class CqlQueryResponse {
             queryResponse.getProperties().get(SolrMetacardClientImpl.SHOWING_RESULTS_FOR_KEY);
     this.userSpellcheckIsOn =
         (Boolean) queryResponse.getProperties().get(SolrMetacardClientImpl.SPELLCHECK_KEY);
+
+    this.statusBySource = (Map<String, Status>) queryResponse.getProperties().get("statusBySource");
   }
 
   private Map<String, List<FacetValueCount>> getFacetResults(Serializable facetResults) {
@@ -189,9 +188,5 @@ public class CqlQueryResponse {
 
   public String getId() {
     return id;
-  }
-
-  public Status getStatus() {
-    return status;
   }
 }

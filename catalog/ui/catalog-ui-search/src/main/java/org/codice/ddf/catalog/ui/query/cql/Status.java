@@ -38,6 +38,15 @@ public class Status {
     successful = isSuccessful(response.getProcessingDetails());
   }
 
+  public Status(
+      String source, long count, long elapsedTime, long hits, Set<ProcessingDetails> details) {
+    this.id = source;
+    this.count = count;
+    this.hits = hits;
+    this.elapsed = elapsedTime;
+    this.successful = isSuccessful(details);
+  }
+
   private boolean isSuccessful(final Set<ProcessingDetails> details) {
     for (ProcessingDetails detail : details) {
       if (detail.hasException()) {

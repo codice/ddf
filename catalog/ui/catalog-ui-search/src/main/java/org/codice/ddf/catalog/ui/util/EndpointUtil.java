@@ -38,6 +38,7 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
+import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -84,6 +85,7 @@ import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
+import org.codice.ddf.catalog.ui.query.cql.Status;
 import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.geotools.factory.CommonFactoryFinder;
@@ -130,6 +132,8 @@ public class EndpointUtil {
   private static final String ID_KEY = "id";
 
   private static final String ISINJECTED_KEY = "isInjected";
+
+  private static final String METRICS_SOURCE_ELAPSED_PREFIX = "metrics.source.elapsed.";
 
   private static int pageSize = 250;
 
@@ -536,6 +540,80 @@ public class EndpointUtil {
       results = retrieveResults(cqlRequest, request, responses);
     }
 
+    final List<String> sourceIds = new ArrayList<>();
+    if (request.getSourceIds() != null) {
+      sourceIds.addAll(request.getSourceIds());
+    }
+
+    final Map<String, Serializable> properties =
+        responses
+            .stream()
+            .filter(Objects::nonNull)
+            .map(QueryResponse::getProperties)
+            .findFirst()
+            .orElse(Collections.emptyMap());
+
+    stopwatch.stop();
+
+    final Set<ProcessingDetails> processingDetails =
+        responses
+            .stream()
+            .filter(Objects::nonNull)
+            .map(QueryResponse::getProcessingDetails)
+            .reduce(
+                new HashSet<>(),
+                (l, r) -> {
+                  l.addAll(r);
+                  return l;
+                });
+
+    Map<String, Status> statusBySource = new HashMap<>();
+
+    final long totalElapsedtime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+
+    // If only one source was provided, construct the status dynamically. Otherwise, use the
+    // properties.
+    if (sourceIds.size() <= 1) {
+      final String id = sourceIds.size() == 1 ? sourceIds.get(0) : "cache";
+      statusBySource.put(
+          id,
+          new Status(
+              id, results.size(), totalElapsedtime, responses.get(0).getHits(), processingDetails));
+    } else {
+      Map<String, Long> hitsPerSource =
+          (Map<String, Long>) properties.getOrDefault("hitsPerSource", new HashMap<String, Long>());
+
+      Map<String, Long> elapsedPerSource = new HashMap<>();
+      properties.forEach(
+          (key, value) -> {
+            if (key.startsWith(METRICS_SOURCE_ELAPSED_PREFIX)) {
+              String source = key.substring(METRICS_SOURCE_ELAPSED_PREFIX.length());
+              elapsedPerSource.put(source, new Long((Integer) value));
+            }
+          });
+
+      Map<String, Long> countPerSource = new HashMap<>();
+      sourceIds.forEach(id -> countPerSource.put(id, 0L));
+      results
+          .stream()
+          .map(Result::getMetacard)
+          .forEach(
+              metacard -> {
+                final String sourceId = (String) metacard.getSourceId();
+                countPerSource.merge(sourceId, 1L, Long::sum);
+              });
+
+      for (int i = 0; i < sourceIds.size(); i++) {
+        final String id = sourceIds.get(i);
+        long elapsed = elapsedPerSource.getOrDefault(id, 0L);
+        long count = countPerSource.getOrDefault(id, 0L);
+        long hits = hitsPerSource.getOrDefault(id, 0L);
+        statusBySource.put(id, new Status(id, count, elapsed, hits, processingDetails));
+      }
+    }
+
+    properties.put("statusBySource", (Serializable) statusBySource);
+
     QueryResponse response =
         new QueryResponseImpl(
             request,
@@ -547,31 +625,14 @@ public class EndpointUtil {
                 .map(QueryResponse::getHits)
                 .findFirst()
                 .orElse(-1L),
-            responses
-                .stream()
-                .filter(Objects::nonNull)
-                .map(QueryResponse::getProperties)
-                .findFirst()
-                .orElse(Collections.emptyMap()),
-            responses
-                .stream()
-                .filter(Objects::nonNull)
-                .map(QueryResponse::getProcessingDetails)
-                .reduce(
-                    new HashSet<>(),
-                    (l, r) -> {
-                      l.addAll(r);
-                      return l;
-                    }));
-
-    stopwatch.stop();
+            properties,
+            processingDetails);
 
     return new CqlQueryResponse(
         cqlRequest.getId(),
         request,
         response,
         cqlRequest.getSourceResponseString(),
-        stopwatch.elapsed(TimeUnit.MILLISECONDS),
         cqlRequest.isNormalize(),
         filterAdapter,
         actionRegistry,
@@ -585,6 +646,13 @@ public class EndpointUtil {
     return queryResponse.getResults();
   }
 
+  /**
+   * @param cqlRequest CQL Request (only used for count)
+   * @param request Catalog Query Request
+   * @param responses List of responses to append to.
+   * @return A ResultIterable of results, additionally adding the query response to a mutatable list
+   *     for additional context as we query.
+   */
   private List<Result> retrieveResults(
       CqlRequest cqlRequest, QueryRequest request, List<QueryResponse> responses) {
     QueryFunction queryFunction =
