@@ -313,8 +313,16 @@ module.exports = Backbone.AssociatedModel.extend({
     this.processedResults = []
   },
   addToQueue(results) {
+    const now = Date.now()
     this.queuedResults = this.queuedResults.concat(
-      //dedupe results ahead of time
+      /**
+       * dedupe results ahead of time (only really due to the cache)
+       * 250 results at 6x slowdown took 7mx
+       * 2000 results at a 4x slowdown took 207 ms
+       * 2000 results at 6x slowodown took 353 ms
+       *
+       * So this could end up being significant, maybe worth chunking this dedupe up as well to save some time (or webworker it)
+       */
       results.filter(result => {
         return (
           this.queuedResults.find(
@@ -323,6 +331,7 @@ module.exports = Backbone.AssociatedModel.extend({
         )
       })
     )
+    console.log('finished: ' + (Date.now() - now))
     this.processQueue()
   },
   // we have to do a reset because adding is so slow that it will cause a partial merge to initiate
