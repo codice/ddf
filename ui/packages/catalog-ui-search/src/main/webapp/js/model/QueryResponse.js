@@ -24,6 +24,7 @@ const QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js')
 const QueryResultCollection = require('./QueryResult.collection.js')
 const QueryResult = require('./QueryResult.js')
 const spliceAmount = 5
+import { LazyQueryResult } from './LazyQueryResult'
 
 let rpc = null
 
@@ -105,6 +106,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.listenTo(this, 'error', this.handleError)
     this.listenTo(this, 'sync', this.handleSync)
     this.resultCountsBySource = {}
+    this.lazyResults = []
     this.queuedResults = []
     this.processedResults = []
   },
@@ -292,7 +294,13 @@ module.exports = Backbone.AssociatedModel.extend({
         window.spliceAmount | spliceAmount
       )
       this.processedResults = this.processedResults.concat(
-        slice.map(plainResult => new QueryResult(plainResult))
+        slice.map(plainResult => {
+          const objRef = plainResult._objRef
+          delete plainResult._objRef // prevent a circular ref
+          const backboneVersion = new QueryResult(plainResult)
+          objRef.setBackbone(backboneVersion)
+          return backboneVersion
+        })
       )
       // sorry for this awful attempt to keep the page churning
       this.processQueueTimeoutId = window.requestAnimationFrame(() => {
@@ -309,29 +317,37 @@ module.exports = Backbone.AssociatedModel.extend({
     this.processQueueTimeoutId = undefined
     this.set('processingResults', false)
     this.trigger('sync')
+    this.lazyResults = []
     this.queuedResults = []
     this.processedResults = []
   },
   addToQueue(results) {
-    const now = Date.now()
-    this.queuedResults = this.queuedResults.concat(
-      /**
-       * dedupe results ahead of time (only really due to the cache)
-       * 250 results at 6x slowdown took 7mx
-       * 2000 results at a 4x slowdown took 207 ms
-       * 2000 results at 6x slowodown took 353 ms
-       *
-       * So this could end up being significant, maybe worth chunking this dedupe up as well to save some time (or webworker it)
-       */
-      results.filter(result => {
-        return (
-          this.queuedResults.find(
-            queuedResult => queuedResult.id === result.id
-          ) === undefined
-        )
+    /**
+     * dedupe results ahead of time (only really due to the cache)
+     * 250 results at 6x slowdown took 7mx
+     * 2000 results at a 4x slowdown took 207 ms
+     * 2000 results at 6x slowodown took 353 ms
+     *
+     * So this could end up being significant, maybe worth chunking this dedupe up as well to save some time (or webworker it)
+     */
+    const resultsDeduped = results.filter(result => {
+      return (
+        this.queuedResults.find(
+          queuedResult => queuedResult.id === result.id
+        ) === undefined
+      )
+    })
+
+    // const now = Date.now()
+    this.lazyResults = this.lazyResults.concat(
+      resultsDeduped.map(result => {
+        const objRef = new LazyQueryResult(result)
+        result._objRef = objRef // so we can later quickly add the backbone version
+        return objRef
       })
     )
-    console.log('finished: ' + (Date.now() - now))
+    // console.log(`finished ${resultsDeduped.length}: ${Date.now() - now}`)
+    this.queuedResults = this.queuedResults.concat(resultsDeduped)
     this.processQueue()
   },
   // we have to do a reset because adding is so slow that it will cause a partial merge to initiate
@@ -373,7 +389,8 @@ module.exports = Backbone.AssociatedModel.extend({
         .get('user')
         .get('preferences')
         .get('resultCount')
-      this.get('results').reset(interimCollection.slice(0, maxResults))
+      // this.get('results').reset(interimCollection.slice(0, maxResults))
+      this.get('results').reset(interimCollection.slice(0))
 
       this.updateResultCountsBySource(
         this.createIndexOfSourceToResultCount(
