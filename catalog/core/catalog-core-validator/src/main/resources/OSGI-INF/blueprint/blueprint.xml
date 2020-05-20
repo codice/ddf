@@ -31,4 +31,9 @@
     <service ref="attributeValidatorRegistry"
              interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
 
+    <bean id="attributeValidator" class="ddf.catalog.validation.impl.validator.AttributeValidatorImpl"/>
+
+    <service ref="attributeValidator"
+             interface="ddf.catalog.validation.AttributeValidator"/>
+
 </blueprint>
