@@ -18,7 +18,7 @@ const $ = require('jquery')
 const _ = require('underscore')
 const properties = require('../properties.js')
 const QueryResponse = require('./QueryResponse.js')
-const ResultSort = require('./ResultSort.js')
+// const ResultSort = require('./ResultSort.js')
 const Sources = require('../../component/singletons/sources-instance.js')
 const Common = require('../Common.js')
 const CacheSourceSelector = require('../CacheSourceSelector.js')
@@ -377,7 +377,6 @@ Query.Model = PartialAssociatedModel.extend({
     } else if (options.limitToHistoric) {
       cqlString = limitToHistoric(cqlString)
     }
-    const query = this
 
     const selectedSources = data.sources
 

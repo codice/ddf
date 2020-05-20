@@ -328,6 +328,14 @@
             cardinality="100"
             required="false">
         </AD>
+
+        <AD id="defaultSources"
+            name="Default Sources Selection"
+            description="List of default sources for use in queries"
+            type="String"
+            cardinality="1000"
+            required="false">
+        </AD>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui">

@@ -14,13 +14,18 @@
  **/
 
 const Backbone = require('backbone')
+const properties = require('../properties.js')
 
 module.exports = Backbone.Model.extend({
   defaults() {
+    const hasDefaultSources =
+      properties.defaultSources && properties.defaultSources.length > 0
+    const sources = hasDefaultSources ? properties.defaultSources : undefined
+
     return {
       type: 'text',
-      sources: undefined,
-      federation: 'enterprise',
+      sources,
+      federation: sources ? 'selected' : 'enterprise',
       sorts: [
         {
           attribute: 'modified',

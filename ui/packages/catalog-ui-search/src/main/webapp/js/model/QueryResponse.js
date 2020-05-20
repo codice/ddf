@@ -17,7 +17,7 @@ const Backbone = require('backbone')
 const _ = require('underscore')
 const metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
 const properties = require('../properties.js')
-const user = require('../../component/singletons/user-instance.js')
+// const user = require('../../component/singletons/user-instance.js')
 const Common = require('../Common.js')
 require('backbone-associations')
 const QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js')
@@ -396,10 +396,10 @@ module.exports = Backbone.AssociatedModel.extend({
       })
       interimCollection.comparator = this.get('results').comparator
       // interimCollection.sort()
-      const maxResults = user
-        .get('user')
-        .get('preferences')
-        .get('resultCount')
+      // const maxResults = user
+      //   .get('user')
+      //   .get('preferences')
+      //   .get('resultCount')
       // this.get('results').reset(interimCollection.slice(0, maxResults))
       this.get('results').reset(interimCollection.slice(0))
 
