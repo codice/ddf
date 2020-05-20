@@ -27,6 +27,7 @@ const Property = require('../property/property.js')
 const SortItemCollectionView = require('../sort/sort.view.js')
 const Common = require('../../js/Common.js')
 const properties = require('../../js/properties.js')
+const sourcesInstance = require('../../component/singletons/sources-instance')
 const plugin = require('plugins/query-settings')
 const announcement = require('../announcement/index.jsx')
 const ResultForm = require('../result-form/result-form.js')
@@ -146,9 +147,12 @@ module.exports = plugin(
       )
     },
     setupSrcDropdown() {
-      const sources = this.model.get('sources')
+      const sourceIds = sourcesInstance.models.map(src => src.id)
+      const validSources =
+        this.model.get('sources') &&
+        this.model.get('sources').filter(src => sourceIds.includes(src))
       this._srcDropdownModel = new DropdownModel({
-        value: sources ? sources : [],
+        value: validSources ? validSources : [],
         federation: this.model.get('federation'),
       })
       if (this.getExtensions() !== undefined) {
