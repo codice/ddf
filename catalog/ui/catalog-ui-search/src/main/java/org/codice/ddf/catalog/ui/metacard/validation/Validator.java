@@ -103,7 +103,7 @@ public class Validator {
                 })
             .orElse(new HashSet<>());
 
-    Set<String> suggestedValues = new HashSet<>();
+    Set<Map<String, String>> suggestedValues = new HashSet<>();
     Set<ValidationViolation> violations = new HashSet<>();
     for (AttributeValidator validator : attributeValidators) {
       Optional<AttributeValidationReport> validationReport =

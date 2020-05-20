@@ -17,13 +17,15 @@ import com.google.common.base.Preconditions;
 import ddf.catalog.validation.report.AttributeValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class AttributeValidationReportImpl implements AttributeValidationReport {
   private final Set<ValidationViolation> attributeValidationViolations = new HashSet<>();
 
-  private final Set<String> suggestedValues = new HashSet<>();
+  private final Set<Map<String, String>> suggestedValues = new HashSet<>();
 
   /**
    * Adds a {@link ValidationViolation} to the report.
@@ -45,9 +47,24 @@ public class AttributeValidationReportImpl implements AttributeValidationReport 
    */
   public void addViolations(Set<ValidationViolation> violations) {
     Preconditions.checkArgument(violations != null, "The violation list cannot be null.");
-    Preconditions.checkArgument(violations.size() > 0, "The violation list cannot be empty.");
+    Preconditions.checkArgument(!violations.isEmpty(), "The violation list cannot be empty.");
 
     attributeValidationViolations.addAll(violations);
+  }
+
+  /**
+   * Adds a suggested attribute value to the report.
+   *
+   * @param value a suggested attribute value to add to the report
+   * @throws IllegalArgumentException if {@code value} is null
+   */
+  public void addSuggestedValue(final String label, final String value) {
+    Preconditions.checkArgument(value != null, "The suggested value cannot be null.");
+
+    Map<String, String> suggestedValue = new HashMap<>();
+    suggestedValue.put("label", label);
+    suggestedValue.put("value", value);
+    suggestedValues.add(suggestedValue);
   }
 
   /**
@@ -59,7 +76,10 @@ public class AttributeValidationReportImpl implements AttributeValidationReport 
   public void addSuggestedValue(final String value) {
     Preconditions.checkArgument(value != null, "The suggested value cannot be null.");
 
-    suggestedValues.add(value);
+    Map<String, String> suggestedValue = new HashMap<>();
+    suggestedValue.put("label", value);
+    suggestedValue.put("value", value);
+    suggestedValues.add(suggestedValue);
   }
 
   /**
@@ -68,9 +88,9 @@ public class AttributeValidationReportImpl implements AttributeValidationReport 
    * @param values a set of suggested attribute values to add to the report, cannot be null or empty
    * @throws IllegalArgumentException if {@code value} is null or empty
    */
-  public void addSuggestedValues(Set<String> values) {
+  public void addSuggestedValues(Set<Map<String, String>> values) {
     Preconditions.checkArgument(values != null, "The suggested values cannot be null.");
-    Preconditions.checkArgument(values.size() > 0, "The suggested values cannot be empty.");
+    Preconditions.checkArgument(!values.isEmpty(), "The suggested values cannot be empty.");
 
     suggestedValues.addAll(values);
   }
@@ -81,7 +101,7 @@ public class AttributeValidationReportImpl implements AttributeValidationReport 
   }
 
   @Override
-  public Set<String> getSuggestedValues() {
+  public Set<Map<String, String>> getSuggestedValues() {
     return Collections.unmodifiableSet(suggestedValues);
   }
 }

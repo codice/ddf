@@ -67,7 +67,7 @@ public class ExperimentalEnumerationExtractor {
     this.attributeInjectors = attributeInjectors;
   }
 
-  public Map<String, Set<String>> getAttributeEnumerations(String attribute) {
+  public Map<String, Set<Map<String, String>>> getAttributeEnumerations(String attribute) {
     return attributeValidatorRegistry
         .getValidators(attribute)
         .stream()
@@ -91,7 +91,7 @@ public class ExperimentalEnumerationExtractor {
         .orElseGet(HashMap::new);
   }
 
-  public Map<String, Set<String>> getEnumerations(@Nullable String metacardType) {
+  public Map<String, Set<Map<String, String>>> getEnumerations(@Nullable String metacardType) {
     if (isBlank(metacardType)) {
       metacardType = MetacardImpl.BASIC_METACARD.getName();
     }
@@ -105,29 +105,9 @@ public class ExperimentalEnumerationExtractor {
 
     return type.getAttributeDescriptors()
         .stream()
-        .flatMap(
-            ad ->
-                attributeValidatorRegistry
-                    .getValidators(ad.getName())
-                    .stream()
-                    .map(av -> av.validate(new AttributeImpl(ad.getName(), "null"))))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .filter(avr -> !avr.getSuggestedValues().isEmpty())
-        .map(
-            avr ->
-                avr.getAttributeValidationViolations()
-                    .stream()
-                    .map(ValidationViolation::getAttributes)
-                    .flatMap(Set::stream)
-                    .distinct()
-                    .collect(Collectors.toMap(o -> o, o -> avr.getSuggestedValues())))
-        .reduce(
-            (m1, m2) -> {
-              m2.entrySet().forEach(e -> m1.merge(e.getKey(), e.getValue(), Sets::union));
-              return m1;
-            })
-        .orElseGet(HashMap::new);
+        .map(ad -> this.getAttributeEnumerations(ad.getName()))
+        .flatMap(m -> m.entrySet().stream())
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   @Nullable

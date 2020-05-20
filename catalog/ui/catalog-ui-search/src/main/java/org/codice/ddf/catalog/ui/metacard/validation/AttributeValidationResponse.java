@@ -14,15 +14,16 @@
 package org.codice.ddf.catalog.ui.metacard.validation;
 
 import ddf.catalog.validation.violation.ValidationViolation;
+import java.util.Map;
 import java.util.Set;
 
 public class AttributeValidationResponse {
   private Set<ValidationViolation> violations;
 
-  private Set<String> suggestedValues;
+  private Set<Map<String, String>> suggestedValues;
 
   public AttributeValidationResponse(
-      Set<ValidationViolation> violations, Set<String> suggestedValues) {
+      Set<ValidationViolation> violations, Set<Map<String, String>> suggestedValues) {
     this.violations = violations;
     this.suggestedValues = suggestedValues;
   }
@@ -35,11 +36,11 @@ public class AttributeValidationResponse {
     this.violations = violations;
   }
 
-  public Set<String> getSuggestedValues() {
+  public Set<Map<String, String>> getSuggestedValues() {
     return suggestedValues;
   }
 
-  public void setSuggestedValues(Set<String> suggestedValues) {
+  public void setSuggestedValues(Set<Map<String, String>> suggestedValues) {
     this.suggestedValues = suggestedValues;
   }
 }

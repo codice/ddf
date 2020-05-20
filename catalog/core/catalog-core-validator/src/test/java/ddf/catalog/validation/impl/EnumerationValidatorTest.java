@@ -58,7 +58,14 @@ public class EnumerationValidatorTest {
   public void testSuggestedValues() {
     final Optional<AttributeValidationReport> reportOptional =
         getReport(false, new AttributeImpl("test", "something"));
-    assertThat(reportOptional.get().getSuggestedValues(), containsInAnyOrder(ENUMERATED_VALUES));
+    assertThat(
+        reportOptional
+            .get()
+            .getSuggestedValues()
+            .stream()
+            .map(pair -> pair.get("label"))
+            .collect(Collectors.toSet()),
+        containsInAnyOrder(ENUMERATED_VALUES));
   }
 
   private Optional<AttributeValidationReport> getReport(
