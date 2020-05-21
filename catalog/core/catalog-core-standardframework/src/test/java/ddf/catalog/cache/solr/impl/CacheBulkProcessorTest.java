@@ -69,7 +69,7 @@ public class CacheBulkProcessorTest {
     cacheBulkProcessor.add(mockResults);
     waitForPendingMetacardsToCache();
 
-    verify(mockSolrCache, times(1)).create(capturedMetacards.capture());
+    verify(mockSolrCache, times(1)).put(capturedMetacards.capture());
     assertThat(capturedMetacards.getValue()).containsAll(getMetacards(mockResults));
   }
 
@@ -81,7 +81,7 @@ public class CacheBulkProcessorTest {
     cacheBulkProcessor.add(mockResults);
     waitForPendingMetacardsToCache();
 
-    verify(mockSolrCache, times(1)).create(capturedMetacards.capture());
+    verify(mockSolrCache, times(1)).put(capturedMetacards.capture());
     assertThat(capturedMetacards.getValue()).containsAll(getMetacards(mockResults));
   }
 
@@ -89,7 +89,7 @@ public class CacheBulkProcessorTest {
   public void nullResult() throws Exception {
     cacheBulkProcessor.add(Collections.singletonList((Result) null));
 
-    verify(mockSolrCache, never()).create(anyCollectionOf(Metacard.class));
+    verify(mockSolrCache, never()).put(anyCollectionOf(Metacard.class));
   }
 
   @Test
@@ -99,7 +99,7 @@ public class CacheBulkProcessorTest {
 
     cacheBulkProcessor.add(Collections.singletonList(mockResult));
 
-    verify(mockSolrCache, never()).create(anyCollectionOf(Metacard.class));
+    verify(mockSolrCache, never()).put(anyCollectionOf(Metacard.class));
   }
 
   @Test
@@ -107,7 +107,7 @@ public class CacheBulkProcessorTest {
     cacheBulkProcessor.setMaximumBacklogSize(0);
     cacheBulkProcessor.add(getMockResults(10));
 
-    verify(mockSolrCache, never()).create(anyCollectionOf(Metacard.class));
+    verify(mockSolrCache, never()).put(anyCollectionOf(Metacard.class));
   }
 
   @Test
@@ -115,13 +115,13 @@ public class CacheBulkProcessorTest {
     doThrow(new RuntimeException())
         .doNothing()
         .when(mockSolrCache)
-        .create(anyCollectionOf(Metacard.class));
+        .put(anyCollectionOf(Metacard.class));
     List<Result> mockResults = getMockResults(10);
 
     cacheBulkProcessor.add(mockResults);
     waitForPendingMetacardsToCache();
 
-    verify(mockSolrCache, atLeast(2)).create(capturedMetacards.capture());
+    verify(mockSolrCache, atLeast(2)).put(capturedMetacards.capture());
     for (Collection<Metacard> metacards : capturedMetacards.getAllValues()) {
       assertThat(metacards).containsAll(getMetacards(mockResults));
     }
@@ -142,7 +142,7 @@ public class CacheBulkProcessorTest {
     cacheBulkProcessor.add(mockResults);
     waitForPendingMetacardsToCache();
 
-    verify(mockSolrCache).create(capturedMetacards.capture());
+    verify(mockSolrCache).put(capturedMetacards.capture());
     assertThat(capturedMetacards.getValue()).containsAll(getMetacards(mockResults));
   }
 
