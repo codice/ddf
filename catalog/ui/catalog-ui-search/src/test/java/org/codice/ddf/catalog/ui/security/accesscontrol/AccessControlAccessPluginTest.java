@@ -94,6 +94,57 @@ public class AccessControlAccessPluginTest {
     verifyUserWithAttributeCanModifyUnprotectedAttribute(Security.ACCESS_INDIVIDUALS);
   }
 
+  @Test(expected = StopProcessingException.class)
+  public void testUserCannotRemoveOwnAccess() throws StopProcessingException {
+    Metacard before =
+        metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                METACARD_ID,
+                Security.ACCESS_INDIVIDUALS_READ,
+                ImmutableSet.of(USER_EINSTEIN),
+                Core.TITLE,
+                "title1",
+                Core.METACARD_TAGS,
+                WORKSPACE_TAG));
+    Metacard after =
+        metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID, METACARD_ID, Core.TITLE, "title1", Core.METACARD_TAGS, WORKSPACE_TAG));
+
+    UpdateRequest update = getUpdateRequest(METACARD_ID, after);
+    accessPlugin.processPreUpdate(update, ImmutableMap.of(METACARD_ID, before));
+  }
+
+  @Test(expected = StopProcessingException.class)
+  public void testUserCannotRemoveOwnAccessandModify() throws StopProcessingException {
+    Metacard before =
+        metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                METACARD_ID,
+                Security.ACCESS_INDIVIDUALS_READ,
+                ImmutableSet.of(USER_EINSTEIN),
+                Core.TITLE,
+                "title1",
+                Core.METACARD_TAGS,
+                WORKSPACE_TAG));
+    Metacard after =
+        metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                METACARD_ID,
+                "remove-user-access",
+                ImmutableSet.of(USER_EINSTEIN),
+                Core.TITLE,
+                "title2",
+                Core.METACARD_TAGS,
+                WORKSPACE_TAG));
+
+    UpdateRequest update = getUpdateRequest(METACARD_ID, after);
+    accessPlugin.processPreUpdate(update, ImmutableMap.of(METACARD_ID, before));
+  }
+
   @Test
   public void testAccessAdminsCanModify() throws StopProcessingException {
     verifyUserWithAttributeCanModifyUnprotectedAttribute(Security.ACCESS_ADMINISTRATORS);
