@@ -42,6 +42,12 @@ import ddf.catalog.source.Source;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.Requests;
+import org.apache.commons.lang3.Validate;
+import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -56,10 +62,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.Validate;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a {@link ddf.catalog.federation.FederationStrategy} based on sorting {@link
@@ -73,9 +75,9 @@ import org.slf4j.LoggerFactory;
  *   <li>{@link ddf.catalog.data.Result#RELEVANCE}
  * </ul>
  *
- * The supported ordering includes {@link org.opengis.filter.sort.SortOrder#DESCENDING} and {@link
- * org.opengis.filter.sort.SortOrder#ASCENDING}. For this class to function properly a sort value
- * and sort order must be provided.
+ * <p>The supported ordering includes {@link org.opengis.filter.sort.SortOrder#DESCENDING} and
+ * {@link org.opengis.filter.sort.SortOrder#ASCENDING}. For this class to function properly a sort
+ * value and sort order must be provided.
  *
  * @see ddf.catalog.data.Metacard
  * @see ddf.catalog.operation.Query
@@ -236,7 +238,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
       offset = this.maxStartIndex;
     }
 
-    final QueryResponseImpl queryResponseQueue = new QueryResponseImpl(queryRequest, null);
+    final Map<String, Serializable> properties = Collections.synchronizedMap(new HashMap<>());
+    final QueryResponseImpl queryResponseQueue = new QueryResponseImpl(queryRequest, properties);
 
     Map<Future<SourceResponse>, QueryRequest> futures = new HashMap<>();
 
@@ -287,7 +290,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     // transfer them into a different Queue. That is what the
     // OffsetResultHandler does.
     if (offset > 1 && sources.size() > 1) {
-      offsetResults = new QueryResponseImpl(queryRequest, null);
+      offsetResults = new QueryResponseImpl(queryRequest, properties);
       queryExecutorService.submit(
           new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize, offset));
     }
