@@ -79,7 +79,7 @@ export type SortItemType = {
 }
 
 const getCollectionAsJson = (collection: any) => {
-  const items: SortItemType[] = collection.models.map(model => {
+  const items: SortItemType[] = collection.models.map((model: any) => {
     return {
       attribute: {
         label: getLabel(model.get('attribute')),

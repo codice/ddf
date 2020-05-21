@@ -15,6 +15,7 @@
 
 import * as React from 'react'
 import styled from 'styled-components'
+// @ts-ignore
 import EnumInput from '../inputs/enum-input'
 import { isDirectionalSort } from './sort-selection-helpers'
 import { SortItemType, Option } from './sort-selections'
@@ -23,7 +24,7 @@ type Props = {
   sortItem: SortItemType
   attributeOptions: Option[]
   directionOptions: Option[]
-  updateAttribute: (attribute: Option) => void
+  updateAttribute: (attribute: string) => void
   updateDirection: (direction: string) => void
   onRemove: () => void
   showRemove?: boolean
