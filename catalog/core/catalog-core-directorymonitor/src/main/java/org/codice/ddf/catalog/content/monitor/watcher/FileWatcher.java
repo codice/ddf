@@ -69,7 +69,7 @@ public class FileWatcher {
   public boolean check() {
     long currentSize = watchedFile.length();
     if (currentSize == lastFileSize) {
-      LOGGER.debug("File [{}]'s size is stabilized.", watchedFile.getName());
+      LOGGER.trace("File [{}]'s size is stabilized.", watchedFile.getName());
       fileCallback.accept(watchedFile);
       return true;
     } else {

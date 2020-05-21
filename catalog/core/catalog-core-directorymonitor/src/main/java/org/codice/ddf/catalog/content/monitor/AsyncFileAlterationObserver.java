@@ -63,6 +63,7 @@ public class AsyncFileAlterationObserver {
   private final Object listenerLock = new Object();
   private final ObjectPersistentStore serializer;
   private final Object processingLock = new Object();
+  private Timer timer;
 
   private boolean isProcessing = false;
 
@@ -73,8 +74,8 @@ public class AsyncFileAlterationObserver {
     this.serializer = serializer;
     rootFile = new AsyncFileEntry(fileToObserve);
 
-    if (LOGGER.isTraceEnabled()) {
-      Timer timer = new Timer();
+    if (LOGGER.isDebugEnabled()) {
+      timer = new Timer();
       timer.scheduleAtFixedRate(new LogProcessing(), 500, 5000);
     }
   }
@@ -193,8 +194,6 @@ public class AsyncFileAlterationObserver {
 
     if (!entry.getFile().isDirectory()) {
 
-      LOGGER.trace("Sending create Request for {}", entry.getName());
-
       listenerCopy.onFileCreate(
           entry.getFile(), new CompletionSynchronization(entry, this::commitCreate));
     } else {
@@ -218,14 +217,10 @@ public class AsyncFileAlterationObserver {
    */
   private void commitCreate(AsyncFileEntry entry, boolean success) {
 
-    LOGGER.debug("commitCreate({},{}): Starting...", entry.getName(), success);
+    LOGGER.trace("commitCreate({},{}): Starting...", entry.getName(), success);
     if (success) {
       entry.commit();
       entry.getParent().ifPresent(e -> e.addChild(entry));
-      LOGGER.debug(
-          "File {} committed to {}",
-          entry.getName(),
-          entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
     } else {
       LOGGER.debug("Create task failed for {}", entry.getName());
     }
@@ -238,7 +233,6 @@ public class AsyncFileAlterationObserver {
    * @param entry The previous file system entry
    */
   private void doMatch(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
-
     if (!entry.hasChanged()) {
       return;
     }
@@ -263,9 +257,8 @@ public class AsyncFileAlterationObserver {
    */
   private void commitMatch(AsyncFileEntry entry, boolean success) {
     if (success) {
-      LOGGER.debug("commitMatch({},{}): Starting...", entry.getName(), success);
+      LOGGER.trace("commitMatch({},{}): Starting...", entry.getName(), success);
       entry.commit();
-      LOGGER.debug("{} committed", entry.getName());
     } else {
       LOGGER.debug("Match task failed for {}", entry.getName());
     }
@@ -280,7 +273,6 @@ public class AsyncFileAlterationObserver {
   private void doDelete(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
     if (!entry.isDirectory()) {
       processing.add(entry);
-      LOGGER.trace("Sending Delete Request for {}...", entry.getName());
       listenerCopy.onFileDelete(
           entry.getFile(), new CompletionSynchronization(entry, this::commitDelete));
     }
@@ -302,14 +294,10 @@ public class AsyncFileAlterationObserver {
    * @param success Boolean that shows if the task failed or completed successfully
    */
   private void commitDelete(AsyncFileEntry entry, boolean success) {
-    LOGGER.debug("commitDelete({},{}): Starting...", entry.getName(), success);
+    LOGGER.trace("commitDelete({},{}): Starting...", entry.getName(), success);
     if (success) {
       entry.getParent().ifPresent(e -> e.removeChild(entry));
       entry.destroy();
-      LOGGER.debug(
-          "{} was removed from {}",
-          entry.getName(),
-          entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
     } else {
       LOGGER.debug("Delete task failed for {}", entry.getName());
     }
@@ -396,6 +384,7 @@ public class AsyncFileAlterationObserver {
     synchronized (processingLock) {
       processing.remove(entry);
       if (processing.isEmpty()) {
+        LOGGER.debug("All files finished processing");
         serializer.store(rootFile.getName(), rootFile);
         isProcessing = false;
       }
@@ -413,7 +402,7 @@ public class AsyncFileAlterationObserver {
                 .map(AsyncFileEntry::getName)
                 .collect(Collectors.toList())
                 .toString();
-        LOGGER.trace("{} files being processed: {}", processing.size(), files);
+        LOGGER.debug("{} files being processed: {}", processing.size(), files);
       }
     }
   }
