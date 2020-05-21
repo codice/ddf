@@ -142,6 +142,8 @@ import spark.servlet.SparkApplication;
 
 public class MetacardApplication implements SparkApplication {
 
+  private static final List<PrintWriter> listeners = new ArrayList<PrintWriter>();
+
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardApplication.class);
 
   private static final String UPDATE_ERROR_MESSAGE = "Item is either restricted or not found.";
@@ -260,16 +262,29 @@ public class MetacardApplication implements SparkApplication {
           res.header("Connection", "keep-alive");
           res.header("Cache-Control", "no-cache");
           res.status(200);
-          PrintWriter out = res.getWriter();
-          //                synchronized (listeners) {
-          //                    listeners.add(out);
-          //                }
-          out.write("event: message\n");
-          out.write("retry: 300000\n");
-          out.write("data: " + "start" + "\r\n");
-          out.flush();
-          //          processRequest(req.raw(), res.raw());
-          return res;
+          PrintWriter out = res.raw().getWriter();
+          synchronized (listeners) {
+            listeners.add(out);
+          }
+
+          for (int i = 0; i < 20; i++) {
+
+            out.write("data: " + System.currentTimeMillis() + "\n\n");
+            out.flush();
+
+            try {
+              Thread.sleep(1000);
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+            }
+          }
+          out.close();
+          //          out.write("event: message\n");
+          //          out.write("retry: 300000\n");
+          //          out.write("data: " + "start" + "\r\n");
+          //          out.flush();
+          //          out.close();
+          return "hello world \r\n";
         });
 
     get("/metacardtype", (req, res) -> util.getJson(util.getMetacardTypeMap()));
