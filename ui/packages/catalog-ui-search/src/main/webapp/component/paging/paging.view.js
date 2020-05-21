@@ -55,6 +55,7 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   updateSelectionInterface() {
+    this.options.selectionInterface.clearSelectedResults()
     this.options.selectionInterface.setActiveSearchResults(
       this.model.reduce((results, result) => {
         results.push(result)
