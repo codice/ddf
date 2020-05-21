@@ -221,6 +221,10 @@ public class AsyncFileAlterationObserver {
     if (success) {
       entry.commit();
       entry.getParent().ifPresent(e -> e.addChild(entry));
+      LOGGER.debug(
+          "File {} committed to {}",
+          entry.getName(),
+          entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
     } else {
       LOGGER.debug("Create task failed for {}", entry.getName());
     }
@@ -259,6 +263,7 @@ public class AsyncFileAlterationObserver {
     if (success) {
       LOGGER.trace("commitMatch({},{}): Starting...", entry.getName(), success);
       entry.commit();
+      LOGGER.debug("{} committed", entry.getName());
     } else {
       LOGGER.debug("Match task failed for {}", entry.getName());
     }
@@ -298,6 +303,10 @@ public class AsyncFileAlterationObserver {
     if (success) {
       entry.getParent().ifPresent(e -> e.removeChild(entry));
       entry.destroy();
+      LOGGER.debug(
+          "{} was removed from {}",
+          entry.getName(),
+          entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
     } else {
       LOGGER.debug("Delete task failed for {}", entry.getName());
     }
