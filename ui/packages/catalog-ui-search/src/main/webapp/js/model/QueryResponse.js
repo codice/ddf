@@ -344,7 +344,14 @@ module.exports = Backbone.AssociatedModel.extend({
     const resultsDeduped = results.filter(result => {
       return (
         this.queuedResults.find(
-          queuedResult => queuedResult.id === result.id
+          queuedResult =>
+            queuedResult.metacard.properties.id ===
+            result.metacard.properties.id
+        ) === undefined &&
+        this.lazyResults.find(
+          lazyResult =>
+            lazyResult.plain.metacard.properties.id ===
+            result.metacard.properties.id
         ) === undefined
       )
     })
