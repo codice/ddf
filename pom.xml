@@ -247,7 +247,8 @@
         <mina.version>2.0.6</mina.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
-        <netty.version>4.1.32.Final</netty.version>
+        <netty.version>4.1.44.Final</netty.version>
+        <netty.codec.version>4.1.46.Final</netty.codec.version>
         <objenesis.version>2.6</objenesis.version>
         <ogc-tools-gml-jts.version>1.1.90</ogc-tools-gml-jts.version>
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
@@ -303,8 +304,8 @@
         <wss4j.version>2.2.3</wss4j.version>
         <xalan.bundle.version>2.7.2_3</xalan.bundle.version>
         <xalan.version>2.7.2</xalan.version>
-        <xerces.version>2.11.0</xerces.version>
-        <xerces.bundle.version>2.11.0_1</xerces.bundle.version>
+        <xerces.version>2.12.0</xerces.version>
+        <xerces.bundle.version>2.12.0_1</xerces.bundle.version>
         <xml-apis.version>1.4.01</xml-apis.version>
         <xmlbeans.version>3.0.2</xmlbeans.version>
         <xmlsec.version>2.1.4</xmlsec.version>

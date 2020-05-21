@@ -73,6 +73,7 @@
         <junit-bundle-version>4.11_2</junit-bundle-version>
         <metrics-version>${dropwizard.version}</metrics-version>
         <netty-version>${netty.version}</netty-version>
+        <netty-codec-version>${netty.codec.version}</netty-codec-version>
         <qpid-proton-j-version>${proton.version}</qpid-proton-j-version>
         <mchange-commons-java-version>0.2.11</mchange-commons-java-version>
         <netty41-version>4.1.16.Final</netty41-version>
