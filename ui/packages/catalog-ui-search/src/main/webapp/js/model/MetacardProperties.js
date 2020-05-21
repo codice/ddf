@@ -41,15 +41,7 @@ module.exports = Backbone.AssociatedModel.extend({
     return
   },
   getPoints(attribute) {
-    const geometryAttributeValues = this.getGeometries(attribute)
-    const geometries = []
-    geometryAttributeValues.forEach(
-      geometry =>
-        Array.isArray(geometry)
-          ? geometry.forEach(geo => geometries.push(geo))
-          : geometries.push(geometry)
-    )
-    return geometries.reduce(
+    return this.getGeometries(attribute).reduce(
       (pointArray, wkt) =>
         pointArray.concat(
           TurfMeta.coordAll(wkx.Geometry.parse(wkt).toGeoJSON())
