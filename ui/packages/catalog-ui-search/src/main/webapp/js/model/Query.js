@@ -89,7 +89,6 @@ const reducer = (state = [{}], action) => {
     case 'PREVIOUS_PAGE':
       return state.slice(0, -1)
     case 'UPDATE_RESULTS':
-      console.log('UPDATE_RESULTS:: ', action.payload)
       const srcs = action.payload.status
         .filter(status => status.id !== 'cache')
         .map(({ id, count }) => ({ id, count }))
