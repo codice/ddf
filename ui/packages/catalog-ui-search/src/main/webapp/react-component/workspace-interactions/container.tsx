@@ -105,7 +105,7 @@ class WorkspaceInteractions extends React.Component<Props, State> {
   }
   viewDetails = () => {
     wreqr.vent.trigger('router:navigate', {
-      fragment: 'metacards/' + this.props.workspace.id,
+      fragment: 'details/' + this.props.workspace.id,
       options: {
         trigger: true,
       },
