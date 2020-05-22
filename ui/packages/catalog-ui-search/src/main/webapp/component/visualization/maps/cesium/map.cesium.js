@@ -31,6 +31,8 @@ import CesiumLayerCollectionController from '../../../../js/controllers/cesium.l
 const user = require('../../../singletons/user-instance.js')
 const User = require('../../../../js/model/User.js')
 import { Drawing } from '../../../singletons/drawing'
+import { LazyQueryResult } from '../../../../js/model/LazyQueryResult'
+import { ClusterType } from '../react/geometries'
 
 const defaultColor = '#3c6dd5'
 const eyeOffset = new Cesium.Cartesian3(0, 0, 0)
@@ -309,8 +311,14 @@ module.exports = function CesiumMap(
     onCameraMoveStart(callback) {
       map.scene.camera.moveStart.addEventListener(callback)
     },
+    offCameraMoveStart(callback) {
+      map.scene.camera.moveStart.removeEventListener(callback)
+    },
     onCameraMoveEnd(callback) {
       map.scene.camera.moveEnd.addEventListener(callback)
+    },
+    offCameraMoveEnd(callback) {
+      map.scene.camera.moveEnd.removeEventListener(callback)
     },
     doPanZoom(coords) {
       const cartArray = coords.map(coord =>
@@ -444,12 +452,12 @@ module.exports = function CesiumMap(
       }
       overlays = {}
     },
-    getCartographicCenterOfClusterInDegrees(cluster) {
+    getCartographicCenterOfClusterInDegrees(cluster: ClusterType) {
       return utility.calculateCartographicCenterOfGeometriesInDegrees(
-        cluster.get('results').map(result => result)
+        cluster.results
       )
     },
-    getWindowLocationsOfResults(results) {
+    getWindowLocationsOfResults(results: LazyQueryResult[]) {
       let occluder
       if (map.scene.mode === Cesium.SceneMode.SCENE3D) {
         occluder = new Cesium.EllipsoidalOccluder(

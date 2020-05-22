@@ -253,6 +253,10 @@ module.exports = {
   getSize(metacard) {
     return _get(_map, 'style.size', _default.style.size)
   },
+  getFullByMetacardObject(metacard) {
+    const i = _deriveIconByMetacardObject(metacard)
+    return i !== undefined ? i : _default
+  },
   getFull(metacard) {
     const i = _deriveIconByMetacard(metacard)
     return i !== undefined ? i : _default

@@ -26,6 +26,7 @@
     "node": ">=0.10.5"
   },
   "devDependencies": {
+    "@welldone-software/why-did-you-render": "4.2.2",
     "@connexta/ace": "*",
     "chai": "4.1.1",
     "enzyme": "3.3.0",
@@ -93,6 +94,7 @@
     "react-live": "1.11.0",
     "react-redux": "5.0.7",
     "react-text-mask": "5.4.1",
+    "react-use": "15.1.0",
     "redux": "3.5.2",
     "redux-thunk": "2.1.0",
     "rpc-websockets": "4.0.0",

@@ -34,7 +34,7 @@ const LayerCollectionController = require('../../../../js/controllers/ol.layerCo
 const user = require('../../../singletons/user-instance.js')
 const User = require('../../../../js/model/User.js')
 const wreqr = require('../../../../js/wreqr.js')
-
+import { ClusterType } from '../react/geometries'
 const defaultColor = '#3c6dd5'
 
 const OpenLayerCollectionController = LayerCollectionController.extend({
@@ -197,10 +197,16 @@ module.exports = function OpenlayersMap(
       })
     },
     onCameraMoveStart(callback) {
-      map.on('movestart', callback)
+      map.addEventListener('movestart', callback)
+    },
+    offCameraMoveStart(callback) {
+      map.removeEventListener('movestart', callback)
     },
     onCameraMoveEnd(callback) {
-      map.on('moveend', callback)
+      map.addEventListener('moveend', callback)
+    },
+    offCameraMoveEnd(callback) {
+      map.removeEventListener('moveend', callback)
     },
     doPanZoom(coords) {
       const that = this
@@ -310,9 +316,9 @@ module.exports = function OpenlayersMap(
       }
       overlays = {}
     },
-    getCartographicCenterOfClusterInDegrees(cluster) {
+    getCartographicCenterOfClusterInDegrees(cluster: ClusterType) {
       return utility.calculateCartographicCenterOfGeometriesInDegrees(
-        cluster.get('results').map(result => result)
+        cluster.results
       )
     },
     getWindowLocationsOfResults(results) {
@@ -397,6 +403,21 @@ module.exports = function OpenlayersMap(
           }),
         })
       )
+      feature.unselectedStyle = feature.getStyle()
+      feature.selectedStyle = new Openlayers.style.Style({
+        image: new Openlayers.style.Icon({
+          img: DrawingUtility.getPin({
+            fillColor: options.color,
+            strokeColor: 'black',
+            icon: options.icon,
+          }),
+          imgSize: [x, y],
+          anchor: [x / 2, 0],
+          anchorOrigin: 'bottom-left',
+          anchorXUnits: 'pixels',
+          anchorYUnits: 'pixels',
+        }),
+      })
 
       const vectorSource = new Openlayers.source.Vector({
         features: [feature],
@@ -521,29 +542,26 @@ module.exports = function OpenlayersMap(
         const feature = geometry.getSource().getFeatures()[0]
         const geometryInstance = feature.getGeometry()
         if (geometryInstance.constructor === Openlayers.geom.Point) {
-          let x = 39,
-            y = 40
-          if (options.size) {
-            x = options.size.x
-            y = options.size.y
-          }
           geometry.setZIndex(options.isSelected ? 2 : 1)
           feature.setStyle(
-            new Openlayers.style.Style({
-              image: new Openlayers.style.Icon({
-                img: DrawingUtility.getPin({
-                  fillColor: options.color,
-                  strokeColor: options.isSelected ? 'black' : 'white',
-                  icon: options.icon,
-                }),
-                imgSize: [x, y],
-                anchor: [x / 2, 0],
-                anchorOrigin: 'bottom-left',
-                anchorXUnits: 'pixels',
-                anchorYUnits: 'pixels',
-              }),
-            })
+            options.isSelected ? feature.selectedStyle : feature.unselectedStyle
           )
+          // feature.setStyle(
+          //   new Openlayers.style.Style({
+          //     image: new Openlayers.style.Icon({
+          //       img: DrawingUtility.getPin({
+          //         fillColor: options.color,
+          //         strokeColor: options.isSelected ? 'black' : 'white',
+          //         icon: options.icon,
+          //       }),
+          //       imgSize: [x, y],
+          //       anchor: [x / 2, 0],
+          //       anchorOrigin: 'bottom-left',
+          //       anchorXUnits: 'pixels',
+          //       anchorYUnits: 'pixels',
+          //     }),
+          //   })
+          // )
         } else if (
           geometryInstance.constructor === Openlayers.geom.LineString
         ) {

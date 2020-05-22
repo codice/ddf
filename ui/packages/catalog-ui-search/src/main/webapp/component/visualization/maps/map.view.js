@@ -42,6 +42,7 @@ const Gazetteer = require('../../../react-component/location/gazetteer.js')
 import MapSettings from '../../../react-component/map-settings'
 import MapInfo from '../../../react-component/map-info'
 import { Drawing } from '../../singletons/drawing'
+import { GeometriesView } from './react/geometries.view'
 
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {
@@ -149,6 +150,7 @@ module.exports = Marionette.LayoutView.extend({
   clusterCollection: undefined,
   clusterCollectionView: undefined,
   geometryCollectionView: undefined,
+  geometriesView: undefined,
   map: undefined,
   mapModel: undefined,
   hasLoadedMap: false,
@@ -173,17 +175,21 @@ module.exports = Marionette.LayoutView.extend({
       throw 'Map has not been set.'
     }
     this.clusterCollection = new ClusterCollection()
-    this.geometryCollectionView = new GeometryCollectionView({
-      collection: this.options.selectionInterface.getActiveSearchResults(),
-      map: this.map,
+    this.geometriesView = new GeometriesView({
       selectionInterface: this.options.selectionInterface,
-      clusterCollection: this.clusterCollection,
-    })
-    this.clusterCollectionView = new ClusterCollectionView({
-      collection: this.clusterCollection,
       map: this.map,
-      selectionInterface: this.options.selectionInterface,
     })
+    // this.geometryCollectionView = new GeometryCollectionView({
+    //   collection: this.options.selectionInterface.getActiveSearchResults(),
+    //   map: this.map,
+    //   selectionInterface: this.options.selectionInterface,
+    //   clusterCollection: this.clusterCollection,
+    // })
+    // this.clusterCollectionView = new ClusterCollectionView({
+    //   collection: this.clusterCollection,
+    //   map: this.map,
+    //   selectionInterface: this.options.selectionInterface,
+    // })
   },
   setupListeners() {
     this.listenTo(
@@ -436,7 +442,8 @@ module.exports = Marionette.LayoutView.extend({
   },
   toggleClustering() {
     this.$el.toggleClass('is-clustering')
-    this.clusterCollectionView.toggleActive()
+    if (this.clusterCollectionView) this.clusterCollectionView.toggleActive()
+    this.geometriesView.toggleClustering()
   },
   handleDrawing() {
     this.$el.toggleClass('is-drawing', Drawing.isDrawing())
@@ -523,6 +530,9 @@ module.exports = Marionette.LayoutView.extend({
     this.map.destroyShapes()
   },
   onDestroy() {
+    if (this.geometriesView) {
+      this.geometriesView.destroy()
+    }
     if (this.geometryCollectionView) {
       this.geometryCollectionView.destroy()
     }

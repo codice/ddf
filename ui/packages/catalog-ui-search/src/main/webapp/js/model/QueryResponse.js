@@ -106,7 +106,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.listenTo(this, 'error', this.handleError)
     this.listenTo(this, 'sync', this.handleSync)
     this.resultCountsBySource = {}
-    this.lazyResults = []
+    this.lazyResults = {}
     this.queuedResults = []
     this.processedResults = []
   },
@@ -328,7 +328,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.processQueueTimeoutId = undefined
     this.set('processingResults', false)
     this.trigger('sync')
-    this.lazyResults = []
+    this.lazyResults = {}
     this.queuedResults = []
     this.processedResults = []
   },
@@ -344,19 +344,25 @@ module.exports = Backbone.AssociatedModel.extend({
     const resultsDeduped = results.filter(result => {
       return (
         this.queuedResults.find(
-          queuedResult => queuedResult.id === result.id
+          queuedResult =>
+            queuedResult.metacard.properties.id ===
+            result.metacard.properties.id
+        ) === undefined &&
+        Object.values(this.lazyResults).find(
+          lazyResult =>
+            lazyResult.plain.metacard.properties.id ===
+            result.metacard.properties.id
         ) === undefined
       )
     })
 
     // const now = Date.now()
-    this.lazyResults = this.lazyResults.concat(
-      resultsDeduped.map(result => {
-        const objRef = new LazyQueryResult(result)
-        result._objRef = objRef // so we can later quickly add the backbone version
-        return objRef
-      })
-    )
+    // don't think we need this since this is a map instead of array now
+    resultsDeduped.forEach(result => {
+      const objRef = new LazyQueryResult(result)
+      result._objRef = objRef // so we can later quickly add the backbone version
+      this.lazyResults[objRef['metacard.id']] = objRef
+    })
     // console.log(`finished ${resultsDeduped.length}: ${Date.now() - now}`)
     this.queuedResults = this.queuedResults.concat(resultsDeduped)
     this.processQueue()

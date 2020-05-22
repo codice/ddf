@@ -54,42 +54,23 @@ function humanizeResourceSize(plain: ResultType) {
   }
 }
 
-export type LazyQueryResultType = {
-  plain: ResultType
-  backbone?: any
-  isResourceLocal: boolean
-  type: 'query-result'
-  isDownloadable: () => boolean
-  getPreview: () => string
-  hasPreview: () => boolean
-  matchesFilters: (filters: any) => boolean
-  matchesCql: (cql: any) => boolean
-  isWorkspace: () => boolean
-  isResource: () => boolean
-  isRevision: () => boolean
-  isDeleted: () => boolean
-  isRemote: () => boolean
-  hasGeometry: (attribute: any) => boolean
-  getGeometries: (attribute: any) => boolean
-  getPoints: (attribute: any) => any
-  getMapActions: () => ResultType['actions']
-  hasMapActions: () => boolean
-  getExportActions: () => ResultType['actions']
-  hasExportActions: () => boolean
-  getOtherActions: () => ResultType['actions']
-}
-
 export class LazyQueryResult {
   plain: ResultType
   backbone?: any
   isResourceLocal: boolean
   type: 'query-result'
   subscriptions: { [key: string]: () => void }
+  selectionSubscriptions: { [key: string]: () => void };
+  ['metacard.id']: string
+  isSelected: boolean
   constructor(plain: ResultType) {
     this.type = 'query-result'
     this.plain = plain
     this.isResourceLocal = false || plain.isResourceLocal
     this.subscriptions = {}
+    this.selectionSubscriptions = {}
+    this['metacard.id'] = plain.metacard.properties.id
+    this.isSelected = false
     humanizeResourceSize(plain)
     cacheBustThumbnail(plain)
   }
@@ -137,7 +118,7 @@ export class LazyQueryResult {
   isRemote(): boolean {
     return this.plain.metacard.properties['source-id'] !== Sources.localCatalog
   }
-  hasGeometry(attribute: any): boolean {
+  hasGeometry(attribute?: any): boolean {
     return (
       _.filter(
         this.plain.metacard.properties,
@@ -148,7 +129,7 @@ export class LazyQueryResult {
       ).length > 0
     )
   }
-  getGeometries(attribute: any): any {
+  getGeometries(attribute?: any): any {
     return _.filter(
       this.plain.metacard.properties,
       (_value: any, key: string) =>
@@ -158,7 +139,7 @@ export class LazyQueryResult {
         metacardDefinitions.metacardTypes[key].type === 'GEOMETRY'
     )
   }
-  getPoints(attribute: any): any {
+  getPoints(attribute?: any): any {
     return this.getGeometries(attribute).reduce(
       (pointArray: any, wkt: any) =>
         pointArray.concat(
@@ -208,6 +189,9 @@ export class LazyQueryResult {
   getWarnings() {
     return this.plain.metacard.properties['validation-warnings']
   }
+  getColor() {
+    return '#004949'
+  }
   /**
    *  Should really only be called in query response the moment the backbone model is available
    */
@@ -218,15 +202,50 @@ export class LazyQueryResult {
   _notifySubscriptions() {
     Object.values(this.subscriptions).forEach(sub => sub())
   }
+  _notifySelectionSubscriptions() {
+    Object.values(this.selectionSubscriptions).forEach(sub => sub())
+  }
   subscribe(callback: () => void) {
     const id = Math.random().toString()
     this.subscriptions[id] = callback
     return id
   }
-  unsubscribe(id: string | undefined) {
+  unsubscribe(id?: string) {
     if (id === undefined) return
     delete this.subscriptions[id]
   }
+  subscribeToSelection(callback: () => void) {
+    const id = Math.random().toString()
+    this.selectionSubscriptions[id] = callback
+    return id
+  }
+  unsubscribeFromSelection(id?: string) {
+    if (id === undefined) return
+    delete this.selectionSubscriptions[id]
+  }
+  setSelected(isSelected: boolean) {
+    if (this.isSelected !== isSelected) {
+      this.isSelected = isSelected
+      this._notifySelectionSubscriptions()
+    }
+  }
+}
+
+export const useSelectionOfLazyResult = ({
+  lazyResult,
+}: {
+  lazyResult: LazyQueryResult
+}) => {
+  const [isSelected, setIsSelected] = React.useState(lazyResult.isSelected)
+  React.useEffect(() => {
+    const id = lazyResult.subscribeToSelection(() => {
+      setIsSelected(lazyResult.isSelected)
+    })
+    return () => {
+      lazyResult.unsubscribeFromSelection(id)
+    }
+  }, [])
+  return isSelected
 }
 
 export const useBackboneOfLazyResult = ({
