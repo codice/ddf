@@ -239,7 +239,10 @@ Query.Model = PartialAssociatedModel.extend({
       const totalHits = this.get('result')
         .get('status')
         .reduce((total, status) => {
-          return total + status.get('hits')
+          if (status.get('id') !== 'cache') {
+            return total + status.get('hits')
+          }
+          return total
         }, 0)
 
       this.set('totalHits', totalHits)

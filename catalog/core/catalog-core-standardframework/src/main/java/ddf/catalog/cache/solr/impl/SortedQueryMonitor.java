@@ -178,34 +178,21 @@ class SortedQueryMonitor implements Runnable {
         sourceResponse = future.get();
         if (sourceResponse == null) {
           LOGGER.debug("Source {} returned null response", sourceId);
-          executePostFederationQueryPluginsWithSourceError(
-              queryRequest, sourceId, new NullPointerException(), detailsOfReturnResults);
+          sourceResponse =
+              executePostFederationQueryPluginsWithSourceError(
+                  queryRequest, sourceId, new NullPointerException(), detailsOfReturnResults);
         } else {
-          sourceResponse = executePostFederationQueryPlugins(sourceResponse, queryRequest);
-          resultList.addAll(sourceResponse.getResults());
-          long hits = sourceResponse.getHits();
-          totalHits += hits;
-          hitsPerSource.merge(sourceId, hits, (l1, l2) -> l1 + l2);
-
-          Map<String, Serializable> properties = sourceResponse.getProperties();
-          returnProperties.putAll(properties);
-
-          for (SourceProcessingDetails detailsOfSourceResponse :
-              sourceResponse.getProcessingDetails()) {
-            if (detailsOfSourceResponse instanceof ProcessingDetails) {
-              detailsOfReturnResults.add((ProcessingDetails) detailsOfSourceResponse);
-            } else {
-              detailsOfReturnResults.add(
-                  new ProcessingDetailsImpl(detailsOfSourceResponse, sourceId));
-            }
-          }
+          sourceResponse =
+              executePostFederationQueryPlugins(
+                  sourceResponse, queryRequest, sourceResponse.getProcessingErrors());
         }
       } catch (InterruptedException e) {
         if (queryRequest != null) {
           // First, add interrupted processing detail for this source
           LOGGER.debug("Search interrupted for {}", sourceId);
-          executePostFederationQueryPluginsWithSourceError(
-              queryRequest, sourceId, e, detailsOfReturnResults);
+          sourceResponse =
+              executePostFederationQueryPluginsWithSourceError(
+                  queryRequest, sourceId, e, detailsOfReturnResults);
         }
 
         // Then add the interrupted exception for the remaining sources
@@ -215,8 +202,25 @@ class SortedQueryMonitor implements Runnable {
       } catch (ExecutionException e) {
         LOGGER.info(
             "Couldn't get results from completed federated query for sourceId = {}", sourceId, e);
-        executePostFederationQueryPluginsWithSourceError(
-            queryRequest, sourceId, e, detailsOfReturnResults);
+        sourceResponse =
+            executePostFederationQueryPluginsWithSourceError(
+                queryRequest, sourceId, e, detailsOfReturnResults);
+      }
+
+      resultList.addAll(sourceResponse.getResults());
+      long hits = sourceResponse.getHits();
+      totalHits += hits;
+      hitsPerSource.merge(sourceId, hits, (l1, l2) -> l1 + l2);
+
+      Map<String, Serializable> properties = sourceResponse.getProperties();
+      returnProperties.putAll(properties);
+      for (SourceProcessingDetails detailsOfSourceResponse :
+          sourceResponse.getProcessingDetails()) {
+        if (detailsOfSourceResponse instanceof ProcessingDetails) {
+          detailsOfReturnResults.add((ProcessingDetails) detailsOfSourceResponse);
+        } else {
+          detailsOfReturnResults.add(new ProcessingDetailsImpl(detailsOfSourceResponse, sourceId));
+        }
       }
     }
     returnProperties.put("hitsPerSource", hitsPerSource);
@@ -297,7 +301,7 @@ class SortedQueryMonitor implements Runnable {
         .orElse(unkSource);
   }
 
-  private void executePostFederationQueryPluginsWithSourceError(
+  private SourceResponse executePostFederationQueryPluginsWithSourceError(
       QueryRequest queryRequest,
       String sourceId,
       Exception e,
@@ -306,12 +310,14 @@ class SortedQueryMonitor implements Runnable {
     ProcessingDetails processingDetail = new ProcessingDetailsImpl(sourceId, e);
     SourceResponse sourceResponse = new SourceResponseImpl(queryRequest, new ArrayList<>());
     sourceResponse.getProcessingErrors().add(processingDetail);
-    processingDetails.add(processingDetail);
-    executePostFederationQueryPlugins(sourceResponse, queryRequest);
+    return executePostFederationQueryPlugins(
+        sourceResponse, queryRequest, Collections.singleton(processingDetail));
   }
 
   private SourceResponse executePostFederationQueryPlugins(
-      SourceResponse sourceResponse, QueryRequest queryRequest) {
+      SourceResponse sourceResponse,
+      QueryRequest queryRequest,
+      Set<ProcessingDetails> processingDetails) {
 
     QueryResponse queryResponse =
         new QueryResponseImpl(
@@ -319,7 +325,8 @@ class SortedQueryMonitor implements Runnable {
             sourceResponse.getResults(),
             true,
             sourceResponse.getHits(),
-            sourceResponse.getProperties());
+            sourceResponse.getProperties(),
+            processingDetails);
 
     try {
       for (PostFederatedQueryPlugin service : postQuery) {
@@ -335,7 +342,6 @@ class SortedQueryMonitor implements Runnable {
 
     Set<SourceProcessingDetails> detailsOfResponseAfterPlugins =
         new HashSet<>(queryResponse.getProcessingDetails());
-    detailsOfResponseAfterPlugins.addAll(sourceResponse.getProcessingDetails());
 
     return new SourceResponseImpl(
         queryRequest,
