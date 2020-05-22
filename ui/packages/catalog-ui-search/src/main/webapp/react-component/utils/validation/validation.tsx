@@ -532,18 +532,19 @@ function validateUtmUps(key: string, value: any) {
 
 function validateRadiusLineBuffer(key: string, value: any) {
   const label = key === 'radius' ? 'Radius ' : 'Buffer width '
+  if (value.value.toString().length === 0) {
+    return initialErrorState
+  }
   const buffer = DistanceUtils.getDistanceInMeters(value.value, value.units)
-  if (key.includes('Width')) {
-    if (buffer > 0 && buffer < 1) {
-      return {
-        error: true,
-        message:
-          label +
-          'must be 0, or at least ' +
-          DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
-          ' ' +
-          value.units,
-      }
+  if (key.includes('Width') && buffer < 1 && buffer !== 0) {
+    return {
+      error: true,
+      message:
+        label +
+        'must be 0, or at least ' +
+        DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
+        ' ' +
+        value.units,
     }
   } else if (buffer < 1) {
     return {
