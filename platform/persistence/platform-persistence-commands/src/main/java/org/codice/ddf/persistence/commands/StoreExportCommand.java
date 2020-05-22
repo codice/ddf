@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.persistence.commands;
 
-import static org.codice.ddf.persistence.commands.StoreImportCommand.DATE_FORMAT;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.File;
@@ -30,7 +28,7 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.persistence.PersistenceException;
-import org.codice.gsonsupport.GsonTypeAdapters.ByteArrayToBase64TypeAdapter;
+import org.codice.gsonsupport.GsonTypeAdapters.PersistenceMapTypeAdapter;
 
 @Service
 @Command(
@@ -61,10 +59,7 @@ public class StoreExportCommand extends AbstractStoreCommand {
   String dirPath = null;
 
   private final Gson gson =
-      new GsonBuilder()
-          .setDateFormat(DATE_FORMAT)
-          .registerTypeHierarchyAdapter(byte[].class, new ByteArrayToBase64TypeAdapter())
-          .create();
+      new GsonBuilder().registerTypeAdapterFactory(PersistenceMapTypeAdapter.FACTORY).create();
 
   @Override
   public void storeCommand() throws PersistenceException {

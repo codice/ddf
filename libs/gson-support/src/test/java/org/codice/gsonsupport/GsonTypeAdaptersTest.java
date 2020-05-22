@@ -39,7 +39,6 @@ public class GsonTypeAdaptersTest {
     gson =
         new GsonBuilder()
             .registerTypeAdapter(Date.class, new GsonTypeAdapters.DateLongFormatTypeAdapter())
-            .registerTypeAdapter(byte[].class, new GsonTypeAdapters.ByteArrayToBase64TypeAdapter())
             .create();
   }
 

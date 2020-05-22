@@ -20,6 +20,7 @@ import static org.codice.ddf.persistence.PersistentItem.LONG_SUFFIX;
 import static org.codice.ddf.persistence.PersistentItem.TEXT_SUFFIX;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -53,7 +54,7 @@ public class StoreCommandTest extends ConsoleOutputCommon {
   String txtKey = "key" + TEXT_SUFFIX;
   String intKey = "key" + INT_SUFFIX;
   String longKey = "key" + LONG_SUFFIX;
-  final long msInput = 1589485511000L;
+  final long dateInput = 1589485511000L;
   final String stringInput = "testString";
   final long longInput = 112223242343L;
   final int intInput = 1245;
@@ -164,33 +165,28 @@ public class StoreCommandTest extends ConsoleOutputCommon {
 
     verify(persistentStore, times(1)).add(anyString(), argument.capture());
     List<Map<String, Object>> items = argument.getValue();
-
+    assertThat(items.size(), equalTo(5));
     for (Map<String, Object> item : items) {
-      Object value = item.get(dateKey);
-      if (value != null) {
-        Date dateValue = (Date) value;
-        assertThat(dateValue.getTime(), equalTo(msInput));
-      }
-      value = item.get(binKey);
-      if (value != null) {
-        byte[] byteArray = (byte[]) value;
-        assertThat(new String(byteArray), equalTo(stringInput));
-      }
-
-      value = item.get(longKey);
-      if (value != null) {
-        long longValue = (long) value;
-        assertThat(longValue, equalTo(longInput));
-      }
-
-      value = item.get(intKey);
-      if (value != null) {
-        int intValue = (int) value;
-        assertThat(intValue, equalTo(intInput));
-      }
-      value = item.get(txtKey);
-      if (value != null) {
-        assertThat(value, equalTo(stringInput));
+      assertThat(item.keySet().size(), equalTo(1));
+      for (String key : item.keySet()) {
+        Object value = item.get(key);
+        if (value instanceof Date) {
+          Date dateValue = (Date) value;
+          assertThat(dateValue.getTime(), equalTo(dateInput));
+        } else if (value instanceof byte[]) {
+          byte[] byteArray = (byte[]) value;
+          assertThat(new String(byteArray), equalTo(stringInput));
+        } else if (value instanceof Long) {
+          Long longValue = (long) value;
+          assertThat(longValue, equalTo(longInput));
+        } else if (value instanceof Integer) {
+          int intValue = (int) value;
+          assertThat(intValue, equalTo(intInput));
+        } else if (value instanceof String) {
+          assertThat(value, equalTo(stringInput));
+        } else {
+          assertFalse(false);
+        }
       }
     }
     // then
@@ -213,12 +209,11 @@ public class StoreCommandTest extends ConsoleOutputCommon {
     command.filePath = "src/test/resources/ErrorSet/BadJson";
     command.execute();
     // then
-    assertThat(consoleOutput.getOutput(), containsString("If the file does indeed exist"));
+    assertThat(consoleOutput.getOutput(), containsString("Unable to parse json file"));
 
     command.filePath = "src/test/resources/ErrorSet";
     command.execute();
     // then
-    assertThat(consoleOutput.getOutput(), containsString("Failed to parse date"));
     assertThat(consoleOutput.getOutput(), containsString("Unable to parse json file"));
   }
 
@@ -289,7 +284,7 @@ public class StoreCommandTest extends ConsoleOutputCommon {
   private List<Map<String, Object>> getResults() {
     List<Map<String, Object>> results = new ArrayList<>();
     Map<String, Object> dateItem = new HashMap<>();
-    dateItem.put(dateKey, new Date(msInput));
+    dateItem.put(dateKey, new Date(dateInput));
     results.add(dateItem);
 
     Map<String, Object> binItem = new HashMap<>();

@@ -13,7 +13,9 @@
  */
 package org.codice.ddf.persistence.commands;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -37,5 +39,36 @@ public class ConsoleOutputCommon {
   public static void closeConsoleOutput() throws IOException {
     consoleOutput.resetSystemOut();
     consoleOutput.closeBuffer();
+  }
+
+  public static class ConsoleOutput {
+
+    private ByteArrayOutputStream buffer;
+
+    private PrintStream realSystemOut;
+
+    public void interceptSystemOut() {
+      this.realSystemOut = System.out;
+
+      this.buffer = new ByteArrayOutputStream();
+
+      System.setOut(new PrintStream(this.buffer));
+    }
+
+    public void closeBuffer() throws IOException {
+      buffer.close();
+    }
+
+    public String getOutput() {
+      return buffer.toString();
+    }
+
+    public void resetSystemOut() {
+      System.setOut(realSystemOut);
+    }
+
+    public void reset() {
+      buffer.reset();
+    }
   }
 }

@@ -13,41 +13,33 @@
  */
 package org.codice.ddf.persistence.commands;
 
-import static org.codice.ddf.persistence.PersistentItem.BINARY_SUFFIX;
-import static org.codice.ddf.persistence.PersistentItem.DATE_SUFFIX;
-import static org.codice.ddf.persistence.PersistentItem.INT_SUFFIX;
-import static org.codice.ddf.persistence.PersistentItem.LONG_SUFFIX;
-import static org.codice.ddf.persistence.PersistentItem.SUFFIXES;
-import static org.codice.ddf.persistence.PersistentItem.TEXT_SUFFIX;
-import static org.codice.ddf.persistence.PersistentItem.XML_SUFFIX;
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
-import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Completion;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.support.completers.FileCompleter;
 import org.codice.ddf.persistence.PersistenceException;
+import org.codice.gsonsupport.GsonTypeAdapters.PersistenceMapTypeAdapter;
 
 @Service
 @Command(
@@ -68,10 +60,8 @@ public class StoreImportCommand extends AbstractStoreCommand {
   @Completion(FileCompleter.class)
   String filePath;
 
-  static final String DATE_FORMAT = "dd MMM yyyy HH:mm:ss zzz";
-  private final Gson gson = new Gson();
-
-  private final SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+  private final Gson gson =
+      new GsonBuilder().registerTypeAdapterFactory(PersistenceMapTypeAdapter.FACTORY).create();
 
   @Override
   public void storeCommand() throws PersistenceException {
@@ -112,27 +102,20 @@ public class StoreImportCommand extends AbstractStoreCommand {
 
     Map<String, Object> jsonResult;
     try {
-      jsonResult = gson.fromJson(new FileReader(file), Map.class);
+      Reader reader = new FileReader(file);
+      jsonResult = gson.fromJson(reader, MAP_STRING_TO_OBJECT_TYPE);
+
     } catch (FileNotFoundException e) {
       console.println("File not found for import " + file.getName() + "\n");
       return null;
     } catch (JsonSyntaxException | JsonIOException e) {
       console.println("Unable to parse json file. Skipping " + file.getName());
       return null;
+    } catch (IOException e) {
+      return null;
     }
-
-    Map<String, Object> result = new HashMap<>();
-
-    for (String key : jsonResult.keySet()) {
-      String attributeType = extractTypeSuffix(key);
-      Object value = getValue(attributeType, jsonResult.get(key));
-      if (value != null) {
-        result.put(key, value);
-      }
-    }
-
     console.println("Processing: " + file.getName());
-    return result;
+    return jsonResult;
   }
 
   private File getInputFile() {
@@ -152,48 +135,5 @@ public class StoreImportCommand extends AbstractStoreCommand {
       }
     }
     return inputFile.isHidden() ? 0 : 1;
-  }
-
-  private String extractTypeSuffix(String key) {
-    int index = StringUtils.lastIndexOfAny(key, SUFFIXES);
-    if (index > 0) {
-      return key.substring(index);
-    } else {
-      console.println("Warning Key found without type suffix, skipping attribute: " + key);
-      return null;
-    }
-  }
-
-  /**
-   * Convert the string value to its given type
-   *
-   * @param attributeType attribute type
-   * @param attributeValue value of the attribute
-   * @return the attribute value as its coverted object type
-   */
-  private Object getValue(String attributeType, Object attributeValue) {
-    if (attributeType == null) {
-      return null;
-    }
-    switch (attributeType.toLowerCase()) {
-      case BINARY_SUFFIX:
-        return Base64.getDecoder().decode(String.valueOf(attributeValue));
-      case DATE_SUFFIX:
-        try {
-          return formatter.parse(String.valueOf(attributeValue));
-        } catch (ParseException e) {
-          console.println("Failed to parse date: " + attributeValue);
-          return null;
-        }
-      case INT_SUFFIX:
-        return new Double((double) attributeValue).intValue();
-      case LONG_SUFFIX:
-        return new Double((double) attributeValue).longValue();
-      case TEXT_SUFFIX:
-      case XML_SUFFIX:
-        return attributeValue;
-      default:
-        return null;
-    }
   }
 }
