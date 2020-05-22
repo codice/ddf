@@ -61,7 +61,7 @@ import ddf.security.Subject;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.Permissions;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -126,6 +126,8 @@ public class QueryOperations extends DescribableImpl {
   private long queryTimeoutMillis = 300000;
 
   protected SecurityLogger securityLogger;
+
+  private Permissions permissions;
 
   public QueryOperations(
       FrameworkProperties frameworkProperties,
@@ -365,7 +367,7 @@ public class QueryOperations extends DescribableImpl {
       Subject subject = (Subject) requestSubject;
 
       KeyValueCollectionPermission kvCollection =
-          new KeyValueCollectionPermissionImpl(
+          permissions.buildKeyValueCollectionPermission(
               CollectionPermission.READ_ACTION, securityAttributes);
       return subject.isPermitted(kvCollection);
     }
@@ -897,5 +899,9 @@ public class QueryOperations extends DescribableImpl {
 
   public void setSecurityLogger(SecurityLogger securityLogger) {
     this.securityLogger = securityLogger;
+  }
+
+  public void setPermissions(Permissions permissions) {
+    this.permissions = permissions;
   }
 }

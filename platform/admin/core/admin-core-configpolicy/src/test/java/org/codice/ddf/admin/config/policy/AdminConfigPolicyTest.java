@@ -22,6 +22,7 @@ import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
 import ddf.security.permission.impl.KeyValuePermissionImpl;
+import ddf.security.permission.impl.PermissionsImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ public class AdminConfigPolicyTest {
   public void testInvalidPolicyConfigs() {
 
     AdminConfigPolicy adminConfigPolicy = new AdminConfigPolicy();
+    adminConfigPolicy.setPermissions(new PermissionsImpl());
     adminConfigPolicy.setFeaturePolicies(getValidPolicyPermissions());
 
     for (int i = 0; i < 3; i++) {
@@ -60,6 +62,7 @@ public class AdminConfigPolicyTest {
   @Test
   public void testValidateAllPermissions() {
     AdminConfigPolicy adminConfigPolicy = new AdminConfigPolicy();
+    adminConfigPolicy.setPermissions(new PermissionsImpl());
     adminConfigPolicy.setFeaturePolicies(getValidPolicyPermissions());
     adminConfigPolicy.setServicePolicies(getValidPolicyPermissions());
 
@@ -93,6 +96,7 @@ public class AdminConfigPolicyTest {
   @Test
   public void testRemoveSomePermissions() {
     AdminConfigPolicy adminConfigPolicy = new AdminConfigPolicy();
+    adminConfigPolicy.setPermissions(new PermissionsImpl());
     List<String> featurePolicyPermissions = getValidPolicyPermissions();
     List<String> servicePolicyPermissions = getValidPolicyPermissions();
 
@@ -189,6 +193,7 @@ public class AdminConfigPolicyTest {
   @Test
   public void testRemoveUnknownAttribute() {
     AdminConfigPolicy adminConfigPolicy = new AdminConfigPolicy();
+    adminConfigPolicy.setPermissions(new PermissionsImpl());
     List<KeyValuePermission> matchOneServicePermissions = new ArrayList<>();
     matchOneServicePermissions.add(
         new KeyValuePermissionImpl(

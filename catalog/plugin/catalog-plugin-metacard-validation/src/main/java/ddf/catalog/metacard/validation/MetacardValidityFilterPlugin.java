@@ -35,7 +35,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.Permissions;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +72,8 @@ public class MetacardValidityFilterPlugin extends PreFederatedLocalProviderQuery
   private boolean filterErrors = true;
 
   private boolean filterWarnings = false;
+
+  private Permissions permissions;
 
   public MetacardValidityFilterPlugin(
       FilterBuilder filterBuilder, List<CatalogProvider> catalogProviders) {
@@ -195,7 +197,8 @@ public class MetacardValidityFilterPlugin extends PreFederatedLocalProviderQuery
 
     if (MapUtils.isNotEmpty(securityMap)) {
       KeyValueCollectionPermission securityPermission =
-          new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION, securityMap);
+          permissions.buildKeyValueCollectionPermission(
+              CollectionPermission.READ_ACTION, securityMap);
       return subject.isPermitted(securityPermission);
     } else {
       return false;
@@ -248,6 +251,10 @@ public class MetacardValidityFilterPlugin extends PreFederatedLocalProviderQuery
 
   public Map<String, List<String>> getAttributeMap() {
     return attributeMap;
+  }
+
+  public void setPermissions(Permissions permissions) {
+    this.permissions = permissions;
   }
 
   /**

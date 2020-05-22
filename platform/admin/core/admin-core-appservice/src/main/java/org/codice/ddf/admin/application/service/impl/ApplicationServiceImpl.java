@@ -15,8 +15,7 @@ package org.codice.ddf.admin.application.service.impl;
 
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
-import ddf.security.permission.impl.KeyValuePermissionImpl;
+import ddf.security.permission.Permissions;
 import ddf.security.service.SecurityServiceException;
 import java.io.File;
 import java.io.IOException;
@@ -73,6 +72,8 @@ public class ApplicationServiceImpl implements ApplicationService {
       Paths.get("etc", "application-definitions");
 
   private final Security security;
+
+  private Permissions permissions;
 
   public ApplicationServiceImpl(FeaturesService featuresService, Security security) {
     this.featuresService = featuresService;
@@ -178,9 +179,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
   public boolean isPermittedToViewFeature(String featureName) {
     KeyValueCollectionPermission serviceToCheck =
-        new KeyValueCollectionPermissionImpl(
+        permissions.buildKeyValueCollectionPermission(
             "view-feature.name",
-            new KeyValuePermissionImpl("feature.name", Sets.newHashSet(featureName)));
+            permissions.buildKeyValuePermission("feature.name", Sets.newHashSet(featureName)));
     try {
       return security.runWithSubjectOrElevate(
           () -> SecurityUtils.getSubject().isPermitted(serviceToCheck));
@@ -198,5 +199,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
   private static String computeLocation(Bundle bundle) {
     return BUNDLE_LOCATIONS.computeIfAbsent(bundle.getBundleId(), id -> bundle.getLocation());
+  }
+
+  public void setPermissions(Permissions permissions) {
+    this.permissions = permissions;
   }
 }

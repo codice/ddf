@@ -13,8 +13,11 @@
  */
 package ddf.security.permission.impl;
 
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 import ddf.security.permission.Permissions;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +33,7 @@ public class PermissionsImpl implements Permissions {
 
   public PermissionsImpl() {}
 
+  @Override
   public Map<String, Set<String>> parsePermissionsFromString(List<String> permStrings) {
     return parsePermissionsFromString(permStrings.toArray(new String[permStrings.size()]));
   }
@@ -39,6 +43,7 @@ public class PermissionsImpl implements Permissions {
    *
    * @param permStrings array of permission strings in the format "permName=val1,val2"
    */
+  @Override
   public Map<String, Set<String>> parsePermissionsFromString(String... permStrings) {
     Map<String, Set<String>> permissions = new HashMap<>();
     if (permStrings != null) {
@@ -57,6 +62,7 @@ public class PermissionsImpl implements Permissions {
     return permissions;
   }
 
+  @Override
   public List<String> getPermissionsAsStrings(Map<String, Set<String>> attributes) {
     if (attributes == null) {
       return Collections.emptyList();
@@ -71,5 +77,28 @@ public class PermissionsImpl implements Permissions {
       sb.setLength(0);
     }
     return stringAttributes;
+  }
+
+  @Override
+  public KeyValueCollectionPermission buildKeyValueCollectionPermission(
+      String action, KeyValuePermission... permissions) {
+    return new KeyValueCollectionPermissionImpl(action, permissions);
+  }
+
+  @Override
+  public KeyValueCollectionPermission buildKeyValueCollectionPermission(
+      String action, Map<String, ? extends Collection<String>> map) {
+    return new KeyValueCollectionPermissionImpl(action, map);
+  }
+
+  @Override
+  public KeyValueCollectionPermission buildKeyValueCollectionPermission(
+      String action, Collection<KeyValuePermission> permissions) {
+    return new KeyValueCollectionPermissionImpl(action, permissions);
+  }
+
+  @Override
+  public KeyValuePermission buildKeyValuePermission(String key, Set<String> values) {
+    return new KeyValuePermissionImpl(key, values);
   }
 }

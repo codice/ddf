@@ -31,7 +31,7 @@ import ddf.security.Subject;
 import ddf.security.SubjectOperations;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.Permissions;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +42,8 @@ import java.util.Set;
 public class OperationPlugin implements AccessPlugin {
 
   private SubjectOperations subjectOperations;
+
+  private Permissions permissions;
 
   @Override
   public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
@@ -115,7 +117,7 @@ public class OperationPlugin implements AccessPlugin {
     Map<String, Set<String>> perms =
         (Map<String, Set<String>>) operation.getPropertyValue(PolicyPlugin.OPERATION_SECURITY);
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION, perms);
+        permissions.buildKeyValueCollectionPermission(CollectionPermission.READ_ACTION, perms);
 
     if (!subject.isPermitted(securityPermission)) {
       String userName = "UNKNOWN";
@@ -129,5 +131,9 @@ public class OperationPlugin implements AccessPlugin {
 
   public void setSubjectOperations(SubjectOperations subjectOperations) {
     this.subjectOperations = subjectOperations;
+  }
+
+  public void setPermissions(Permissions permissions) {
+    this.permissions = permissions;
   }
 }

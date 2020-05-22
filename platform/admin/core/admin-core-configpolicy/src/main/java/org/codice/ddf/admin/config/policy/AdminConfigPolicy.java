@@ -17,8 +17,7 @@ import com.google.common.collect.Sets;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
-import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
-import ddf.security.permission.impl.KeyValuePermissionImpl;
+import ddf.security.permission.Permissions;
 import ddf.security.policy.extension.PolicyExtension;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.authz.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +44,8 @@ public class AdminConfigPolicy implements PolicyExtension {
   Map<String, List<KeyValueCollectionPermission>> featurePolicyPermissions = new HashMap<>();
 
   Map<String, List<KeyValueCollectionPermission>> servicePolicyPermissions = new HashMap<>();
+
+  private Permissions permissions;
 
   @Override
   public KeyValueCollectionPermission isPermittedMatchAll(
@@ -67,15 +67,16 @@ public class AdminConfigPolicy implements PolicyExtension {
       return matchOneCollection;
     }
 
-    List<Permission> newMatchOneCollectionPermissions =
-        new ArrayList<>(matchOneCollection.getPermissionList());
-    for (Permission permission : matchOneCollection.getPermissionList()) {
+    Set<KeyValuePermission> newMatchOneCollectionPermissions =
+        new HashSet<>(matchOneCollection.getKeyValuePermissionList());
+    List<KeyValuePermission> permissionList = matchOneCollection.getKeyValuePermissionList();
+    for (KeyValuePermission permission : permissionList) {
 
-      if (!(permission instanceof KeyValuePermission)) {
+      if (permission == null) {
         continue;
       }
 
-      String matchPermissionName = ((KeyValuePermission) permission).getKey();
+      String matchPermissionName = permission.getKey();
 
       Map<String, List<KeyValueCollectionPermission>> policyPermissions;
 
@@ -88,13 +89,13 @@ public class AdminConfigPolicy implements PolicyExtension {
       }
 
       Set<String> valuesToMatch = new HashSet<>();
-      valuesToMatch.addAll(((KeyValuePermission) permission).getValues());
+      valuesToMatch.addAll(permission.getValues());
 
       // Typically only one feature or service is desired to be permitted at a time but there is
       // support for multiple feature
       // If there are multiple features in the permission and one is not authorized, the user is not
       // authorized to see any of the features in the group
-      for (String matchPermissionValue : ((KeyValuePermission) permission).getValues()) {
+      for (String matchPermissionValue : permission.getValues()) {
         List<KeyValueCollectionPermission> matchOneAttributes =
             policyPermissions.get(matchPermissionValue);
 
@@ -117,9 +118,8 @@ public class AdminConfigPolicy implements PolicyExtension {
       }
     }
 
-    return new KeyValueCollectionPermissionImpl(
-        matchOneCollection.getAction(),
-        newMatchOneCollectionPermissions.stream().toArray(KeyValuePermissionImpl[]::new));
+    return permissions.buildKeyValueCollectionPermission(
+        matchOneCollection.getAction(), newMatchOneCollectionPermissions);
   }
 
   public void setFeaturePolicies(List<String> featurePolicies) {
@@ -157,8 +157,10 @@ public class AdminConfigPolicy implements PolicyExtension {
         String attributeValue = policyAttributeSplit[1];
 
         KeyValueCollectionPermission newPermission =
-            new KeyValueCollectionPermissionImpl(
-                null, new KeyValuePermissionImpl(attributeName, Sets.newHashSet(attributeValue)));
+            permissions.buildKeyValueCollectionPermission(
+                null,
+                permissions.buildKeyValuePermission(
+                    attributeName, Sets.newHashSet(attributeValue)));
         permissionAttributeMap.add(newPermission);
       }
 
@@ -169,5 +171,9 @@ public class AdminConfigPolicy implements PolicyExtension {
     }
 
     return newPolicyPermissions;
+  }
+
+  public void setPermissions(Permissions permissions) {
+    this.permissions = permissions;
   }
 }
