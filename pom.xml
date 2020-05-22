@@ -247,8 +247,7 @@
         <mina.version>2.0.6</mina.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
-        <netty.version>4.1.44.Final</netty.version>
-        <netty.codec.version>4.1.46.Final</netty.codec.version>
+        <netty.version>4.1.46.Final</netty.version>
         <objenesis.version>2.6</objenesis.version>
         <ogc-tools-gml-jts.version>1.1.90</ogc-tools-gml-jts.version>
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
