@@ -14,7 +14,10 @@
  **/
 
 import React from 'react'
-import { Sharing } from '../../react-component/sharing'
+import {
+  Sharing,
+  handleRemoveSharedMetacard,
+} from '../../react-component/sharing'
 
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
@@ -84,6 +87,13 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
           <div className="interaction-icon fa fa-trash-o" />
           <div className="interaction-text">Delete {formTitle}</div>
         </div>
+        <div
+          className="search-form-interaction interaction-remove-share"
+          data-help={`Leave search ${formTitleLowerCase}.`}
+        >
+          <div className="interaction-icon fa fa-trash-o" />
+          <div className="interaction-text">Leave Shared {formTitle}</div>
+        </div>
       </React.Fragment>
     )
   },
@@ -98,6 +108,7 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
     'click .interaction-trash': 'handleTrash',
     'click .interaction-share': 'handleShare',
     'click .interaction-edit': 'handleEdit',
+    'click .interaction-remove-share': 'handleRemoveSharedForm',
     click: 'handleClick',
   },
   ui: {},
@@ -124,6 +135,44 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
       !user.canShare(this.model)
     )
     this.$el.toggleClass('is-not-editable-template', !user.canWrite(this.model))
+    this.$el.toggleClass(
+      'is-not-shared-template',
+      this.model.get('createdBy') === 'system' ||
+        this.model.get('createdBy') === user.getUserId() ||
+        user.hasGroupAccess(this.model)
+    )
+  },
+  handleRemoveSharedForm() {
+    this.listenTo(
+      ConfirmationView.generateConfirmation({
+        prompt: `This will permanently remove your access to the shared ${formTitleLowerCase}. Would you like to continue?`,
+        no: 'Cancel',
+        yes: 'Remove',
+      }),
+      'change:choice',
+      confirmation => {
+        if (confirmation.get('choice')) {
+          let loadingview = new LoadingView()
+          const id = this.model.get('id')
+          handleRemoveSharedMetacard(id).then(res => {
+            if (res.status !== 200) {
+              announcement.announce(
+                {
+                  title: 'Error',
+                  message: `Unable to leave the ${formsTitleLowerCase}`,
+                  type: 'error',
+                },
+                2500
+              )
+            } else {
+              this.model.trigger('destroy', this.model, this.model.collection)
+            }
+            loadingview.remove()
+          })
+        }
+      }
+    )
+    this.trigger('doneLoading')
   },
   handleTrash() {
     this.listenTo(

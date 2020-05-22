@@ -13,10 +13,13 @@
  */
 package org.codice.ddf.catalog.ui.security.accesscontrol;
 
+import static ddf.catalog.Constants.OPERATION_TRANSACTION_KEY;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AclTestSupport.metacardFromAttributes;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -24,11 +27,16 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
+import ddf.security.SubjectIdentity;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.catalog.ui.security.Constants;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,10 +50,18 @@ public class AccessControlPolicyPluginTest {
 
   private static final Serializable MOCK_ID = "100";
 
+  private SubjectIdentity subjectIdentity;
+
   @Before
   public void setUp() {
     properties = mock(Map.class);
-    plugin = new AccessControlPolicyPlugin();
+    subjectIdentity = mock(SubjectIdentity.class);
+    Subject subject = mock(Subject.class);
+    ThreadContext.unbindSubject();
+    when(subjectIdentity.getIdentityAttribute()).thenReturn(Constants.EMAIL_ADDRESS_CLAIM_URI);
+    when(subjectIdentity.getUniqueIdentifier(subject)).thenReturn("owner@owner.com");
+    ThreadContext.bind(subject);
+    plugin = new AccessControlPolicyPlugin(subjectIdentity);
   }
 
   @Test
@@ -116,6 +132,55 @@ public class AccessControlPolicyPluginTest {
                 Collections.singleton("owner@owner.com"),
                 SecurityAttributes.ACCESS_INDIVIDUALS_READ,
                 Collections.singleton("owner@owner.com"),
+                Core.METACARD_OWNER,
+                Collections.singleton("owner"))));
+  }
+
+  @Test
+  public void testPolicyMapForUserAccessRemove() throws Exception {
+    Metacard metacard =
+        metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_ID,
+                Core.METACARD_OWNER,
+                "owner",
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of("group"),
+                SecurityAttributes.ACCESS_ADMINISTRATORS,
+                ImmutableList.of("notowner@owner.com")));
+
+    Metacard oldMetacard =
+        metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_ID,
+                Core.METACARD_OWNER,
+                "owner",
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of("group"),
+                SecurityAttributes.ACCESS_ADMINISTRATORS,
+                ImmutableList.of("owner@owner.com", "notowner@owner.com")));
+
+    OperationTransaction operationProperties = mock(OperationTransaction.class);
+
+    doReturn(operationProperties).when(properties).get(OPERATION_TRANSACTION_KEY);
+    doReturn(Collections.singletonList(oldMetacard))
+        .when(operationProperties)
+        .getPreviousStateMetacards();
+
+    PolicyResponse response = plugin.processPreUpdate(metacard, properties);
+
+    assertThat(
+        response.itemPolicy(),
+        is(
+            ImmutableMap.of(
+                "remove-user-access",
+                Collections.singleton("owner@owner.com"),
+                SecurityAttributes.ACCESS_GROUPS,
+                Collections.singleton("group"),
+                SecurityAttributes.ACCESS_ADMINISTRATORS,
+                Collections.singleton("notowner@owner.com"),
                 Core.METACARD_OWNER,
                 Collections.singleton("owner"))));
   }

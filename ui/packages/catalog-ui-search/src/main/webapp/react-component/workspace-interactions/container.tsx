@@ -16,7 +16,7 @@ import * as React from 'react'
 import WorkspaceInteractionsPresentation from './presentation'
 import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
-import { Sharing } from '../sharing'
+import { Sharing, handleRemoveSharedMetacard } from '../sharing'
 import { Security, Restrictions } from '../utils/security'
 const user = require('../../component/singletons/user-instance.js')
 const store = require('../../js/store.js')
@@ -24,6 +24,7 @@ const lightboxInstance = require('../../component/lightbox/lightbox.view.instanc
 const wreqr = require('../../js/wreqr.js')
 const LoadingView = require('../../component/loading/loading.view.js')
 const ConfirmationView = require('../../component/confirmation/confirmation.view.js')
+const announcement = require('../../component/announcement/index.jsx')
 
 type Props = {
   workspace: any
@@ -65,8 +66,45 @@ class WorkspaceInteractions extends React.Component<Props, State> {
   isShareable = () => {
     return user.canShare(this.props.workspace)
   }
+  isShared = () => {
+    return this.props.workspace.get('metacard.owner') !== user.getUserId()
+  }
+  hasGroupAccess = () => {
+    return user.hasGroupAccess(this.props.workspace)
+  }
   isDeletable = () => {
     return user.canWrite(this.props.workspace)
+  }
+  removeSharedForm = () => {
+    this.props.listenTo(
+      ConfirmationView.generateConfirmation({
+        prompt: `This will permanently remove your access to the shared workspace. Would you like to continue?`,
+        no: 'Cancel',
+        yes: 'Remove',
+      }),
+      'change:choice',
+      (confirmation: any) => {
+        if (confirmation.get('choice')) {
+          let loadingview = new LoadingView()
+          handleRemoveSharedMetacard(this.props.workspace.id).then(res => {
+            if (res.status !== 200) {
+              announcement.announce(
+                {
+                  title: 'Error',
+                  message: 'Unable to leave the $workspace',
+                  type: 'error',
+                },
+                2500
+              )
+              throw new Error()
+            } else {
+              this.props.workspace.destroyLocal()
+            }
+            loadingview.remove()
+          })
+        }
+      }
+    )
   }
   runAllSearches = () => {
     store.clearOtherWorkspaces(this.props.workspace.id)
@@ -189,6 +227,8 @@ class WorkspaceInteractions extends React.Component<Props, State> {
         isShareable={this.isShareable()}
         isDeletable={this.isDeletable()}
         isSubscribed={subscribed}
+        isShared={this.isShared()}
+        hasGroupAccess={this.hasGroupAccess()}
         saveWorkspace={this.saveWorkspace}
         runAllSearches={this.runAllSearches}
         cancelAllSearches={this.cancelAllSearches}
@@ -199,6 +239,7 @@ class WorkspaceInteractions extends React.Component<Props, State> {
         viewDetails={this.viewDetails}
         duplicateWorkspace={this.duplicateWorkspace}
         deletionPrompt={this.deletionPrompt}
+        removeSharedForm={this.removeSharedForm}
       />
     )
   }

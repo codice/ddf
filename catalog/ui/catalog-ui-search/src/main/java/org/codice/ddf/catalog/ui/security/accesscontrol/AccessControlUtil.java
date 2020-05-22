@@ -110,7 +110,7 @@ public class AccessControlUtil {
    * @param attribute the name of the attribute to check.
    * @return true if the given attribute changed across versions of the metacard, false otherwise.
    */
-  private static boolean attributeHasChanged(
+  public static boolean attributeHasChanged(
       Metacard oldMetacard, Metacard newMetacard, String attribute) {
     return !Sets.symmetricDifference(
             ATTRIBUTE_TO_SET.apply(oldMetacard, attribute),

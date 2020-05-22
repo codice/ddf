@@ -25,6 +25,7 @@ import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.OWNER_HAS_CHANGED;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.isAnyObjectNull;
 
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
@@ -39,10 +40,14 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SubjectIdentity;
+import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -104,6 +109,36 @@ public class AccessControlAccessPlugin implements AccessPlugin {
     return !isAnyObjectNull(prev, updated) && OWNER_HAS_CHANGED.apply(prev, updated);
   }
 
+  private boolean hasRemoveAccess(Metacard updated) {
+    Attribute attr = updated.getAttribute(Metacard.SECURITY);
+    if (attr == null) {
+      return false;
+    }
+    Map<String, Set<String>> map = (Map<String, Set<String>>) attr.getValue();
+    if (map == null) {
+      return false;
+    }
+    KeyValueCollectionPermission securityPermission =
+        new KeyValueCollectionPermission(CollectionPermission.UPDATE_ACTION, map);
+    return securityPermission
+        .getPermissionList()
+        .stream()
+        .filter(p -> p instanceof KeyValuePermission)
+        .map(p -> (KeyValuePermission) p)
+        .anyMatch(
+            p ->
+                "remove-user-access".equals(p.getKey())
+                    && p.getValues().contains(subjectSupplier.get()));
+  }
+
+  private void addRemoveAccess(Metacard prev, Metacard updated) {
+    Map<String, Set<String>> prevMap =
+        (Map<String, Set<String>>) prev.getAttribute(Metacard.SECURITY).getValue();
+    Map<String, Set<String>> updatedMap =
+        (Map<String, Set<String>>) updated.getAttribute(Metacard.SECURITY).getValue();
+    prevMap.put("remove-user-access", updatedMap.get("remove-user-access"));
+  }
+
   @Override
   public CreateRequest processPreCreate(CreateRequest input) {
     return input;
@@ -130,12 +165,20 @@ public class AccessControlAccessPlugin implements AccessPlugin {
       throw new StopProcessingException(FAILURE_OWNER_CANNOT_CHANGE);
     }
 
+    newMetacards
+        .stream()
+        .filter(newVersionOfMetacard -> hasRemoveAccess(newVersionOfMetacard))
+        .forEach(
+            newVersionOfMetacard ->
+                addRemoveAccess(oldMetacard.apply(newVersionOfMetacard), newVersionOfMetacard));
+
     if (newMetacards
         .stream()
         .filter(
             newVersionOfMetacard ->
                 isAccessControlUpdated(
                     oldMetacard.apply(newVersionOfMetacard), newVersionOfMetacard))
+        .filter(newVersionOfMetacard -> !hasRemoveAccess(newVersionOfMetacard))
         .filter(Objects::nonNull)
         .map(oldMetacard)
         .filter(Objects::nonNull)
