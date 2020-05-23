@@ -12,45 +12,28 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
+import * as React from 'react'
+import SortSelections from '../../react-component/query-sort-selection/sort-selections'
 const Marionette = require('marionette')
-const CustomElements = require('../../js/CustomElements.js')
-const SortItemCollectionView = require('../sort-item/sort-item.collection.view.js')
-const template = require('./sort.hbs')
 
 module.exports = Marionette.LayoutView.extend({
-  template,
-  tagName: CustomElements.register('sort'),
-  regions: {
-    sorts: '.sorts',
-  },
-  events: {
-    'click .sort-add': 'handleAdd',
-  },
-  handleAdd() {
-    this.childView.collection.add({
-      attribute: this.getNextAttribute(),
-      direction: 'descending',
-    })
-  },
-  getNextAttribute() {
-    let filtered = this.childView.children
-      .findByModel(this.collection.models[0])
-      .sortAttributes.filter(type => {
-        let sorts = this.childView.collection.filter(sort => {
-          return sort.get('attribute') === type.value
-        })
-        return sorts.length === 0
-      })
-    return filtered[0].value
-  },
-  initialize() {
-    this.childView = new SortItemCollectionView({
-      collection: this.collection,
-      showBestTextOption: this.options.showBestTextOption,
-    })
-  },
-  onBeforeShow() {
-    this.showChildView('sorts', this.childView)
+  template() {
+    return (
+      <React.Fragment>
+        <label
+          style={{
+            textAlign: 'left',
+            padding: '0 1.5rem',
+            fontWeight: 'bolder',
+          }}
+        >
+          Sort
+        </label>
+        <SortSelections
+          collection={this.collection}
+          showBestTextOption={this.options.showBestTextOption}
+        />
+      </React.Fragment>
+    )
   },
 })
