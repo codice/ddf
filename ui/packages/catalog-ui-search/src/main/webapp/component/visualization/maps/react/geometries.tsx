@@ -24,11 +24,11 @@ export type ClusterType = {
 const Geometries = (props: Props) => {
   console.log('rendering geometries')
   const { map, selectionInterface, isClustering } = props
-  const lazySelectionInterface = useLazySelectionInterface({
-    key: 'search',
-  })
-  const lazySelectionInterfaceRef = React.useRef(lazySelectionInterface)
-  lazySelectionInterfaceRef.current = lazySelectionInterface
+  // const lazySelectionInterface = useLazySelectionInterface({
+  //   key: 'search',
+  // })
+  // const lazySelectionInterfaceRef = React.useRef(lazySelectionInterface)
+  // lazySelectionInterfaceRef.current = lazySelectionInterface
   const lazyResults = useLazyResults({ selectionInterface })
   const lazyResultsRef = React.useRef(lazyResults)
   lazyResultsRef.current = lazyResults

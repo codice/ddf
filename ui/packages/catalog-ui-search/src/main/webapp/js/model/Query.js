@@ -337,7 +337,7 @@ Query.Model = PartialAssociatedModel.extend({
       id: src,
     }))
     let result
-    if (this.get('result') && this.get('result').get('results')) {
+    if (false && this.get('result') && this.get('result').get('results')) {
       result = this.get('result')
       result.emptyQueue()
       result.setColor(this.getColor())

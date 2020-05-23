@@ -85,7 +85,8 @@ export const useLazyResultStatus = ({
         listenTo(
           selectionInterface.get('currentQuery'),
           'sync:result request:result error:result',
-          () => {
+          function() {
+            console.log(arguments)
             const currentQuery = selectionInterface.get('currentQuery')
             const result = currentQuery.get('result')
             if (result) {
@@ -116,7 +117,7 @@ export const useLazyResultStatus = ({
 }
 
 export const useLazyResults = ({ selectionInterface }: useLazyResultsProps) => {
-  const { listenTo, listenToOnce } = useBackbone()
+  const { listenTo } = useBackbone()
   const [lazyResults, setLazyResults] = React.useState(
     getLazyResultsFromSelectionInterface({
       selectionInterface,
@@ -137,35 +138,22 @@ export const useLazyResults = ({ selectionInterface }: useLazyResultsProps) => {
     }
   }, [])
   React.useEffect(() => {
-    const listenToCurrentQuery = () => {
-      if (selectionInterface.get('currentQuery')) {
-        listenTo(
-          selectionInterface.get('currentQuery'),
-          'sync:result request:result error:result',
-          () => {
-            const currentQuery = selectionInterface.get('currentQuery')
-            const result = currentQuery.get('result')
-            if (result) {
-              smartSet(
-                getLazyResultsFromSelectionInterface({ selectionInterface })
-              )
-              if (result.isSearching() && !result.isJustSearching()) {
-                smartSet(
-                  getLazyResultsFromSelectionInterface({ selectionInterface })
-                )
-              }
-            }
+    listenTo(
+      selectionInterface,
+      'sync:currentQuery>result request:currentQuery>result error:currentQuery>result',
+      () => {
+        const currentQuery = selectionInterface.get('currentQuery')
+        const result = currentQuery.get('result')
+        if (result) {
+          smartSet(getLazyResultsFromSelectionInterface({ selectionInterface }))
+          if (result.isSearching() && !result.isJustSearching()) {
+            smartSet(
+              getLazyResultsFromSelectionInterface({ selectionInterface })
+            )
           }
-        )
+        }
       }
-    }
-    if (selectionInterface.get('currentQuery')) {
-      listenToCurrentQuery()
-    } else {
-      listenToOnce(selectionInterface, 'change:currentQuery', () => {
-        listenToCurrentQuery()
-      })
-    }
+    )
   }, [])
   return lazyResults
 }

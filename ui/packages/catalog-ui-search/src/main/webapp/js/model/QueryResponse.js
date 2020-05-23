@@ -328,10 +328,10 @@ module.exports = Backbone.AssociatedModel.extend({
     cancelAnimationFrame(this.processQueueTimeoutId)
     this.processQueueTimeoutId = undefined
     this.set('processingResults', false)
-    this.trigger('sync')
     this.lazyResults = {}
     this.queuedResults = []
     this.processedResults = []
+    this.trigger('sync')
   },
   addToQueue(results) {
     /**
@@ -490,7 +490,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   mergeNewResults() {
     this.mergeQueue(true)
-    this.trigger('sync')
+    // this.trigger('sync')
   },
   handleCurrentlyViewed() {
     if (!this.get('currentlyViewed') && !this.get('merged')) {
