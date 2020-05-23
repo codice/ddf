@@ -345,17 +345,48 @@ module.exports = function OpenlayersMap(
       })
       feature.setId(options.id)
 
-      feature.setStyle(
-        new Openlayers.style.Style({
-          image: new Openlayers.style.Icon({
-            img: DrawingUtility.getCircleWithText({
-              fillColor: options.color,
-              text: options.id.length,
-            }),
-            imgSize: [44, 44],
+      feature.unselectedStyle = new Openlayers.style.Style({
+        image: new Openlayers.style.Icon({
+          img: DrawingUtility.getCircleWithText({
+            fillColor: options.color,
+            text: options.id.length,
           }),
-        })
-      )
+          imgSize: [44, 44],
+        }),
+      })
+      feature.partiallySelectedStyle = new Openlayers.style.Style({
+        image: new Openlayers.style.Icon({
+          img: DrawingUtility.getCircleWithText({
+            fillColor: options.color,
+            text: options.id.length,
+            strokeColor: 'black',
+            textColor: 'white',
+          }),
+          imgSize: [44, 44],
+        }),
+      })
+      feature.selectedStyle = new Openlayers.style.Style({
+        image: new Openlayers.style.Icon({
+          img: DrawingUtility.getCircleWithText({
+            fillColor: options.color,
+            text: options.id.length,
+            strokeColor: 'black',
+            textColor: 'black',
+          }),
+          imgSize: [44, 44],
+        }),
+      })
+      switch (options.isSelected) {
+        case 'selected':
+          feature.setStyle(feature.selectedStyle)
+          break
+        case 'partially':
+          feature.setStyle(feature.partiallySelectedStyle)
+          break
+        case 'unselected':
+          feature.setStyle(feature.unselectedStyle)
+          break
+      }
 
       const vectorSource = new Openlayers.source.Vector({
         features: [feature],
@@ -388,22 +419,19 @@ module.exports = function OpenlayersMap(
         x = options.size.x
         y = options.size.y
       }
-      feature.setStyle(
-        new Openlayers.style.Style({
-          image: new Openlayers.style.Icon({
-            img: DrawingUtility.getPin({
-              fillColor: options.color,
-              icon: options.icon,
-            }),
-            imgSize: [x, y],
-            anchor: [x / 2, 0],
-            anchorOrigin: 'bottom-left',
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
+      feature.unselectedStyle = new Openlayers.style.Style({
+        image: new Openlayers.style.Icon({
+          img: DrawingUtility.getPin({
+            fillColor: options.color,
+            icon: options.icon,
           }),
-        })
-      )
-      feature.unselectedStyle = feature.getStyle()
+          imgSize: [x, y],
+          anchor: [x / 2, 0],
+          anchorOrigin: 'bottom-left',
+          anchorXUnits: 'pixels',
+          anchorYUnits: 'pixels',
+        }),
+      })
       feature.selectedStyle = new Openlayers.style.Style({
         image: new Openlayers.style.Icon({
           img: DrawingUtility.getPin({
@@ -418,6 +446,9 @@ module.exports = function OpenlayersMap(
           anchorYUnits: 'pixels',
         }),
       })
+      feature.setStyle(
+        options.isSelected ? feature.selectedStyle : feature.unselectedStyle
+      )
 
       const vectorSource = new Openlayers.source.Vector({
         features: [feature],
@@ -446,23 +477,34 @@ module.exports = function OpenlayersMap(
         name: options.title,
       })
       feature.setId(options.id)
-
-      const styles = [
+      const commonStyle = new Openlayers.style.Style({
+        stroke: new Openlayers.style.Stroke({
+          color: options.color || defaultColor,
+          width: 4,
+        }),
+      })
+      feature.unselectedStyle = [
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
             color: 'white',
             width: 8,
           }),
         }),
+        commonStyle,
+      ]
+      feature.selectedStyle = [
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
-            color: options.color || defaultColor,
-            width: 4,
+            color: 'black',
+            width: 8,
           }),
         }),
+        commonStyle,
       ]
 
-      feature.setStyle(styles)
+      feature.setStyle(
+        options.isSelected ? feature.selectedStyle : feature.unselectedStyle
+      )
 
       const vectorSource = new Openlayers.source.Vector({
         features: [feature],
@@ -495,19 +537,13 @@ module.exports = function OpenlayersMap(
         const geometryInstance = feature.getGeometry()
         if (geometryInstance.constructor === Openlayers.geom.Point) {
           geometry.setZIndex(options.isSelected ? 2 : 1)
-          feature.setStyle(
-            new Openlayers.style.Style({
-              image: new Openlayers.style.Icon({
-                img: DrawingUtility.getCircleWithText({
-                  fillColor: options.color,
-                  strokeColor: options.outline,
-                  text: options.count,
-                  textColor: options.textFill,
-                }),
-                imgSize: [44, 44],
-              }),
-            })
-          )
+          if (options.isSelected) {
+            feature.setStyle(feature.selectedStyle)
+          } else if (options.strokeColor === 'black') {
+            feature.setStyle(feature.partiallySelectedStyle)
+          } else {
+            feature.setStyle(feature.unselectedStyle)
+          }
         } else if (
           geometryInstance.constructor === Openlayers.geom.LineString
         ) {
@@ -546,40 +582,12 @@ module.exports = function OpenlayersMap(
           feature.setStyle(
             options.isSelected ? feature.selectedStyle : feature.unselectedStyle
           )
-          // feature.setStyle(
-          //   new Openlayers.style.Style({
-          //     image: new Openlayers.style.Icon({
-          //       img: DrawingUtility.getPin({
-          //         fillColor: options.color,
-          //         strokeColor: options.isSelected ? 'black' : 'white',
-          //         icon: options.icon,
-          //       }),
-          //       imgSize: [x, y],
-          //       anchor: [x / 2, 0],
-          //       anchorOrigin: 'bottom-left',
-          //       anchorXUnits: 'pixels',
-          //       anchorYUnits: 'pixels',
-          //     }),
-          //   })
-          // )
         } else if (
           geometryInstance.constructor === Openlayers.geom.LineString
         ) {
-          const styles = [
-            new Openlayers.style.Style({
-              stroke: new Openlayers.style.Stroke({
-                color: options.isSelected ? 'black' : 'white',
-                width: 8,
-              }),
-            }),
-            new Openlayers.style.Style({
-              stroke: new Openlayers.style.Stroke({
-                color: options.color || defaultColor,
-                width: 4,
-              }),
-            }),
-          ]
-          feature.setStyle(styles)
+          feature.setStyle(
+            options.isSelected ? feature.selectedStyle : feature.unselectedStyle
+          )
         }
       }
     },

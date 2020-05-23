@@ -286,6 +286,7 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
   processQueue() {
+    return
     if (this.processQueueTimeoutId !== undefined) {
       return
     }

@@ -28,7 +28,8 @@ const determineIfClustered = ({
     clusters.find(cluster =>
       Boolean(
         cluster.results.find(
-          clusteredResult => clusteredResult.plain.id === result.plain.id
+          clusteredResult =>
+            clusteredResult['metacard.id'] === result['metacard.id']
         )
       )
     )
@@ -70,6 +71,7 @@ const Geometry = ({ lazyResult, map, clusters }: Props) => {
           title: lazyResult.plain.metacard.properties.title,
           color,
           icon,
+          isSelected,
         })
       )
     }
@@ -82,6 +84,7 @@ const Geometry = ({ lazyResult, map, clusters }: Props) => {
           id: lazyResult['metacard.id'],
           title: lazyResult.plain.metacard.properties.title,
           color,
+          isSelected,
         })
       )
     }
@@ -162,17 +165,13 @@ const Geometry = ({ lazyResult, map, clusters }: Props) => {
   const updateDisplay = React.useMemo(() => {
     return _debounce(
       (updateIsSelected: boolean) => {
-        if (!isClustered.current) {
-          const now = Date.now()
-          geometries.current.forEach(geometry => {
-            map.updateGeometry(geometry, {
-              color,
-              icon,
-              isSelected: updateIsSelected,
-            })
+        geometries.current.forEach(geometry => {
+          map.updateGeometry(geometry, {
+            color,
+            icon,
+            isSelected: updateIsSelected,
           })
-          console.log(`time to select: ${Date.now() - now}`)
-        }
+        })
       },
       100,
       {

@@ -21,7 +21,7 @@ const getLazyResultsFromSelectionInterface = ({
   if (!result) {
     return {}
   }
-  return { ...result.lazyResults }
+  return result.lazyResults
 }
 
 const calcProgress = ({ selectionInterface }: useLazyResultsProps) => {
@@ -122,6 +122,20 @@ export const useLazyResults = ({ selectionInterface }: useLazyResultsProps) => {
       selectionInterface,
     })
   )
+  const lazyResultsRef = React.useRef(lazyResults)
+  const smartSet = React.useMemo(() => {
+    return (update: LazyResultsType) => {
+      if (
+        Object.keys(lazyResultsRef.current).length === 0 &&
+        Object.keys(update).length === 0
+      ) {
+        return
+      }
+      setLazyResults({
+        ...update,
+      })
+    }
+  }, [])
   React.useEffect(() => {
     const listenToCurrentQuery = () => {
       if (selectionInterface.get('currentQuery')) {
@@ -132,12 +146,11 @@ export const useLazyResults = ({ selectionInterface }: useLazyResultsProps) => {
             const currentQuery = selectionInterface.get('currentQuery')
             const result = currentQuery.get('result')
             if (result) {
-              setLazyResults(
+              smartSet(
                 getLazyResultsFromSelectionInterface({ selectionInterface })
               )
-
               if (result.isSearching() && !result.isJustSearching()) {
-                setLazyResults(
+                smartSet(
                   getLazyResultsFromSelectionInterface({ selectionInterface })
                 )
               }
@@ -241,7 +254,7 @@ export const useLazySelectionInterface = ({
 
   const remove = (results: LazyQueryResult[]) => {
     results.forEach(result => {
-      delete collection[result.plain.id]
+      delete collection[result['metacard.id']]
       result.setSelected(false)
     })
     const update = {
@@ -253,11 +266,11 @@ export const useLazySelectionInterface = ({
 
   const toggle = (results: LazyQueryResult[]) => {
     results.forEach(result => {
-      if (collection[result.plain.id]) {
-        delete collection[result.plain.id]
+      if (collection[result['metacard.id']]) {
+        delete collection[result['metacard.id']]
         result.setSelected(false)
       } else {
-        collection[result.plain.id] = result
+        collection[result['metacard.id']] = result
         result.setSelected(true)
       }
     })

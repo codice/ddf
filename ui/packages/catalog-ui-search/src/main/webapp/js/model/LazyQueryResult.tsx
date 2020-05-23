@@ -54,6 +54,20 @@ function humanizeResourceSize(plain: ResultType) {
   }
 }
 
+/**
+ * Add defaults, etc.  We need to make sure everything has a tag at the very least
+ */
+const transformPlain = ({
+  plain,
+}: {
+  plain: LazyQueryResult['plain']
+}): LazyQueryResult['plain'] => {
+  if (!plain.metacard.properties['metacard-tags']) {
+    plain.metacard.properties['metacard-tags'] = ['resource']
+  }
+  return plain
+}
+
 export class LazyQueryResult {
   plain: ResultType
   backbone?: any
@@ -65,7 +79,7 @@ export class LazyQueryResult {
   isSelected: boolean
   constructor(plain: ResultType) {
     this.type = 'query-result'
-    this.plain = plain
+    this.plain = transformPlain({ plain })
     this.isResourceLocal = false || plain.isResourceLocal
     this.subscriptions = {}
     this.selectionSubscriptions = {}
@@ -243,6 +257,67 @@ export const useSelectionOfLazyResult = ({
     })
     return () => {
       lazyResult.unsubscribeFromSelection(id)
+    }
+  }, [])
+  return isSelected
+}
+
+type useSelectionOfLazyResultsReturn = 'unselected' | 'partially' | 'selected'
+
+export const useSelectionOfLazyResults = ({
+  lazyResults,
+}: {
+  lazyResults: LazyQueryResult[]
+}) => {
+  const cache = React.useRef(
+    lazyResults.reduce(
+      (blob, lazyResult) => {
+        blob[lazyResult['metacard.id']] = lazyResult.isSelected
+        return blob
+      },
+      {} as { [key: string]: boolean }
+    )
+  )
+  const calculateIfSelected = React.useMemo(() => {
+    return () => {
+      const currentValues = Object.values(cache.current)
+      let baseline = currentValues[0]
+      let updateToIsSelected = baseline
+        ? 'selected'
+        : ('unselected' as useSelectionOfLazyResultsReturn)
+      for (let i = 1; i <= currentValues.length - 1; i++) {
+        if (baseline !== currentValues[i]) {
+          updateToIsSelected = 'partially'
+          break
+        }
+      }
+      return updateToIsSelected
+    }
+  }, [])
+  const debouncedUpdatedIsSelected = React.useMemo(() => {
+    return _.debounce(() => {
+      setIsSelected(calculateIfSelected())
+    }, 100)
+  }, [])
+
+  const [isSelected, setIsSelected] = React.useState(
+    calculateIfSelected() as useSelectionOfLazyResultsReturn
+  )
+
+  React.useEffect(() => {
+    const unsubscribeCalls = lazyResults.map(lazyResult => {
+      const id = lazyResult.subscribeToSelection(() => {
+        cache.current[lazyResult['metacard.id']] = lazyResult.isSelected
+        debouncedUpdatedIsSelected()
+      })
+      return () => {
+        lazyResult.unsubscribeFromSelection(id)
+      }
+    })
+    return () => {
+      unsubscribeCalls.forEach(unsubscribeCall => {
+        unsubscribeCall()
+      })
     }
   }, [])
   return isSelected

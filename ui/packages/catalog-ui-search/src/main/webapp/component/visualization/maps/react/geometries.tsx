@@ -22,6 +22,7 @@ export type ClusterType = {
 }
 
 const Geometries = (props: Props) => {
+  console.log('rendering geometries')
   const { map, selectionInterface, isClustering } = props
   const lazySelectionInterface = useLazySelectionInterface({
     key: 'search',
@@ -33,21 +34,43 @@ const Geometries = (props: Props) => {
   lazyResultsRef.current = lazyResults
   const [clusters, setClusters] = React.useState([] as ClusterType[])
   React.useEffect(() => {
-    const handleShiftClick = (id: string) => {
+    const handleShiftClick = (id: string | string[]) => {
       if (id.constructor === String) {
-        //   selectionInterface.addSelectedResult(this.collection.get(id))
+        lazySelectionInterfaceRef.current.add([
+          lazyResultsRef.current[id as string],
+        ])
+      } else {
+        lazySelectionInterfaceRef.current.add(
+          (id as string[]).map(subid => {
+            return lazyResultsRef.current[subid]
+          })
+        )
       }
     }
-    const handleCtrlClick = (id: string) => {
+    const handleCtrlClick = (id: string | string[]) => {
       if (id.constructor === String) {
-        // selectionInterface.addSelectedResult(
-        //   this.collection.get(id)
-        // )
+        lazySelectionInterfaceRef.current.add([
+          lazyResultsRef.current[id as string],
+        ])
+      } else {
+        lazySelectionInterfaceRef.current.add(
+          (id as string[]).map(subid => {
+            return lazyResultsRef.current[subid]
+          })
+        )
       }
     }
-    const handleClick = (id: string) => {
+    const handleClick = (id: string | string[]) => {
       if (id.constructor === String) {
-        lazySelectionInterfaceRef.current.set([lazyResultsRef.current[id]])
+        lazySelectionInterfaceRef.current.set([
+          lazyResultsRef.current[id as string],
+        ])
+      } else {
+        lazySelectionInterfaceRef.current.set(
+          (id as string[]).map(subid => {
+            return lazyResultsRef.current[subid]
+          })
+        )
       }
     }
     const handleLeftClick = (event: any, mapEvent: any) => {
@@ -56,6 +79,13 @@ const Geometries = (props: Props) => {
         mapEvent.mapTarget !== 'userDrawing' &&
         !Drawing.isDrawing()
       ) {
+        // we get click events on normal drawn features from the location drawing
+        if (
+          mapEvent.mapTarget.constructor === String &&
+          mapEvent.mapTarget.length < 8
+        ) {
+          return
+        }
         if (event.shiftKey) {
           handleShiftClick(mapEvent.mapTarget)
         } else if (event.ctrlKey || event.metaKey) {
@@ -90,17 +120,10 @@ const Geometries = (props: Props) => {
   const Clusters = React.useMemo(
     () => {
       return clusters.map(cluster => {
-        return (
-          <Cluster
-            key={cluster.id}
-            cluster={cluster}
-            selectionInterface={selectionInterface}
-            map={map}
-          />
-        )
+        return <Cluster key={cluster.id} cluster={cluster} map={map} />
       })
     },
-    [clusters]
+    [clusters, lazyResults]
   )
 
   const CalculateClustersMemo = React.useMemo(

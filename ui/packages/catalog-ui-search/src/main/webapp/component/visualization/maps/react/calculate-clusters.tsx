@@ -88,14 +88,12 @@ const CalculateClusters = ({
           return {
             results: calculatedCluster,
             id: calculatedCluster
-              .map(result => result.plain.id)
+              .map(result => result['metacard.id'])
               .sort()
               .toString(),
           }
         })
       )
-    } else {
-      setClusters([])
     }
   }, 200)
 
