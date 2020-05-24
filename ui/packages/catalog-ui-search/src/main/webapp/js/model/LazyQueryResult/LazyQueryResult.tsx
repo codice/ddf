@@ -69,6 +69,9 @@ const transformPlain = ({
 }
 
 export class LazyQueryResult {
+  index: number
+  prev?: LazyQueryResult
+  next?: LazyQueryResult
   parent?: LazyQueryResults
   plain: ResultType
   backbone?: any
@@ -239,7 +242,9 @@ export class LazyQueryResult {
   subscribeToSelection(callback: () => void) {
     const id = Math.random().toString()
     this.selectionSubscriptions[id] = callback
-    return id
+    return () => {
+      this.unsubscribeFromSelection(id)
+    }
   }
   unsubscribeFromSelection(id?: string) {
     if (id === undefined) return
@@ -249,6 +254,24 @@ export class LazyQueryResult {
     if (this.isSelected !== isSelected) {
       this.isSelected = isSelected
       this._notifySelectionSubscriptions()
+      return true
+    } else {
+      return false
+    }
+  }
+  shiftSelect() {
+    if (this.parent) {
+      this.parent.shiftSelect(this)
+    }
+  }
+  controlSelect() {
+    if (this.parent) {
+      this.parent.controlSelect(this)
+    }
+  }
+  select() {
+    if (this.parent) {
+      this.parent.select(this)
     }
   }
   subscribeToFiltered(callback: () => void) {

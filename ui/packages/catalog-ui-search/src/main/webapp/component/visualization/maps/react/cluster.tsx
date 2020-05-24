@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import { ClusterType } from './geometries'
-import { useSelectionOfLazyResults } from '../../../../js/model/LazyQueryResult'
+import { useSelectionOfLazyResults } from '../../../../js/model/LazyQueryResult/hooks'
 const _ = require('underscore')
 const calculateConvexHull = require('geo-convex-hull')
 
@@ -20,7 +20,7 @@ const Cluster = ({ cluster, map }: Props) => {
         case 'selected':
           map.updateCluster(geometries.current, {
             color: cluster.results[0].getColor(),
-            isSelected: true,
+            isSelected,
             count: cluster.results.length,
             outline: 'black',
             textFill: 'black',
@@ -29,7 +29,7 @@ const Cluster = ({ cluster, map }: Props) => {
         case 'partially':
           map.updateCluster(geometries.current, {
             color: cluster.results[0].getColor(),
-            isSelected: false,
+            isSelected,
             count: cluster.results.length,
             outline: 'black',
             textFill: 'white',
@@ -38,7 +38,7 @@ const Cluster = ({ cluster, map }: Props) => {
         case 'unselected':
           map.updateCluster(geometries.current, {
             color: cluster.results[0].getColor(),
-            isSelected: false,
+            isSelected,
             count: cluster.results.length,
             outline: 'white',
             textFill: 'white',

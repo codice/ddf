@@ -1,14 +1,11 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import { Drawing } from '../../../singletons/drawing'
-import {
-  useLazyResults,
-  useLazySelectionInterface,
-} from '../../../selection-interface/hooks'
+import { useLazyResults } from '../../../selection-interface/hooks'
 import Geometry from './geometry'
 import CalculateClusters from './calculate-clusters'
 import Cluster from './cluster'
-import { LazyQueryResult } from '../../../../js/model/LazyQueryResult'
+import { LazyQueryResult } from '../../../../js/model/LazyQueryResult/LazyQueryResult'
 
 type Props = {
   selectionInterface: any
@@ -24,53 +21,36 @@ export type ClusterType = {
 const Geometries = (props: Props) => {
   console.log('rendering geometries')
   const { map, selectionInterface, isClustering } = props
-  // const lazySelectionInterface = useLazySelectionInterface({
-  //   key: 'search',
-  // })
-  // const lazySelectionInterfaceRef = React.useRef(lazySelectionInterface)
-  // lazySelectionInterfaceRef.current = lazySelectionInterface
   const lazyResults = useLazyResults({ selectionInterface })
   const lazyResultsRef = React.useRef(lazyResults)
   lazyResultsRef.current = lazyResults
   const [clusters, setClusters] = React.useState([] as ClusterType[])
   React.useEffect(() => {
-    const handleShiftClick = (id: string | string[]) => {
-      if (id.constructor === String) {
-        lazySelectionInterfaceRef.current.add([
-          lazyResultsRef.current[id as string],
-        ])
-      } else {
-        lazySelectionInterfaceRef.current.add(
-          (id as string[]).map(subid => {
-            return lazyResultsRef.current[subid]
-          })
-        )
-      }
-    }
     const handleCtrlClick = (id: string | string[]) => {
       if (id.constructor === String) {
-        lazySelectionInterfaceRef.current.add([
-          lazyResultsRef.current[id as string],
-        ])
+        lazyResultsRef.current.results[id as string].controlSelect()
       } else {
-        lazySelectionInterfaceRef.current.add(
-          (id as string[]).map(subid => {
-            return lazyResultsRef.current[subid]
-          })
-        )
+        ;(id as string[]).map(subid => {
+          return lazyResultsRef.current.results[subid as string].controlSelect()
+        })
       }
     }
     const handleClick = (id: string | string[]) => {
       if (id.constructor === String) {
-        lazySelectionInterfaceRef.current.set([
-          lazyResultsRef.current[id as string],
-        ])
+        lazyResultsRef.current.results[id as string].select()
       } else {
-        lazySelectionInterfaceRef.current.set(
-          (id as string[]).map(subid => {
-            return lazyResultsRef.current[subid]
-          })
+        const resultIds = id as string[]
+        let shouldJustDeselect = resultIds.some(
+          subid => lazyResultsRef.current.results[subid].isSelected
         )
+        lazyResultsRef.current.deselect()
+        if (!shouldJustDeselect) {
+          resultIds.map(subid => {
+            return lazyResultsRef.current.results[
+              subid as string
+            ].controlSelect()
+          })
+        }
       }
     }
     const handleLeftClick = (event: any, mapEvent: any) => {
@@ -87,7 +67,7 @@ const Geometries = (props: Props) => {
           return
         }
         if (event.shiftKey) {
-          handleShiftClick(mapEvent.mapTarget)
+          handleCtrlClick(mapEvent.mapTarget)
         } else if (event.ctrlKey || event.metaKey) {
           handleCtrlClick(mapEvent.mapTarget)
         } else {

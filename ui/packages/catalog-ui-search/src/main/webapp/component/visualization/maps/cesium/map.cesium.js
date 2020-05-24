@@ -747,18 +747,19 @@ module.exports = function CesiumMap(
         })
       }
       if (geometry.constructor === Cesium.Billboard) {
-        if (options.isSelected) {
-          geometry.image = geometry.selectedImage
-        } else if (options.strokeColor === 'black') {
-          geometry.image = geometry.partiallySelectedImage
-        } else {
-          geometry.image = geometry.unselectedImage
+        switch (options.isSelected) {
+          case 'selected':
+            geometry.image = geometry.selectedImage
+            break
+          case 'partially':
+            geometry.image = geometry.partiallySelectedImage
+            break
+          case 'unselected':
+            geometry.image = geometry.unselectedImage
+            break
         }
-        geometry.eyeOffset = new Cesium.Cartesian3(
-          0,
-          0,
-          options.isSelected ? -1 : 0
-        )
+        const isSelected = options.isSelected !== 'unselected'
+        geometry.eyeOffset = new Cesium.Cartesian3(0, 0, isSelected ? -1 : 0)
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
           polyline.material = Cesium.Material.fromType('PolylineOutline', {

@@ -537,12 +537,16 @@ module.exports = function OpenlayersMap(
         const geometryInstance = feature.getGeometry()
         if (geometryInstance.constructor === Openlayers.geom.Point) {
           geometry.setZIndex(options.isSelected ? 2 : 1)
-          if (options.isSelected) {
-            feature.setStyle(feature.selectedStyle)
-          } else if (options.strokeColor === 'black') {
-            feature.setStyle(feature.partiallySelectedStyle)
-          } else {
-            feature.setStyle(feature.unselectedStyle)
+          switch (options.isSelected) {
+            case 'selected':
+              feature.setStyle(feature.selectedStyle)
+              break
+            case 'partially':
+              feature.setStyle(feature.partiallySelectedStyle)
+              break
+            case 'unselected':
+              feature.setStyle(feature.unselectedStyle)
+              break
           }
         } else if (
           geometryInstance.constructor === Openlayers.geom.LineString

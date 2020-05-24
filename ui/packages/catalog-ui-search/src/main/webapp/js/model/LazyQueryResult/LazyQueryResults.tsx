@@ -52,6 +52,66 @@ export class LazyQueryResults {
   filteredResults: {
     [key: string]: LazyQueryResult
   }
+  selectedResults: {
+    [key: string]: LazyQueryResult
+  }
+  _getMaxIndexOfSelectedResults() {
+    return Object.values(this.selectedResults).reduce((max, result) => {
+      return Math.max(max, result.index)
+    }, -1)
+  }
+  _getMinIndexOfSelectedResults() {
+    return Object.values(this.selectedResults).reduce((min, result) => {
+      return Math.min(min, result.index)
+    }, Object.keys(this.results).length)
+  }
+  shiftSelect(target: LazyQueryResult) {
+    const firstIndex = this._getMinIndexOfSelectedResults()
+    const lastIndex = this._getMaxIndexOfSelectedResults()
+    const indexClicked = target.index
+    if (Object.keys(this.selectedResults).length === 0) {
+      target.setSelected(target.isSelected)
+    } else if (indexClicked <= firstIndex) {
+      // traverse from target to next until firstIndex
+      let currentItem = target as LazyQueryResult | undefined
+      while (currentItem && currentItem.index <= firstIndex) {
+        currentItem.setSelected(true)
+        currentItem = currentItem.next
+      }
+    } else if (indexClicked >= lastIndex) {
+      // traverse from target to prev until lastIndex
+      let currentItem = target as LazyQueryResult | undefined
+      while (currentItem && currentItem.index >= lastIndex) {
+        currentItem.setSelected(true)
+        currentItem = currentItem.prev
+      }
+    } else {
+      // traverse from target to prev until something doesn't change
+      let currentItem = target as LazyQueryResult | undefined
+      let changed = true
+      while (currentItem && changed) {
+        changed = currentItem.setSelected(true) && changed
+        currentItem = currentItem.prev
+      }
+    }
+  }
+  controlSelect(target: LazyQueryResult) {
+    target.setSelected(!target.isSelected)
+  }
+  select(target: LazyQueryResult) {
+    const isSelected = !target.isSelected
+    this.deselect()
+    target.setSelected(isSelected)
+  }
+  deselect() {
+    Object.values(this.selectedResults).forEach(result => {
+      result.setSelected(false)
+    })
+  }
+  /**
+   * Array of the callbacks to unsubscribe
+   */
+  selectionSubscriptions: (() => void)[]
   _updateFilteredResults() {
     this.filteredResults = Object.values(this.results)
       .filter(result => {
@@ -133,10 +193,17 @@ export class LazyQueryResults {
    * The map of results will ultimately be the source of truth here
    * Maps guarantee chronological order for Object.keys operations,
    * so we turn it into an array to sort then feed it back into a map.
+   *
+   * On resort we have to update the links between results (used for selecting performantly),
+   * as well as the indexes which are used similarly
+   *
    */
   _resort() {
     this.results = this._getSortedResults(Object.values(this.results)).reduce(
-      (blob, result) => {
+      (blob, result, index, results) => {
+        result.index = index
+        result.prev = results[index - 1]
+        result.next = results[index + 1]
         blob[result['metacard.id']] = result
         return blob
       },
@@ -147,8 +214,7 @@ export class LazyQueryResults {
     results = [],
     sorts = [],
   }: { results?: ResultType[]; sorts?: QuerySortType[] } = {}) {
-    this.subscriptions = {}
-    this.results = {}
+    this.init()
     this._updatePersistantSorts(sorts)
     this._updateEphemeralSorts()
     this._updateEphemeralFilter()
@@ -163,6 +229,7 @@ export class LazyQueryResults {
       () => {
         this._updateEphemeralSorts()
         this._resort()
+        this._refilter() // needs to be in sync in the sorted map
         this._notifySubscriptions()
       }
     )
@@ -176,9 +243,20 @@ export class LazyQueryResults {
       }
     )
   }
-  reset() {
+  init() {
+    if (this.selectionSubscriptions)
+      this.selectionSubscriptions.forEach(unsubscribe => {
+        unsubscribe()
+      })
+    this.selectionSubscriptions = []
+    this.selectedResults = {}
+    if (this.subscriptions === undefined) this.subscriptions = {}
     this.results = {}
+  }
+  reset() {
+    this.init()
     this._resort()
+    this._refilter()
     this._notifySubscriptions()
   }
   destroy() {
@@ -187,25 +265,20 @@ export class LazyQueryResults {
   isEmpty() {
     return Object.keys(this.results).length === 0
   }
-  /**
-   * If it's empty sort ahead of time for perf,
-   * otherwise toss into the map then sort.
-   */
   add({ results = [] }: { results?: ResultType[] } = {}) {
-    // if (this.isEmpty()) {
-    //   this.results = this._getSortedResults(results.map(result => {
-    //     const lazyResult = new LazyQueryResult(result)
-    //     lazyResult.parent = this
-    //     return lazyResult
-    //   })).reduce((blob, result) => {
-    //     blob[result["metacard.id"]] = result
-    //     return blob
-    //   }, {} as {[key:string]:LazyQueryResult})
-    // } else {
     results.forEach(result => {
       const lazyResult = new LazyQueryResult(result)
       this.results[lazyResult['metacard.id']] = lazyResult
       lazyResult.parent = this
+      this.selectionSubscriptions.push(
+        lazyResult.subscribeToSelection(() => {
+          if (lazyResult.isSelected) {
+            this.selectedResults[lazyResult['metacard.id']] = lazyResult
+          } else {
+            delete this.selectedResults[lazyResult['metacard.id']]
+          }
+        })
+      )
     })
     this._resort()
     this._refilter()

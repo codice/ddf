@@ -9,11 +9,11 @@ export const useSelectionOfLazyResult = ({
 }) => {
   const [isSelected, setIsSelected] = React.useState(lazyResult.isSelected)
   React.useEffect(() => {
-    const id = lazyResult.subscribeToSelection(() => {
+    const unsubscribe = lazyResult.subscribeToSelection(() => {
       setIsSelected(lazyResult.isSelected)
     })
     return () => {
-      lazyResult.unsubscribeFromSelection(id)
+      unsubscribe()
     }
   }, [])
   return isSelected
@@ -80,13 +80,10 @@ export const useSelectionOfLazyResults = ({
 
   React.useEffect(() => {
     const unsubscribeCalls = lazyResults.map(lazyResult => {
-      const id = lazyResult.subscribeToSelection(() => {
+      return lazyResult.subscribeToSelection(() => {
         cache.current[lazyResult['metacard.id']] = lazyResult.isSelected
         debouncedUpdatedIsSelected()
       })
-      return () => {
-        lazyResult.unsubscribeFromSelection(id)
-      }
     })
     return () => {
       unsubscribeCalls.forEach(unsubscribeCall => {
