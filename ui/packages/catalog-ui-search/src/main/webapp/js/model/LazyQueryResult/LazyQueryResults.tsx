@@ -252,6 +252,7 @@ export class LazyQueryResults {
     this.selectedResults = {}
     if (this.subscriptions === undefined) this.subscriptions = {}
     this.results = {}
+    this.types = {}
   }
   reset() {
     this.init()
@@ -283,5 +284,29 @@ export class LazyQueryResults {
     this._resort()
     this._refilter()
     this._notifySubscriptions()
+  }
+  types: MetacardTypes
+  addTypes(types: MetacardTypes) {
+    this.types = types
+  }
+  getCurrentAttributes() {
+    return Object.keys(
+      Object.values(this.types).reduce((blob, definition) => {
+        return {
+          ...blob,
+          ...definition,
+        }
+      }, {})
+    )
+  }
+}
+
+type MetacardTypes = {
+  [key: string]: {
+    [key: string]: {
+      format: string
+      multivalued: boolean
+      indexed: boolean
+    }
   }
 }

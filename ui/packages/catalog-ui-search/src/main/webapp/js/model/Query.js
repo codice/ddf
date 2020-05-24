@@ -221,7 +221,8 @@ Query.Model = PartialAssociatedModel.extend({
     this.listenTo(this, 'change:cql', () => this.set('isOutdated', true))
 
     const sync = () => {
-      this.dispatch(updateResults(this.get('result').toJSON())) //do we need this?  It's expensive
+      // needs to be updated to handle the lazyResults, right now this doesn't do anything
+      // this.dispatch(updateResults(this.get('result').toJSON())) //do we need this?  It's expensive
       this.set('serverPageIndex', serverPageIndex(this.state))
 
       const totalHits = this.get('result')

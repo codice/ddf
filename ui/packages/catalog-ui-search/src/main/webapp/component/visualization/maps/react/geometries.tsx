@@ -112,7 +112,6 @@ const Geometries = (props: Props) => {
         <CalculateClusters
           key="clusters"
           isClustering={isClustering}
-          selectionInterface={selectionInterface}
           map={map}
           lazyResults={lazyResults.filteredResults}
           setClusters={setClusters}

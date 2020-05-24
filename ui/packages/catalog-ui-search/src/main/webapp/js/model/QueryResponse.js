@@ -276,6 +276,7 @@ module.exports = Backbone.AssociatedModel.extend({
         ...resp.statusBySource[id],
       }
     })
+    this.get('lazyResults').addTypes(resp.types)
 
     return {
       showingResultsForFields: resp.showingResultsForFields,
