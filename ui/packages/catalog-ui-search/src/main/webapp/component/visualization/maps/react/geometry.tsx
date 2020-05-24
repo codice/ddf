@@ -1,9 +1,6 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import {
-  LazyQueryResult,
-  useSelectionOfLazyResult,
-} from '../../../../js/model/LazyQueryResult'
+import { LazyQueryResult } from '../../../../js/model/LazyQueryResult/LazyQueryResult'
 import { ClusterType } from './geometries'
 const _ = require('underscore')
 const _debounce = require('lodash/debounce')
@@ -11,6 +8,7 @@ const wkx = require('wkx')
 const metacardDefinitions = require('../../../singletons/metacard-definitions.js')
 const iconHelper = require('../../../../js/IconHelper.js')
 import { useUpdateEffect } from 'react-use'
+import { useSelectionOfLazyResult } from '../../../../js/model/LazyQueryResult/hooks'
 type Props = {
   lazyResult: LazyQueryResult
   map: any

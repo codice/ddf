@@ -24,7 +24,7 @@ const QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js')
 const QueryResultCollection = require('./QueryResult.collection.js')
 const QueryResult = require('./QueryResult.js')
 const spliceAmount = 5
-import { LazyQueryResult } from './LazyQueryResult'
+import { LazyQueryResults } from './LazyQueryResult/LazyQueryResults'
 
 let rpc = null
 
@@ -57,16 +57,19 @@ function humanizeResourceSize(result) {
 }
 
 module.exports = Backbone.AssociatedModel.extend({
-  defaults: {
-    queryId: undefined,
-    results: [],
-    queuedResults: [],
-    merged: true,
-    currentlyViewed: false,
-    showingResultsForFields: [],
-    didYouMeanFields: [],
-    userSpellcheckIsOn: false,
-    processingResults: false,
+  defaults() {
+    return {
+      queryId: undefined,
+      results: [],
+      lazyResults: new LazyQueryResults(),
+      queuedResults: [],
+      merged: true,
+      currentlyViewed: false,
+      showingResultsForFields: [],
+      didYouMeanFields: [],
+      userSpellcheckIsOn: false,
+      processingResults: false,
+    }
   },
   relations: [
     {
@@ -106,7 +109,6 @@ module.exports = Backbone.AssociatedModel.extend({
     this.listenTo(this, 'error', this.handleError)
     this.listenTo(this, 'sync', this.handleSync)
     this.resultCountsBySource = {}
-    this.lazyResults = {}
     this.queuedResults = []
     this.processedResults = []
   },
@@ -328,44 +330,17 @@ module.exports = Backbone.AssociatedModel.extend({
     cancelAnimationFrame(this.processQueueTimeoutId)
     this.processQueueTimeoutId = undefined
     this.set('processingResults', false)
-    this.lazyResults = {}
+    // if (this.get('lazyResults')) this.get('lazyResults').destroy()
     this.queuedResults = []
     this.processedResults = []
     this.trigger('sync')
   },
   addToQueue(results) {
-    /**
-     * dedupe results ahead of time (only really due to the cache)
-     * 250 results at 6x slowdown took 7mx
-     * 2000 results at a 4x slowdown took 207 ms
-     * 2000 results at 6x slowodown took 353 ms
-     *
-     * So this could end up being significant, maybe worth chunking this dedupe up as well to save some time (or webworker it)
-     */
-    const resultsDeduped = results.filter(result => {
-      return (
-        this.queuedResults.find(
-          queuedResult =>
-            queuedResult.metacard.properties.id ===
-            result.metacard.properties.id
-        ) === undefined &&
-        Object.values(this.lazyResults).find(
-          lazyResult =>
-            lazyResult.plain.metacard.properties.id ===
-            result.metacard.properties.id
-        ) === undefined
-      )
-    })
-
     // const now = Date.now()
     // don't think we need this since this is a map instead of array now
-    resultsDeduped.forEach(result => {
-      const objRef = new LazyQueryResult(result)
-      result._objRef = objRef // so we can later quickly add the backbone version
-      this.lazyResults[objRef['metacard.id']] = objRef
-    })
+    this.get('lazyResults').add({ results })
     // console.log(`finished ${resultsDeduped.length}: ${Date.now() - now}`)
-    this.queuedResults = this.queuedResults.concat(resultsDeduped)
+    // this.queuedResults = this.queuedResults.concat(resultsDeduped)
     this.processQueue()
   },
   // we have to do a reset because adding is so slow that it will cause a partial merge to initiate

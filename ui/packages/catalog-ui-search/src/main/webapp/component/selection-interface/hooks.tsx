@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useBackbone } from '../selection-checkbox/useBackbone.hook'
-import { LazyQueryResult } from '../../js/model/LazyQueryResult'
+import { LazyQueryResult } from '../../js/model/LazyQueryResult/LazyQueryResult'
+import { LazyQueryResults } from '../../js/model/LazyQueryResult/LazyQueryResults'
 
 type useLazyResultsProps = {
   selectionInterface: any
@@ -12,16 +13,16 @@ export type LazyResultsType = {
 
 const getLazyResultsFromSelectionInterface = ({
   selectionInterface,
-}: useLazyResultsProps): LazyResultsType => {
+}: useLazyResultsProps): LazyQueryResults => {
   const currentSearch = selectionInterface.get('currentQuery')
   if (!currentSearch) {
-    return {}
+    return new LazyQueryResults()
   }
   const result = currentSearch.get('result')
   if (!result) {
-    return {}
+    return new LazyQueryResults()
   }
-  return result.lazyResults
+  return result.get('lazyResults')
 }
 
 const calcProgress = ({ selectionInterface }: useLazyResultsProps) => {
@@ -117,43 +118,35 @@ export const useLazyResultStatus = ({
 }
 
 export const useLazyResults = ({ selectionInterface }: useLazyResultsProps) => {
-  const { listenTo } = useBackbone()
+  const { listenToOnce } = useBackbone()
+  const [forceRender, setForceRender] = React.useState(Math.random())
   const [lazyResults, setLazyResults] = React.useState(
     getLazyResultsFromSelectionInterface({
       selectionInterface,
     })
   )
-  const lazyResultsRef = React.useRef(lazyResults)
-  const smartSet = React.useMemo(() => {
-    return (update: LazyResultsType) => {
-      if (
-        Object.keys(lazyResultsRef.current).length === 0 &&
-        Object.keys(update).length === 0
-      ) {
-        return
-      }
-      setLazyResults({
-        ...update,
+
+  React.useEffect(
+    () => {
+      const unsubscribe = lazyResults.subscribe(() => {
+        setForceRender(Math.random())
       })
-    }
-  }, [])
-  React.useEffect(() => {
-    listenTo(
-      selectionInterface,
-      'sync:currentQuery>result request:currentQuery>result error:currentQuery>result',
-      () => {
-        const currentQuery = selectionInterface.get('currentQuery')
-        const result = currentQuery.get('result')
-        if (result) {
-          smartSet(getLazyResultsFromSelectionInterface({ selectionInterface }))
-          if (result.isSearching() && !result.isJustSearching()) {
-            smartSet(
-              getLazyResultsFromSelectionInterface({ selectionInterface })
-            )
-          }
-        }
+      return () => {
+        unsubscribe()
       }
-    )
+    },
+    [lazyResults]
+  )
+  React.useEffect(() => {
+    listenToOnce(selectionInterface, 'change:currentQuery>result', () => {
+      const currentQuery = selectionInterface.get('currentQuery')
+      const result = currentQuery.get('result')
+      if (result) {
+        setLazyResults(
+          getLazyResultsFromSelectionInterface({ selectionInterface })
+        )
+      }
+    })
   }, [])
   return lazyResults
 }

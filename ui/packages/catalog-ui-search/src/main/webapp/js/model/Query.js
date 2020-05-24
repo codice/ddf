@@ -31,6 +31,7 @@ import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociat
 const plugin = require('plugins/query')
 import React from 'react'
 import { readableColor } from 'polished'
+import { LazyQueryResults } from './LazyQueryResult/LazyQueryResults'
 
 const Query = {}
 
@@ -337,9 +338,11 @@ Query.Model = PartialAssociatedModel.extend({
       id: src,
     }))
     let result
-    if (false && this.get('result') && this.get('result').get('results')) {
+    if (this.get('result') && this.get('result').get('results')) {
       result = this.get('result')
       result.emptyQueue()
+      result.get('lazyResults')._updatePersistantSorts(this.get('sorts'))
+      result.get('lazyResults').reset()
       result.setColor(this.getColor())
       result.setQueryId(this.getId())
       result.set('selectedResultTemplate', this.get('detail-level'))
@@ -353,6 +356,7 @@ Query.Model = PartialAssociatedModel.extend({
         )
     } else {
       result = new QueryResponse({
+        lazyResults: new LazyQueryResults({ sorts: this.get('sorts') }),
         queryId: this.getId(),
         color: this.getColor(),
         status: initialStatus,
