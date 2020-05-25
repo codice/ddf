@@ -23,9 +23,6 @@ const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
 const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
 const store = require('../../../js/store.js')
-const GeometryCollectionView = require('./geometry.collection.view')
-const ClusterCollectionView = require('./cluster.collection.view')
-const ClusterCollection = require('./cluster.collection')
 const CQLUtils = require('../../../js/CQLUtils.js')
 const LocationModel = require('../../location-old/location-old.js')
 const user = require('../../singletons/user-instance.js')
@@ -147,9 +144,6 @@ module.exports = Marionette.LayoutView.extend({
   events: {
     'click .cluster-button': 'toggleClustering',
   },
-  clusterCollection: undefined,
-  clusterCollectionView: undefined,
-  geometryCollectionView: undefined,
   geometriesView: undefined,
   map: undefined,
   mapModel: undefined,
@@ -174,22 +168,11 @@ module.exports = Marionette.LayoutView.extend({
     if (!this.map) {
       throw 'Map has not been set.'
     }
-    this.clusterCollection = new ClusterCollection()
     this.geometriesView = new GeometriesView({
       selectionInterface: this.options.selectionInterface,
       map: this.map,
+      mapView: this,
     })
-    // this.geometryCollectionView = new GeometryCollectionView({
-    //   collection: this.options.selectionInterface.getActiveSearchResults(),
-    //   map: this.map,
-    //   selectionInterface: this.options.selectionInterface,
-    //   clusterCollection: this.clusterCollection,
-    // })
-    // this.clusterCollectionView = new ClusterCollectionView({
-    //   collection: this.clusterCollection,
-    //   map: this.map,
-    //   selectionInterface: this.options.selectionInterface,
-    // })
   },
   setupListeners() {
     this.listenTo(
@@ -214,22 +197,6 @@ module.exports = Marionette.LayoutView.extend({
     )
 
     this.listenTo(
-      this.options.selectionInterface.getSelectedResults(),
-      'update',
-      this.map.zoomToSelected.bind(this.map)
-    )
-    this.listenTo(
-      this.options.selectionInterface.getSelectedResults(),
-      'add',
-      this.map.zoomToSelected.bind(this.map)
-    )
-    this.listenTo(
-      this.options.selectionInterface.getSelectedResults(),
-      'remove',
-      this.map.zoomToSelected.bind(this.map)
-    )
-
-    this.listenTo(
       user.get('user').get('preferences'),
       'change:resultFilter',
       this.handleCurrentQuery
@@ -241,13 +208,6 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleCurrentQuery()
 
-    if (this.options.selectionInterface.getSelectedResults().length > 0) {
-      this.map.zoomToSelected(
-        this.options.selectionInterface.getSelectedResults()
-      )
-    } else {
-      Common.queueExecution(this.zoomToHome.bind(this))
-    }
     this.map.onMouseMove(this.onMapHover.bind(this))
     this.map.onRightClick(this.onRightClick.bind(this))
     this.setupRightClickMenu()
@@ -442,7 +402,6 @@ module.exports = Marionette.LayoutView.extend({
   },
   toggleClustering() {
     this.$el.toggleClass('is-clustering')
-    if (this.clusterCollectionView) this.clusterCollectionView.toggleActive()
     this.geometriesView.toggleClustering()
   },
   handleDrawing() {
@@ -532,15 +491,6 @@ module.exports = Marionette.LayoutView.extend({
   onDestroy() {
     if (this.geometriesView) {
       this.geometriesView.destroy()
-    }
-    if (this.geometryCollectionView) {
-      this.geometryCollectionView.destroy()
-    }
-    if (this.clusterCollectionView) {
-      this.clusterCollectionView.destroy()
-    }
-    if (this.clusterCollection) {
-      this.clusterCollection.reset()
     }
     if (this.map) {
       this.map.destroy()

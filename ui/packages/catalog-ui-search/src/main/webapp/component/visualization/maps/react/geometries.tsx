@@ -6,11 +6,12 @@ import Geometry from './geometry'
 import CalculateClusters from './calculate-clusters'
 import Cluster from './cluster'
 import { LazyQueryResult } from '../../../../js/model/LazyQueryResult/LazyQueryResult'
-
+import ZoomToSelection from './zoom-to-selection'
 type Props = {
   selectionInterface: any
   map: any
   isClustering: boolean
+  mapView: any
 }
 
 export type ClusterType = {
@@ -20,7 +21,7 @@ export type ClusterType = {
 
 const Geometries = (props: Props) => {
   console.log('rendering geometries')
-  const { map, selectionInterface, isClustering } = props
+  const { map, selectionInterface, isClustering, mapView } = props
   const lazyResults = useLazyResults({ selectionInterface })
   const lazyResultsRef = React.useRef(lazyResults)
   lazyResultsRef.current = lazyResults
@@ -121,8 +122,22 @@ const Geometries = (props: Props) => {
     [lazyResults.filteredResults, isClustering]
   )
 
+  const ZoomToSelectionMemo = React.useMemo(
+    () => {
+      return (
+        <ZoomToSelection
+          map={map}
+          lazyResults={lazyResults}
+          mapView={mapView}
+        />
+      )
+    },
+    [lazyResults]
+  )
+
   return (
     <>
+      {ZoomToSelectionMemo}
       {CalculateClustersMemo}
       {Clusters}
       {IndividualGeometries}

@@ -4,12 +4,13 @@ import Geometries from './geometries'
 
 export const GeometriesView = Marionette.ItemView.extend({
   template() {
-    const { selectionInterface, map } = this.options
+    const { selectionInterface, map, mapView } = this.options
 
     return (
       <Geometries
         selectionInterface={selectionInterface}
         map={map}
+        mapView={mapView}
         isClustering={this.isClustering}
       />
     )
