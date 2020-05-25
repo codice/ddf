@@ -9,14 +9,17 @@ export const useSelectionOfLazyResult = ({
   lazyResult: LazyQueryResult
 }) => {
   const [isSelected, setIsSelected] = React.useState(lazyResult.isSelected)
-  React.useEffect(() => {
-    const unsubscribe = lazyResult.subscribeToSelection(() => {
-      setIsSelected(lazyResult.isSelected)
-    })
-    return () => {
-      unsubscribe()
-    }
-  }, [])
+  React.useEffect(
+    () => {
+      const unsubscribe = lazyResult.subscribeToSelection(() => {
+        setIsSelected(lazyResult.isSelected)
+      })
+      return () => {
+        unsubscribe()
+      }
+    },
+    [lazyResult]
+  )
   return isSelected
 }
 
@@ -26,14 +29,17 @@ export const useFilteredOfLazyResult = ({
   lazyResult: LazyQueryResult
 }) => {
   const [isFiltered, setIsFiltered] = React.useState(lazyResult.isFiltered)
-  React.useEffect(() => {
-    const unsubscribe = lazyResult.subscribeToFiltered(() => {
-      setIsFiltered(lazyResult.isFiltered)
-    })
-    return () => {
-      unsubscribe()
-    }
-  }, [])
+  React.useEffect(
+    () => {
+      const unsubscribe = lazyResult.subscribeToFiltered(() => {
+        setIsFiltered(lazyResult.isFiltered)
+      })
+      return () => {
+        unsubscribe()
+      }
+    },
+    [lazyResult]
+  )
   return isFiltered
 }
 
@@ -44,15 +50,7 @@ export const useSelectionOfLazyResults = ({
 }: {
   lazyResults: LazyQueryResult[]
 }) => {
-  const cache = React.useRef(
-    lazyResults.reduce(
-      (blob, lazyResult) => {
-        blob[lazyResult['metacard.id']] = lazyResult.isSelected
-        return blob
-      },
-      {} as { [key: string]: boolean }
-    )
-  )
+  const cache = React.useRef({} as { [key: string]: boolean })
   const calculateIfSelected = React.useMemo(() => {
     return () => {
       const currentValues = Object.values(cache.current)
@@ -79,19 +77,30 @@ export const useSelectionOfLazyResults = ({
     calculateIfSelected() as useSelectionOfLazyResultsReturn
   )
 
-  React.useEffect(() => {
-    const unsubscribeCalls = lazyResults.map(lazyResult => {
-      return lazyResult.subscribeToSelection(() => {
-        cache.current[lazyResult['metacard.id']] = lazyResult.isSelected
-        debouncedUpdatedIsSelected()
+  React.useEffect(
+    () => {
+      cache.current = lazyResults.reduce(
+        (blob, lazyResult) => {
+          blob[lazyResult['metacard.id']] = lazyResult.isSelected
+          return blob
+        },
+        {} as { [key: string]: boolean }
+      )
+      setIsSelected(calculateIfSelected())
+      const unsubscribeCalls = lazyResults.map(lazyResult => {
+        return lazyResult.subscribeToSelection(() => {
+          cache.current[lazyResult['metacard.id']] = lazyResult.isSelected
+          debouncedUpdatedIsSelected()
+        })
       })
-    })
-    return () => {
-      unsubscribeCalls.forEach(unsubscribeCall => {
-        unsubscribeCall()
-      })
-    }
-  }, [])
+      return () => {
+        unsubscribeCalls.forEach(unsubscribeCall => {
+          unsubscribeCall()
+        })
+      }
+    },
+    [lazyResults]
+  )
   return isSelected
 }
 

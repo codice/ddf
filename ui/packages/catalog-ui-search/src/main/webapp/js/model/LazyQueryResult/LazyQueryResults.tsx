@@ -274,7 +274,7 @@ export class LazyQueryResults {
         unsubscribe()
       })
     this.selectionSubscriptions = []
-    this.selectedResults = {}
+    this._resetSelectedResults()
     if (this.subscriptions === undefined) this.subscriptions = {}
     if (this.selectedResultsSubscriptions === undefined)
       this.selectedResultsSubscriptions = {}
@@ -282,6 +282,13 @@ export class LazyQueryResults {
     this.types = {}
     this.sources = []
     this.status = {}
+  }
+  _resetSelectedResults() {
+    const shouldNotify =
+      this.selectedResults !== undefined &&
+      Object.keys(this.selectedResults).length > 0
+    this.selectedResults = {}
+    if (shouldNotify) this._notifySelectedResultsSubscriptions()
   }
   reset({ results = [], sorts = [], sources = [] }: ConstructorProps = {}) {
     this.init()

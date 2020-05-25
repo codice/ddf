@@ -92,7 +92,7 @@ const CalculateClusters = ({
         map.offCameraMoveEnd(stopClusterAnimating)
       }
     },
-    [isClustering]
+    [isClustering, lazyResults]
   )
 
   return <></>
