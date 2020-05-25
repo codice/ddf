@@ -14,7 +14,7 @@
  **/
 const HistogramView = require('../../component/visualization/histogram/histogram.view.js')
 const TableView = require('../../component/visualization/table/table-viz.view.js')
-const InspectorView = require('../../component/visualization/inspector/inspector.view.js')
+import LazyInspectorView from '../../component/visualization/inspector/inspector-lazy.view'
 const LowBandwidthMapView = require('../../component/visualization/low-bandwidth-map/low-bandwidth-map.view.js')
 
 export default [
@@ -52,6 +52,6 @@ export default [
     id: 'inspector',
     title: 'Inspector',
     icon: 'fa fa-info',
-    view: InspectorView,
+    view: LazyInspectorView,
   },
 ]

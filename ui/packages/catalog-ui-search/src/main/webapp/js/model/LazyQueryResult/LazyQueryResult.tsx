@@ -13,6 +13,7 @@
  *
  **/
 import { ResultType } from '../Types'
+const QueryResult = require('../QueryResult.js')
 import type { LazyQueryResults } from './LazyQueryResults'
 
 const _ = require('underscore')
@@ -213,6 +214,12 @@ export class LazyQueryResult {
   }
   getColor() {
     return '#004949'
+  }
+  getBackbone() {
+    if (this.backbone === undefined) {
+      this.setBackbone(new QueryResult(this.plain))
+    }
+    return this.backbone
   }
   /**
    *  Should really only be called in query response the moment the backbone model is available

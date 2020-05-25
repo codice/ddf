@@ -343,7 +343,10 @@ Query.Model = PartialAssociatedModel.extend({
       result = this.get('result')
       result.emptyQueue()
       result.get('lazyResults')._updatePersistantSorts(this.get('sorts'))
-      result.get('lazyResults').reset()
+      result.get('lazyResults').reset({
+        sorts: this.get('sorts'),
+        sources,
+      })
       result.setColor(this.getColor())
       result.setQueryId(this.getId())
       result.set('selectedResultTemplate', this.get('detail-level'))
@@ -357,7 +360,10 @@ Query.Model = PartialAssociatedModel.extend({
         )
     } else {
       result = new QueryResponse({
-        lazyResults: new LazyQueryResults({ sorts: this.get('sorts') }),
+        lazyResults: new LazyQueryResults({
+          sorts: this.get('sorts'),
+          sources,
+        }),
         queryId: this.getId(),
         color: this.getColor(),
         status: initialStatus,

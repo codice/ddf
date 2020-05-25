@@ -16,9 +16,20 @@ import { ResultType } from '../Types'
 import { generateCompareFunction } from './sort'
 import { LazyQueryResult } from './LazyQueryResult'
 import { QuerySortType, FilterType } from './types'
+import { Status } from './status'
 
 const user = require('../../../component/singletons/user-instance.js')
 const Backbone = require('backbone')
+
+type SearchStatus = {
+  [key: string]: Status
+}
+
+type ConstructorProps = {
+  results?: ResultType[]
+  sorts?: QuerySortType[]
+  sources?: string[]
+}
 
 /**
  * Constructed with performance in mind, taking advantage of maps whenever possible.
@@ -28,6 +39,21 @@ const Backbone = require('backbone')
  */
 export class LazyQueryResults {
   subscriptions: { [key: string]: () => void }
+  selectedResultsSubscriptions: { [key: string]: () => void }
+  subscribeToSelectedResults(callback: () => void) {
+    const id = Math.random().toString()
+    this.selectedResultsSubscriptions[id] = callback
+    return () => {
+      this._unsubscribeFromSelectedResults(id)
+    }
+  }
+  _unsubscribeFromSelectedResults(id?: string) {
+    if (id === undefined) return
+    delete this.subscriptions[id]
+  }
+  _notifySelectedResultsSubscriptions() {
+    Object.values(this.selectedResultsSubscriptions).forEach(sub => sub())
+  }
   subscribe(callback: () => void) {
     const id = Math.random().toString()
     this.subscriptions[id] = callback
@@ -213,12 +239,11 @@ export class LazyQueryResults {
   constructor({
     results = [],
     sorts = [],
-  }: { results?: ResultType[]; sorts?: QuerySortType[] } = {}) {
-    this.init()
-    this._updatePersistantSorts(sorts)
+    sources = [],
+  }: ConstructorProps = {}) {
     this._updateEphemeralSorts()
     this._updateEphemeralFilter()
-    this.add({ results })
+    this.reset({ results, sorts, sources })
 
     this.backboneModel = new Backbone.Model({
       id: Math.random().toString(),
@@ -251,14 +276,18 @@ export class LazyQueryResults {
     this.selectionSubscriptions = []
     this.selectedResults = {}
     if (this.subscriptions === undefined) this.subscriptions = {}
+    if (this.selectedResultsSubscriptions === undefined)
+      this.selectedResultsSubscriptions = {}
     this.results = {}
     this.types = {}
+    this.sources = []
+    this.status = {}
   }
-  reset() {
+  reset({ results = [], sorts = [], sources = [] }: ConstructorProps = {}) {
     this.init()
-    this._resort()
-    this._refilter()
-    this._notifySubscriptions()
+    this._updateSources(sources)
+    this._updatePersistantSorts(sorts)
+    this.add({ results })
   }
   destroy() {
     this.backboneModel.stopListening()
@@ -273,17 +302,21 @@ export class LazyQueryResults {
       lazyResult.parent = this
       this.selectionSubscriptions.push(
         lazyResult.subscribeToSelection(() => {
-          if (lazyResult.isSelected) {
-            this.selectedResults[lazyResult['metacard.id']] = lazyResult
-          } else {
-            delete this.selectedResults[lazyResult['metacard.id']]
-          }
+          this._updateSelectedResults({ lazyResult })
         })
       )
     })
     this._resort()
     this._refilter()
     this._notifySubscriptions()
+  }
+  _updateSelectedResults({ lazyResult }: { lazyResult: LazyQueryResult }) {
+    if (lazyResult.isSelected) {
+      this.selectedResults[lazyResult['metacard.id']] = lazyResult
+    } else {
+      delete this.selectedResults[lazyResult['metacard.id']]
+    }
+    this._notifySelectedResultsSubscriptions()
   }
   types: MetacardTypes
   addTypes(types: MetacardTypes) {
@@ -299,6 +332,21 @@ export class LazyQueryResults {
       }, {})
     )
   }
+  sources: string[]
+  _updateSources(sources: string[]) {
+    this.sources = sources
+    this._updateStatus()
+  }
+  _updateStatus() {
+    this.status = this.sources.reduce(
+      (blob, source) => {
+        blob[source] = new Status({ id: source })
+        return blob
+      },
+      {} as SearchStatus
+    )
+  }
+  status: SearchStatus
 }
 
 type MetacardTypes = {

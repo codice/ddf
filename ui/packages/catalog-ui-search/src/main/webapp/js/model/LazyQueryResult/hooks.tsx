@@ -1,5 +1,6 @@
 import { LazyQueryResult } from './LazyQueryResult'
 import * as React from 'react'
+import { LazyQueryResults } from './LazyQueryResults'
 const _ = require('underscore')
 
 export const useSelectionOfLazyResult = ({
@@ -92,6 +93,31 @@ export const useSelectionOfLazyResults = ({
     }
   }, [])
   return isSelected
+}
+
+export const useSelectedResults = ({
+  lazyResults,
+}: {
+  lazyResults: LazyQueryResults
+}) => {
+  const [selectedResults, setSelectedResults] = React.useState(
+    lazyResults.selectedResults
+  )
+  const [forceRender, setForceRender] = React.useState(Math.random())
+  React.useEffect(
+    () => {
+      const unsubscribeCall = lazyResults.subscribeToSelectedResults(() => {
+        setSelectedResults(lazyResults.selectedResults)
+        setForceRender(Math.random())
+      })
+      return () => {
+        unsubscribeCall()
+      }
+    },
+    [lazyResults]
+  )
+
+  return selectedResults
 }
 
 export const useBackboneOfLazyResult = ({
