@@ -31,6 +31,8 @@ type ConstructorProps = {
   sources?: string[]
 }
 
+type SubscribableType = 'status' | 'filteredResults' | 'selectedResults'
+type SubscriptionType = { [key: string]: () => void }
 /**
  * Constructed with performance in mind, taking advantage of maps whenever possible.
  * This is the heart of our app, so take care when updating / adding things here to
@@ -38,35 +40,30 @@ type ConstructorProps = {
  *
  */
 export class LazyQueryResults {
-  subscriptions: { [key: string]: () => void }
-  selectedResultsSubscriptions: { [key: string]: () => void }
-  subscribeToSelectedResults(callback: () => void) {
+  ['subscriptionsToMe.status']: SubscriptionType;
+  ['subscriptionsToMe.filteredResults']: SubscriptionType;
+  ['subscriptionsToMe.selectedResults']: SubscriptionType
+  subscribeTo({
+    subscribableThing,
+    callback,
+  }: {
+    subscribableThing: SubscribableType
+    callback: () => void
+  }) {
     const id = Math.random().toString()
-    this.selectedResultsSubscriptions[id] = callback
+    // @ts-ignore
+    this[`subscriptionsToMe.${subscribableThing}`][id] = callback
     return () => {
-      this._unsubscribeFromSelectedResults(id)
+      // @ts-ignore
+      delete this[`subscriptionsToMe.${subscribableThing}`][id]
     }
   }
-  _unsubscribeFromSelectedResults(id?: string) {
-    if (id === undefined) return
-    delete this.subscriptions[id]
-  }
-  _notifySelectedResultsSubscriptions() {
-    Object.values(this.selectedResultsSubscriptions).forEach(sub => sub())
-  }
-  subscribe(callback: () => void) {
-    const id = Math.random().toString()
-    this.subscriptions[id] = callback
-    return () => {
-      this._unsubscribe(id)
-    }
-  }
-  _unsubscribe(id?: string) {
-    if (id === undefined) return
-    delete this.subscriptions[id]
-  }
-  _notifySubscriptions() {
-    Object.values(this.subscriptions).forEach(sub => sub())
+  _notifySubscribers(subscribableThing: SubscribableType) {
+    // @ts-ignore
+    const subscribers = this[
+      `subscriptionsToMe.${subscribableThing}`
+    ] as SubscriptionType
+    Object.values(subscribers).forEach(callback => callback())
   }
   compareFunction: (a: LazyQueryResult, b: LazyQueryResult) => number
   results: {
@@ -137,7 +134,7 @@ export class LazyQueryResults {
   /**
    * Array of the callbacks to unsubscribe
    */
-  selectionSubscriptions: (() => void)[]
+  ['subscriptionsToOthers.result.isSelected']: (() => void)[]
   _updateFilteredResults() {
     this.filteredResults = Object.values(this.results)
       .filter(result => {
@@ -255,7 +252,7 @@ export class LazyQueryResults {
         this._updateEphemeralSorts()
         this._resort()
         this._refilter() // needs to be in sync in the sorted map
-        this._notifySubscriptions()
+        this._notifySubscribers('filteredResults')
       }
     )
     this.backboneModel.listenTo(
@@ -264,20 +261,21 @@ export class LazyQueryResults {
       () => {
         this._updateEphemeralFilter()
         this._refilter()
-        this._notifySubscriptions()
+        this._notifySubscribers('filteredResults')
       }
     )
   }
   init() {
-    if (this.selectionSubscriptions)
-      this.selectionSubscriptions.forEach(unsubscribe => {
+    if (this['subscriptionsToOthers.result.isSelected'])
+      this['subscriptionsToOthers.result.isSelected'].forEach(unsubscribe => {
         unsubscribe()
       })
-    this.selectionSubscriptions = []
+    this['subscriptionsToOthers.result.isSelected'] = []
     this._resetSelectedResults()
-    if (this.subscriptions === undefined) this.subscriptions = {}
-    if (this.selectedResultsSubscriptions === undefined)
-      this.selectedResultsSubscriptions = {}
+    if (this['subscriptionsToMe.filteredResults'] === undefined)
+      this['subscriptionsToMe.filteredResults'] = {}
+    if (this['subscriptionsToMe.selectedResults'] === undefined)
+      this['subscriptionsToMe.selectedResults'] = {}
     this.results = {}
     this.types = {}
     this.sources = []
@@ -288,11 +286,11 @@ export class LazyQueryResults {
       this.selectedResults !== undefined &&
       Object.keys(this.selectedResults).length > 0
     this.selectedResults = {}
-    if (shouldNotify) this._notifySelectedResultsSubscriptions()
+    if (shouldNotify) this._notifySubscribers('selectedResults')
   }
   reset({ results = [], sorts = [], sources = [] }: ConstructorProps = {}) {
     this.init()
-    this._updateSources(sources)
+    this._resetSources(sources)
     this._updatePersistantSorts(sorts)
     this.add({ results })
   }
@@ -307,7 +305,7 @@ export class LazyQueryResults {
       const lazyResult = new LazyQueryResult(result)
       this.results[lazyResult['metacard.id']] = lazyResult
       lazyResult.parent = this
-      this.selectionSubscriptions.push(
+      this['subscriptionsToOthers.result.isSelected'].push(
         lazyResult.subscribeToSelection(() => {
           this._updateSelectedResults({ lazyResult })
         })
@@ -315,7 +313,7 @@ export class LazyQueryResults {
     })
     this._resort()
     this._refilter()
-    this._notifySubscriptions()
+    this._notifySubscribers('filteredResults')
   }
   _updateSelectedResults({ lazyResult }: { lazyResult: LazyQueryResult }) {
     if (lazyResult.isSelected) {
@@ -323,7 +321,7 @@ export class LazyQueryResults {
     } else {
       delete this.selectedResults[lazyResult['metacard.id']]
     }
-    this._notifySelectedResultsSubscriptions()
+    this._notifySubscribers('selectedResults')
   }
   types: MetacardTypes
   addTypes(types: MetacardTypes) {
@@ -340,11 +338,11 @@ export class LazyQueryResults {
     )
   }
   sources: string[]
-  _updateSources(sources: string[]) {
+  _resetSources(sources: string[]) {
     this.sources = sources
-    this._updateStatus()
+    this._resetStatus()
   }
-  _updateStatus() {
+  _resetStatus() {
     this.status = this.sources.reduce(
       (blob, source) => {
         blob[source] = new Status({ id: source })
@@ -352,6 +350,11 @@ export class LazyQueryResults {
       },
       {} as SearchStatus
     )
+  }
+  updateStatus(status: SearchStatus) {
+    Object.keys(status).forEach(id => {
+      this.status[id].updateStatus(status[id])
+    })
   }
   status: SearchStatus
 }

@@ -128,8 +128,11 @@ export const useLazyResults = ({ selectionInterface }: useLazyResultsProps) => {
 
   React.useEffect(
     () => {
-      const unsubscribe = lazyResults.subscribe(() => {
-        setForceRender(Math.random())
+      const unsubscribe = lazyResults.subscribeTo({
+        subscribableThing: 'filteredResults',
+        callback: () => {
+          setForceRender(Math.random())
+        },
       })
       return () => {
         unsubscribe()

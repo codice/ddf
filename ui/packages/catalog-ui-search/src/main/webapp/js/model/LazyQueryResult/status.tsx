@@ -1,3 +1,15 @@
+import number from '../../../dev/component/number'
+
+export type StatusBySourceType = {
+  [key: string]: {
+    count: number
+    elapsed: number
+    hits: number
+    id: string
+    successful: boolean
+  }
+}
+
 export class Status {
   /**
    * Amount of results returned
@@ -26,5 +38,11 @@ export class Status {
   messages: []
   constructor({ id }: { id: string }) {
     this.id = id
+  }
+  updateStatus(update: StatusBySourceType[0]) {
+    Object.keys(update).forEach(key => {
+      // @ts-ignore
+      this[key] = update[key]
+    })
   }
 }
