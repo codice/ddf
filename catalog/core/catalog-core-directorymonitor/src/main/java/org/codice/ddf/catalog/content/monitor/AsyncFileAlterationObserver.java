@@ -63,7 +63,10 @@ public class AsyncFileAlterationObserver {
   private final Object listenerLock = new Object();
   private final ObjectPersistentStore serializer;
   private final Object processingLock = new Object();
+
   private Timer timer;
+  private final int LOGGING_TIME_DELAY = 500;
+  private final int LOGGING_TIME_INTERVAL = 5000;
 
   private boolean isProcessing = false;
 
@@ -76,7 +79,7 @@ public class AsyncFileAlterationObserver {
 
     if (LOGGER.isDebugEnabled()) {
       timer = new Timer();
-      timer.scheduleAtFixedRate(new LogProcessing(), 500, 5000);
+      timer.scheduleAtFixedRate(new LogProcessing(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
     }
   }
 
