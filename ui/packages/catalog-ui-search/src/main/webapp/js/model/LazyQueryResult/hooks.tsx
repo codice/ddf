@@ -129,17 +129,17 @@ export const useSelectedResults = ({
 }: {
   lazyResults: LazyQueryResults
 }) => {
-  const [selectedResults, setSelectedResults] = React.useState(
-    lazyResults.selectedResults
-  )
-  const [forceRender, setForceRender] = React.useState(Math.random())
+  const [selectedResults, setSelectedResults] = React.useState({
+    ...lazyResults.selectedResults,
+  })
   React.useEffect(
     () => {
       const unsubscribeCall = lazyResults.subscribeTo({
         subscribableThing: 'selectedResults',
         callback: () => {
-          setSelectedResults(lazyResults.selectedResults)
-          setForceRender(Math.random())
+          setSelectedResults({
+            ...lazyResults.selectedResults,
+          })
         },
       })
       return () => {
