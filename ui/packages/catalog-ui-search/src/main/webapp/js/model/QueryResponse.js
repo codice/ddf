@@ -198,6 +198,12 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   handleError(resultModel, response, sent) {
     const dataJSON = JSON.parse(sent.data)
+    this.get('lazyResults').updateStatusWithError({
+      sources: dataJSON.srcs,
+      message: response.responseJSON
+        ? response.responseJSON.message
+        : response.statusText,
+    })
     this.updateMessages(
       response.responseJSON
         ? response.responseJSON.message
@@ -278,6 +284,11 @@ module.exports = Backbone.AssociatedModel.extend({
     })
     this.get('lazyResults').addTypes(resp.types)
     this.get('lazyResults').updateStatus(resp.statusBySource)
+    this.get('lazyResults').updateDidYouMeanFields(resp.didYouMeanFields)
+    this.get('lazyResults').updateShowingResultsForFields(
+      resp.showingResultsForFields
+    )
+    this.get('lazyResults').add({ results: resp.results })
 
     return {
       showingResultsForFields: resp.showingResultsForFields,
@@ -340,7 +351,7 @@ module.exports = Backbone.AssociatedModel.extend({
   addToQueue(results) {
     // const now = Date.now()
     // don't think we need this since this is a map instead of array now
-    this.get('lazyResults').add({ results })
+
     // console.log(`finished ${resultsDeduped.length}: ${Date.now() - now}`)
     // this.queuedResults = this.queuedResults.concat(resultsDeduped)
     this.processQueue()

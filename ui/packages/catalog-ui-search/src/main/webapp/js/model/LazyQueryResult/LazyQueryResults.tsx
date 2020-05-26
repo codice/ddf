@@ -40,6 +40,7 @@ type SubscriptionType = { [key: string]: () => void }
  *
  */
 export class LazyQueryResults {
+  ['subscriptionsToOthers.result.isSelected']: (() => void)[];
   ['subscriptionsToMe.status']: SubscriptionType;
   ['subscriptionsToMe.filteredResults']: SubscriptionType;
   ['subscriptionsToMe.selectedResults']: SubscriptionType
@@ -131,10 +132,6 @@ export class LazyQueryResults {
       result.setSelected(false)
     })
   }
-  /**
-   * Array of the callbacks to unsubscribe
-   */
-  ['subscriptionsToOthers.result.isSelected']: (() => void)[]
   _updateFilteredResults() {
     this.filteredResults = Object.values(this.results)
       .filter(result => {
@@ -266,6 +263,7 @@ export class LazyQueryResults {
     )
   }
   init() {
+    this.currentAsOf = Date.now()
     if (this['subscriptionsToOthers.result.isSelected'])
       this['subscriptionsToOthers.result.isSelected'].forEach(unsubscribe => {
         unsubscribe()
@@ -276,6 +274,8 @@ export class LazyQueryResults {
       this['subscriptionsToMe.filteredResults'] = {}
     if (this['subscriptionsToMe.selectedResults'] === undefined)
       this['subscriptionsToMe.selectedResults'] = {}
+    if (this['subscriptionsToMe.status'] === undefined)
+      this['subscriptionsToMe.status'] = {}
     this.results = {}
     this.types = {}
     this.sources = []
@@ -290,6 +290,8 @@ export class LazyQueryResults {
   }
   reset({ results = [], sorts = [], sources = [] }: ConstructorProps = {}) {
     this.init()
+    this.resetDidYouMeanFields()
+    this.resetShowingResultsForFields()
     this._resetSources(sources)
     this._updatePersistantSorts(sorts)
     this.add({ results })
@@ -350,13 +352,72 @@ export class LazyQueryResults {
       },
       {} as SearchStatus
     )
+    this._updateIsSearching()
+    this._notifySubscribers('status')
+  }
+  cancel() {
+    Object.keys(status).forEach(id => {
+      if (this.status[id].hasReturned === false) {
+        this.status[id].updateStatus({
+          hasReturned: true,
+          message: 'Canceled by user',
+          successful: false,
+        })
+      }
+    })
+    this._updateIsSearching()
+    this._notifySubscribers('status')
   }
   updateStatus(status: SearchStatus) {
     Object.keys(status).forEach(id => {
       this.status[id].updateStatus(status[id])
     })
+    this._updateIsSearching()
+    this._notifySubscribers('status')
   }
+  updateStatusWithError({
+    sources,
+    message,
+  }: {
+    sources: string[]
+    message: string
+  }) {
+    sources.forEach(id => {
+      this.status[id].updateStatus({
+        message,
+        successful: false,
+      })
+    })
+    this._updateIsSearching()
+    this._notifySubscribers('status')
+  }
+  _updateIsSearching() {
+    this.isSearching = Object.values(this.status).some(status => {
+      return !status.hasReturned
+    })
+  }
+  isSearching: boolean
+  currentAsOf: number
   status: SearchStatus
+  updateDidYouMeanFields(update: any[] | null) {
+    if (update !== null)
+      this.didYouMeanFields = [...this.didYouMeanFields, ...update]
+  }
+  resetDidYouMeanFields() {
+    this.didYouMeanFields = []
+  }
+  didYouMeanFields: any[]
+  updateShowingResultsForFields(update: any[] | null) {
+    if (update !== null)
+      this.showingResultsForFields = [
+        ...this.showingResultsForFields,
+        ...update,
+      ]
+  }
+  resetShowingResultsForFields() {
+    this.showingResultsForFields = []
+  }
+  showingResultsForFields: any[]
 }
 
 type MetacardTypes = {

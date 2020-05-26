@@ -3,6 +3,10 @@ import * as React from 'react'
 import { LazyQueryResults } from './LazyQueryResults'
 const _ = require('underscore')
 
+/**
+ * If a view cares about whether or not a lazy result is selected,
+ * this will let them know.
+ */
 export const useSelectionOfLazyResult = ({
   lazyResult,
 }: {
@@ -23,6 +27,10 @@ export const useSelectionOfLazyResult = ({
   return isSelected
 }
 
+/**
+ * If a view cares about whether or not a lazy result is filtered,
+ * this will let them know.
+ */
 export const useFilteredOfLazyResult = ({
   lazyResult,
 }: {
@@ -45,6 +53,10 @@ export const useFilteredOfLazyResult = ({
 
 type useSelectionOfLazyResultsReturn = 'unselected' | 'partially' | 'selected'
 
+/**
+ * Used by clusters to respond quickly to changes they care about
+ * (in other words the results in their cluster)
+ */
 export const useSelectionOfLazyResults = ({
   lazyResults,
 }: {
@@ -104,6 +116,14 @@ export const useSelectionOfLazyResults = ({
   return isSelected
 }
 
+/**
+ * If a view cares about the entirety of what results are selected out
+ * of a LazyQueryResults object, this will keep them up to date.
+ *
+ * This is overkill for most components, but needed for things like
+ * the inspector.  Most other components will instead respond to changes
+ * in a single result.
+ */
 export const useSelectedResults = ({
   lazyResults,
 }: {
@@ -132,24 +152,35 @@ export const useSelectedResults = ({
   return selectedResults
 }
 
-export const useBackboneOfLazyResult = ({
-  lazyResult,
+/**
+ * If a view cares about the status of a LazyQueryResults object
+ */
+export const useStatusOfLazyResults = ({
+  lazyResults,
 }: {
-  lazyResult: LazyQueryResult
+  lazyResults: LazyQueryResults
 }) => {
-  const [backboneModel, setBackboneModel] = React.useState(
-    lazyResult.backbone as Backbone.Model | undefined
-  )
-  React.useEffect(() => {
-    let id = undefined as undefined | string
-    if (!lazyResult.backbone) {
-      id = lazyResult.subscribe(() => {
-        setBackboneModel(lazyResult.backbone)
+  const [status, setStatus] = React.useState(lazyResults.status)
+  const [forceRender, setForceRender] = React.useState(Math.random())
+  React.useEffect(
+    () => {
+      const unsubscribeCall = lazyResults.subscribeTo({
+        subscribableThing: 'status',
+        callback: () => {
+          setStatus(lazyResults.status)
+          setForceRender(Math.random())
+        },
       })
-    }
-    return () => {
-      lazyResult.unsubscribe(id)
-    }
-  }, [])
-  return backboneModel
+      return () => {
+        unsubscribeCall()
+      }
+    },
+    [lazyResults]
+  )
+
+  return {
+    status,
+    isSearching: lazyResults.isSearching,
+    currentAsOf: lazyResults.currentAsOf,
+  }
 }

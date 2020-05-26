@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import { Drawing } from '../../../singletons/drawing'
-import { useLazyResults } from '../../../selection-interface/hooks'
+import { useLazyResultsFromSelectionInterface } from '../../../selection-interface/hooks'
 import Geometry from './geometry'
 import CalculateClusters from './calculate-clusters'
 import Cluster from './cluster'
@@ -22,7 +22,9 @@ export type ClusterType = {
 const Geometries = (props: Props) => {
   console.log('rendering geometries')
   const { map, selectionInterface, isClustering, mapView } = props
-  const lazyResults = useLazyResults({ selectionInterface })
+  const lazyResults = useLazyResultsFromSelectionInterface({
+    selectionInterface,
+  })
   const lazyResultsRef = React.useRef(lazyResults)
   lazyResultsRef.current = lazyResults
   const [clusters, setClusters] = React.useState([] as ClusterType[])

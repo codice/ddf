@@ -512,6 +512,7 @@ Query.Model = PartialAssociatedModel.extend({
     })
     const result = this.get('result')
     if (result) {
+      result.get('lazyResults').cancel()
       result.emptyQueue()
     }
     this.currentSearches = []

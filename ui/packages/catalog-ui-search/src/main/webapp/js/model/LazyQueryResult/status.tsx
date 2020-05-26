@@ -35,14 +35,21 @@ export class Status {
   cacheSuccessful: boolean
   cacheMessages: []
   hasReturned: boolean
-  messages: []
+  message: string
   constructor({ id }: { id: string }) {
     this.id = id
+    this.count = 0
+    this.hasReturned = false
   }
-  updateStatus(update: StatusBySourceType[0]) {
+  updateStatus(
+    update: Partial<
+      StatusBySourceType[0] & { hasReturned: boolean; message: string }
+    >
+  ) {
     Object.keys(update).forEach(key => {
       // @ts-ignore
       this[key] = update[key]
     })
+    this.hasReturned = true
   }
 }
