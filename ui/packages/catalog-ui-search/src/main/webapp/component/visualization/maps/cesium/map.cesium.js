@@ -31,7 +31,7 @@ import CesiumLayerCollectionController from '../../../../js/controllers/cesium.l
 const user = require('../../../singletons/user-instance.js')
 const User = require('../../../../js/model/User.js')
 import { Drawing } from '../../../singletons/drawing'
-import { LazyQueryResult } from '../../../../js/model/LazyQueryResult'
+import { LazyQueryResult } from '../../../../js/model/LazyQueryResult/LazyQueryResult'
 import { ClusterType } from '../react/geometries'
 
 const defaultColor = '#3c6dd5'
