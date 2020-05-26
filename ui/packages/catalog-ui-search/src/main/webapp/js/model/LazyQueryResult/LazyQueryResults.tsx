@@ -21,7 +21,7 @@ import { Status } from './status'
 const user = require('../../../component/singletons/user-instance.js')
 const Backbone = require('backbone')
 
-type SearchStatus = {
+export type SearchStatus = {
   [key: string]: Status
 }
 

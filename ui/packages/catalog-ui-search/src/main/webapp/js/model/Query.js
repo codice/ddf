@@ -32,7 +32,6 @@ const plugin = require('plugins/query')
 import React from 'react'
 import { readableColor } from 'polished'
 import { LazyQueryResults } from './LazyQueryResult/LazyQueryResults'
-
 const Query = {}
 
 function limitToDeleted(cqlString) {
@@ -218,7 +217,17 @@ Query.Model = PartialAssociatedModel.extend({
 
     _.bindAll.apply(_, [this].concat(_.functions(this))) // underscore bindAll does not take array arg
     this.set('id', this.getId())
-    this.listenTo(this, 'change:cql', () => this.set('isOutdated', true))
+    this.listenTo(this, 'change:cql', () => {
+      this.set('isOutdated', true)
+      this.resetCurrentIndexForSourceGroup()
+    })
+    this.listenTo(
+      user.get('user').get('preferences'),
+      'change:resultCount',
+      () => {
+        this.resetCurrentIndexForSourceGroup()
+      }
+    )
 
     const sync = () => {
       // needs to be updated to handle the lazyResults, right now this doesn't do anything
@@ -240,6 +249,20 @@ Query.Model = PartialAssociatedModel.extend({
         this.listenTo(this.get('result'), 'change', sync)
       }
     })
+  },
+  getSelectedSources() {
+    const federation = this.get('federation')
+    switch (federation) {
+      case 'local':
+        return [Sources.localCatalog]
+        break
+      case 'enterprise':
+        return _.pluck(Sources.toJSON(), 'id')
+        break
+      case 'selected':
+        return this.get('sources')
+        break
+    }
   },
   buildSearchData() {
     const data = this.toJSON()
@@ -289,8 +312,9 @@ Query.Model = PartialAssociatedModel.extend({
     }
   },
   startSearchFromFirstPage(options) {
-    this.dispatch(clearPages())
-    this.set('serverPageIndex', serverPageIndex(this.state))
+    // this.dispatch(clearPages())
+    // this.set('serverPageIndex', serverPageIndex(this.state))
+    this.resetCurrentIndexForSourceGroup()
     this.startSearch(options)
   },
   startTieredSearch(ids) {
@@ -396,12 +420,13 @@ Query.Model = PartialAssociatedModel.extend({
     const isHarvested = id => harvestedSources.includes(id) && id !== 'cache'
     const isFederated = id => !harvestedSources.includes(id) && id !== 'cache'
 
+    this.currentIndexForSourceGroup = this.nextIndexForSourceGroup
     const localSearchToRun = {
       ...data,
       cql: cqlString,
       srcs: selectedSources.filter(isHarvested),
       // TODO: Blake - This needs to change to `getStartIndexForSourceGroup`, of which there are 3 source groups (Cache, Harvested, Federated)
-      start: 1,
+      start: this.currentIndexForSourceGroup.local,
     }
 
     const federatedSearchesToRun = selectedSources
@@ -411,7 +436,7 @@ Query.Model = PartialAssociatedModel.extend({
         cql: cqlString,
         srcs: [source],
         // TODO: Blake - This needs to change to `getStartIndexForSourceGroup`, of which there are 3 source groups (Cache, Harvested, Federated)
-        start: 1,
+        start: this.currentIndexForSourceGroup[source],
       }))
 
     const searchesToRun = [localSearchToRun, ...federatedSearchesToRun].filter(
@@ -568,18 +593,138 @@ Query.Model = PartialAssociatedModel.extend({
     return currentPage < Math.ceil(totalHits / pageSize)
   },
   getPreviousServerPage() {
-    this.dispatch(previousPage())
-    this.set('serverPageIndex', serverPageIndex(this.state))
+    // this.dispatch(previousPage())
+    // this.set('serverPageIndex', serverPageIndex(this.state))
+    this.setNextIndexForSourceGroupToPrevPage()
     this.startSearch()
   },
+  /**
+   * Much simpler than seeing if a next page exists
+   */
+  hasPreviousServerPage() {
+    return this.pastIndexesForSourceGroup.length > 0
+  },
+  hasNextServerPage() {
+    const currentStatus = this.get('result')
+      ? this.get('result').get('lazyResults').status
+      : {}
+    const harvestedSources = Sources.getHarvested()
+    const isLocal = id => {
+      return harvestedSources.includes(id)
+    }
+    const maxIndexSeenLocal =
+      Object.values(currentStatus)
+        .filter(status => isLocal(status.id))
+        .reduce((amt, status) => {
+          amt = amt + status.count
+          return amt
+        }, 0) + this.currentIndexForSourceGroup.local
+    const maxIndexPossibleLocal = Object.values(currentStatus)
+      .filter(status => isLocal(status.id))
+      .reduce((amt, status) => {
+        amt = amt + status.hits
+        return amt
+      }, 0)
+    if (maxIndexSeenLocal <= maxIndexPossibleLocal) {
+      return true
+    }
+
+    return Object.values(currentStatus)
+      .filter(status => !isLocal(status.id))
+      .some(status => {
+        const maxIndexPossible = status.hits
+        const count = status.count
+        const maxIndexSeen = count + this.currentIndexForSourceGroup[status.id]
+        return maxIndexSeen <= maxIndexPossible
+      })
+  },
   getNextServerPage() {
-    this.dispatch(nextPage())
-    this.set('serverPageIndex', serverPageIndex(this.state))
+    // this.dispatch(nextPage())
+    // this.set('serverPageIndex', serverPageIndex(this.state))
+    this.setNextIndexForSourceGroupToNextPage(this.getSelectedSources())
     this.startSearch()
   },
   // get the starting offset (beginning of the server page) for the given source
   getStartIndexForSource(src) {
     return currentIndexForSource(this.state)[src] || 1
+  },
+  resetCurrentIndexForSourceGroup() {
+    this.currentIndexForSourceGroup = {}
+    if (this.get('result')) {
+      this.get('result')
+        .get('lazyResults')
+        ._resetSources([])
+    }
+    this.setNextIndexForSourceGroupToNextPage(this.getSelectedSources())
+    this.pastIndexesForSourceGroup = []
+  },
+  currentIndexForSourceGroup: {},
+  pastIndexesForSourceGroup: [],
+  nextIndexForSourceGroup: {},
+  /**
+   * Update the next index to be the prev page
+   */
+  setNextIndexForSourceGroupToPrevPage() {
+    if (this.pastIndexesForSourceGroup.length > 0) {
+      this.nextIndexForSourceGroup = this.pastIndexesForSourceGroup.pop()
+    } else {
+      console.log('this should not happen')
+    }
+  },
+  /**
+   * Update the next index to be the next page
+   */
+  setNextIndexForSourceGroupToNextPage(sources) {
+    this.pastIndexesForSourceGroup.push(this.nextIndexForSourceGroup)
+    this.nextIndexForSourceGroup = this._calculateNextIndexForSourceGroupNextPage(
+      sources
+    )
+  },
+  /**
+   * Get what the next index should be for going forward
+   */
+  _calculateNextIndexForSourceGroupNextPage(sources) {
+    const harvestedSources = Sources.getHarvested()
+    const isLocal = id => {
+      return harvestedSources.includes(id)
+    }
+    const federatedSources = sources.filter(id => {
+      return !isLocal(id)
+    })
+    const currentStatus = this.get('result')
+      ? this.get('result').get('lazyResults').status
+      : {}
+
+    const maxLocalStart = Math.max(
+      1,
+      Object.values(currentStatus)
+        .filter(status => isLocal(status.id))
+        .filter(status => status.hits !== undefined)
+        .reduce((blob, status) => {
+          return blob + status.hits
+        }, 0)
+    )
+    return Object.values(currentStatus).reduce(
+      (blob, status) => {
+        if (isLocal(status.id)) {
+          blob['local'] = Math.min(maxLocalStart, blob['local'] + status.count)
+        } else {
+          blob[status.id] = Math.min(
+            status.hits !== undefined ? status.hits : 1,
+            blob[status.id] + status.count
+          )
+        }
+        return blob
+      },
+      {
+        local: 1,
+        ...federatedSources.reduce((blob, id) => {
+          blob[id] = 1
+          return blob
+        }, {}),
+        ...this.currentIndexForSourceGroup,
+      }
+    )
   },
   getResultsRangeLabel(resultsCollection) {
     const results = resultsCollection.length
