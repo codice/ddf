@@ -90,6 +90,14 @@ export class LazyQueryResults {
       return Math.min(min, result.index)
     }, Object.keys(this.results).length)
   }
+  /**
+   * This is used mostly by
+   */
+  groupSelect() {}
+  /**
+   * This will set swathes of sorted results to be selected.  It does not deselect anything.
+   * Primarily used in the list view (card / table)
+   */
   shiftSelect(target: LazyQueryResult) {
     const firstIndex = this._getMinIndexOfSelectedResults()
     const lastIndex = this._getMaxIndexOfSelectedResults()
@@ -120,9 +128,20 @@ export class LazyQueryResults {
       }
     }
   }
-  controlSelect(target: LazyQueryResult) {
-    target.setSelected(!target.isSelected)
+  /**
+   * This takes a list of ids to set to selected, and will deselect all others.
+   */
+  selectByIds(targets: string[]) {
+    this.deselect()
+    targets.forEach(id => {
+      if (this.results[id]) {
+        this.results[id].setSelected(true)
+      }
+    })
   }
+  /**
+   * This will toggle selection of the lazyResult passed in, and deselect all others.
+   */
   select(target: LazyQueryResult) {
     const isSelected = !target.isSelected
     this.deselect()
