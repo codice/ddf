@@ -139,6 +139,9 @@ export class LazyQueryResults {
       }
     })
   }
+  controlSelect(target: LazyQueryResult) {
+    target.setSelected(!target.isSelected)
+  }
   /**
    * This will toggle selection of the lazyResult passed in, and deselect all others.
    */
