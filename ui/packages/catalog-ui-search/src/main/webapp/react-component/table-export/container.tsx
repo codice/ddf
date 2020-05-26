@@ -18,6 +18,7 @@ import { exportResultSet } from '../utils/export'
 import LoadingCompanion from '../loading-companion'
 import saveFile from '../utils/save-file'
 import { hot } from 'react-hot-loader'
+import { Status } from '../../js/model/LazyQueryResult/status'
 const _ = require('underscore')
 const user = require('../../component/singletons/user-instance.js')
 const properties = require('../../js/properties.js')
@@ -32,7 +33,14 @@ function buildCqlQueryFromMetacards(metacards: any) {
 }
 const visibleData = (selectionInterface: any) =>
   buildCqlQueryFromMetacards(
-    selectionInterface.getActiveSearchResults().toJSON()
+    Object.values(
+      selectionInterface
+        .get('currentQuery')
+        .get('result')
+        .get('lazyResults').results
+    ).map((lazyResult: any) => {
+      return lazyResult.plain
+    })
   )
 const allData = (selectionInterface: any) =>
   selectionInterface.getCurrentQuery().get('cql')
@@ -70,10 +78,24 @@ function getExportCount({
   if (exportSize === 'custom') {
     return customExportCount
   }
-  const result = selectionInterface.getCurrentQuery().get('result')
-  return exportSize === 'all'
-    ? getHits(result.get('status').toJSON())
-    : result.get('results').length
+  const amount = Object.keys(
+    selectionInterface
+      .getCurrentQuery()
+      .get('result')
+      .get('lazyResults').results
+  ).length
+  const hits = Object.values(
+    selectionInterface
+      .getCurrentQuery()
+      .get('result')
+      .get('lazyResults').status
+  ).reduce((amt: number, status: Status) => {
+    if (status.hits) {
+      amt = amt + status.hits
+    }
+    return amt
+  }, 0) as number
+  return exportSize === 'all' ? hits : amount
 }
 function getSorts(selectionInterface: any) {
   return selectionInterface.getCurrentQuery().get('sorts')
