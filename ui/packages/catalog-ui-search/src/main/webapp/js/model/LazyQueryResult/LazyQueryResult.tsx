@@ -97,6 +97,13 @@ export class LazyQueryResult {
     humanizeResourceSize(plain)
     cacheBustThumbnail(plain)
   }
+  syncWithBackbone() {
+    if (this.backbone) {
+      this.plain = transformPlain({plain: this.backbone.toJSON()})
+      humanizeResourceSize(this.plain)
+      cacheBustThumbnail(this.plain)
+    }
+  }
   isDownloadable(): boolean {
     return this.plain.metacard.properties['resource-download-url'] !== undefined
   }
@@ -217,17 +224,20 @@ export class LazyQueryResult {
   }
   getBackbone() {
     if (this.backbone === undefined) {
-      this.setBackbone(new QueryResult(this.plain))
+      this._setBackbone(new QueryResult(this.plain))
     }
     return this.backbone
   }
-  /**
-   *  Should really only be called in query response the moment the backbone model is available
-   */
-  setBackbone(backboneModel: Backbone.Model) {
+  _setBackbone(backboneModel: Backbone.Model) {
     this.backbone = backboneModel
     this._notifySubscriptions()
   }
+   /**
+   * Not really used anymore to be honest since most views are just going to call getBackbone (which isn't async at the moment)
+   * 
+   * Keeping it around though because this is how we would be able to convert the creation of large amounts to
+   * be async and avoid locking up the UI.
+   */
   _notifySubscriptions() {
     Object.values(this.subscriptions).forEach(sub => sub())
   }
@@ -240,7 +250,9 @@ export class LazyQueryResult {
   subscribe(callback: () => void) {
     const id = Math.random().toString()
     this.subscriptions[id] = callback
-    return id
+    return () => {
+      this.unsubscribe(id)
+    }
   }
   unsubscribe(id?: string) {
     if (id === undefined) return

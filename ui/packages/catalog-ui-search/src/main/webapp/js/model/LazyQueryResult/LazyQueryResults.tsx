@@ -41,6 +41,7 @@ type SubscriptionType = { [key: string]: () => void }
  */
 export class LazyQueryResults {
   ['subscriptionsToOthers.result.isSelected']: (() => void)[];
+  ['subscriptionsToOthers.result.backboneCreated']: (() => void)[];
   ['subscriptionsToMe.status']: SubscriptionType;
   ['subscriptionsToMe.filteredResults']: SubscriptionType;
   ['subscriptionsToMe.selectedResults']: SubscriptionType
@@ -268,6 +269,13 @@ export class LazyQueryResults {
       this['subscriptionsToOthers.result.isSelected'].forEach(unsubscribe => {
         unsubscribe()
       })
+    if (this['subscriptionsToOthers.result.backboneCreated'])
+      this['subscriptionsToOthers.result.backboneCreated'].forEach(
+        unsubscribe => {
+          unsubscribe()
+        }
+      )
+    this['subscriptionsToOthers.result.backboneCreated'] = []
     this['subscriptionsToOthers.result.isSelected'] = []
     this._resetSelectedResults()
     if (this['subscriptionsToMe.filteredResults'] === undefined)
@@ -310,6 +318,20 @@ export class LazyQueryResults {
       this['subscriptionsToOthers.result.isSelected'].push(
         lazyResult.subscribeToSelection(() => {
           this._updateSelectedResults({ lazyResult })
+        })
+      )
+      this['subscriptionsToOthers.result.backboneCreated'].push(
+        lazyResult.subscribe(() => {
+          this.backboneModel.listenTo(
+            lazyResult.getBackbone(),
+            'change:metacard>properties refreshdata',
+            () => {
+              lazyResult.syncWithBackbone()
+              this._resort()
+              this._refilter()
+              this._notifySubscribers('filteredResults')
+            }
+          )
         })
       )
     })
