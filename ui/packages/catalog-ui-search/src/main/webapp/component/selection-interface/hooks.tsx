@@ -2,7 +2,10 @@ import * as React from 'react'
 import { useBackbone } from '../selection-checkbox/useBackbone.hook'
 import { LazyQueryResult } from '../../js/model/LazyQueryResult/LazyQueryResult'
 import { LazyQueryResults } from '../../js/model/LazyQueryResult/LazyQueryResults'
-import { useStatusOfLazyResults } from '../../js/model/LazyQueryResult/hooks'
+import {
+  useStatusOfLazyResults,
+  useSelectedResults,
+} from '../../js/model/LazyQueryResult/hooks'
 
 type useLazyResultsProps = {
   selectionInterface: any
@@ -24,6 +27,17 @@ const getLazyResultsFromSelectionInterface = ({
     return new LazyQueryResults()
   }
   return result.get('lazyResults')
+}
+
+export const useLazyResultsSelectedResultsFromSelectionInterface = ({
+  selectionInterface,
+}: useLazyResultsProps) => {
+  const lazyResults = useLazyResultsFromSelectionInterface({
+    selectionInterface,
+  })
+  const selectedResults = useSelectedResults({ lazyResults })
+
+  return selectedResults
 }
 
 export const useLazyResultsStatusFromSelectionInterface = ({
