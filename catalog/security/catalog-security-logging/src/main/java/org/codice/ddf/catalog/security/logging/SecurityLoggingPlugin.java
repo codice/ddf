@@ -38,7 +38,6 @@ import ddf.catalog.operation.Response;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
@@ -110,11 +109,8 @@ public class SecurityLoggingPlugin
   @Override
   public QueryRequest process(QueryRequest input)
       throws PluginExecutionException, StopProcessingException {
-    String additional = "";
     Query query = input.getQuery();
-    if (query instanceof QueryImpl) {
-      additional = ((QueryImpl) query).getFilter().toString();
-    }
+    String additional = query.toString();
     logOperation(CatalogOperationType.QUERY_REQUEST, input, additional);
     return input;
   }
@@ -193,11 +189,8 @@ public class SecurityLoggingPlugin
   @Override
   public QueryRequest process(Source source, QueryRequest input)
       throws PluginExecutionException, StopProcessingException {
-    String additional = "";
     Query query = input.getQuery();
-    if (query instanceof QueryImpl) {
-      additional = ((QueryImpl) query).getFilter().toString() + " for source " + source.getId();
-    }
+    String additional = query.toString() + " for source " + source.getId();
     logOperation(CatalogOperationType.QUERY_REQUEST, input, additional);
     return input;
   }
