@@ -82,18 +82,6 @@ const Cluster = ({ cluster, map }: Props) => {
   React.useEffect(() => {
     handleCluster()
     addConvexHull()
-    // map.onMouseMove((_event: any, mapEvent: any) => {
-    //   const id = mapEvent.mapTarget
-    //   if (
-    //     id &&
-    //     cluster.results.map(result => result['metacard.id']).toString() ===
-    //       id.toString()
-    //   ) {
-    //     map.showGeometry(geometries.current[1])
-    //   } else {
-    //     map.hideGeometry(geometries.current[1])
-    //   }
-    // })
     return () => {
       geometries.current.forEach(geometry => {
         map.removeGeometry(geometry)

@@ -30,7 +30,7 @@ const CalculateClusters = ({
     )
   }
 
-  const calculateClusters = _.throttle(() => {
+  const calculateClusters = _.debounce(() => {
     if (isClustering) {
       // const now = Date.now() look into trying to boost perf here
       const calculatedClusters = Clustering.calculateClusters(
@@ -50,7 +50,7 @@ const CalculateClusters = ({
         })
       )
     }
-  }, 200)
+  }, 500)
 
   const handleResultsChange = () => {
     setClusters([])
