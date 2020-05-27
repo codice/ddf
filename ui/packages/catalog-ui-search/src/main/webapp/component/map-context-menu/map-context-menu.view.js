@@ -22,17 +22,20 @@ const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.LayoutView.extend({
   template({ mouseLat, mouseLon, target, coordinateValues, selectionCount }) {
-    return (
-      <MapContextMenu
-        onChange={value => this.selectMenu(value)}
-        mouseLat={mouseLat}
-        mouseLon={mouseLon}
-        target={target}
-        coordinateValues={coordinateValues}
-        selectionCount={selectionCount}
-        closeMenu={this.triggerClick.bind(this)}
-      />
-    )
+    if (this.model.get('isOpen')) {
+      return (
+        <MapContextMenu
+          mouseLat={mouseLat}
+          mouseLon={mouseLon}
+          target={target}
+          coordinateValues={coordinateValues}
+          selectionCount={selectionCount}
+          closeMenu={this.triggerClick.bind(this)}
+        />
+      )
+    } else {
+      return <React.Fragment />
+    }
   },
   tagName: CustomElements.register('map-context-menu'),
   className: 'composed-menu',
