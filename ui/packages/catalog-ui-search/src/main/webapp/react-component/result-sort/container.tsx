@@ -29,9 +29,7 @@ const getResultSort = () => {
 }
 
 const ResultSortContainer = () => {
-  const [collection, setCollection] = React.useState(
-    new Backbone.Collection(getResultSort())
-  )
+  const [collection] = React.useState(new Backbone.Collection(getResultSort()))
   const [hasSort, setHasSort] = React.useState(collection.length > 0)
   const { listenTo } = useBackbone()
   React.useEffect(() => {

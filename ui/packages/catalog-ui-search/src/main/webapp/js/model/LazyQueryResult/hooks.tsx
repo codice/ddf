@@ -161,6 +161,7 @@ export const useStatusOfLazyResults = ({
   lazyResults: LazyQueryResults
 }) => {
   const [status, setStatus] = React.useState(lazyResults.status)
+  //@ts-ignore
   const [forceRender, setForceRender] = React.useState(Math.random())
   React.useEffect(
     () => {

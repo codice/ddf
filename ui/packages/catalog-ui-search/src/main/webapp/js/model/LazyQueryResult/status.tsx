@@ -1,5 +1,3 @@
-import number from '../../../dev/component/number'
-
 export type StatusBySourceType = {
   [key: string]: {
     count: number

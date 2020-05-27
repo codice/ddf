@@ -55,6 +55,7 @@ export const useLazyResultsFromSelectionInterface = ({
   selectionInterface,
 }: useLazyResultsProps) => {
   const { listenToOnce } = useBackbone()
+  //@ts-ignore
   const [forceRender, setForceRender] = React.useState(Math.random())
   const [lazyResults, setLazyResults] = React.useState(
     getLazyResultsFromSelectionInterface({
