@@ -14,18 +14,25 @@
 <td>
     {{id}}
     {{#if hasReturned}}
-        {{#unless successful}}
-            <span class="fa fa-warning" title="{{messages}}"></span>
-        {{/unless}}
+        {{#if warnings}}
+            <span class="fa fa-warning warning" title="{{warnings}}"></span>
+        {{else}}
+            {{#unless successful}}
+                <span class="fa fa-warning error" title="{{messages}}"></span>
+            {{/unless}}
+        {{/if}}
     {{/if}}
 </td>
 <td>
     {{#if anyHasReturned}}
         {{top}}
+        {{#if warnings}}
+            <span class="fa fa-warning warning" title="{{warnings}}"></span>
+        {{/if}}
     {{/if}}
     {{#if hasReturned}}
         {{#unless successful}}
-            <span class="fa fa-warning" title="{{messages}}"></span>
+            <span class="fa fa-warning error" title="{{messages}}"></span>
         {{/unless}}
     {{/if}}
     {{#if anyHasNotReturned}}
@@ -36,8 +43,11 @@
     {{#if hasReturned}}
         {{#if successful}}
             {{hits}}
+            {{#if warnings}}
+                <span class="fa fa-warning warning" title="{{warnings}}"></span>
+            {{/if}}
         {{else}}
-            <span class="fa fa-warning" title="{{messages}}"></span>
+            <span class="fa fa-warning error" title="{{messages}}"></span>
         {{/if}}
     {{else}}
         <span class="fa fa-circle-o-notch fa-spin" title="Waiting for source to return"></span>
@@ -47,8 +57,11 @@
     {{#if hasReturned}}
         {{#if successful}}
             {{elapsed}}
+            {{#if warnings}}
+                <span class="fa fa-warning warning" title="{{warnings}}"></span>
+            {{/if}}
         {{else}}
-            <span class="fa fa-warning" title="{{messages}}"></span>
+            <span class="fa fa-warning error" title="{{messages}}"></span>
         {{/if}}
     {{else}}
         <span class="fa fa-circle-o-notch fa-spin" title="Waiting for source to return"></span>

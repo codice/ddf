@@ -89,13 +89,14 @@ const reducer = (state = [{}], action) => {
     case 'PREVIOUS_PAGE':
       return state.slice(0, -1)
     case 'UPDATE_RESULTS':
-      const srcs = action.payload.results
-        .map(({ src }) => src)
-        .reduce((counts, src) => {
-          if (counts[src] === undefined) {
-            counts[src] = 0
+      const srcs = action.payload.status
+        .filter(status => status.id !== 'cache')
+        .map(({ id, count }) => ({ id, count }))
+        .reduce((counts, status) => {
+          const { id, count } = status
+          if (count !== 0) {
+            counts[id] = count
           }
-          counts[src] += 1
           return counts
         }, {})
 
@@ -237,7 +238,10 @@ Query.Model = PartialAssociatedModel.extend({
       const totalHits = this.get('result')
         .get('status')
         .reduce((total, status) => {
-          return total + status.get('hits')
+          if (status.get('id') !== 'cache') {
+            return total + status.get('hits')
+          }
+          return total
         }, 0)
 
       this.set('totalHits', totalHits)
@@ -425,7 +429,6 @@ Query.Model = PartialAssociatedModel.extend({
       ...data,
       cql: cqlString,
       srcs: selectedSources.filter(isHarvested),
-      // TODO: Blake - This needs to change to `getStartIndexForSourceGroup`, of which there are 3 source groups (Cache, Harvested, Federated)
       start: this.currentIndexForSourceGroup.local,
     }
 
@@ -435,7 +438,6 @@ Query.Model = PartialAssociatedModel.extend({
         ...data,
         cql: cqlString,
         srcs: [source],
-        // TODO: Blake - This needs to change to `getStartIndexForSourceGroup`, of which there are 3 source groups (Cache, Harvested, Federated)
         start: this.currentIndexForSourceGroup[source],
       }))
 
@@ -450,16 +452,12 @@ Query.Model = PartialAssociatedModel.extend({
         // limit the cached results to only those from a selected source. This adds metacard_source to the cql string.
         cql: CacheSourceSelector.trimCacheSources(cqlString, sources),
         srcs: ['cache'],
-        // TODO: Blake - This needs to change to `getStartIndexForSourceGroup`, of which there are 3 source groups (Cache, Harvested, Federated)
-        start: 1,
+        start: query.getStartIndexForSource('cache'),
       })
     }
 
-    console.log('Executing Searches: ', searchesToRun)
-
     const currentSearches = this.preQueryPlugin(searchesToRun)
 
-    console.log('About to run queries, state: ', this.state)
     currentSearches.then(currentSearches => {
       if (currentSearches.length === 0) {
         announcement.announce({
@@ -514,6 +512,7 @@ Query.Model = PartialAssociatedModel.extend({
               })
             }
 
+            // TODO: Need to do something here?
             const srcStatus = result.get('status').get(search.src)
             if (srcStatus) {
               srcStatus.set({

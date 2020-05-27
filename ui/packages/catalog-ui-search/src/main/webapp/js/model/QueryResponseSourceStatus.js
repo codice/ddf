@@ -31,6 +31,7 @@ module.exports = Backbone.AssociatedModel.extend({
       cacheMessages: [],
       hasReturned: false,
       messages: [],
+      warnings: [],
     }
   },
   initialize() {
