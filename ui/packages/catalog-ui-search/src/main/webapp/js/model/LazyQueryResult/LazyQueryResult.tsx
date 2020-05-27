@@ -14,7 +14,7 @@
  **/
 import { ResultType } from '../Types'
 const QueryResult = require('../QueryResult.js')
-import type { LazyQueryResults } from './LazyQueryResults'
+import { LazyQueryResults } from './LazyQueryResults'
 
 const _ = require('underscore')
 const Sources = require('../../../component/singletons/sources-instance.js')
@@ -23,7 +23,7 @@ const properties = require('../../properties.js')
 const TurfMeta = require('@turf/meta')
 const wkx = require('wkx')
 const Common = require('../../Common.js')
-import {matchesCql, matchesFilters} from './filter'
+import { matchesCql, matchesFilters } from './filter'
 import { FilterType } from './types'
 
 function cacheBustUrl(url: string): string {
@@ -79,8 +79,8 @@ export class LazyQueryResult {
   isResourceLocal: boolean
   type: 'query-result'
   subscriptions: { [key: string]: () => void }
-  selectionSubscriptions: { [key: string]: () => void };
-  filterSubscriptions:  { [key: string]: () => void };
+  selectionSubscriptions: { [key: string]: () => void }
+  filterSubscriptions: { [key: string]: () => void };
   ['metacard.id']: string
   isSelected: boolean
   isFiltered: boolean
@@ -99,7 +99,7 @@ export class LazyQueryResult {
   }
   syncWithBackbone() {
     if (this.backbone) {
-      this.plain = transformPlain({plain: this.backbone.toJSON()})
+      this.plain = transformPlain({ plain: this.backbone.toJSON() })
       humanizeResourceSize(this.plain)
       cacheBustThumbnail(this.plain)
     }
@@ -232,9 +232,9 @@ export class LazyQueryResult {
     this.backbone = backboneModel
     this._notifySubscriptions()
   }
-   /**
+  /**
    * Not really used anymore to be honest since most views are just going to call getBackbone (which isn't async at the moment)
-   * 
+   *
    * Keeping it around though because this is how we would be able to convert the creation of large amounts to
    * be async and avoid locking up the UI.
    */

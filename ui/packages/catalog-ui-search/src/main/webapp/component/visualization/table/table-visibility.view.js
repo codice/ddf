@@ -21,7 +21,7 @@ const properties = require('../../../js/properties.js')
 const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 module.exports = Marionette.ItemView.extend({
-  template(columns: any[]) {
+  template(columns) {
     return (
       <React.Fragment>
         <div className="visibility-columns">

@@ -21,7 +21,7 @@ const Sortable = require('sortablejs')
 const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 module.exports = Marionette.ItemView.extend({
-  template(columns: any[]) {
+  template(columns) {
     return (
       <React.Fragment>
         <div className="rearrange-columns">
@@ -41,7 +41,7 @@ module.exports = Marionette.ItemView.extend({
             )
           })}
         </div>
-        <div className="visibility-footer">
+        <div className="rearrange-footer">
           <button className="footer-cancel is-negative">
             <span className="fa fa-times" />
             <span>Cancel</span>
@@ -54,7 +54,7 @@ module.exports = Marionette.ItemView.extend({
       </React.Fragment>
     )
   },
-  tagName: 'intrigue-table-visibility',
+  tagName: 'intrigue-table-rearrange',
   events: {
     'click .footer-cancel': 'psuedoDestroy',
     'click .footer-save': 'handleSave',
