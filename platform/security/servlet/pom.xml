@@ -30,5 +30,6 @@
         <module>security-servlet-default-logout</module>
         <module>security-servlet-whoami</module>
         <module>security-servlet-session-expiry</module>
+        <module>security-servlet-web-socket</module>
     </modules>
 </project>
