@@ -20,11 +20,6 @@ import {
   Transformer,
 } from '../../react-component/utils/export'
 
-type Option = {
-  label: string
-  value: string
-}
-
 type ExportResponse = {
   displayName: string
   id: string
@@ -32,7 +27,6 @@ type ExportResponse = {
 
 export type Props = {
   selectionInterface: any
-  exportFormats: Option[]
 }
 
 const TableExports = (props: Props) => {
