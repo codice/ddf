@@ -293,7 +293,12 @@ module.exports = Marionette.LayoutView.extend({
     this.updateTarget(metacard)
     this.$el.toggleClass(
       'is-hovering',
-      Boolean(mapEvent.mapTarget && mapEvent.mapTarget !== 'userDrawing')
+      Boolean(
+        mapEvent.mapTarget &&
+          mapEvent.mapTarget !== 'userDrawing' &&
+          (mapEvent.mapTarget.constructor === Array ||
+            mapEvent.mapTarget.length > 10) // why ten?  Well, for some reason we don't put 'userDrawing' as the id on openlayers targets, instead we put a random cid from marionette / backbone. Not sure why to be honest.  We have to check if it's an array though, because clusters come back as arrays
+      )
     )
   },
   updateTarget(metacard) {
