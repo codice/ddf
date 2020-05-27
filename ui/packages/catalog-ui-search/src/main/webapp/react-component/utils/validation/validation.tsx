@@ -546,12 +546,12 @@ function validateRadiusLineBuffer(key: string, value: any) {
         ' ' +
         value.units,
     }
-  } else if (buffer < 1) {
+  } else if (key.includes('radius') && buffer < 1) {
     return {
       error: true,
       message:
         label +
-        'must be greater than ' +
+        'must be at least ' +
         DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
         ' ' +
         value.units,
