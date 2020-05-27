@@ -582,7 +582,7 @@ public class CachingFederationStrategyTest {
     Set<ProcessingDetails> processingDetails = new HashSet<>();
     processingDetails.add(processingDetailsForNullPointer);
     processingDetails.add(processingDetailsForUnsupportedQuery);
-    doReturn(processingDetails).when(mockResponseWithProcessingDetails).getProcessingDetails();
+    doReturn(processingDetails).when(mockResponseWithProcessingDetails).getProcessingErrors();
 
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, properties);
     when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponseWithProcessingDetails);
