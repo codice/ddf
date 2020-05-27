@@ -318,7 +318,9 @@ module.exports = Marionette.LayoutView.extend({
       .css('left', event.offsetX)
       .css('top', event.offsetY)
     this.mapModel.updateClickCoordinates()
-    this.mapContextMenu.currentView.model.open()
+    if (this.mapModel.get('mouseLat') !== undefined) {
+      this.mapContextMenu.currentView.model.open()
+    }
   },
   setupRightClickMenu() {
     this.mapContextMenu.show(
@@ -326,9 +328,6 @@ module.exports = Marionette.LayoutView.extend({
         model: new DropdownModel(),
         mapModel: this.mapModel,
         selectionInterface: this.options.selectionInterface,
-        dropdownCompanionBehaviors: {
-          navigation: {},
-        },
       })
     )
   },

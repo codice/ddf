@@ -15,35 +15,11 @@
 import * as React from 'react'
 import CopyCoordinates from '../copy-coordinates'
 import { Menu, MenuItem } from '../menu'
-import styled from 'styled-components'
-
-const Icon = styled.div`
-  display: inline-block;
-  text-align: center;
-  width: ${props => props.theme.minimumFontSize};
-`
-const Title = styled.div`
-  display: inline-block;
-  margin-left: ${props => props.theme.minimumSpacing};
-  margin-right: ${props => props.theme.minimumSpacing};
-`
-const Description = styled.div`
-  display: block;
-  margin-left: calc(
-    ${props => props.theme.minimumSpacing} +
-      ${props => props.theme.minimumFontSize}
-  );
-  margin-right: ${props => props.theme.minimumSpacing};
-  line-height: normal;
-  margin-top: calc(0 - ${props => props.theme.minimumSpacing});
-  margin-bottom: ${props => props.theme.minimumSpacing};
-`
 
 interface Props {
   onChange: (value: string) => void
   mouseLat?: number
   mouseLon?: number
-  target?: string
   coordinateValues: {
     dms: string
     lat: string
@@ -51,35 +27,23 @@ interface Props {
     mgrs: string
     utmUps: string
   }
-  selectionCount: number
   closeMenu: () => void
   key: number
 }
 
-const renderCopyCoordinatesMenu = ({ coordinateValues, closeMenu }: Props) => (
-  <MenuItem value="CopyCoordinates">
-    <CopyCoordinates
-      coordinateValues={coordinateValues}
-      closeParent={closeMenu}
-    />
-  </MenuItem>
-)
-
-const renderMenu = ({ onChange, key }: Props, menuItems: any[]) => (
-  <Menu key={key} onChange={onChange}>
-    {menuItems}
-  </Menu>
-)
-
-export const MapContextMenu = (props: Props) => {
-  const { mouseLat, mouseLon } = props
-  const hasMouseCoordinates =
-    typeof mouseLat === 'number' && typeof mouseLon === 'number'
-  const menuItems = []
-  if (hasMouseCoordinates) {
-    menuItems.push(renderCopyCoordinatesMenu(props))
-  }
-
-  const keyedItems = menuItems.map((m, i) => ({ key: i, ...m }))
-  return renderMenu(props, keyedItems)
+export const MapContextMenu = ({
+  onChange,
+  coordinateValues,
+  closeMenu,
+}: Props) => {
+  return (
+    <Menu onChange={onChange}>
+      <MenuItem value="CopyCoordinates">
+        <CopyCoordinates
+          coordinateValues={coordinateValues}
+          closeParent={closeMenu}
+        />
+      </MenuItem>
+    </Menu>
+  )
 }

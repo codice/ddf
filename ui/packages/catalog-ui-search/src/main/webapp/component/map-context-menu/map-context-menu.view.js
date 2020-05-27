@@ -21,15 +21,15 @@ const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template({ mouseLat, mouseLon, target, coordinateValues, selectionCount }) {
-    if (this.model.get('isOpen')) {
+  template({ mouseLat, mouseLon, target, coordinateValues }) {
+    if (this.model.get('isOpen') && mouseLat !== undefined) {
       return (
         <MapContextMenu
           mouseLat={mouseLat}
           mouseLon={mouseLon}
+          onChange={() => {}}
           target={target}
           coordinateValues={coordinateValues}
-          selectionCount={selectionCount}
           closeMenu={this.triggerClick.bind(this)}
         />
       )
