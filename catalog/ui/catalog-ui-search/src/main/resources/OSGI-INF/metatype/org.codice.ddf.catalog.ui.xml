@@ -330,8 +330,16 @@
         </AD>
 
         <AD id="defaultSources"
-            name="Default Sources Selection"
+            name="Default Sources"
             description="List of default sources for use in queries"
+            type="String"
+            cardinality="1000"
+            required="false">
+        </AD>
+
+        <AD id="defaultTableColumns"
+            name="Default Table Columns"
+            description="List of default columns for the table visualization"
             type="String"
             cardinality="1000"
             required="false">

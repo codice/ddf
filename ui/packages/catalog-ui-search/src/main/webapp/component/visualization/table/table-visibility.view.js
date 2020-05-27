@@ -113,6 +113,7 @@ module.exports = Marionette.ItemView.extend({
         element.getAttribute('data-propertyid')
       )
     )
+    prefs.set('hasSelectedColumns', true)
     prefs.savePreferences()
     this.psuedoDestroy()
   },
