@@ -28,6 +28,10 @@ const Geometries = (props: Props) => {
   const lazyResultsRef = React.useRef(lazyResults)
   lazyResultsRef.current = lazyResults
   const [clusters, setClusters] = React.useState([] as ClusterType[])
+  // possible since we debounce
+  if (isClustering === false && clusters.length > 0) {
+    setClusters([])
+  }
   React.useEffect(() => {
     const handleCtrlClick = (id: string | string[]) => {
       if (id.constructor === String) {
