@@ -418,4 +418,11 @@ public class AsyncFileAlterationObserver {
       }
     }
   }
+
+  @Override
+  protected void finalize() {
+    if (timer != null) {
+      timer.cancel();
+    }
+  }
 }
