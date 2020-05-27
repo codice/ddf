@@ -221,17 +221,21 @@ public class AsyncFileAlterationObserver {
   private void commitCreate(AsyncFileEntry entry, boolean success) {
 
     LOGGER.trace("commitCreate({},{}): Starting...", entry.getName(), success);
-    if (success) {
-      entry.commit();
-      entry.getParent().ifPresent(e -> e.addChild(entry));
-      LOGGER.debug(
-          "File {} committed to {}",
-          entry.getName(),
-          entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
-    } else {
-      LOGGER.debug("Create task failed for {}", entry.getName());
+    try {
+      if (success) {
+        entry.commit();
+        entry.getParent().ifPresent(e -> e.addChild(entry));
+        LOGGER.debug(
+                "File {} committed to {}",
+                entry.getName(),
+                entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
+      } else {
+        LOGGER.debug("Create task failed for {}", entry.getName());
+      }
     }
-    onFinish(entry);
+    finally{
+      onFinish(entry);
+    }
   }
 
   /**
@@ -263,6 +267,7 @@ public class AsyncFileAlterationObserver {
    * @param success Boolean that shows if the task failed or completed successfully
    */
   private void commitMatch(AsyncFileEntry entry, boolean success) {
+    try {
     if (success) {
       LOGGER.trace("commitMatch({},{}): Starting...", entry.getName(), success);
       entry.commit();
@@ -270,7 +275,9 @@ public class AsyncFileAlterationObserver {
     } else {
       LOGGER.debug("Match task failed for {}", entry.getName());
     }
-    onFinish(entry);
+   } finally {
+      onFinish(entry);
+    }
   }
 
   /**
@@ -303,6 +310,7 @@ public class AsyncFileAlterationObserver {
    */
   private void commitDelete(AsyncFileEntry entry, boolean success) {
     LOGGER.trace("commitDelete({},{}): Starting...", entry.getName(), success);
+    try {
     if (success) {
       entry.getParent().ifPresent(e -> e.removeChild(entry));
       entry.destroy();
@@ -313,7 +321,9 @@ public class AsyncFileAlterationObserver {
     } else {
       LOGGER.debug("Delete task failed for {}", entry.getName());
     }
-    onFinish(entry);
+    } finally {
+      onFinish(entry);
+    }
   }
 
   /**
@@ -412,8 +422,7 @@ public class AsyncFileAlterationObserver {
             processing
                 .stream()
                 .map(AsyncFileEntry::getName)
-                .collect(Collectors.toList())
-                .toString();
+                .collect(Collectors.joining(", "));
         LOGGER.debug("{} files being processed: {}", processing.size(), files);
       }
     }
@@ -423,6 +432,7 @@ public class AsyncFileAlterationObserver {
   protected void finalize() {
     if (timer != null) {
       timer.cancel();
+      timer.purge();
     }
   }
 }
