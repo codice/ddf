@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const HistogramView = require('../../component/visualization/histogram/histogram.view.js')
+import HistogramView from '../../component/visualization/histogram/lazy-histogram.view'
 const TableView = require('../../component/visualization/table/table-viz.view.js')
 import LazyInspectorView from '../../component/visualization/inspector/inspector-lazy.view'
 const LowBandwidthMapView = require('../../component/visualization/low-bandwidth-map/low-bandwidth-map.view.js')

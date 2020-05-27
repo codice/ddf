@@ -65,63 +65,21 @@ const renderCopyCoordinatesMenu = ({ coordinateValues, closeMenu }: Props) => (
   </MenuItem>
 )
 
-const renderHistogramMenu = () => (
-  <MenuItem value="Histogram">
-    <Icon className="interaction-icon fa fa-bar-chart" />
-    <Title>View Histogram</Title>
-  </MenuItem>
-)
-
-const renderHistogramSelectionMenu = ({ selectionCount }: Props) => (
-  <MenuItem value="HistogramSelection">
-    <Icon className="interaction-icon fa fa-bar-chart" />
-    <Title>View Histogram (selected results)</Title>
-    <Description>({selectionCount} selected)</Description>
-  </MenuItem>
-)
-
-const renderInspectorMenu = ({ target }: Props) => (
-  <MenuItem value="Inspector">
-    <Icon className="interaction-icon fa fa-info" />
-    <Title>View Inspector</Title>
-    <Description>({target})</Description>
-  </MenuItem>
-)
-
 const renderMenu = ({ onChange, key }: Props, menuItems: any[]) => (
   <Menu key={key} onChange={onChange}>
     {menuItems}
   </Menu>
 )
 
-const renderInspectorSelectionMenu = ({ selectionCount }: Props) => (
-  <MenuItem value="InspectorSelection">
-    <Icon className="interaction-icon fa fa-info" />
-    <Title>View Inspector (selected results)</Title>
-    <Description>({selectionCount} selected)</Description>
-  </MenuItem>
-)
-
 export const MapContextMenu = (props: Props) => {
-  const { mouseLat, mouseLon, selectionCount, target } = props
-  const hasTarget = typeof target === 'string'
-  const hasSelection = selectionCount > 0
+  const { mouseLat, mouseLon } = props
   const hasMouseCoordinates =
     typeof mouseLat === 'number' && typeof mouseLon === 'number'
   const menuItems = []
   if (hasMouseCoordinates) {
     menuItems.push(renderCopyCoordinatesMenu(props))
   }
-  menuItems.push(renderHistogramMenu())
-  if (hasSelection) {
-    menuItems.push(renderHistogramSelectionMenu(props))
-  }
-  if (hasTarget) {
-    menuItems.push(renderInspectorMenu(props))
-  }
-  if (hasSelection) {
-    menuItems.push(renderInspectorSelectionMenu(props))
-  }
+
   const keyedItems = menuItems.map((m, i) => ({ key: i, ...m }))
   return renderMenu(props, keyedItems)
 }
