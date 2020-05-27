@@ -287,9 +287,15 @@ module.exports = Marionette.LayoutView.extend({
     this.toolbarSettings.show(new MapSettingsView())
   },
   onMapHover(event, mapEvent) {
-    const metacard = this.options.selectionInterface
-      .getActiveSearchResults()
-      .get(mapEvent.mapTarget)
+    const currentQuery = this.options.selectionInterface.get('currentQuery')
+    if (!currentQuery) {
+      return
+    }
+    const result = currentQuery.get('result')
+    if (!result) {
+      return
+    }
+    const metacard = result.get('lazyResults').results[mapEvent.mapTarget]
     this.updateTarget(metacard)
     this.$el.toggleClass(
       'is-hovering',
@@ -305,10 +311,7 @@ module.exports = Marionette.LayoutView.extend({
     let target
     let targetMetacard
     if (metacard) {
-      target = metacard
-        .get('metacard')
-        .get('properties')
-        .get('title')
+      target = metacard.plain.metacard.properties.title
       targetMetacard = metacard
     }
     this.mapModel.set({
