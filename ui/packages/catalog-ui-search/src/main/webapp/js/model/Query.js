@@ -445,17 +445,6 @@ Query.Model = PartialAssociatedModel.extend({
       search => search.srcs.length > 0
     )
 
-    if (!properties.isCacheDisabled) {
-      searchesToRun.push({
-        ...data,
-        // since the "cache" source will return all cached results, need to
-        // limit the cached results to only those from a selected source. This adds metacard_source to the cql string.
-        cql: CacheSourceSelector.trimCacheSources(cqlString, sources),
-        srcs: ['cache'],
-        start: query.getStartIndexForSource('cache'),
-      })
-    }
-
     const currentSearches = this.preQueryPlugin(searchesToRun)
 
     currentSearches.then(currentSearches => {
