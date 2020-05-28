@@ -122,8 +122,7 @@
         <hamcrest-optional.version>1.0</hamcrest-optional.version>
         <jsonassert.version>1.5.0</jsonassert.version>
         <junit.version>4.12</junit.version>
-        <mockito-core.version>2.8.47</mockito-core.version>
-        <mockito-all.version>1.10.19</mockito-all.version>
+        <mockito.version>2.8.47</mockito.version>
         <pax.exam.version>4.13.2.CODICE</pax.exam.version>
         <pax.url.version>2.6.1</pax.url.version>
         <pax.web.version>7.2.11</pax.web.version>
@@ -249,7 +248,7 @@
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
         <netty.version>4.1.32.Final</netty.version>
-        <objenesis.version>2.5.1</objenesis.version>
+        <objenesis.version>2.6</objenesis.version>
         <ogc-tools-gml-jts.version>1.1.90</ogc-tools-gml-jts.version>
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
         <opengis.bundle.version>${opengis.version}_3</opengis.bundle.version>
@@ -1117,16 +1116,27 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
+            <version>${objenesis.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${mockito-all.version}</version>
-            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>xmlunit</groupId>

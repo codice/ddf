@@ -19,10 +19,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -72,10 +72,10 @@ public class OcspCheckerTest {
   private final EventAdmin eventAdmin = mock(EventAdmin.class);
 
   // these should be populated per method; used when mocking the client factory
-  private List<String> goodEndpoints = new ArrayList<>();
-  private List<String> revokedEndpoints = new ArrayList<>();
-  private List<String> unknownEndpoints = new ArrayList<>();
-  private List<String> brokenEndpoints = new ArrayList<>();
+  private final List<String> goodEndpoints = new ArrayList<>();
+  private final List<String> revokedEndpoints = new ArrayList<>();
+  private final List<String> unknownEndpoints = new ArrayList<>();
+  private final List<String> brokenEndpoints = new ArrayList<>();
 
   // mocks
   @Mock private Response goodResponse;
@@ -86,43 +86,16 @@ public class OcspCheckerTest {
   @Mock private WebClient revokedWebClient;
   @Mock private WebClient unknownWebClient;
   @Mock private WebClient brokenWebClient;
-  @Mock private SecureCxfClientFactory goodSecureCxfClientFactory;
-  @Mock private SecureCxfClientFactory revokedSecureCxfClientFactory;
-  @Mock private SecureCxfClientFactory unknownSecureCxfClientFactory;
-  @Mock private SecureCxfClientFactory brokenSecureCxfClientFactory;
+  @Mock private SecureCxfClientFactory<WebClient> goodSecureCxfClientFactory;
+  @Mock private SecureCxfClientFactory<WebClient> revokedSecureCxfClientFactory;
+  @Mock private SecureCxfClientFactory<WebClient> unknownSecureCxfClientFactory;
+  @Mock private SecureCxfClientFactory<WebClient> brokenSecureCxfClientFactory;
 
   // mockito argument matchers for list matching
-  private ArgumentMatcher<String> inGoodList =
-      new ArgumentMatcher<String>() {
-        @Override
-        public boolean matches(Object string) {
-          return goodEndpoints.contains(string);
-        }
-      };
-
-  private ArgumentMatcher<String> inRevokedList =
-      new ArgumentMatcher<String>() {
-        @Override
-        public boolean matches(Object string) {
-          return revokedEndpoints.contains(string);
-        }
-      };
-
-  private ArgumentMatcher<String> inUnknownList =
-      new ArgumentMatcher<String>() {
-        @Override
-        public boolean matches(Object string) {
-          return unknownEndpoints.contains(string);
-        }
-      };
-
-  private ArgumentMatcher<String> inBrokenList =
-      new ArgumentMatcher<String>() {
-        @Override
-        public boolean matches(Object string) {
-          return brokenEndpoints.contains(string);
-        }
-      };
+  private final ArgumentMatcher<String> inGoodList = goodEndpoints::contains;
+  private final ArgumentMatcher<String> inRevokedList = revokedEndpoints::contains;
+  private final ArgumentMatcher<String> inUnknownList = unknownEndpoints::contains;
+  private final ArgumentMatcher<String> inBrokenList = brokenEndpoints::contains;
 
   @BeforeClass
   public static void setupClass() throws Exception {

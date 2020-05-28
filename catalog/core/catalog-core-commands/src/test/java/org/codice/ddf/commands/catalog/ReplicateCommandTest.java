@@ -17,9 +17,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -76,7 +76,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand = new ReplicateCommand();
 
     final Session session = mock(Session.class);
-    when(session.readLine(anyString(), isNull(Character.class))).thenReturn("sourceId1");
+    when(session.readLine(anyString(), isNull())).thenReturn("sourceId1");
     replicateCommand.session = session;
 
     replicateCommand.catalogFramework = catalogFramework;

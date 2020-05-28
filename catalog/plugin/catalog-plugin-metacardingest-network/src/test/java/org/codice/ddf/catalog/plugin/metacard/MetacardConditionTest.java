@@ -28,7 +28,7 @@ import org.codice.ddf.catalog.plugin.metacard.util.KeyValueParser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * Assert that {@link MetacardCondition}s behave properly, and maintain the component separation so

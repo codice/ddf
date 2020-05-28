@@ -800,7 +800,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   @Override
   public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
     Subject subject = (Subject) queryRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
-    Csw csw = factory.getClientForSubject(subject);
+    Csw csw = (subject != null) ? factory.getClientForSubject(subject) : factory.getClient();
 
     return query(queryRequest, ElementSetType.FULL, null, csw);
   }
@@ -991,9 +991,8 @@ public abstract class AbstractCswSource extends MaskableImpl
   private ResourceResponse retrieveResourceById(
       Map<String, Serializable> requestProperties, String metacardId)
       throws ResourceNotFoundException {
-    Csw csw =
-        factory.getClientForSubject(
-            (Subject) requestProperties.get(SecurityConstants.SECURITY_SUBJECT));
+    Subject subject = (Subject) requestProperties.get(SecurityConstants.SECURITY_SUBJECT);
+    Csw csw = (subject != null) ? factory.getClientForSubject(subject) : factory.getClient();
     GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
     getRecordByIdRequest.setService(CswConstants.CSW);
     getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);

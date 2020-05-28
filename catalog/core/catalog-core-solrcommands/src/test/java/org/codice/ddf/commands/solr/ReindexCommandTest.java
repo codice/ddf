@@ -33,7 +33,6 @@ import java.util.concurrent.Callable;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
@@ -41,7 +40,7 @@ import org.codice.ddf.security.Security;
 import org.codice.solr.client.solrj.SolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReindexCommandTest extends SolrCommandTest {
@@ -57,11 +56,8 @@ public class ReindexCommandTest extends SolrCommandTest {
     ThreadContext.bind(mock(Subject.class));
 
     SolrClient cloudClient = mock(SolrClient.class);
-    SolrPingResponse pingResponse = mock(SolrPingResponse.class);
     NamedList<Object> pingStatus = new NamedList<>();
     pingStatus.add("status", "OK");
-    when(pingResponse.getResponse()).thenReturn(pingStatus);
-    when(cloudClient.ping()).thenReturn(pingResponse);
     when(cloudClient.isAvailable()).thenReturn(true);
 
     QueryResponse hitCountResponse = mock(QueryResponse.class);

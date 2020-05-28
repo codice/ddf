@@ -19,8 +19,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -49,7 +49,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCommandTest extends SolrCommandTest {
@@ -687,11 +687,11 @@ public class BackupCommandTest extends SolrCommandTest {
       throws Exception {
     NamedList<Object> response =
         getResponseForStatus(FAILURE_STATUS_CODE, RequestStatusState.FAILED, backupErrorMessages);
-    when(mockSolrClient.request(any(SolrRequest.class), isNull(String.class))).thenReturn(response);
+    when(mockSolrClient.request(any(SolrRequest.class), isNull())).thenReturn(response);
   }
 
   private void setupMockSolrClientForStatusThrowsException() throws Exception {
-    when(mockSolrClient.request(any(SolrRequest.class), isNull(String.class)))
+    when(mockSolrClient.request(any(SolrRequest.class), isNull()))
         .thenThrow(SolrServerException.class);
   }
 

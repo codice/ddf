@@ -38,7 +38,7 @@ import java.util.concurrent.Callable;
 import org.apache.shiro.subject.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -86,7 +86,7 @@ public class SecurityTest {
   @Test
   public void testGetSubjectInvalidUsernamePassword() throws Exception {
     SecurityManager sm = mock(SecurityManager.class);
-    when(sm.getSubject(Matchers.any())).thenThrow(new SecurityServiceException("Error"));
+    when(sm.getSubject(ArgumentMatchers.any())).thenThrow(new SecurityServiceException("Error"));
 
     configureMockForSecurityManager(sm);
 
@@ -98,7 +98,7 @@ public class SecurityTest {
   public void testGetSubject() throws Exception {
     SecurityManager sm = mock(SecurityManager.class);
     Subject smSubject = mock(Subject.class);
-    when(sm.getSubject(Matchers.any())).thenReturn(smSubject);
+    when(sm.getSubject(ArgumentMatchers.any())).thenReturn(smSubject);
 
     configureMockForSecurityManager(sm);
 
@@ -224,7 +224,7 @@ public class SecurityTest {
     }
 
     verify(security)
-        .auditFailedCodeExecutionForSystemSubject(Matchers.any(ExecutionException.class));
+        .auditFailedCodeExecutionForSystemSubject(ArgumentMatchers.any(ExecutionException.class));
   }
 
   @Test
@@ -259,8 +259,8 @@ public class SecurityTest {
   private void configureMockForSecurityManager(SecurityManager sm) {
     BundleContext bc = mock(BundleContext.class);
     doReturn(bc).when(security).getBundleContext();
-    ServiceReference ref = mock(ServiceReference.class);
-    when(bc.getServiceReference(Matchers.any(Class.class))).thenReturn(ref);
+    ServiceReference<Object> ref = mock(ServiceReference.class);
+    when(bc.getServiceReference(ArgumentMatchers.<Class<Object>>any())).thenReturn(ref);
     when(bc.getService(ref)).thenReturn(sm);
   }
 
@@ -268,15 +268,15 @@ public class SecurityTest {
     System.setProperty("org.codice.ddf.system.hostname", systemHostname);
     BundleContext bundleContext = mock(BundleContext.class);
     doReturn(bundleContext).when(security).getBundleContext();
-    ServiceReference adminRef = mock(ServiceReference.class);
+    ServiceReference<ConfigurationAdmin> adminRef = mock(ServiceReference.class);
     ConfigurationAdmin configAdmin = mock(ConfigurationAdmin.class);
     Configuration config = mock(Configuration.class);
-    when(configAdmin.getConfiguration(Matchers.anyString(), Matchers.anyString()))
+    when(configAdmin.getConfiguration(ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
         .thenReturn(config);
     when(bundleContext.getService(adminRef)).thenReturn(configAdmin);
-    ServiceReference securityRef = mock(ServiceReference.class);
+    ServiceReference<SecurityManager> securityRef = mock(ServiceReference.class);
     SecurityManager securityManager = mock(SecurityManager.class);
-    when(securityManager.getSubject(Matchers.any())).thenReturn(systemSubject);
+    when(securityManager.getSubject(ArgumentMatchers.any())).thenReturn(systemSubject);
     when(bundleContext.getService(securityRef)).thenReturn(securityManager);
     when(bundleContext.getServiceReference(ConfigurationAdmin.class)).thenReturn(adminRef);
     when(bundleContext.getServiceReference(SecurityManager.class)).thenReturn(securityRef);

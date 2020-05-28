@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
@@ -61,7 +61,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -278,6 +278,8 @@ public class AdminConsoleServiceTest {
     org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
         mock(org.osgi.service.cm.ConfigurationAdmin.class);
     ConfigurationAdminImpl testConfigAdminExt = mock(ConfigurationAdminImpl.class);
+    when(testConfigAdminExt.getDefaultFactoryLdapFilter()).thenReturn(TEST_FILTER_1);
+    when(testConfigAdminExt.getDefaultLdapFilter()).thenReturn(TEST_FILTER_1);
     AdminConsoleService configAdmin =
         new AdminConsoleService(testConfigAdmin, testConfigAdminExt) {
           @Override
@@ -439,7 +441,6 @@ public class AdminConsoleServiceTest {
         };
 
     Configuration testConfig = mock(Configuration.class);
-    when(testConfig.getPid()).thenReturn(TEST_PID);
 
     when(testConfigAdmin.getConfiguration(TEST_PID, null)).thenReturn(testConfig);
     configAdmin.delete(TEST_PID);
@@ -835,8 +836,6 @@ public class AdminConsoleServiceTest {
     Map<String, Object> configTable = new HashMap<>();
     AdminConsoleService configAdmin = spy(getConfigAdmin());
 
-    when(mockGuestClaimsHandlerExt.getProfileGuestClaims()).thenReturn(guestClaims);
-    when(mockGuestClaimsHandlerExt.getProfileSystemClaims()).thenReturn(systemClaims);
     when(mockGuestClaimsHandlerExt.getProfileConfigs()).thenReturn(configs);
 
     assertFalse(configAdmin.updateGuestClaimsProfile(UI_CONFIG_PID, configTable));
@@ -875,7 +874,7 @@ public class AdminConsoleServiceTest {
     Hashtable<String, Object> values = new Hashtable<>();
     values.put("TestKey_0_12", "newPassword");
 
-    ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
+    ArgumentCaptor<Dictionary<String, ?>> captor = ArgumentCaptor.forClass(Dictionary.class);
     configAdmin.update(TEST_PID, values);
     verify(testConfig, times(1)).update(captor.capture());
 
@@ -1050,11 +1049,6 @@ public class AdminConsoleServiceTest {
     testProperties.put(
         org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACT_PID_DISABLED);
 
-    when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
-        .thenReturn(new Configuration[] {testConfig});
-    when(testConfig.getProperties()).thenReturn(testProperties);
-    when(testFactoryConfig.getPid()).thenReturn(TEST_FACT_PID_DISABLED);
-
     configAdmin.disableConfiguration(TEST_PID);
   }
 
@@ -1093,13 +1087,6 @@ public class AdminConsoleServiceTest {
 
     testProperties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACTORY_PID);
 
-    when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
-        .thenReturn(new Configuration[] {testConfig});
-    when(testConfig.getProperties()).thenReturn(testProperties);
-    when(testFactoryConfig.getPid()).thenReturn(TEST_FACTORY_PID);
-    when(testConfigAdmin.createFactoryConfiguration(TEST_FACTORY_PID, null))
-        .thenReturn(testFactoryConfig);
-
     configAdmin.enableConfiguration(TEST_PID);
   }
 
@@ -1121,7 +1108,6 @@ public class AdminConsoleServiceTest {
           }
         };
 
-    when(testConfigAdmin.listConfigurations(anyString())).thenReturn(null);
     configAdmin.enableConfiguration(TEST_PID);
   }
 
@@ -1228,7 +1214,6 @@ public class AdminConsoleServiceTest {
     when(testOCD.getAttributeDefinitions(ObjectClassDefinition.ALL))
         .thenReturn(attDefs.toArray(new AttributeDefinition[attDefs.size()]));
 
-    when(testMTI.getBundle()).thenReturn(testBundle);
     when(testMTI.getFactoryPids()).thenReturn(new String[] {TEST_FACTORY_PID});
     when(testMTI.getPids()).thenReturn(new String[] {TEST_PID});
     when(testMTI.getObjectClassDefinition(anyString(), anyString())).thenReturn(testOCD);
@@ -1239,7 +1224,7 @@ public class AdminConsoleServiceTest {
 
     when(CONFIGURATION_ADMIN.listConfigurations(anyString()))
         .thenReturn(new Configuration[] {testConfig});
-    when(CONFIGURATION_ADMIN.getConfiguration(anyString(), anyString())).thenReturn(testConfig);
+    when(CONFIGURATION_ADMIN.getConfiguration(anyString(), any())).thenReturn(testConfig);
 
     when(testBundleContext.getAllServiceReferences(anyString(), anyString()))
         .thenReturn(testServRefs);

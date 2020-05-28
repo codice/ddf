@@ -16,8 +16,8 @@ package org.codice.ddf.catalog.actions;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -37,7 +37,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractMetacardActionProviderTest {
@@ -207,9 +207,6 @@ public class AbstractMetacardActionProviderTest {
   public void getActionsWhenHostUnknown() throws Exception {
     MetacardActionProvider actionProvider = createMetacardActionProvider();
     when(actionProvider.canHandleMetacard(metacard)).thenReturn(true);
-    when(actionProvider.createMetacardAction(eq(ACTION_ID), eq(TITLE), eq(DESCRIPTION), any()))
-        .thenReturn(action);
-    when(actionProvider.getMetacardActionUrl(SOURCE_ID, metacard)).thenReturn(url);
     System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "0.0.0.0");
 
     Action action = actionProvider.getAction(metacard);

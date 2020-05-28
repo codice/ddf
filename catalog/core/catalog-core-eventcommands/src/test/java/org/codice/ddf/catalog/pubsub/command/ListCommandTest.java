@@ -19,8 +19,9 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,7 +70,7 @@ public class ListCommandTest {
         .thenReturn(YOUR_SUBSCRIPTION_ID);
 
     ServiceReference[] refs = new ServiceReference[] {mySubscription, yourSubscription};
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), isNull()))
         .thenReturn(refs);
 
     PrintStream realSystemOut = System.out;
@@ -134,7 +135,7 @@ public class ListCommandTest {
 
     ServiceReference[] refs =
         new ServiceReference[] {sourceSubscriptionReference, enterpriseSubscriptionReference};
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), isNull()))
         .thenReturn(refs);
 
     PrintStream realSystemOut = System.out;
@@ -176,7 +177,7 @@ public class ListCommandTest {
 
     BundleContext bundleContext = mock(BundleContext.class);
     listCommand.setBundleContext(bundleContext);
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), isNull()))
         .thenReturn(new ServiceReference[] {});
 
     PrintStream realSystemOut = System.out;
@@ -329,13 +330,13 @@ public class ListCommandTest {
     BundleContext bundleContext = mock(BundleContext.class);
     listCommand.setBundleContext(bundleContext);
 
+    String ldapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=my*)";
+
     ServiceReference mySubscription = mock(ServiceReference.class);
     when(mySubscription.getPropertyKeys()).thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
     when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(MY_SUBSCRIPTION_ID);
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, ldapFilter))
         .thenReturn(new ServiceReference[] {mySubscription});
-
-    String ldapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=my*)";
 
     PrintStream realSystemOut = System.out;
 

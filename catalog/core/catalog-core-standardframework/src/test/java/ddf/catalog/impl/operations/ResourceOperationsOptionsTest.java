@@ -13,8 +13,8 @@
  */
 package ddf.catalog.impl.operations;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -242,12 +242,10 @@ public class ResourceOperationsOptionsTest {
 
   protected OngoingStubbing<QueryResponse> whenQueried() throws Exception {
     return when(
-        queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()));
+        queryOperationsMock.query(any(QueryRequest.class), any(), anyBoolean(), anyBoolean()));
   }
 
   private void verifyQueryOperations() throws FederationException, UnsupportedQueryException {
-    verify(queryOperationsMock)
-        .query(any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean());
+    verify(queryOperationsMock).query(any(QueryRequest.class), any(), anyBoolean(), anyBoolean());
   }
 }

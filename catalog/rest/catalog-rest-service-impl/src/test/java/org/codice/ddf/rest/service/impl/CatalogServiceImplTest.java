@@ -20,11 +20,11 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -256,7 +256,8 @@ public class CatalogServiceImplTest {
 
     LOGGER.debug(ToStringBuilder.reflectionToString(response));
 
-    ArgumentCaptor<CreateStorageRequest> captor = new ArgumentCaptor<>();
+    ArgumentCaptor<CreateStorageRequest> captor =
+        ArgumentCaptor.forClass(CreateStorageRequest.class);
     verify(framework, times(1)).create(captor.capture());
     assertThat(
         captor
@@ -869,8 +870,7 @@ public class CatalogServiceImplTest {
     InputStream inputStream = new ByteArrayInputStream(metacardXml.getBytes(GET_OUTPUT_TYPE));
     when(content.getInputStream()).thenReturn(inputStream);
     when(content.getMimeTypeValue()).thenReturn("application/json;id=geojson");
-    when(framework.transform(isA(Metacard.class), anyString(), isNull(Map.class)))
-        .thenReturn(content);
+    when(framework.transform(isA(Metacard.class), anyString(), isNull())).thenReturn(content);
 
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);

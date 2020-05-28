@@ -15,11 +15,11 @@ package ddf.catalog.resource.download;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -233,7 +233,7 @@ public class ReliableResourceDownloaderTest {
     ResourceResponse mockResponse = getMockResourceResponse(mockStream);
 
     ResourceRetriever mockResourceRetriever = mock(ResourceRetriever.class);
-    when(mockResourceRetriever.retrieveResource(any(Byte.class))).thenReturn(mockResponse);
+    when(mockResourceRetriever.retrieveResource(anyLong())).thenReturn(mockResponse);
 
     ReliableResourceStatus resourceStatus =
         new ReliableResourceStatus(DownloadStatus.RESOURCE_DOWNLOAD_INTERRUPTED, 0L);
@@ -253,13 +253,12 @@ public class ReliableResourceDownloaderTest {
                 mockResponse,
                 mockResourceRetriever));
 
-    doReturn(null)
-        .doReturn(mockCallable)
+    doReturn(mockCallable)
         .when(downloader)
         .constructReliableResourceCallable(
             any(InputStream.class),
             any(CountingOutputStream.class),
-            any(FileOutputStream.class),
+            any(),
             anyInt(),
             any(Object.class));
     doThrow(new CancellationException()).when(downloader).constructResourceRetrievalMonitor();

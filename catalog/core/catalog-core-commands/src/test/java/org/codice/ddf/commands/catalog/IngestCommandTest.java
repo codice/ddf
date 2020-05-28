@@ -17,9 +17,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -67,7 +66,7 @@ public class IngestCommandTest extends CommandCatalogFrameworkCommon {
       when(bundleContext.getServiceReferences(anyString(), anyString()))
           .thenReturn(new ServiceReference[] {mock(ServiceReference.class)});
       InputTransformer inputTransformer = mock(InputTransformer.class);
-      when(bundleContext.getService(anyObject())).thenReturn(inputTransformer);
+      when(bundleContext.getService(any())).thenReturn(inputTransformer);
     } catch (InvalidSyntaxException e) {
       // ignore
     }

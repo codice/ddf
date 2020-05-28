@@ -16,7 +16,7 @@ package org.codice.ddf.security.certificate.generator;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.security.KeyStore;
@@ -32,7 +32,7 @@ import org.bouncycastle.operator.ContentSigner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CertificateAuthorityTest {
@@ -76,9 +76,7 @@ public class CertificateAuthorityTest {
     when(mockBuilder.build(any(ContentSigner.class))).thenReturn(mockHolder);
     when(mockConverter.getCertificate(any(X509CertificateHolder.class))).thenReturn(mockSignedCert);
     when(csr.getSubjectPrivateKey()).thenReturn(mockPrivateKey);
-    when(csr.getSubjectPublicKey()).thenReturn(mockPublicKey);
     when(mockPrivateKey.getAlgorithm()).thenReturn("RSA");
-    when(mockPublicKey.getAlgorithm()).thenReturn("RSA");
 
     KeyStore.PrivateKeyEntry newObject = demoCa.sign(csr);
     assertThat(

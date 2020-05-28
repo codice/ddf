@@ -15,8 +15,8 @@ package ddf.mime.mapper;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -74,7 +74,7 @@ public class MimeTypeToTransformerMapperImplTest {
     ServiceReference[] refs = {};
 
     // when
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -131,7 +131,7 @@ public class MimeTypeToTransformerMapperImplTest {
     when(context.getService(ref2)).thenReturn(simpleTransformer2);
     when(context.getService(ref3)).thenReturn(simpleTransformer3);
 
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -166,7 +166,7 @@ public class MimeTypeToTransformerMapperImplTest {
     ServiceReference[] refs = {};
 
     // when
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -214,7 +214,7 @@ public class MimeTypeToTransformerMapperImplTest {
     when(context.getService(ref1)).thenReturn(simpleTransformer1);
     when(context.getService(ref2)).thenReturn(simpleTransformer2);
 
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -261,7 +261,7 @@ public class MimeTypeToTransformerMapperImplTest {
     // when
     when(context.getService(ref1)).thenReturn(simpleTransformer1);
 
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -307,7 +307,7 @@ public class MimeTypeToTransformerMapperImplTest {
     // when
     when(context.getService(ref1)).thenReturn(simpleTransformer1);
 
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -349,7 +349,7 @@ public class MimeTypeToTransformerMapperImplTest {
     when(context.getService(ref2)).thenReturn(simpleTransformer2);
     when(context.getService(ref3)).thenReturn(simpleTransformer3);
 
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -398,7 +398,7 @@ public class MimeTypeToTransformerMapperImplTest {
     when(ref3.compareTo(ref1)).thenReturn(1);
     when(ref3.compareTo(ref2)).thenReturn(1);
 
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -443,7 +443,7 @@ public class MimeTypeToTransformerMapperImplTest {
     when(context.getService(ref2)).thenReturn(simpleTransformer2);
     when(context.getService(ref3)).thenReturn(simpleTransformer3);
 
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -473,7 +473,7 @@ public class MimeTypeToTransformerMapperImplTest {
 
     // when
     when(context.getService(ref1)).thenReturn(simpleTransformer1);
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -514,7 +514,7 @@ public class MimeTypeToTransformerMapperImplTest {
     // when
     when(context.getService(ref)).thenReturn(simpleTransformer1);
 
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -549,7 +549,7 @@ public class MimeTypeToTransformerMapperImplTest {
     when(context.getService(ref1)).thenReturn(simpleTransformer1);
     when(context.getService(ref2)).thenReturn(simpleTransformer2);
 
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -602,7 +602,7 @@ public class MimeTypeToTransformerMapperImplTest {
     when(ref3.compareTo(ref1)).thenReturn(1);
     when(ref3.compareTo(ref2)).thenReturn(1);
 
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override
@@ -635,7 +635,7 @@ public class MimeTypeToTransformerMapperImplTest {
     ServiceReference[] refs = null;
 
     // when
-    when(context.getServiceReferences(isA(String.class), isNull(String.class))).thenReturn(refs);
+    when(context.getServiceReferences(isA(String.class), isNull())).thenReturn(refs);
     MimeTypeToTransformerMapper matcher =
         new MimeTypeToTransformerMapperImpl() {
           @Override

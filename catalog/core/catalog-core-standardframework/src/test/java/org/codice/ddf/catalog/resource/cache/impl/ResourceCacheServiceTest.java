@@ -15,8 +15,8 @@ package org.codice.ddf.catalog.resource.cache.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -42,7 +42,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opengis.filter.Filter;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -77,7 +77,6 @@ public class ResourceCacheServiceTest {
   @Before
   public void before() throws Exception {
     resourceCacheServiceObjectName = new ObjectName(ResourceCacheServiceMBean.OBJECT_NAME);
-    setupMockMetacard();
   }
 
   @Test
@@ -310,9 +309,5 @@ public class ResourceCacheServiceTest {
   private void setupMockQueryResponse(int numberOfResults) {
     when(mockQueryResponse.getResults().size()).thenReturn(numberOfResults);
     when(mockQueryResponse.getResults().get(0).getMetacard()).thenReturn(mockMetacard);
-  }
-
-  private void setupMockMetacard() {
-    when(mockMetacard.getId()).thenReturn(METACARD_ID);
   }
 }

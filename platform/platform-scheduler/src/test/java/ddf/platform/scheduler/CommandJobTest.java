@@ -15,23 +15,22 @@ package ddf.platform.scheduler;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.notNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
-import java.io.InputStream;
 import java.util.concurrent.Callable;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.security.impl.Security;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
@@ -85,8 +84,7 @@ public class CommandJobTest {
           @Override
           protected SessionFactory getSessionFactory() {
             SessionFactory sessionFactory = mock(SessionFactory.class);
-            when(sessionFactory.create(notNull(InputStream.class), any(), any()))
-                .thenReturn(session);
+            when(sessionFactory.create(notNull(), any(), any())).thenReturn(session);
             return sessionFactory;
           }
         };
@@ -205,7 +203,7 @@ public class CommandJobTest {
           @Override
           public Subject getSystemSubject() {
             Subject subject = mock(Subject.class);
-            when(subject.execute(Matchers.<Callable<Object>>any()))
+            when(subject.execute(ArgumentMatchers.<Callable<Object>>any()))
                 .thenThrow(ExecutionException.class);
             return subject;
           }
@@ -229,7 +227,7 @@ public class CommandJobTest {
 
   private static Subject createMockSubject() {
     Subject subject = mock(Subject.class);
-    when(subject.execute(Matchers.<Callable<Object>>any()))
+    when(subject.execute(ArgumentMatchers.<Callable<Object>>any()))
         .thenAnswer(
             invocation -> {
               Callable<Object> callable = (Callable<Object>) invocation.getArguments()[0];

@@ -16,9 +16,10 @@ package org.codice.ddf.catalog.pubsub.command;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -98,12 +99,12 @@ public class DeleteCommandTest {
     // NOTE: List of comma-delimited return values specified in the thenReturn() method is
     // Mockito's way of
     // supporting stubbing of consecutive calls to same mocked method.
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, ldapFilter))
         .thenReturn(new ServiceReference[] {mySubscription}, new ServiceReference[] {});
 
     Subscriber mockSubscriber = mock(Subscriber.class);
     ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), isNull()))
         .thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
     when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
     when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);
@@ -148,18 +149,18 @@ public class DeleteCommandTest {
 
     ServiceReference[] refs = new ServiceReference[] {mySubscription, yourSubscription};
     String ldapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=my*)";
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, ldapFilter))
         .thenReturn(refs);
     ldapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + MY_SUBSCRIPTION_ID + ")";
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, ldapFilter))
         .thenReturn(new ServiceReference[] {});
     ldapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + YOUR_SUBSCRIPTION_ID + ")";
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, ldapFilter))
         .thenReturn(new ServiceReference[] {});
 
     Subscriber mockSubscriber = mock(Subscriber.class);
     ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), isNull()))
         .thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
     when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
     when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);
@@ -205,22 +206,22 @@ public class DeleteCommandTest {
 
     String ldapFilter = "(& (subscription-id=my*) (subscription-id=*WSDL))";
     ServiceReference[] refs = new ServiceReference[] {mySubscription, yourSubscription};
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, ldapFilter))
         .thenReturn(refs);
 
     // Return empty ServiceReference lists when getting ServiceReference by explicit
     // subscription ID as this invocation
     // is when DeleteCommand is verifying the subscription was deleted.
     String filter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + MY_SUBSCRIPTION_ID + ")";
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(filter)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, filter))
         .thenReturn(new ServiceReference[] {});
     filter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + YOUR_SUBSCRIPTION_ID + ")";
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(filter)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, filter))
         .thenReturn(new ServiceReference[] {});
 
     Subscriber mockSubscriber = mock(Subscriber.class);
     ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), isNull()))
         .thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
     when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
     when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);
@@ -267,7 +268,7 @@ public class DeleteCommandTest {
 
     String ldapFilter = "(& (subscription-id=my*) (subscription-id=*WSDL))";
     ServiceReference[] refs = new ServiceReference[] {mySubscription, yourSubscription};
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, ldapFilter))
         .thenReturn(refs);
 
     // Return empty ServiceReference list for mySubscriptionId but return actual
@@ -277,19 +278,19 @@ public class DeleteCommandTest {
     // that yourSubscriptionId was unable
     // to be deleted.
     String filter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + MY_SUBSCRIPTION_ID + ")";
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(filter)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, filter))
         .thenReturn(new ServiceReference[] {});
     filter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + YOUR_SUBSCRIPTION_ID + ")";
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(filter)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, filter))
         .thenReturn(new ServiceReference[] {yourSubscription});
 
     Subscriber mockSubscriber = mock(Subscriber.class);
     ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), isNull()))
         .thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
     when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
-    when(mockSubscriber.deleteSubscription(eq(MY_SUBSCRIPTION_ID))).thenReturn(true);
-    when(mockSubscriber.deleteSubscription(eq(YOUR_SUBSCRIPTION_ID))).thenReturn(false);
+    when(mockSubscriber.deleteSubscription(MY_SUBSCRIPTION_ID)).thenReturn(true);
+    when(mockSubscriber.deleteSubscription(YOUR_SUBSCRIPTION_ID)).thenReturn(false);
 
     PrintStream realSystemOut = System.out;
 
@@ -335,11 +336,9 @@ public class DeleteCommandTest {
     when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
         .thenReturn(YOUR_SUBSCRIPTION_ID);
 
-    when(bundleContext.getServiceReferences(
-            eq(SubscriptionsCommand.SERVICE_PID), eq(MY_SUBSCRIPTION_ID)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, MY_SUBSCRIPTION_ID))
         .thenReturn(new ServiceReference[] {mySubscription});
-    when(bundleContext.getServiceReferences(
-            eq(SubscriptionsCommand.SERVICE_PID), eq(YOUR_SUBSCRIPTION_ID)))
+    when(bundleContext.getServiceReferences(SubscriptionsCommand.SERVICE_PID, YOUR_SUBSCRIPTION_ID))
         .thenReturn(new ServiceReference[] {yourSubscription});
 
     Subscriber mockSubscriber = mock(Subscriber.class);

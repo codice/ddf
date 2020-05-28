@@ -16,9 +16,8 @@ package ddf.catalog.cache.solr.impl;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -50,7 +49,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
 
@@ -203,8 +202,6 @@ public class SolrCacheTest {
 
   @Test
   public void createAbsorbsException() throws Exception {
-    doThrow(new IOException()).when(mockCacheSolrMetacardClient).add(any(List.class), eq(false));
-
     solrCache.put(Collections.emptyList());
   }
 
@@ -247,9 +244,6 @@ public class SolrCacheTest {
   @Test
   public void deleteAbsorbsException() throws Exception {
     DeleteRequest mockRequest = setupDeleteRequest(OTHER_ATTRIBUTE_NAME);
-    doThrow(new IOException())
-        .when(mockCacheSolrMetacardClient)
-        .deleteByIds(anyString(), any(List.class), eq(false));
 
     solrCache.delete(mockRequest);
 

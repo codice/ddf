@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.opensearch.source;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -477,7 +477,7 @@ public class OpenSearchParserImplTest {
   }
 
   private void assertQueryParameterPopulated(final String queryParameterName) {
-    verify(webClient, times(1)).replaceQueryParam(eq(queryParameterName), anyObject());
+    verify(webClient, times(1)).replaceQueryParam(eq(queryParameterName), any());
   }
 
   private void assertQueryParameterPopulated(
@@ -486,7 +486,7 @@ public class OpenSearchParserImplTest {
   }
 
   private void assertQueryParameterNotPopulated(final String queryParameterName) {
-    verify(webClient, never()).replaceQueryParam(eq(queryParameterName), anyObject());
+    verify(webClient, never()).replaceQueryParam(eq(queryParameterName), any());
   }
 
   private void assertNoQueryParametersPopulated() {

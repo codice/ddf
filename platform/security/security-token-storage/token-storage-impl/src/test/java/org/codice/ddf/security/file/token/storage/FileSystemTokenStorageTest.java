@@ -24,7 +24,7 @@ import static org.codice.ddf.security.token.storage.api.TokenStorage.SECRET;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -244,8 +244,7 @@ public class FileSystemTokenStorageTest {
 
     when(crypter.decrypt(any(InputStream.class)))
         .thenReturn(new ByteArrayInputStream(json.getBytes()));
-    when(crypter.encrypt(any(InputStream.class)))
-        .thenAnswer(i -> i.getArgumentAt(0, InputStream.class));
+    when(crypter.encrypt(any(InputStream.class))).thenAnswer(i -> i.getArgument(0));
 
     int deleted = tokenStorage.delete(USERNAME);
     assertEquals(SC_OK, deleted);
@@ -280,8 +279,7 @@ public class FileSystemTokenStorageTest {
 
     when(crypter.decrypt(any(InputStream.class)))
         .thenReturn(new ByteArrayInputStream(json.getBytes()));
-    when(crypter.encrypt(any(InputStream.class)))
-        .thenAnswer(i -> i.getArgumentAt(0, InputStream.class));
+    when(crypter.encrypt(any(InputStream.class))).thenAnswer(i -> i.getArgument(0));
 
     int deleted = tokenStorage.delete(USERNAME, SOURCE_ID);
     assertEquals(SC_OK, deleted);
@@ -310,8 +308,7 @@ public class FileSystemTokenStorageTest {
 
     when(crypter.decrypt(any(InputStream.class)))
         .thenReturn(new ByteArrayInputStream(json.getBytes()));
-    when(crypter.encrypt(any(InputStream.class)))
-        .thenAnswer(i -> i.getArgumentAt(0, InputStream.class));
+    when(crypter.encrypt(any(InputStream.class))).thenAnswer(i -> i.getArgument(0));
 
     int deleted = tokenStorage.delete(USERNAME, SOURCE_ID);
     assertEquals(SC_OK, deleted);

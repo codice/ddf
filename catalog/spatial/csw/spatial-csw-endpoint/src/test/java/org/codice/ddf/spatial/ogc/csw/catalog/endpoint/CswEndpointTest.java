@@ -25,8 +25,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -272,6 +273,8 @@ public class CswEndpointTest {
         .thenReturn(new ArrayList<>(Arrays.asList(CswConstants.CSW_OUTPUT_SCHEMA)));
     when(mockSchemaManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA))
         .thenReturn(mockTransformer);
+    when(mockSchemaManager.getTransformerSchemaForId(CswConstants.CSW_RECORD))
+        .thenReturn(CswConstants.CSW_NAMESPACE_URI);
     when(mockInputManager.getAvailableIds()).thenReturn(Arrays.asList(CswConstants.CSW_RECORD));
 
     reset(catalogFramework);
@@ -301,6 +304,7 @@ public class CswEndpointTest {
         .thenReturn(queryRequest);
     when(queryFactory.updateQueryRequestTags(any(QueryRequest.class), anyString()))
         .thenReturn(queryRequest);
+    when(queryFactory.getQueryById(anyList())).thenReturn(queryRequest);
   }
 
   private void addSecurity() {

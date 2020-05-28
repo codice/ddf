@@ -23,13 +23,13 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -115,6 +115,9 @@ import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
 
 public class WfsSourceTest {
+
+  private static final String SAMPLE_WFS_URL = "http://www.someserver.com/wfs/cwwfs.cgi";
+
   private static final Map<String, String> NAMESPACE_CONTEXT =
       ImmutableMap.of("wfs", "http://www.opengis.net/wfs", "ogc", "http://www.opengis.net/ogc");
 
@@ -277,7 +280,7 @@ public class WfsSourceTest {
       final List<String> supportedGeos, final String srsName, final int results, final int hits)
       throws WfsException {
 
-    SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
+    SecureCxfClientFactory<Object> mockFactory = mock(SecureCxfClientFactory.class);
     when(mockFactory.getClient()).thenReturn(mockWfs);
 
     when(mockClientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
@@ -288,7 +291,7 @@ public class WfsSourceTest {
             anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
         .thenReturn(mockFactory);
     when(mockClientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any(), any()))
         .thenReturn(mockFactory);
     when(mockClientFactoryFactory.getSecureCxfClientFactory(
             anyString(),
@@ -297,8 +300,8 @@ public class WfsSourceTest {
             any(),
             anyBoolean(),
             anyBoolean(),
-            anyInt(),
-            anyInt(),
+            any(),
+            any(),
             anyString(),
             anyString()))
         .thenReturn(mockFactory);
@@ -309,8 +312,8 @@ public class WfsSourceTest {
             any(),
             anyBoolean(),
             anyBoolean(),
-            anyInt(),
-            anyInt(),
+            any(),
+            any(),
             anyString(),
             anyString(),
             anyString()))
@@ -384,6 +387,7 @@ public class WfsSourceTest {
     source.setMetacardTypeEnhancers(Collections.emptyList());
     source.setMetacardMappers(metacardMappers);
     source.setPollInterval(10);
+    source.setWfsUrl(SAMPLE_WFS_URL);
     source.init();
   }
 
@@ -1317,6 +1321,7 @@ public class WfsSourceTest {
 
     final Map<String, Object> configuration =
         ImmutableMap.<String, Object>builder()
+            .put("wfsUrl", "http://localhost/wfs")
             .put("coordinateOrder", LAT_LON_ORDER)
             .put("forceSpatialFilter", "NO_FILTER")
             .put("allowRedirects", false)
@@ -1357,6 +1362,7 @@ public class WfsSourceTest {
 
     final Map<String, Object> configuration =
         ImmutableMap.<String, Object>builder()
+            .put("wfsUrl", "http://localhost/wfs")
             .put("coordinateOrder", LON_LAT_ORDER)
             .put("forceSpatialFilter", "NO_FILTER")
             .put("allowRedirects", false)
@@ -1493,7 +1499,7 @@ public class WfsSourceTest {
   }
 
   private static class IsDescribeFeatureTypeRequestForTypeName
-      extends ArgumentMatcher<DescribeFeatureTypeRequest> {
+      implements ArgumentMatcher<DescribeFeatureTypeRequest> {
     private final String typeName;
 
     private IsDescribeFeatureTypeRequestForTypeName(final String typeName) {
@@ -1501,9 +1507,8 @@ public class WfsSourceTest {
     }
 
     @Override
-    public boolean matches(final Object request) {
-      return request instanceof DescribeFeatureTypeRequest
-          && Objects.equals(((DescribeFeatureTypeRequest) request).getTypeName(), typeName);
+    public boolean matches(final DescribeFeatureTypeRequest request) {
+      return Objects.equals(request.getTypeName(), typeName);
     }
   }
 
@@ -1511,7 +1516,8 @@ public class WfsSourceTest {
     return argThat(new IsGetFeatureRequestWithResultType(resultType));
   }
 
-  private static class IsGetFeatureRequestWithResultType extends ArgumentMatcher<GetFeatureType> {
+  private static class IsGetFeatureRequestWithResultType
+      implements ArgumentMatcher<GetFeatureType> {
     private final ResultTypeType resultType;
 
     private IsGetFeatureRequestWithResultType(final ResultTypeType resultType) {
@@ -1519,9 +1525,8 @@ public class WfsSourceTest {
     }
 
     @Override
-    public boolean matches(final Object o) {
-      return o instanceof GetFeatureType
-          && Objects.equals(((GetFeatureType) o).getResultType(), resultType);
+    public boolean matches(final GetFeatureType featureType) {
+      return featureType != null && Objects.equals(featureType.getResultType(), resultType);
     }
   }
 }

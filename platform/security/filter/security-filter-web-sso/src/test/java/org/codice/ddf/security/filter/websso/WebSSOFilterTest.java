@@ -16,10 +16,9 @@ package org.codice.ddf.security.filter.websso;
 import static ddf.security.SecurityConstants.AUTHENTICATION_TOKEN_KEY;
 import static ddf.security.SecurityConstants.SECURITY_TOKEN_KEY;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -110,7 +109,7 @@ public class WebSSOFilterTest {
 
     FilterChain filterChain = mock(FilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);
-    when(request.getContextPath()).thenReturn(MOCK_CONTEXT);
+    when(request.getRequestURI()).thenReturn(MOCK_CONTEXT);
     HttpServletResponse response = mock(HttpServletResponse.class);
 
     filter.doFilter(request, response, filterChain);
@@ -137,15 +136,16 @@ public class WebSSOFilterTest {
 
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
     when(requestMock.getSession(any(Boolean.class))).thenReturn(sessionMock);
+    when(requestMock.getRequestURI()).thenReturn(MOCK_CONTEXT);
 
     HttpServletResponse responseMock = mock(HttpServletResponse.class);
 
     ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
     when(policyManager.getSessionAccess()).thenReturn(false);
-    when(policyManager.isWhiteListed(anyString())).thenReturn(false);
+    when(policyManager.isWhiteListed(MOCK_CONTEXT)).thenReturn(false);
     ContextPolicy testPolicy = mock(ContextPolicy.class);
     when(testPolicy.getAuthenticationMethods()).thenReturn(Collections.singletonList("basic"));
-    when(policyManager.getContextPolicy(anyString())).thenReturn(testPolicy);
+    when(policyManager.getContextPolicy(MOCK_CONTEXT)).thenReturn(testPolicy);
 
     AuthenticationHandler handlerMock = mock(AuthenticationHandler.class);
     when(handlerMock.getAuthenticationType()).thenReturn("basic");
@@ -168,8 +168,7 @@ public class WebSSOFilterTest {
     filter.doFilter(requestMock, responseMock, filterChain);
 
     verify(sessionMock, times(0)).getAttribute(SECURITY_TOKEN_KEY);
-    verify(handlerMock, times(1))
-        .getNormalizedToken(anyObject(), anyObject(), anyObject(), anyBoolean());
+    verify(handlerMock, times(1)).getNormalizedToken(any(), any(), any(), anyBoolean());
     verify(requestMock, times(1)).setAttribute(eq(AUTHENTICATION_TOKEN_KEY), any());
   }
 
@@ -186,15 +185,16 @@ public class WebSSOFilterTest {
 
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
     when(requestMock.getSession(any(Boolean.class))).thenReturn(sessionMock);
+    when(requestMock.getRequestURI()).thenReturn(MOCK_CONTEXT);
 
     HttpServletResponse responseMock = mock(HttpServletResponse.class);
 
     ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
     when(policyManager.getSessionAccess()).thenReturn(true);
-    when(policyManager.isWhiteListed(anyString())).thenReturn(false);
+    when(policyManager.isWhiteListed(MOCK_CONTEXT)).thenReturn(false);
     ContextPolicy testPolicy = mock(ContextPolicy.class);
     when(testPolicy.getAuthenticationMethods()).thenReturn(Collections.singletonList("basic"));
-    when(policyManager.getContextPolicy(anyString())).thenReturn(testPolicy);
+    when(policyManager.getContextPolicy(MOCK_CONTEXT)).thenReturn(testPolicy);
 
     AuthenticationHandler handlerMock = mock(AuthenticationHandler.class);
     when(handlerMock.getAuthenticationType()).thenReturn("basic");
@@ -217,8 +217,7 @@ public class WebSSOFilterTest {
     filter.doFilter(requestMock, responseMock, filterChain);
 
     verify(sessionMock, times(1)).getAttribute(SECURITY_TOKEN_KEY);
-    verify(handlerMock, times(0))
-        .getNormalizedToken(anyObject(), anyObject(), anyObject(), anyBoolean());
+    verify(handlerMock, times(0)).getNormalizedToken(any(), any(), any(), anyBoolean());
     verify(requestMock, times(1)).setAttribute(eq(AUTHENTICATION_TOKEN_KEY), any());
   }
 
@@ -227,8 +226,8 @@ public class WebSSOFilterTest {
     ContextPolicy testPolicy = mock(ContextPolicy.class);
     when(testPolicy.getAuthenticationMethods()).thenReturn(Collections.singletonList("basic"));
     ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
-    when(policyManager.getContextPolicy(anyString())).thenReturn(testPolicy);
-    when(policyManager.isWhiteListed(anyString())).thenReturn(false);
+    when(policyManager.getContextPolicy(MOCK_CONTEXT)).thenReturn(testPolicy);
+    when(policyManager.isWhiteListed(MOCK_CONTEXT)).thenReturn(false);
     when(policyManager.getSessionAccess()).thenReturn(false);
     WebSSOFilter filter = new WebSSOFilter();
 
@@ -258,7 +257,7 @@ public class WebSSOFilterTest {
 
     FilterChain filterChain = mock(FilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);
-    when(request.getContextPath()).thenReturn(MOCK_CONTEXT);
+    when(request.getRequestURI()).thenReturn(MOCK_CONTEXT);
     HttpServletResponse response = mock(HttpServletResponse.class);
 
     try {
@@ -282,8 +281,8 @@ public class WebSSOFilterTest {
   public void testDoFilterWithRedirected() throws AuthenticationException, IOException {
     ContextPolicy testPolicy = mock(ContextPolicy.class);
     ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
-    when(policyManager.getContextPolicy(anyString())).thenReturn(testPolicy);
-    when(policyManager.isWhiteListed(anyString())).thenReturn(false);
+    when(policyManager.getContextPolicy(MOCK_CONTEXT)).thenReturn(testPolicy);
+    when(policyManager.isWhiteListed(MOCK_CONTEXT)).thenReturn(false);
     when(policyManager.getSessionAccess()).thenReturn(false);
 
     WebSSOFilter filter = new WebSSOFilter();
@@ -313,7 +312,7 @@ public class WebSSOFilterTest {
 
     FilterChain filterChain = mock(FilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);
-    when(request.getContextPath()).thenReturn(MOCK_CONTEXT);
+    when(request.getRequestURI()).thenReturn(MOCK_CONTEXT);
     HttpServletResponse response = mock(HttpServletResponse.class);
 
     try {
@@ -331,7 +330,7 @@ public class WebSSOFilterTest {
   public void testDoFilterReturnsStatusCode503WhenNoHandlersRegisteredAndGuestAccessDisabled()
       throws IOException, AuthenticationException {
     ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
-    when(policyManager.isWhiteListed(any(String.class))).thenReturn(false);
+    when(policyManager.isWhiteListed(MOCK_CONTEXT)).thenReturn(false);
     when(policyManager.getGuestAccess()).thenReturn(false);
     when(policyManager.getSessionAccess()).thenReturn(true);
     WebSSOFilter filter = new WebSSOFilter();
@@ -339,6 +338,7 @@ public class WebSSOFilterTest {
 
     FilterChain filterChain = mock(FilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getRequestURI()).thenReturn(MOCK_CONTEXT);
     HttpServletResponse response = mock(HttpServletResponse.class);
     filter.doFilter(request, response, filterChain);
 
@@ -351,7 +351,7 @@ public class WebSSOFilterTest {
   public void testDoFilterReturnsGuestTokenWhenNoHandlersRegisteredAndGuestAccessEnabled()
       throws IOException, AuthenticationException {
     ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
-    when(policyManager.isWhiteListed(any(String.class))).thenReturn(false);
+    when(policyManager.isWhiteListed(MOCK_CONTEXT)).thenReturn(false);
     when(policyManager.getGuestAccess()).thenReturn(true);
     when(policyManager.getSessionAccess()).thenReturn(true);
     WebSSOFilter filter = new WebSSOFilter();
@@ -359,6 +359,7 @@ public class WebSSOFilterTest {
 
     FilterChain filterChain = mock(FilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getRequestURI()).thenReturn(MOCK_CONTEXT);
     HttpServletResponse response = mock(HttpServletResponse.class);
     filter.doFilter(request, response, filterChain);
 

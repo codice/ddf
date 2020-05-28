@@ -43,7 +43,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /** Validate the behavior for {@link AttributeFactory}. */
 @RunWith(MockitoJUnitRunner.class)
@@ -121,7 +121,6 @@ public class AttributeFactoryTest {
   public void testCreateMultiValuedAttributesWithEmptyElements() throws Exception {
     when(mockDescriptor.isMultiValued()).thenReturn(true);
     when(mockDescriptor.getName()).thenReturn(LANGUAGE);
-    when(mockType.getAttributeFormat()).thenReturn(STRING);
 
     attributeFactory.createAttribute(mockDescriptor, COMMA_SEPARATED_WHITE_SPACE);
   }

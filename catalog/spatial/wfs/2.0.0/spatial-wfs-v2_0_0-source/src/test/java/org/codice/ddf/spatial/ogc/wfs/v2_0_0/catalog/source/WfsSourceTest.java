@@ -24,12 +24,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -107,6 +107,8 @@ import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 
 public class WfsSourceTest {
+  private static final String SAMPLE_WFS_URL = "http://www.someserver.com/wfs.cgi";
+
   private static final Map<String, String> NAMESPACE_CONTEXT =
       ImmutableMap.of(
           "wfs", "http://www.opengis.net/wfs/2.0", "ogc", "http://www.opengis.net/fes/2.0");
@@ -189,7 +191,7 @@ public class WfsSourceTest {
             anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
         .thenReturn(mockFactory);
     when(mockClientFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any(), any()))
         .thenReturn(mockFactory);
     when(mockClientFactory.getSecureCxfClientFactory(
             anyString(),
@@ -198,8 +200,8 @@ public class WfsSourceTest {
             any(),
             anyBoolean(),
             anyBoolean(),
-            anyInt(),
-            anyInt(),
+            any(),
+            any(),
             anyString(),
             anyString()))
         .thenReturn(mockFactory);
@@ -210,8 +212,8 @@ public class WfsSourceTest {
             any(),
             anyBoolean(),
             anyBoolean(),
-            anyInt(),
-            anyInt(),
+            any(),
+            any(),
             anyString(),
             anyString(),
             anyString()))
@@ -295,6 +297,7 @@ public class WfsSourceTest {
     source.setFilterAdapter(new GeotoolsFilterAdapterImpl());
     source.setMetacardToFeatureMapper(metacardMappers);
     source.setPollInterval(10);
+    source.setWfsUrl(SAMPLE_WFS_URL);
     source.init();
     return source;
   }
@@ -319,7 +322,7 @@ public class WfsSourceTest {
             anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
         .thenReturn(mockFactory);
     when(mockClientFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any(), any()))
         .thenReturn(mockFactory);
     when(mockClientFactory.getSecureCxfClientFactory(
             anyString(),
@@ -328,8 +331,8 @@ public class WfsSourceTest {
             any(),
             anyBoolean(),
             anyBoolean(),
-            anyInt(),
-            anyInt(),
+            any(),
+            any(),
             anyString(),
             anyString()))
         .thenReturn(mockFactory);
@@ -340,8 +343,8 @@ public class WfsSourceTest {
             any(),
             anyBoolean(),
             anyBoolean(),
-            anyInt(),
-            anyInt(),
+            any(),
+            any(),
             anyString(),
             anyString(),
             anyString()))
@@ -423,6 +426,7 @@ public class WfsSourceTest {
     wfsSource.setFeatureCollectionReader(mockReader);
     wfsSource.setMetacardToFeatureMapper(metacardMappers);
     wfsSource.setPollInterval(10);
+    wfsSource.setWfsUrl(SAMPLE_WFS_URL);
     wfsSource.init();
     return wfsSource;
   }

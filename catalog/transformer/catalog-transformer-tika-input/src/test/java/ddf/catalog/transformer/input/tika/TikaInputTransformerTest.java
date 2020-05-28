@@ -25,10 +25,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -62,7 +62,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.TimeZone;
 import org.junit.Before;
@@ -179,8 +178,7 @@ public class TikaInputTransformerTest {
     TikaInputTransformer tikaInputTransformer =
         new TikaInputTransformer(mockBundleContext, getMetacardType(COMMON_METACARDTYPE_NAME));
     verify(mockBundleContext)
-        .registerService(
-            eq(InputTransformer.class), eq(tikaInputTransformer), any(Hashtable.class));
+        .registerService(eq(InputTransformer.class), eq(tikaInputTransformer), notNull());
   }
 
   @Test
@@ -189,7 +187,7 @@ public class TikaInputTransformerTest {
         Thread.currentThread().getContextClassLoader().getResourceAsStream("testPDF.pdf");
     tikaInputTransformer.addContentMetadataExtractor(serviceRefCme);
     Metacard metacard = tikaInputTransformer.transform(stream);
-    verify(cme).process(anyString(), anyObject());
+    verify(cme).process(anyString(), any());
     verify(cme).getMetacardAttributes();
     assertThat(metacard.getMetacardType().getName(), is(PDF_METACARDTYPE_NAME));
     List<String> actualNames =
@@ -226,8 +224,8 @@ public class TikaInputTransformerTest {
     tikaInputTransformer.removeContentMetadataExtractor(serviceRefCme);
     tikaInputTransformer.removeMetadataExtractor(serviceRefMe);
     tikaInputTransformer.transform(stream);
-    verify(cme, never()).process(anyString(), anyObject());
-    verify(me, never()).process(anyString(), anyObject());
+    verify(cme, never()).process(anyString(), any());
+    verify(me, never()).process(anyString(), any());
     verify(cme, never()).getMetacardAttributes();
   }
 

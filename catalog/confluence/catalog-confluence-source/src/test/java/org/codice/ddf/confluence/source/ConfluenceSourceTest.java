@@ -18,10 +18,11 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -123,8 +124,7 @@ public class ConfluenceSourceTest {
     when(factory.getClient()).thenReturn(client);
     doReturn(clientResponse)
         .when(client)
-        .search(
-            anyString(), anyString(), anyString(), anyString(), anyInt(), anyInt(), anyBoolean());
+        .search(anyString(), isNull(), isNull(), anyString(), anyInt(), anyInt(), anyBoolean());
     when(encryptionService.decryptValue(anyString())).thenReturn("decryptedPass");
     when(registry.lookup("attrib1"))
         .thenReturn(

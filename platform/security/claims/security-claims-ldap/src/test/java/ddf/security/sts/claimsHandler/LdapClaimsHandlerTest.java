@@ -18,10 +18,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -93,17 +92,16 @@ public class LdapClaimsHandlerTest {
     AttributeMapLoader mockAttributeMapLoader = mock(AttributeMapLoader.class);
     when(mockAttributeMapLoader.buildClaimsMapFile(anyString())).thenReturn(map);
     when(mockAttributeMapLoader.getUser(any(Principal.class)))
-        .then(i -> i.getArgumentAt(0, Principal.class).getName());
+        .then(i -> ((Principal) i.getArgument(0)).getName());
     when(mockAttributeMapLoader.getBaseDN(any(Principal.class), anyString(), eq(false)))
-        .then(i -> i.getArgumentAt(1, String.class));
+        .then(i -> i.getArgument(1));
     claimsHandler = spy(new LdapClaimsHandler(mockAttributeMapLoader));
     doReturn(mockBindRequest).when(claimsHandler).selectBindMethod();
     mockBindResult = mock(BindResult.class);
     mockConnection = mock(Connection.class);
     when(mockConnection.bind(anyString(), any(char[].class))).thenReturn(mockBindResult);
     when(mockConnection.bind(any(BindRequest.class))).thenReturn(mockBindResult);
-    when(mockConnection.search(anyObject(), anyObject(), anyObject(), anyObject()))
-        .thenReturn(mockEntryReader);
+    when(mockConnection.search(any(), any(), any(), any())).thenReturn(mockEntryReader);
     // two item list (reference and entry)
     when(mockEntryReader.hasNext()).thenReturn(true, true, false);
     // first time indicate a reference followed by entries

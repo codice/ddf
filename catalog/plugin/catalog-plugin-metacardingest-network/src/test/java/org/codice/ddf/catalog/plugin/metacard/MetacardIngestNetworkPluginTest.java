@@ -46,7 +46,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * Ensure the rules and config options work correctly for any {@link MetacardIngestNetworkPlugin}.
@@ -183,7 +183,6 @@ public class MetacardIngestNetworkPluginTest {
   @Test
   public void testPassthroughMethods() throws Exception {
     ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
-    when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(true);
 
     UpdateRequest updateRequest = mock(UpdateRequest.class);
     DeleteRequest deleteRequest = mock(DeleteRequest.class);

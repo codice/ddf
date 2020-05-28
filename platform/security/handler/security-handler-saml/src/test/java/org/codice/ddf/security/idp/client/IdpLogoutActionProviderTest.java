@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.security.idp.client;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

@@ -15,8 +15,9 @@ package ddf.catalog.impl.operations;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -43,7 +44,6 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.download.ReliableResourceDownloadManager;
-import ddf.catalog.resourceretriever.ResourceRetriever;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
@@ -167,7 +167,7 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults().get(0).getMetacard()).thenReturn(metacard);
 
     when(reliableResourceDownloadManagerMock.download(
-            any(ResourceRequest.class), any(MetacardImpl.class), any(ResourceRetriever.class)))
+            any(ResourceRequest.class), any(MetacardImpl.class), isNull()))
         .thenReturn(resourceResponseMock);
 
     Resource resourceMock = mock(Resource.class);
@@ -191,7 +191,7 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults().get(0).getMetacard()).thenReturn(metacard);
 
     when(reliableResourceDownloadManagerMock.download(
-            any(ResourceRequest.class), any(MetacardImpl.class), any(ResourceRetriever.class)))
+            any(ResourceRequest.class), any(MetacardImpl.class), isNull()))
         .thenReturn(resourceResponseMock);
 
     Resource resourceMock = mock(Resource.class);
@@ -214,7 +214,7 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults().get(0).getMetacard()).thenReturn(metacard);
 
     when(reliableResourceDownloadManagerMock.download(
-            any(ResourceRequest.class), any(MetacardImpl.class), any(ResourceRetriever.class)))
+            any(ResourceRequest.class), any(MetacardImpl.class), isNull()))
         .thenReturn(resourceResponseMock);
 
     frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
@@ -223,8 +223,7 @@ public class ResourceOperationsTest {
 
     verify(queryResponseMock).getResults();
     verify(reliableResourceDownloadManagerMock)
-        .download(
-            any(ResourceRequest.class), any(MetacardImpl.class), any(ResourceRetriever.class));
+        .download(any(ResourceRequest.class), any(MetacardImpl.class), isNull());
   }
 
   @Test(expected = ResourceNotFoundException.class)
@@ -239,7 +238,7 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults().get(0).getMetacard()).thenReturn(metacard);
 
     when(reliableResourceDownloadManagerMock.download(
-            any(ResourceRequest.class), any(MetacardImpl.class), any(ResourceRetriever.class)))
+            any(ResourceRequest.class), any(MetacardImpl.class), isNull()))
         .thenReturn(resourceResponseMock);
 
     frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
@@ -248,8 +247,7 @@ public class ResourceOperationsTest {
 
     verify(queryResponseMock).getResults();
     verify(reliableResourceDownloadManagerMock)
-        .download(
-            any(ResourceRequest.class), any(MetacardImpl.class), any(ResourceRetriever.class));
+        .download(any(ResourceRequest.class), any(MetacardImpl.class), isNull());
   }
 
   @Test(expected = ResourceNotFoundException.class)
@@ -264,7 +262,7 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults().get(0).getMetacard()).thenReturn(metacard);
 
     when(reliableResourceDownloadManagerMock.download(
-            any(ResourceRequest.class), any(MetacardImpl.class), any(ResourceRetriever.class)))
+            any(ResourceRequest.class), any(MetacardImpl.class), isNull()))
         .thenThrow(DownloadException.class);
 
     Resource resourceMock = mock(Resource.class);
@@ -276,8 +274,7 @@ public class ResourceOperationsTest {
 
     verify(queryResponseMock).getResults();
     verify(reliableResourceDownloadManagerMock)
-        .download(
-            any(ResourceRequest.class), any(MetacardImpl.class), any(ResourceRetriever.class));
+        .download(any(ResourceRequest.class), any(MetacardImpl.class), isNull());
   }
 
   @Test(expected = DataUsageLimitExceededException.class)
@@ -358,8 +355,7 @@ public class ResourceOperationsTest {
     ArrayList<Result> mockResultList = new ArrayList<>();
     mockResultList.add(resultMock);
     when(resultMock.getMetacard()).thenReturn(metacard);
-    when(queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+    when(queryOperationsMock.query(any(QueryRequest.class), any(), anyBoolean(), anyBoolean()))
         .thenReturn(queryResponseMock);
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
 
@@ -384,8 +380,7 @@ public class ResourceOperationsTest {
     ArrayList<Result> mockResultList = new ArrayList<>();
     mockResultList.add(resultMock);
     when(resultMock.getMetacard()).thenReturn(metacard);
-    when(queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+    when(queryOperationsMock.query(any(QueryRequest.class), any(), anyBoolean(), anyBoolean()))
         .thenReturn(queryResponseMock);
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
 
@@ -417,8 +412,7 @@ public class ResourceOperationsTest {
     wrongMetacard.setResourceURI(new URI("bobUri", "test", "wrongfragment"));
     when(mockResult1.getMetacard()).thenReturn(wrongMetacard);
     when(mockResult2.getMetacard()).thenReturn(metacard);
-    when(queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+    when(queryOperationsMock.query(any(QueryRequest.class), any(), anyBoolean(), anyBoolean()))
         .thenReturn(queryResponseMock);
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
 
@@ -466,16 +460,14 @@ public class ResourceOperationsTest {
 
   private void setGetResourceMocks() throws FederationException, UnsupportedQueryException {
     getResourceRequestAttributeUris();
-    when(queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+    when(queryOperationsMock.query(any(QueryRequest.class), any(), anyBoolean(), anyBoolean()))
         .thenReturn(queryResponseMock);
   }
 
   private void verifyGetResourceMocks() throws FederationException, UnsupportedQueryException {
     verify(resourceRequestMock).getAttributeValue();
     verify(resourceRequestMock).getAttributeName();
-    verify(queryOperationsMock)
-        .query(any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean());
+    verify(queryOperationsMock).query(any(QueryRequest.class), any(), anyBoolean(), anyBoolean());
   }
 
   private void verifyResourceRequestAttributes() {

@@ -21,7 +21,7 @@ import static ddf.catalog.cache.solr.impl.CachingFederationStrategy.UPDATE_QUERY
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -75,7 +75,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletionService;
@@ -89,8 +88,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opengis.filter.sort.SortBy;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -141,11 +139,6 @@ public class CachingFederationStrategyTest {
 
   @Before
   public void setup() throws Exception {
-
-    when(mockCachePutPlugin.process(any()))
-        .thenAnswer(
-            (Answer<Optional<Metacard>>)
-                invocationOnMock -> Optional.of((Metacard) invocationOnMock.getArguments()[0]));
 
     cacheExecutor = MoreExecutors.newDirectExecutorService();
     queryExecutor = MoreExecutors.newDirectExecutorService();
@@ -290,8 +283,6 @@ public class CachingFederationStrategyTest {
 
     long numHits = 5;
 
-    when(mockResponse.getHits()).thenReturn(numHits);
-
     QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
     assertThat(federateResponse.getHits(), is((long) 0));
@@ -304,7 +295,6 @@ public class CachingFederationStrategyTest {
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, properties);
 
     Source mockSource = mock(Source.class);
-    when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
 
     QueryResponse federateResponse = strategy.federate(Arrays.asList(mockSource), fedQueryRequest);
 
@@ -621,9 +611,6 @@ public class CachingFederationStrategyTest {
 
     MetacardImpl newMetacard = mock(MetacardImpl.class);
 
-    when(newMetacard.getId()).thenReturn("new metacard");
-    when(newMetacard.getSourceId()).thenReturn("new source ID");
-
     UpdateImpl updateImpl = mock(UpdateImpl.class);
     when(updateImpl.getNewMetacard()).thenReturn(newMetacard);
 
@@ -840,7 +827,6 @@ public class CachingFederationStrategyTest {
     List<Source> sources = new ArrayList<>();
     sources.add(null);
     QueryRequest fedQueryRequest = mock(QueryRequest.class);
-    when(fedQueryRequest.getQuery()).thenReturn(mockQuery);
     strategy.federate(sources, fedQueryRequest);
   }
 

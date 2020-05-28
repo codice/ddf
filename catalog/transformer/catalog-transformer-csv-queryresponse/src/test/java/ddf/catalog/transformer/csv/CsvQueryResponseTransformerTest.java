@@ -16,7 +16,7 @@ package ddf.catalog.transformer.csv;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -181,7 +181,7 @@ public class CsvQueryResponseTransformerTest {
 
     Answer<Serializable> answer =
         invocation -> {
-          String key = invocation.getArgumentAt(0, String.class);
+          String key = invocation.getArgument(0);
           return METACARD_DATA_MAP.get(key);
         };
 

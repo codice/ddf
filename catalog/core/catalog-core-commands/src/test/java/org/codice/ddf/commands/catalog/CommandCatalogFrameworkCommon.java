@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.commands.catalog;
 
-import static org.mockito.Matchers.isA;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

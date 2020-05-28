@@ -16,12 +16,12 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -246,8 +246,7 @@ public class CswSubscriptionEndpointTest {
     when(mockContext.getService(eq(configAdminRef))).thenReturn(configAdmin);
     when(mockContext.getService(eq(subscriptionReference))).thenReturn(subscription);
     when(configAdmin.listConfigurations(eq(FILTER_STR))).thenReturn(configArry);
-    when(configAdmin.createFactoryConfiguration(anyString(), isNull(String.class)))
-        .thenReturn(config);
+    when(configAdmin.createFactoryConfiguration(anyString(), isNull())).thenReturn(config);
 
     cswSubscriptionEndpoint =
         new CswSubscriptionEndpointStub(
@@ -441,7 +440,7 @@ public class CswSubscriptionEndpointTest {
   public void testUpdateEvent() throws Exception {
 
     cswSubscriptionEndpoint.updateEvent(getRecordsResponse(2));
-    verify(eventProcessor).notifyUpdated(any(Metacard.class), any(Metacard.class));
+    verify(eventProcessor).notifyUpdated(any(Metacard.class), isNull());
   }
 
   @Test

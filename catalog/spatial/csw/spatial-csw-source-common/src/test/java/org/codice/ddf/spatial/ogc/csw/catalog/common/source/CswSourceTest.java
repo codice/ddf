@@ -23,20 +23,20 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
+import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.xstream.converters.Converter;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -46,6 +46,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -55,6 +56,7 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.SecurityConstants;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.permission.Permissions;
 import ddf.security.permission.impl.PermissionsImpl;
@@ -180,7 +182,7 @@ public class CswSourceTest extends TestCswSourceBase {
     expectedNames.add("dataset 3");
     expected = generateContentType(expectedNames);
 
-    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    source.query(getQueryRequestWithSubject(propertyIsLikeQuery));
 
     assertThat(source.getContentTypes(), hasSize(13));
     assertThat(source.getContentTypes(), is(expected));
@@ -214,7 +216,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(new QueryRequestImpl(propertyIsLikeQuery));
+    SourceResponse response = cswSource.query(getQueryRequestWithSubject(propertyIsLikeQuery));
 
     // Verify
     Assert.assertNotNull(response);
@@ -268,7 +270,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -314,7 +316,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -357,6 +359,7 @@ public class CswSourceTest extends TestCswSourceBase {
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
     query.setPageSize(pageSize);
     SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
+    query.setProperties(ImmutableMap.of(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class)));
     query.setSortBy(sortBy);
 
     AbstractCswSource cswSource = getCswSource(mockCsw, mockContext);
@@ -364,7 +367,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -424,7 +427,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -471,7 +474,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -530,7 +533,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -592,7 +595,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(new QueryRequestImpl(propertyIsEqualToQuery));
+    cswSource.query(getQueryRequestWithSubject(propertyIsEqualToQuery));
 
     // Verify
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -655,7 +658,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(new QueryRequestImpl(propertyIsEqualToQuery));
+    cswSource.query(getQueryRequestWithSubject(propertyIsEqualToQuery));
 
     // Verify
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -749,7 +752,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(new QueryRequestImpl(temporalQuery));
+    cswSource.query(getQueryRequestWithSubject(temporalQuery));
 
     // Verify
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -863,7 +866,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(new QueryRequestImpl(temporalQuery));
+    cswSource.query(getQueryRequestWithSubject(temporalQuery));
 
     // Verify
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -901,7 +904,7 @@ public class CswSourceTest extends TestCswSourceBase {
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("junk"));
     propertyIsLikeQuery.setPageSize(10);
 
-    cswSource.query(new QueryRequestImpl(propertyIsLikeQuery));
+    cswSource.query(getQueryRequestWithSubject(propertyIsLikeQuery));
   }
 
   @Test
@@ -1191,7 +1194,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(new QueryRequestImpl(query));
+    cswSource.query(getQueryRequestWithSubject(query));
 
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
     try {
@@ -1237,7 +1240,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(new QueryRequestImpl(query));
+    cswSource.query(getQueryRequestWithSubject(query));
 
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
     try {
@@ -1440,7 +1443,7 @@ public class CswSourceTest extends TestCswSourceBase {
             contentMapping, queryTypeQName, queryTypePrefix, encryptionService, permissions);
     cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentMapping);
 
-    SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
+    SecureCxfClientFactory<Object> mockFactory = mock(SecureCxfClientFactory.class);
     doReturn(csw).when(mockFactory).getClient();
     doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
     doReturn(csw).when(mockFactory).getClientForSystemSubject(any(Subject.class));
@@ -1454,7 +1457,7 @@ public class CswSourceTest extends TestCswSourceBase {
             anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
         .thenReturn(mockFactory);
     when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any(), any()))
         .thenReturn(mockFactory);
     when(clientFactoryFactory.getSecureCxfClientFactory(
             anyString(),
@@ -1463,8 +1466,8 @@ public class CswSourceTest extends TestCswSourceBase {
             any(),
             anyBoolean(),
             anyBoolean(),
-            anyInt(),
-            anyInt(),
+            any(),
+            any(),
             anyString(),
             anyString()))
         .thenReturn(mockFactory);
@@ -1475,8 +1478,8 @@ public class CswSourceTest extends TestCswSourceBase {
             any(),
             anyBoolean(),
             anyBoolean(),
-            anyInt(),
-            anyInt(),
+            any(),
+            any(),
             anyString(),
             anyString(),
             anyString()))
@@ -1617,5 +1620,11 @@ public class CswSourceTest extends TestCswSourceBase {
     configuration.put(cswSource.OAUTH_CLIENT_SECRET, SECRET);
     configuration.put(cswSource.OAUTH_FLOW, FLOW);
     return configuration;
+  }
+
+  private QueryRequest getQueryRequestWithSubject(QueryImpl query) {
+    QueryRequestImpl queryRequest = new QueryRequestImpl(query);
+    query.setProperties(ImmutableMap.of(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class)));
+    return queryRequest;
   }
 }

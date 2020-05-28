@@ -22,8 +22,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.theInstance;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -554,7 +554,7 @@ public class MetacardValidityMarkerPluginTest {
     return metacardValidator;
   }
 
-  private class IsMetacardWithTitle extends ArgumentMatcher<Metacard> {
+  private static class IsMetacardWithTitle implements ArgumentMatcher<Metacard> {
     private final String title;
 
     private IsMetacardWithTitle(String title) {
@@ -562,8 +562,8 @@ public class MetacardValidityMarkerPluginTest {
     }
 
     @Override
-    public boolean matches(Object o) {
-      return ((Metacard) o).getTitle().equals(title);
+    public boolean matches(Metacard metacard) {
+      return metacard.getTitle().equals(title);
     }
   }
 
