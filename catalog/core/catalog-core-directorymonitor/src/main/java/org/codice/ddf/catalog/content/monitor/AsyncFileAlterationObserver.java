@@ -57,6 +57,9 @@ public class AsyncFileAlterationObserver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
+  private final int LOGGING_TIME_DELAY = 500;
+  private final int LOGGING_TIME_INTERVAL = 5000;
+
   private final AsyncFileEntry rootFile;
   private AsyncFileAlterationListener listener = null;
   private final Set<AsyncFileEntry> processing = ConcurrentHashMap.newKeySet();
@@ -65,8 +68,6 @@ public class AsyncFileAlterationObserver {
   private final Object processingLock = new Object();
 
   private Timer timer;
-  private final int LOGGING_TIME_DELAY = 500;
-  private final int LOGGING_TIME_INTERVAL = 5000;
 
   private boolean isProcessing = false;
 
@@ -425,7 +426,9 @@ public class AsyncFileAlterationObserver {
   }
 
   @Override
-  protected void finalize() {
+  protected void finalize() throws Throwable {
+    super.finalize();
+
     if (timer != null) {
       timer.cancel();
       timer.purge();
