@@ -26,6 +26,12 @@ const Common = require('../../Common.js')
 import { matchesCql, matchesFilters } from './filter'
 import { FilterType } from './types'
 
+function getThumbnailAction(result: ResultType) {
+  return result.actions.find(
+    action => action.id === 'catalog.data.metacard.thumbnail'
+  )
+}
+
 function cacheBustUrl(url: string): string {
   if (url && url.indexOf('_=') === -1) {
     let newUrl = url
@@ -66,10 +72,67 @@ const transformPlain = ({
   if (!plain.metacard.properties['metacard-tags']) {
     plain.metacard.properties['metacard-tags'] = ['resource']
   }
+  const thumbnailAction = getThumbnailAction(plain)
+  if (thumbnailAction) {
+    plain.metacard.properties.thumbnail = thumbnailAction.url
+  }
+  plain.metacardType = plain.metacard.properties['metacard-type']
+  plain.metacard.id = plain.metacard.properties.id
+  plain.id = plain.metacard.properties.id
   return plain
 }
 
+type SubscribableType = 'backboneCreated' | 'selected' | 'filtered'
+type SubscriptionType = { [key: string]: () => void }
 export class LazyQueryResult {
+  ['subscriptionsToMe.backboneCreated']: { [key: string]: () => void };
+  ['subscriptionsToMe.selected']: { [key: string]: () => void };
+  ['subscriptionsToMe.filtered']: { [key: string]: () => void }
+  subscribeTo({
+    subscribableThing,
+    callback,
+  }: {
+    subscribableThing: SubscribableType
+    callback: () => void
+  }) {
+    const id = Math.random().toString()
+    // @ts-ignore
+    this[`subscriptionsToMe.${subscribableThing}`][id] = callback
+    return () => {
+      // @ts-ignore
+      delete this[`subscriptionsToMe.${subscribableThing}`][id]
+    }
+  }
+  _notifySubscribers(subscribableThing: SubscribableType) {
+    // @ts-ignore
+    const subscribers = this[
+      `subscriptionsToMe.${subscribableThing}`
+    ] as SubscriptionType
+    Object.values(subscribers).forEach(callback => callback())
+  }
+  ['_notifySubscribers.backboneCreated']() {
+    this._notifySubscribers('backboneCreated')
+  }
+  ['_notifySubscribers.selected']() {
+    this._notifySubscribers('selected')
+  }
+  ['_notifySubscribers.filtered']() {
+    this._notifySubscribers('filtered')
+  }
+  _turnOnDebouncing() {
+    this['_notifySubscribers.backboneCreated'] = _.debounce(
+      this['_notifySubscribers.backboneCreated'],
+      1000
+    )
+    this['_notifySubscribers.selected'] = _.debounce(
+      this['_notifySubscribers.selected'],
+      1000
+    )
+    this['_notifySubscribers.filtered'] = _.debounce(
+      this['_notifySubscribers.filtered'],
+      1000
+    )
+  }
   index: number
   prev?: LazyQueryResult
   next?: LazyQueryResult
@@ -77,10 +140,7 @@ export class LazyQueryResult {
   plain: ResultType
   backbone?: any
   isResourceLocal: boolean
-  type: 'query-result'
-  subscriptions: { [key: string]: () => void }
-  selectionSubscriptions: { [key: string]: () => void }
-  filterSubscriptions: { [key: string]: () => void };
+  type: 'query-result';
   ['metacard.id']: string
   isSelected: boolean
   isFiltered: boolean
@@ -88,9 +148,9 @@ export class LazyQueryResult {
     this.type = 'query-result'
     this.plain = transformPlain({ plain })
     this.isResourceLocal = false || plain.isResourceLocal
-    this.subscriptions = {}
-    this.selectionSubscriptions = {}
-    this.filterSubscriptions = {}
+    this['subscriptionsToMe.backboneCreated'] = {}
+    this['subscriptionsToMe.selected'] = {}
+    this['subscriptionsToMe.filtered'] = {}
     this['metacard.id'] = plain.metacard.properties.id
     this.isSelected = false
     this.isFiltered = false
@@ -230,49 +290,12 @@ export class LazyQueryResult {
   }
   _setBackbone(backboneModel: Backbone.Model) {
     this.backbone = backboneModel
-    this._notifySubscriptions()
-  }
-  /**
-   * Not really used anymore to be honest since most views are just going to call getBackbone (which isn't async at the moment)
-   *
-   * Keeping it around though because this is how we would be able to convert the creation of large amounts to
-   * be async and avoid locking up the UI.
-   */
-  _notifySubscriptions() {
-    Object.values(this.subscriptions).forEach(sub => sub())
-  }
-  _notifySelectionSubscriptions() {
-    Object.values(this.selectionSubscriptions).forEach(sub => sub())
-  }
-  _notifyFilterSubscriptions() {
-    Object.values(this.filterSubscriptions).forEach(sub => sub())
-  }
-  subscribe(callback: () => void) {
-    const id = Math.random().toString()
-    this.subscriptions[id] = callback
-    return () => {
-      this.unsubscribe(id)
-    }
-  }
-  unsubscribe(id?: string) {
-    if (id === undefined) return
-    delete this.subscriptions[id]
-  }
-  subscribeToSelection(callback: () => void) {
-    const id = Math.random().toString()
-    this.selectionSubscriptions[id] = callback
-    return () => {
-      this.unsubscribeFromSelection(id)
-    }
-  }
-  unsubscribeFromSelection(id?: string) {
-    if (id === undefined) return
-    delete this.selectionSubscriptions[id]
+    this['_notifySubscribers.backboneCreated']()
   }
   setSelected(isSelected: boolean) {
     if (this.isSelected !== isSelected) {
       this.isSelected = isSelected
-      this._notifySelectionSubscriptions()
+      this['_notifySubscribers.selected']()
       return true
     } else {
       return false
@@ -293,17 +316,10 @@ export class LazyQueryResult {
       this.parent.select(this)
     }
   }
-  subscribeToFiltered(callback: () => void) {
-    const id = Math.random().toString()
-    this.filterSubscriptions[id] = callback
-    return () => {
-      delete this.filterSubscriptions[id]
-    }
-  }
   setFiltered(isFiltered: boolean) {
     if (this.isFiltered !== isFiltered) {
       this.isFiltered = isFiltered
-      this._notifyFilterSubscriptions()
+      this['_notifySubscribers.filtered']()
       return true
     } else {
       return false

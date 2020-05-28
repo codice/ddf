@@ -17,7 +17,7 @@ export type LazyResultsType = {
 
 const getLazyResultsFromSelectionInterface = ({
   selectionInterface,
-}: useLazyResultsProps): LazyQueryResults => {
+}: useLazyResultsProps) => {
   const currentSearch = selectionInterface.get('currentQuery')
   if (!currentSearch) {
     return new LazyQueryResults()
@@ -26,7 +26,7 @@ const getLazyResultsFromSelectionInterface = ({
   if (!result) {
     return new LazyQueryResults()
   }
-  return result.get('lazyResults')
+  return result.get('lazyResults') as LazyQueryResults
 }
 
 export const useLazyResultsSelectedResultsFromSelectionInterface = ({
@@ -54,7 +54,7 @@ export const useLazyResultsStatusFromSelectionInterface = ({
 export const useLazyResultsFromSelectionInterface = ({
   selectionInterface,
 }: useLazyResultsProps) => {
-  const { listenToOnce } = useBackbone()
+  const { listenToOnce, stopListening } = useBackbone()
   //@ts-ignore
   const [forceRender, setForceRender] = React.useState(Math.random())
   const [lazyResults, setLazyResults] = React.useState(
@@ -77,16 +77,26 @@ export const useLazyResultsFromSelectionInterface = ({
     },
     [lazyResults]
   )
-  React.useEffect(() => {
-    listenToOnce(selectionInterface, 'change:currentQuery>result', () => {
-      const currentQuery = selectionInterface.get('currentQuery')
-      const result = currentQuery.get('result')
-      if (result) {
-        setLazyResults(
-          getLazyResultsFromSelectionInterface({ selectionInterface })
-        )
+  React.useEffect(
+    () => {
+      setLazyResults(
+        getLazyResultsFromSelectionInterface({ selectionInterface })
+      )
+      listenToOnce(selectionInterface, 'change:currentQuery>result', () => {
+        const currentQuery = selectionInterface.get('currentQuery')
+        const result = currentQuery.get('result')
+        if (result) {
+          setLazyResults(
+            getLazyResultsFromSelectionInterface({ selectionInterface })
+          )
+        }
+      })
+      return () => {
+        console.log('does this happen')
+        stopListening(selectionInterface)
       }
-    })
-  }, [])
+    },
+    [selectionInterface]
+  )
   return lazyResults
 }

@@ -15,8 +15,11 @@ export const useSelectionOfLazyResult = ({
   const [isSelected, setIsSelected] = React.useState(lazyResult.isSelected)
   React.useEffect(
     () => {
-      const unsubscribe = lazyResult.subscribeToSelection(() => {
-        setIsSelected(lazyResult.isSelected)
+      const unsubscribe = lazyResult.subscribeTo({
+        subscribableThing: 'selected',
+        callback: () => {
+          setIsSelected(lazyResult.isSelected)
+        },
       })
       return () => {
         unsubscribe()
@@ -39,8 +42,11 @@ export const useFilteredOfLazyResult = ({
   const [isFiltered, setIsFiltered] = React.useState(lazyResult.isFiltered)
   React.useEffect(
     () => {
-      const unsubscribe = lazyResult.subscribeToFiltered(() => {
-        setIsFiltered(lazyResult.isFiltered)
+      const unsubscribe = lazyResult.subscribeTo({
+        subscribableThing: 'filtered',
+        callback: () => {
+          setIsFiltered(lazyResult.isFiltered)
+        },
       })
       return () => {
         unsubscribe()
@@ -100,9 +106,12 @@ export const useSelectionOfLazyResults = ({
       )
       setIsSelected(calculateIfSelected())
       const unsubscribeCalls = lazyResults.map(lazyResult => {
-        return lazyResult.subscribeToSelection(() => {
-          cache.current[lazyResult['metacard.id']] = lazyResult.isSelected
-          debouncedUpdatedIsSelected()
+        return lazyResult.subscribeTo({
+          subscribableThing: 'selected',
+          callback: () => {
+            cache.current[lazyResult['metacard.id']] = lazyResult.isSelected
+            debouncedUpdatedIsSelected()
+          },
         })
       })
       return () => {
@@ -116,6 +125,19 @@ export const useSelectionOfLazyResults = ({
   return isSelected
 }
 
+const getSelectedResultsOfLazyResults = ({
+  lazyResults,
+}: {
+  lazyResults?: LazyQueryResults
+}) => {
+  if (lazyResults) {
+    return {
+      ...lazyResults.selectedResults,
+    }
+  }
+  return {}
+}
+
 /**
  * If a view cares about the entirety of what results are selected out
  * of a LazyQueryResults object, this will keep them up to date.
@@ -127,29 +149,42 @@ export const useSelectionOfLazyResults = ({
 export const useSelectedResults = ({
   lazyResults,
 }: {
-  lazyResults: LazyQueryResults
+  lazyResults?: LazyQueryResults
 }) => {
-  const [selectedResults, setSelectedResults] = React.useState({
-    ...lazyResults.selectedResults,
-  })
+  const [selectedResults, setSelectedResults] = React.useState(
+    getSelectedResultsOfLazyResults({ lazyResults })
+  )
   React.useEffect(
     () => {
-      const unsubscribeCall = lazyResults.subscribeTo({
-        subscribableThing: 'selectedResults',
-        callback: () => {
-          setSelectedResults({
-            ...lazyResults.selectedResults,
-          })
-        },
-      })
-      return () => {
-        unsubscribeCall()
+      if (lazyResults) {
+        const unsubscribeCall = lazyResults.subscribeTo({
+          subscribableThing: 'selectedResults',
+          callback: () => {
+            setSelectedResults(getSelectedResultsOfLazyResults({ lazyResults }))
+          },
+        })
+        return () => {
+          unsubscribeCall()
+        }
       }
+      return () => {}
     },
     [lazyResults]
   )
 
   return selectedResults
+}
+
+const getStatusFromLazyResults = ({
+  lazyResults,
+}: {
+  lazyResults: LazyQueryResults
+}) => {
+  return {
+    status: lazyResults.status,
+    isSearching: lazyResults.isSearching,
+    currentAsOf: lazyResults.currentAsOf,
+  }
 }
 
 /**
@@ -160,16 +195,16 @@ export const useStatusOfLazyResults = ({
 }: {
   lazyResults: LazyQueryResults
 }) => {
-  const [status, setStatus] = React.useState(lazyResults.status)
-  //@ts-ignore
-  const [forceRender, setForceRender] = React.useState(Math.random())
+  const [status, setStatus] = React.useState(
+    getStatusFromLazyResults({ lazyResults })
+  )
   React.useEffect(
     () => {
+      setStatus(getStatusFromLazyResults({ lazyResults }))
       const unsubscribeCall = lazyResults.subscribeTo({
         subscribableThing: 'status',
         callback: () => {
-          setStatus(lazyResults.status)
-          setForceRender(Math.random())
+          setStatus(getStatusFromLazyResults({ lazyResults }))
         },
       })
       return () => {
@@ -179,9 +214,5 @@ export const useStatusOfLazyResults = ({
     [lazyResults]
   )
 
-  return {
-    status,
-    isSearching: lazyResults.isSearching,
-    currentAsOf: lazyResults.currentAsOf,
-  }
+  return status
 }

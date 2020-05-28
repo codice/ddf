@@ -17,6 +17,7 @@ import { generateCompareFunction } from './sort'
 import { LazyQueryResult } from './LazyQueryResult'
 import { QuerySortType, FilterType } from './types'
 import { Status } from './status'
+const _ = require('underscore')
 
 const user = require('../../../component/singletons/user-instance.js')
 const Backbone = require('backbone')
@@ -66,6 +67,29 @@ export class LazyQueryResults {
       `subscriptionsToMe.${subscribableThing}`
     ] as SubscriptionType
     Object.values(subscribers).forEach(callback => callback())
+  }
+  ['_notifySubscribers.status']() {
+    this._notifySubscribers('status')
+  }
+  ['_notifySubscribers.filteredResults']() {
+    this._notifySubscribers('filteredResults')
+  }
+  ['_notifySubscribers.selectedResults']() {
+    this._notifySubscribers('selectedResults')
+  }
+  _turnOnDebouncing() {
+    this['_notifySubscribers.status'] = _.debounce(
+      this['_notifySubscribers.status'],
+      1000
+    )
+    this['_notifySubscribers.filteredResults'] = _.debounce(
+      this['_notifySubscribers.filteredResults'],
+      1000
+    )
+    this['_notifySubscribers.selectedResults'] = _.debounce(
+      this['_notifySubscribers.selectedResults'],
+      1000
+    )
   }
   compareFunction: (a: LazyQueryResult, b: LazyQueryResult) => number
   results: {
@@ -272,7 +296,7 @@ export class LazyQueryResults {
         this._updateEphemeralSorts()
         this._resort()
         this._refilter() // needs to be in sync in the sorted map
-        this._notifySubscribers('filteredResults')
+        this['_notifySubscribers.filteredResults']()
       }
     )
     this.backboneModel.listenTo(
@@ -281,7 +305,7 @@ export class LazyQueryResults {
       () => {
         this._updateEphemeralFilter()
         this._refilter()
-        this._notifySubscribers('filteredResults')
+        this['_notifySubscribers.filteredResults']()
       }
     )
   }
@@ -316,7 +340,7 @@ export class LazyQueryResults {
       this.selectedResults !== undefined &&
       Object.keys(this.selectedResults).length > 0
     this.selectedResults = {}
-    if (shouldNotify) this._notifySubscribers('selectedResults')
+    if (shouldNotify) this['_notifySubscribers.selectedResults']()
   }
   reset({ results = [], sorts = [], sources = [] }: ConstructorProps = {}) {
     this.init()
@@ -338,28 +362,34 @@ export class LazyQueryResults {
       this.results[lazyResult['metacard.id']] = lazyResult
       lazyResult.parent = this
       this['subscriptionsToOthers.result.isSelected'].push(
-        lazyResult.subscribeToSelection(() => {
-          this._updateSelectedResults({ lazyResult })
+        lazyResult.subscribeTo({
+          subscribableThing: 'selected',
+          callback: () => {
+            this._updateSelectedResults({ lazyResult })
+          },
         })
       )
       this['subscriptionsToOthers.result.backboneCreated'].push(
-        lazyResult.subscribe(() => {
-          this.backboneModel.listenTo(
-            lazyResult.getBackbone(),
-            'change:metacard>properties refreshdata',
-            () => {
-              lazyResult.syncWithBackbone()
-              this._resort()
-              this._refilter()
-              this._notifySubscribers('filteredResults')
-            }
-          )
+        lazyResult.subscribeTo({
+          subscribableThing: 'backboneCreated',
+          callback: () => {
+            this.backboneModel.listenTo(
+              lazyResult.getBackbone(),
+              'change:metacard>properties refreshdata',
+              () => {
+                lazyResult.syncWithBackbone()
+                this._resort()
+                this._refilter()
+                this['_notifySubscribers.filteredResults']()
+              }
+            )
+          },
         })
       )
     })
     this._resort()
     this._refilter()
-    this._notifySubscribers('filteredResults')
+    this['_notifySubscribers.filteredResults']()
   }
   _updateSelectedResults({ lazyResult }: { lazyResult: LazyQueryResult }) {
     if (lazyResult.isSelected) {
@@ -367,7 +397,7 @@ export class LazyQueryResults {
     } else {
       delete this.selectedResults[lazyResult['metacard.id']]
     }
-    this._notifySubscribers('selectedResults')
+    this['_notifySubscribers.selectedResults']()
   }
   types: MetacardTypes
   addTypes(types: MetacardTypes) {
@@ -397,7 +427,7 @@ export class LazyQueryResults {
       {} as SearchStatus
     )
     this._updateIsSearching()
-    this._notifySubscribers('status')
+    this['_notifySubscribers.status']()
   }
   cancel() {
     Object.keys(status).forEach(id => {
@@ -410,14 +440,14 @@ export class LazyQueryResults {
       }
     })
     this._updateIsSearching()
-    this._notifySubscribers('status')
+    this['_notifySubscribers.status']()
   }
   updateStatus(status: SearchStatus) {
     Object.keys(status).forEach(id => {
       this.status[id].updateStatus(status[id])
     })
     this._updateIsSearching()
-    this._notifySubscribers('status')
+    this['_notifySubscribers.status']()
   }
   updateStatusWithError({
     sources,
@@ -433,7 +463,7 @@ export class LazyQueryResults {
       })
     })
     this._updateIsSearching()
-    this._notifySubscribers('status')
+    this['_notifySubscribers.status']()
   }
   _updateIsSearching() {
     this.isSearching = Object.values(this.status).some(status => {
