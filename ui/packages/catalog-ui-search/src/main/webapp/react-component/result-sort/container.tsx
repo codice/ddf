@@ -21,6 +21,10 @@ import { useBackbone } from '../../component/selection-checkbox/useBackbone.hook
 const Backbone = require('backbone')
 const user = require('../../component/singletons/user-instance.js')
 
+type Props = {
+  closeDropdown: any
+}
+
 const getResultSort = () => {
   return user
     .get('user')
@@ -28,14 +32,17 @@ const getResultSort = () => {
     .get('resultSort')
 }
 
-const ResultSortContainer = () => {
-  const [collection] = React.useState(new Backbone.Collection(getResultSort()))
+const ResultSortContainer = ({ closeDropdown }: Props) => {
+  const [collection, setCollection] = React.useState(
+    new Backbone.Collection(getResultSort())
+  )
   const [hasSort, setHasSort] = React.useState(collection.length > 0)
   const { listenTo } = useBackbone()
   React.useEffect(() => {
     listenTo(user.get('user').get('preferences'), 'change:resultSort', () => {
       const resultSort = getResultSort()
       setHasSort(resultSort !== undefined && resultSort.length > 0)
+      setCollection(new Backbone.Collection(resultSort))
     })
   }, [])
   const removeSort = () => {
@@ -47,6 +54,7 @@ const ResultSortContainer = () => {
       .get('user')
       .get('preferences')
       .savePreferences()
+    closeDropdown()
   }
   const saveSort = () => {
     const sorting = collection.toJSON()
@@ -58,9 +66,11 @@ const ResultSortContainer = () => {
       .get('user')
       .get('preferences')
       .savePreferences()
+    closeDropdown()
   }
   return (
     <ResultSortPresentation
+      key={Math.random()}
       saveSort={saveSort}
       removeSort={removeSort}
       collection={collection}
