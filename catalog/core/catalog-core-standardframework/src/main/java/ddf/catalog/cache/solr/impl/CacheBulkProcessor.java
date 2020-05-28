@@ -76,7 +76,7 @@ public class CacheBulkProcessor {
               List<Metacard> metacards = new ArrayList<>(metacardsToCache.values());
               for (Collection<Metacard> batch : Lists.partition(metacards, batchSize)) {
                 LOGGER.debug("Caching a batch of {} metacards", batch.size());
-                cache.create(batch);
+                cache.put(batch);
 
                 for (Metacard metacard : batch) {
                   metacardsToCache.remove(metacard.getId());
