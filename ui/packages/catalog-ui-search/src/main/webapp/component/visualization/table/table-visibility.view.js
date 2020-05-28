@@ -28,6 +28,7 @@ module.exports = Marionette.ItemView.extend({
           {columns.map(column => {
             return (
               <div
+                key={column.id}
                 className={`column ${column.hidden ? 'is-hidden-column' : ''} ${
                   column.notCurrentlyAvailable ? 'is-unavailable-column' : ''
                 }`}
