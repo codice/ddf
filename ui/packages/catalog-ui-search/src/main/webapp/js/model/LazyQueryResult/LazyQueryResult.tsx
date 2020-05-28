@@ -25,6 +25,7 @@ const wkx = require('wkx')
 const Common = require('../../Common.js')
 import { matchesCql, matchesFilters } from './filter'
 import { FilterType } from './types'
+const debounceTime = 50
 
 function getThumbnailAction(result: ResultType) {
   return result.actions.find(
@@ -122,15 +123,15 @@ export class LazyQueryResult {
   _turnOnDebouncing() {
     this['_notifySubscribers.backboneCreated'] = _.debounce(
       this['_notifySubscribers.backboneCreated'],
-      1000
+      debounceTime
     )
     this['_notifySubscribers.selected'] = _.debounce(
       this['_notifySubscribers.selected'],
-      1000
+      debounceTime
     )
     this['_notifySubscribers.filtered'] = _.debounce(
       this['_notifySubscribers.filtered'],
-      1000
+      debounceTime
     )
   }
   index: number

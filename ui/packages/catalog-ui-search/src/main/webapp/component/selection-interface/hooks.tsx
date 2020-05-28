@@ -92,7 +92,6 @@ export const useLazyResultsFromSelectionInterface = ({
         }
       })
       return () => {
-        console.log('does this happen')
         stopListening(selectionInterface)
       }
     },

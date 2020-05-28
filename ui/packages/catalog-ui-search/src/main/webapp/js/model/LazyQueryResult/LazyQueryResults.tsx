@@ -18,6 +18,7 @@ import { LazyQueryResult } from './LazyQueryResult'
 import { QuerySortType, FilterType } from './types'
 import { Status } from './status'
 const _ = require('underscore')
+const debounceTime = 50
 
 const user = require('../../../component/singletons/user-instance.js')
 const Backbone = require('backbone')
@@ -80,15 +81,15 @@ export class LazyQueryResults {
   _turnOnDebouncing() {
     this['_notifySubscribers.status'] = _.debounce(
       this['_notifySubscribers.status'],
-      1000
+      debounceTime
     )
     this['_notifySubscribers.filteredResults'] = _.debounce(
       this['_notifySubscribers.filteredResults'],
-      1000
+      debounceTime
     )
     this['_notifySubscribers.selectedResults'] = _.debounce(
       this['_notifySubscribers.selectedResults'],
-      1000
+      debounceTime
     )
   }
   compareFunction: (a: LazyQueryResult, b: LazyQueryResult) => number
@@ -191,7 +192,6 @@ export class LazyQueryResults {
         },
         {} as { [key: string]: LazyQueryResult }
       )
-    console.log(this.filteredResults)
   }
   backboneModel: Backbone.Model
   /**

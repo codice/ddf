@@ -20,7 +20,6 @@ export type ClusterType = {
 }
 
 const Geometries = (props: Props) => {
-  console.log('rendering geometries')
   const { map, selectionInterface, isClustering, mapView } = props
   const lazyResults = useLazyResultsFromSelectionInterface({
     selectionInterface,
