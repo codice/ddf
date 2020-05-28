@@ -18,7 +18,6 @@ const $ = require('jquery')
 const _ = require('underscore')
 const properties = require('../properties.js')
 const QueryResponse = require('./QueryResponse.js')
-// const ResultSort = require('./ResultSort.js')
 const Sources = require('../../component/singletons/sources-instance.js')
 const Common = require('../Common.js')
 const CacheSourceSelector = require('../CacheSourceSelector.js')
@@ -80,54 +79,6 @@ const handleTieredSearchLocalFinish = function(ids) {
   this.startSearch({ results, status })
 }
 
-const reducer = (state = [{}], action) => {
-  switch (action.type) {
-    case 'CLEAR_PAGES':
-      return [{}]
-    case 'NEXT_PAGE':
-      return state.concat({})
-    case 'PREVIOUS_PAGE':
-      return state.slice(0, -1)
-    case 'UPDATE_RESULTS':
-      const srcs = action.payload.status
-        .filter(status => status.id !== 'cache')
-        .map(({ id, count }) => ({ id, count }))
-        .reduce((counts, status) => {
-          const { id, count } = status
-          if (count !== 0) {
-            counts[id] = count
-          }
-          return counts
-        }, {})
-
-      return state.slice(0, -1).concat(srcs)
-    default:
-      return state
-  }
-}
-
-const currentIndexForSource = state => {
-  return state.reduce((counts, page) => {
-    return Object.keys(page).reduce((counts, src) => {
-      const resultCount = page[src]
-
-      if (counts[src] === undefined) {
-        counts[src] = 1
-      }
-      counts[src] += resultCount
-
-      return counts
-    }, counts)
-  }, {})
-}
-
-const serverPageIndex = state => state.length
-
-const previousPage = () => ({ type: 'PREVIOUS_PAGE' })
-const nextPage = () => ({ type: 'NEXT_PAGE' })
-const clearPages = () => ({ type: 'CLEAR_PAGES' })
-const updateResults = payload => ({ type: 'UPDATE_RESULTS', payload })
-
 Query.Model = PartialAssociatedModel.extend({
   relations: [
     {
@@ -137,9 +88,6 @@ Query.Model = PartialAssociatedModel.extend({
       isTransient: true,
     },
   ],
-  dispatch(action) {
-    this.state = reducer(this.state, action)
-  },
   set(data, ...args) {
     if (
       typeof data === 'object' &&
@@ -183,7 +131,6 @@ Query.Model = PartialAssociatedModel.extend({
           },
         ],
         result: undefined,
-        serverPageIndex: 1,
         type: 'text',
         isLocal: false,
         isOutdated: false,
@@ -195,11 +142,7 @@ Query.Model = PartialAssociatedModel.extend({
     )
   },
   resetToDefaults(overridenDefaults) {
-    const defaults = _.omit(this.defaults(), [
-      'isLocal',
-      'serverPageIndex',
-      'result',
-    ])
+    const defaults = _.omit(this.defaults(), ['isLocal', 'result'])
     this.set(_merge(defaults, overridenDefaults))
     this.trigger('resetToDefaults')
   },
@@ -213,9 +156,6 @@ Query.Model = PartialAssociatedModel.extend({
     return this.get('isLocal')
   },
   initialize() {
-    this.currentIndexForSource = {}
-    this.state = [{}]
-
     _.bindAll.apply(_, [this].concat(_.functions(this))) // underscore bindAll does not take array arg
     this.set('id', this.getId())
     this.listenTo(this, 'change:cql', () => {
@@ -229,30 +169,6 @@ Query.Model = PartialAssociatedModel.extend({
         this.resetCurrentIndexForSourceGroup()
       }
     )
-
-    const sync = () => {
-      // needs to be updated to handle the lazyResults, right now this doesn't do anything
-      // this.dispatch(updateResults(this.get('result').toJSON())) //do we need this?  It's expensive
-      this.set('serverPageIndex', serverPageIndex(this.state))
-
-      const totalHits = this.get('result')
-        .get('status')
-        .reduce((total, status) => {
-          if (status.get('id') !== 'cache') {
-            return total + status.get('hits')
-          }
-          return total
-        }, 0)
-
-      this.set('totalHits', totalHits)
-    }
-
-    this.listenTo(this, 'change:result', () => {
-      if (this.has('result')) {
-        this.listenTo(this.get('result'), 'reset:results', sync)
-        this.listenTo(this.get('result'), 'change', sync)
-      }
-    })
   },
   getSelectedSources() {
     const federation = this.get('federation')
@@ -316,8 +232,6 @@ Query.Model = PartialAssociatedModel.extend({
     }
   },
   startSearchFromFirstPage(options) {
-    // this.dispatch(clearPages())
-    // this.set('serverPageIndex', serverPageIndex(this.state))
     this.resetCurrentIndexForSourceGroup()
     this.startSearch(options)
   },
@@ -357,57 +271,25 @@ Query.Model = PartialAssociatedModel.extend({
 
     const data = Common.duplicate(this.buildSearchData())
     data.batchId = Common.generateUUID()
-    if (options.resultCountOnly) {
-      data.count = 0
-    }
 
     // Data.sources is set in `buildSearchData` based on which sources you have selected.
     const sources = data.sources
-    const initialStatus = sources.map(src => ({
-      id: src,
-    }))
-    let result
-    if (this.get('result') && this.get('result').get('results')) {
-      result = this.get('result')
-      result.emptyQueue()
-      result.get('lazyResults')._updatePersistantSorts(this.get('sorts'))
+    let result = this.get('result')
+    if (result) {
       result.get('lazyResults').reset({
         sorts: this.get('sorts'),
         sources,
       })
-      result.setColor(this.getColor())
-      result.setQueryId(this.getId())
-      result.set('selectedResultTemplate', this.get('detail-level'))
-      result.set('merged', true)
-      result.get('queuedResults').reset()
-      result.get('results').reset(options.results || [])
-      result
-        .get('status')
-        .reset(
-          options.status ? options.status.concat(initialStatus) : initialStatus
-        )
     } else {
       result = new QueryResponse({
         lazyResults: new LazyQueryResults({
           sorts: this.get('sorts'),
           sources,
         }),
-        queryId: this.getId(),
-        color: this.getColor(),
-        status: initialStatus,
-        selectedResultTemplate: this.get('detail-level'),
       })
       this.set({
         result,
       })
-    }
-
-    result.set('initiated', Date.now())
-    result.set('resultCountOnly', options.resultCountOnly)
-    // ResultSort.sortResults(this.get('sorts'), result.get('results')) // why sort before searching?
-
-    if (!properties.isCacheDisabled) {
-      sources.unshift('cache')
     }
 
     let cqlString = data.cql
@@ -421,8 +303,8 @@ Query.Model = PartialAssociatedModel.extend({
 
     const harvestedSources = Sources.getHarvested()
 
-    const isHarvested = id => harvestedSources.includes(id) && id !== 'cache'
-    const isFederated = id => !harvestedSources.includes(id) && id !== 'cache'
+    const isHarvested = id => harvestedSources.includes(id)
+    const isFederated = id => !harvestedSources.includes(id)
 
     this.currentIndexForSourceGroup = this.nextIndexForSourceGroup
     const localSearchToRun = {
@@ -473,9 +355,6 @@ Query.Model = PartialAssociatedModel.extend({
           timeout: properties.timeout,
           success(model, response, options) {
             response.options = options
-            if (options.resort === true) {
-              model.get('results').sort()
-            }
           },
           error(model, response, options) {
             if (response.status === 401) {
@@ -501,14 +380,6 @@ Query.Model = PartialAssociatedModel.extend({
               })
             }
 
-            // TODO: Need to do something here?
-            const srcStatus = result.get('status').get(search.src)
-            if (srcStatus) {
-              srcStatus.set({
-                successful: false,
-                pending: false,
-              })
-            }
             response.options = options
           },
         })
@@ -526,7 +397,6 @@ Query.Model = PartialAssociatedModel.extend({
     const result = this.get('result')
     if (result) {
       result.get('lazyResults').cancel()
-      result.emptyQueue()
     }
     this.currentSearches = []
   },
@@ -567,22 +437,7 @@ Query.Model = PartialAssociatedModel.extend({
   color() {
     return this.get('color')
   },
-  hasPreviousServerPage() {
-    return serverPageIndex(this.state) > 1
-  },
-  hasNextServerPage() {
-    const pageSize = user
-      .get('user')
-      .get('preferences')
-      .get('resultCount')
-
-    const totalHits = this.get('totalHits')
-    const currentPage = serverPageIndex(this.state)
-    return currentPage < Math.ceil(totalHits / pageSize)
-  },
   getPreviousServerPage() {
-    // this.dispatch(previousPage())
-    // this.set('serverPageIndex', serverPageIndex(this.state))
     this.setNextIndexForSourceGroupToPrevPage()
     this.startSearch()
   },
@@ -627,14 +482,8 @@ Query.Model = PartialAssociatedModel.extend({
       })
   },
   getNextServerPage() {
-    // this.dispatch(nextPage())
-    // this.set('serverPageIndex', serverPageIndex(this.state))
     this.setNextIndexForSourceGroupToNextPage(this.getSelectedSources())
     this.startSearch()
-  },
-  // get the starting offset (beginning of the server page) for the given source
-  getStartIndexForSource(src) {
-    return currentIndexForSource(this.state)[src] || 1
   },
   resetCurrentIndexForSourceGroup() {
     this.currentIndexForSourceGroup = {}
@@ -713,27 +562,6 @@ Query.Model = PartialAssociatedModel.extend({
         ...this.currentIndexForSourceGroup,
       }
     )
-  },
-  getResultsRangeLabel(resultsCollection) {
-    const results = resultsCollection.length
-    const hits = _.filter(
-      this.get('result')
-        .get('status')
-        .toJSON(),
-      status => status.id !== 'cache'
-    ).reduce((hits, status) => (status.hits ? hits + status.hits : hits), 0)
-
-    if (results === 0) {
-      return '0 results'
-    } else if (results > hits) {
-      return results + ' results'
-    }
-
-    const serverPageSize = user.get('user>preferences>resultCount')
-    const startingIndex = serverPageIndex(this.state) * serverPageSize
-    const endingIndex = startingIndex + resultsCollection.length
-
-    return startingIndex + 1 + '-' + endingIndex + ' of ' + hits
   },
 })
 module.exports = plugin(Query)

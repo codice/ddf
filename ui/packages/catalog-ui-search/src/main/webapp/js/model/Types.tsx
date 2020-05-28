@@ -6,12 +6,14 @@ export type ResultType = {
   matches: {}
   metacard: MetacardType
   relevance: number
+  metacardType: string
   id: string
 }
 
 type MetacardType = {
   cached: string
   properties: MetacardPropertiesType
+  id: string
 }
 
 export type MetacardPropertiesType = {

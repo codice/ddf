@@ -457,10 +457,11 @@ export class LazyQueryResults {
     message: string
   }) {
     sources.forEach(id => {
-      this.status[id].updateStatus({
-        message,
-        successful: false,
-      })
+      if (this.status[id])
+        this.status[id].updateStatus({
+          message,
+          successful: false,
+        })
     })
     this._updateIsSearching()
     this['_notifySubscribers.status']()
