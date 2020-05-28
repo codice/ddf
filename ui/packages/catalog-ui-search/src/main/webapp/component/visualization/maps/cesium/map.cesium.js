@@ -348,7 +348,7 @@ module.exports = function CesiumMap(
           .filter(result => result.hasGeometry())
           .map(
             result =>
-              _.map(result.getPoints(), coordinate =>
+              _.map(result.getPoints('location'), coordinate =>
                 Cesium.Cartographic.fromDegrees(
                   coordinate[0],
                   coordinate[1],

@@ -233,7 +233,7 @@ const OpenlayersMap = extension =>
       },
       panToResults(results) {
         const coordinates = _.flatten(
-          results.map(result => result.getPoints()),
+          results.map(result => result.getPoints('location')),
           true
         )
         this.panToExtent(coordinates)
