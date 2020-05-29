@@ -506,8 +506,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     @Override
     public SourceResponse call() throws Exception {
-      QueryRequest queryRequest = getQueryRequest();
-      return getSourceResponse(queryRequest);
+      return getSourceResponse(request);
     }
 
     @SuppressWarnings("squid:S1181" /*Catching throwable intentionally*/)
@@ -533,19 +532,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         }
       }
       return sourceResponse;
-    }
-
-    private QueryRequest getQueryRequest() {
-      QueryRequest queryRequest;
-      if (CACHE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))
-          || INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
-        queryRequest =
-            new QueryRequestImpl(
-                request.getQuery(), false, request.getSourceIds(), request.getProperties());
-      } else {
-        queryRequest = new QueryRequestImpl(request.getQuery(), request.getProperties());
-      }
-      return queryRequest;
     }
 
     private SourceResponse cloneResponse(SourceResponse sourceResponse) {
