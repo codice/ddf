@@ -188,7 +188,7 @@ function updateTheme(userTheme: UserTheme) {
   }
   let sizingTheme = sizing[userTheme.spacingMode]
   return {
-    spacingMode: userTheme.spacingMode,
+    spacingMode: userTheme.spacingMode as 'comfortable' | 'cozy' | 'compact',
     ...relevantColorTheme,
     ...userTheme,
     ...sizingTheme,
