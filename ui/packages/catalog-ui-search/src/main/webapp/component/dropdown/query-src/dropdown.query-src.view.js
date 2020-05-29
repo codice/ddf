@@ -37,7 +37,9 @@ const renderSourceAvailable = source => (
         <i className="fa fa-exclamation-triangle src-availability" />
       ) : null}
       {renderSourceLocal(source)}
-      <span className="src-title" style={{marginLeft: "5px"}}>{source.id}</span>
+      <span className="src-title" style={{ marginLeft: '5px' }}>
+        {source.id}
+      </span>
     </span>
   </React.Fragment>
 )
