@@ -237,6 +237,9 @@ public class ConfigurationApplication implements SparkApplication {
 
   private String basicSearchMatchType;
 
+  private List<String> defaultSources = Collections.emptyList();
+  private List<String> defaultTableColumns = Collections.emptyList();
+
   private Set<String> editorAttributes = Collections.emptySet();
   private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
@@ -590,6 +593,8 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("useHyphensInUuid", uuidGenerator.useHyphens());
     config.put("i18n", i18n);
     config.put("attributeSuggestionList", attributeSuggestionList);
+    config.put("defaultSources", defaultSources);
+    config.put("defaultTableColumns", defaultTableColumns);
     return config;
   }
 
@@ -1295,5 +1300,39 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setBasicSearchMatchType(String basicSearchMatchType) {
     this.basicSearchMatchType = basicSearchMatchType;
+  }
+
+  public List<String> getDefaultSources() {
+    return defaultSources;
+  }
+
+  public void setDefaultSources(List<String> defaultSources) {
+    if (defaultSources == null || defaultSources.isEmpty()) {
+      this.defaultSources = Collections.emptyList();
+    } else {
+      this.defaultSources =
+          defaultSources
+              .stream()
+              .filter(StringUtils::isNotBlank)
+              .map(String::trim)
+              .collect(Collectors.toList());
+    }
+  }
+
+  public List<String> setDefaultTableColumns() {
+    return defaultTableColumns;
+  }
+
+  public void setDefaultTableColumns(List<String> defaultTableColumns) {
+    if (defaultTableColumns == null || defaultTableColumns.isEmpty()) {
+      this.defaultTableColumns = Collections.emptyList();
+    } else {
+      this.defaultTableColumns =
+          defaultTableColumns
+              .stream()
+              .filter(StringUtils::isNotBlank)
+              .map(String::trim)
+              .collect(Collectors.toList());
+    }
   }
 }

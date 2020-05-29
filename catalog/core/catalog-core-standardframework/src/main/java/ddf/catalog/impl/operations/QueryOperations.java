@@ -828,7 +828,7 @@ public class QueryOperations extends DescribableImpl {
               if (!canAccessSource) {
                 notPermittedSources.add(source.getId());
               }
-              if (source.isAvailable() && canAccessSource) {
+              if (canAccessSource) {
                 sourcesToQuery.add(source);
               } else {
                 exceptions.add(queryOps.createUnavailableProcessingDetails(source));

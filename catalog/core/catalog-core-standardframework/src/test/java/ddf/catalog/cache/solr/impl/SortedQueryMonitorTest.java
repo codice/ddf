@@ -146,7 +146,7 @@ public class SortedQueryMonitorTest {
     assertThat(queryResponse.getResults().size()).isEqualTo(4);
     HashMap<String, Long> hitsPerSource =
         (HashMap<String, Long>) queryResponse.getProperties().get("hitsPerSource");
-    assertThat(hitsPerSource.size()).isEqualTo(3);
+    assertThat(hitsPerSource.size()).isEqualTo(4);
     for (int[] idAndCount : new int[][] {{1, 3}, {2, 1}, {3, 0}}) {
       assertThat(hitsPerSource.get("Source-" + idAndCount[0])).isEqualTo(idAndCount[1]);
     }
@@ -192,7 +192,7 @@ public class SortedQueryMonitorTest {
     assertThat(queryResponse.getHits()).isEqualTo(3);
     HashMap<String, Long> hitsPerSource =
         (HashMap<String, Long>) queryResponse.getProperties().get("hitsPerSource");
-    assertThat(hitsPerSource.size()).isEqualTo(1);
+    assertThat(hitsPerSource.size()).isEqualTo(2);
     assertThat(hitsPerSource.get("Source-1")).isEqualTo(3);
     assertThat(queryResponse.getProcessingDetails())
         .extracting(byName("exception"))
@@ -240,7 +240,7 @@ public class SortedQueryMonitorTest {
     assertThat(queryResponse.getResults().size()).isEqualTo(3);
     HashMap<String, Long> hitsPerSource =
         (HashMap<String, Long>) queryResponse.getProperties().get("hitsPerSource");
-    assertThat(hitsPerSource.size()).isEqualTo(1);
+    assertThat(hitsPerSource.size()).isEqualTo(2);
     assertThat(hitsPerSource.get("Source-1")).isEqualTo(3);
     assertThat(queryResponse.getProcessingDetails())
         .extracting(byName("exception"))
@@ -262,7 +262,7 @@ public class SortedQueryMonitorTest {
     Set<ProcessingDetails> processingDetailsOfMockedSourceResponse = new HashSet<>();
     doReturn(processingDetailsOfMockedSourceResponse)
         .when(mockedSourceResponseWithProcessingDetails)
-        .getProcessingDetails();
+        .getProcessingErrors();
 
     QueryRequest mockedQueryRequest = mock(QueryRequest.class);
 

@@ -110,12 +110,16 @@ module.exports = new (Backbone.AssociatedModel.extend({
     )
   },
   handleResults() {
-    this.set(
-      'currentMetacard',
-      this.get('currentResult')
-        .get('results')
-        .first()
+    const results = Object.values(
+      this.get('currentResult').get('lazyResults').results
     )
+    const resultToUse = results[0]
+    if (resultToUse) {
+      resultToUse.setSelected(true)
+      this.set('currentMetacard', resultToUse.getBackbone())
+    } else {
+      this.set('currentMetacard', undefined)
+    }
   },
   updateActiveSearchResultsAttributes() {
     const availableAttributes = this.get('activeSearchResults')
@@ -164,6 +168,9 @@ module.exports = new (Backbone.AssociatedModel.extend({
   },
   addSelectedResult(metacard) {
     this.getSelectedResults().add(metacard)
+  },
+  setSelectedResults(results) {
+    this.get('selectedResults').reset(results.models || results)
   },
   removeSelectedResult(metacard) {
     this.getSelectedResults().remove(metacard)

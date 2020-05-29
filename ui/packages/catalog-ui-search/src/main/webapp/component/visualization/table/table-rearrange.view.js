@@ -12,21 +12,52 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
+import * as React from 'react'
 const _ = require('underscore')
-const template = require('./table-rearrange.hbs')
 const Marionette = require('marionette')
-const CustomElements = require('../../../js/CustomElements.js')
 const user = require('../../singletons/user-instance.js')
 const properties = require('../../../js/properties.js')
 const Sortable = require('sortablejs')
 const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 module.exports = Marionette.ItemView.extend({
-  template,
-  tagName: CustomElements.register('table-rearrange'),
+  template(columns) {
+    return (
+      <React.Fragment>
+        <div className="rearrange-columns">
+          {columns.map(column => {
+            return (
+              <div
+                key={column.id}
+                className={`column ${column.hidden ? 'is-hidden-column' : ''} ${
+                  column.notCurrentlyAvailable ? 'is-unavailable-column' : ''
+                }`}
+                data-propertyid={column.id}
+                data-propertytext={column.label ? column.label : column.id}
+              >
+                <span className="column-text">
+                  {column.label ? column.label : column.id}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+        <div className="rearrange-footer">
+          <button className="footer-cancel is-negative">
+            <span className="fa fa-times" />
+            <span>Cancel</span>
+          </button>
+          <button className="footer-save is-positive">
+            <span className="fa fa-floppy-o" />
+            <span>Save</span>
+          </button>
+        </div>
+      </React.Fragment>
+    )
+  },
+  tagName: 'intrigue-table-rearrange',
   events: {
-    'click .footer-cancel': 'destroy',
+    'click .footer-cancel': 'psuedoDestroy',
     'click .footer-save': 'handleSave',
   },
   initialize(options) {
@@ -66,6 +97,13 @@ module.exports = Marionette.ItemView.extend({
   onRender() {
     Sortable.create(this.el.querySelector('.rearrange-columns'))
   },
+  psuedoDestroy() {
+    if (this.options.destroy) {
+      this.options.destroy()
+    } else {
+      this.destroy()
+    }
+  },
   handleSave() {
     const prefs = user.get('user').get('preferences')
     prefs.set(
@@ -75,6 +113,6 @@ module.exports = Marionette.ItemView.extend({
       )
     )
     prefs.savePreferences()
-    this.destroy()
+    this.psuedoDestroy()
   },
 })

@@ -13,26 +13,20 @@
  *
  **/
 
-const Marionette = require('marionette')
-const CustomElements = require('../../js/CustomElements.js')
-const queryItemView = require('./sort-item.view')
+import * as React from 'react'
 
-module.exports = Marionette.CollectionView.extend({
-  childView: queryItemView,
-  tagName: CustomElements.register('sort-item-collection'),
-  initialize(options) {
-    if (this.collection.length === 0) {
-      this.collection.add({
-        attribute: 'title',
-        direction: 'ascending',
-      })
-    }
-  },
-  childViewOptions(model, index) {
-    return {
-      collection: this.collection,
-      childIndex: index,
-      showBestTextOption: this.options.showBestTextOption,
-    }
+const Marionette = require('marionette')
+import LazyInspector from './inspector-lazy'
+
+const LazyInspectorView = Marionette.LayoutView.extend({
+  className: 'customElement',
+  template() {
+    return (
+      <React.Fragment>
+        <LazyInspector selectionInterface={this.options.selectionInterface} />
+      </React.Fragment>
+    )
   },
 })
+
+export default LazyInspectorView

@@ -16,64 +16,67 @@
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import ResultSortPresentation from './presentation'
+import { useBackbone } from '../../component/selection-checkbox/useBackbone.hook'
 
 const Backbone = require('backbone')
 const user = require('../../component/singletons/user-instance.js')
 
 type Props = {
-  closeDropdown: () => void
+  closeDropdown: any
 }
 
-type State = {
-  collection: Backbone.Collection<Backbone.Model>
+const getResultSort = () => {
+  return user
+    .get('user')
+    .get('preferences')
+    .get('resultSort')
 }
 
-export default hot(module)(
-  class ResultSort extends React.Component<Props, State> {
-    constructor(props: Props) {
-      super(props)
-      const resultSort = user
-        .get('user')
-        .get('preferences')
-        .get('resultSort')
-
-      this.state = {
-        collection: new Backbone.Collection(resultSort),
-      }
-    }
-
-    removeSort = () => {
-      user
-        .get('user')
-        .get('preferences')
-        .set('resultSort', undefined)
-      user
-        .get('user')
-        .get('preferences')
-        .savePreferences()
-    }
-
-    saveSort = () => {
-      const sorting = this.state.collection.toJSON()
-      user
-        .get('user')
-        .get('preferences')
-        .set('resultSort', sorting.length === 0 ? undefined : sorting)
-      user
-        .get('user')
-        .get('preferences')
-        .savePreferences()
-    }
-
-    render() {
-      return (
-        <ResultSortPresentation
-          saveSort={this.saveSort}
-          removeSort={this.removeSort}
-          collection={this.state.collection}
-          hasSort={this.state.collection && this.state.collection.length > 0}
-        />
-      )
-    }
+const ResultSortContainer = ({ closeDropdown }: Props) => {
+  const [collection, setCollection] = React.useState(
+    new Backbone.Collection(getResultSort())
+  )
+  const [hasSort, setHasSort] = React.useState(collection.length > 0)
+  const { listenTo } = useBackbone()
+  React.useEffect(() => {
+    listenTo(user.get('user').get('preferences'), 'change:resultSort', () => {
+      const resultSort = getResultSort()
+      setHasSort(resultSort !== undefined && resultSort.length > 0)
+      setCollection(new Backbone.Collection(resultSort))
+    })
+  }, [])
+  const removeSort = () => {
+    user
+      .get('user')
+      .get('preferences')
+      .set('resultSort', undefined)
+    user
+      .get('user')
+      .get('preferences')
+      .savePreferences()
+    closeDropdown()
   }
-)
+  const saveSort = () => {
+    const sorting = collection.toJSON()
+    user
+      .get('user')
+      .get('preferences')
+      .set('resultSort', sorting.length === 0 ? undefined : sorting)
+    user
+      .get('user')
+      .get('preferences')
+      .savePreferences()
+    closeDropdown()
+  }
+  return (
+    <ResultSortPresentation
+      key={Math.random()}
+      saveSort={saveSort}
+      removeSort={removeSort}
+      collection={collection}
+      hasSort={hasSort}
+    />
+  )
+}
+
+export default hot(module)(ResultSortContainer)

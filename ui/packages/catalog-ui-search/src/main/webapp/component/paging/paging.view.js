@@ -51,19 +51,11 @@ module.exports = Marionette.ItemView.extend({
     this.updateSelectionInterface = _debounce(
       this.updateSelectionInterface,
       200,
-      { leading: true, trailing: true }
+      { leading: false, trailing: true }
     )
   },
   updateSelectionInterface() {
-    this.options.selectionInterface.setActiveSearchResults(
-      this.model.reduce((results, result) => {
-        results.push(result)
-        if (result.duplicates) {
-          results = results.concat(result.duplicates)
-        }
-        return results
-      }, [])
-    )
+    this.options.selectionInterface.setActiveSearchResults(this.model.models)
   },
   previousServerPage() {
     this.getQuery().getPreviousServerPage()

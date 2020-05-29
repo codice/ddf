@@ -137,6 +137,7 @@ User.Preferences = Backbone.AssociatedModel.extend({
       visualization: '3dmap',
       columnHide: [],
       columnOrder: ['title', 'created', 'modified', 'thumbnail'],
+      hasSelectedColumns: false,
       uploads: [],
       fontSize: ThemeUtils.getFontSize(_get(properties, 'zoomPercentage', 100)),
       resultCount: properties.resultCount,

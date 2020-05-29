@@ -163,6 +163,40 @@ function _iconExistsInMap(attr, map) {
 }
 
 /* Find the correct icon based on various Metacard attributes. */
+function _deriveIconByMetacardObject(metacard) {
+  let prop,
+    dataTypes,
+    metacardType,
+    mimeType,
+    contentType,
+    icon = _default
+
+  prop = metacard.metacard.properties
+  dataTypes = prop.datatype
+  metacardType = _formatAttribute(prop['metacard-type'])
+  mimeType = _formatAttribute(prop['media.type'])
+  contentType = _formatAttribute(prop['metadata-content-type'])
+
+  if (mimeType !== undefined) {
+    const mime = mimeType.split('/')
+    if (mime && mime.length === 2) {
+      mimeType = mime[0]
+    }
+  }
+
+  if (_iconExistsInMap(dataTypes, _map)) {
+    icon = _get(_map, _formatAttribute(dataTypes[0]), _default)
+  } else if (_iconExistsInMap(metacardType, _map)) {
+    icon = _get(_map, metacardType, _default)
+  } else if (_iconExistsInMap(contentType, _map)) {
+    icon = _get(_map, contentType, _default)
+  } else if (_iconExistsInMap(mimeType, _mimeMap)) {
+    icon = _get(_mimeMap, mimeType, _default)
+  }
+  return icon
+}
+
+/* Find the correct icon based on various Metacard attributes. */
 function _deriveIconByMetacard(metacard) {
   let prop,
     dataTypes,
@@ -202,6 +236,10 @@ function _deriveIconByName(name) {
 }
 
 module.exports = {
+  getClassByMetacardObject(metacard) {
+    const i = _deriveIconByMetacardObject(metacard)
+    return _get(i, 'class', _default.class)
+  },
   getClass(metacard) {
     const i = _deriveIconByMetacard(metacard)
     return _get(i, 'class', _default.class)
@@ -214,6 +252,10 @@ module.exports = {
   },
   getSize(metacard) {
     return _get(_map, 'style.size', _default.style.size)
+  },
+  getFullByMetacardObject(metacard) {
+    const i = _deriveIconByMetacardObject(metacard)
+    return i !== undefined ? i : _default
   },
   getFull(metacard) {
     const i = _deriveIconByMetacard(metacard)

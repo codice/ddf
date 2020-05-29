@@ -96,6 +96,7 @@ const MetacardsTabsView = TabsView.extend({
         selectionInterface: this.selectionInterface,
       })
     )
+    this._clickHandler()
   },
   determineContent() {
     if (this.selectionInterface.getSelectedResults().length > 1) {

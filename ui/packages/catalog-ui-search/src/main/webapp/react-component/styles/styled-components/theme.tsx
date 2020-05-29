@@ -20,6 +20,7 @@ export type SpecificSizingInterface = {
 }
 
 type SizingInterface = {
+  spacingMode: 'comfortable' | 'cozy' | 'compact'
   mediumSpacing: string
   largeSpacing: string
 }

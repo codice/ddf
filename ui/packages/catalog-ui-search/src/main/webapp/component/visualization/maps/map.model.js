@@ -23,14 +23,6 @@ const converter = new usngs.Converter()
 const usngPrecision = 6
 
 module.exports = Backbone.AssociatedModel.extend({
-  relations: [
-    {
-      type: Backbone.One,
-      key: 'targetMetacard',
-      relatedModel: MetacardModel,
-      isTransient: true,
-    },
-  ],
   defaults: {
     mouseLat: undefined,
     mouseLon: undefined,

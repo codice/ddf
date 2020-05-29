@@ -20,7 +20,6 @@ import withListenTo, {
 const store = require('../../js/store')
 const sources = require('../../component/singletons/sources-instance')
 const properties = require('../../js/properties.js')
-const metacard = require('../../component/metacard/metacard')
 const wreqr = require('../../js/wreqr.js')
 
 import { hot } from 'react-hot-loader'
@@ -64,19 +63,13 @@ const getState = () => {
     workspaceJSON = currentWorkspace.toJSON()
   }
 
-  const currentMetacard = metacard.get('currentMetacard')
-  var metacardJSON
-  if (currentMetacard) {
-    metacardJSON = currentMetacard.toJSON()
-  }
-
   return {
     isSaved: !hasUnsaved,
     hasUnavailableSources: hasDown,
     branding: properties.branding,
     product: properties.product,
     recentWorkspace: workspaceJSON,
-    recentMetacard: metacardJSON,
+    recentMetacard: undefined,
     uploadEnabled: properties.isUploadEnabled(),
     isDevelopment: properties.isDevelopment(),
   }

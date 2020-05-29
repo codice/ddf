@@ -18,12 +18,23 @@ import { exportResultSet } from '../utils/export'
 import LoadingCompanion from '../loading-companion'
 import saveFile from '../utils/save-file'
 import { hot } from 'react-hot-loader'
+import { LazyQueryResults } from '../../js/model/LazyQueryResult/LazyQueryResults'
+import { Status } from '../../js/model/LazyQueryResult/status'
 const _ = require('underscore')
 const user = require('../../component/singletons/user-instance.js')
 const properties = require('../../js/properties.js')
 const announcement = require('../../component/announcement/index.jsx')
 const Sources = require('../../component/singletons/sources-instance.js')
 const contentDisposition = require('content-disposition')
+function getLazyResults(selectionInterface: any) {
+  return selectionInterface
+    .getCurrentQuery()
+    .get('result')
+    .get('lazyResults') as LazyQueryResults
+}
+function getSearchStatusList(selectionInterface: any) {
+  return Object.values(getLazyResults(selectionInterface).status)
+}
 function buildCqlQueryFromMetacards(metacards: any) {
   const queryParts = metacards.map((metacard: any) => {
     return `(("id" ILIKE '${metacard.metacard.id}'))`
@@ -32,7 +43,9 @@ function buildCqlQueryFromMetacards(metacards: any) {
 }
 const visibleData = (selectionInterface: any) =>
   buildCqlQueryFromMetacards(
-    selectionInterface.getActiveSearchResults().toJSON()
+    Object.values(getLazyResults(selectionInterface).results).map(
+      lazyResult => lazyResult.plain
+    )
   )
 const allData = (selectionInterface: any) =>
   selectionInterface.getCurrentQuery().get('cql')
@@ -57,9 +70,9 @@ function getHiddenFields(): string[] {
     .get('preferences')
     .get('columnHide')
 }
-function getHits(sources: Source[]): number {
-  return sources
-    .filter(source => source.id !== 'cache')
+function getHits(status: Status[]): number {
+  return status
+    .filter(status => status.id !== 'cache')
     .reduce((hits, source) => (source.hits ? hits + source.hits : hits), 0)
 }
 function getExportCount({
@@ -70,20 +83,18 @@ function getExportCount({
   if (exportSize === 'custom') {
     return customExportCount
   }
-  const result = selectionInterface.getCurrentQuery().get('result')
   return exportSize === 'all'
-    ? getHits(result.get('status').toJSON())
-    : result.get('results').length
+    ? getHits(getSearchStatusList(selectionInterface))
+    : Object.keys(getLazyResults(selectionInterface).results).length
 }
 function getSorts(selectionInterface: any) {
   return selectionInterface.getCurrentQuery().get('sorts')
 }
 function getWarning(exportCountInfo: ExportCountInfo): string {
   const exportCount = getExportCount(exportCountInfo)
-  const result = exportCountInfo.selectionInterface
-    .getCurrentQuery()
-    .get('result')
-  const totalHits = getHits(result.get('status').toJSON())
+  const totalHits = getHits(
+    getSearchStatusList(exportCountInfo.selectionInterface)
+  )
   const limitWarning = `You cannot export more than the administrator configured limit of ${
     properties.exportResultLimit
   }.`
@@ -129,10 +140,6 @@ type State = {
   exportFormat: string
   exportSize: string
   customExportCount: number
-}
-type Source = {
-  id: string
-  hits: number
 }
 interface ExportCountInfo {
   exportSize: string

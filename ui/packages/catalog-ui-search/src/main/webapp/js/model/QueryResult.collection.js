@@ -52,56 +52,10 @@ module.exports = Backbone.Collection.extend({
       resultSort.sortResults(sorting, this)
     }
   },
-  collapseDuplicates() {
-    const collapsedCollection = new this.constructor()
-    collapsedCollection.set(this.models)
-    collapsedCollection.amountFiltered = this.amountFiltered
-    let endIndex = collapsedCollection.length
-    for (let i = 0; i < endIndex; i++) {
-      var currentResult = collapsedCollection.models[i]
-      var currentChecksum = currentResult
-        .get('metacard')
-        .get('properties')
-        .get('checksum')
-      var currentId = currentResult
-        .get('metacard')
-        .get('properties')
-        .get('id')
-      const duplicates = collapsedCollection.filter(result => {
-        const comparedChecksum = result
-          .get('metacard')
-          .get('properties')
-          .get('checksum')
-        const comparedId = result
-          .get('metacard')
-          .get('properties')
-          .get('id')
-        return (
-          result.id !== currentResult.id &&
-          (comparedId === currentId ||
-            (Boolean(comparedChecksum) &&
-              Boolean(currentChecksum) &&
-              comparedChecksum === currentChecksum))
-        )
-      })
-      currentResult.duplicates = undefined
-      if (duplicates.length > 0) {
-        currentResult.duplicates = duplicates
-        collapsedCollection.remove(duplicates)
-        endIndex = collapsedCollection.length
-      }
-    }
-    return collapsedCollection
-  },
   selectBetween(startIndex, endIndex) {
     const allModels = []
     this.forEach(model => {
       allModels.push(model)
-      if (model.duplicates) {
-        model.duplicates.forEach(duplicate => {
-          allModels.push(duplicate)
-        })
-      }
     })
     return allModels.slice(startIndex, endIndex)
   },

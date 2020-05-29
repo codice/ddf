@@ -30,14 +30,17 @@ function determineNodes(view) {
       label: metacard.get('title'),
     }))
     .concat(
-      view.options.selectionInterface.getActiveSearchResults().map(result => ({
-        id: result.get('metacard').id,
-
-        label: result
-          .get('metacard')
-          .get('properties')
-          .get('title'),
-      }))
+      Object.values(
+        view.options.selectionInterface
+          .get('currentQuery')
+          .get('result')
+          .get('lazyResults').filteredResults
+      ).map(function(result) {
+        return {
+          id: result['metacard.id'],
+          label: result.plain.metacard.properties.title,
+        }
+      })
     )
   nodes = _.uniq(nodes, false, node => node.id)
   return nodes.map(node => ({

@@ -31,6 +31,8 @@ import CesiumLayerCollectionController from '../../../../js/controllers/cesium.l
 const user = require('../../../singletons/user-instance.js')
 const User = require('../../../../js/model/User.js')
 import { Drawing } from '../../../singletons/drawing'
+import { LazyQueryResult } from '../../../../js/model/LazyQueryResult/LazyQueryResult'
+import { ClusterType } from '../react/geometries'
 
 const defaultColor = '#3c6dd5'
 const eyeOffset = new Cesium.Cartesian3(0, 0, 0)
@@ -309,8 +311,14 @@ module.exports = function CesiumMap(
     onCameraMoveStart(callback) {
       map.scene.camera.moveStart.addEventListener(callback)
     },
+    offCameraMoveStart(callback) {
+      map.scene.camera.moveStart.removeEventListener(callback)
+    },
     onCameraMoveEnd(callback) {
       map.scene.camera.moveEnd.addEventListener(callback)
+    },
+    offCameraMoveEnd(callback) {
+      map.scene.camera.moveEnd.removeEventListener(callback)
     },
     doPanZoom(coords) {
       const cartArray = coords.map(coord =>
@@ -444,12 +452,12 @@ module.exports = function CesiumMap(
       }
       overlays = {}
     },
-    getCartographicCenterOfClusterInDegrees(cluster) {
+    getCartographicCenterOfClusterInDegrees(cluster: ClusterType) {
       return utility.calculateCartographicCenterOfGeometriesInDegrees(
-        cluster.get('results').map(result => result)
+        cluster.results
       )
     },
-    getWindowLocationsOfResults(results) {
+    getWindowLocationsOfResults(results: LazyQueryResult[]) {
       let occluder
       if (map.scene.mode === Cesium.SceneMode.SCENE3D) {
         occluder = new Cesium.EllipsoidalOccluder(
@@ -490,14 +498,40 @@ module.exports = function CesiumMap(
         cartographicPosition
       )
       const billboardRef = billboardCollection.add({
-        image: DrawingUtility.getCircleWithText({
-          fillColor: options.color,
-          text: options.id.length,
-        }),
+        image: undefined,
         position: cartesianPosition,
         id: options.id,
         eyeOffset,
       })
+      billboardRef.unselectedImage = DrawingUtility.getCircleWithText({
+        fillColor: options.color,
+        text: options.id.length,
+        strokeColor: 'white',
+        textColor: 'white',
+      })
+      billboardRef.partiallySelectedImage = DrawingUtility.getCircleWithText({
+        fillColor: options.color,
+        text: options.id.length,
+        strokeColor: 'black',
+        textColor: 'white',
+      })
+      billboardRef.selectedImage = DrawingUtility.getCircleWithText({
+        fillColor: options.color,
+        text: options.id.length,
+        strokeColor: 'black',
+        textColor: 'black',
+      })
+      switch (options.isSelected) {
+        case 'selected':
+          billboardRef.image = billboardRef.selectedImage
+          break
+        case 'partially':
+          billboardRef.image = billboardRef.partiallySelectedImage
+          break
+        case 'unselected':
+          billboardRef.image = billboardRef.unselectedImage
+          break
+      }
       //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
       if (!pointObject.altitude && map.scene.terrainProvider) {
         const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
@@ -526,11 +560,9 @@ module.exports = function CesiumMap(
         pointObject.latitude,
         pointObject.altitude
       )
+
       const billboardRef = billboardCollection.add({
-        image: DrawingUtility.getPin({
-          fillColor: options.color,
-          icon: options.icon,
-        }),
+        image: undefined,
         position: map.scene.globe.ellipsoid.cartographicToCartesian(
           cartographicPosition
         ),
@@ -540,6 +572,18 @@ module.exports = function CesiumMap(
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
       })
+      billboardRef.unselectedImage = DrawingUtility.getPin({
+        fillColor: options.color,
+        icon: options.icon,
+      })
+      billboardRef.selectedImage = DrawingUtility.getPin({
+        fillColor: options.color,
+        strokeColor: 'black',
+        icon: options.icon,
+      })
+      billboardRef.image = options.isSelected
+        ? billboardRef.selectedImage
+        : billboardRef.unselectedImage
       //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
       if (!pointObject.altitude && map.scene.terrainProvider) {
         const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
@@ -576,13 +620,27 @@ module.exports = function CesiumMap(
       )
 
       const polylineCollection = new Cesium.PolylineCollection()
-      const polyline = polylineCollection.add({
-        width: 8,
-        material: Cesium.Material.fromType('PolylineOutline', {
+      polylineCollection.unselectedMaterial = Cesium.Material.fromType(
+        'PolylineOutline',
+        {
           color: determineCesiumColor(options.color),
           outlineColor: Cesium.Color.WHITE,
           outlineWidth: 4,
-        }),
+        }
+      )
+      polylineCollection.selectedMaterial = Cesium.Material.fromType(
+        'PolylineOutline',
+        {
+          color: determineCesiumColor(options.color),
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 4,
+        }
+      )
+      const polyline = polylineCollection.add({
+        width: 8,
+        material: options.isSelected
+          ? polylineCollection.selectedMaterial
+          : polylineCollection.unselectedMaterial,
         id: options.id,
         positions: cartesian,
       })
@@ -689,17 +747,19 @@ module.exports = function CesiumMap(
         })
       }
       if (geometry.constructor === Cesium.Billboard) {
-        geometry.image = DrawingUtility.getCircleWithText({
-          fillColor: options.color,
-          strokeColor: options.outline,
-          text: options.count,
-          textColor: options.textFill,
-        })
-        geometry.eyeOffset = new Cesium.Cartesian3(
-          0,
-          0,
-          options.isSelected ? -1 : 0
-        )
+        switch (options.isSelected) {
+          case 'selected':
+            geometry.image = geometry.selectedImage
+            break
+          case 'partially':
+            geometry.image = geometry.partiallySelectedImage
+            break
+          case 'unselected':
+            geometry.image = geometry.unselectedImage
+            break
+        }
+        const isSelected = options.isSelected !== 'unselected'
+        geometry.eyeOffset = new Cesium.Cartesian3(0, 0, isSelected ? -1 : 0)
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
           polyline.material = Cesium.Material.fromType('PolylineOutline', {
@@ -725,11 +785,9 @@ module.exports = function CesiumMap(
         })
       }
       if (geometry.constructor === Cesium.Billboard) {
-        geometry.image = DrawingUtility.getPin({
-          fillColor: options.color,
-          strokeColor: options.isSelected ? 'black' : 'white',
-          icon: options.icon,
-        })
+        geometry.image = options.isSelected
+          ? geometry.selectedImage
+          : geometry.unselectedImage
         geometry.eyeOffset = new Cesium.Cartesian3(
           0,
           0,
@@ -737,13 +795,9 @@ module.exports = function CesiumMap(
         )
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
-          polyline.material = Cesium.Material.fromType('PolylineOutline', {
-            color: determineCesiumColor(options.color),
-            outlineColor: options.isSelected
-              ? Cesium.Color.BLACK
-              : Cesium.Color.WHITE,
-            outlineWidth: 4,
-          })
+          polyline.material = options.isSelected
+            ? geometry.selectedMaterial
+            : geometry.unselectedMaterial
         })
       } else if (geometry.showWhenSelected) {
         geometry.show = options.isSelected

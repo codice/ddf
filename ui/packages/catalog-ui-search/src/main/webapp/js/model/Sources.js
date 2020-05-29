@@ -90,6 +90,9 @@ module.exports = Backbone.Collection.extend({
     this._types.set(computeTypes(response))
     return response
   },
+  getHarvested() {
+    return [this.localCatalog]
+  },
   determineLocalCatalog() {
     $.get('./internal/localcatalogid').then(data => {
       this.localCatalog = data['local-catalog-id']
