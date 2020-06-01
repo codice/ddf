@@ -393,20 +393,20 @@ public class PolicyManagerTest {
     int i = 0;
     while (authIter.hasNext()) {
       if (i == 0) {
-        assertThat("SAML", is(authIter.next()));
+        assertThat(authIter.next(), is("SAML"));
       } else if (i == 1) {
-        assertThat("BASIC", is(authIter.next()));
+        assertThat(authIter.next(), is("BASIC"));
       } else if (i == 2) {
-        assertThat("GUEST", is(authIter.next()));
+        assertThat(authIter.next(), is("GUEST"));
       }
 
       i++;
     }
 
     List<Permission> permissionList = policy.getAllowedAttributePermissions().getPermissionList();
-    assertThat("role : user", is(permissionList.get(0).toString()));
-    assertThat("control : foo", is(permissionList.get(1).toString()));
-    assertThat("control : bar", is(permissionList.get(2).toString()));
+    assertThat(permissionList.get(0).toString(), is("role : user"));
+    assertThat(permissionList.get(1).toString(), is("control : foo"));
+    assertThat(permissionList.get(2).toString(), is("control : bar"));
 
     // check admin policy
     policy = manager.getContextPolicy("/admin");
@@ -415,9 +415,9 @@ public class PolicyManagerTest {
     i = 0;
     while (authIter.hasNext()) {
       if (i == 0) {
-        assertThat("SAML", is(authIter.next()));
+        assertThat(authIter.next(), is("SAML"));
       } else if (i == 1) {
-        assertThat("BASIC", is(authIter.next()));
+        assertThat(authIter.next(), is("BASIC"));
       }
 
       i++;
@@ -425,12 +425,12 @@ public class PolicyManagerTest {
 
     // check foo policy
     policy = manager.getContextPolicy("/services");
-    assertThat("/services", is(policy.getContextPath()));
+    assertThat(policy.getContextPath(), is("/services"));
     authIter = policy.getAuthenticationMethods().iterator();
     i = 0;
     while (authIter.hasNext()) {
       if (i == 0) {
-        assertThat("PKI", is(authIter.next()));
+        assertThat(authIter.next(), is("PKI"));
       }
 
       i++;
@@ -443,9 +443,9 @@ public class PolicyManagerTest {
     i = 0;
     while (authIter.hasNext()) {
       if (i == 0) {
-        assertThat("SAML", is(authIter.next()));
+        assertThat(authIter.next(), is("SAML"));
       } else if (i == 1) {
-        assertThat("BASIC", is(authIter.next()));
+        assertThat(authIter.next(), is("BASIC"));
       }
 
       i++;
@@ -460,7 +460,7 @@ public class PolicyManagerTest {
     int i = 0;
     while (authIter.hasNext()) {
       if (i == 0) {
-        assertThat("BASIC", is(authIter.next()));
+        assertThat(authIter.next(), is("BASIC"));
       }
 
       i++;
@@ -468,12 +468,12 @@ public class PolicyManagerTest {
 
     // check unprotected contexts
     policy = manager.getContextPolicy("/unprotected");
-    assertThat("/unprotected", is(policy.getContextPath()));
+    assertThat(policy.getContextPath(), is("/unprotected"));
     authIter = policy.getAuthenticationMethods().iterator();
-    assertThat(false, is(authIter.hasNext()));
+    assertThat(authIter.hasNext(), is(false));
 
     policy = manager.getContextPolicy("/unprotected2");
-    assertThat("/unprotected2", is(policy.getContextPath()));
+    assertThat(policy.getContextPath(), is("/unprotected2"));
     authIter = policy.getAuthenticationMethods().iterator();
     assertThat(authIter.hasNext(), is(false));
   }
