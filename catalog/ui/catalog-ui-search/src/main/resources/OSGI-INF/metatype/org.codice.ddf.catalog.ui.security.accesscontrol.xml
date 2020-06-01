@@ -18,6 +18,7 @@
     <OCD name="Intrigue Metacard Tag Config" id="org.codice.ddf.catalog.ui.security.accesscontrol">
         <AD id="intrigueTags"
             name="Intrigue Tags"
+            description="The Metacard tags to determine intrigue Metacards. Catalog UI access controls will be enforced on Metacards with intrigue tags."
             type="String"
             cardinality="100"
             default="workspace,query,attribute-group"/>
