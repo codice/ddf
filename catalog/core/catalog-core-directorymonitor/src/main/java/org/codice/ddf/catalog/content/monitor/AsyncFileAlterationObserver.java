@@ -57,8 +57,8 @@ public class AsyncFileAlterationObserver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
-  private final int LOGGING_TIME_DELAY = 500;
-  private final int LOGGING_TIME_INTERVAL = 5000;
+  private static final int LOGGING_TIME_DELAY = 500;
+  private static final int LOGGING_TIME_INTERVAL = 5000;
 
   private final AsyncFileEntry rootFile;
   private AsyncFileAlterationListener listener = null;
