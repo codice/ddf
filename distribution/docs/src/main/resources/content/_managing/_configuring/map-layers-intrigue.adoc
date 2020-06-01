@@ -11,7 +11,7 @@ Customize the look of the map displayed to users in ${catalog-ui} by adding or r
 Equivalent addition and deletion of a map layer can be found in <<{managing-prefix}map_configuration_for_intrigue,Map Configuration for ${catalog-ui}>>.
 
 . Navigate to the *${admin-console}*.
-. Select the *${ddf-catalog}* application.
+. Select the *${ddf-ui}* application.
 . Select the *Map Layers* tab.
 . *Add*, *Configure* or *Remove* map layers as desired.
 
