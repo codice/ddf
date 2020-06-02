@@ -21,10 +21,13 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.shiro.authc.AuthenticationException;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.profile.ProfileHelper;
+import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.profile.jwt.JwtClaims;
+import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -32,19 +35,19 @@ import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CustomOidcProfileCreator<U extends OidcProfile> extends OidcProfileCreator<U> {
+public class CustomOidcProfileCreator extends OidcProfileCreator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CustomOidcProfileCreator.class);
 
-  public CustomOidcProfileCreator(OidcConfiguration configuration) {
-    super(configuration);
+  public CustomOidcProfileCreator(OidcConfiguration configuration, OidcClient client) {
+    super(configuration, client);
   }
 
   @Override
-  public U create(OidcCredentials credentials, WebContext context) {
+  public Optional<UserProfile> create(OidcCredentials credentials, WebContext context) {
     init();
 
-    final U profile = getProfileDefinition().newProfile();
+    final OidcProfile profile = (OidcProfile) getProfileDefinition().newProfile();
 
     final AccessToken accessToken = credentials.getAccessToken();
     if (accessToken != null && !accessToken.getValue().isEmpty()) {
@@ -54,6 +57,7 @@ public class CustomOidcProfileCreator<U extends OidcProfile> extends OidcProfile
     final RefreshToken refreshToken = credentials.getRefreshToken();
     if (refreshToken != null && !refreshToken.getValue().isEmpty()) {
       profile.setRefreshToken(refreshToken);
+      LOGGER.debug("Found refresh token");
     }
 
     final JWT idToken = credentials.getIdToken();
@@ -74,7 +78,7 @@ public class CustomOidcProfileCreator<U extends OidcProfile> extends OidcProfile
 
       profile.setTokenExpirationAdvance(configuration.getTokenExpirationAdvance());
 
-      return profile;
+      return Optional.of(profile);
 
     } catch (final java.text.ParseException e) {
       throw new AuthenticationException(e);

@@ -19,7 +19,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,6 +29,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -43,7 +43,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.redirect.RedirectAction;
+import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
@@ -61,10 +61,11 @@ public class OidcHandlerTest {
 
   @Mock private OidcHandlerConfiguration mockConfiguration;
   @Mock private OidcConfiguration mockOidcConfiguration;
-  private OidcClient mockOidcClient;
+  @Mock private OidcClient<OidcConfiguration> mockOidcClient;
   @Mock private HttpServletRequest mockRequest;
   @Mock private HttpServletResponse mockResponse;
   @Mock private HttpSession mockSession;
+  @Mock private RedirectionAction mockRedirectionAction;
 
   private Map<String, String[]> parameterMap = new HashMap<>();
 
@@ -97,14 +98,18 @@ public class OidcHandlerTest {
   @Before
   public void setup() throws Exception {
     // oidc client
-    mockOidcClient = new MockOidcClient();
+    when(mockOidcClient.computeFinalCallbackUrl(any(WebContext.class)))
+        .thenReturn("https://final.callback.url");
+    when(mockOidcClient.getRedirectionAction(any(WebContext.class)))
+        .thenReturn(Optional.of(mockRedirectionAction));
+    when(mockOidcClient.getConfiguration()).thenReturn(mockOidcConfiguration);
 
     // oidc configuration
     when(mockConfiguration.getOidcConfiguration()).thenReturn(mockOidcConfiguration);
     when(mockConfiguration.getOidcClient(anyString())).thenReturn(mockOidcClient);
 
     // session
-    when(mockSession.getAttribute("oidcStateAttribute")).thenReturn(state);
+    when(mockSession.getAttribute(mockOidcClient.getStateSessionAttributeName())).thenReturn(state);
 
     // request
     when(mockRequest.getMethod()).thenReturn("POST");
@@ -163,6 +168,14 @@ public class OidcHandlerTest {
   }
 
   @Test
+  public void getNormalizedTokenNoCredentialsAndMissingRedirectAction() throws Exception {
+    when(mockOidcClient.getRedirectionAction(any(WebContext.class))).thenReturn(Optional.empty());
+    result = handler.getNormalizedToken(mockRequest, mockResponse, null, false);
+
+    assertThat(result.getStatus(), is(Status.NO_ACTION));
+  }
+
+  @Test
   public void getNormalizedTokenWithAuthorizationCodeInQueryParameters() throws Exception {
     parameterMap.put("code", new String[] {authorizationCodeString});
     parameterMap.put("client_name", new String[] {"ddf-client"});
@@ -208,23 +221,16 @@ public class OidcHandlerTest {
   }
 
   // have to do a manual mock here in order to stub methods from the parent class
-  private class MockOidcClient extends OidcClient {
-    @Override
-    public RedirectAction getRedirectAction(final WebContext context) {
-      RedirectAction mockRedirectAction = mock(RedirectAction.class);
-      when(mockRedirectAction.perform(any(WebContext.class))).thenReturn(null);
+  private static class MockOidcClient extends OidcClient<OidcConfiguration> {
 
-      return mockRedirectAction;
+    public MockOidcClient(OidcConfiguration configuration) {
+      super(configuration);
+      this.callbackUrl = "https://final.callback.url";
     }
 
     @Override
     public String computeFinalCallbackUrl(final WebContext context) {
-      return "https://final.callback.url";
-    }
-
-    @Override
-    public OidcConfiguration getConfiguration() {
-      return mockOidcConfiguration;
+      return this.callbackUrl;
     }
   }
 }

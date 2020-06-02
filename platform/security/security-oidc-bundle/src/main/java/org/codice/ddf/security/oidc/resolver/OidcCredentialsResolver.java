@@ -90,7 +90,7 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
       OidcTokenValidator.validateAccessToken(
           initialAccessToken, initialIdToken, resourceRetriever, metadata, configuration);
       if (initialIdToken != null) {
-        OidcTokenValidator.validateIdTokens(initialIdToken, webContext, configuration);
+        OidcTokenValidator.validateIdTokens(initialIdToken, webContext, configuration, client);
         return;
       }
     } catch (OidcValidationException e) {
@@ -170,7 +170,7 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
     try {
       JWT idToken = oidcTokens.getIDToken();
       if (idToken != null) {
-        OidcTokenValidator.validateIdTokens(idToken, webContext, configuration);
+        OidcTokenValidator.validateIdTokens(idToken, webContext, configuration, client);
       }
 
       AccessToken accessToken = oidcTokens.getAccessToken();

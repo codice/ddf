@@ -25,8 +25,8 @@ import org.codice.ddf.security.handler.OidcAuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
-import org.pac4j.core.context.J2EContext;
-import org.pac4j.core.context.session.J2ESessionStore;
+import org.pac4j.core.context.JEEContext;
+import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.oauth.exception.OAuthCredentialsException;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.slf4j.Logger;
@@ -61,8 +61,8 @@ public class OAuthHandler implements AuthenticationHandler {
       return processHeadRequest(httpResponse);
     }
 
-    J2ESessionStore sessionStore = new J2ESessionStore();
-    J2EContext j2EContext = new J2EContext(httpRequest, httpResponse, sessionStore);
+    JEESessionStore sessionStore = new JEESessionStore();
+    JEEContext jeeContext = new JEEContext(httpRequest, httpResponse, sessionStore);
 
     // time to try and pull credentials off of the request
     LOGGER.debug(
@@ -80,7 +80,7 @@ public class OAuthHandler implements AuthenticationHandler {
     // machine to machine, check for Client Credentials Flow credentials
     if (isMachine) {
       try {
-        credentials = getCredentialsFromRequest(j2EContext);
+        credentials = getCredentialsFromRequest(jeeContext);
       } catch (IllegalArgumentException e) {
         LOGGER.error(
             "Problem with the OAuth Handler's OAuthHandlerConfiguration. "
@@ -108,7 +108,7 @@ public class OAuthHandler implements AuthenticationHandler {
           "Oidc credentials found/retrieved. Saving to session and continuing filter chain.");
 
       OidcAuthenticationToken token =
-          new OidcAuthenticationToken(credentials, j2EContext, ipAddress);
+          new OidcAuthenticationToken(credentials, jeeContext, ipAddress);
 
       HandlerResult handlerResult = new HandlerResultImpl(Status.COMPLETED, token);
       handlerResult.setSource(SOURCE);
@@ -154,8 +154,8 @@ public class OAuthHandler implements AuthenticationHandler {
             || userAgentHeader.contains("Chrome"));
   }
 
-  private OidcCredentials getCredentialsFromRequest(J2EContext j2EContext) {
+  private OidcCredentials getCredentialsFromRequest(JEEContext jeeContext) {
     CustomOAuthCredentialsExtractor credentialsExtractor = new CustomOAuthCredentialsExtractor();
-    return credentialsExtractor.getOauthCredentialsAsOidcCredentials(j2EContext);
+    return credentialsExtractor.getOauthCredentialsAsOidcCredentials(jeeContext);
   }
 }

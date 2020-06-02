@@ -379,7 +379,7 @@ public class TestOidc extends AbstractIntegrationTest {
             .redirects()
             .follow(false)
             .expect()
-            .statusCode(302)
+            .statusCode(303)
             .when()
             .post(initialResponseParams.get(REDIRECT_URI));
 
@@ -417,7 +417,7 @@ public class TestOidc extends AbstractIntegrationTest {
             .redirects()
             .follow(false)
             .expect()
-            .statusCode(302)
+            .statusCode(303)
             .when()
             .post(initialResponseParams.get(REDIRECT_URI));
 

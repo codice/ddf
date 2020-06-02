@@ -18,6 +18,7 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -29,6 +30,7 @@ import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.codice.ddf.security.oidc.resolver.OidcCredentialsResolver;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.TechnicalException;
+import org.pac4j.core.profile.UserProfile;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
@@ -86,7 +88,8 @@ public class OidcRealm extends AuthenticatingRealm {
     OidcConfiguration oidcConfiguration = oidcHandlerConfiguration.getOidcConfiguration();
     OIDCProviderMetadata oidcProviderMetadata = oidcConfiguration.findProviderMetadata();
     WebContext webContext = (WebContext) oidcAuthenticationToken.getContext();
-    OidcClient oidcClient = oidcHandlerConfiguration.getOidcClient(webContext.getFullRequestURL());
+    OidcClient<OidcConfiguration> oidcClient =
+        oidcHandlerConfiguration.getOidcClient(webContext.getFullRequestURL());
     int connectTimeout = oidcHandlerConfiguration.getConnectTimeout();
     int readTimeout = oidcHandlerConfiguration.getReadTimeout();
 
@@ -115,14 +118,18 @@ public class OidcRealm extends AuthenticatingRealm {
       throw new AuthenticationException(msg);
     }
 
-    OidcProfileCreator oidcProfileCreator = new CustomOidcProfileCreator(oidcConfiguration);
-    OidcProfile profile = oidcProfileCreator.create(credentials, webContext);
+    OidcProfileCreator oidcProfileCreator =
+        new CustomOidcProfileCreator(oidcConfiguration, oidcClient);
+    Optional<UserProfile> userProfile = oidcProfileCreator.create(credentials, webContext);
 
     SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo();
-    SimplePrincipalCollection principalCollection =
-        createPrincipalCollectionFromCredentials(profile);
-    simpleAuthenticationInfo.setPrincipals(principalCollection);
     simpleAuthenticationInfo.setCredentials(credentials);
+    if (userProfile.isPresent()) {
+      OidcProfile oidcProfile = (OidcProfile) userProfile.get();
+      simpleAuthenticationInfo.setPrincipals(createPrincipalCollectionFromCredentials(oidcProfile));
+    } else {
+      simpleAuthenticationInfo.setPrincipals(new SimplePrincipalCollection());
+    }
 
     return simpleAuthenticationInfo;
   }

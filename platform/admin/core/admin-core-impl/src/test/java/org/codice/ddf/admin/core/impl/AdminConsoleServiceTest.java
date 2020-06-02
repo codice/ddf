@@ -73,7 +73,8 @@ import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
-@RunWith(MockitoJUnitRunner.class)
+/* Using MockitoJUnitRunner.Silent due to inconsistent "unnecessary stubbing" errors */
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class AdminConsoleServiceTest {
 
   private static final String GUEST_CLAIMS_CONFIG_PID = "ddf.security.guest.realm";

@@ -34,7 +34,8 @@ public class CustomOAuthCredentialsExtractor {
     OidcCredentials credentials = new OidcCredentials();
 
     try {
-      final String codeParam = context.getRequestParameter(OAuth20Configuration.OAUTH_CODE);
+      final String codeParam =
+          context.getRequestParameter(OAuth20Configuration.OAUTH_CODE).orElse(null);
       if (codeParam != null) {
         credentials.setCode(
             new AuthorizationCode(URLDecoder.decode(codeParam, StandardCharsets.UTF_8.name())));
@@ -42,7 +43,7 @@ public class CustomOAuthCredentialsExtractor {
         LOGGER.debug("No OAuth2 code found on request.");
       }
 
-      final String accessTokenParam = context.getRequestParameter("access_token");
+      final String accessTokenParam = context.getRequestParameter("access_token").orElse(null);
       final String accessTokenHeader = getAccessTokenFromHeader(context);
       final String accessToken = accessTokenParam != null ? accessTokenParam : accessTokenHeader;
       if (isNotBlank(accessToken)) {
@@ -59,7 +60,7 @@ public class CustomOAuthCredentialsExtractor {
   }
 
   private String getAccessTokenFromHeader(WebContext context) {
-    String authorizationHeader = context.getRequestHeader("Authorization");
+    String authorizationHeader = context.getRequestHeader("Authorization").orElse(null);
     String[] authorizationArray = null;
     if (authorizationHeader != null) {
       authorizationArray = authorizationHeader.split(" ");

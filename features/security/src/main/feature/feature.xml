@@ -352,6 +352,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:net.minidev/json-smart/2.3</bundle>
         <bundle>wrap:mvn:com.nimbusds/nimbus-jose-jwt/${nimbus.version}</bundle>
         <bundle>wrap:mvn:com.nimbusds/oauth2-oidc-sdk/${nimbus.oidc.version}</bundle>
+        <bundle>mvn:com.nimbusds/content-type/${nimbus.content-type.version}</bundle>
         <bundle>mvn:com.nimbusds/lang-tag/${nimbus.langtag.version}</bundle>
         <bundle>wrap:mvn:com.github.stephenc.jcip/jcip-annotations/1.0-1</bundle>
         <bundle>mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
@@ -380,7 +381,7 @@ org.ops4j.pax.web.default.realmname=DDF
     <feature name="jackson" version="${project.version}">
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.databind.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
     </feature>
 
     <feature name="security-oidc-realm" version="${project.version}"

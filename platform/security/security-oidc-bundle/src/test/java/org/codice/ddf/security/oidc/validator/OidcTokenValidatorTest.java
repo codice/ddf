@@ -52,18 +52,27 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 
+@RunWith(MockitoJUnitRunner.class)
 public class OidcTokenValidatorTest {
 
-  private ResourceRetriever resourceRetriever;
-  private OidcConfiguration configuration;
-  private OIDCProviderMetadata oidcProviderMetadata;
+  private static final String NONCE_SESSION_ATTRIBUTE = "session-attribute";
+
+  @Mock private ResourceRetriever resourceRetriever;
+  @Mock private OidcConfiguration configuration;
+  @Mock private OIDCProviderMetadata oidcProviderMetadata;
+  @Mock private OidcClient<OidcConfiguration> oidcClient;
 
   private Algorithm validAlgorithm;
   private Algorithm invalidAlgorithm;
@@ -86,7 +95,6 @@ public class OidcTokenValidatorTest {
 
     String jwk = "{\"keys\": [" + sigJwk.toPublicJWK().toJSONString() + "] }";
 
-    oidcProviderMetadata = mock(OIDCProviderMetadata.class);
     when(oidcProviderMetadata.getIDTokenJWSAlgs()).thenReturn(ImmutableList.of(JWSAlgorithm.RS256));
     when(oidcProviderMetadata.getIssuer())
         .thenReturn(new Issuer("http://localhost:8080/auth/realms/master"));
@@ -94,20 +102,19 @@ public class OidcTokenValidatorTest {
         .thenReturn(
             new URI("http://localhost:8080/auth/realms/master/protocol/openid-connect/certs"));
 
-    resourceRetriever = mock(ResourceRetriever.class);
     Resource resource = new Resource(jwk, APPLICATION_JSON);
     when(resourceRetriever.retrieveResource(any())).thenReturn(resource);
 
-    configuration = mock(OidcConfiguration.class);
     when(configuration.getClientId()).thenReturn("ddf-client");
     when(configuration.getSecret()).thenReturn("secret");
     when(configuration.isUseNonce()).thenReturn(true);
-    when(configuration.getResponseType()).thenReturn("id_token token");
     when(configuration.findProviderMetadata()).thenReturn(oidcProviderMetadata);
     when(configuration.findResourceRetriever()).thenReturn(resourceRetriever);
 
     validAlgorithm = Algorithm.RSA256(publicKey, privateKey);
     invalidAlgorithm = Algorithm.HMAC256("WRONG");
+
+    when(oidcClient.getNonceSessionAttributeName()).thenReturn(NONCE_SESSION_ATTRIBUTE);
   }
 
   @Test
@@ -116,7 +123,7 @@ public class OidcTokenValidatorTest {
     String stringJwt = getIdTokenBuilder().withClaim("nonce", "myNonce").sign(validAlgorithm);
 
     JWT jwt = SignedJWT.parse(stringJwt);
-    OidcTokenValidator.validateIdTokens(jwt, context, configuration);
+    OidcTokenValidator.validateIdTokens(jwt, context, configuration, oidcClient);
   }
 
   @Test(expected = OidcValidationException.class)
@@ -125,7 +132,7 @@ public class OidcTokenValidatorTest {
     String stringJwt = getIdTokenBuilder().withClaim("nonce", "myNonce").sign(invalidAlgorithm);
 
     JWT jwt = SignedJWT.parse(stringJwt);
-    OidcTokenValidator.validateIdTokens(jwt, context, configuration);
+    OidcTokenValidator.validateIdTokens(jwt, context, configuration, oidcClient);
   }
 
   @Test(expected = OidcValidationException.class)
@@ -138,7 +145,7 @@ public class OidcTokenValidatorTest {
             .sign(invalidAlgorithm);
 
     JWT jwt = SignedJWT.parse(stringJwt);
-    OidcTokenValidator.validateIdTokens(jwt, context, configuration);
+    OidcTokenValidator.validateIdTokens(jwt, context, configuration, oidcClient);
   }
 
   @Test(expected = OidcValidationException.class)
@@ -162,7 +169,7 @@ public class OidcTokenValidatorTest {
             .build();
 
     JWT jwt = new PlainJWT(claimsSet);
-    OidcTokenValidator.validateIdTokens(jwt, null, configuration);
+    OidcTokenValidator.validateIdTokens(jwt, null, configuration, oidcClient);
   }
 
   @Test(expected = OidcValidationException.class)
@@ -170,7 +177,7 @@ public class OidcTokenValidatorTest {
     WebContext context = getWebContext();
     String stringJwt = getIdTokenBuilder().withClaim("nonce", "WRONG").sign(validAlgorithm);
     JWT jwt = SignedJWT.parse(stringJwt);
-    OidcTokenValidator.validateIdTokens(jwt, context, configuration);
+    OidcTokenValidator.validateIdTokens(jwt, context, configuration, oidcClient);
   }
 
   @Test(expected = OidcValidationException.class)
@@ -178,7 +185,7 @@ public class OidcTokenValidatorTest {
     WebContext context = getWebContext();
     String stringJwt = getIdTokenBuilder().sign(validAlgorithm);
     JWT jwt = SignedJWT.parse(stringJwt);
-    OidcTokenValidator.validateIdTokens(jwt, context, configuration);
+    OidcTokenValidator.validateIdTokens(jwt, context, configuration, oidcClient);
   }
 
   @Test
@@ -300,8 +307,7 @@ public class OidcTokenValidatorTest {
   private WebContext getWebContext() {
     WebContext context = mock(WebContext.class);
     SessionStore sessionStore = mock(SessionStore.class);
-    when(sessionStore.get(context, OidcConfiguration.NONCE_SESSION_ATTRIBUTE))
-        .thenReturn("myNonce");
+    when(sessionStore.get(context, NONCE_SESSION_ATTRIBUTE)).thenReturn(Optional.of("myNonce"));
     when(context.getSessionStore()).thenReturn(sessionStore);
     return context;
   }

@@ -23,6 +23,7 @@ import com.google.common.io.CharStreams;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import java.io.InputStreamReader;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -77,9 +78,9 @@ public class CustomOAuthCredentialsExtractorTest {
 
   @Test
   public void extractNoCredentialsOnWebContext() {
-    when(mockWebContext.getRequestParameter(CODE)).thenReturn(null);
-    when(mockWebContext.getRequestParameter(ACCESS_TOKEN)).thenReturn(null);
-    when(mockWebContext.getRequestHeader(AUTHORIZATION)).thenReturn(null);
+    when(mockWebContext.getRequestParameter(CODE)).thenReturn(Optional.empty());
+    when(mockWebContext.getRequestParameter(ACCESS_TOKEN)).thenReturn(Optional.empty());
+    when(mockWebContext.getRequestHeader(AUTHORIZATION)).thenReturn(Optional.empty());
 
     credentials = extractor.getOauthCredentialsAsOidcCredentials(mockWebContext);
 
@@ -89,9 +90,9 @@ public class CustomOAuthCredentialsExtractorTest {
 
   @Test
   public void extractCodeParameterOnWebContext() {
-    when(mockWebContext.getRequestParameter(CODE)).thenReturn(authorizationCode);
-    when(mockWebContext.getRequestParameter(ACCESS_TOKEN)).thenReturn(null);
-    when(mockWebContext.getRequestHeader(AUTHORIZATION)).thenReturn(null);
+    when(mockWebContext.getRequestParameter(CODE)).thenReturn(Optional.of(authorizationCode));
+    when(mockWebContext.getRequestParameter(ACCESS_TOKEN)).thenReturn(Optional.empty());
+    when(mockWebContext.getRequestHeader(AUTHORIZATION)).thenReturn(Optional.empty());
 
     credentials = extractor.getOauthCredentialsAsOidcCredentials(mockWebContext);
 
@@ -101,9 +102,10 @@ public class CustomOAuthCredentialsExtractorTest {
 
   @Test
   public void extractAccessTokenParameterOnWebContext() {
-    when(mockWebContext.getRequestParameter(CODE)).thenReturn(null);
-    when(mockWebContext.getRequestParameter(ACCESS_TOKEN)).thenReturn(accessToken.toString());
-    when(mockWebContext.getRequestHeader(AUTHORIZATION)).thenReturn(null);
+    when(mockWebContext.getRequestParameter(CODE)).thenReturn(Optional.empty());
+    when(mockWebContext.getRequestParameter(ACCESS_TOKEN))
+        .thenReturn(Optional.of(accessToken.toString()));
+    when(mockWebContext.getRequestHeader(AUTHORIZATION)).thenReturn(Optional.empty());
 
     credentials = extractor.getOauthCredentialsAsOidcCredentials(mockWebContext);
 
@@ -113,9 +115,10 @@ public class CustomOAuthCredentialsExtractorTest {
 
   @Test
   public void extractAccessTokenHeaderOnWebContext() {
-    when(mockWebContext.getRequestParameter(CODE)).thenReturn(null);
-    when(mockWebContext.getRequestParameter(ACCESS_TOKEN)).thenReturn(null);
-    when(mockWebContext.getRequestHeader(AUTHORIZATION)).thenReturn(authorizationHeader);
+    when(mockWebContext.getRequestParameter(CODE)).thenReturn(Optional.empty());
+    when(mockWebContext.getRequestParameter(ACCESS_TOKEN)).thenReturn(Optional.empty());
+    when(mockWebContext.getRequestHeader(AUTHORIZATION))
+        .thenReturn(Optional.of(authorizationHeader));
 
     credentials = extractor.getOauthCredentialsAsOidcCredentials(mockWebContext);
 
@@ -125,9 +128,11 @@ public class CustomOAuthCredentialsExtractorTest {
 
   @Test
   public void extractEverythingOnWebContext() {
-    when(mockWebContext.getRequestParameter(CODE)).thenReturn(authorizationCode);
-    when(mockWebContext.getRequestParameter(ACCESS_TOKEN)).thenReturn(accessToken.toString());
-    when(mockWebContext.getRequestHeader(AUTHORIZATION)).thenReturn(authorizationHeader);
+    when(mockWebContext.getRequestParameter(CODE)).thenReturn(Optional.of(authorizationCode));
+    when(mockWebContext.getRequestParameter(ACCESS_TOKEN))
+        .thenReturn(Optional.of(accessToken.toString()));
+    when(mockWebContext.getRequestHeader(AUTHORIZATION))
+        .thenReturn(Optional.of(authorizationHeader));
 
     credentials = extractor.getOauthCredentialsAsOidcCredentials(mockWebContext);
 
@@ -137,9 +142,9 @@ public class CustomOAuthCredentialsExtractorTest {
 
   @Test
   public void extractBadHeaderOnWebContext() {
-    when(mockWebContext.getRequestParameter(CODE)).thenReturn(null);
-    when(mockWebContext.getRequestParameter(ACCESS_TOKEN)).thenReturn(null);
-    when(mockWebContext.getRequestHeader(AUTHORIZATION)).thenReturn("badHeader");
+    when(mockWebContext.getRequestParameter(CODE)).thenReturn(Optional.empty());
+    when(mockWebContext.getRequestParameter(ACCESS_TOKEN)).thenReturn(Optional.empty());
+    when(mockWebContext.getRequestHeader(AUTHORIZATION)).thenReturn(Optional.of("badHeader"));
 
     credentials = extractor.getOauthCredentialsAsOidcCredentials(mockWebContext);
 
