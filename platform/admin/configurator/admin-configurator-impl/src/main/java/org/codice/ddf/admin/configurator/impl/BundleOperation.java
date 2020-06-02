@@ -18,8 +18,7 @@ import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getBundleContext;
 
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
-import ddf.security.permission.impl.KeyValuePermissionImpl;
+import ddf.security.permission.Permissions;
 import java.util.Arrays;
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
@@ -47,14 +46,31 @@ public class BundleOperation implements Operation<Void> {
     public BundleOperation start(String bundleSymName) throws ConfiguratorException {
       validateString(bundleSymName, "Missing bundle name");
       return new BundleOperation(
-          bundleSymName, true, getBundleContext(), SecurityUtils.getSubject());
+          bundleSymName,
+          true,
+          getBundleContext(),
+          SecurityUtils.getSubject(),
+          getPermissionsService(getBundleContext()));
     }
 
     @Override
     public BundleOperation stop(String bundleSymName) throws ConfiguratorException {
       validateString(bundleSymName, "Missing bundle name");
       return new BundleOperation(
-          bundleSymName, false, getBundleContext(), SecurityUtils.getSubject());
+          bundleSymName,
+          false,
+          getBundleContext(),
+          SecurityUtils.getSubject(),
+          getPermissionsService(getBundleContext()));
+    }
+
+    private Permissions getPermissionsService(BundleContext bundleContext) {
+      ServiceReference<Permissions> serviceReference =
+          bundleContext.getServiceReference(Permissions.class);
+      if (serviceReference != null) {
+        return bundleContext.getService(serviceReference);
+      }
+      return null;
     }
 
     @Override
@@ -75,11 +91,18 @@ public class BundleOperation implements Operation<Void> {
 
   private final boolean initActivationState;
 
+  private Permissions permissions;
+
   private BundleOperation(
-      String bundleSymName, boolean activate, BundleContext bundleContext, Subject subject) {
+      String bundleSymName,
+      boolean activate,
+      BundleContext bundleContext,
+      Subject subject,
+      Permissions permissions) {
     this.newState = activate;
     this.bundleContext = bundleContext;
     this.subject = subject;
+    this.permissions = permissions;
 
     bundle =
         Arrays.stream(bundleContext.getBundles())
@@ -167,9 +190,9 @@ public class BundleOperation implements Operation<Void> {
 
   private boolean isPermittedToViewService(String servicePid) {
     KeyValueCollectionPermission serviceToCheck =
-        new KeyValueCollectionPermissionImpl(
+        permissions.buildKeyValueCollectionPermission(
             "view-service.pid",
-            new KeyValuePermissionImpl("service.pid", Sets.newHashSet(servicePid)));
+            permissions.buildKeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
 
     return subject.isPermitted(serviceToCheck);
   }

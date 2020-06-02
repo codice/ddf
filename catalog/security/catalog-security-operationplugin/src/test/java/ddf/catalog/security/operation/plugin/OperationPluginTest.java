@@ -29,7 +29,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.PermissionsImpl;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -63,6 +63,7 @@ public class OperationPluginTest {
   @Before
   public void setup() {
     plugin = new OperationPlugin();
+    plugin.setPermissions(new PermissionsImpl());
 
     AuthorizingRealm realm = mock(AuthorizingRealm.class);
 
@@ -98,7 +99,8 @@ public class OperationPluginTest {
     testRoleMap.put("Roles", testRoles);
 
     final KeyValueCollectionPermission testUserPermission =
-        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION, testRoleMap);
+        new PermissionsImpl()
+            .buildKeyValueCollectionPermission(CollectionPermission.READ_ACTION, testRoleMap);
 
     return new Answer<Boolean>() {
       @Override

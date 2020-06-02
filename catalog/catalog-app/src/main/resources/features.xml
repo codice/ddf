@@ -550,6 +550,7 @@
 
     <feature name="catalog-plugin-metacard-validation" version="${project.version}"
              description="Metacard Validator Plugins">
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}
         </bundle>
     </feature>

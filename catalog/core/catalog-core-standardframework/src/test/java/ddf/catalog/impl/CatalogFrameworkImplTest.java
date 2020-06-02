@@ -144,6 +144,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.impl.PermissionsImpl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -405,6 +406,7 @@ public class CatalogFrameworkImplTest {
     QueryOperations queryOperations =
         new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
     queryOperations.setSecurityLogger(mock(SecurityLogger.class));
+    queryOperations.setPermissions(new PermissionsImpl());
     OperationsStorageSupport opsStorage =
         new OperationsStorageSupport(sourceOperations, queryOperations);
     opsStorage.setHistorian(historian);
@@ -1411,6 +1413,7 @@ public class CatalogFrameworkImplTest {
     QueryOperations queryOperations =
         new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
     queryOperations.setSecurityLogger(mock(SecurityLogger.class));
+    queryOperations.setPermissions(new PermissionsImpl());
     OperationsStorageSupport opsStorage =
         new OperationsStorageSupport(sourceOperations, queryOperations);
     OperationsCatalogStoreSupport opsCatStore =
@@ -2750,6 +2753,7 @@ public class CatalogFrameworkImplTest {
             mockContentTypesSourcePoller);
     QueryOperations queryOps = new QueryOperations(frameworkProperties, sourceOps, null, null);
     queryOps.setSecurityLogger(mock(SecurityLogger.class));
+    queryOps.setPermissions(new PermissionsImpl());
     ResourceOperations resOps = new ResourceOperations(frameworkProperties, queryOps, null);
     resOps.setId(DDF);
 

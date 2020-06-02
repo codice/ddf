@@ -39,6 +39,7 @@ import ddf.catalog.source.UnsupportedQueryException
 import ddf.security.SecurityConstants
 import ddf.security.Subject
 import ddf.security.audit.SecurityLogger
+import ddf.security.permission.impl.PermissionsImpl
 import org.apache.commons.collections.CollectionUtils
 import spock.lang.Shared
 import spock.lang.Specification
@@ -85,6 +86,7 @@ class QueryOperationsSpec extends Specification {
 
         queryOperations = new QueryOperations(frameworkProperties, sourceOperations,
                 opsSecurity, opsMetacard)
+        queryOperations.setPermissions(new PermissionsImpl())
         queryOperations.setId(SOURCE_ID)
     }
 

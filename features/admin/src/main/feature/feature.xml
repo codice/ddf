@@ -106,7 +106,6 @@
         <feature>cxf-jaxrs</feature>
         <feature>persistence-core</feature>
         <feature>security-handler-api</feature>
-        <feature>security-core-impl</feature>
         <feature>security-core-services</feature>
 
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>

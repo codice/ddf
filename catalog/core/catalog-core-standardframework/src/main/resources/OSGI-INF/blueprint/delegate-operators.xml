@@ -22,6 +22,8 @@
 
     <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
 
+    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
+
     <bean id="historian" class="ddf.catalog.history.Historian" init-method="init">
         <cm:managed-properties persistent-id="ddf.catalog.history.Historian"
                                update-strategy="container-managed"/>
@@ -99,6 +101,7 @@
         </property>
         <property name="queryTimeoutMillis" value="300000"/>
         <property name="securityLogger" ref="securityLogger"/>
+        <property name="permissions" ref="permissions"/>
     </bean>
 
     <bean id="cfResourceOps" class="ddf.catalog.impl.operations.ResourceOperations">

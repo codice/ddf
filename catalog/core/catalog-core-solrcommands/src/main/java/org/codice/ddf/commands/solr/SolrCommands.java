@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.jaxrs.ext.Nullable;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -236,7 +235,6 @@ public abstract class SolrCommands extends CommandSupport {
   }
 
   @VisibleForTesting
-  @Nullable
   HttpResponse sendGetRequest(URI backupUri) {
     HttpResponse httpResponse = null;
     HttpGet get = new HttpGet(backupUri);

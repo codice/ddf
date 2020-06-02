@@ -47,6 +47,7 @@ import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.PermissionsImpl;
 import ddf.security.service.impl.SubjectUtils;
 import java.io.Serializable;
 import java.net.URI;
@@ -129,6 +130,7 @@ public class FilterPluginTest {
             return systemSubject;
           }
         };
+    plugin.setPermissions(new PermissionsImpl());
     plugin.setSubjectOperations(new SubjectUtils());
     plugin.setSecurityLogger(mock(SecurityLogger.class));
     QueryRequestImpl request = getSampleRequest();
@@ -210,6 +212,7 @@ public class FilterPluginTest {
   @Test
   public void testPluginFilterNoStrategies() {
     plugin = new FilterPlugin(new Security());
+    plugin.setPermissions(new PermissionsImpl());
     plugin.setSubjectOperations(new SubjectUtils());
     plugin.setSecurityLogger(mock(SecurityLogger.class));
     try {
@@ -228,6 +231,7 @@ public class FilterPluginTest {
   @Test
   public void testPluginFilterResourceNoStrategiesGood() throws StopProcessingException {
     plugin = new FilterPlugin(new Security());
+    plugin.setPermissions(new PermissionsImpl());
     plugin.processPostResource(resourceResponse, getExactRolesMetacard());
   }
 
@@ -255,6 +259,7 @@ public class FilterPluginTest {
   @Test(expected = StopProcessingException.class)
   public void testPluginFilterResourceNoStrategiesBad() throws StopProcessingException {
     plugin = new FilterPlugin(new Security());
+    plugin.setPermissions(new PermissionsImpl());
     plugin.processPostResource(resourceResponse, getMoreRolesMetacard());
   }
 

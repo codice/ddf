@@ -1,5 +1,7 @@
 package org.codice.ddf.admin.configurator.impl
 
+import ddf.security.permission.Permissions
+import ddf.security.permission.impl.PermissionsImpl
 import org.apache.karaf.bundle.core.BundleState
 import org.apache.karaf.bundle.core.BundleStateService
 import org.apache.shiro.authz.Permission
@@ -13,6 +15,8 @@ import spock.lang.Specification
 class BundleConfigHandlerSpec extends Specification {
     private BundleStateService bundleStateService
     private ServiceReference serviceReference
+    private ServiceReference permissionsServiceRef
+    private Permissions permissions = new PermissionsImpl()
     private BundleContext bundleContext
     private Bundle bundle
     private Subject subject
@@ -34,13 +38,16 @@ class BundleConfigHandlerSpec extends Specification {
         bundleContext.getService(serviceReference) >> bundleStateService
         bundleContext.getBundles() >> [bundle]
 
+        bundleContext.getServiceReference(Permissions) >> permissionsServiceRef
+        bundleContext.getService(permissionsServiceRef) >> permissions
+
         subject = Mock(Subject)
         subject.isPermitted(_ as Permission) >> true
     }
 
     def 'test start bundle that does not exist'() {
         when:
-        new BundleOperation('doesnotexist', true, bundleContext, subject)
+        new BundleOperation('doesnotexist', true, bundleContext, subject, permissions)
 
         then:
         thrown(ConfiguratorException)
@@ -49,7 +56,7 @@ class BundleConfigHandlerSpec extends Specification {
     def 'test start bundle that was stopped and rollback'() {
         setup:
         bundleStateService.getState(bundle) >>> [BundleState.Installed, BundleState.Active]
-        def handler = new BundleOperation('xxx', true, bundleContext, subject)
+        def handler = new BundleOperation('xxx', true, bundleContext, subject, permissions)
 
         when:
         handler.commit()
@@ -67,7 +74,7 @@ class BundleConfigHandlerSpec extends Specification {
     def 'test stop bundle that was started and rollback'() {
         setup:
         bundleStateService.getState(bundle) >>> [BundleState.Active, BundleState.Installed]
-        def handler = new BundleOperation('xxx', false, bundleContext, subject)
+        def handler = new BundleOperation('xxx', false, bundleContext, subject, permissions)
 
         when:
         handler.commit()
@@ -85,7 +92,7 @@ class BundleConfigHandlerSpec extends Specification {
     def 'test start bundle that was already started and rollback'() {
         setup:
         bundleStateService.getState(bundle) >> BundleState.Active
-        def handler = new BundleOperation('xxx', true, bundleContext, subject)
+        def handler = new BundleOperation('xxx', true, bundleContext, subject, permissions)
 
         when:
         handler.commit()
@@ -105,7 +112,7 @@ class BundleConfigHandlerSpec extends Specification {
     def 'test stop bundle that was already stopped and rollback'() {
         setup:
         bundleStateService.getState(bundle) >> BundleState.Installed
-        def handler = new BundleOperation('xxx', false, bundleContext, subject)
+        def handler = new BundleOperation('xxx', false, bundleContext, subject, permissions)
 
         when:
         handler.commit()
@@ -127,7 +134,7 @@ class BundleConfigHandlerSpec extends Specification {
         bundleStateService.getState(bundle) >>> [BundleState.Installed, BundleState.Active]
         subject = Mock(Subject)
         subject.isPermitted(_ as Permission) >> false
-        def handler = new BundleOperation('xxx', true, bundleContext, subject)
+        def handler = new BundleOperation('xxx', true, bundleContext, subject, permissions)
 
         when:
         handler.commit()

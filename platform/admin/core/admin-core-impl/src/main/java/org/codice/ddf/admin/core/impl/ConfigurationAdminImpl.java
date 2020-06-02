@@ -18,8 +18,7 @@ import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
-import ddf.security.permission.impl.KeyValuePermissionImpl;
+import ddf.security.permission.Permissions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,6 +91,8 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
   private final Map<String, ServiceTracker> services = new HashMap<String, ServiceTracker>();
 
   private List<ConfigurationAdminPlugin> configurationAdminPluginList;
+
+  private Permissions permissions;
 
   /**
    * @param configurationAdmin
@@ -698,9 +699,9 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
   public boolean isPermittedToViewService(String servicePid, Subject subject) {
     KeyValueCollectionPermission serviceToCheck =
-        new KeyValueCollectionPermissionImpl(
+        permissions.buildKeyValueCollectionPermission(
             "view-service.pid",
-            new KeyValuePermissionImpl("service.pid", Sets.newHashSet(servicePid)));
+            permissions.buildKeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
     return subject.isPermitted(serviceToCheck);
   }
 
@@ -803,5 +804,9 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
    */
   private interface IdGetter {
     String[] getIds(MetaTypeInformation metaTypeInformation);
+  }
+
+  public void setPermissions(Permissions permissions) {
+    this.permissions = permissions;
   }
 }

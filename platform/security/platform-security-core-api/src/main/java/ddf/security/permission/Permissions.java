@@ -13,6 +13,7 @@
  */
 package ddf.security.permission;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,4 +48,43 @@ public interface Permissions {
    * @return List<String>
    */
   List<String> getPermissionsAsStrings(Map<String, Set<String>> attributes);
+
+  /**
+   * Returns a KeyValueCollectionPermission initialized with the given KeyValuePermissions
+   *
+   * @param action
+   * @param permissions
+   * @return
+   */
+  KeyValueCollectionPermission buildKeyValueCollectionPermission(
+      String action, KeyValuePermission... permissions);
+
+  /**
+   * Returns a KeyValueCollectionPermission initialized with the given permissions in string format
+   *
+   * @param action
+   * @param map
+   * @return
+   */
+  KeyValueCollectionPermission buildKeyValueCollectionPermission(
+      String action, Map<String, ? extends Collection<String>> map);
+
+  /**
+   * Returns a KeyValueCollectionPermission initialized with the given KeyValuePermissions
+   *
+   * @param action
+   * @param permissions
+   * @return
+   */
+  KeyValueCollectionPermission buildKeyValueCollectionPermission(
+      String action, Collection<KeyValuePermission> permissions);
+
+  /**
+   * Returns a KeyValuePermission with the provided key and values
+   *
+   * @param key
+   * @param values
+   * @return
+   */
+  KeyValuePermission buildKeyValuePermission(String key, Set<String> values);
 }

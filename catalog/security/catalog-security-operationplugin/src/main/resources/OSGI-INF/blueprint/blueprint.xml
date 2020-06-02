@@ -16,8 +16,11 @@
 
     <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
 
+    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
+
     <bean id="securityPlugin" class="ddf.catalog.security.operation.plugin.OperationPlugin">
         <property name="subjectOperations" ref="subjectOperations" />
+        <property name="permissions" ref="permissions"/>
     </bean>
 
     <service ref="securityPlugin" auto-export="interfaces" ranking="0"/>

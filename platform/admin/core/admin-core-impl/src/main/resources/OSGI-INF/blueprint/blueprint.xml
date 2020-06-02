@@ -26,6 +26,8 @@
 
     <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
 
+    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
+
     <bean id="propertiesFileSupport"
           class="org.codice.ddf.platform.util.properties.PropertiesFileReader"/>
 
@@ -45,6 +47,7 @@
     <bean id="configurationAdminImpl" class="org.codice.ddf.admin.core.impl.ConfigurationAdminImpl">
         <argument ref="configurationAdmin"/>
         <argument ref="configurationAdminPluginList"/>
+        <property name="permissions" ref="permissions"/>
     </bean>
 
     <service ref="configurationAdminImpl" interface="org.codice.ddf.admin.core.api.ConfigurationAdmin" />

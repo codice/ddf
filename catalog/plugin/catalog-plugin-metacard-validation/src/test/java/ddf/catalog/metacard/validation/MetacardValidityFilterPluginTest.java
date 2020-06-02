@@ -37,6 +37,7 @@ import ddf.catalog.source.Source;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.impl.PermissionsImpl;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,6 +75,7 @@ public class MetacardValidityFilterPluginTest {
 
     metacardValidityFilterPlugin =
         new MetacardValidityFilterPlugin(filterBuilder, Collections.singletonList(LOCAL_PROVIDER));
+    metacardValidityFilterPlugin.setPermissions(new PermissionsImpl());
     metacardValidityFilterPlugin.setAttributeMap(ATTRIBUTE_MAPPING);
   }
 

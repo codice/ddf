@@ -19,8 +19,7 @@ import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getBundleContext;
 
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
-import ddf.security.permission.impl.KeyValuePermissionImpl;
+import ddf.security.permission.Permissions;
 import java.util.EnumSet;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
@@ -47,14 +46,31 @@ public class FeatureOperation implements Operation<Void> {
     public FeatureOperation start(String featureName) throws ConfiguratorException {
       validateString(featureName, "Missing feature name");
       return new FeatureOperation(
-          featureName, true, getBundleContext(), SecurityUtils.getSubject());
+          featureName,
+          true,
+          getBundleContext(),
+          SecurityUtils.getSubject(),
+          getPermissionsService(getBundleContext()));
     }
 
     @Override
     public FeatureOperation stop(String featureName) throws ConfiguratorException {
       validateString(featureName, "Missing feature name");
       return new FeatureOperation(
-          featureName, false, getBundleContext(), SecurityUtils.getSubject());
+          featureName,
+          false,
+          getBundleContext(),
+          SecurityUtils.getSubject(),
+          getPermissionsService(getBundleContext()));
+    }
+
+    private Permissions getPermissionsService(BundleContext bundleContext) {
+      ServiceReference<Permissions> serviceReference =
+          bundleContext.getServiceReference(Permissions.class);
+      if (serviceReference != null) {
+        return bundleContext.getService(serviceReference);
+      }
+      return null;
     }
 
     @Override
@@ -75,12 +91,19 @@ public class FeatureOperation implements Operation<Void> {
 
   private final boolean initActivationState;
 
+  private Permissions permissions;
+
   private FeatureOperation(
-      String featureName, boolean newState, BundleContext bundleContext, Subject subject) {
+      String featureName,
+      boolean newState,
+      BundleContext bundleContext,
+      Subject subject,
+      Permissions permissions) {
     this.featureName = featureName;
     this.newState = newState;
     this.bundleContext = bundleContext;
     this.subject = subject;
+    this.permissions = permissions;
 
     initActivationState = lookupFeatureStatus(getFeaturesService(), featureName);
   }
@@ -152,9 +175,9 @@ public class FeatureOperation implements Operation<Void> {
 
   private boolean isPermittedToViewFeature(String featureName) {
     KeyValueCollectionPermission serviceToCheck =
-        new KeyValueCollectionPermissionImpl(
+        permissions.buildKeyValueCollectionPermission(
             "view-feature.name",
-            new KeyValuePermissionImpl("feature.name", Sets.newHashSet(featureName)));
+            permissions.buildKeyValuePermission("feature.name", Sets.newHashSet(featureName)));
 
     return subject.isPermitted(serviceToCheck);
   }

@@ -26,12 +26,12 @@
     <artifactId>catalog-plugin-security-audit</artifactId>
     <dependencies>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-api</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
+            <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

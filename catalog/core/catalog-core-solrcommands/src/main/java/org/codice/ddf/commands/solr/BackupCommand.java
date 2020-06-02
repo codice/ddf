@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.jaxrs.ext.Nullable;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -148,7 +147,7 @@ public class BackupCommand extends SolrCommands {
     }
   }
 
-  private void printResponse(@Nullable HttpResponse response) {
+  private void printResponse(HttpResponse response) {
     if (response != null) {
       StatusLine statusLine = response.getStatusLine();
       if (statusLine.getStatusCode() == HttpStatus.SC_OK) {

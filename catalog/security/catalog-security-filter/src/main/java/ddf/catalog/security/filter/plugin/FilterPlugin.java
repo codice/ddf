@@ -37,7 +37,7 @@ import ddf.security.SubjectOperations;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.Permissions;
 import java.io.Serializable;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -73,6 +73,8 @@ public class FilterPlugin implements AccessPlugin {
 
   private SecurityLogger securityLogger;
 
+  private Permissions permissions;
+
   public FilterPlugin(Security security) {
     this.security = security;
   }
@@ -97,7 +99,7 @@ public class FilterPlugin implements AccessPlugin {
   @Override
   public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermissionImpl(CollectionPermission.CREATE_ACTION);
+        permissions.buildKeyValueCollectionPermission(CollectionPermission.CREATE_ACTION);
     List<Metacard> metacards = input.getMetacards();
     Subject subject = getSubject(input);
     Subject systemSubject = getSystemSubject();
@@ -140,7 +142,7 @@ public class FilterPlugin implements AccessPlugin {
   public UpdateRequest processPreUpdate(UpdateRequest input, Map<String, Metacard> metacards)
       throws StopProcessingException {
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermissionImpl(CollectionPermission.UPDATE_ACTION);
+        permissions.buildKeyValueCollectionPermission(CollectionPermission.UPDATE_ACTION);
     List<Map.Entry<Serializable, Metacard>> updates = input.getUpdates();
     Subject subject = getSubject(input);
     Subject systemSubject = getSystemSubject();
@@ -205,7 +207,7 @@ public class FilterPlugin implements AccessPlugin {
     List<Metacard> results = input.getDeletedMetacards();
     List<Metacard> newResults = new ArrayList<>(results.size());
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION);
+        permissions.buildKeyValueCollectionPermission(CollectionPermission.READ_ACTION);
     int filteredMetacards = 0;
     for (Metacard metacard : results) {
       Attribute attr = metacard.getAttribute(Metacard.SECURITY);
@@ -254,7 +256,7 @@ public class FilterPlugin implements AccessPlugin {
     List<Result> newResults = new ArrayList<>(results.size());
     Metacard metacard;
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION);
+        permissions.buildKeyValueCollectionPermission(CollectionPermission.READ_ACTION);
     int filteredMetacards = 0;
     for (Result result : results) {
       metacard = result.getMetacard();
@@ -300,7 +302,7 @@ public class FilterPlugin implements AccessPlugin {
           "Unable to filter contents of current message, no user Subject available.");
     }
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermissionImpl(CollectionPermission.READ_ACTION);
+        permissions.buildKeyValueCollectionPermission(CollectionPermission.READ_ACTION);
     Subject subject = getSubject(input);
     Attribute attr = metacard.getAttribute(Metacard.SECURITY);
     if (!checkPermissions(attr, securityPermission, subject, CollectionPermission.READ_ACTION)) {
@@ -357,7 +359,7 @@ public class FilterPlugin implements AccessPlugin {
       map = (Map<String, Set<String>>) attr.getValue();
     }
     if (map != null) {
-      securityPermission = new KeyValueCollectionPermissionImpl(action, map);
+      securityPermission = permissions.buildKeyValueCollectionPermission(action, map);
     }
     return subject.isPermitted(securityPermission);
   }
@@ -368,5 +370,9 @@ public class FilterPlugin implements AccessPlugin {
 
   public void setSecurityLogger(SecurityLogger securityLogger) {
     this.securityLogger = securityLogger;
+  }
+
+  public void setPermissions(Permissions permissions) {
+    this.permissions = permissions;
   }
 }
