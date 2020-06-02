@@ -116,10 +116,8 @@ public class AsyncFileAlterationObserver {
     initChildEntries(rootFile);
     serializer.store(rootFile.getName(), rootFile);
 
-    if (LOGGER.isDebugEnabled()) {
-      timer = new Timer();
-      timer.scheduleAtFixedRate(new LogProcessing(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
-    }
+    timer = new Timer();
+    timer.scheduleAtFixedRate(new LogProcessing(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
   }
 
   public void destroy() {
