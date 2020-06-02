@@ -108,5 +108,9 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
   public void shutdown() throws Exception {
     super.shutdown();
     listener.destroy();
+
+    if (observer != null) {
+      observer.destroy();
+    }
   }
 }

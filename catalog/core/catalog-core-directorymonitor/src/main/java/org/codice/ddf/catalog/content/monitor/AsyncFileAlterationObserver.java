@@ -77,11 +77,6 @@ public class AsyncFileAlterationObserver {
     }
     this.serializer = serializer;
     rootFile = new AsyncFileEntry(fileToObserve);
-
-    if (LOGGER.isDebugEnabled()) {
-      timer = new Timer();
-      timer.scheduleAtFixedRate(new LogProcessing(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
-    }
   }
 
   private AsyncFileAlterationObserver(AsyncFileEntry entry, ObjectPersistentStore serializer) {
@@ -120,10 +115,20 @@ public class AsyncFileAlterationObserver {
   public void initialize() throws IllegalStateException {
     initChildEntries(rootFile);
     serializer.store(rootFile.getName(), rootFile);
+
+    if (LOGGER.isDebugEnabled()) {
+      timer = new Timer();
+      timer.scheduleAtFixedRate(new LogProcessing(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
+    }
   }
 
   public void destroy() {
     rootFile.destroy();
+
+    if (timer != null) {
+      timer.cancel();
+      timer.purge();
+    }
   }
 
   public void setListener(final AsyncFileAlterationListener listener) {
@@ -417,21 +422,11 @@ public class AsyncFileAlterationObserver {
 
     /** Log files still in processing at scheduled intervals */
     public void run() {
-      if (!processing.isEmpty()) {
+      if (LOGGER.isDebugEnabled() && !processing.isEmpty()) {
         String files =
             processing.stream().map(AsyncFileEntry::getName).collect(Collectors.joining(", "));
         LOGGER.debug("{} files being processed: {}", processing.size(), files);
       }
-    }
-  }
-
-  @Override
-  protected void finalize() throws Throwable {
-    super.finalize();
-
-    if (timer != null) {
-      timer.cancel();
-      timer.purge();
     }
   }
 }
