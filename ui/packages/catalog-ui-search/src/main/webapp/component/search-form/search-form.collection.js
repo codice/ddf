@@ -46,6 +46,8 @@ const templatePromiseSupplier = () =>
     contentType: 'application/json',
     success(data) {
       fixTemplates(data)
+      console.log('DATA:')
+      console.log(data)
       cachedTemplates = data
       promiseIsResolved = true
     },
@@ -69,6 +71,10 @@ module.exports = Backbone.AssociatedModel.extend({
       this.doneLoading()
     })
 
+    // let addForms = this.addAllForms
+    // let doneLoading = this.doneLoading()
+    let self = this
+
     // subscribe for messages
     var EventSource = EventSourcePolyfill
     var source = new EventSource('./internal/events', {
@@ -84,10 +90,15 @@ module.exports = Backbone.AssociatedModel.extend({
       console.log('SSE onmessage')
       // Do something with the data:
       console.log(event.data)
-
+      if (promiseIsResolved === true) {
+        self.addAllForms()
+        promiseIsResolved = false
+        bootstrapPromise = new templatePromiseSupplier()
+      }
       bootstrapPromise.then(() => {
-        this.addAllForms()
-        this.doneLoading()
+        console.log('bootstrap promise')
+        self.addAllForms(self)
+        self.doneLoading(self)
       })
     }
 
@@ -117,10 +128,12 @@ module.exports = Backbone.AssociatedModel.extend({
       }),
     },
   ],
-  addAllForms() {
-    if (!this.isDestroyed) {
+  addAllForms(self) {
+    let me = self || this
+    if (!me.isDestroyed) {
       cachedTemplates.forEach((value, index) => {
-        this.addSearchForm(
+        me.addSearchForm(
+          me,
           new SearchForm({
             createdOn: value.created,
             id: value.id,
@@ -145,8 +158,9 @@ module.exports = Backbone.AssociatedModel.extend({
   getCollection() {
     return this.get('searchForms')
   },
-  addSearchForm(searchForm) {
-    this.get('searchForms').add(searchForm, { merge: true })
+  addSearchForm(me, searchForm) {
+    let self = me || this
+    self.get('searchForms').add(searchForm, { merge: true })
   },
   getDoneLoading() {
     return this.get('doneLoading')

@@ -258,33 +258,47 @@ public class MetacardApplication implements SparkApplication {
     get(
         "/events",
         (req, res) -> {
-          res.type("text/event-stream; charset=UTF-8");
-          res.header("Connection", "keep-alive");
-          res.header("Cache-Control", "no-cache");
-          res.status(200);
-          PrintWriter out = res.raw().getWriter();
-          synchronized (listeners) {
-            listeners.add(out);
-          }
-
-          for (int i = 0; i < 20; i++) {
-
+          try {
+            res.type("text/event-stream; charset=UTF-8");
+            res.header("Connection", "keep-alive");
+            res.header("Cache-Control", "no-cache");
+            res.status(200);
+            PrintWriter out = res.raw().getWriter();
+            synchronized (listeners) {
+              listeners.add(out);
+            }
+            out.write("retry: 300000\n");
             out.write("data: " + System.currentTimeMillis() + "\n\n");
             out.flush();
 
-            try {
+            // Testing code
+            while (true) {
+              // Sending SSE heartbeat
+              out.write(": \n\n");
+              if (out.checkError()) {
+                // Subscriber error, break out of loop
+                break;
+              }
               Thread.sleep(1000);
-            } catch (InterruptedException e) {
-              e.printStackTrace();
             }
+            listeners.remove(out);
+            // for (int i = 0; i < 20; i++) {
+
+            //   out.write("data: " + System.currentTimeMillis() + "\n\n");
+            //   out.flush();
+
+            //   try {
+            //     Thread.sleep(1000);
+            //   } catch (InterruptedException e) {
+            //     e.printStackTrace();
+            //   }
+            // }
+            //                out.close();
+            return "";
+          } catch (Exception e) {
+            e.printStackTrace();
           }
-          out.close();
-          //          out.write("event: message\n");
-          //          out.write("retry: 300000\n");
-          //          out.write("data: " + "start" + "\r\n");
-          //          out.flush();
-          //          out.close();
-          return "hello world \r\n";
+          return "";
         });
 
     get("/metacardtype", (req, res) -> util.getJson(util.getMetacardTypeMap()));
@@ -337,7 +351,6 @@ public class MetacardApplication implements SparkApplication {
                   .map(Map.Entry::getValue)
                   .map(Result::getMetacard)
                   .collect(Collectors.toList());
-
           return util.metacardsToJson(metacards);
         });
 
@@ -377,7 +390,13 @@ public class MetacardApplication implements SparkApplication {
 
           // // go thru metacardChange.attributes broadcast which users were updated
           // // front end listen for that and if I am that user then re render?
-
+          synchronized (listeners) {
+            listeners.forEach(
+                (listener) -> {
+                  listener.write("data: " + metacardChanges.toString() + "\n\n");
+                  listener.flush();
+                });
+          }
           return body;
         });
 
