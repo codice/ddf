@@ -68,9 +68,8 @@ public class StoreCommandTest extends ConsoleOutputCommon {
   @Test
   public void testListCommand() throws PersistenceException {
     // given
-    when(persistentStore.get(anyString(), anyString(), eq(0), anyInt())).thenReturn(getOneResult());
-    when(persistentStore.get(anyString(), anyString(), eq(10), anyInt()))
-        .thenReturn(new ArrayList<>());
+    when(persistentStore.get(anyString(), any(), eq(0), anyInt())).thenReturn(getOneResult());
+    when(persistentStore.get(anyString(), any(), eq(10), anyInt())).thenReturn(new ArrayList<>());
 
     StoreListCommand command = new StoreListCommand();
     command.persistentStore = persistentStore;
@@ -108,9 +107,8 @@ public class StoreCommandTest extends ConsoleOutputCommon {
       directory.mkdir();
     }
 
-    when(persistentStore.get(anyString(), anyString(), eq(0), anyInt())).thenReturn(getResults());
-    when(persistentStore.get(anyString(), anyString(), eq(10), anyInt()))
-        .thenReturn(new ArrayList<>());
+    when(persistentStore.get(anyString(), any(), eq(0), anyInt())).thenReturn(getResults());
+    when(persistentStore.get(anyString(), any(), eq(10), anyInt())).thenReturn(new ArrayList<>());
 
     StoreExportCommand command = new StoreExportCommand();
     command.persistentStore = persistentStore;
@@ -226,8 +224,7 @@ public class StoreCommandTest extends ConsoleOutputCommon {
       directory.mkdir();
     }
 
-    when(persistentStore.get(anyString(), anyString(), eq(0), anyInt()))
-        .thenReturn(new ArrayList<>());
+    when(persistentStore.get(anyString(), any(), eq(0), anyInt())).thenReturn(new ArrayList<>());
 
     StoreDeleteCommand command = new StoreDeleteCommand();
     command.persistentStore = persistentStore;
@@ -237,11 +234,10 @@ public class StoreCommandTest extends ConsoleOutputCommon {
 
     assertThat(consoleOutput.getOutput(), containsString("0 results matched cql statement"));
 
-    when(persistentStore.get(anyString(), anyString(), eq(0), anyInt())).thenReturn(getResults());
-    when(persistentStore.get(anyString(), anyString(), eq(10), anyInt()))
-        .thenReturn(new ArrayList<>());
-    when(persistentStore.delete(anyString(), anyString(), eq(0), anyInt())).thenReturn(5);
-    when(persistentStore.delete(anyString(), anyString(), eq(1000), anyInt())).thenReturn(0);
+    when(persistentStore.get(anyString(), any(), eq(0), anyInt())).thenReturn(getResults());
+    when(persistentStore.get(anyString(), any(), eq(10), anyInt())).thenReturn(new ArrayList<>());
+    when(persistentStore.delete(anyString(), any(), eq(0), anyInt())).thenReturn(5);
+    when(persistentStore.delete(anyString(), any(), eq(1000), anyInt())).thenReturn(0);
     when(mockSession.readLine(anyString(), any())).thenReturn("YES");
 
     command.execute();
@@ -260,7 +256,7 @@ public class StoreCommandTest extends ConsoleOutputCommon {
   @Test
   public void testPersistenceException() throws PersistenceException {
     // given
-    when(persistentStore.get(anyString(), anyString(), eq(0), anyInt()))
+    when(persistentStore.get(anyString(), any(), eq(0), anyInt()))
         .thenThrow(new PersistenceException());
 
     StoreListCommand command = new StoreListCommand();
