@@ -73,6 +73,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
         observer = backwardsCompatibility(fileName);
       } else if (observer == null) {
         observer = new AsyncFileAlterationObserver(new File(fileName), jsonSerializer);
+        observer.initialize();
       }
     }
   }
