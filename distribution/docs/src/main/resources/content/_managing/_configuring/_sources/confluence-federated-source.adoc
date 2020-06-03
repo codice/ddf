@@ -1,4 +1,4 @@
-:title: Federated Source for Atlassian Confluence(R)
+:title: Federated Source for Atlassian Confluence (R)
 :type: source
 :status: published
 :link: _federated_source_for_atlassian_confluence_r
