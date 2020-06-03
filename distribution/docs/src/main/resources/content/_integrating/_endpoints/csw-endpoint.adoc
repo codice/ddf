@@ -1033,7 +1033,7 @@ These filters can search on any arbitrary query criteria, but take care to only 
 |No records were updated. Verify metacard id or search parameters.
 |===
 
-=== CSW Endpoint Publication/Subscription Examples
+=== CSW Endpoint Publication / Subscription Examples
 
 The subscription `GetRecords` operation is very similar to the `GetRecords` operation used to search the catalog
 but it subscribes to a search and sends events to a `ResponseHandler` endpoint as metacards are ingested matching
