@@ -69,7 +69,6 @@ public class StoreCommandTest extends ConsoleOutputCommon {
   public void testListCommand() throws PersistenceException {
     // given
     when(persistentStore.get(anyString(), any(), eq(0), anyInt())).thenReturn(getOneResult());
-    when(persistentStore.get(anyString(), any(), eq(10), anyInt())).thenReturn(new ArrayList<>());
 
     StoreListCommand command = new StoreListCommand();
     command.persistentStore = persistentStore;
@@ -77,10 +76,31 @@ public class StoreCommandTest extends ConsoleOutputCommon {
     command.execute();
 
     // then
-    assertThat(consoleOutput.getOutput(), containsString(" found: 2"));
+    assertThat(consoleOutput.getOutput(), containsString(" found: 1"));
   }
 
   /** Check for listing command with cql */
+  @Test
+  public void testListCommandMax() throws PersistenceException {
+    // given
+    // startIndex as anyInt() will continue to return one result per page until reaching 101
+    when(persistentStore.get(anyString(), anyString(), anyInt(), anyInt()))
+        .thenReturn(getOneResult());
+    when(persistentStore.get(anyString(), anyString(), eq(101), anyInt()))
+        .thenReturn(new ArrayList<>());
+
+    StoreListCommand command = new StoreListCommand();
+    command.persistentStore = persistentStore;
+    command.type = "preferences";
+    command.user = "test";
+    command.cql = "property LIKE 'value'";
+    command.execute();
+
+    // then
+    assertThat(consoleOutput.getOutput(), containsString(" found: 101"));
+    assertThat(consoleOutput.getOutput(), containsString("Narrow the search criteria"));
+  }
+
   @Test
   public void testListCommandWithCQL() throws PersistenceException {
     // given
@@ -272,7 +292,6 @@ public class StoreCommandTest extends ConsoleOutputCommon {
     List<Map<String, Object>> results = new ArrayList<>();
     Map<String, Object> item = new HashMap<>();
     item.put(txtKey, "value");
-    results.add(item);
     results.add(item);
     return results;
   }

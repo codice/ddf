@@ -49,11 +49,23 @@ public class StoreListCommand extends AbstractStoreCommand {
 
     cql = addUserConstraintToCql(user, cql);
 
+    Function<List<Map<String, Object>>, Integer> noOp =
+        results -> {
+          return results.size();
+        };
+
+    long totalCount = getResults(noOp);
+
+    if (totalCount > 100) {
+      console.println("Results found: " + totalCount + "\n");
+      console.println("Narrow the search criteria below 100 results to print");
+      return;
+    }
+
     // output the entries
     // populates the header with the keys from the first entry
     Function<List<Map<String, Object>>, Integer> listFunction =
         results -> {
-          int count = 0;
           for (int i = 0; i < results.size(); i++) {
             Map<String, Object> curStore = PersistentItem.stripSuffixes(results.get(i));
             console.println("Result {" + i + "}:");
@@ -65,13 +77,12 @@ public class StoreListCommand extends AbstractStoreCommand {
             for (String curKey : headerSet) {
               console.println(curKey + ":");
               console.println("\t" + curStore.get(curKey).toString());
-              count++;
             }
           }
-          return count;
+          return results.size();
         };
 
-    long totalCount = getResults(listFunction);
+    totalCount = getResults(listFunction);
 
     console.println("");
     console.println("Results found: " + totalCount + "\n");

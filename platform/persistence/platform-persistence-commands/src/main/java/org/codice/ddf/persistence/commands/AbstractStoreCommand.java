@@ -97,7 +97,7 @@ public abstract class AbstractStoreCommand implements Action {
     do {
       pagedResults = persistentStore.get(type, cql, startIndex, pageSize);
       resultCount += storeFunction.apply(pagedResults);
-      startIndex += pageSize;
+      startIndex += pagedResults.size();
     } while (pagedResults.size() > 0);
 
     return resultCount;

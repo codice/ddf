@@ -15,6 +15,7 @@ package org.codice.ddf.persistence.commands;
 
 import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
@@ -29,9 +30,11 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
@@ -60,6 +63,8 @@ public class StoreImportCommand extends AbstractStoreCommand {
   @Completion(FileCompleter.class)
   String filePath;
 
+  int batchSize = 1000;
+
   private final Gson gson =
       new GsonBuilder().registerTypeAdapterFactory(PersistenceMapTypeAdapter.FACTORY).create();
 
@@ -71,7 +76,7 @@ public class StoreImportCommand extends AbstractStoreCommand {
       return;
     }
     int totalFiles = 0;
-
+    long totalImport = 0;
     try {
       totalFiles = totalFileCount(inputFile);
     } catch (IOException e) {
@@ -83,19 +88,26 @@ public class StoreImportCommand extends AbstractStoreCommand {
     console.println("Found " + totalFiles + " files to import\n");
 
     try (Stream<Path> ingestStream = Files.walk(inputFile.toPath(), FileVisitOption.FOLLOW_LINKS)) {
-      ingestStream
-          .filter(Files::isRegularFile)
-          .map(Path::toFile)
-          .map(this::processFile)
-          .filter(Objects::nonNull)
-          .forEach(importResults::add);
+      List<Path> regularFiles =
+          ingestStream.filter(Files::isRegularFile).collect(Collectors.toList());
+
+      for (Collection<Path> batch : Lists.partition(regularFiles, batchSize)) {
+        batch
+            .stream()
+            .map(Path::toFile)
+            .map(this::processFile)
+            .filter(Objects::nonNull)
+            .forEach(importResults::add);
+        persistentStore.add(type, importResults);
+        totalImport += importResults.size();
+      }
+
     } catch (IOException e) {
       console.println("Unable to import files.");
       throw new UncheckedIOException(e);
     }
-    persistentStore.add(type, importResults);
 
-    console.println("Imported " + importResults.size() + " records \n");
+    console.println("Imported " + totalImport + " records \n");
   }
 
   private Map<String, Object> processFile(File file) {
