@@ -100,6 +100,8 @@ public abstract class AbstractComponentTest {
 
   private BundleOption getTestBundleOptions() {
     return BundleOptionBuilder.add("org.mockito", "mockito-core")
+        .add("net.bytebuddy", "byte-buddy")
+        .add("net.bytebuddy", "byte-buddy-agent")
         .add("org.objenesis", "objenesis")
         .add("org.awaitility", "awaitility")
         .add("commons-io", "commons-io")
