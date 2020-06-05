@@ -38,6 +38,8 @@ import javax.validation.constraints.NotNull;
  */
 public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
 
+  private final long entryCreatedTime;
+
   private final File contentFile;
   private boolean exists;
   private long lastModified;
@@ -56,6 +58,8 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
   }
 
   public AsyncFileEntry(@Nullable AsyncFileEntry parent, File file) {
+    entryCreatedTime = System.currentTimeMillis();
+
     this.parent = parent;
     contentFile = file;
     refresh();
@@ -63,6 +67,7 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
 
   //  For GSON deserialization
   private AsyncFileEntry() {
+    entryCreatedTime = System.currentTimeMillis();
     contentFile = null;
   }
 
@@ -90,6 +95,10 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
 
   public File getFile() {
     return contentFile;
+  }
+
+  public long getLastModified() {
+    return lastModified;
   }
 
   public boolean isDirectory() {
@@ -230,5 +239,9 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
     lastModified = snapLastModified();
     directory = snapDirectory();
     length = snapLength();
+  }
+
+  public long getEntryCreatedTime() {
+    return entryCreatedTime;
   }
 }

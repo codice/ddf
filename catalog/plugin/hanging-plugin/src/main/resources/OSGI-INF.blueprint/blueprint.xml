@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <bean id="expirationDatePlugin" class="org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin">
+        <cm:managed-properties persistent-id="org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin"
+                               update-strategy="container-managed"/>
+        <property name="offsetFromCreatedDate" value="30"/>
+        <property name="overwriteIfBlank" value="false"/>
+        <property name="overwriteIfExists" value="false"/>
+    </bean>
+
+    <service ref="expirationDatePlugin" interface="ddf.catalog.plugin.PreIngestPlugin" ranking="0">
+        <service-properties>
+            <entry key="shortname" value="expirationDatePreIngestPlugin"/>
+            <entry key="title" value="Expiration Date Pre-Ingest Plugin"/>
+            <entry key="description"
+                   value="This pre-ingest plugin overwrites metacard expiration dates upon ingest."/>
+        </service-properties>
+    </service>
+
+</blueprint>

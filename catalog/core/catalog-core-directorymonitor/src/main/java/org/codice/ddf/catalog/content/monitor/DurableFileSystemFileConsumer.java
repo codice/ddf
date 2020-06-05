@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import java.io.File;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileSystemFileConsumer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private DurableFileAlterationListener listener;
 
@@ -72,6 +74,10 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       } else if (observer == null) {
         observer = new AsyncFileAlterationObserver(new File(fileName), jsonSerializer);
       }
+
+      if (observer != null) {
+        observer.initializePeriodicLogging();
+      }
     }
   }
 
@@ -90,6 +96,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
 
     try {
       newObserver.initialize();
+      newObserver.initializePeriodicLogging();
     } catch (IllegalStateException e) {
       //  There was an IO error setting up the initial state of the observer
       LOGGER.info("Error initializing the new state of the CDM. retrying on next poll");
@@ -106,5 +113,9 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
   public void shutdown() throws Exception {
     super.shutdown();
     listener.destroy();
+
+    if (observer != null) {
+      observer.destroy();
+    }
   }
 }

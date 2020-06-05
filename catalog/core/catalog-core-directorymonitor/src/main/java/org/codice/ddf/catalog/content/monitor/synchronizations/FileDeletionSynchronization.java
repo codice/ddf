@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor.synchronizations;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import java.io.File;
 import org.apache.camel.Exchange;
 import org.apache.camel.spi.Synchronization;
@@ -22,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 public class FileDeletionSynchronization implements Synchronization {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FileDeletionSynchronization.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private final File file;
 

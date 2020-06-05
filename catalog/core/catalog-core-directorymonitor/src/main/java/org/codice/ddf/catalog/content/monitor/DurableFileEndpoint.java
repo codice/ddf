@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -44,7 +46,7 @@ import org.slf4j.LoggerFactory;
 )
 public class DurableFileEndpoint extends GenericFileEndpoint<File> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileEndpoint.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private final Boolean isDav;
 
