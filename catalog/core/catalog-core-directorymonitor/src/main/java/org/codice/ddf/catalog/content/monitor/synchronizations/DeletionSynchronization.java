@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor.synchronizations;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.spi.Synchronization;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -22,8 +24,7 @@ import org.slf4j.LoggerFactory;
 
 public class DeletionSynchronization implements Synchronization {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DeletionSynchronization.class);
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
   private final String reference;
 
   private final FileSystemPersistenceProvider productToMetacardIdMap;

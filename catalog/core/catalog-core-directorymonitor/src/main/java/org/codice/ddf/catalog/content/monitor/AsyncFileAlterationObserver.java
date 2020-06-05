@@ -13,11 +13,17 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.catalog.content.monitor.synchronizations.CompletionSynchronization;
@@ -49,14 +55,19 @@ import org.slf4j.LoggerFactory;
  */
 public class AsyncFileAlterationObserver {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileAlterationObserver.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
+
+  private static final int LOGGING_TIME_DELAY = 500;
+  private static final int LOGGING_TIME_INTERVAL = 5000;
 
   private final AsyncFileEntry rootFile;
   private AsyncFileAlterationListener listener = null;
-  private final AtomicLong processing = new AtomicLong(0);
+  private final Set<AsyncFileEntry> processing = ConcurrentHashMap.newKeySet();
   private final Object listenerLock = new Object();
   private final ObjectPersistentStore serializer;
   private final Object processingLock = new Object();
+
+  private Timer timer;
 
   private boolean isProcessing = false;
 
@@ -106,8 +117,25 @@ public class AsyncFileAlterationObserver {
     serializer.store(rootFile.getName(), rootFile);
   }
 
+  /**
+   * Initializes the timed logging for processing AsyncFiles.
+   *
+   * <p>Some logging should be done periodically to avoid overwhelming the logs
+   */
+  public void initializePeriodicLogging() {
+    if (timer == null) {
+      timer = new Timer();
+      timer.scheduleAtFixedRate(new LogProcessing(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
+    }
+  }
+
   public void destroy() {
     rootFile.destroy();
+
+    if (timer != null) {
+      timer.cancel();
+      timer.purge();
+    }
   }
 
   public void setListener(final AsyncFileAlterationListener listener) {
@@ -129,11 +157,10 @@ public class AsyncFileAlterationObserver {
   public boolean checkAndNotify() {
 
     AsyncFileAlterationListener listenerCopy;
-
     synchronized (processingLock) {
-      if (processing.get() != 0) {
+      if (!processing.isEmpty()) {
         LOGGER.debug(
-            "{} files are still processing. Waiting until the list is empty", processing.get());
+            "{} files are still processing. Waiting until the list is empty", processing.size());
         return false;
       } else if (isProcessing) {
         LOGGER.debug("Another thread is currently running, returning until next poll");
@@ -179,11 +206,9 @@ public class AsyncFileAlterationObserver {
    */
   private void doCreate(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
 
-    processing.incrementAndGet();
+    processing.add(entry);
 
     if (!entry.getFile().isDirectory()) {
-
-      LOGGER.trace("Sending create Request for {}", entry.getName());
 
       listenerCopy.onFileCreate(
           entry.getFile(), new CompletionSynchronization(entry, this::commitCreate));
@@ -208,12 +233,21 @@ public class AsyncFileAlterationObserver {
    */
   private void commitCreate(AsyncFileEntry entry, boolean success) {
 
-    LOGGER.debug("commitCreate({},{}): Starting...", entry.getName(), success);
-    if (success) {
-      entry.commit();
-      entry.getParent().ifPresent(e -> e.addChild(entry));
+    LOGGER.trace("commitCreate({},{}): Starting...", entry.getName(), success);
+    try {
+      if (success) {
+        entry.commit();
+        entry.getParent().ifPresent(e -> e.addChild(entry));
+        LOGGER.debug(
+            "File {} committed to {}",
+            entry.getName(),
+            entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
+      } else {
+        LOGGER.debug("Create task failed for {}", entry.getName());
+      }
+    } finally {
+      onFinish(entry);
     }
-    onFinish();
   }
 
   /**
@@ -222,12 +256,11 @@ public class AsyncFileAlterationObserver {
    * @param entry The previous file system entry
    */
   private void doMatch(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
-
     if (!entry.hasChanged()) {
       return;
     }
 
-    processing.incrementAndGet();
+    processing.add(entry);
 
     LOGGER.trace("{} has changed", entry.getName());
     if (!entry.getFile().isDirectory()) {
@@ -246,11 +279,17 @@ public class AsyncFileAlterationObserver {
    * @param success Boolean that shows if the task failed or completed successfully
    */
   private void commitMatch(AsyncFileEntry entry, boolean success) {
-    LOGGER.debug("commitMatch({},{}): Starting...", entry.getName(), success);
-    if (success) {
-      entry.commit();
+    try {
+      if (success) {
+        LOGGER.trace("commitMatch({},{}): Starting...", entry.getName(), success);
+        entry.commit();
+        LOGGER.debug("{} committed", entry.getName());
+      } else {
+        LOGGER.debug("Match task failed for {}", entry.getName());
+      }
+    } finally {
+      onFinish(entry);
     }
-    onFinish();
   }
 
   /**
@@ -260,15 +299,14 @@ public class AsyncFileAlterationObserver {
    */
   private void doDelete(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
     if (!entry.isDirectory()) {
-      processing.incrementAndGet();
-      LOGGER.trace("Sending Delete Request for {}...", entry.getName());
+      processing.add(entry);
       listenerCopy.onFileDelete(
           entry.getFile(), new CompletionSynchronization(entry, this::commitDelete));
     }
     //  Once there are no more children we can delete directories.
     //  Check that there are no children, and that no locked files have it as it's parent.
     else if (!entry.hasChildren()) {
-      processing.incrementAndGet();
+      processing.add(entry);
       commitDelete(entry, true);
     }
     //  If there are still children, we're going to keep it within the tree until all the
@@ -283,12 +321,21 @@ public class AsyncFileAlterationObserver {
    * @param success Boolean that shows if the task failed or completed successfully
    */
   private void commitDelete(AsyncFileEntry entry, boolean success) {
-    LOGGER.debug("commitDelete({},{}): Starting...", entry.getName(), success);
-    if (success) {
-      entry.getParent().ifPresent(e -> e.removeChild(entry));
-      entry.destroy();
+    LOGGER.trace("commitDelete({},{}): Starting...", entry.getName(), success);
+    try {
+      if (success) {
+        entry.getParent().ifPresent(e -> e.removeChild(entry));
+        entry.destroy();
+        LOGGER.debug(
+            "{} was removed from {}",
+            entry.getName(),
+            entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
+      } else {
+        LOGGER.debug("Delete task failed for {}", entry.getName());
+      }
+    } finally {
+      onFinish(entry);
     }
-    onFinish();
   }
 
   /**
@@ -367,11 +414,25 @@ public class AsyncFileAlterationObserver {
     }
   }
 
-  private void onFinish() {
+  private void onFinish(AsyncFileEntry entry) {
     synchronized (processingLock) {
-      if (processing.decrementAndGet() == 0) {
+      processing.remove(entry);
+      if (processing.isEmpty()) {
+        LOGGER.debug("All files finished processing");
         serializer.store(rootFile.getName(), rootFile);
         isProcessing = false;
+      }
+    }
+  }
+
+  private class LogProcessing extends TimerTask {
+
+    /** Log files still in processing at scheduled intervals */
+    public void run() {
+      if (LOGGER.isDebugEnabled() && !processing.isEmpty()) {
+        String files =
+            processing.stream().map(AsyncFileEntry::getName).collect(Collectors.joining(", "));
+        LOGGER.debug("{} files being processed: {}", processing.size(), files);
       }
     }
   }
