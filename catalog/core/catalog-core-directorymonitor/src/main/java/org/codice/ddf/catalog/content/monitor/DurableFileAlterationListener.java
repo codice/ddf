@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import ddf.catalog.data.types.Core;
 import java.io.File;
 import java.util.Collections;
@@ -37,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public class DurableFileAlterationListener
     implements AsyncFileAlterationListener, FileAlterationListener {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileAlterationListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private static final String FILE_EXTENSION_HEADER = "org.codice.ddf.camel.FileExtension";
 

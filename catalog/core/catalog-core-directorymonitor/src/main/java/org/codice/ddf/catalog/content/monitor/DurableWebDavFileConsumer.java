@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+
 import com.github.sardine.Sardine;
 import com.github.sardine.SardineFactory;
 import ddf.catalog.data.types.Core;
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DurableWebDavFileConsumer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private static final String FILE_EXTENSION_HEADER = "org.codice.ddf.camel.FileExtension";
 
