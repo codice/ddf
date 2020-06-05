@@ -115,9 +115,18 @@ public class AsyncFileAlterationObserver {
   public void initialize() throws IllegalStateException {
     initChildEntries(rootFile);
     serializer.store(rootFile.getName(), rootFile);
+  }
 
-    timer = new Timer();
-    timer.scheduleAtFixedRate(new LogProcessing(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
+  /**
+   * Initializes the timed logging for processing AsyncFiles.
+   *
+   * <p>Some logging should be done periodically to avoid overwhelming the logs
+   */
+  public void initializePeriodicLogging() {
+    if (timer == null) {
+      timer = new Timer();
+      timer.scheduleAtFixedRate(new LogProcessing(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
+    }
   }
 
   public void destroy() {
