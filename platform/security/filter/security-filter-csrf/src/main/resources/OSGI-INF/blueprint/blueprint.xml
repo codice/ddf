@@ -40,7 +40,7 @@
     </property>
   </bean>
 
-  <service ref="filter" interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="101">
+  <service ref="filter" interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="98">
     <service-properties>
       <entry key="osgi.http.whiteboard.filter.name" value="csrf-filter"/>
     </service-properties>
