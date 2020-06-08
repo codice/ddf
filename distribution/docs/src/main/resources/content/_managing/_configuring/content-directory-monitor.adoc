@@ -147,8 +147,19 @@ an operating system automatically generates files that should not be ingested.  
 This file type and any temporary files are included in the blacklist.
 
 .Errors
-If the CDM fails to read the file, an error will be logged in the ingest log. If the directory monitor is
+If the CDM fails to read the file, an error will be logged in the CDM log. If the directory monitor is
 configured to *Delete* or *Move*, the original file is also moved to the `\.errors` directory.
+
+.Logging
+CDM will send logs detailing the processing of files in the directory to `cdm.log`.
+
+[TIP]
+====
+The log level for CDM can be set with the following console command. At the DEBUG level, CDM will periodically log the list of files still currently processing.
+----
+log:set DEBUG cdmLogger
+----
+====
 
 .Other
 * Multiple directories can be monitored. Each directory has an independent configuration.
