@@ -51,20 +51,20 @@ module.exports = Marionette.ItemView.extend({
         </div>
 
         <div
-          className="search-form-interaction interaction-share"
-          data-help="Allows template to be shared with other users"
-        >
-          <div className="interaction-icon fa fa-users" />
-          <div className="interaction-text">Share {formTitle}</div>
-        </div>
-
-        <div
           className="search-form-interaction interaction-clear"
           data-help={`Clears this ${formTitleLowerCase} as default.
 Causes new searches that are created to not necessarily default to this search ${formTitle}.`}
         >
           <div className="interaction-icon fa fa-eraser" />
           <div className="interaction-text">Clear Default {formTitle}</div>
+        </div>
+
+        <div
+          className="search-form-interaction interaction-share"
+          data-help="Allows template to be shared with other users"
+        >
+          <div className="interaction-icon fa fa-users" />
+          <div className="interaction-text">Share {formTitle}</div>
         </div>
 
         <div
