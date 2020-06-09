@@ -91,7 +91,7 @@ module.exports = Backbone.AssociatedModel.extend({
       // Do something with the data:
       console.log(event.data)
       if (promiseIsResolved === true) {
-        self.addAllForms()
+        self.addAllForms(self)
         promiseIsResolved = false
         bootstrapPromise = new templatePromiseSupplier()
       }

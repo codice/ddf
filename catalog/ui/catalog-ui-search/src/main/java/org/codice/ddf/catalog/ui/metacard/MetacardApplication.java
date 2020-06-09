@@ -99,6 +99,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -376,6 +378,26 @@ public class MetacardApplication implements SparkApplication {
         "/metacards",
         APPLICATION_JSON,
         (req, res) -> {
+          ExecutorService es = Executors.newSingleThreadExecutor();
+          es.submit(
+              () -> {
+                try {
+                    // currently 5 sec. will adjust to ~1 sec. later
+                  Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                  e.printStackTrace();
+                }
+              });
+          es.submit(
+              () -> {
+                synchronized (listeners) {
+                  listeners.forEach(
+                      (listener) -> {
+                        listener.write("data: " + "id=1234" + "\n\n");
+                        listener.flush();
+                      });
+                }
+              });
           String body = util.safeGetBody(req);
           List<MetacardChanges> metacardChanges = GSON.fromJson(body, METACARD_CHANGES_LIST_TYPE);
 
@@ -384,18 +406,6 @@ public class MetacardApplication implements SparkApplication {
               && !updateResponse.getProcessingErrors().isEmpty()) {
             res.status(500);
             return updateResponse.getProcessingErrors();
-          }
-
-          // processRequest(req.raw(), res.raw());
-
-          // // go thru metacardChange.attributes broadcast which users were updated
-          // // front end listen for that and if I am that user then re render?
-          synchronized (listeners) {
-            listeners.forEach(
-                (listener) -> {
-                  listener.write("data: " + metacardChanges.toString() + "\n\n");
-                  listener.flush();
-                });
           }
           return body;
         });
