@@ -17,8 +17,7 @@ const _ = require('underscore')
 const $ = require('jquery')
 const Backbone = require('backbone')
 const SearchForm = require('./search-form')
-
-import { EventSourcePolyfill } from 'event-source-polyfill'
+const EventSourceUtil = require('../../js/EventSourceUtil')
 
 const fixFilter = function(filter) {
   if (filter.filters) {
@@ -71,46 +70,63 @@ module.exports = Backbone.AssociatedModel.extend({
       this.doneLoading()
     })
 
-    // let addForms = this.addAllForms
-    // let doneLoading = this.doneLoading()
     let self = this
 
-    // subscribe for messages
-    var EventSource = EventSourcePolyfill
-    var source = new EventSource('./internal/events', {
-      withCredentials: true,
-      headers: {
-        Origin: 'https://localhost:8993/',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
+    const id = EventSourceUtil.createEventSource({
+      onOpen: (event) => console.log("SSE ON OPEN"),
+      onMessage: (event) =>  {
+        console.log('SSE ON MESSAGE')
+        console.log(event.data)
+        if (promiseIsResolved === true) {
+            self.addAllForms(self)
+            promiseIsResolved = false
+            bootstrapPromise = new templatePromiseSupplier()
+          }
+          bootstrapPromise.then(() => {
+            console.log('bootstrap promise')
+            self.addAllForms(self)
+            self.doneLoading(self)
+          })
+        }
     })
 
-    // handle messages
-    source.onmessage = function(event) {
-      console.log('SSE onmessage')
-      // Do something with the data:
-      console.log(event.data)
-      if (promiseIsResolved === true) {
-        self.addAllForms(self)
-        promiseIsResolved = false
-        bootstrapPromise = new templatePromiseSupplier()
-      }
-      bootstrapPromise.then(() => {
-        console.log('bootstrap promise')
-        self.addAllForms(self)
-        self.doneLoading(self)
-      })
-    }
+    console.log("IN SEARCH FORM COLLECTION. SOURCE ID: ", id)
+    // // subscribe for messages
+    // var EventSource = EventSourcePolyfill
+    // var source = new EventSource('./internal/events', {
+    //   withCredentials: true,
+    //   headers: {
+    //     Origin: 'https://localhost:8993/',
+    //     'X-Requested-With': 'XMLHttpRequest',
+    //   },
+    // })
 
-    source.onerror = function(event) {
-      console.log('SSE onerror ')
-      console.log(event)
-      console.log(event.description)
-      // source.close()
-    }
-    source.onopen = function() {
-      console.log('SSE onopen')
-    }
+    // // handle messages
+    // source.onmessage = function(event) {
+    //   console.log('SSE onmessage')
+    //   // Do something with the data:
+    //   console.log(event.data)
+    //   if (promiseIsResolved === true) {
+    //     self.addAllForms(self)
+    //     promiseIsResolved = false
+    //     bootstrapPromise = new templatePromiseSupplier()
+    //   }
+    //   bootstrapPromise.then(() => {
+    //     console.log('bootstrap promise')
+    //     self.addAllForms(self)
+    //     self.doneLoading(self)
+    //   })
+    // }
+
+    // source.onerror = function(event) {
+    //   console.log('SSE onerror ')
+    //   console.log(event)
+    //   console.log(event.description)
+    //   // source.close()
+    // }
+    // source.onopen = function() {
+    //   console.log('SSE onopen')
+    // }
   },
   relations: [
     {
