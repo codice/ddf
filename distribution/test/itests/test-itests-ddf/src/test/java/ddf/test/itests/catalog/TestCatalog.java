@@ -13,7 +13,6 @@
  */
 package ddf.test.itests.catalog;
 
-import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static ddf.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME;
@@ -1186,44 +1185,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         .statusCode(HttpStatus.SC_BAD_REQUEST)
         .when()
         .put(new DynamicUrl(REST_PATH, metacardId).getUrl());
-    deleteTemporaryFile(fileName);
-  }
-
-  @Test
-  public void testCachedContentLengthHeader() throws IOException {
-
-    String fileName = "testCachedContentLengthHeader" + ".jpg";
-    File tmpFile =
-        createTemporaryFile(fileName, IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
-
-    String id =
-        given()
-            .multiPart(tmpFile)
-            .expect()
-            .log()
-            .headers()
-            .statusCode(201)
-            .when()
-            .post(REST_PATH.getUrl())
-            .getHeader("id");
-
-    final String url =
-        REST_PATH.getUrl() + "sources/ddf.distribution/" + id + "?transform=resource";
-
-    LOGGER.error("URL: " + url);
-
-    // Get the product once
-    get(url).then().log().headers();
-
-    // Get again to hit the cache
-    get(url + "&mode=cache")
-        .then()
-        .log()
-        .headers()
-        .assertThat()
-        .header(HttpHeaders.CONTENT_LENGTH, notNullValue());
-
-    delete(id);
     deleteTemporaryFile(fileName);
   }
 

@@ -14,20 +14,12 @@
 package org.codice.ddf.commands.catalog;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.source.CatalogProvider;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerInvocationHandler;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
@@ -83,14 +75,6 @@ public abstract class CatalogCommands extends SubjectCommands {
   @Reference protected BundleContext bundleContext;
 
   @Reference protected FilterBuilder filterBuilder;
-
-  protected SolrCacheMBean getCacheProxy()
-      throws IOException, MalformedObjectNameException, InstanceNotFoundException {
-    ObjectName solrCacheObjectName = new ObjectName(SolrCacheMBean.OBJECT_NAME);
-    MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-    return MBeanServerInvocationHandler.newProxyInstance(
-        mBeanServer, solrCacheObjectName, SolrCacheMBean.class, false);
-  }
 
   // TODO Optional
   protected CatalogFacade getCatalog() {

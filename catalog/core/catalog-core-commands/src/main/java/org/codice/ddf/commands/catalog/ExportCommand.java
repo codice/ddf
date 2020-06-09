@@ -523,20 +523,6 @@ public class ExportCommand extends CqlCommands {
       }
     }
 
-    // delete items from cache
-    try {
-      getCacheProxy()
-          .removeById(
-              exportedItems
-                  .stream()
-                  .map(ExportItem::getId)
-                  .collect(Collectors.toList())
-                  .toArray(new String[exportedItems.size()]));
-    } catch (Exception e) {
-      LOGGER.warn(
-          "Could not delete all exported items from cache (Results will eventually expire)", e);
-    }
-
     console.println("Metacards and Content deleted in: " + getFormattedDuration(start));
     console.println("Number of metacards deleted: " + exportedItems.size());
     console.println("Number of content deleted: " + exportedContentItems.size());

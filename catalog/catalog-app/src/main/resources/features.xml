@@ -45,8 +45,6 @@
     <feature name="catalog-core-impl" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
         <feature>security-core-services</feature>
-        <feature>solr-factory-api</feature>
-        <feature>solr-factory-impl</feature>
         <feature>catalog-core-api</feature>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
 
@@ -63,7 +61,6 @@
             mvn:commons-collections/commons-collections/${commons-collections.version}
         </bundle>
         <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
-        <bundle>mvn:ddf.catalog.core/catalog-core-federationstrategy/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
         <feature>jodah-failsafe</feature>
         <bundle>mvn:ddf.catalog.core/ddf-pubsub/${project.version}</bundle>
@@ -90,7 +87,6 @@
         </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-defaultvalues/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardtype/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.plugin/cache-plugin-defaultmetacardtags/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-core-attachment" version="${project.version}"
@@ -306,7 +302,6 @@
         <feature>jackson</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcestatusplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/catalog-core-solrcommands/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-eventcommands/${project.version}</bundle>
     </feature>
 

@@ -29,11 +29,8 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -98,9 +95,6 @@ public class RemoveAllCommand extends CatalogCommands {
   )
   boolean force = false;
 
-  @Option(name = "--cache", description = "Only remove cached entries.")
-  boolean cache = false;
-
   @Override
   protected Object executeWithSubject() throws Exception {
     if (batchSize < PAGE_SIZE_LOWER_LIMIT) {
@@ -112,30 +106,8 @@ public class RemoveAllCommand extends CatalogCommands {
       return null;
     }
 
-    if (this.cache) {
-      executeRemoveAllFromCache();
-
-    } else {
-      executeRemoveAllFromStore();
-    }
-
+    executeRemoveAllFromStore();
     return null;
-  }
-
-  private void executeRemoveAllFromCache() throws Exception {
-    long start = System.currentTimeMillis();
-
-    getCacheProxy().removeAll();
-
-    long end = System.currentTimeMillis();
-
-    String info = String.format("Cache cleared in %3.3f seconds", (end - start) / MS_PER_SECOND);
-
-    LOGGER.info(info);
-    LOGGER.info("Cache cleared using the \"{} --cache\" command", COMMAND);
-
-    console.println();
-    console.println(info);
   }
 
   private void executeRemoveAllFromStore()
@@ -248,7 +220,7 @@ public class RemoveAllCommand extends CatalogCommands {
       final String warning =
           String.format(
               "WARNING: This will permanently remove all %srecords from the %s. Do you want to proceed? (yes/no): ",
-              (expired ? "expired " : ""), (cache ? "cache" : "Catalog"));
+              (expired ? "expired " : ""), "Catalog");
 
       final String response;
       try {
@@ -295,15 +267,10 @@ public class RemoveAllCommand extends CatalogCommands {
     }
 
     QueryImpl query = new QueryImpl(filter);
-
     query.setRequestsTotalResultsCount(isRequestForTotal);
-
     query.setPageSize(batchSize);
 
-    Map<String, Serializable> properties = new HashMap<>();
-    properties.put("mode", "native");
-
-    return new QueryRequestImpl(query, properties);
+    return new QueryRequestImpl(query);
   }
 
   private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal) {
@@ -326,15 +293,10 @@ public class RemoveAllCommand extends CatalogCommands {
     }
 
     QueryImpl query = new QueryImpl(filter);
-
     query.setRequestsTotalResultsCount(isRequestForTotal);
-
     query.setPageSize(batchSize);
 
-    Map<String, Serializable> properties = new HashMap<>();
-    properties.put("mode", "native");
-
-    return new QueryRequestImpl(query, properties);
+    return new QueryRequestImpl(query);
   }
 
   private Filter addValidationAttributeToQuery(Filter filter, FilterBuilder filterBuilder) {

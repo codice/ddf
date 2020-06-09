@@ -79,12 +79,27 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.solr</groupId>
+            <artifactId>catalog-solr-cache</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-solr-defaultmetacardtagscacheplugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.solr</groupId>
             <artifactId>catalog-solr-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.solr</groupId>
             <artifactId>catalog-solr-solrclient</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.solr</groupId>
+            <artifactId>catalog-solr-commands</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

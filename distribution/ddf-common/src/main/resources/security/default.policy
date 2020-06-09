@@ -421,7 +421,7 @@ grant codeBase "file:/platform-country-converter-local" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}fipsToIso.properties", "read";
 }
 
-grant codeBase "file:/admin-core-migration-commands/catalog-core-solrcommands/security-claims-attributequery/catalog-confluence-source/org.eclipse.jetty.websocket.common/session-management-impl/security-realm-saml/security-core-impl/org.eclipse.jetty.websocket.server/security-command-sessionmanager/catalog-core-eventcommands" {
+grant codeBase "file:/admin-core-migration-commands/catalog-solr-commands/security-claims-attributequery/catalog-confluence-source/org.eclipse.jetty.websocket.common/session-management-impl/security-realm-saml/security-core-impl/org.eclipse.jetty.websocket.server/security-command-sessionmanager/catalog-core-eventcommands" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}*", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}*", "read";
 }

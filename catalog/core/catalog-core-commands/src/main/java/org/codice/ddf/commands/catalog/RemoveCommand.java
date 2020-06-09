@@ -23,18 +23,14 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.ResultIterable;
-import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
-import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.util.CatalogCommandException;
 import org.geotools.filter.text.cql2.CQLException;
@@ -64,14 +60,6 @@ public class RemoveCommand extends CqlCommands {
   )
   Set<String> ids = new HashSet<>();
 
-  @Option(
-    name = "--cache",
-    required = false,
-    multiValued = false,
-    description = "Only remove cached entries."
-  )
-  boolean cache = false;
-
   @Override
   protected Object executeWithSubject() throws Exception {
     if (CollectionUtils.isEmpty(ids) && !hasFilter()) {
@@ -81,29 +69,7 @@ public class RemoveCommand extends CqlCommands {
       return null;
     }
 
-    if (this.cache) {
-      return executeRemoveFromCache();
-    } else {
-      return executeRemoveFromStore();
-    }
-  }
-
-  @SuppressWarnings(
-      "squid:S00112" /* Non-generic exception would require importing and embedding SolrServerException */)
-  private Object executeRemoveFromCache() throws Exception {
-
-    if (hasFilter()) {
-      printErrorMessage("Cache does not support filtering. Remove filter parameter.");
-      return null;
-    }
-
-    if (CollectionUtils.isNotEmpty(ids)) {
-      getCacheProxy().removeById(ids.toArray(new String[0]));
-      printSuccessMessage(ids + " successfully removed from cache");
-      LOGGER.info("{} removed from cache by catalog:remove command", ids);
-    }
-
-    return null;
+    return executeRemoveFromStore();
   }
 
   private int deletedIdsPassedAsArguments() throws IngestException, SourceUnavailableException {
@@ -124,7 +90,7 @@ public class RemoveCommand extends CqlCommands {
       }
 
       if (hasFilter()) {
-        QueryRequestImpl queryRequest = new QueryRequestImpl(getQuery(), false);
+        QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(getFilter()), false);
         String[] idsToDelete = getNextQueryBatch(queryRequest);
         while (idsToDelete.length > 0) {
           if (CollectionUtils.isNotEmpty(ids)) {
@@ -165,12 +131,5 @@ public class RemoveCommand extends CqlCommands {
         .map(Metacard::getId)
         .distinct()
         .toArray(String[]::new);
-  }
-
-  private QueryImpl getQuery() throws ParseException, CQLException {
-    QueryImpl query = new QueryImpl(getFilter());
-    Map<String, Serializable> properties = new HashMap<>();
-    properties.put("mode", "native");
-    return query;
   }
 }

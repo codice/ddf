@@ -142,8 +142,6 @@ public abstract class AbstractIntegrationTest {
 
   public static final String REMOVE_ALL = "catalog:removeall -f -p";
 
-  private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
-
   private static final File UNPACK_DIRECTORY = new File("target/exam");
 
   public static final long GENERIC_TIMEOUT_SECONDS = TimeUnit.MINUTES.toSeconds(5);
@@ -924,7 +922,6 @@ public abstract class AbstractIntegrationTest {
    */
   public void clearCatalogAndWait() {
     clearCatalog();
-    clearCache();
     with()
         .pollInterval(1, SECONDS)
         .await()
@@ -935,10 +932,6 @@ public abstract class AbstractIntegrationTest {
   public void clearCatalog() {
     String output = console.runCommand(REMOVE_ALL, GENERIC_TIMEOUT_MILLISECONDS);
     LOGGER.debug("{} output: {}", REMOVE_ALL, output);
-  }
-
-  public void clearCache() {
-    console.runCommand(CLEAR_CACHE, GENERIC_TIMEOUT_MILLISECONDS);
   }
 
   protected boolean isCatalogEmpty() {

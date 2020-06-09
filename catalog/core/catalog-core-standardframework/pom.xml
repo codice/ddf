@@ -135,17 +135,6 @@
             <artifactId>hazelcast</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-solr</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>solr-core</artifactId>
-                    <groupId>org.apache.solr</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
             <type>jar</type>
@@ -327,7 +316,6 @@
                         <Embed-Dependency>
                             activities,
                             catalog-core-actions,
-                            catalog-core-solr,
                             hazelcast;scope=runtime|compile,
                             notifications,
                             versioning-common,
@@ -343,30 +331,7 @@
                             org.codice.ddf.catalog.sourcepoller
                         </Export-Package>
                         <Import-Package>
-                            <!--packages required for solrj -->
-                            org.apache.jute;version=${solr.zookeeper.version},
-                            org.apache.solr.client.solrj;version=${solr.version},
-                            org.apache.solr.client.solrj.beans;version=${solr.version},
-                            org.apache.solr.client.solrj.cloud;version=${solr.version},
-                            org.apache.solr.client.solrj.cloud.autoscaling;version=${solr.version},
-                            org.apache.solr.client.solrj.impl;version=${solr.version},
-                            org.apache.solr.client.solrj.request;version=${solr.version},
-                            org.apache.solr.client.solrj.response;version=${solr.version},
-                            org.apache.solr.common;version=${solr.version},
-                            org.apache.solr.common.params;version=${solr.version},
-                            org.apache.solr.common.util;version=${solr.version},
-                            org.apache.zookeeper;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.client;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.data;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.proto;version=${solr.zookeeper.version},
-                            com.fasterxml.jackson.*;version=${jackson.version},
-
-                            <!-- dependencies used by catalog-core-solr-->
-                            org.locationtech.spatial4j.*;version=${solr.spatial4j.version},
-                            org.locationtech.jts.*;version=${jts.spatial4j.version},
                             com.hazelcast.client;resolution:=optional,
-                            com.saxonica.config;resolution:=optional,
-                            org.expath.pkg.saxon;resolution:=optional,
                             *
                         </Import-Package>
                     </instructions>
@@ -385,7 +350,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>63.2_MB</maxArtifactSize>
+                                    <maxArtifactSize>10.5_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

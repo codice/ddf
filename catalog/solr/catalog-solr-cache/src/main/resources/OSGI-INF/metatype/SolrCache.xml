@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Solr Federated Result Cache"
+         id="org.codice.ddf.catalog.solr.cache.impl.SolrCache">
+        <AD name="AnyText Expansion Field Whitelist" id="anyTextFieldWhitelist" cardinality="100" required="false" type="String"
+            description="List of Solr fields that an anyText query expands to include (e.g. title, description, ext.extracted.*). NOTE: If a blacklist is also provided, this list becomes a blacklist exception list instead of a pure whitelist."/>
+
+        <AD name="AnyText Expansion Field Blacklist" id="anyTextFieldBlacklist" cardinality="100" required="false" type="String"
+            description="List of Solr fields that an anyText query will NOT include (e.g. id, checksum, security.*)"/>
+
+        <AD name="Expiration Interval" id="expirationIntervalInMinutes" type="Long" default="10"
+            description="Interval that Solr Cache checks for expired documents to remove."/>
+
+        <AD name="Expiration Age" id="expirationAgeInMinutes" type="Long" default="10080"
+            description="The number of minutes a document will remain in the cache before it will expire. Default is
+            7 days."/>
+    </OCD>
+
+    <Designate pid="org.codice.ddf.catalog.solr.cache.impl.SolrCache">
+        <Object ocdref="org.codice.ddf.catalog.solr.cache.impl.SolrCache"/>
+    </Designate>
+
+</metatype:MetaData>

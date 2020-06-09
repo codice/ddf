@@ -68,10 +68,6 @@
         <property name="masker" ref="sourceListener"/>
     </bean>
 
-    <bean id="localCatalogIdSupplier" class="ddf.catalog.cache.solr.impl.LocalCatalogIdSupplier">
-        <argument ref="catalogFramework"/>
-    </bean>
-
     <bean id="sourceRegistry" class="org.codice.ddf.catalog.sourcepoller.SourceRegistry">
         <property name="connectedSources" ref="connectedSources"/>
         <property name="federatedSources" ref="federatedSources"/>
