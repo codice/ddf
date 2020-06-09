@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,75 +12,25 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <parent>
-        <artifactId>platform</artifactId>
-        <groupId>ddf.platform</groupId>
+        <groupId>ddf.security.filter</groupId>
+        <artifactId>filter</artifactId>
         <version>2.21.8-SNAPSHOT</version>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>platform-paxweb-jettyconfig</artifactId>
-    <name>DDF :: Platform :: PaxWeb :: Jetty Config</name>
+    <name>DDF :: Security :: Filter :: CSRF</name>
+    <artifactId>security-filter-csrf</artifactId>
     <packaging>bundle</packaging>
+
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-xml</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>common-system</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-session-invalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${logback.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-access</artifactId>
-            <version>${logback.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.thirdparty</groupId>
-            <artifactId>rest-assured</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.web</groupId>
-            <artifactId>pax-web-api</artifactId>
-            <version>${pax.web.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-security</artifactId>
-            <version>${jetty.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
@@ -88,10 +38,23 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.osgi</groupId>
-            <artifactId>spring-osgi-mock</artifactId>
-            <version>${spring-osgi.version}</version>
-            <scope>test</scope>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax.ws.rs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-http</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -101,24 +64,29 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Fragment-Host>org.ops4j.pax.web.pax-web-jetty;bundle-version="[7,8)"</Fragment-Host>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            platform-util,
-                            logback-core,
-                            logback-access
-                        </Embed-Dependency>
-                        <Import-Package>
-                            !org.apache.catalina,
-                            !org.apache.catalina.connector,
-                            !org.apache.catalina.valves,
-                            !org.apache.coyote,
-                            !org.codehaus.commons.compiler,
-                            !org.codehaus.janino,
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check-artifact-size</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                    <maxArtifactSize>1.4_MB</maxArtifactSize>
+                                </ArtifactSizeEnforcerRule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -138,19 +106,18 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.64</minimum>
+                                            <minimum>0.93</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.56</minimum>
+                                            <minimum>0.76</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.52</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>
