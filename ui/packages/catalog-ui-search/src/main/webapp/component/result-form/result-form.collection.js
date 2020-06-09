@@ -17,6 +17,7 @@ const Backbone = require('backbone')
 const ResultForm = require('../search-form/search-form.js')
 const $ = require('jquery')
 const _ = require('underscore')
+const EventSourceUtil = require('../../js/EventSourceUtil')
 
 let resultTemplates = []
 let promiseIsResolved = false
@@ -49,6 +50,26 @@ module.exports = Backbone.AssociatedModel.extend({
       this.addResultForms()
       this.doneLoading()
     })
+    let self = this
+
+    const id = EventSourceUtil.createEventSource({
+      onOpen: (event) => console.log("SSE ON OPEN"),
+      onMessage: (event) =>  {
+        console.log('SSE ON MESSAGE')
+        console.log(event.data)
+        if (promiseIsResolved === true) {
+            self.addResultForms(self)
+            promiseIsResolved = false
+            bootstrapPromise = new resultTemplatePromise()
+          }
+          bootstrapPromise.then(() => {
+            console.log('bootstrap promise')
+            self.addResultForms(self)
+            self.doneLoading(self)
+          })
+        }
+    })
+    console.log("IN SEARCH FORM COLLECTION. SOURCE ID: ", id)
   },
   relations: [
     {
