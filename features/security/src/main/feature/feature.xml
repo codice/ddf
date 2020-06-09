@@ -412,6 +412,11 @@
         <bundle>mvn:ddf.security.filter/security-filter-login/${project.version}</bundle>
     </feature>
 
+    <feature name="security-filter-csrf" version="${project.version}"
+             description="CSRF Filter for web applications.">
+        <bundle>mvn:ddf.security.filter/security-filter-csrf/${project.version}</bundle>
+    </feature>
+
     <feature name="security-filter-authz" version="${project.version}"
              description="Authz Filter for web applications.">
         <feature>security-policy-context</feature>
@@ -637,6 +642,7 @@
         <feature>security-sts-server</feature>
         <feature>security-filter-web-sso</feature>
         <feature>security-filter-login</feature>
+        <feature>security-filter-csrf</feature>
         <feature>security-handler-basic</feature>
         <feature>security-oidc-realm</feature>
         <feature>security-handler-oidc</feature>
