@@ -43,7 +43,9 @@ import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.ConnectException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -81,7 +83,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.configuration.DictionaryMap;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
@@ -178,7 +181,7 @@ public class WfsSource extends AbstractWfsSource {
 
   private final EncryptionService encryptionService;
 
-  private final ClientFactoryFactory clientFactoryFactory;
+  private final ClientBuilderFactory clientBuilderFactory;
 
   private String wfsUrl;
 
@@ -257,10 +260,10 @@ public class WfsSource extends AbstractWfsSource {
   }
 
   public WfsSource(
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       EncryptionService encryptionService,
       ScheduledExecutorService scheduler) {
-    this.clientFactoryFactory = clientFactoryFactory;
+    this.clientBuilderFactory = clientBuilderFactory;
     this.encryptionService = encryptionService;
     wfsMetadata =
         new WfsMetadataImpl<>(
@@ -345,47 +348,57 @@ public class WfsSource extends AbstractWfsSource {
 
   /** This method should only be called after all properties have been set. */
   private void createClientFactory() {
-    if (BASIC.equals(authenticationType)
-        && StringUtils.isNotBlank(username)
-        && StringUtils.isNotBlank(password)) {
-      factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              wfsUrl,
-              Wfs.class,
-              initProviders(),
-              new MarkableStreamInterceptor(),
-              this.disableCnCheck,
-              this.allowRedirects,
-              connectionTimeout,
-              receiveTimeout,
-              username,
-              password);
-    } else if (StringUtils.isNotBlank(getCertAlias())
-        && StringUtils.isNotBlank(getKeystorePath())) {
-      factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              wfsUrl,
-              Wfs.class,
-              initProviders(),
-              new MarkableStreamInterceptor(),
-              this.disableCnCheck,
-              this.allowRedirects,
-              connectionTimeout,
-              receiveTimeout,
-              getCertAlias(),
-              getKeystorePath(),
-              getSslProtocol());
-    } else {
-      factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              wfsUrl,
-              Wfs.class,
-              initProviders(),
-              new MarkableStreamInterceptor(),
-              this.disableCnCheck,
-              this.allowRedirects,
-              connectionTimeout,
-              receiveTimeout);
+    ClientBuilder<Wfs> clientBuilder = clientBuilderFactory.getClientBuilder();
+    try {
+      if (BASIC.equals(authenticationType)
+          && StringUtils.isNotBlank(username)
+          && StringUtils.isNotBlank(password)) {
+        factory =
+            clientBuilder
+                .endpoint(new URI(wfsUrl))
+                .interfaceClass(Wfs.class)
+                .entityProviders(initProviders())
+                .interceptor(new MarkableStreamInterceptor())
+                .disableCnCheck(disableCnCheck)
+                .allowRedirects(allowRedirects)
+                .connectionTimeout(connectionTimeout)
+                .receiveTimeout(receiveTimeout)
+                .username(username)
+                .password(password)
+                .useSamlEcp(true)
+                .build();
+      } else if (StringUtils.isNotBlank(getCertAlias())
+          && StringUtils.isNotBlank(getKeystorePath())) {
+        factory =
+            clientBuilder
+                .endpoint(new URI(wfsUrl))
+                .interfaceClass(Wfs.class)
+                .entityProviders(initProviders())
+                .interceptor(new MarkableStreamInterceptor())
+                .disableCnCheck(disableCnCheck)
+                .allowRedirects(allowRedirects)
+                .connectionTimeout(connectionTimeout)
+                .receiveTimeout(receiveTimeout)
+                .clientKeyInfo(getCertAlias(), Paths.get(getKeystorePath()))
+                .sslProtocol(sslProtocol)
+                .useSamlEcp(true)
+                .build();
+      } else {
+        factory =
+            clientBuilder
+                .endpoint(new URI(wfsUrl))
+                .interfaceClass(Wfs.class)
+                .entityProviders(initProviders())
+                .interceptor(new MarkableStreamInterceptor())
+                .disableCnCheck(disableCnCheck)
+                .allowRedirects(allowRedirects)
+                .connectionTimeout(connectionTimeout)
+                .receiveTimeout(receiveTimeout)
+                .useSamlEcp(true)
+                .build();
+      }
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException(e);
     }
   }
 

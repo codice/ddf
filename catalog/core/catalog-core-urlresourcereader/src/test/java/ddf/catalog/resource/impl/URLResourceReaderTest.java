@@ -38,6 +38,7 @@ import ddf.mime.MimeTypeResolver;
 import ddf.mime.custom.CustomMimeTypeResolver;
 import ddf.mime.mapper.MimeTypeMapperImpl;
 import ddf.mime.tika.TikaMimeTypeResolver;
+import ddf.security.audit.SecurityLogger;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -58,9 +59,13 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl;
+import org.codice.ddf.cxf.client.impl.ClientBuilderFactoryImpl;
+import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
+import org.codice.ddf.cxf.oauth.OAuthSecurity;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -133,7 +138,7 @@ public class URLResourceReaderTest {
         }
       };
 
-  private ClientFactoryFactory clientFactoryFactory;
+  private ClientBuilderFactory clientBuilderFactory;
 
   private MimeTypeMapper mimeTypeMapper;
 
@@ -165,13 +170,13 @@ public class URLResourceReaderTest {
     resolvers.add(tikaResolver);
     resolvers.add(this.customResolver);
     this.mimeTypeMapper = new MimeTypeMapperImpl(resolvers);
-    this.clientFactoryFactory = new ClientFactoryFactoryImpl();
+    this.clientBuilderFactory = new ClientBuilderFactoryImpl();
   }
 
   @Test
   public void testURLResourceReaderBadQualifier() {
     URLResourceReader resourceReader =
-        new TestURLResourceReader(mimeTypeMapper, clientFactoryFactory);
+        new TestURLResourceReader(mimeTypeMapper, clientBuilderFactory);
     resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
     URI uri = TEST_PATH.resolve(MPEG_FILE_NAME_1).toUri();
 
@@ -327,7 +332,7 @@ public class URLResourceReaderTest {
 
   @Test
   public void testURLResourceIOException() throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
 
     String filePath = "JUMANJI!!!!";
 
@@ -350,7 +355,7 @@ public class URLResourceReaderTest {
 
   @Test
   public void testUrlToNonExistentFile() throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
 
     String filePath = TEST_PATH.resolve("NonExistentFile.jpg").toAbsolutePath().toString();
 
@@ -391,8 +396,7 @@ public class URLResourceReaderTest {
     when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
     // verify that we got the entire resource
-    verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri.toString());
+    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri);
   }
 
   /**
@@ -414,8 +418,8 @@ public class URLResourceReaderTest {
     when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
     final String qualifierValue = "qualifierValue";
-    final String expectedWebClientUri =
-        String.format("%s&%s=%s", uri, ContentItem.QUALIFIER_KEYWORD, qualifierValue);
+    final URI expectedWebClientUri =
+        new URI(String.format("%s&%s=%s", uri, ContentItem.QUALIFIER_KEYWORD, qualifierValue));
     // verify that we got the entire resource
     verifyFileFromURLResourceReader(
         uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, qualifierValue, 5, expectedWebClientUri);
@@ -447,7 +451,7 @@ public class URLResourceReaderTest {
 
     // verify that the requested bytes 3-5 were returned
     verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri.toString());
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri);
   }
 
   /**
@@ -477,7 +481,7 @@ public class URLResourceReaderTest {
 
     // verify that the requested bytes 3-5 were returned
     verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri.toString());
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri);
   }
 
   /**
@@ -506,7 +510,7 @@ public class URLResourceReaderTest {
 
     // this should throw an IOException since more bytes were skipped than requested
     verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 2135, uri.toString());
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 2135, uri);
   }
 
   /**
@@ -535,7 +539,7 @@ public class URLResourceReaderTest {
 
     // verify that the requested bytes 3-5 were returned
     verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri.toString());
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri);
   }
 
   @Test
@@ -553,8 +557,7 @@ public class URLResourceReaderTest {
 
     when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
-    verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri.toString());
+    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri);
   }
 
   @Test
@@ -571,13 +574,12 @@ public class URLResourceReaderTest {
 
     when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
-    verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri.toString());
+    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri);
   }
 
   @Test
   public void testURLResourceReaderQualifierSet() throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
 
     Set<String> qualifiers = resourceReader.getSupportedSchemes();
 
@@ -617,7 +619,7 @@ public class URLResourceReaderTest {
   @Test
   public void testRemoveARootResourceDirectory() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(
             TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
@@ -640,7 +642,7 @@ public class URLResourceReaderTest {
   @Test
   public void testAddARootResourceDirectory() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(
             TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
@@ -672,7 +674,7 @@ public class URLResourceReaderTest {
   @Test
   public void testSetRootResourceDirectoriesNullInput() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(
             TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
@@ -692,7 +694,7 @@ public class URLResourceReaderTest {
   @Test
   public void testSetRootResourceDirectoriesEmptySetInput() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(
             TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
@@ -709,7 +711,7 @@ public class URLResourceReaderTest {
   public void testSetRootResourceDirectoriesInvalidPath() throws Exception {
     // Setup (1 valid paths, 1 invalid path)
     String invalidPath = "\0";
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
 
     // Perform Test
     resourceReader.setRootResourceDirectories(
@@ -725,7 +727,7 @@ public class URLResourceReaderTest {
   private void verifyFile(
       String filePath, String filename, String expectedMimeType, String... rootResourceDirectories)
       throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
     resourceReader.setRootResourceDirectories(
         new HashSet<String>(Arrays.asList(rootResourceDirectories)));
 
@@ -766,13 +768,7 @@ public class URLResourceReaderTest {
 
     when(mockResponse.getEntity()).thenReturn(getBinaryData());
     verifyFileFromURLResourceReader(
-        uri,
-        filename,
-        expectedMimeType,
-        null,
-        null,
-        expectedResponseResourceLength,
-        uri.toString());
+        uri, filename, expectedMimeType, null, null, expectedResponseResourceLength, uri);
   }
 
   // Create arguments, adding bytesToSkip and qualifier if present, and verify
@@ -783,7 +779,7 @@ public class URLResourceReaderTest {
       String bytesToSkip,
       String qualifier,
       int expectedResponseResourceLength,
-      String expectedWebClientUri)
+      URI expectedWebClientUri)
       throws URISyntaxException, IOException, ResourceNotFoundException {
 
     Map<String, Serializable> arguments = new HashMap<String, Serializable>();
@@ -797,7 +793,7 @@ public class URLResourceReaderTest {
     }
 
     TestURLResourceReader resourceReader =
-        new TestURLResourceReader(mimeTypeMapper, clientFactoryFactory);
+        new TestURLResourceReader(mimeTypeMapper, clientBuilderFactory);
     resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
 
     // Test using the URL ResourceReader
@@ -827,69 +823,49 @@ public class URLResourceReaderTest {
   }
 
   @Test
-  public void testGetWebClientWithUsernameAndPassword() {
+  public void testGetWebClientWithUsernameAndPassword() throws URISyntaxException {
     SecureCxfClientFactory<WebClient> cxfClientFactory = mock(SecureCxfClientFactory.class);
     when(cxfClientFactory.getWebClient()).thenReturn(mock(WebClient.class));
 
-    ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            "https://myurl.com",
-            WebClient.class,
-            null,
-            null,
-            false,
-            true,
-            null,
-            null,
-            "myusername",
-            "mypassword"))
-        .thenReturn(cxfClientFactory);
+    ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
+    ClientBuilder<WebClient> clientBuilder =
+        new ClientBuilderImpl<WebClient>(
+            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+          @Override
+          public SecureCxfClientFactory<WebClient> build() {
+            return cxfClientFactory;
+          }
+        };
+    when(clientBuilderFactory.<WebClient>getClientBuilder()).thenReturn(clientBuilder);
 
     URLResourceReader urlResourceReader =
-        new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+        new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
 
     Map<String, Serializable> properties =
         ImmutableMap.of("username", "myusername", "password", "mypassword");
-    urlResourceReader.getWebClient("https://myurl.com", properties);
+    urlResourceReader.getWebClient(new URI("https://myurl.com"), properties);
 
-    verify(clientFactoryFactory, times(1))
-        .getSecureCxfClientFactory(
-            "https://myurl.com",
-            WebClient.class,
-            null,
-            null,
-            false,
-            true,
-            null,
-            null,
-            "myusername",
-            "mypassword");
+    verify(clientBuilderFactory, times(1)).getClientBuilder();
   }
 
   @Test
-  public void testGetWebClientWithOauth() {
+  public void testGetWebClientWithOauth() throws URISyntaxException {
     SecureCxfClientFactory<WebClient> cxfClientFactory = mock(SecureCxfClientFactory.class);
     when(cxfClientFactory.getWebClient()).thenReturn(mock(WebClient.class));
 
-    ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            "https://myurl.com",
-            WebClient.class,
-            null,
-            null,
-            false,
-            true,
-            null,
-            null,
-            "mysource",
-            "https://keycloak:8080/discovery-url",
-            "client-id",
-            "client-secret",
-            "code"))
-        .thenReturn(cxfClientFactory);
+    ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
+    ClientBuilder<WebClient> clientBuilder =
+        new ClientBuilderImpl<WebClient>(
+            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+          @Override
+          public SecureCxfClientFactory<WebClient> build() {
+            return cxfClientFactory;
+          }
+        };
+    when(clientBuilderFactory.<WebClient>getClientBuilder()).thenReturn(clientBuilder);
 
     URLResourceReader urlResourceReader =
-        new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+        new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
 
     Map<String, Serializable> properties =
         ImmutableMap.of(
@@ -903,36 +879,22 @@ public class URLResourceReaderTest {
             "client-secret",
             "oauthFlow",
             "code");
-    urlResourceReader.getWebClient("https://myurl.com", properties);
+    urlResourceReader.getWebClient(new URI("https://myurl.com"), properties);
 
-    verify(clientFactoryFactory, times(1))
-        .getSecureCxfClientFactory(
-            "https://myurl.com",
-            WebClient.class,
-            null,
-            null,
-            false,
-            true,
-            null,
-            null,
-            "mysource",
-            "https://keycloak:8080/discovery-url",
-            "client-id",
-            "client-secret",
-            "code");
+    verify(clientBuilderFactory, times(1)).getClientBuilder();
   }
 
   private class TestURLResourceReader extends URLResourceReader {
 
-    public String capturedWebClientUri;
+    public URI capturedWebClientUri;
 
     public TestURLResourceReader(
-        MimeTypeMapper mimeTypeMapper, ClientFactoryFactory clientFactoryFactory) {
-      super(mimeTypeMapper, clientFactoryFactory);
+        MimeTypeMapper mimeTypeMapper, ClientBuilderFactory clientBuilderFactory) {
+      super(mimeTypeMapper, clientBuilderFactory);
     }
 
     @Override
-    protected WebClient getWebClient(String uri, Map<String, Serializable> properties) {
+    protected WebClient getWebClient(URI uri, Map<String, Serializable> properties) {
       capturedWebClientUri = uri;
       return mockWebClient;
     }

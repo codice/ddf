@@ -191,6 +191,11 @@
             <artifactId>xml-apis</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-cxfwrapper</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>

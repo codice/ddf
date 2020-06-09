@@ -24,7 +24,7 @@
 
     <ext:property-placeholder/>
 
-    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
@@ -32,7 +32,7 @@
         <cm:managed-properties persistent-id="ddf.catalog.source.solr.rest.SolrRest"
                                update-strategy="component-managed"
                                update-method="refresh"/>
-        <argument ref="clientFactoryFactory"/>
+        <argument ref="clientBuilderFactory"/>
         <argument ref="encryptionService"/>
         <property name="k1" value="1.25"/>
         <property name="b" value="0.75" />

@@ -11,25 +11,14 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.cxf.client.impl;
+package org.codice.ddf.cxf.client;
 
-import java.nio.file.Path;
-
-public class ClientKeyInfo {
-  private String alias;
-
-  private Path keystorePath;
-
-  public ClientKeyInfo(String alias, Path keystorePath) {
-    this.alias = alias;
-    this.keystorePath = keystorePath;
-  }
-
-  public String getAlias() {
-    return alias;
-  }
-
-  public Path getKeystorePath() {
-    return keystorePath;
-  }
+/**
+ * Factory class for creating secure CXF client factory builder
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be * removed in a future version of the library. </b>
+ */
+public interface ClientBuilderFactory {
+  <T> ClientBuilder<T> getClientBuilder();
 }

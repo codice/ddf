@@ -18,7 +18,7 @@
            xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
     <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
     <reference id="security" interface="org.codice.ddf.security.Security" />
     <reference id="securityManager" interface="ddf.security.service.SecurityManager" />
@@ -229,7 +229,7 @@
         <argument ref="inputTransformerManager"/>
         <argument ref="validator"/>
         <argument ref="cswFilterFactory"/>
-        <argument ref="clientFactoryFactory"/>
+        <argument ref="clientBuilderFactory"/>
         <argument ref="security"/>
         <argument ref="securityManager" />
     </bean>

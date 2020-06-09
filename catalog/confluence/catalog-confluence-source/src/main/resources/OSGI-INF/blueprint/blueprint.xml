@@ -21,7 +21,7 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory" />
+    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory" />
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
@@ -87,7 +87,7 @@
             <argument ref="confluenceTransformer"/>
             <argument ref="resourceReader"/>
             <argument ref="attributeRegistry"/>
-            <argument ref="clientFactoryFactory"/>
+            <argument ref="clientBuilderFactory"/>
             <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
@@ -125,7 +125,7 @@
             <argument ref="confluenceTransformer"/>
             <argument ref="resourceReader"/>
             <argument ref="attributeRegistry"/>
-            <argument ref="clientFactoryFactory"/>
+            <argument ref="clientBuilderFactory"/>
             <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>

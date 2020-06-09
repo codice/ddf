@@ -19,10 +19,11 @@ import com.thoughtworks.xstream.converters.Converter;
 import ddf.security.Subject;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.permission.Permissions;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
@@ -37,7 +38,7 @@ public class CswSourceStub extends AbstractCswSource {
       BundleContext mockContext,
       CswSourceConfiguration cswSourceConfiguration,
       Converter mockProvider,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       EncryptionService encryptionService,
       Security security,
       Permissions permissions) {
@@ -45,12 +46,16 @@ public class CswSourceStub extends AbstractCswSource {
         mockContext,
         cswSourceConfiguration,
         mockProvider,
-        clientFactoryFactory,
+        clientBuilderFactory,
         encryptionService,
         security,
         permissions);
     super.subscribeClientFactory = mock(SecureCxfClientFactory.class);
-    initClientFactory();
+    try {
+      initClientFactory();
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 
   @Override

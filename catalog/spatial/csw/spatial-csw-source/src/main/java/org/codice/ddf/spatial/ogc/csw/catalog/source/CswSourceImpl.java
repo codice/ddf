@@ -19,7 +19,7 @@ import ddf.security.permission.Permissions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.AbstractCswSource;
@@ -30,7 +30,7 @@ public class CswSourceImpl extends AbstractCswSource {
       BundleContext context,
       CswSourceConfiguration cswSourceConfiguration,
       Converter provider,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       EncryptionService encryptionService,
       Security security,
       Permissions permissions) {
@@ -38,7 +38,7 @@ public class CswSourceImpl extends AbstractCswSource {
         context,
         cswSourceConfiguration,
         provider,
-        clientFactoryFactory,
+        clientBuilderFactory,
         encryptionService,
         security,
         permissions);
@@ -46,10 +46,10 @@ public class CswSourceImpl extends AbstractCswSource {
 
   public CswSourceImpl(
       EncryptionService encryptionService,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       Security security,
       Permissions permissions) {
-    super(encryptionService, clientFactoryFactory, security, permissions);
+    super(encryptionService, clientBuilderFactory, security, permissions);
   }
 
   @Override

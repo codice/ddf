@@ -19,10 +19,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.util.HashMap;
 import java.util.Map;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
+import org.codice.ddf.cxf.oauth.OAuthSecurity;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,7 +40,19 @@ public class SolrRestTest {
   public void setUp() {
     EncryptionService encryptionService = mock(EncryptionService.class);
     when(encryptionService.decrypt(anyString())).thenReturn("test");
-    solrRest = new SolrRest(mock(ClientFactoryFactory.class), encryptionService);
+    ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
+    SecureCxfClientFactory secureCxfClientFactory = mock(SecureCxfClientFactory.class);
+    ClientBuilder clientBuilder =
+        new ClientBuilderImpl(
+            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+          @Override
+          public SecureCxfClientFactory build() {
+            return secureCxfClientFactory;
+          }
+        };
+
+    when(clientBuilderFactory.getClientBuilder()).thenReturn(clientBuilder);
+    solrRest = new SolrRest(clientBuilderFactory, encryptionService);
   }
 
   @Test

@@ -33,9 +33,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
+import org.codice.ddf.cxf.oauth.OAuthSecurity;
 import org.codice.ddf.platform.util.properties.PropertiesLoader;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,7 +74,7 @@ public class CrlGeneratorTest {
   @Test
   public void testAddingRemovingCrlProperties() {
     String localCrlPath = "/local/crl/path";
-    CrlGenerator crlGenerator = new CrlGenerator(mock(ClientFactoryFactory.class), eventAdmin);
+    CrlGenerator crlGenerator = new CrlGenerator(mock(ClientBuilderFactory.class), eventAdmin);
     crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
     crlGenerator.setCrlFileLocationInPropertiesFile(localCrlPath);
     assertTrue(
@@ -144,8 +148,8 @@ public class CrlGeneratorTest {
 
   @Test
   public void testGettingPemCrlFromUrl() throws Exception {
-    ClientFactoryFactory clientFactoryFactory = getCxfClient(getCRL());
-    CrlGenerator crlGenerator = new CrlGenerator(clientFactoryFactory, eventAdmin);
+    ClientBuilderFactory clientBuilderFactory = getCxfClient(getCRL());
+    CrlGenerator crlGenerator = new CrlGenerator(clientBuilderFactory, eventAdmin);
     crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
     crlGenerator.setCrlLocationUrl("https://testurl:8993");
     crlGenerator.setCrlByUrlEnabled(true);
@@ -157,8 +161,8 @@ public class CrlGeneratorTest {
 
   @Test
   public void testGettingDemCrlFromUrl() throws Exception {
-    ClientFactoryFactory clientFactoryFactory = getCxfClient(demEncodedCrl);
-    CrlGenerator crlGenerator = new CrlGenerator(clientFactoryFactory, eventAdmin);
+    ClientBuilderFactory clientBuilderFactory = getCxfClient(demEncodedCrl);
+    CrlGenerator crlGenerator = new CrlGenerator(clientBuilderFactory, eventAdmin);
     crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
     crlGenerator.setCrlLocationUrl("https://testurl:8993");
     crlGenerator.setCrlByUrlEnabled(true);
@@ -173,8 +177,8 @@ public class CrlGeneratorTest {
 
   @Test
   public void testHttpUrl() {
-    ClientFactoryFactory clientFactoryFactory = getCxfClient(demEncodedCrl);
-    CrlGenerator crlGenerator = new CrlGenerator(clientFactoryFactory, eventAdmin);
+    ClientBuilderFactory clientBuilderFactory = getCxfClient(demEncodedCrl);
+    CrlGenerator crlGenerator = new CrlGenerator(clientBuilderFactory, eventAdmin);
     crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
     crlGenerator.setCrlLocationUrl("http://testurl:8993");
     crlGenerator.setCrlByUrlEnabled(true);
@@ -197,24 +201,33 @@ public class CrlGeneratorTest {
             .containsKey(CrlGenerator.CRL_PROPERTY_KEY));
   }
 
-  private ClientFactoryFactory getCxfClient(byte[] message) {
+  private ClientBuilderFactory getCxfClient(byte[] message) {
     Response response = mock(Response.class);
     when(response.getEntity()).thenReturn(new ByteArrayInputStream(message));
     WebClient webClient = mock(WebClient.class);
     when(webClient.get()).thenReturn(response);
-    SecureCxfClientFactory secureCxfClientFactory = mock(SecureCxfClientFactory.class);
+    SecureCxfClientFactory<WebClient> secureCxfClientFactory = mock(SecureCxfClientFactory.class);
     when(secureCxfClientFactory.getWebClient()).thenReturn(webClient);
-    ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
-    when(clientFactoryFactory.getSecureCxfClientFactory("https://testurl:8993", WebClient.class))
-        .thenReturn(secureCxfClientFactory);
-    return clientFactoryFactory;
+    ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
+    ClientBuilder<WebClient> clientBuilder =
+        new ClientBuilderImpl<WebClient>(
+            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+          @Override
+          public SecureCxfClientFactory<WebClient> build() {
+            return secureCxfClientFactory;
+          }
+        };
+
+    when(clientBuilderFactory.<WebClient>getClientBuilder()).thenReturn(clientBuilder);
+
+    return clientBuilderFactory;
   }
 
   @Test
   public void testSetCrlLocationUrl() {
-    ClientFactoryFactory clientFactoryFactory = getCxfClient(demEncodedCrl);
+    ClientBuilderFactory clientBuilderFactory = getCxfClient(demEncodedCrl);
     ScheduledExecutorService scheduler = mock(ScheduledExecutorService.class);
-    CrlGenerator crlGenerator = new CrlGenerator(clientFactoryFactory, eventAdmin, scheduler);
+    CrlGenerator crlGenerator = new CrlGenerator(clientBuilderFactory, eventAdmin, scheduler);
     crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
     crlGenerator.setCrlByUrlEnabled(true);
 
@@ -234,9 +247,9 @@ public class CrlGeneratorTest {
 
   @Test
   public void testSetCrlByUrlEnabled() {
-    ClientFactoryFactory clientFactoryFactory = getCxfClient(demEncodedCrl);
+    ClientBuilderFactory clientBuilderFactory = getCxfClient(demEncodedCrl);
     ScheduledExecutorService scheduler = mock(ScheduledExecutorService.class);
-    CrlGenerator crlGenerator = new CrlGenerator(clientFactoryFactory, eventAdmin, scheduler);
+    CrlGenerator crlGenerator = new CrlGenerator(clientBuilderFactory, eventAdmin, scheduler);
     crlGenerator.setSecurityLogger(mock(SecurityLogger.class));
 
     crlGenerator.setCrlByUrlEnabled(false);

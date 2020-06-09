@@ -44,8 +44,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.codice.ddf.catalog.resource.download.DownloadException;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
-import org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
+import org.codice.ddf.cxf.client.impl.ClientBuilderFactoryImpl;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -94,8 +94,8 @@ public class DownloadsStatusEventListenerTest {
     testMetacard.setId("easyas123");
     testMetacard.setResourceURI(downloadFile.toURI());
     testMetacard.setResourceSize("125");
-    ClientFactoryFactory clientFactoryFactory = new ClientFactoryFactoryImpl();
-    URLResourceReader testURLResourceReader = new URLResourceReader(clientFactoryFactory);
+    ClientBuilderFactory clientBuilderFactory = new ClientBuilderFactoryImpl();
+    URLResourceReader testURLResourceReader = new URLResourceReader(clientBuilderFactory);
     testURLResourceReader.setRootResourceDirectories(
         new HashSet<String>(Arrays.asList(localResourcePath.toString())));
     List<ResourceReader> testResourceReaderList =

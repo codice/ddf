@@ -25,12 +25,18 @@
     <service ref="oauthSecurity" interface="org.codice.ddf.cxf.oauth.OAuthSecurity"/>
 
     <bean id="clientFactoryFactory" class="org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl">
+        <property name="clientBuilderFactory" ref="clientBuilderFactory"/>
+    </bean>
+
+    <bean id="clientBuilderFactory" class="org.codice.ddf.cxf.client.impl.ClientBuilderFactoryImpl">
         <property name="oauthSecurity" ref="oauthSecurity"/>
         <property name="samlSecurity" ref="samlSecurity" />
         <property name="securityLogger" ref="securityLogger"/>
     </bean>
 
     <service ref="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+
+    <service ref="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
 
     <reference id="samlSecurity" interface="org.codice.ddf.security.jaxrs.SamlSecurity" availability="optional" />
 </blueprint>

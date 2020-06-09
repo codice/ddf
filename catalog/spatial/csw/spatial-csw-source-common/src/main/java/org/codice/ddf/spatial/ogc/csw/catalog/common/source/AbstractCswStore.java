@@ -62,7 +62,7 @@ import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
 import net.opengis.filter.v_1_1_0.FilterType;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
@@ -90,13 +90,13 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
    * @param context The {@link BundleContext} from the OSGi Framework
    * @param cswSourceConfiguration the configuration of this source
    * @param provider transform provider to transform results
-   * @param clientFactoryFactory client factory already configured for this source
+   * @param clientBuilderFactory client factory already configured for this source
    */
   public AbstractCswStore(
       BundleContext context,
       CswSourceConfiguration cswSourceConfiguration,
       Converter provider,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       EncryptionService encryptionService,
       Security security,
       Permissions permissions) {
@@ -104,7 +104,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
         context,
         cswSourceConfiguration,
         provider,
-        clientFactoryFactory,
+        clientBuilderFactory,
         encryptionService,
         security,
         permissions);
@@ -113,10 +113,10 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
   /** Instantiates a CswStore. */
   public AbstractCswStore(
       EncryptionService encryptionService,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       Security security,
       Permissions permissions) {
-    super(encryptionService, clientFactoryFactory, security, permissions);
+    super(encryptionService, clientBuilderFactory, security, permissions);
   }
 
   @Override

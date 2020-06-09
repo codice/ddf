@@ -75,7 +75,7 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.confluence.api.SearchResource;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,7 +93,7 @@ public class ConfluenceSourceTest {
 
   private SecureCxfClientFactory<SearchResource> factory;
 
-  private ClientFactoryFactory clientFactoryFactory;
+  private ClientBuilderFactory clientBuilderFactory;
 
   private EncryptionService encryptionService;
 
@@ -117,7 +117,7 @@ public class ConfluenceSourceTest {
     encryptionService = mock(EncryptionService.class);
     reader = mock(ResourceReader.class);
     factory = mock(SecureCxfClientFactory.class);
-    clientFactoryFactory = mock(ClientFactoryFactory.class);
+    clientBuilderFactory = mock(ClientBuilderFactory.class);
     client = mock(SearchResource.class);
     registry = mock(AttributeRegistry.class);
     clientResponse = mock(Response.class);
@@ -144,7 +144,7 @@ public class ConfluenceSourceTest {
             reader,
             registry,
             factory,
-            clientFactoryFactory);
+            clientBuilderFactory);
     confluence.setSecurityLogger(mock(SecurityLogger.class));
     confluence.setPermissions(new PermissionsImpl());
     confluence.setAvailabilityPollInterval(1);
@@ -400,7 +400,7 @@ public class ConfluenceSourceTest {
   public void testInitNoEndpointUrl() throws Exception {
     ConfluenceSource source =
         new ConfluenceSource(
-            adapter, encryptionService, transformer, reader, registry, clientFactoryFactory);
+            adapter, encryptionService, transformer, reader, registry, clientBuilderFactory);
     source.setUsername("myname");
     source.setPassword("mypass");
     source.init();
@@ -538,8 +538,8 @@ public class ConfluenceSourceTest {
         ResourceReader reader,
         AttributeRegistry registry,
         SecureCxfClientFactory<SearchResource> mockFactory,
-        ClientFactoryFactory clientFactoryFactory) {
-      super(adapter, encryptionService, transformer, reader, registry, clientFactoryFactory);
+        ClientBuilderFactory clientBuilderFactory) {
+      super(adapter, encryptionService, transformer, reader, registry, clientBuilderFactory);
       this.mockFactory = mockFactory;
     }
 

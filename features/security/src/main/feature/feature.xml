@@ -174,6 +174,7 @@ org.ops4j.pax.web.default.realmname=DDF
              description="Main security services">
         <feature>security-core-impl</feature>
         <feature>security-handler-impl</feature>
+        <feature>cxf-features-logging</feature>
         <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
         <bundle>mvn:ddf.security.realm/security-realm-pki/${project.version}</bundle>
@@ -411,7 +412,7 @@ org.ops4j.pax.web.default.realmname=DDF
 
     <feature name="security-filter-csrf" version="${project.version}"
              description="CSRF Filter for web applications.">
-        <feature>security-core-api</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.security.filter/security-filter-csrf/${project.version}</bundle>
     </feature>
 

@@ -131,6 +131,11 @@
             <artifactId>cxf-rt-rs-security-oauth2</artifactId>
             <version>${cxf.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-features-logging</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>

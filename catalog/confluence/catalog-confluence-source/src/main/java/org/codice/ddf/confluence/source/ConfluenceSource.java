@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -65,7 +66,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.confluence.api.SearchResource;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
@@ -82,7 +84,7 @@ public class ConfluenceSource extends MaskableImpl
 
   private static final String PASSWORD_KEY = "password";
 
-  private final ClientFactoryFactory clientFactoryFactory;
+  private final ClientBuilderFactory clientBuilderFactory;
 
   private String endpointUrl;
 
@@ -138,30 +140,46 @@ public class ConfluenceSource extends MaskableImpl
       ConfluenceInputTransformer transformer,
       ResourceReader reader,
       AttributeRegistry attributeRegistry,
-      ClientFactoryFactory clientFactoryFactory) {
+      ClientBuilderFactory clientBuilderFactory) {
     this.filterAdapter = adapter;
     this.encryptionService = encryptionService;
     this.transformer = transformer;
     this.resourceReader = reader;
     this.attributeRegistry = attributeRegistry;
-    this.clientFactoryFactory = clientFactoryFactory;
+    this.clientBuilderFactory = clientBuilderFactory;
   }
 
   public void init() {
     if (StringUtils.isBlank(endpointUrl)) {
       return;
     }
+    try {
+      if (BASIC.equals(authenticationType)
+          && StringUtils.isNotBlank(username)
+          && StringUtils.isNotBlank(password)) {
+        securityLogger.audit("Setting up confluence client for user {}", username);
+        ClientBuilder<SearchResource> clientBuilder =
+            clientBuilderFactory.<SearchResource>getClientBuilder();
+        factory =
+            clientBuilder
+                .endpoint(new URI(endpointUrl))
+                .interfaceClass(SearchResource.class)
+                .username(username)
+                .password(password)
+                .build();
+      } else {
+        securityLogger.audit("Setting up confluence client for anonymous access");
+        ClientBuilder<SearchResource> clientBuilder =
+            clientBuilderFactory.<SearchResource>getClientBuilder();
 
-    if (BASIC.equals(authenticationType)
-        && StringUtils.isNotBlank(username)
-        && StringUtils.isNotBlank(password)) {
-      securityLogger.audit("Setting up confluence client for user {}", username);
-      factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              endpointUrl, SearchResource.class, username, password);
-    } else {
-      securityLogger.audit("Setting up confluence client for anonymous access");
-      factory = clientFactoryFactory.getSecureCxfClientFactory(endpointUrl, SearchResource.class);
+        factory =
+            clientBuilder
+                .endpoint(new URI(endpointUrl))
+                .interfaceClass(SearchResource.class)
+                .build();
+      }
+    } catch (URISyntaxException e) {
+      LOGGER.debug("Endpoint URL is not a URI.", e);
     }
   }
 

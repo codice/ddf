@@ -17,8 +17,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -36,6 +34,7 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -54,9 +53,14 @@ import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
+import org.codice.ddf.cxf.oauth.OAuthSecurity;
 import org.codice.ddf.security.Security;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
@@ -136,7 +140,7 @@ public class CswSubscriptionEndpointTest {
 
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private ClientFactoryFactory clientFactoryFactory;
+  private ClientBuilderFactory clientBuilderFactory;
 
   private Security security;
 
@@ -182,42 +186,17 @@ public class CswSubscriptionEndpointTest {
     configAdmin = mock(ConfigurationAdmin.class);
     config = mock(Configuration.class);
     SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
-    clientFactoryFactory = mock(ClientFactoryFactory.class);
-    when(clientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
-        .thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
-        .thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
-        .thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
-            anyBoolean(),
-            anyBoolean(),
-            anyInt(),
-            anyInt(),
-            anyString(),
-            anyString()))
-        .thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
-            anyBoolean(),
-            anyBoolean(),
-            anyInt(),
-            anyInt(),
-            anyString(),
-            anyString(),
-            anyString()))
-        .thenReturn(mockFactory);
+    clientBuilderFactory = mock(ClientBuilderFactory.class);
+    ClientBuilder<WebClient> clientBuilder =
+        new ClientBuilderImpl<WebClient>(
+            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+          @Override
+          public SecureCxfClientFactory<WebClient> build() {
+            return mockFactory;
+          }
+        };
+
+    when(clientBuilderFactory.<WebClient>getClientBuilder()).thenReturn(clientBuilder);
     Configuration[] configArry = {config};
 
     defaultRequest = createDefaultGetRecordsRequest();
@@ -226,7 +205,7 @@ public class CswSubscriptionEndpointTest {
             mockMimeTypeManager,
             defaultRequest.get202RecordsType(),
             query,
-            clientFactoryFactory,
+            clientBuilderFactory,
             security,
             securityManager);
 
@@ -257,7 +236,7 @@ public class CswSubscriptionEndpointTest {
             validator,
             queryFactory,
             mockContext,
-            clientFactoryFactory,
+            clientBuilderFactory,
             security,
             securityManager);
   }
@@ -507,7 +486,7 @@ public class CswSubscriptionEndpointTest {
         Validator validator,
         CswQueryFactory queryFactory,
         BundleContext context,
-        ClientFactoryFactory clientFactoryFactory,
+        ClientBuilderFactory clientBuilderFactory,
         Security security,
         SecurityManager securityManager) {
       super(
@@ -517,7 +496,7 @@ public class CswSubscriptionEndpointTest {
           inputTransformerManager,
           validator,
           queryFactory,
-          clientFactoryFactory,
+          clientBuilderFactory,
           security,
           securityManager);
       this.bundleContext = context;

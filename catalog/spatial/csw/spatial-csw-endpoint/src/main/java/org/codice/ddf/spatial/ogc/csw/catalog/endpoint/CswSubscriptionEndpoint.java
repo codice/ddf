@@ -56,7 +56,7 @@ import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.DictionaryMap;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.TransformerProperties;
 import org.codice.ddf.platform.util.XMLUtils;
@@ -104,7 +104,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
   private final EventProcessor eventProcessor;
 
-  private final ClientFactoryFactory clientFactoryFactory;
+  private final ClientBuilderFactory clientBuilderFactory;
 
   private DatatypeFactory datatypeFactory;
 
@@ -121,7 +121,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       TransformerManager inputTransformerManager,
       Validator validator,
       CswQueryFactory queryFactory,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       Security security,
       SecurityManager securityManager) {
     this.eventProcessor = eventProcessor;
@@ -130,7 +130,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     this.inputTransformerManager = inputTransformerManager;
     this.validator = validator;
     this.queryFactory = queryFactory;
-    this.clientFactoryFactory = clientFactoryFactory;
+    this.clientBuilderFactory = clientBuilderFactory;
     this.security = security;
     this.securityManager = securityManager;
 
@@ -426,7 +426,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
           mimeTypeTransformerManager,
           request,
           query,
-          clientFactoryFactory,
+          clientBuilderFactory,
           security,
           securityManager);
     }
@@ -434,7 +434,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
         mimeTypeTransformerManager,
         request,
         query,
-        clientFactoryFactory,
+        clientBuilderFactory,
         security,
         securityManager);
   }

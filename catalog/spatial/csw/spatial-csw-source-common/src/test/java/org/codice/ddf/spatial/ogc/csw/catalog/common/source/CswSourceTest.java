@@ -24,7 +24,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -57,6 +56,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.SecurityConstants;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.permission.Permissions;
 import ddf.security.permission.impl.PermissionsImpl;
@@ -82,9 +82,13 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.filter.v_1_1_0.SortOrderType;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
+import org.codice.ddf.cxf.oauth.OAuthSecurity;
 import org.codice.ddf.security.impl.Security;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -1443,54 +1447,29 @@ public class CswSourceTest extends TestCswSourceBase {
             contentMapping, queryTypeQName, queryTypePrefix, encryptionService, permissions);
     cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentMapping);
 
-    SecureCxfClientFactory<Object> mockFactory = mock(SecureCxfClientFactory.class);
+    SecureCxfClientFactory<Csw> mockFactory = mock(SecureCxfClientFactory.class);
     doReturn(csw).when(mockFactory).getClient();
     doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
     doReturn(csw).when(mockFactory).getClientForSystemSubject(any(Subject.class));
 
-    ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
-    when(clientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
-        .thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
-        .thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any(), any()))
-        .thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
-            anyBoolean(),
-            anyBoolean(),
-            any(),
-            any(),
-            anyString(),
-            anyString()))
-        .thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
-            anyBoolean(),
-            anyBoolean(),
-            any(),
-            any(),
-            anyString(),
-            anyString(),
-            anyString()))
-        .thenReturn(mockFactory);
+    ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
+    ClientBuilder<Csw> clientBuilder =
+        new ClientBuilderImpl<Csw>(
+            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+          @Override
+          public SecureCxfClientFactory<Csw> build() {
+            return mockFactory;
+          }
+        };
+
+    when(clientBuilderFactory.<Csw>getClientBuilder()).thenReturn(clientBuilder);
 
     CswSourceStub cswSource =
         new CswSourceStub(
             mockContext,
             cswSourceConfiguration,
             mockProvider,
-            clientFactoryFactory,
+            clientBuilderFactory,
             encryptionService,
             new Security(),
             permissions);
