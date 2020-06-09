@@ -30,31 +30,6 @@
         <argument type="java.util.List">
             <list value-type="javax.servlet.Filter">
                 <bean class="org.codice.ddf.pax.web.jetty.ClientInfoFilter"/>
-                <bean class="org.codice.ddf.pax.web.jetty.CsrfFilter">
-                    <property name="whiteListContexts">
-                        <array value-type="java.lang.String">
-                            <value>/services[/]?$=GET</value>
-                            <value>/services/admin/config[/]?$=GET</value>
-                            <value>/services/content[/]?$=GET</value>
-                            <value>/services/catalog/query[/]?$=GET</value> <!-- Simple Search -->
-                            <value>/services/catalog/sources.*=GET</value> <!-- REST Action providers -->
-                            <value>/services/internal/catalog/download/cache.*=GET</value>
-                            <value>/services/internal/session.*=GET</value>
-                            <value>/services/internal/metrics.*=GET</value>
-                            <value>/services/logout/actions[/]?$=GET</value>
-                            <value>/services/logout/local[/]?$=GET</value>
-                            <value>/services/platform/config/ui[/]?$=GET</value>
-                            <value>/services/saml/logout[/]?$=GET</value>
-                            <value>/services/saml/logout/request[/]?$=GET</value>
-                            <value>/services/saml/sso[/]?$=POST</value>
-                            <value>/services/saml/sso/metadata[/]?$=GET</value>
-                            <value>/services/store/config[/]?$=GET</value>
-                            <value>/services/internal/registries.*=GET</value>
-                            <value>/services/oidc/logout.*=GET</value>
-                        </array>
-                    </property>
-                    <property name="securityLogger" ref="securityLogger"/>
-                </bean>
                 <ref component-id="responseFilter"/>
                 <bean class="org.codice.ddf.pax.web.jetty.SecurityJavaSubjectFilter"/>
             </list>
