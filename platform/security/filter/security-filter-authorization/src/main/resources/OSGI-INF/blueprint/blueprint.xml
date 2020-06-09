@@ -27,7 +27,7 @@
     </bean>
 
     <service ref="filter"
-             interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="98">
+             interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="97">
         <service-properties>
             <entry key="osgi.http.whiteboard.filter.name" value="authz-filter"/>
         </service-properties>
