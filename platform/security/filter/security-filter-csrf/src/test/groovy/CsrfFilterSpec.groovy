@@ -79,8 +79,7 @@ class CsrfFilterSpec extends Specification {
   def "CSRF Browser Protection Allowed: context: #requestContext, origin: #originHeader, referer: #refererHeader, csrfHeader: #hasCsrfHeader, httpVerb: #method"(
       String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader, String method) {
     given:
-    CsrfFilter csrfFilter = new CsrfFilter()
-    csrfFilter.setSecurityLogger(Mock(SecurityLogger))
+    CsrfFilter csrfFilter = new CsrfFilter(Mock(SecurityLogger))
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
     FilterChain chain = Mock(FilterChain)
@@ -160,8 +159,7 @@ class CsrfFilterSpec extends Specification {
   def "CSRF Browser Protection Forbidden: context: #requestContext, origin: #originHeader, referer: #refererHeader, csrfHeader: #hasCsrfHeader, httpVerb: #method"(
       String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader, String method) {
     given:
-    CsrfFilter csrfFilter = new CsrfFilter()
-    csrfFilter.setSecurityLogger(Mock(SecurityLogger))
+    CsrfFilter csrfFilter = new CsrfFilter(Mock(SecurityLogger))
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
     FilterChain chain = Mock(FilterChain)
@@ -227,8 +225,7 @@ class CsrfFilterSpec extends Specification {
   def "CSRF System Protection Allowed: context: #requestContext, agent: #userAgent, httpVerb: #method, parameter: #param"(
       String requestContext, String userAgent, String method, String param) {
     given:
-    CsrfFilter csrfFilter = new CsrfFilter()
-    csrfFilter.setSecurityLogger(Mock(SecurityLogger))
+    CsrfFilter csrfFilter = new CsrfFilter(Mock(SecurityLogger))
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
     FilterChain chain = Mock(FilterChain)
@@ -296,8 +293,7 @@ class CsrfFilterSpec extends Specification {
   def "CSRF System Protection Forbidden: context: #requestContext, agent: #userAgent, httpVerb: #method, parameter: #param"(
       String requestContext, String userAgent, String method, String param) {
     given:
-    CsrfFilter csrfFilter = new CsrfFilter()
-    csrfFilter.setSecurityLogger(Mock(SecurityLogger))
+    CsrfFilter csrfFilter = new CsrfFilter(Mock(SecurityLogger))
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
     FilterChain chain = Mock(FilterChain)
