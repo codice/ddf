@@ -187,6 +187,7 @@ module.exports = Marionette.LayoutView.extend({
       title: this.model.get('title'),
       description: formModel.get('description'),
       created: formModel.get('createdOn'),
+      default: formModel.get('default'),
       owner: formModel.get('owner'),
       querySettings: filterSettings,
     }
