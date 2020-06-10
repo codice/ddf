@@ -123,11 +123,6 @@
             <version>${jts.bundle.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-federationstrategy</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>lucene-core</artifactId>
             <version>3.0.2_1</version>
