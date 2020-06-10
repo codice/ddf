@@ -46,7 +46,10 @@ public class PersistenceItemTest {
     inMap.put("long", 1L);
     inMap.put("binary", new byte[1]);
     inMap.put("date", new Date());
-    inMap.put("set", new HashSet<String>());
+    HashSet<String> set = new HashSet<>();
+    set.add("foo");
+    set.add("bar");
+    inMap.put("set", set);
     PersistentItem item = new PersistentItem();
     inMap.forEach((name, value) -> item.addProperty(name, value));
     assertTrue(item.getPropertyNames().contains("string_txt"));

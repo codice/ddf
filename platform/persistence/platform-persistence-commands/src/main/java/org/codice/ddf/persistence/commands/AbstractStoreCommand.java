@@ -14,13 +14,15 @@
 package org.codice.ddf.persistence.commands;
 
 import java.io.PrintStream;
-import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
-import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +44,7 @@ public abstract class AbstractStoreCommand implements Action {
         "Type of entry in the persistence store to perform the current operation on.\nOptions: metacard, saved_query, notification, activity, workspace, preferences, attributes, subscriptions, event_subscriptions, alerts, or decanter",
     multiValued = false
   )
-  protected String type;
+  String type;
 
   @Option(
     name = "CQL",
@@ -52,24 +54,15 @@ public abstract class AbstractStoreCommand implements Action {
         "OGC CQL statement to query the persistence store. Not specifying returns all entries. More information on CQL is available at: http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html",
     multiValued = false
   )
-  protected String cql;
+  String cql;
 
-  @Reference protected PersistentStore persistentStore;
+  @Reference PersistentStore persistentStore;
 
   @Override
   public Object execute() {
 
     try {
-
-      if (PersistenceType.hasType(type)) {
-        storeCommand();
-      } else {
-        console.println(
-            "Type passed in was not correct. Must be one of "
-                + Arrays.toString(PersistenceType.values())
-                + ".");
-      }
-
+      storeCommand();
     } catch (PersistenceException pe) {
       console.println(
           "Encountered an error when trying to perform the command. Check log for more details.");
@@ -81,4 +74,32 @@ public abstract class AbstractStoreCommand implements Action {
 
   /** Calls a command that operates on the Persistent Store service. */
   abstract void storeCommand() throws PersistenceException;
+
+  protected String addUserConstraintToCql(String user, String cql) {
+    if (StringUtils.isNotBlank(user)) {
+      if (StringUtils.isNotBlank(cql)) {
+        cql = cql + " AND user='" + user + "'";
+      } else {
+        cql = "user='" + user + "'";
+      }
+    }
+    return cql;
+  }
+
+  protected long getResults(Function<List<Map<String, Object>>, Integer> storeFunction)
+      throws PersistenceException {
+
+    List<Map<String, Object>> pagedResults;
+    int startIndex = 0;
+    int pageSize = 1000;
+    long resultCount = 0L;
+
+    do {
+      pagedResults = persistentStore.get(type, cql, startIndex, pageSize);
+      resultCount += storeFunction.apply(pagedResults);
+      startIndex += pagedResults.size();
+    } while (pagedResults.size() > 0);
+
+    return resultCount;
+  }
 }

@@ -190,6 +190,7 @@ public class PersistentStoreImpl implements PersistentStore {
 
       solrQuery.setRows(pageSize);
       solrQuery.setStart(startIndex);
+      solrQuery.addSort(PersistentItem.ID, SolrQuery.ORDER.asc);
 
       QueryResponse solrResponse = solrClient.query(solrQuery, METHOD.POST);
 
