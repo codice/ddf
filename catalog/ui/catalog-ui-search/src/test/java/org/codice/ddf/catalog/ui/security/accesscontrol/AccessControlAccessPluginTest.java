@@ -22,6 +22,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Metacard;
@@ -32,7 +33,6 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SubjectIdentity;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.shiro.subject.Subject;
@@ -60,7 +60,8 @@ public class AccessControlAccessPluginTest {
 
   private static final String RESOURCE_TAG = "resource";
 
-  private static final List<String> INTRIGUE_TAGS = new ArrayList<String>();
+  private static final List<String> INTRIGUE_TAGS =
+      ImmutableList.of(WORKSPACE_TAG, QUERY_TEMPLATE_TAG, ATTRIBUTE_GROUP_TAG);
 
   private AccessPlugin accessPlugin;
 

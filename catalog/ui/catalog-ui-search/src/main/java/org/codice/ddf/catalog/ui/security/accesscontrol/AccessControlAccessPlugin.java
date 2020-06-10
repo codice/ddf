@@ -40,6 +40,7 @@ import ddf.security.SubjectIdentity;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -94,14 +95,8 @@ public class AccessControlAccessPlugin implements AccessPlugin {
     this.intrigueTags = intrigueTags;
   }
 
-  private boolean hasIntrigueTag(Metacard metacard) {
-    for (String tag : intrigueTags) {
-      if (metacard.getTags().contains(tag)) {
-        return true;
-      }
-    }
-    return false;
-  }
+  private final Predicate<Metacard> hasIntrigueTag =
+      metacard -> !Collections.disjoint(metacard.getTags(), intrigueTags);
 
   private boolean isAccessControlUpdated(Metacard prev, Metacard updated) {
     return !isAnyObjectNull(prev, updated)
@@ -158,7 +153,7 @@ public class AccessControlAccessPlugin implements AccessPlugin {
         existingMetacards
             .values()
             .stream()
-            .filter(this::hasIntrigueTag)
+            .filter(hasIntrigueTag)
             .collect(Collectors.toMap(Metacard::getId, Function.identity()));
 
     Function<Metacard, Metacard> oldMetacard =
