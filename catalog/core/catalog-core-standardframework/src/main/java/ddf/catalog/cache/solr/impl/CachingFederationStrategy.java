@@ -287,7 +287,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     // transfer them into a different Queue. That is what the
     // OffsetResultHandler does.
     if (offset > 1 && sources.size() > 1) {
-      offsetResults = new QueryResponseImpl(queryRequest, null);
+      offsetResults = new QueryResponseImpl(queryRequest, queryResponseQueue.getProperties());
       queryExecutorService.submit(
           new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize, offset));
     }

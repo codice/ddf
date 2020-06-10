@@ -400,12 +400,14 @@ public class CachingFederationStrategyTest {
     // Multiple sources needed for OffsetResultHandler to be used
     for (int i = 0; i < 2; i++) {
       Source mockSource = mock(Source.class);
+      SourceResponse mockResponse = mock(SourceResponse.class);
       when(mockSource.getId()).thenReturn("mock source " + i);
+      when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
       sources.add(mockSource);
     }
 
-    strategy.federate(sources, fedQueryRequest);
-
+    QueryResponse response = federateStrategy.federate(sources, fedQueryRequest);
+    assertThat(response.getProperties().size() > 0, is(true));
     // Verify the sources were queried
     for (Source source : sources) {
       verify(source).query(any(QueryRequest.class));
