@@ -1,35 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
 
-    <suppress>
-        <notes>
-            vorbis-java-tika-0.8.jar from tika-bundle-1.18.0_5.jar
-            tika-parsers uses vorbis 0.8. That version is not upgraded in the latest tika-parsers version.
-        </notes>
-        <cve>CVE-2016-6809</cve>
-        <cve>CVE-2018-1335</cve>
-    </suppress>
-
-    <!-- Remove this suppression CVE-2017-5644 once DDF-3064 has been resolved-->
-    <suppress>
-        <notes>
-            This is not an issue since the vulnerability is in reading untrusted documents and
-            platform-metrics-reporting only creates them. The issue is resolved in version 3.16 but
-            will require code refactoring.
-            poi-3.12.jar (cpe:/a:apache:poi:3.12, org.apache.poi:poi:3.12) : CVE-2017-5644
-            ooxml-schemas-1.3.jar and ooxml-security-1.1.jar
-        </notes>
-        <cve>CVE-2017-5644</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            file name: solr-*.jar
-            OWASP is getting confused by our version number being on a jar with solr in the name we
-            are on solr 6.6+ which is not affected by this issue.
-        </notes>
-        <cve>CVE-2012-6612</cve>
-    </suppress>
-
     <!-- proxy-camel-servlet false positives - these are all because the proxy-camel-servlet is getting confused with the camel-servlet-->
     <suppress>
         <notes>

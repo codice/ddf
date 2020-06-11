@@ -347,6 +347,10 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature prerequisite="true">wrap</feature>
         <feature>jackson</feature>
         <bundle>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
+        <!--
+            net.minidev/accessors-smart/1.2 uses asm v5.x. Need this resolved before we can upgrade:
+            https://bitbucket.org/connect2id/nimbus-jose-jwt/issues/239/switch-to-other-json-library
+        -->
         <bundle>mvn:org.ow2.asm/asm/5.2</bundle>
         <bundle>mvn:net.minidev/accessors-smart/1.2</bundle>
         <bundle>mvn:net.minidev/json-smart/2.3</bundle>
@@ -378,12 +382,6 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:ddf.security.handler/security-handler-oauth/${project.version}</bundle>
     </feature>
 
-    <feature name="jackson" version="${project.version}">
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
-    </feature>
-
     <feature name="security-oidc-realm" version="${project.version}"
              description="OIDC Authentication Handler for web applications.">
         <feature>jackson</feature>
@@ -413,6 +411,7 @@ org.ops4j.pax.web.default.realmname=DDF
 
     <feature name="security-filter-csrf" version="${project.version}"
              description="CSRF Filter for web applications.">
+        <feature>security-core-api</feature>
         <bundle>mvn:ddf.security.filter/security-filter-csrf/${project.version}</bundle>
     </feature>
 

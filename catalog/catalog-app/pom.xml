@@ -578,11 +578,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>tika-bundle</artifactId>
-            <version>${tika.thirdparty.bundle.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-metacardbackup-storage-api</artifactId>
             <version>${project.version}</version>
@@ -663,6 +658,11 @@
             <groupId>ddf.catalog.rest</groupId>
             <artifactId>catalog-rest-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.poi</artifactId>
+            <version>${servicemix.bundles.poi.version}</version>
         </dependency>
     </dependencies>
 </project>

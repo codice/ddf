@@ -23,6 +23,7 @@
         <feature>jodah-failsafe</feature>
         <feature>common-system</feature>
         <feature>spring</feature>
+        <feature>guava</feature>
         <bundle>mvn:ddf.platform.util/platform-util/${project.version}</bundle>
     </feature>
 
@@ -144,8 +145,11 @@
 
     <feature name="tika" version="${project.version}"
              description="Provides Tika as a bundle.">
-        <bundle>mvn:javax.measure/unit-api/1.0</bundle>
-        <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
+        <feature prerequisite="true">wrap</feature>
+        <feature>jackson</feature>
+        <bundle>mvn:com.github.luben/zstd-jni/${zstd-jni.version}</bundle>
+        <bundle>mvn:com.github.openjson/openjson/${openjson.version}</bundle>
+        <bundle>wrap:mvn:net.sf.jwordnet/jwnl/${jwnl.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/tika-bundle/${tika.thirdparty.bundle.version}</bundle>
     </feature>
@@ -153,6 +157,22 @@
     <feature name="io" version="${project.version}" description="I/O Utilities">
         <bundle>mvn:ddf.platform.io/platform-io-internal-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.io/platform-io-impl/${project.version}</bundle>
+    </feature>
+
+    <feature name="jackson" version="${project.version}">
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
+    </feature>
+
+    <feature name="poi" version="${project.version}">
+        <feature dependency="true">apache-commons</feature>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/1.2_5</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/9.9.1-6_1</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/3.1.0_2</bundle>
+        <bundle>mvn:org.apache.commons/commons-math3/${commons-math3.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-compress/${commons-compress.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/${servicemix.bundles.poi.version}</bundle>
     </feature>
 
 </features>

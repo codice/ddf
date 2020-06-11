@@ -120,11 +120,28 @@
             <artifactId>platform-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- BEGIN: Tika dependencies -->
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>tika-bundle</artifactId>
             <version>${tika.thirdparty.bundle.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.luben</groupId>
+            <artifactId>zstd-jni</artifactId>
+            <version>${zstd-jni.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.openjson</groupId>
+            <artifactId>openjson</artifactId>
+            <version>${openjson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jwordnet</groupId>
+            <artifactId>jwnl</artifactId>
+            <version>${jwnl.version}</version>
+        </dependency>
+        <!-- END -->
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>bootflag-api</artifactId>

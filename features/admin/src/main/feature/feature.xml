@@ -26,14 +26,14 @@
 
     <feature name="metrics-reporting" version="${project.version}"
              description="Metrics reporting for the platform.">
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/3.17_1</bundle>
-        <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
+        <bundle>mvn:com.googlecode.json-simple/json-simple/${json-simple.version}</bundle>
         <feature>guava</feature>
-        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0
+        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/${jsr339-api.bundle.version}
         </bundle>
         <feature>platform-configuration</feature>
         <feature>spring</feature>
         <feature>cxf-jaxrs</feature>
+        <feature>poi</feature>
         <bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
     </feature>
 
