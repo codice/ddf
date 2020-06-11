@@ -41,7 +41,7 @@ module.exports = Marionette.ItemView.extend({
         {this.getButtons()}
         {forms.map(child => {
           return (
-            <Item key={child.get('id')}>
+            <Item key={child.cid}>
               <MarionetteRegionContainer
                 view={SearchFormView}
                 viewOptions={{
