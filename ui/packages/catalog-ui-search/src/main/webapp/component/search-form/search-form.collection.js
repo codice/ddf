@@ -73,23 +73,22 @@ module.exports = Backbone.AssociatedModel.extend({
     let self = this
 
     const id = EventSourceUtil.createEventSource({
-      onOpen: (event) => console.log("SSE ON OPEN"),
-      onMessage: (event) =>  {
-        console.log('SSE ON MESSAGE')
+      onMessage: event => {
+        console.log('SEARCH FORM: SSE ON MESSAGE')
         console.log(event.data)
         if (promiseIsResolved === true) {
-            self.addAllForms(self)
-            promiseIsResolved = false
-            bootstrapPromise = new templatePromiseSupplier()
-          }
-          bootstrapPromise.then(() => {
-            console.log('bootstrap promise')
-            self.addAllForms(self)
-            self.doneLoading(self)
-          })
+          self.addAllForms(self)
+          promiseIsResolved = false
+          bootstrapPromise = new templatePromiseSupplier()
         }
+        bootstrapPromise.then(() => {
+          console.log('bootstrap promise')
+          self.addAllForms(self)
+          self.doneLoading(self)
+        })
+      },
     })
-    console.log("IN SEARCH FORM COLLECTION. SOURCE ID: ", id)
+    console.log('IN SEARCH FORM COLLECTION. SOURCE ID: ', id)
   },
   relations: [
     {

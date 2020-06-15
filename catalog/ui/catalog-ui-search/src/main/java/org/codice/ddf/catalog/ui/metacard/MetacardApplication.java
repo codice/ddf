@@ -360,6 +360,7 @@ public class MetacardApplication implements SparkApplication {
         "/metacards",
         APPLICATION_JSON,
         (req, res) -> {
+          notifyAllListeners();
           List<String> ids = GSON.fromJson(util.safeGetBody(req), LIST_STRING);
           DeleteResponse deleteResponse =
               catalogFramework.delete(
@@ -382,7 +383,7 @@ public class MetacardApplication implements SparkApplication {
           es.submit(
               () -> {
                 try {
-                    // currently 5 sec. will adjust to ~1 sec. later
+                  // currently 5 sec. will adjust to ~1 sec. later
                   Thread.sleep(5000);
                 } catch (InterruptedException e) {
                   e.printStackTrace();
@@ -1232,6 +1233,29 @@ public class MetacardApplication implements SparkApplication {
     final QueryMetacardImpl queryMetacard = new QueryMetacardImpl();
     transformer.transformIntoMetacard(queryJson, queryMetacard);
     return queryMetacard;
+  }
+
+  private void notifyAllListeners() {
+    ExecutorService es = Executors.newSingleThreadExecutor();
+    es.submit(
+        () -> {
+          try {
+            // currently 5 sec. will adjust to ~1 sec. later
+            Thread.sleep(5000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        });
+    es.submit(
+        () -> {
+          synchronized (listeners) {
+            listeners.forEach(
+                (listener) -> {
+                  listener.write("data: " + "id=1234" + "\n\n");
+                  listener.flush();
+                });
+          }
+        });
   }
 
   private static class ByteSourceWrapper extends ByteSource {

@@ -20,6 +20,7 @@ const user = require('../../component/singletons/user-instance.js')
 const moment = require('moment')
 require('backbone-associations')
 const WorkspaceModel = require('./Workspace.js')
+const EventSourceUtil = require('../../js/EventSourceUtil')
 
 module.exports = Backbone.Collection.extend({
   model: WorkspaceModel,
@@ -40,9 +41,18 @@ module.exports = Backbone.Collection.extend({
       })
     })
     this.listenTo(this, 'add', this.tagGuestWorkspace)
+    let self = this
+    EventSourceUtil.createEventSource({
+      onMessage: event => {
+        console.log('WORKSPACE: SSE ON MESSAGE')
+        console.log(event.data)
+        self.handleUserChange(self)
+      },
+    })
   },
-  handleUserChange() {
-    this.fetch({
+  handleUserChange(self) {
+    let me = self || this
+    me.fetch({
       remove: false,
     })
   },
