@@ -284,18 +284,6 @@ public class MetacardApplication implements SparkApplication {
               Thread.sleep(1000);
             }
             listeners.remove(out);
-            // for (int i = 0; i < 20; i++) {
-
-            //   out.write("data: " + System.currentTimeMillis() + "\n\n");
-            //   out.flush();
-
-            //   try {
-            //     Thread.sleep(1000);
-            //   } catch (InterruptedException e) {
-            //     e.printStackTrace();
-            //   }
-            // }
-            //                out.close();
             return "";
           } catch (Exception e) {
             e.printStackTrace();
@@ -379,26 +367,7 @@ public class MetacardApplication implements SparkApplication {
         "/metacards",
         APPLICATION_JSON,
         (req, res) -> {
-          ExecutorService es = Executors.newSingleThreadExecutor();
-          es.submit(
-              () -> {
-                try {
-                  // currently 5 sec. will adjust to ~1 sec. later
-                  Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                  e.printStackTrace();
-                }
-              });
-          es.submit(
-              () -> {
-                synchronized (listeners) {
-                  listeners.forEach(
-                      (listener) -> {
-                        listener.write("data: " + "id=1234" + "\n\n");
-                        listener.flush();
-                      });
-                }
-              });
+          notifyAllListeners();
           String body = util.safeGetBody(req);
           List<MetacardChanges> metacardChanges = GSON.fromJson(body, METACARD_CHANGES_LIST_TYPE);
 
@@ -526,6 +495,7 @@ public class MetacardApplication implements SparkApplication {
             throw new NotFoundException(
                 "Unable to un-subscribe from workspace, " + userid + " has no email address.");
           }
+          notifyAllListeners();
           String id = req.params(":id");
           if (StringUtils.isEmpty(req.body())) {
             subscriptions.removeEmail(id, email);
@@ -1240,8 +1210,8 @@ public class MetacardApplication implements SparkApplication {
     es.submit(
         () -> {
           try {
-            // currently 5 sec. will adjust to ~1 sec. later
-            Thread.sleep(5000);
+            // currently 3 sec. will adjust to ~1 sec. later
+            Thread.sleep(3000);
           } catch (InterruptedException e) {
             e.printStackTrace();
           }

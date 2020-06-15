@@ -27,6 +27,15 @@ var sources = []
 
 module.exports = {
   createEventSource(handlers) {
+    //Assign an ID to each source and return it (look into security)
+    const ID =
+      Math.random()
+        .toString(36)
+        .substring(2, 15) +
+      Math.random()
+        .toString(36)
+        .substring(2, 15)
+
     var EventSource = EventSourcePolyfill
     var source = new EventSource('./internal/events', {
       withCredentials: true,
@@ -45,14 +54,6 @@ module.exports = {
     source.onerror = onError
     source.onopen = onOpen
 
-    //Assign an ID to each source and return it (look into security)
-    const ID =
-      Math.random()
-        .toString(36)
-        .substring(2, 15) +
-      Math.random()
-        .toString(36)
-        .substring(2, 15)
     sources[ID] = source
     console.log('IN CREATE, ID: ', ID)
     return ID
