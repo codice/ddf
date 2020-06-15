@@ -23,7 +23,7 @@
     <name>DDF :: Platform :: Solr :: Query</name>
     <packaging>jar</packaging>
     <properties>
-        <xerces.version>2.9.1</xerces.version>
+        <xerces.version>2.12.0</xerces.version>
     </properties>
     <build>
         <plugins>
