@@ -83,7 +83,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
+            <groupId>ddf.catalog.solr</groupId>
             <artifactId>catalog-solr-defaultmetacardtagscacheplugin</artifactId>
             <version>${project.version}</version>
         </dependency>
