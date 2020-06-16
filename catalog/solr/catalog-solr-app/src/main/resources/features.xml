@@ -31,7 +31,7 @@
     <feature name="catalog-solr-cache" version="${project.version}"
              description="Catalog Cache to interface with Solr ${solr.version}">
         <bundle>mvn:ddf.catalog.solr/catalog-solr-cache/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.plugin/catalog-solr-defaultmetacardtagscacheplugin/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.solr/catalog-solr-defaultmetacardtagscacheplugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-solr-provider" version="${project.version}"
