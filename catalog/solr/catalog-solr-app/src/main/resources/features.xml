@@ -49,6 +49,38 @@
         <bundle>mvn:ddf.catalog.solr/catalog-solr-solrclient/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-solr-offline-gazetteer" version="${project.version}" description="Offline gazetteer service utilizing a geonames index stored within a unique solr core (not within the catalog)">
+        <feature>solr-core</feature>
+        <feature>catalog-core</feature>
+        <feature>guava</feature>
+        <bundle>mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}</bundle>
+
+        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/solrconfig.xml">
+            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/solrconfig
+        </configfile>
+        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/schema.xml">
+            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/schema
+        </configfile>
+        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/solr.xml">
+            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/solr
+        </configfile>
+        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/dictionary.txt">
+            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/dictionary
+        </configfile>
+        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/protwords.txt">
+            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/protwords
+        </configfile>
+        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/stopwords.txt">
+            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/stopwords
+        </configfile>
+        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/stopwords_en.txt">
+            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/stopwordsen
+        </configfile>
+        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/synonyms.txt">
+            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/synonyms
+        </configfile>
+    </feature>
+
     <feature name="catalog-solr-app" version="${project.version}"
              description="The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr ${solr.version} as a data store.\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.">
         <feature>solr-factory-api</feature>

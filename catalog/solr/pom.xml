@@ -39,6 +39,7 @@
         <module>catalog-solr-defaultmetacardtagscacheplugin</module>
         <module>catalog-solr-provider</module>
         <module>catalog-solr-solrclient</module>
+        <module>catalog-solr-offline-gazetteer</module>
         <module>catalog-solr-app</module>
     </modules>
 </project>
