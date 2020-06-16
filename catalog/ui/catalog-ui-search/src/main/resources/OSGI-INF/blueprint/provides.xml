@@ -233,7 +233,7 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
         <argument>
             <list>
                 <value>workspace</value>
-                <value>query</value>
+                <value>query-template</value>
                 <value>attribute-group</value>
             </list>
         </argument>

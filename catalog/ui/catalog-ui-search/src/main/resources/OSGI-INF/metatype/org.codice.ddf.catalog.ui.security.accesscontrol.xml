@@ -21,7 +21,7 @@
             description="The Metacard tags to determine intrigue Metacards. Catalog UI access controls will be enforced on Metacards with intrigue tags."
             type="String"
             cardinality="100"
-            default="workspace,query,attribute-group"/>
+            default="workspace,query-template,attribute-group"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.security.accesscontrol">
