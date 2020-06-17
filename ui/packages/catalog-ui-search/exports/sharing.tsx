@@ -16,4 +16,5 @@ export {
   Sharing,
   Item,
   Category,
+  handleRemoveSharedMetacard,
 } from '../src/main/webapp/react-component/sharing'

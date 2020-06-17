@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.security.accesscontrol;
 
-import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
-import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
-import static org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants.WORKSPACE_TAG;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_ADMIN_HAS_CHANGED;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_GROUPS_HAS_CHANGED;
 import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_GROUPS_READ_HAS_CHANGED;
@@ -43,6 +40,7 @@ import ddf.security.SubjectIdentity;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,8 +64,11 @@ public class AccessControlAccessPlugin implements AccessPlugin {
 
   private Supplier<String> subjectSupplier;
 
-  public AccessControlAccessPlugin(SubjectIdentity subjectIdentity) {
+  private List<String> intrigueTags;
+
+  public AccessControlAccessPlugin(SubjectIdentity subjectIdentity, List<String> intrigueTags) {
     this.subjectSupplier = () -> subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
+    this.intrigueTags = intrigueTags;
   }
 
   // Because embedding '!' in the following predicates might be easily overlooked
@@ -90,11 +91,12 @@ public class AccessControlAccessPlugin implements AccessPlugin {
                   .apply(newMetacard, Core.METACARD_OWNER)
                   .contains(subjectSupplier.get()));
 
+  public void setIntrigueTags(List<String> intrigueTags) {
+    this.intrigueTags = intrigueTags;
+  }
+
   private final Predicate<Metacard> hasIntrigueTag =
-      metacard ->
-          metacard.getTags().contains(WORKSPACE_TAG)
-              || metacard.getTags().contains(QUERY_TEMPLATE_TAG)
-              || metacard.getTags().contains(ATTRIBUTE_GROUP_TAG);
+      metacard -> !Collections.disjoint(metacard.getTags(), intrigueTags);
 
   private boolean isAccessControlUpdated(Metacard prev, Metacard updated) {
     return !isAnyObjectNull(prev, updated)

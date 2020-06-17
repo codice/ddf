@@ -18,7 +18,7 @@ Provides.xml
 Services (OSGi) that catalog-ui-search PROVIDES to DDF
 =============================================================
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <!--
     =============================================================
@@ -228,11 +228,21 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
         </bean>
     </service>
 
-    <service interface="ddf.catalog.plugin.AccessPlugin" ranking="1">
-        <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlAccessPlugin">
-            <argument ref="subjectIdentity"/>
-        </bean>
-    </service>
+    <bean id="accessControlAccessPlugin" class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlAccessPlugin">
+        <argument ref="subjectIdentity"/>
+        <argument>
+            <list>
+                <value>workspace</value>
+                <value>query-template</value>
+                <value>attribute-group</value>
+            </list>
+        </argument>
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.security.accesscontrol"
+                update-strategy="container-managed"/>
+    </bean>
+
+    <service interface="ddf.catalog.plugin.AccessPlugin" ref="accessControlAccessPlugin" ranking="1"/>
 
     <service interface="ddf.security.policy.extension.PolicyExtension">
         <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlPolicyExtension">
