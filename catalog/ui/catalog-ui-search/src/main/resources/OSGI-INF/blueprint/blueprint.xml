@@ -270,6 +270,8 @@ Implementation details
         <argument ref="queryMetacardsHandler"/>
     </bean>
 
+    <bean id="eventApplication" class="org.codice.ddf.catalog.ui.events.EventApplication"/>
+
     <!--
     =============================================================
     QUERY APPLICATION
@@ -435,6 +437,7 @@ Implementation details
                 <ref component-id="geoCoderApplication"/>
                 <ref component-id="transformerDescriptorApplication"/>
                 <ref component-id="queryMetacardApplication"/>
+                <ref component-id="eventApplication"/>
             </list>
         </property>
         <property name="requestSupplier" ref="rootReqSupplier"/>

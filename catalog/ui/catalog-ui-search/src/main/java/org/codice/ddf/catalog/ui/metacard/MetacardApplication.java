@@ -99,8 +99,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -114,6 +112,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.enumeration.ExperimentalEnumerationExtractor;
+import org.codice.ddf.catalog.ui.events.EventApplication;
 import org.codice.ddf.catalog.ui.metacard.associations.Associated;
 import org.codice.ddf.catalog.ui.metacard.edit.AttributeChange;
 import org.codice.ddf.catalog.ui.metacard.edit.MetacardChanges;
@@ -143,8 +142,6 @@ import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
 
 public class MetacardApplication implements SparkApplication {
-
-  private static final List<PrintWriter> listeners = new ArrayList<PrintWriter>();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardApplication.class);
 
@@ -257,40 +254,6 @@ public class MetacardApplication implements SparkApplication {
 
   @Override
   public void init() {
-    get(
-        "/events",
-        (req, res) -> {
-          try {
-            res.type("text/event-stream; charset=UTF-8");
-            res.header("Connection", "keep-alive");
-            res.header("Cache-Control", "no-cache");
-            res.status(200);
-            PrintWriter out = res.raw().getWriter();
-            synchronized (listeners) {
-              listeners.add(out);
-            }
-            out.write("retry: 300000\n");
-            out.write("data: " + System.currentTimeMillis() + "\n\n");
-            out.flush();
-
-            // Testing code
-            while (true) {
-              // Sending SSE heartbeat
-              out.write(": \n\n");
-              if (out.checkError()) {
-                // Subscriber error, break out of loop
-                break;
-              }
-              Thread.sleep(1000);
-            }
-            listeners.remove(out);
-            return "";
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-          return "";
-        });
-
     get("/metacardtype", (req, res) -> util.getJson(util.getMetacardTypeMap()));
 
     get(
@@ -348,7 +311,6 @@ public class MetacardApplication implements SparkApplication {
         "/metacards",
         APPLICATION_JSON,
         (req, res) -> {
-          notifyAllListeners();
           List<String> ids = GSON.fromJson(util.safeGetBody(req), LIST_STRING);
           DeleteResponse deleteResponse =
               catalogFramework.delete(
@@ -367,7 +329,7 @@ public class MetacardApplication implements SparkApplication {
         "/metacards",
         APPLICATION_JSON,
         (req, res) -> {
-          notifyAllListeners();
+          EventApplication.notifyAllListeners();
           String body = util.safeGetBody(req);
           List<MetacardChanges> metacardChanges = GSON.fromJson(body, METACARD_CHANGES_LIST_TYPE);
 
@@ -495,7 +457,7 @@ public class MetacardApplication implements SparkApplication {
             throw new NotFoundException(
                 "Unable to un-subscribe from workspace, " + userid + " has no email address.");
           }
-          notifyAllListeners();
+          EventApplication.notifyAllListeners();
           String id = req.params(":id");
           if (StringUtils.isEmpty(req.body())) {
             subscriptions.removeEmail(id, email);
@@ -1203,29 +1165,6 @@ public class MetacardApplication implements SparkApplication {
     final QueryMetacardImpl queryMetacard = new QueryMetacardImpl();
     transformer.transformIntoMetacard(queryJson, queryMetacard);
     return queryMetacard;
-  }
-
-  private void notifyAllListeners() {
-    ExecutorService es = Executors.newSingleThreadExecutor();
-    es.submit(
-        () -> {
-          try {
-            // currently 3 sec. will adjust to ~1 sec. later
-            Thread.sleep(3000);
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
-        });
-    es.submit(
-        () -> {
-          synchronized (listeners) {
-            listeners.forEach(
-                (listener) -> {
-                  listener.write("data: " + "id=1234" + "\n\n");
-                  listener.flush();
-                });
-          }
-        });
   }
 
   private static class ByteSourceWrapper extends ByteSource {

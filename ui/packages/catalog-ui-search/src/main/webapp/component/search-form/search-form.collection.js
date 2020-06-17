@@ -108,6 +108,7 @@ module.exports = Backbone.AssociatedModel.extend({
   ],
   addAllForms(self) {
     let me = self || this
+    me.get("searchForms").remove(me.get("searchForms").models)
     if (!me.isDestroyed) {
       cachedTemplates.forEach((value, index) => {
         me.addSearchForm(
