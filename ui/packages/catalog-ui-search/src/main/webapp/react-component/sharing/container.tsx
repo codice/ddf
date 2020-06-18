@@ -122,7 +122,7 @@ const handleSave = (attributes: any, id: number, type: ShareType) => {
       {
         ids: [id],
         attributes: attributes,
-        changeType: type,
+        type: 'result',
       },
     ]),
   })

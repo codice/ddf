@@ -135,6 +135,7 @@ import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.security.common.Security;
 import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
+import org.json.simple.JSONObject;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
@@ -254,6 +255,40 @@ public class MetacardApplication implements SparkApplication {
 
   @Override
   public void init() {
+    get(
+        "/events",
+        (req, res) -> {
+          try {
+            res.type("text/event-stream; charset=UTF-8");
+            res.header("Connection", "keep-alive");
+            res.header("Cache-Control", "no-cache");
+            res.status(200);
+            PrintWriter out = res.raw().getWriter();
+            synchronized (listeners) {
+              listeners.add(out);
+            }
+            //            out.write("retry: 300000\n");
+            //            out.write("data: " + System.currentTimeMillis() + "\n\n");
+            out.flush();
+
+            // Testing code
+            while (true) {
+              // Sending SSE heartbeat
+              out.write(": \n");
+              if (out.checkError()) {
+                // Subscriber error, break out of loop
+                break;
+              }
+              Thread.sleep(1000);
+            }
+            listeners.remove(out);
+            return "";
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+          return "";
+        });
+
     get("/metacardtype", (req, res) -> util.getJson(util.getMetacardTypeMap()));
 
     get(
@@ -1171,6 +1206,32 @@ public class MetacardApplication implements SparkApplication {
     final QueryMetacardImpl queryMetacard = new QueryMetacardImpl();
     transformer.transformIntoMetacard(queryJson, queryMetacard);
     return queryMetacard;
+  }
+
+  private void notifyAllListeners() {
+    ExecutorService es = Executors.newSingleThreadExecutor();
+    es.submit(
+        () -> {
+          try {
+            // currently 3 sec. will adjust to ~1 sec. later
+            Thread.sleep(3000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        });
+    es.submit(
+        () -> {
+          synchronized (listeners) {
+            listeners.forEach(
+                (listener) -> {
+                  JSONObject data = new JSONObject();
+                  data.put("data", "id=1234");
+                  data.put("type", "search");
+                  listener.write(data + "\n");
+                  listener.flush();
+                });
+          }
+        });
   }
 
   private static class ByteSourceWrapper extends ByteSource {

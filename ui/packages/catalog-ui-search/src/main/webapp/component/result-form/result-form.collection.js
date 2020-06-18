@@ -52,8 +52,7 @@ module.exports = Backbone.AssociatedModel.extend({
     })
     let self = this
 
-    const id = EventSourceUtil.createEventSource({
-      onOpen: event => console.log('SSE ON OPEN'),
+    EventSourceUtil.createEventListener('result', {
       onMessage: event => {
         console.log('RESULT FORM : SSE ON MESSAGE')
         console.log(event.data)
@@ -69,7 +68,7 @@ module.exports = Backbone.AssociatedModel.extend({
         })
       },
     })
-    console.log('IN SEARCH FORM COLLECTION. SOURCE ID: ', id)
+    // console.log('IN SEARCH FORM COLLECTION. SOURCE ID: ', id)
   },
   relations: [
     {

@@ -42,7 +42,7 @@ module.exports = Backbone.Collection.extend({
     })
     this.listenTo(this, 'add', this.tagGuestWorkspace)
     let self = this
-    EventSourceUtil.createEventSource({
+    EventSourceUtil.createEventListener('workspace', {
       onMessage: event => {
         console.log('WORKSPACE: SSE ON MESSAGE')
         console.log(event.data)
