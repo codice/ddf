@@ -329,10 +329,16 @@ public class MetacardApplication implements SparkApplication {
         "/metacards",
         APPLICATION_JSON,
         (req, res) -> {
-          EventApplication.notifyAllListeners();
+          //          EventApplication.notifyAllListeners();
           String body = util.safeGetBody(req);
-          List<MetacardChanges> metacardChanges = GSON.fromJson(body, METACARD_CHANGES_LIST_TYPE);
 
+          List<MetacardChanges> metacardChanges = GSON.fromJson(body, METACARD_CHANGES_LIST_TYPE);
+          metacardChanges.forEach(
+              change -> {
+                if (change.getChangeType() != null) {
+                  EventApplication.notifyListeners(change.getChangeType());
+                }
+              });
           UpdateResponse updateResponse = patchMetacards(metacardChanges, getSubjectIdentifier());
           if (updateResponse.getProcessingErrors() != null
               && !updateResponse.getProcessingErrors().isEmpty()) {

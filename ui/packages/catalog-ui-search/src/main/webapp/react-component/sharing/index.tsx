@@ -17,4 +17,5 @@ export {
   Item,
   Category,
   handleRemoveSharedMetacard,
+  ShareType,
 } from './container'

@@ -88,6 +88,7 @@ module.exports = Backbone.AssociatedModel.extend({
     },
   ],
   addResultForms() {
+    this.get('resultForms').remove(this.get('resultForms').models)
     if (!this.isDestroyed) {
       resultTemplates.forEach((value, index) => {
         this.addResultForm(

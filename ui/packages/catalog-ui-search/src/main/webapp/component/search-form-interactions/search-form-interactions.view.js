@@ -17,6 +17,7 @@ import React from 'react'
 import {
   Sharing,
   handleRemoveSharedMetacard,
+  ShareType,
 } from '../../react-component/sharing'
 
 const Marionette = require('marionette')
@@ -154,7 +155,7 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
         if (confirmation.get('choice')) {
           let loadingview = new LoadingView()
           const id = this.model.get('id')
-          handleRemoveSharedMetacard(id).then(res => {
+          handleRemoveSharedMetacard(id, ShareType.Form).then(res => {
             if (res.status !== 200) {
               announcement.announce(
                 {
@@ -300,6 +301,7 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
         key={this.model.id}
         id={this.model.id}
         lightbox={lightboxInstance}
+        type={ShareType.Form}
       />
     )
     this.handleClick()

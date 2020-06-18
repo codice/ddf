@@ -31,12 +31,19 @@ type Props = {
   id: number
   lightbox: any
   onUpdate?: (attributes: Attribute[]) => void
+  type: ShareType
+}
+
+export enum ShareType {
+  Workspace = 'workspace',
+  Form = 'form',
+  Default = 'default',
 }
 
 type State = {
   items: Item[]
   modified: string
-  isWorkspace: boolean
+  type: ShareType
 }
 
 export enum Category {
@@ -52,7 +59,10 @@ export type Item = {
   access: Access
 }
 
-export const handleRemoveSharedMetacard = async (id: number) => {
+export const handleRemoveSharedMetacard = async (
+  id: number,
+  type: ShareType
+) => {
   const metacard = await fetchMetacard(id)
   const res = Restrictions.from(metacard)
   const security = new Security(res)
@@ -95,7 +105,7 @@ export const handleRemoveSharedMetacard = async (id: number) => {
         .map(e => e.value),
     },
   ]
-  return handleSave(attributes, id)
+  return handleSave(attributes, id, type)
 }
 
 const fetchMetacard = async (id: number) => {
@@ -104,7 +114,7 @@ const fetchMetacard = async (id: number) => {
   return metacard.metacards[0]
 }
 
-const handleSave = (attributes: any, id: number) => {
+const handleSave = (attributes: any, id: number, type: ShareType) => {
   return fetch(`/search/catalog/internal/metacards`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -112,6 +122,7 @@ const handleSave = (attributes: any, id: number) => {
       {
         ids: [id],
         attributes: attributes,
+        changeType: type,
       },
     ]),
   })
@@ -124,7 +135,7 @@ export class Sharing extends React.Component<Props, State> {
     this.state = {
       items: [],
       modified: '',
-      isWorkspace: false,
+      type: props.type,
     }
   }
   componentDidMount = () => {
@@ -151,7 +162,9 @@ export class Sharing extends React.Component<Props, State> {
       this.setState({
         items: groups.concat(individuals),
         modified: metacard['metacard.modified'],
-        isWorkspace: data['metacard-tags'].includes('workspace'),
+        type: data['metacard-tags'].includes('workspace')
+          ? ShareType.Workspace
+          : ShareType.Default,
       })
       this.add()
     })
@@ -167,7 +180,7 @@ export class Sharing extends React.Component<Props, State> {
       e => e.value !== '' && e.category === Category.User
     )
 
-    if (this.state.isWorkspace && guest[0].access === 0) {
+    if (this.state.type === ShareType.Workspace && guest[0].access === 0) {
       usersToUnsubscribe = this.getUsersToUnsubscribe(users)
     }
     const attributes = [
@@ -252,7 +265,7 @@ export class Sharing extends React.Component<Props, State> {
   }
 
   doSave = async (attributes: any) => {
-    const res = await handleSave(attributes, this.props.id)
+    const res = await handleSave(attributes, this.props.id, this.props.type)
 
     if (res.status !== 200) {
       throw new Error()

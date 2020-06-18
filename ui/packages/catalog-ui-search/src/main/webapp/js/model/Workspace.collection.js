@@ -46,7 +46,8 @@ module.exports = Backbone.Collection.extend({
       onMessage: event => {
         console.log('WORKSPACE: SSE ON MESSAGE')
         console.log(event.data)
-        self.handleUserChange(self, true)
+        self.fetch({ remove: true, merge: false })
+        // self.handleUserChange(self, true)
       },
     })
   },

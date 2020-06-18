@@ -20,6 +20,8 @@ public class MetacardChanges {
 
   private List<AttributeChange> attributes;
 
+  private String changeType;
+
   public List<String> getIds() {
     return ids;
   }
@@ -34,5 +36,13 @@ public class MetacardChanges {
 
   public void setAttributes(List<AttributeChange> attributes) {
     this.attributes = attributes;
+  }
+
+  public String getChangeType() {
+    return changeType;
+  }
+
+  public void setChangeType(String changeType) {
+    this.changeType = changeType;
   }
 }

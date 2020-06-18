@@ -7,11 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
 
 public class EventApplication implements SparkApplication {
 
   private static final List<PrintWriter> listeners = new ArrayList<>();
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(EventApplication.class);
 
   @Override
   public void init() {
@@ -27,7 +31,7 @@ public class EventApplication implements SparkApplication {
             synchronized (listeners) {
               listeners.add(out);
             }
-            out.write("retry: 300000\n");
+            out.write("retry: 50000\n");
             out.write("data: " + System.currentTimeMillis() + "\n\n");
             out.flush();
 
@@ -44,7 +48,7 @@ public class EventApplication implements SparkApplication {
             listeners.remove(out);
             return "";
           } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Event Source configuration error");
           }
           return "";
         });
@@ -58,7 +62,7 @@ public class EventApplication implements SparkApplication {
             // currently 3 sec. will adjust to ~1 sec. later
             Thread.sleep(3000);
           } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error("Event Source notification error");
           }
         });
     es.submit(
@@ -66,6 +70,30 @@ public class EventApplication implements SparkApplication {
           synchronized (listeners) {
             listeners.forEach(
                 (listener) -> {
+                  listener.write("data: " + "id=1234" + "\n\n");
+                  listener.flush();
+                });
+          }
+        });
+  }
+
+  public static void notifyListeners(String type) {
+    ExecutorService es = Executors.newSingleThreadExecutor();
+    es.submit(
+        () -> {
+          try {
+            // currently 3 sec. will adjust to ~1 sec. later
+            Thread.sleep(3000);
+          } catch (InterruptedException e) {
+            LOGGER.error("Event Source notification error");
+          }
+        });
+    es.submit(
+        () -> {
+          synchronized (listeners) {
+            listeners.forEach(
+                (listener) -> {
+                  listener.write("event: " + type + "\n");
                   listener.write("data: " + "id=1234" + "\n\n");
                   listener.flush();
                 });
