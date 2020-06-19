@@ -29,6 +29,7 @@ import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
 import ddf.catalog.util.impl.RelevanceResultComparator;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -152,7 +153,8 @@ public class SortedFederationStrategy implements FederationStrategy {
       offset = this.maxStartIndex;
     }
 
-    final QueryResponseImpl queryResponseQueue = new QueryResponseImpl(queryRequest, null);
+    final Map<String, Serializable> properties = Collections.synchronizedMap(new HashMap<>());
+    final QueryResponseImpl queryResponseQueue = new QueryResponseImpl(queryRequest, properties);
 
     Map<Future<SourceResponse>, QueryRequest> futures = new HashMap<>();
 
@@ -203,7 +205,7 @@ public class SortedFederationStrategy implements FederationStrategy {
     // transfer them into a different Queue. That is what the
     // OffsetResultHandler does.
     if (offset > 1 && sources.size() > 1) {
-      offsetResults = new QueryResponseImpl(queryRequest, null);
+      offsetResults = new QueryResponseImpl(queryRequest, properties);
       queryExecutorService.submit(
           new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize, offset));
     }
