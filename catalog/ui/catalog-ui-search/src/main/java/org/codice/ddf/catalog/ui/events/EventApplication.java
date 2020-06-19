@@ -2,6 +2,7 @@ package org.codice.ddf.catalog.ui.events;
 
 import static spark.Spark.get;
 
+import com.github.openjson.JSONObject;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
