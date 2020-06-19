@@ -1251,7 +1251,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
         for (PointRadius search : pointRadiusSearches) {
           BoundingBox bbox = BoundingBoxUtils.createBoundingBox(search);
           List bboxCoordinate = BoundingBoxUtils.getBoundingBoxCoordinatesList(bbox);
-          List<List> coordinates = new ArrayList<>();
+          List<List<Double>> coordinates = new ArrayList<>();
           coordinates.add(bboxCoordinate);
           combinedGeometrySearches.add(ddf.geo.formatter.Polygon.buildPolygon(coordinates));
           LOGGER.trace(
