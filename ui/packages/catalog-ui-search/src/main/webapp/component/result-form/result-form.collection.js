@@ -52,7 +52,7 @@ module.exports = Backbone.AssociatedModel.extend({
     })
     let self = this
 
-    EventSourceUtil.createEventListener('result', {
+    EventSourceUtil.createEventListener('form', {
       onMessage: event => {
         console.log('RESULT FORM : SSE ON MESSAGE')
         console.log(event.data)
@@ -68,7 +68,6 @@ module.exports = Backbone.AssociatedModel.extend({
         })
       },
     })
-    // console.log('IN SEARCH FORM COLLECTION. SOURCE ID: ', id)
   },
   relations: [
     {
@@ -87,9 +86,29 @@ module.exports = Backbone.AssociatedModel.extend({
     },
   ],
   addResultForms() {
-    this.get('resultForms').remove(this.get('resultForms').models)
     if (!this.isDestroyed) {
-      resultTemplates.forEach((value, index) => {
+      const formsToDelete = this.get('resultForms')
+        .map(form => {
+          return resultTemplates.every(
+            template => template.id !== form.get('id')
+          )
+            ? form
+            : null
+        })
+        .filter(form => form !== null)
+
+      const formsToAdd = resultTemplates
+        .map(template => {
+          return this.get('resultForms').every(
+            form => form.get('id') !== template.id
+          )
+            ? template
+            : null
+        })
+        .filter(template => template !== null)
+
+      this.get('resultForms').remove(formsToDelete)
+      formsToAdd.forEach((value, index) => {
         this.addResultForm(
           new ResultForm({
             title: value.title,

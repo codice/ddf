@@ -83,7 +83,10 @@ import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -304,6 +307,7 @@ public class MetacardApplication implements SparkApplication {
                   .map(Map.Entry::getValue)
                   .map(Result::getMetacard)
                   .collect(Collectors.toList());
+
           return util.metacardsToJson(metacards);
         });
 
@@ -335,8 +339,8 @@ public class MetacardApplication implements SparkApplication {
           List<MetacardChanges> metacardChanges = GSON.fromJson(body, METACARD_CHANGES_LIST_TYPE);
           metacardChanges.forEach(
               change -> {
-                if (change.getChangeType() != null) {
-                  EventApplication.notifyListeners(change.getChangeType());
+                if (change.getType() != null) {
+                  EventApplication.notifyListeners(change.getType());
                 }
               });
           UpdateResponse updateResponse = patchMetacards(metacardChanges, getSubjectIdentifier());
@@ -345,6 +349,7 @@ public class MetacardApplication implements SparkApplication {
             res.status(500);
             return updateResponse.getProcessingErrors();
           }
+
           return body;
         });
 

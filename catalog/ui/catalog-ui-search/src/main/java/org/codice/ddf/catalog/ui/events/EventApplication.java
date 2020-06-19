@@ -2,12 +2,12 @@ package org.codice.ddf.catalog.ui.events;
 
 import static spark.Spark.get;
 
-import com.github.openjson.JSONObject;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
@@ -32,14 +32,12 @@ public class EventApplication implements SparkApplication {
             synchronized (listeners) {
               listeners.add(out);
             }
-            out.write("retry: 50000\n");
-            out.write("data: " + System.currentTimeMillis() + "\n\n");
             out.flush();
 
             // Testing code
             while (true) {
               // Sending SSE heartbeat
-              out.write(": \n\n");
+              out.write(": \n");
               if (out.checkError()) {
                 // Subscriber error, break out of loop
                 break;
@@ -71,7 +69,9 @@ public class EventApplication implements SparkApplication {
           synchronized (listeners) {
             listeners.forEach(
                 (listener) -> {
-                  listener.write("data: " + "id=1234" + "\n\n");
+                  JSONObject data = new JSONObject();
+                  data.put("data", "id=1234");
+                  listener.write(data + "\n");
                   listener.flush();
                 });
           }
