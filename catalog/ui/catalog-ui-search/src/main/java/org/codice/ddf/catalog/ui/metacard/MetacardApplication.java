@@ -468,7 +468,6 @@ public class MetacardApplication implements SparkApplication {
             throw new NotFoundException(
                 "Unable to un-subscribe from workspace, " + userid + " has no email address.");
           }
-          EventApplication.notifyAllListeners();
           String id = req.params(":id");
           if (StringUtils.isEmpty(req.body())) {
             subscriptions.removeEmail(id, email);
@@ -626,6 +625,7 @@ public class MetacardApplication implements SparkApplication {
           catalogFramework.delete(new DeleteRequestImpl(id));
 
           subscriptions.removeSubscriptions(id);
+          EventApplication.notifyListeners("workspace");
           return ImmutableMap.of("message", "Successfully deleted.");
         },
         util::getJson);

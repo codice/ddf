@@ -106,11 +106,9 @@ module.exports = Backbone.AssociatedModel.extend({
       }),
     },
   ],
-  addAllForms(self) {
-    let me = self || this
-    if (!me.isDestroyed) {
-      const formsToDelete = me
-        .get('searchForms')
+  addAllForms() {
+    if (!this.isDestroyed) {
+      const formsToDelete = this.get('searchForms')
         .map(form => {
           return cachedTemplates.every(
             template => template.id !== form.get('id')
@@ -122,19 +120,18 @@ module.exports = Backbone.AssociatedModel.extend({
 
       const formsToAdd = cachedTemplates
         .map(template => {
-          return me
-            .get('searchForms')
-            .every(form => form.get('id') !== template.id)
+          return this.get('searchForms').every(
+            form => form.get('id') !== template.id
+          )
             ? template
             : null
         })
         .filter(template => template !== null)
 
-      me.get('searchForms').remove(formsToDelete)
+      this.get('searchForms').remove(formsToDelete)
 
       formsToAdd.forEach((value, index) => {
-        me.addSearchForm(
-          me,
+        this.addSearchForm(
           new SearchForm({
             createdOn: value.created,
             id: value.id,
@@ -159,9 +156,8 @@ module.exports = Backbone.AssociatedModel.extend({
   getCollection() {
     return this.get('searchForms')
   },
-  addSearchForm(me, searchForm) {
-    let self = me || this
-    self.get('searchForms').add(searchForm, { merge: true })
+  addSearchForm(searchForm) {
+    this.get('searchForms').add(searchForm, { merge: true })
   },
   getDoneLoading() {
     return this.get('doneLoading')

@@ -47,14 +47,12 @@ module.exports = Backbone.Collection.extend({
         console.log('WORKSPACE: SSE ON MESSAGE')
         console.log(event.data)
         self.fetch({ remove: true, merge: false })
-        // self.handleUserChange(self, true)
       },
     })
   },
-  handleUserChange(self, shouldRemove) {
-    let me = self || this
-    me.fetch({
-      remove: shouldRemove || false,
+  handleUserChange() {
+    this.fetch({
+      remove: false,
     })
   },
   tagGuestWorkspace(model) {
