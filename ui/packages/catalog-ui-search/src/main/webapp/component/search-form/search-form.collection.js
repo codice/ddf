@@ -72,17 +72,21 @@ module.exports = Backbone.AssociatedModel.extend({
 
     let self = this
 
+<<<<<<< HEAD
     EventSourceUtil.createEventListener('search', {
       onMessage: event => {
         console.log('SEARCH FORM: SSE ON MESSAGE')
         console.log(event.data)
+=======
+    EventSourceUtil.createEventListener('form', {
+      onMessage: () => {
+>>>>>>> DDF-UI-248 more cleanup
         if (promiseIsResolved === true) {
           self.addAllForms(self)
           promiseIsResolved = false
           bootstrapPromise = new templatePromiseSupplier()
         }
         bootstrapPromise.then(() => {
-          console.log('bootstrap promise')
           self.addAllForms(self)
           self.doneLoading(self)
         })

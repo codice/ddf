@@ -1,6 +1,6 @@
 package org.codice.ddf.catalog.ui.events;
 
-import static spark.Spark.get;
+import static spark.Spark.post;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public class EventApplication implements SparkApplication {
 
   @Override
   public void init() {
-    get(
+    post(
         "/events",
         (req, res) -> {
           try {
@@ -50,31 +50,6 @@ public class EventApplication implements SparkApplication {
             LOGGER.error("Event Source configuration error");
           }
           return "";
-        });
-  }
-
-  public static void notifyAllListeners() {
-    ExecutorService es = Executors.newSingleThreadExecutor();
-    es.submit(
-        () -> {
-          try {
-            // currently 3 sec. will adjust to ~1 sec. later
-            Thread.sleep(3000);
-          } catch (InterruptedException e) {
-            LOGGER.error("Event Source notification error");
-          }
-        });
-    es.submit(
-        () -> {
-          synchronized (listeners) {
-            listeners.forEach(
-                (listener) -> {
-                  JSONObject data = new JSONObject();
-                  data.put("data", "id=1234");
-                  listener.write(data + "\n");
-                  listener.flush();
-                });
-          }
         });
   }
 

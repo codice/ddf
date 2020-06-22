@@ -54,17 +54,14 @@ module.exports = Backbone.AssociatedModel.extend({
 
     EventSourceUtil.createEventListener('form', {
       onMessage: event => {
-        console.log('RESULT FORM : SSE ON MESSAGE')
-        console.log(event.data)
         if (promiseIsResolved === true) {
-          self.addResultForms(self)
+          self.addResultForms()
           promiseIsResolved = false
           bootstrapPromise = new resultTemplatePromise()
         }
         bootstrapPromise.then(() => {
-          console.log('bootstrap promise')
-          self.addResultForms(self)
-          self.doneLoading(self)
+          self.addResultForms()
+          self.doneLoading()
         })
       },
     })

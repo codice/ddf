@@ -19,23 +19,7 @@ import eventTarget from './EventTarget'
 // var sources = []
 
 module.exports = {
-<<<<<<< HEAD
-  addListener(type, handler) {
-    if (sources.length != 0) {
-      sources[0].addEventListener(type, handler)
-    } else {
-      var EventSource = EventSourcePolyfill
-      var source = new EventSource('./internal/events', {
-        withCredentials: true,
-        headers: HEADERS,
-      })
-      source.addEventListener(type, handler)
-    }
-  },
-  createEventSource(handlers) {
-=======
   createEventListener(type, handlers) {
->>>>>>> hey
     //Assign an ID to each source and return it (look into security)
     // const ID =
     //   Math.random()

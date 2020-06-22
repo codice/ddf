@@ -44,8 +44,6 @@ module.exports = Backbone.Collection.extend({
     let self = this
     EventSourceUtil.createEventListener('workspace', {
       onMessage: event => {
-        console.log('WORKSPACE: SSE ON MESSAGE')
-        console.log(event.data)
         self.fetch({ remove: true, merge: false })
       },
     })

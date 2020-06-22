@@ -333,7 +333,6 @@ public class MetacardApplication implements SparkApplication {
         "/metacards",
         APPLICATION_JSON,
         (req, res) -> {
-          //          EventApplication.notifyAllListeners();
           String body = util.safeGetBody(req);
 
           List<MetacardChanges> metacardChanges = GSON.fromJson(body, METACARD_CHANGES_LIST_TYPE);

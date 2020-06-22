@@ -71,7 +71,7 @@ function makeWriteableEventStream(eventTarget) {
 const eventTarget = () => {
   var abortController = new AbortController()
   const eventTarget = new FetchEventTarget('./internal/events', {
-    method: 'GET',
+    method: 'POST',
     headers: new Headers(HEADERS),
     mode: 'same-origin',
     signal: abortController.signal,
