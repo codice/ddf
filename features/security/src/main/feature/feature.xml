@@ -413,6 +413,7 @@ org.ops4j.pax.web.default.realmname=DDF
 
     <feature name="security-filter-csrf" version="${project.version}"
              description="CSRF Filter for web applications.">
+        <feature>security-core-api</feature>
         <bundle>mvn:ddf.security.filter/security-filter-csrf/${project.version}</bundle>
     </feature>
 
