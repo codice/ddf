@@ -1,13 +1,12 @@
 package org.codice.ddf.catalog.ui.events;
 
-import static spark.Spark.post;
+import static spark.Spark.get;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
@@ -20,7 +19,7 @@ public class EventApplication implements SparkApplication {
 
   @Override
   public void init() {
-    post(
+    get(
         "/events",
         (req, res) -> {
           try {
@@ -32,12 +31,12 @@ public class EventApplication implements SparkApplication {
             synchronized (listeners) {
               listeners.add(out);
             }
+            out.write(": \n\n");
             out.flush();
 
-            // Testing code
             while (true) {
               // Sending SSE heartbeat
-              out.write(": \n");
+              out.write(": \n\n");
               if (out.checkError()) {
                 // Subscriber error, break out of loop
                 break;
@@ -70,7 +69,6 @@ public class EventApplication implements SparkApplication {
             listeners.forEach(
                 (listener) -> {
                   listener.write("event: " + type + "\n");
-                  listener.write("data: " + "id=1234" + "\n\n");
                   listener.flush();
                 });
           }

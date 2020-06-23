@@ -1,4 +1,13 @@
-import eventTarget from './EventTarget'
+var EventSource = require('eventsource')
+
+const ORIGIN_HEADER = 'https://localhost:8993/'
+const REQUEST_HEADER = 'XMLHttpRequest'
+const HEADERS = {
+  Origin: ORIGIN_HEADER,
+  'X-Requested-With': REQUEST_HEADER,
+}
+
+var sources = []
 
 // const defaultHandlers = source => {
 //   return {
@@ -30,13 +39,19 @@ module.exports = {
     //     .substring(2, 15)
 
     const { onMessage } = handlers
-
-    eventTarget.addEventListener(type, event => {
-      onMessage(event)
-    })
-
-    // sources[ID] = eventTarget
-    // console.log('IN CREATE, ID: ', ID)
-    // return ID
+    if (sources.length != 0) {
+      sources[0].addEventListener(type, event => {
+        onMessage(event)
+      })
+    } else {
+      var source = new EventSource('./internal/events', {
+        withCredentials: true,
+        headers: HEADERS,
+      })
+      source.addEventListener(type, event => {
+        onMessage(event)
+      })
+      sources.push(source)
+    }
   },
 }

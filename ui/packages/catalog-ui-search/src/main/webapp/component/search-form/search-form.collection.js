@@ -121,20 +121,9 @@ module.exports = Backbone.AssociatedModel.extend({
             : null
         })
         .filter(form => form !== null)
-
-      const formsToAdd = cachedTemplates
-        .map(template => {
-          return this.get('searchForms').every(
-            form => form.get('id') !== template.id
-          )
-            ? template
-            : null
-        })
-        .filter(template => template !== null)
-
       this.get('searchForms').remove(formsToDelete)
 
-      formsToAdd.forEach((value, index) => {
+      cachedTemplates.forEach((value, index) => {
         this.addSearchForm(
           new SearchForm({
             createdOn: value.created,
