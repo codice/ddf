@@ -41,11 +41,11 @@ module.exports = Backbone.Collection.extend({
       })
     })
     this.listenTo(this, 'add', this.tagGuestWorkspace)
-    let self = this
+    const onMessage = () => {
+      this.fetch({ remove: true, merge: false })
+    }
     EventSourceUtil.createEventListener('workspace', {
-      onMessage: event => {
-        self.fetch({ remove: true, merge: false })
-      },
+      onMessage: onMessage,
     })
   },
   handleUserChange() {
