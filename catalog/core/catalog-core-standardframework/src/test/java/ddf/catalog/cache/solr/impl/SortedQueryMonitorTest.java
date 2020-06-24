@@ -316,12 +316,12 @@ public class SortedQueryMonitorTest {
 
   @Test
   public void testSortAscendingNullFirst() throws Exception {
-    testSorting(new String[] {null, "a"}, new String[] {null, "a"}, SortOrder.ASCENDING);
+    testSorting(new String[] {null, "a"}, new String[] {"a", null}, SortOrder.ASCENDING);
   }
 
   @Test
   public void testSortAscendingNullLast() throws Exception {
-    testSorting(new String[] {"a", null}, new String[] {null, "a"}, SortOrder.ASCENDING);
+    testSorting(new String[] {"a", null}, new String[] {"a", null}, SortOrder.ASCENDING);
   }
 
   @Test
@@ -348,7 +348,7 @@ public class SortedQueryMonitorTest {
   public void testSortDateAscendingWithNull() throws Exception {
     testSorting(
         new Serializable[] {TEST_DATE_2, null},
-        new Serializable[] {null, TEST_DATE_2},
+        new Serializable[] {TEST_DATE_2, null},
         SortOrder.ASCENDING);
   }
 
@@ -381,7 +381,7 @@ public class SortedQueryMonitorTest {
     Serializable o = new TestSerial();
     testSorting(
         new Serializable[] {TEST_DATE_1, o},
-        new Serializable[] {o, TEST_DATE_1},
+        new Serializable[] {TEST_DATE_1, o},
         SortOrder.ASCENDING);
   }
 
