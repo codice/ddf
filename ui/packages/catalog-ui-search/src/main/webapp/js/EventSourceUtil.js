@@ -1,9 +1,7 @@
 var EventSource = require('eventsource')
 
-const ORIGIN_HEADER = 'https://localhost:8993/'
 const REQUEST_HEADER = 'XMLHttpRequest'
 const HEADERS = {
-  Origin: ORIGIN_HEADER,
   'X-Requested-With': REQUEST_HEADER,
 }
 
@@ -46,6 +44,7 @@ module.exports = {
     } else {
       var source = new EventSource('./internal/events', {
         withCredentials: true,
+        credentials: 'same-origin',
         headers: HEADERS,
       })
       source.addEventListener(type, event => {
