@@ -31,19 +31,13 @@ type Props = {
   id: number
   lightbox: any
   onUpdate?: (attributes: Attribute[]) => void
-  type: ShareType
-}
-
-export enum ShareType {
-  Workspace = 'workspace',
-  Form = 'form',
-  Default = 'default',
+  type: string
 }
 
 type State = {
   items: Item[]
   modified: string
-  type: ShareType
+  type: string
 }
 
 export enum Category {
@@ -59,10 +53,7 @@ export type Item = {
   access: Access
 }
 
-export const handleRemoveSharedMetacard = async (
-  id: number,
-  type: ShareType
-) => {
+export const handleRemoveSharedMetacard = async (id: number, type: string) => {
   const metacard = await fetchMetacard(id)
   const res = Restrictions.from(metacard)
   const security = new Security(res)
@@ -114,7 +105,7 @@ const fetchMetacard = async (id: number) => {
   return metacard.metacards[0]
 }
 
-const handleSave = (attributes: any, id: number, type: ShareType) => {
+const handleSave = (attributes: any, id: number, type: string) => {
   return fetch(`/search/catalog/internal/metacards`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -163,8 +154,8 @@ export class Sharing extends React.Component<Props, State> {
         items: groups.concat(individuals),
         modified: metacard['metacard.modified'],
         type: data['metacard-tags'].includes('workspace')
-          ? ShareType.Workspace
-          : ShareType.Default,
+          ? 'workspace'
+          : this.state.type,
       })
       this.add()
     })
@@ -180,7 +171,7 @@ export class Sharing extends React.Component<Props, State> {
       e => e.value !== '' && e.category === Category.User
     )
 
-    if (this.state.type === ShareType.Workspace && guest[0].access === 0) {
+    if (this.state.type === 'workspace' && guest[0].access === 0) {
       usersToUnsubscribe = this.getUsersToUnsubscribe(users)
     }
     const attributes = [

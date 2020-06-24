@@ -45,8 +45,6 @@ const templatePromiseSupplier = () =>
     contentType: 'application/json',
     success(data) {
       fixTemplates(data)
-      console.log('DATA:')
-      console.log(data)
       cachedTemplates = data
       promiseIsResolved = true
     },
@@ -72,15 +70,14 @@ module.exports = Backbone.AssociatedModel.extend({
 
     let self = this
 
-<<<<<<< HEAD
+
     EventSourceUtil.createEventListener('search', {
       onMessage: event => {
         console.log('SEARCH FORM: SSE ON MESSAGE')
         console.log(event.data)
-=======
-    EventSourceUtil.createEventListener('form', {
+
+    EventSourceUtil.createEventListener('searchform', {
       onMessage: () => {
->>>>>>> DDF-UI-248 more cleanup
         if (promiseIsResolved === true) {
           self.addAllForms(self)
           promiseIsResolved = false

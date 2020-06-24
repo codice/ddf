@@ -52,8 +52,9 @@ module.exports = Backbone.AssociatedModel.extend({
     })
     let self = this
 
-    EventSourceUtil.createEventListener('form', {
-      onMessage: event => {
+    EventSourceUtil.createEventListener('resultform', {
+      onMessage: () => {
+        console.log('on message result form')
         if (promiseIsResolved === true) {
           self.addResultForms()
           promiseIsResolved = false

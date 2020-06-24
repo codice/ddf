@@ -17,6 +17,8 @@ public class EventApplication implements SparkApplication {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EventApplication.class);
 
+  private static final String HEARTBEAT = ": \n\n";
+
   @Override
   public void init() {
     get(
@@ -31,12 +33,11 @@ public class EventApplication implements SparkApplication {
             synchronized (listeners) {
               listeners.add(out);
             }
-            out.write(": \n\n");
+            out.write(HEARTBEAT);
             out.flush();
 
             while (true) {
-              // Sending SSE heartbeat
-              out.write(": \n\n");
+              out.write(HEARTBEAT);
               if (out.checkError()) {
                 // Subscriber error, break out of loop
                 break;
@@ -44,11 +45,12 @@ public class EventApplication implements SparkApplication {
               Thread.sleep(1000);
             }
             listeners.remove(out);
-            return "";
+            return "Event Source setup successful";
           } catch (Exception e) {
             LOGGER.error("Event Source configuration error");
           }
-          return "";
+          res.status(500);
+          return "Event Source configuration error: Server error";
         });
   }
 
@@ -69,6 +71,7 @@ public class EventApplication implements SparkApplication {
             listeners.forEach(
                 (listener) -> {
                   listener.write("event: " + type + "\n");
+                  listener.write("data" + HEARTBEAT);
                   listener.flush();
                 });
           }
