@@ -54,7 +54,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
     EventSourceUtil.createEventListener('resultform', {
       onMessage: () => {
-        console.log('on message result form')
         if (promiseIsResolved === true) {
           self.addResultForms()
           promiseIsResolved = false
@@ -95,18 +94,8 @@ module.exports = Backbone.AssociatedModel.extend({
         })
         .filter(form => form !== null)
 
-      const formsToAdd = resultTemplates
-        .map(template => {
-          return this.get('resultForms').every(
-            form => form.get('id') !== template.id
-          )
-            ? template
-            : null
-        })
-        .filter(template => template !== null)
-
       this.get('resultForms').remove(formsToDelete)
-      formsToAdd.forEach((value, index) => {
+      resultTemplates.forEach((value, index) => {
         this.addResultForm(
           new ResultForm({
             title: value.title,

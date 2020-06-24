@@ -59,7 +59,6 @@ public class EventApplication implements SparkApplication {
     es.submit(
         () -> {
           try {
-            // currently 3 sec. will adjust to ~1 sec. later
             Thread.sleep(3000);
           } catch (InterruptedException e) {
             LOGGER.error("Event Source notification error");
