@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -31,7 +31,7 @@
         <module>test-itests-ddf-core</module>
     </modules>
     <properties>
-        <!-- Copied from ops4j/org.ops4j.pax.exam2/4.11.0/pom/pom.xml
+        <!-- Copied from ops4j/org.ops4j.pax.exam2/4.11.0/pom/pystemStateManagerom.xml
         Do not change these unless upgrading pax exam-->
         <pax.tinybundles.version>2.1.1</pax.tinybundles.version>
         <pax.url.version>2.4.5</pax.url.version>

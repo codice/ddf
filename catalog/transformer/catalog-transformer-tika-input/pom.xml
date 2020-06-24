@@ -27,11 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>tika-bundle</artifactId>
+            <artifactId>tika-parsers</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
@@ -45,7 +41,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
+            <version>${commons-io.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -87,29 +83,8 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>${poi.version}</version>
-        </dependency>
 
         <!-- Test Dependencies -->
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-            <scope>test</scope>
-            <!-- https://issues.apache.org/jira/browse/TIKA-2094 -->
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.poi</groupId>
-                    <artifactId>poi-ooxml-schemas</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.opengis</groupId>
             <artifactId>geoapi</artifactId>
@@ -138,6 +113,7 @@
                             ddf.catalog.data.impl.*
                         </Private-Package>
                         <Import-Package>
+                            !javax.activation,
                             !sun.security.action,
                             *
                         </Import-Package>

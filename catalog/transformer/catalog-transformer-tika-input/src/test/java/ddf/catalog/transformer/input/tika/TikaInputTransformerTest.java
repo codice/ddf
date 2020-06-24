@@ -403,7 +403,7 @@ public class TikaInputTransformerTest {
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getMetadata(),
-        containsString("<meta name=\"Model\" content=\"Canon EOS 40D\" />"));
+        containsString("<meta name=\"Exif IFD0:Model\" content=\"Canon EOS 40D\" />"));
     assertThat(metacard.getContentTypeName(), is("image/jpeg"));
     assertThat(convertDate(metacard.getCreatedDate()), is("2009-08-11 09:09:45 UTC"));
     assertThat(convertDate(metacard.getModifiedDate()), is("2009-10-02 23:02:49 UTC"));

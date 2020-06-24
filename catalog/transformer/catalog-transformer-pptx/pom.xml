@@ -37,12 +37,6 @@
             <version>${project.version}</version>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>tika-input-transformer</artifactId>
@@ -53,48 +47,26 @@
         <!--External dependencies-->
 
         <!-- poi for thumbnail creation -->
-
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.poi</artifactId>
-            <version>3.17_1</version>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
         </dependency>
-
-        <!--
-                TODO Once the hack below is resolved, switch over to using the apache poi
-                dependencies directly and stop using the servicemix as a dependency. See ticket
-                https://codice.atlassian.net/browse/DDF-1986
-
-               <dependency>
-                    <groupId>org.apache.poi</groupId>
-                    <artifactId>poi-ooxml</artifactId>
-                    <version>3.13</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.poi</groupId>
-                    <artifactId>poi</artifactId>
-                    <version>3.13</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.poi</groupId>
-                    <artifactId>poi-ooxml-schemas</artifactId>
-                    <version>3.13</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.xmlbeans</groupId>
-                    <artifactId>xmlbeans</artifactId>
-                    <version>2.6.0</version>
-                </dependency>
-                <dependency>
-                    <groupId>stax</groupId>
-                    <artifactId>stax-api</artifactId>
-                    <version>1.0.1</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.poi</groupId>
-                    <artifactId>poi-scratchpad</artifactId>
-                    <version>3.13</version>
-                </dependency> -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml-schemas</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
@@ -118,7 +90,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
+            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -155,18 +127,15 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Import-Package>
-                            !com.ibm.icu.text,
-                            !org.etsi.uri.x01903.v14.*,
                             com.google.common.io.*,
                             ddf.catalog.*,
                             javax.imageio.*,
                             javax.xml.*,
-                            org.apache.commons.logging.*
-                            org.slf4j.LoggerFactory,
+                            org.apache.poi.*,
+                            org.codice.ddf.platform.util,
                             org.slf4j.*,
                             org.w3c.dom.*,
-                            org.xml.sax.*,
-                            org.codice.ddf.platform.util
+                            org.xml.sax.*
                         </Import-Package>
                         <Embed-Dependency>
                             catalog-core-api-impl,
@@ -176,22 +145,7 @@
                             commons-logging,
                             fontbox,
                             pdfbox,
-                            pdfbox-tools,
-                            <!--
-                            TODO Big nasty hack. Should not normally embed another bundle. But we
-                            can't install this bundle separately in osgi because of a missing
-                            class in the bundle. So far, I've sent an email to
-                            users@servicemix.apache.org asking for input, and they created a
-                            ticket for it. When the next servicemix release is made, we should
-                            check to see if the error has been fixed, and update accordingly.
-
-                            This is the apache servicemix ticket:
-
-                            https://issues.apache.org/jira/browse/SM-2925
-
-                            See DDF Jira: https://codice.atlassian.net/browse/DDF-1986
-                            -->
-                            org.apache.servicemix.bundles.poi
+                            pdfbox-tools
                         </Embed-Dependency>
                         <Export-Package />
                     </instructions>
