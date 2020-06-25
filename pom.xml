@@ -281,6 +281,7 @@
         <saxon.version>9.6.0-4</saxon.version>
         <servicemix.bundles.poi.version>${poi.version}_1</servicemix.bundles.poi.version>
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
+        <servicemix.specs.version>2.9.0</servicemix.specs.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <smtp.client.version>1.7.1</smtp.client.version>
         <solr.version>8.5.0</solr.version>
