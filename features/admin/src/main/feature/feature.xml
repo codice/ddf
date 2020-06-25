@@ -48,7 +48,7 @@
 
     <feature name="platform-scheduler" version="${project.version}" description="Schedules tasks">
         <feature>apache-commons</feature>
-        <feature>security-core</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
         <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
     </feature>
@@ -75,15 +75,12 @@
     <feature name="admin-core" version="${project.version}"
              description="Administration Tools">
         <feature>sync-installer</feature>
-        <feature>security-core-api</feature>
+        <feature>security-core-services</feature>
         <feature>camel-core</feature>
-        <feature>security-expansion</feature>
         <feature>javax-validation</feature>
         <feature>cxf-jaxws</feature>
         <feature>cxf-jaxrs</feature>
         <feature>persistence-core</feature>
-        <feature>security-handler-api</feature>
-        <feature>security-core-services</feature>
 
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>

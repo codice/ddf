@@ -117,7 +117,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>org.codice.ddf.cxf.client</Export-Package>
+                        <Export-Package>
+                            org.codice.ddf.cxf.client
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

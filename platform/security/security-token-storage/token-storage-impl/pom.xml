@@ -66,6 +66,7 @@
                             gson-support,
                             security-encryption-crypter
                         </Embed-Dependency>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

@@ -76,6 +76,7 @@
                         <Embed-Dependency>
                             alerts
                         </Embed-Dependency>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

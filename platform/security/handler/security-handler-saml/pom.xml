@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
-            <artifactId>platform-session-invalidator</artifactId>
+            <artifactId>platform-session-invalidator-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

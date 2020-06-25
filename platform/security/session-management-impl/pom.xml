@@ -27,7 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>ddf.platform.security</groupId>
-            <artifactId>session-management-service</artifactId>
+            <artifactId>session-management-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -55,6 +55,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

@@ -80,9 +80,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>
-                            org.codice.ddf.security.filter.authorization
-                        </Export-Package>
+                        <Export-Package />
                         <Embed-Dependency>httpclient,httpcore</Embed-Dependency>
                     </instructions>
                 </configuration>

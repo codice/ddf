@@ -26,7 +26,7 @@
     <dependencies>
         <dependency>
             <groupId>ddf.security.servlet</groupId>
-            <artifactId>security-servlet-logout-service</artifactId>
+            <artifactId>security-servlet-logout-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -46,6 +46,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

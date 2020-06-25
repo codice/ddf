@@ -68,7 +68,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
-                            org.codice.ddf.security.interceptor;version=${project.version}
+                            org.codice.ddf.security.interceptor
                         </Export-Package>
                     </instructions>
                 </configuration>

@@ -20,7 +20,7 @@
     <reference id="sessionFactory" interface="ddf.security.http.SessionFactory" availability="optional"/>
 
     <bean id="sessionService"
-          class="org.codice.ddf.security.session.management.impl.SessionManagementServiceImpl">
+          class="org.codice.ddf.security.session.management.service.impl.SessionManagementServiceImpl">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 

@@ -71,6 +71,7 @@
                             !sun.misc.*,
                             *
                         </Import-Package>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

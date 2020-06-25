@@ -24,12 +24,12 @@
     <name>DDF Security Servlet</name>
     <packaging>pom</packaging>
     <modules>
-        <module>security-servlet-logout-service</module>
+        <module>security-servlet-logout-api</module>
         <module>security-servlet-logout</module>
         <module>security-servlet-logout-endpoint</module>
         <module>security-servlet-default-logout</module>
         <module>security-servlet-whoami</module>
         <module>security-servlet-session-expiry</module>
-        <module>security-servlet-web-socket</module>
+        <module>security-servlet-web-socket-api</module>
     </modules>
 </project>

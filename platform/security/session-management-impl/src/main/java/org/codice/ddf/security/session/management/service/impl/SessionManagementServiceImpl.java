@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.session.management.impl;
+package org.codice.ddf.security.session.management.service.impl;
 
 import ddf.security.SecurityConstants;
 import ddf.security.common.PrincipalHolder;

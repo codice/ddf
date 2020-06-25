@@ -53,7 +53,7 @@
                             *
                         </Import-Package>
                         <Export-Package>
-                            ddf.security.expansion.impl;version=${project.version}
+                            ddf.security.expansion.impl
                         </Export-Package>
                     </instructions>
                 </configuration>

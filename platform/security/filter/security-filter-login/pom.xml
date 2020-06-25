@@ -137,9 +137,7 @@
                         <Embed-Dependency>
                             httpclient,httpcore
                         </Embed-Dependency>
-                        <Export-Package>
-                            org.codice.ddf.security.filter.login
-                        </Export-Package>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

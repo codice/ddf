@@ -31,7 +31,7 @@
 
     <feature name="solr-factory-impl" version="${project.version}"
              description="Solr factory">
-        <feature>security-encryption</feature>
+        <feature>security-core-services</feature>
         <feature>common-system</feature>
         <feature>spring</feature>
         <feature>solr-factory-api</feature>
@@ -62,7 +62,7 @@
 
     <feature name="persistence-core-api" version="${project.version}"
         description="Internal Persistence Core API">
-        <feature>security-encryption</feature>
+        <feature>security-core-api</feature>
         <bundle>mvn:ddf.persistence.core/persistence-core-api/${project.version}</bundle>
     </feature>
 

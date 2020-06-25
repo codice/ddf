@@ -310,7 +310,7 @@
         <module>platform-api</module>
         <module>branding-api</module>
         <module>util</module>
-        <module>platform-session-invalidator</module>
+        <module>platform-session-invalidator-api</module>
         <module>platform-paxweb-jettyconfig</module>
         <module>platform-logging</module>
         <module>platform-configuration-service</module>

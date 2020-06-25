@@ -72,9 +72,6 @@
                         <Export-Package>
                             org.codice.ddf.security.handler.api
                         </Export-Package>
-                        <Import-Package>
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
