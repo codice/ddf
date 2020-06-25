@@ -34,7 +34,9 @@ import ddf.catalog.util.impl.Requests;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -95,8 +97,10 @@ public final class CatalogMetrics
       throws PluginExecutionException, StopProcessingException {
     final String scope = getQueryScope(input);
     QueryTypeFilterDelegate queryType = new QueryTypeFilterDelegate();
-    Set<String> sourceIds = input.getSourceIds();
-    if (sourceIds != null) {
+
+    if (input.getSourceIds() != null) {
+      Set<String> sourceIds =
+          input.getSourceIds().stream().filter(Objects::nonNull).collect(Collectors.toSet());
       try {
         filterAdapter.adapt(input.getQuery(), queryType);
         if (queryType.isComparison()) {
