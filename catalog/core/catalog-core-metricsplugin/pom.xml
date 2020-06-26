@@ -32,21 +32,12 @@
             <artifactId>platform-configuration</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.metrics.collector</groupId>
-            <artifactId>metrics-collector</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.rrd4j</groupId>
-            <artifactId>rrd4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -76,6 +67,12 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${micrometer.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -86,23 +83,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            metrics-core,
-                            metrics-collector,
-                            rrd4j;scope=compile|runtime;artifactId=!slf4j-api,
                             catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Import-Package><!-- START: imports specific for embedding rrd4j -->
-                            !com.mongodb*,
-                            !org.bson.conversions,
-                            !com.sleepycat.je,
-                            sun.misc;resolution:=optional,
-                            sun.nio.ch;resolution:=optional,
-                            com.sun.image.codec.jpeg;resolution:=optional,
-                            *
-                        </Import-Package>
-                        <Export-Package>
-                        </Export-Package>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>
@@ -149,14 +133,13 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.23</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>

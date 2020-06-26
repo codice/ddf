@@ -92,7 +92,7 @@ public class JettyAuthenticator extends LoginAuthenticator {
     if (!CollectionUtils.isEmpty(sortedSecurityFilterServiceReferences)) {
       LOGGER.debug(
           "Found {} filter(s), now filtering...", sortedSecurityFilterServiceReferences.size());
-      final ProxyFilterChain chain = new ProxyFilterChain();
+      final SecurityFilterChain chain = new SecurityFilterChain();
 
       // Insert the SecurityFilters into the chain one at a time (from lowest service ranking
       // to highest service ranking). The SecurityFilter with the highest service-ranking will

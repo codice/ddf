@@ -24,8 +24,10 @@
     <packaging>pom</packaging>
     <name>DDF Metrics</name>
     <modules>
-        <module>platform-metrics-collector</module>
-        <module>platform-metrics-reporting</module>
-        <module>platform-metrics-interceptor</module>
+        <module>micrometer-bundle</module>
+        <module>micrometer-prometheus-bundle</module>
+        <module>metrics-prometheus-endpoint</module>
+        <module>metrics-system-reporter</module>
+        <module>metrics-servlet-filter</module>
     </modules>
 </project>

@@ -24,29 +24,6 @@
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
 
-    <feature name="metrics-reporting" version="${project.version}"
-             description="Metrics reporting for the platform.">
-        <bundle>mvn:com.googlecode.json-simple/json-simple/${json-simple.version}</bundle>
-        <feature>guava</feature>
-        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/${jsr339-api.bundle.version}
-        </bundle>
-        <feature>platform-configuration</feature>
-        <feature>spring</feature>
-        <feature>cxf-jaxrs</feature>
-        <feature>poi</feature>
-        <bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
-    </feature>
-
-    <feature name="metrics-services" version="${project.version}"
-             description="cxf interceptors to capture metrics.">
-        <feature>guava</feature>
-        <feature>cxf-core</feature>
-        <feature>platform-configuration</feature>
-        <feature>spring</feature>
-        <feature>apache-commons</feature>
-        <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
-    </feature>
-
     <feature name="platform-alerts" version="${project.version}"
              description="Basic alert framework. Includes basic Decanter features and persistence-core">
         <feature>decanter-sla</feature>
@@ -164,7 +141,6 @@
         <feature>admin-modules-configuration</feature>
         <feature>admin-modules-application</feature>
         <feature>admin-modules-docs</feature>
-        <bundle>mvn:ddf.admin.modules/admin-metrics-ui/${project.version}</bundle>
         <bundle>mvn:ddf.admin.modules/admin-security-certificate-ui/${project.version}</bundle>
     </feature>
 
