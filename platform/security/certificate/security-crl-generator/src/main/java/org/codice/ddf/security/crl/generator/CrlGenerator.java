@@ -22,6 +22,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -43,7 +45,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.codice.ddf.configuration.AbsolutePathResolver;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.properties.PropertiesLoader;
@@ -89,7 +92,7 @@ public class CrlGenerator implements Runnable {
   @VisibleForTesting
   static String crlFileLocation = new AbsolutePathResolver("etc/keystores").getPath();
 
-  private final ClientFactoryFactory factory;
+  private final ClientBuilderFactory factory;
   private final EventAdmin eventAdmin;
   private final ScheduledExecutorService scheduler;
   private String crlLocationUrl;
@@ -98,7 +101,7 @@ public class CrlGenerator implements Runnable {
   private Future<?> removalHandle;
   private SecurityLogger securityLogger;
 
-  public CrlGenerator(ClientFactoryFactory factory, EventAdmin eventAdmin) {
+  public CrlGenerator(ClientBuilderFactory factory, EventAdmin eventAdmin) {
     this.factory = factory;
     this.eventAdmin = eventAdmin;
     this.scheduler =
@@ -108,7 +111,7 @@ public class CrlGenerator implements Runnable {
 
   @VisibleForTesting
   CrlGenerator(
-      ClientFactoryFactory factory, EventAdmin eventAdmin, ScheduledExecutorService scheduler) {
+      ClientBuilderFactory factory, EventAdmin eventAdmin, ScheduledExecutorService scheduler) {
     this.factory = factory;
     this.eventAdmin = eventAdmin;
     this.scheduler = scheduler;
@@ -170,8 +173,14 @@ public class CrlGenerator implements Runnable {
    * @return - the response body
    */
   private Object getRemoteCrl() {
-    SecureCxfClientFactory cxfClientFactory =
-        factory.getSecureCxfClientFactory(crlLocationUrl, WebClient.class);
+    ClientBuilder<WebClient> clientBuilder = factory.getClientBuilder();
+    SecureCxfClientFactory<WebClient> cxfClientFactory = null;
+    try {
+      cxfClientFactory =
+          clientBuilder.endpoint(new URI(crlLocationUrl)).interfaceClass(WebClient.class).build();
+    } catch (URISyntaxException e) {
+      LOGGER.debug("Endpoint is not a URI", e);
+    }
     WebClient client = cxfClientFactory.getWebClient();
     Response response = client.get();
     return response.getEntity();

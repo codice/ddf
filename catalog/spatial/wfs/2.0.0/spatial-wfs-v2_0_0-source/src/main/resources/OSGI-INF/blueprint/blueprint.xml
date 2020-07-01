@@ -31,7 +31,7 @@
                     availability="optional"/>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
-    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
 
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.WfsFederatedSource.id"
@@ -61,7 +61,7 @@
             <property name="receiveTimeout" value="60000"/>
             <property name="srsName" value=""/>
 
-            <argument ref="clientFactoryFactory"/>
+            <argument ref="clientBuilderFactory"/>
             <argument ref="encryptionService"/>
             <argument>
                 <!-- Must be instantiated inline so sources don't share the same instance -->

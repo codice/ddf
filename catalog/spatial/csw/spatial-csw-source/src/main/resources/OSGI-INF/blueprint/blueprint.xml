@@ -28,7 +28,7 @@
                filter="(shortname=URLResourceReader)"/>
     <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
-    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
     <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
     <reference id="security" interface="org.codice.ddf.security.Security" />
@@ -104,7 +104,7 @@
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
             <argument ref="encryptionService"/>
-            <argument ref="clientFactoryFactory"/>
+            <argument ref="clientBuilderFactory"/>
             <argument ref="security" />
             <argument ref="permissions"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
@@ -162,7 +162,7 @@
             <property name="securityManager" ref="securityManager"/>
             <property name="metacardTypes" ref="metacardTypes"/>
             <argument ref="encryptionService"/>
-            <argument ref="clientFactoryFactory"/>
+            <argument ref="clientBuilderFactory"/>
             <argument ref="security" />
             <argument ref="permissions"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
@@ -217,7 +217,7 @@
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
             <argument ref="encryptionService"/>
-            <argument ref="clientFactoryFactory"/>
+            <argument ref="clientBuilderFactory"/>
             <argument ref="security" />
             <argument ref="permissions"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
@@ -272,7 +272,7 @@
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
             <argument ref="encryptionService"/>
-            <argument ref="clientFactoryFactory"/>
+            <argument ref="clientBuilderFactory"/>
             <argument ref="security" />
             <argument ref="permissions"/>
             <!-- CSW Store Properties -->

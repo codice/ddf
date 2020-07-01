@@ -20,11 +20,12 @@ import org.apache.cxf.message.Message;
 import org.codice.ddf.configuration.PropertyResolver;
 
 /**
- * Factory class for creating secure CXF client factory objects that can generate WebClients
- *
- * <p><b> This code is experimental. While this interface is functional and tested, it may change or
- * be * removed in a future version of the library. </b>
+ * @deprecated Factory class for creating secure CXF client factory objects that can generate
+ *     WebClients
+ *     <p><b> This code is experimental. While this interface is functional and tested, it may
+ *     change or be * removed in a future version of the library. </b>
  */
+@Deprecated
 public interface ClientFactoryFactory {
   /**
    * Returns an initialized SecureCxfClientFactory

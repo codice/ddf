@@ -21,20 +21,21 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
 import ddf.security.audit.SecurityLogger;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.security.auth.x500.X500Principal;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -44,8 +45,12 @@ import org.bouncycastle.cert.ocsp.CertificateStatus;
 import org.bouncycastle.cert.ocsp.OCSPReq;
 import org.bouncycastle.cert.ocsp.RevokedStatus;
 import org.bouncycastle.cert.ocsp.UnknownStatus;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
+import org.codice.ddf.cxf.oauth.OAuthSecurity;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.codice.ddf.security.ocsp.checker.OcspChecker.OcspCheckerException;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -68,14 +73,14 @@ public class OcspCheckerTest {
   private static X509Certificate notTrustedCertX509;
   private static Certificate notTrustedCertBc;
 
-  private final ClientFactoryFactory factory = mock(ClientFactoryFactory.class);
+  private final ClientBuilderFactory factory = mock(ClientBuilderFactory.class);
   private final EventAdmin eventAdmin = mock(EventAdmin.class);
 
   // these should be populated per method; used when mocking the client factory
-  private final List<String> goodEndpoints = new ArrayList<>();
-  private final List<String> revokedEndpoints = new ArrayList<>();
-  private final List<String> unknownEndpoints = new ArrayList<>();
-  private final List<String> brokenEndpoints = new ArrayList<>();
+  private final List<URI> goodEndpoints = new ArrayList<>();
+  private final List<URI> revokedEndpoints = new ArrayList<>();
+  private final List<URI> unknownEndpoints = new ArrayList<>();
+  private final List<URI> brokenEndpoints = new ArrayList<>();
 
   // mocks
   @Mock private Response goodResponse;
@@ -92,10 +97,10 @@ public class OcspCheckerTest {
   @Mock private SecureCxfClientFactory<WebClient> brokenSecureCxfClientFactory;
 
   // mockito argument matchers for list matching
-  private final ArgumentMatcher<String> inGoodList = goodEndpoints::contains;
-  private final ArgumentMatcher<String> inRevokedList = revokedEndpoints::contains;
-  private final ArgumentMatcher<String> inUnknownList = unknownEndpoints::contains;
-  private final ArgumentMatcher<String> inBrokenList = brokenEndpoints::contains;
+  private final ArgumentMatcher<URI> inGoodList = goodEndpoints::contains;
+  private final ArgumentMatcher<URI> inRevokedList = revokedEndpoints::contains;
+  private final ArgumentMatcher<URI> inUnknownList = unknownEndpoints::contains;
+  private final ArgumentMatcher<URI> inBrokenList = brokenEndpoints::contains;
 
   @BeforeClass
   public static void setupClass() throws Exception {
@@ -142,6 +147,29 @@ public class OcspCheckerTest {
     when(unknownResponse.getEntity())
         .then(getResourceStreamAsAnswer("unknownOcspResponse.streamData"));
     when(brokenResponse.getEntity()).thenReturn(null);
+
+    ClientBuilder<WebClient> clientBuilder =
+        new ClientBuilderImpl<WebClient>(
+            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+          @Override
+          public SecureCxfClientFactory<WebClient> build() {
+            if (inGoodList.matches(endpointUrl)) {
+              return goodSecureCxfClientFactory;
+            }
+            if (inRevokedList.matches(endpointUrl)) {
+              return revokedSecureCxfClientFactory;
+            }
+            if (inUnknownList.matches(endpointUrl)) {
+              return unknownSecureCxfClientFactory;
+            }
+            if (inBrokenList.matches(endpointUrl)) {
+              return brokenSecureCxfClientFactory;
+            }
+            return null;
+          }
+        };
+
+    when(factory.<WebClient>getClientBuilder()).thenReturn(clientBuilder);
   }
 
   @AfterClass
@@ -192,18 +220,18 @@ public class OcspCheckerTest {
 
   @Test
   public void testSendOcspRequestsGoodStatus() throws Exception {
-    goodEndpoints.add("https://goodurl:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
-    List<String> ocspServerUrls = new ArrayList<>(goodEndpoints);
+    goodEndpoints.add(new URI("https://goodurl:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
+    List<URI> ocspServerUrls = new ArrayList<>(goodEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    Map<String, CertificateStatus> ocspStatuses =
+    Map<URI, CertificateStatus> ocspStatuses =
         ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
     assertStatuses(ocspStatuses);
@@ -211,18 +239,18 @@ public class OcspCheckerTest {
 
   @Test
   public void testSendOcspRequestsRevokedStatus() throws Exception {
-    revokedEndpoints.add("https://revokedurl:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
-    List<String> ocspServerUrls = new ArrayList<>(revokedEndpoints);
+    revokedEndpoints.add(new URI("https://revokedurl:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
+    List<URI> ocspServerUrls = new ArrayList<>(revokedEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    Map<String, CertificateStatus> ocspStatuses =
+    Map<URI, CertificateStatus> ocspStatuses =
         ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
     assertStatuses(ocspStatuses);
@@ -230,18 +258,18 @@ public class OcspCheckerTest {
 
   @Test
   public void testSendOcspRequestsUnknownStatus() throws Exception {
-    unknownEndpoints.add("https://unknownurl:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
-    List<String> ocspServerUrls = new ArrayList<>(unknownEndpoints);
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
+    List<URI> ocspServerUrls = new ArrayList<>(unknownEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    Map<String, CertificateStatus> ocspStatuses =
+    Map<URI, CertificateStatus> ocspStatuses =
         ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
     assertStatuses(ocspStatuses);
@@ -249,27 +277,27 @@ public class OcspCheckerTest {
 
   @Test
   public void testSendOcspRequestsAllStatuses() throws Exception {
-    unknownEndpoints.add("https://unknownurl:8993");
-    unknownEndpoints.add("https://unknownurl2:8993");
-    goodEndpoints.add("https://goodurl:8993");
-    goodEndpoints.add("https://goodurl2:8993");
-    revokedEndpoints.add("https://revokedurl:8993");
-    revokedEndpoints.add("https://revokedurl2:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    unknownEndpoints.add(new URI("https://unknownurl2:8993"));
+    goodEndpoints.add(new URI("https://goodurl:8993"));
+    goodEndpoints.add(new URI("https://goodurl2:8993"));
+    revokedEndpoints.add(new URI("https://revokedurl:8993"));
+    revokedEndpoints.add(new URI("https://revokedurl2:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    List<String> ocspServerUrls = new ArrayList<>();
+    List<URI> ocspServerUrls = new ArrayList<>();
     ocspServerUrls.addAll(unknownEndpoints);
     ocspServerUrls.addAll(revokedEndpoints);
     ocspServerUrls.addAll(goodEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    Map<String, CertificateStatus> ocspStatuses =
+    Map<URI, CertificateStatus> ocspStatuses =
         ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
     assertStatuses(ocspStatuses);
@@ -277,20 +305,20 @@ public class OcspCheckerTest {
 
   @Test
   public void testSendOcspRequestsGoodEmbeddedUrl() throws Exception {
-    unknownEndpoints.add("https://unknownurl:8993");
-    unknownEndpoints.add("https://unknownurl2:8993");
-    goodEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    unknownEndpoints.add(new URI("https://unknownurl2:8993"));
+    goodEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    List<String> ocspServerUrls = new ArrayList<>(unknownEndpoints);
+    List<URI> ocspServerUrls = new ArrayList<>(unknownEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    Map<String, CertificateStatus> ocspStatuses =
+    Map<URI, CertificateStatus> ocspStatuses =
         ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
     assertStatuses(ocspStatuses);
@@ -298,20 +326,20 @@ public class OcspCheckerTest {
 
   @Test
   public void testSendOcspRequestsRevokedEmbeddedUrl() throws Exception {
-    unknownEndpoints.add("https://unknownurl:8993");
-    unknownEndpoints.add("https://unknownurl2:8993");
-    revokedEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    unknownEndpoints.add(new URI("https://unknownurl2:8993"));
+    revokedEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    List<String> ocspServerUrls = new ArrayList<>(unknownEndpoints);
+    List<URI> ocspServerUrls = new ArrayList<>(unknownEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    Map<String, CertificateStatus> ocspStatuses =
+    Map<URI, CertificateStatus> ocspStatuses =
         ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
     assertStatuses(ocspStatuses);
@@ -319,21 +347,21 @@ public class OcspCheckerTest {
 
   @Test
   public void testSendOcspRequestsUnknownEmbeddedUrl() throws Exception {
-    unknownEndpoints.add("https://unknownurl:8993");
-    unknownEndpoints.add("https://unknownurl2:8993");
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    unknownEndpoints.add(new URI("https://unknownurl2:8993"));
 
-    List<String> ocspServerUrls = new ArrayList<>(unknownEndpoints);
+    List<URI> ocspServerUrls = new ArrayList<>(unknownEndpoints);
 
-    unknownEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+    unknownEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    Map<String, CertificateStatus> ocspStatuses =
+    Map<URI, CertificateStatus> ocspStatuses =
         ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
     assertStatuses(ocspStatuses);
@@ -341,15 +369,14 @@ public class OcspCheckerTest {
 
   @Test
   public void testSendOcspRequestNoServerUrls() throws Exception {
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    Map<String, CertificateStatus> ocspStatuses =
+    Map<URI, CertificateStatus> ocspStatuses =
         ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
     assertStatuses(ocspStatuses);
@@ -357,40 +384,40 @@ public class OcspCheckerTest {
 
   @Test
   public void testSendOcspRequestBrokenServerUrls() throws Exception {
-    brokenEndpoints.add("https://brokenurl:8993");
-    brokenEndpoints.add("https://brokenurl2:8993");
-    brokenEndpoints.add("https://brokenurl3:8993");
+    brokenEndpoints.add(new URI("https://brokenurl:8993"));
+    brokenEndpoints.add(new URI("https://brokenurl2:8993"));
+    brokenEndpoints.add(new URI("https://brokenurl3:8993"));
 
-    List<String> ocspServerUrls = new ArrayList<>(brokenEndpoints);
+    List<URI> ocspServerUrls = new ArrayList<>(brokenEndpoints);
 
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    Map<String, CertificateStatus> ocspStatuses =
+    Map<URI, CertificateStatus> ocspStatuses =
         ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
     assertStatuses(ocspStatuses);
   }
 
   @Test
-  public void testOcspCheckGoodStatus() {
-    goodEndpoints.add("https://goodurl:8993");
-    goodEndpoints.add("https://goodurl2:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+  public void testOcspCheckGoodStatus() throws URISyntaxException {
+    goodEndpoints.add(new URI("https://goodurl:8993"));
+    goodEndpoints.add(new URI("https://goodurl2:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    List<String> ocspServerUrls = new ArrayList<>(goodEndpoints);
+    List<URI> ocspServerUrls = new ArrayList<>(goodEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     X509Certificate[] certs = new X509Certificate[] {trustedCertX509};
 
@@ -398,18 +425,18 @@ public class OcspCheckerTest {
   }
 
   @Test
-  public void testOcspCheckRevokedStatus() {
-    revokedEndpoints.add("https://revokedurl:8993");
-    revokedEndpoints.add("https://revokedurl2:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+  public void testOcspCheckRevokedStatus() throws URISyntaxException {
+    revokedEndpoints.add(new URI("https://revokedurl:8993"));
+    revokedEndpoints.add(new URI("https://revokedurl2:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    List<String> ocspServerUrls = new ArrayList<>(revokedEndpoints);
+    List<URI> ocspServerUrls = new ArrayList<>(revokedEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     X509Certificate[] certs = new X509Certificate[] {trustedCertX509};
 
@@ -417,18 +444,18 @@ public class OcspCheckerTest {
   }
 
   @Test
-  public void testOcspCheckUnknownStatus() {
-    unknownEndpoints.add("https://unknownurl:8993");
-    unknownEndpoints.add("https://unknownurl2:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+  public void testOcspCheckUnknownStatus() throws URISyntaxException {
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    unknownEndpoints.add(new URI("https://unknownurl2:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    List<String> ocspServerUrls = new ArrayList<>(unknownEndpoints);
+    List<URI> ocspServerUrls = new ArrayList<>(unknownEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     X509Certificate[] certs = new X509Certificate[] {trustedCertX509};
 
@@ -436,25 +463,25 @@ public class OcspCheckerTest {
   }
 
   @Test
-  public void testOcspCheckAllStatuses() {
-    unknownEndpoints.add("https://unknownurl:8993");
-    unknownEndpoints.add("https://unknownurl2:8993");
-    goodEndpoints.add("https://goodurl:8993");
-    goodEndpoints.add("https://goodurl2:8993");
-    revokedEndpoints.add("https://revokedurl:8993");
-    revokedEndpoints.add("https://revokedurl2:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+  public void testOcspCheckAllStatuses() throws URISyntaxException {
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    unknownEndpoints.add(new URI("https://unknownurl2:8993"));
+    goodEndpoints.add(new URI("https://goodurl:8993"));
+    goodEndpoints.add(new URI("https://goodurl2:8993"));
+    revokedEndpoints.add(new URI("https://revokedurl:8993"));
+    revokedEndpoints.add(new URI("https://revokedurl2:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    List<String> ocspServerUrls = new ArrayList<>();
+    List<URI> ocspServerUrls = new ArrayList<>();
     ocspServerUrls.addAll(unknownEndpoints);
     ocspServerUrls.addAll(revokedEndpoints);
     ocspServerUrls.addAll(goodEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     X509Certificate[] certs = new X509Certificate[] {trustedCertX509};
 
@@ -462,23 +489,23 @@ public class OcspCheckerTest {
   }
 
   @Test
-  public void testOcspRevokedEmbeddedUrl() {
-    unknownEndpoints.add("https://unknownurl:8993");
-    unknownEndpoints.add("https://unknownurl2:8993");
-    goodEndpoints.add("https://goodurl:8993");
-    goodEndpoints.add("https://goodurl2:8993");
+  public void testOcspRevokedEmbeddedUrl() throws URISyntaxException {
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    unknownEndpoints.add(new URI("https://unknownurl2:8993"));
+    goodEndpoints.add(new URI("https://goodurl:8993"));
+    goodEndpoints.add(new URI("https://goodurl2:8993"));
 
-    List<String> ocspServerUrls = new ArrayList<>();
+    List<URI> ocspServerUrls = new ArrayList<>();
     ocspServerUrls.addAll(unknownEndpoints);
     ocspServerUrls.addAll(goodEndpoints);
 
-    revokedEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+    revokedEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     X509Certificate[] certs = new X509Certificate[] {trustedCertX509};
 
@@ -486,25 +513,25 @@ public class OcspCheckerTest {
   }
 
   @Test
-  public void testOcspCheckUnknownCert() {
-    unknownEndpoints.add("https://unknownurl:8993");
-    unknownEndpoints.add("https://unknownurl2:8993");
-    goodEndpoints.add("https://goodurl:8993");
-    goodEndpoints.add("https://goodurl2:8993");
-    revokedEndpoints.add("https://revokedurl:8993");
-    revokedEndpoints.add("https://revokedurl2:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+  public void testOcspCheckUnknownCert() throws URISyntaxException {
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    unknownEndpoints.add(new URI("https://unknownurl2:8993"));
+    goodEndpoints.add(new URI("https://goodurl:8993"));
+    goodEndpoints.add(new URI("https://goodurl2:8993"));
+    revokedEndpoints.add(new URI("https://revokedurl:8993"));
+    revokedEndpoints.add(new URI("https://revokedurl2:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    List<String> ocspServerUrls = new ArrayList<>();
+    List<URI> ocspServerUrls = new ArrayList<>();
     ocspServerUrls.addAll(unknownEndpoints);
     ocspServerUrls.addAll(revokedEndpoints);
     ocspServerUrls.addAll(goodEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     X509Certificate[] certs = new X509Certificate[] {notTrustedCertX509};
 
@@ -512,22 +539,22 @@ public class OcspCheckerTest {
   }
 
   @Test
-  public void testOcspCheckMultiCertGoodStatus() {
-    unknownEndpoints.add("https://unknownurl:8993");
-    unknownEndpoints.add("https://unknownurl2:8993");
-    goodEndpoints.add("https://goodurl:8993");
-    goodEndpoints.add("https://goodurl2:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+  public void testOcspCheckMultiCertGoodStatus() throws URISyntaxException {
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    unknownEndpoints.add(new URI("https://unknownurl2:8993"));
+    goodEndpoints.add(new URI("https://goodurl:8993"));
+    goodEndpoints.add(new URI("https://goodurl2:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    List<String> ocspServerUrls = new ArrayList<>();
+    List<URI> ocspServerUrls = new ArrayList<>();
     ocspServerUrls.addAll(unknownEndpoints);
     ocspServerUrls.addAll(goodEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     X509Certificate[] certs = new X509Certificate[] {notTrustedCertX509, trustedCertX509};
 
@@ -535,25 +562,25 @@ public class OcspCheckerTest {
   }
 
   @Test
-  public void testOcspCheckMultiCertAllStatuses() {
-    unknownEndpoints.add("https://unknownurl:8993");
-    unknownEndpoints.add("https://unknownurl2:8993");
-    goodEndpoints.add("https://goodurl:8993");
-    goodEndpoints.add("https://goodurl2:8993");
-    revokedEndpoints.add("https://revokedurl:8993");
-    revokedEndpoints.add("https://revokedurl2:8993");
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+  public void testOcspCheckMultiCertAllStatuses() throws URISyntaxException {
+    unknownEndpoints.add(new URI("https://unknownurl:8993"));
+    unknownEndpoints.add(new URI("https://unknownurl2:8993"));
+    goodEndpoints.add(new URI("https://goodurl:8993"));
+    goodEndpoints.add(new URI("https://goodurl2:8993"));
+    revokedEndpoints.add(new URI("https://revokedurl:8993"));
+    revokedEndpoints.add(new URI("https://revokedurl2:8993"));
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    List<String> ocspServerUrls = new ArrayList<>();
+    List<URI> ocspServerUrls = new ArrayList<>();
     ocspServerUrls.addAll(unknownEndpoints);
     ocspServerUrls.addAll(goodEndpoints);
     ocspServerUrls.addAll(revokedEndpoints);
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     X509Certificate[] certs = new X509Certificate[] {notTrustedCertX509, trustedCertX509};
 
@@ -561,11 +588,10 @@ public class OcspCheckerTest {
   }
 
   @Test
-  public void testOcspCheckNoServerUrls() {
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+  public void testOcspCheckNoServerUrls() throws URISyntaxException {
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
 
@@ -575,20 +601,20 @@ public class OcspCheckerTest {
   }
 
   @Test
-  public void testOcspCheckBrokenServerUrls() {
-    brokenEndpoints.add("https://brokenurl:8993");
-    brokenEndpoints.add("https://brokenurl2:8993");
-    brokenEndpoints.add("https://brokenurl3:8993");
+  public void testOcspCheckBrokenServerUrls() throws URISyntaxException {
+    brokenEndpoints.add(new URI("https://brokenurl:8993"));
+    brokenEndpoints.add(new URI("https://brokenurl2:8993"));
+    brokenEndpoints.add(new URI("https://brokenurl3:8993"));
 
-    List<String> ocspServerUrls = new ArrayList<>(brokenEndpoints);
+    List<URI> ocspServerUrls = new ArrayList<>(brokenEndpoints);
 
-    brokenEndpoints.add(EMBEDDED_OCSP_SERVER_URL);
+    brokenEndpoints.add(new URI(EMBEDDED_OCSP_SERVER_URL));
 
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrls(ocspServerUrls);
+    ocspChecker.setOcspServerUrls(
+        ocspServerUrls.stream().map(URI::toString).collect(Collectors.toList()));
 
     X509Certificate[] certs = new X509Certificate[] {trustedCertX509};
 
@@ -597,8 +623,7 @@ public class OcspCheckerTest {
 
   @Test
   public void testOcspCheckDisabled() throws Exception {
-    ClientFactoryFactory clientFactoryFactory = mockClientFactory();
-    OcspChecker ocspChecker = new OcspChecker(clientFactoryFactory, eventAdmin);
+    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     ocspChecker.setSecurityLogger(mock(SecurityLogger.class));
     ocspChecker.setOcspEnabled(false);
 
@@ -619,23 +644,6 @@ public class OcspCheckerTest {
     return Certificate.getInstance(cert.getEncoded());
   }
 
-  private ClientFactoryFactory mockClientFactory() {
-    ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
-
-    when(clientFactoryFactory.getSecureCxfClientFactory(argThat(inGoodList), eq(WebClient.class)))
-        .thenReturn(goodSecureCxfClientFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            argThat(inRevokedList), eq(WebClient.class)))
-        .thenReturn(revokedSecureCxfClientFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            argThat(inUnknownList), eq(WebClient.class)))
-        .thenReturn(unknownSecureCxfClientFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(argThat(inBrokenList), eq(WebClient.class)))
-        .thenReturn(brokenSecureCxfClientFactory);
-
-    return clientFactoryFactory;
-  }
-
   private Answer<InputStream> getResourceStreamAsAnswer(String filename) {
     return new Answer<InputStream>() {
       @Override
@@ -645,7 +653,7 @@ public class OcspCheckerTest {
     };
   }
 
-  private void assertStatuses(Map<String, CertificateStatus> ocspStatuses) {
+  private void assertStatuses(Map<URI, CertificateStatus> ocspStatuses) {
     goodEndpoints.forEach(endpoint -> assertNull(ocspStatuses.get(endpoint)));
     revokedEndpoints.forEach(
         endpoint -> assertThat(ocspStatuses.get(endpoint), instanceOf(RevokedStatus.class)));

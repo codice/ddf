@@ -29,6 +29,7 @@ import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -46,7 +47,8 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -109,7 +111,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
       TransformerManager transformerManager,
       GetRecordsType request,
       QueryRequest query,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       Security security,
       SecurityManager securityManager)
       throws CswException {
@@ -146,10 +148,18 @@ public class SendEvent implements DeliveryMethod, Pingable {
     this.resultType = request.getResultType() == null ? ResultType.HITS : request.getResultType();
 
     List providers = ImmutableList.of(new CswRecordCollectionMessageBodyWriter(transformerManager));
-
-    cxfClientFactory =
-        clientFactoryFactory.getSecureCxfClientFactory(
-            callbackUrl.toString(), CswSubscribe.class, providers, null, false, false);
+    ClientBuilder<CswSubscribe> clientBuilder = clientBuilderFactory.getClientBuilder();
+    try {
+      cxfClientFactory =
+          clientBuilder
+              .endpoint(callbackUrl.toURI())
+              .interfaceClass(CswSubscribe.class)
+              .entityProviders(providers)
+              .useSamlEcp(true)
+              .build();
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException(e);
+    }
     cxfClientFactory.addOutInterceptors(new OutgoingSubjectRetrievalInterceptor(securityManager));
     try {
       InetAddress address = InetAddress.getByName(callbackUrl.getHost());

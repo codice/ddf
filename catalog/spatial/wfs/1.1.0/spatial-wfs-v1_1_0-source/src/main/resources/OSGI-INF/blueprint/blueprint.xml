@@ -36,7 +36,7 @@
 
     <reference id="featureTransformationService" interface="org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformationService"/>
 
-    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
 
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.WfsFederatedSource.id"
@@ -44,7 +44,7 @@
             interface="ddf.catalog.source.FederatedSource">
         <cm:managed-component class="org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.WfsSource"
                               init-method="init" destroy-method="destroy">
-            <argument ref="clientFactoryFactory"/>
+            <argument ref="clientBuilderFactory"/>
             <argument ref="encryptionService"/>
             <argument>
                 <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor">

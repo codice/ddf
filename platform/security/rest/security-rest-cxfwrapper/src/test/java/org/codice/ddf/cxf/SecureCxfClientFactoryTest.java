@@ -28,6 +28,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.UUID;
 import javax.net.ssl.X509KeyManager;
@@ -49,8 +52,8 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
 import org.codice.ddf.cxf.client.impl.ClientKeyInfo;
-import org.codice.ddf.cxf.client.impl.SecureCxfClientFactoryImpl;
 import org.codice.ddf.cxf.client.impl.SecureCxfClientFactoryImpl.AliasSelectorKeyManager;
 import org.codice.ddf.cxf.paos.PaosInInterceptor;
 import org.codice.ddf.cxf.paos.PaosOutInterceptor;
@@ -63,9 +66,9 @@ import org.w3c.dom.Element;
 
 public class SecureCxfClientFactoryTest {
 
-  private static final String INSECURE_ENDPOINT = "http://some.url.com/query";
+  private static URI insecureEndpoint;
 
-  private static final String SECURE_ENDPOINT = "https://some.url.com/query";
+  private static URI secureEndpoint;
 
   File systemKeystoreFile = null;
 
@@ -80,7 +83,9 @@ public class SecureCxfClientFactoryTest {
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
-  public void setup() throws IOException {
+  public void setup() throws IOException, URISyntaxException {
+    insecureEndpoint = new URI("http://some.url.com/query");
+    secureEndpoint = new URI("https://some.url.com/query");
     systemKeystoreFile = temporaryFolder.newFile("serverKeystore.jks");
     FileOutputStream systemKeyOutStream = new FileOutputStream(systemKeystoreFile);
     InputStream systemKeyStream =
@@ -107,17 +112,12 @@ public class SecureCxfClientFactoryTest {
     // negative tests
     SecureCxfClientFactory<IDummy> secureCxfClientFactory;
     boolean invalid = false;
-    try { // test empty string for url
-      secureCxfClientFactory =
-          new SecureCxfClientFactoryImpl<>("", IDummy.class, samlSecurity, securityLogger);
-    } catch (IllegalArgumentException e) {
-      invalid = true;
-    }
-    assertThat(invalid, is(true));
-    invalid = false;
     try { // null for url
       secureCxfClientFactory =
-          new SecureCxfClientFactoryImpl<>(null, IDummy.class, samlSecurity, securityLogger);
+          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+              .endpoint(null)
+              .interfaceClass(IDummy.class)
+              .build();
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -125,7 +125,10 @@ public class SecureCxfClientFactoryTest {
     invalid = false;
     try { // null for url and class
       secureCxfClientFactory =
-          new SecureCxfClientFactoryImpl<>(null, null, samlSecurity, securityLogger);
+          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+              .endpoint(null)
+              .interfaceClass(null)
+              .build();
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -133,7 +136,10 @@ public class SecureCxfClientFactoryTest {
     invalid = false;
     try { // null for class
       secureCxfClientFactory =
-          new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, null, samlSecurity, securityLogger);
+          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+              .endpoint(insecureEndpoint)
+              .interfaceClass(null)
+              .build();
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -141,19 +147,18 @@ public class SecureCxfClientFactoryTest {
     invalid = false;
     try {
       secureCxfClientFactory =
-          new SecureCxfClientFactoryImpl<>(
-              null,
-              null,
-              null,
-              null,
-              false,
-              false,
-              0,
-              0,
-              new ClientKeyInfo("alias", "keystore"),
-              "TLSv1.1",
-              samlSecurity,
-              securityLogger);
+          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+              .endpoint(null)
+              .interfaceClass(null)
+              .entityProviders(null)
+              .interceptor(null)
+              .disableCnCheck(false)
+              .allowRedirects(false)
+              .connectionTimeout(0)
+              .receiveTimeout(0)
+              .clientKeyInfo("alias", Paths.get("file:keystore"))
+              .sslProtocol("TLSv1.1")
+              .build();
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -163,19 +168,24 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testInsecureWebClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(
-            INSECURE_ENDPOINT, IDummy.class, samlSecurity, securityLogger);
+        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+            .endpoint(insecureEndpoint)
+            .interfaceClass(IDummy.class)
+            .build();
     WebClient client = secureCxfClientFactory.getWebClient();
 
     assertThat(hasEcpEnabled(client), is(false));
-    assertThat(client.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT), is(true));
+    assertThat(client.getBaseURI().equals(insecureEndpoint), is(true));
   }
 
   @Test
   public void testSecureClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(
-            SECURE_ENDPOINT, IDummy.class, samlSecurity, securityLogger);
+        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+            .endpoint(secureEndpoint)
+            .interfaceClass(IDummy.class)
+            .useSamlEcp(true)
+            .build();
     IDummy client = secureCxfClientFactory.getClient();
 
     assertThat(hasEcpEnabled(client), is(true));
@@ -184,19 +194,28 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testSecureWebClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(
-            SECURE_ENDPOINT, IDummy.class, samlSecurity, securityLogger);
+        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+            .endpoint(secureEndpoint)
+            .interfaceClass(IDummy.class)
+            .useSamlEcp(true)
+            .build();
     WebClient client = secureCxfClientFactory.getWebClient();
 
     assertThat(hasEcpEnabled(client), is(true));
-    assertThat(client.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT), is(true));
+    assertThat(client.getBaseURI().equals(secureEndpoint), is(true));
   }
 
   @Test
   public void validateConduit() {
     IDummy clientForSubject =
-        new SecureCxfClientFactoryImpl<>(
-                SECURE_ENDPOINT, IDummy.class, null, null, true, true, samlSecurity, securityLogger)
+        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+            .endpoint(secureEndpoint)
+            .interfaceClass(IDummy.class)
+            .entityProviders(null)
+            .interceptor(null)
+            .disableCnCheck(true)
+            .allowRedirects(true)
+            .build()
             .getClient();
     HTTPConduit httpConduit =
         WebClient.getConfig(WebClient.client(clientForSubject)).getHttpConduit();
@@ -206,31 +225,30 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testHttpsClientWithSystemProperty() {
     PropertyResolver mockPropertyResolver = mock(PropertyResolver.class);
-    when(mockPropertyResolver.getResolvedString()).thenReturn(SECURE_ENDPOINT);
+    when(mockPropertyResolver.getResolvedString()).thenReturn(secureEndpoint.toString());
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(
-            SECURE_ENDPOINT,
-            IDummy.class,
-            null,
-            null,
-            false,
-            false,
-            mockPropertyResolver,
-            samlSecurity,
-            securityLogger);
+        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+            .endpoint(secureEndpoint)
+            .interfaceClass(IDummy.class)
+            .entityProviders(null)
+            .interceptor(null)
+            .disableCnCheck(false)
+            .allowRedirects(false)
+            .propertyResolver(mockPropertyResolver)
+            .build();
     Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
-    assertThat(unsecuredClient.getBaseURI().toASCIIString(), is(SECURE_ENDPOINT));
+    assertThat(unsecuredClient.getBaseURI(), is(secureEndpoint));
     verify(mockPropertyResolver).getResolvedString();
   }
 
   @Test
   public void testKeyInfo() {
     String alias = "alias";
-    String keystorePath = "/path/to/keystore";
+    String keystorePath = Paths.get("/path/to/keystore").toString();
 
-    ClientKeyInfo keyInfo = new ClientKeyInfo(alias, keystorePath);
+    ClientKeyInfo keyInfo = new ClientKeyInfo(alias, Paths.get(keystorePath));
     assertThat(keyInfo.getAlias(), is(alias));
-    assertThat(keyInfo.getKeystorePath(), is(keystorePath));
+    assertThat(keyInfo.getKeystorePath().toString(), is(keystorePath));
   }
 
   @Test

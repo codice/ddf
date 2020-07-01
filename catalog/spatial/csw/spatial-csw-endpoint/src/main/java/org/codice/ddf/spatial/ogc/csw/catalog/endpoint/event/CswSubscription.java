@@ -18,7 +18,7 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.security.service.SecurityManager;
 import java.util.Set;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
@@ -42,7 +42,7 @@ public class CswSubscription extends SubscriptionImpl {
       TransformerManager mimeTypeTransformerManager,
       GetRecordsType request,
       QueryRequest query,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       Security security,
       SecurityManager securityManager)
       throws CswException {
@@ -53,7 +53,7 @@ public class CswSubscription extends SubscriptionImpl {
             mimeTypeTransformerManager,
             request,
             query,
-            clientFactoryFactory,
+            clientBuilderFactory,
             security,
             securityManager),
         query.getSourceIds(),
@@ -64,7 +64,7 @@ public class CswSubscription extends SubscriptionImpl {
       TransformerManager mimeTypeTransformerManager,
       GetRecordsType request,
       QueryRequest query,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       Security security,
       SecurityManager securityManager)
       throws CswException {
@@ -75,7 +75,7 @@ public class CswSubscription extends SubscriptionImpl {
             mimeTypeTransformerManager,
             request,
             query,
-            clientFactoryFactory,
+            clientBuilderFactory,
             security,
             securityManager),
         null,

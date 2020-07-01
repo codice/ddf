@@ -20,8 +20,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
@@ -53,6 +51,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -78,8 +77,12 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
+import org.codice.ddf.cxf.oauth.OAuthSecurity;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.jdom2.Element;
 import org.junit.Before;
 import org.junit.Test;
@@ -138,7 +141,7 @@ public class OpenSearchSourceTest {
 
   private final WebClient webClient = mock(WebClient.class);
   private final SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
-  private final ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
+  private final ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
   private final EncryptionService encryptionService = mock(EncryptionService.class);
   private final OpenSearchParser openSearchParser = new OpenSearchParserImpl();
   private final OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
@@ -413,41 +416,15 @@ public class OpenSearchSourceTest {
         .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
     doReturn(webClient).when(factory).getWebClient();
 
-    when(clientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
-        .thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
-        .thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
-        .thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
-            anyBoolean(),
-            anyBoolean(),
-            anyInt(),
-            anyInt(),
-            anyString(),
-            anyString()))
-        .thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
-            anyBoolean(),
-            anyBoolean(),
-            anyInt(),
-            anyInt(),
-            anyString(),
-            anyString(),
-            anyString()))
-        .thenReturn(factory);
+    ClientBuilder<WebClient> clientBuilder =
+        new ClientBuilderImpl<WebClient>(
+            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+          @Override
+          public SecureCxfClientFactory<WebClient> build() {
+            return factory;
+          }
+        };
+    when(clientBuilderFactory.<WebClient>getClientBuilder()).thenReturn(clientBuilder);
 
     source =
         new OverriddenOpenSearchSource(
@@ -455,7 +432,7 @@ public class OpenSearchSourceTest {
             openSearchParser,
             openSearchFilterVisitor,
             encryptionService,
-            clientFactoryFactory);
+            clientBuilderFactory);
     source.setShortname(SOURCE_ID);
     source.setBundle(getMockBundleContext(getMockInputTransformer()));
     source.setEndpointUrl("http://localhost:8181/services/catalog/query");
@@ -937,13 +914,13 @@ public class OpenSearchSourceTest {
         OpenSearchParser openSearchParser,
         OpenSearchFilterVisitor openSearchFilterVisitor,
         EncryptionService encryptionService,
-        ClientFactoryFactory clientFactoryFactory) {
+        ClientBuilderFactory clientBuilderFactory) {
       super(
           filterAdapter,
           openSearchParser,
           openSearchFilterVisitor,
           encryptionService,
-          clientFactoryFactory);
+          clientBuilderFactory);
     }
 
     void setBundle(Bundle bundle) {
@@ -967,7 +944,7 @@ public class OpenSearchSourceTest {
 
     @Override
     protected SecureCxfClientFactory createClientFactory(
-        String url, String username, String password) {
+        URI url, String username, String password) {
       return factory;
     }
   }

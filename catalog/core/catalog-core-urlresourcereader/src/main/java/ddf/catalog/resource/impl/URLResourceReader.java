@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -52,7 +53,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.tika.Tika;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +106,7 @@ public class URLResourceReader implements ResourceReader {
   private static final Set<String> QUALIFIER_SET =
       ImmutableSet.of(URL_HTTP_SCHEME, URL_HTTPS_SCHEME, URL_FILE_SCHEME);
 
-  private final ClientFactoryFactory clientFactoryFactory;
+  private final ClientBuilderFactory clientBuilderFactory;
 
   /** Mapper for file extensions-to-mime types (and vice versa) */
   private MimeTypeMapper mimeTypeMapper;
@@ -114,17 +116,17 @@ public class URLResourceReader implements ResourceReader {
   private boolean followRedirects = true;
 
   /** Default URLResourceReader constructor. */
-  public URLResourceReader(ClientFactoryFactory clientFactoryFactory) {
-    this.clientFactoryFactory = clientFactoryFactory;
+  public URLResourceReader(ClientBuilderFactory clientBuilderFactory) {
+    this.clientBuilderFactory = clientBuilderFactory;
   }
 
   public URLResourceReader(
-      MimeTypeMapper mimeTypeMapper, ClientFactoryFactory clientFactoryFactory) {
+      MimeTypeMapper mimeTypeMapper, ClientBuilderFactory clientBuilderFactory) {
     if (mimeTypeMapper == null) {
       LOGGER.debug("mimeTypeMapper is NULL");
     }
     this.mimeTypeMapper = mimeTypeMapper;
-    this.clientFactoryFactory = clientFactoryFactory;
+    this.clientBuilderFactory = clientBuilderFactory;
 
     LOGGER.debug(
         "Supported Schemes for {}: {}", URLResourceReader.class.getSimpleName(), QUALIFIER_SET);
@@ -366,7 +368,7 @@ public class URLResourceReader implements ResourceReader {
     try {
       LOGGER.debug("Opening connection to: {}", resourceURI);
 
-      WebClient client = getWebClient(resourceURI.toString(), properties);
+      WebClient client = getWebClient(resourceURI, properties);
 
       Response response = client.get();
 
@@ -593,45 +595,50 @@ public class URLResourceReader implements ResourceReader {
     return false;
   }
 
-  protected WebClient getWebClient(String uri, Map<String, Serializable> properties) {
+  protected WebClient getWebClient(URI uri, Map<String, Serializable> properties) {
     SecureCxfClientFactory<WebClient> factory;
+    ClientBuilder<WebClient> clientBuilder = clientBuilderFactory.getClientBuilder();
     if (properties.get(USERNAME) != null && properties.get(PASSWORD) != null) {
       factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              uri,
-              WebClient.class,
-              null,
-              null,
-              false,
-              getFollowRedirects(),
-              null,
-              null,
-              (String) properties.get(USERNAME),
-              (String) properties.get(PASSWORD));
+          clientBuilder
+              .endpoint(uri)
+              .interfaceClass(WebClient.class)
+              .disableCnCheck(false)
+              .allowRedirects(getFollowRedirects())
+              .username(USERNAME)
+              .password(PASSWORD)
+              .useSamlEcp(true)
+              .build();
     } else if (properties.get(ID_PROPERTY) != null
         && properties.get(OAUTH_DISCOVERY_URL) != null
         && properties.get(OAUTH_CLIENT_ID) != null
         && properties.get(OAUTH_CLIENT_SECRET) != null
         && properties.get(OAUTH_FLOW) != null) {
-      factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              uri,
-              WebClient.class,
-              null,
-              null,
-              false,
-              getFollowRedirects(),
-              null,
-              null,
-              (String) properties.get(ID_PROPERTY),
-              (String) properties.get(OAUTH_DISCOVERY_URL),
-              (String) properties.get(OAUTH_CLIENT_ID),
-              (String) properties.get(OAUTH_CLIENT_SECRET),
-              (String) properties.get(OAUTH_FLOW));
+      try {
+        factory =
+            clientBuilder
+                .endpoint(uri)
+                .interfaceClass(WebClient.class)
+                .disableCnCheck(false)
+                .allowRedirects(getFollowRedirects())
+                .sourceId((String) properties.get(ID_PROPERTY))
+                .discovery(new URI((String) properties.get(OAUTH_DISCOVERY_URL)))
+                .clientId((String) properties.get(OAUTH_CLIENT_ID))
+                .clientSecret((String) properties.get(OAUTH_CLIENT_SECRET))
+                .oauthFlow((String) properties.get(OAUTH_FLOW))
+                .build();
+      } catch (URISyntaxException e) {
+        throw new IllegalArgumentException(e);
+      }
     } else {
       factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              uri, WebClient.class, null, null, false, getFollowRedirects());
+          clientBuilder
+              .endpoint(uri)
+              .interfaceClass(WebClient.class)
+              .disableCnCheck(false)
+              .allowRedirects(getFollowRedirects())
+              .useSamlEcp(true)
+              .build();
     }
     Serializable subject = properties.get(SecurityConstants.SECURITY_SUBJECT);
     if (subject instanceof org.apache.shiro.subject.Subject) {

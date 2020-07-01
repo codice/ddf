@@ -82,7 +82,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.PropertyResolver;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.opensearch.OpenSearch;
@@ -149,7 +150,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
 
   protected final EncryptionService encryptionService;
 
-  private final ClientFactoryFactory clientFactoryFactory;
+  private final ClientBuilderFactory clientBuilderFactory;
 
   private SecureCxfClientFactory<OpenSearch> factory;
 
@@ -224,14 +225,14 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
       OpenSearchParser openSearchParser,
       OpenSearchFilterVisitor openSearchFilterVisitor,
       EncryptionService encryptionService,
-      ClientFactoryFactory clientFactoryFactory) {
+      ClientBuilderFactory clientBuilderFactory) {
     this(
         filterAdapter,
         openSearchParser,
         openSearchFilterVisitor,
         encryptionService,
         (elements, sourceResponse) -> {},
-        clientFactoryFactory);
+        clientBuilderFactory);
   }
 
   /**
@@ -244,13 +245,13 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
       OpenSearchFilterVisitor openSearchFilterVisitor,
       EncryptionService encryptionService,
       BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer,
-      ClientFactoryFactory clientFactoryFactory) {
+      ClientBuilderFactory clientBuilderFactory) {
     this.filterAdapter = filterAdapter;
     this.encryptionService = encryptionService;
     this.openSearchParser = openSearchParser;
     this.openSearchFilterVisitor = openSearchFilterVisitor;
     this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
-    this.clientFactoryFactory = clientFactoryFactory;
+    this.clientBuilderFactory = clientBuilderFactory;
   }
 
   /**
@@ -263,7 +264,11 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
   }
 
   private void updateFactory() {
-    factory = createClientFactory(endpointUrl.getResolvedString(), username, password);
+    try {
+      factory = createClientFactory(new URI(endpointUrl.getResolvedString()), username, password);
+    } catch (URISyntaxException e) {
+      LOGGER.debug("Unable to convert endpoint to URI", e);
+    }
     updateScheduler();
   }
 
@@ -315,49 +320,55 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
   }
 
   protected SecureCxfClientFactory<OpenSearch> createClientFactory(
-      String url, String username, String password) {
+      URI url, String username, String password) {
     if (BASIC_AUTH_TYPE.equals(authenticationType)
         && StringUtils.isNotBlank(username)
         && StringUtils.isNotBlank(password)) {
-      return clientFactoryFactory.getSecureCxfClientFactory(
-          url,
-          OpenSearch.class,
-          null,
-          null,
-          disableCnCheck,
-          allowRedirects,
-          connectionTimeout,
-          receiveTimeout,
-          username,
-          password);
+      ClientBuilder<OpenSearch> clientBuilder = clientBuilderFactory.getClientBuilder();
+      return clientBuilder
+          .endpoint(url)
+          .interfaceClass(OpenSearch.class)
+          .disableCnCheck(disableCnCheck)
+          .allowRedirects(allowRedirects)
+          .connectionTimeout(connectionTimeout)
+          .receiveTimeout(receiveTimeout)
+          .username(username)
+          .password(password)
+          .useSamlEcp(true)
+          .build();
     } else if (OAUTH_AUTH_TYPE.equals(authenticationType)
         && StringUtils.isNotBlank(oauthDiscoveryUrl)
         && StringUtils.isNotBlank(oauthClientId)
         && StringUtils.isNotBlank(oauthClientSecret)) {
-      return clientFactoryFactory.getSecureCxfClientFactory(
-          url,
-          OpenSearch.class,
-          null,
-          null,
-          disableCnCheck,
-          allowRedirects,
-          connectionTimeout,
-          receiveTimeout,
-          shortname,
-          oauthDiscoveryUrl,
-          oauthClientId,
-          oauthClientSecret,
-          oauthFlow);
+      ClientBuilder<OpenSearch> clientBuilder = clientBuilderFactory.getClientBuilder();
+      try {
+        return clientBuilder
+            .endpoint(url)
+            .interfaceClass(OpenSearch.class)
+            .disableCnCheck(disableCnCheck)
+            .allowRedirects(allowRedirects)
+            .connectionTimeout(connectionTimeout)
+            .receiveTimeout(receiveTimeout)
+            .sourceId(shortname)
+            .discovery(new URI(oauthDiscoveryUrl))
+            .clientId(oauthClientId)
+            .oauthFlow(oauthFlow)
+            .useOAuth(true)
+            .build();
+      } catch (URISyntaxException e) {
+        throw new IllegalArgumentException(e);
+      }
     } else {
-      return clientFactoryFactory.getSecureCxfClientFactory(
-          url,
-          OpenSearch.class,
-          null,
-          null,
-          disableCnCheck,
-          allowRedirects,
-          connectionTimeout,
-          receiveTimeout);
+      ClientBuilder<OpenSearch> clientBuilder = clientBuilderFactory.getClientBuilder();
+      return clientBuilder
+          .endpoint(url)
+          .interfaceClass(OpenSearch.class)
+          .disableCnCheck(disableCnCheck)
+          .allowRedirects(allowRedirects)
+          .connectionTimeout(connectionTimeout)
+          .receiveTimeout(receiveTimeout)
+          .useSamlEcp(true)
+          .build();
     }
   }
 
@@ -449,7 +460,12 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
           doOpenSearchQuery(
               queryRequest, subject, spatialSearch, temporalSearch, searchPhraseMap, restWebClient);
     } else if (StringUtils.isNotEmpty(idSearch)) {
-      final WebClient restWebClient = newRestClient(query, idSearch, false, subject);
+      final WebClient restWebClient;
+      try {
+        restWebClient = newRestClient(query, idSearch, false, subject);
+      } catch (URISyntaxException e) {
+        throw new UnsupportedQueryException("Unable to create restWebClient", e);
+      }
       if (restWebClient == null) {
         throw new UnsupportedQueryException("Unable to create restWebClient");
       }
@@ -926,7 +942,12 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
 
     if (serializableId != null) {
       String metacardId = serializableId.toString();
-      WebClient restClient = newRestClient(null, metacardId, true, null);
+      WebClient restClient = null;
+      try {
+        restClient = newRestClient(null, metacardId, true, null);
+      } catch (URISyntaxException e) {
+        throw new IOException("Unable to create restWebClient", e);
+      }
       if (StringUtils.isNotBlank(username)) {
         requestProperties.put(USERNAME_PROPERTY, username);
         requestProperties.put(PASSWORD_PROPERTY, password);
@@ -1092,7 +1113,8 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
   }
 
   private WebClient newRestClient(
-      Query query, String metacardId, boolean retrieveResource, Subject subj) {
+      Query query, String metacardId, boolean retrieveResource, Subject subj)
+      throws URISyntaxException {
     String url = endpointUrl.getResolvedString();
     if (query != null) {
       url = createRestUrl(query, url, retrieveResource);
@@ -1107,7 +1129,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
         url = restUrl.buildUrl();
       }
     }
-    return newOpenSearchClient(url, subj);
+    return newOpenSearchClient(new URI(url), subj);
   }
 
   private String createRestUrl(Query query, String endpointUrl, boolean retrieveResource) {
@@ -1159,7 +1181,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
    * @return A webclient for the endpoint URL either using BasicAuth, using the Security Subject, or
    *     an insecure client.
    */
-  private WebClient newOpenSearchClient(String url, Subject subj) {
+  private WebClient newOpenSearchClient(URI url, Subject subj) {
     SecureCxfClientFactory<OpenSearch> clientFactory = createClientFactory(url, username, password);
     return (subj != null)
         ? clientFactory.getWebClientForSubject(subj)

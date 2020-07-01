@@ -28,7 +28,7 @@
                filter="(shortname=URLResourceReader)"/>
     <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
-    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="metacardTypes" class="org.codice.ddf.platform.util.SortedServiceList"/>
@@ -44,7 +44,7 @@
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
                               init-method="init" destroy-method="destroy">
             <argument ref="encryptionService"/>
-            <argument ref="clientFactoryFactory"/>
+            <argument ref="clientBuilderFactory"/>
             <property name="context" ref="blueprintBundleContext"/>
             <property name="filterBuilder" ref="filterBuilder"/>
             <property name="filterAdapter" ref="filterAdapter"/>

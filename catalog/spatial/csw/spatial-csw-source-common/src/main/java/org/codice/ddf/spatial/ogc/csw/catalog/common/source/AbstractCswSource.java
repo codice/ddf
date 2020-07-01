@@ -63,6 +63,8 @@ import java.io.Writer;
 import java.math.BigInteger;
 import java.net.ConnectException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -116,7 +118,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.security.Security;
@@ -217,7 +220,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   private Security security;
 
-  protected final ClientFactoryFactory clientFactoryFactory;
+  protected final ClientBuilderFactory clientBuilderFactory;
 
   protected String configurationPid;
   protected CswSourceConfiguration cswSourceConfiguration;
@@ -259,13 +262,13 @@ public abstract class AbstractCswSource extends MaskableImpl
    * @param context The {@link BundleContext} from the OSGi Framework
    * @param cswSourceConfiguration the configuration of this source
    * @param provider transform provider to transform results
-   * @param clientFactoryFactory client factory already configured for this source
+   * @param clientBuilderFactory client factory already configured for this source
    */
   public AbstractCswSource(
       BundleContext context,
       CswSourceConfiguration cswSourceConfiguration,
       Converter provider,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       EncryptionService encryptionService,
       Security security,
       Permissions permissions) {
@@ -273,7 +276,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     this.context = context;
     this.cswSourceConfiguration = cswSourceConfiguration;
     this.security = security;
-    this.clientFactoryFactory = clientFactoryFactory;
+    this.clientBuilderFactory = clientBuilderFactory;
     this.permissions = permissions;
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
@@ -284,7 +287,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   /** Instantiates a CswSource. */
   public AbstractCswSource(
       EncryptionService encryptionService,
-      ClientFactoryFactory clientFactoryFactory,
+      ClientBuilderFactory clientBuilderFactory,
       Security security,
       Permissions permissions) {
     this.encryptionService = encryptionService;
@@ -292,7 +295,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
-    this.clientFactoryFactory = clientFactoryFactory;
+    this.clientBuilderFactory = clientBuilderFactory;
     this.security = security;
     this.permissions = permissions;
   }
@@ -324,137 +327,153 @@ public abstract class AbstractCswSource extends MaskableImpl
   public void init() {
     setConsumerMap();
     LOGGER.debug("{}: Entering init()", cswSourceConfiguration.getId());
-    initClientFactory();
+    try {
+      initClientFactory();
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException(e);
+    }
     setupAvailabilityPoll();
 
     configureEventService();
   }
 
-  protected void initClientFactory() {
+  protected void initClientFactory() throws URISyntaxException {
+    ClientBuilder<Csw> clientBuilder = clientBuilderFactory.getClientBuilder();
     if (BASIC_AUTH_TYPE.equals(cswSourceConfiguration.getAuthenticationType())
         && StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
         && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
       factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              cswSourceConfiguration.getCswUrl(),
-              Csw.class,
-              initProviders(cswTransformConverter, cswSourceConfiguration),
-              null,
-              cswSourceConfiguration.getDisableCnCheck(),
-              false,
-              cswSourceConfiguration.getConnectionTimeout(),
-              cswSourceConfiguration.getReceiveTimeout(),
-              cswSourceConfiguration.getUsername(),
-              cswSourceConfiguration.getPassword());
+          clientBuilder
+              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .interfaceClass(Csw.class)
+              .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
+              .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
+              .allowRedirects(false)
+              .connectionTimeout(cswSourceConfiguration.getConnectionTimeout())
+              .receiveTimeout(cswSourceConfiguration.getReceiveTimeout())
+              .username(cswSourceConfiguration.getUsername())
+              .password(cswSourceConfiguration.getPassword())
+              .useSamlEcp(true)
+              .build();
     } else if (OAUTH_AUTH_TYPE.equals(cswSourceConfiguration.getAuthenticationType())
         && StringUtils.isNotBlank(cswSourceConfiguration.getOauthDiscoveryUrl())
         && StringUtils.isNotBlank(cswSourceConfiguration.getOauthClientId())
         && StringUtils.isNotBlank(cswSourceConfiguration.getOauthClientSecret())) {
       factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              cswSourceConfiguration.getCswUrl(),
-              Csw.class,
-              initProviders(cswTransformConverter, cswSourceConfiguration),
-              null,
-              cswSourceConfiguration.getDisableCnCheck(),
-              false,
-              cswSourceConfiguration.getConnectionTimeout(),
-              cswSourceConfiguration.getReceiveTimeout(),
-              cswSourceConfiguration.getId(),
-              cswSourceConfiguration.getOauthDiscoveryUrl(),
-              cswSourceConfiguration.getOauthClientId(),
-              cswSourceConfiguration.getOauthClientSecret(),
-              cswSourceConfiguration.getOauthFlow());
+          clientBuilder
+              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .interfaceClass(Csw.class)
+              .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
+              .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
+              .allowRedirects(false)
+              .connectionTimeout(cswSourceConfiguration.getConnectionTimeout())
+              .receiveTimeout(cswSourceConfiguration.getReceiveTimeout())
+              .useOAuth(true)
+              .sourceId(cswSourceConfiguration.getId())
+              .discovery(new URI(cswSourceConfiguration.getOauthDiscoveryUrl()))
+              .clientId(cswSourceConfiguration.getOauthClientId())
+              .clientSecret(cswSourceConfiguration.getOauthClientSecret())
+              .oauthFlow(cswSourceConfiguration.getOauthFlow())
+              .build();
     } else if (StringUtils.isNotBlank(cswSourceConfiguration.getCertAlias())
         && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
       factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              cswSourceConfiguration.getCswUrl(),
-              Csw.class,
-              initProviders(cswTransformConverter, cswSourceConfiguration),
-              null,
-              cswSourceConfiguration.getDisableCnCheck(),
-              false,
-              cswSourceConfiguration.getConnectionTimeout(),
-              cswSourceConfiguration.getReceiveTimeout(),
-              cswSourceConfiguration.getCertAlias(),
-              cswSourceConfiguration.getKeystorePath(),
-              cswSourceConfiguration.getSslProtocol());
+          clientBuilder
+              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .interfaceClass(Csw.class)
+              .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
+              .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
+              .allowRedirects(false)
+              .connectionTimeout(cswSourceConfiguration.getConnectionTimeout())
+              .receiveTimeout(cswSourceConfiguration.getReceiveTimeout())
+              .useSamlEcp(true)
+              .clientKeyInfo(
+                  cswSourceConfiguration.getCertAlias(),
+                  Paths.get(cswSourceConfiguration.getKeystorePath()))
+              .sslProtocol(cswSourceConfiguration.getSslProtocol())
+              .build();
     } else {
       factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              cswSourceConfiguration.getCswUrl(),
-              Csw.class,
-              initProviders(cswTransformConverter, cswSourceConfiguration),
-              null,
-              cswSourceConfiguration.getDisableCnCheck(),
-              false,
-              cswSourceConfiguration.getConnectionTimeout(),
-              cswSourceConfiguration.getReceiveTimeout());
+          clientBuilder
+              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .interfaceClass(Csw.class)
+              .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
+              .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
+              .allowRedirects(false)
+              .connectionTimeout(cswSourceConfiguration.getConnectionTimeout())
+              .receiveTimeout(cswSourceConfiguration.getReceiveTimeout())
+              .useSamlEcp(true)
+              .build();
     }
   }
 
-  protected void initSubscribeClientFactory() {
+  protected void initSubscribeClientFactory() throws URISyntaxException {
+    ClientBuilder<CswSubscribe> clientBuilder = clientBuilderFactory.getClientBuilder();
     if (BASIC_AUTH_TYPE.equals(cswSourceConfiguration.getAuthenticationType())
         && StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
         && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
       subscribeClientFactory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              cswSourceConfiguration.getEventServiceAddress(),
-              CswSubscribe.class,
-              initProviders(cswTransformConverter, cswSourceConfiguration),
-              null,
-              cswSourceConfiguration.getDisableCnCheck(),
-              false,
-              cswSourceConfiguration.getConnectionTimeout(),
-              cswSourceConfiguration.getReceiveTimeout(),
-              cswSourceConfiguration.getUsername(),
-              cswSourceConfiguration.getPassword());
+          clientBuilder
+              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .interfaceClass(CswSubscribe.class)
+              .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
+              .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
+              .allowRedirects(false)
+              .connectionTimeout(cswSourceConfiguration.getConnectionTimeout())
+              .receiveTimeout(cswSourceConfiguration.getReceiveTimeout())
+              .username(cswSourceConfiguration.getUsername())
+              .password(cswSourceConfiguration.getPassword())
+              .useSamlEcp(true)
+              .build();
     } else if (OAUTH_AUTH_TYPE.equals(cswSourceConfiguration.getAuthenticationType())
         && StringUtils.isNotBlank(cswSourceConfiguration.getOauthDiscoveryUrl())
         && StringUtils.isNotBlank(cswSourceConfiguration.getOauthClientId())
         && StringUtils.isNotBlank(cswSourceConfiguration.getOauthClientSecret())) {
-      factory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              cswSourceConfiguration.getCswUrl(),
-              Csw.class,
-              initProviders(cswTransformConverter, cswSourceConfiguration),
-              null,
-              cswSourceConfiguration.getDisableCnCheck(),
-              false,
-              cswSourceConfiguration.getConnectionTimeout(),
-              cswSourceConfiguration.getReceiveTimeout(),
-              cswSourceConfiguration.getId(),
-              cswSourceConfiguration.getOauthDiscoveryUrl(),
-              cswSourceConfiguration.getOauthClientId(),
-              cswSourceConfiguration.getOauthClientSecret(),
-              cswSourceConfiguration.getOauthFlow());
+      subscribeClientFactory =
+          clientBuilder
+              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .interfaceClass(CswSubscribe.class)
+              .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
+              .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
+              .allowRedirects(false)
+              .connectionTimeout(cswSourceConfiguration.getConnectionTimeout())
+              .receiveTimeout(cswSourceConfiguration.getReceiveTimeout())
+              .useOAuth(true)
+              .sourceId(cswSourceConfiguration.getId())
+              .discovery(new URI(cswSourceConfiguration.getOauthDiscoveryUrl()))
+              .clientId(cswSourceConfiguration.getOauthClientId())
+              .clientSecret(cswSourceConfiguration.getOauthClientSecret())
+              .oauthFlow(cswSourceConfiguration.getOauthFlow())
+              .build();
     } else if (StringUtils.isNotBlank(cswSourceConfiguration.getCertAlias())
         && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
       subscribeClientFactory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              cswSourceConfiguration.getCswUrl(),
-              CswSubscribe.class,
-              initProviders(cswTransformConverter, cswSourceConfiguration),
-              null,
-              cswSourceConfiguration.getDisableCnCheck(),
-              false,
-              cswSourceConfiguration.getConnectionTimeout(),
-              cswSourceConfiguration.getReceiveTimeout(),
-              cswSourceConfiguration.getCertAlias(),
-              cswSourceConfiguration.getKeystorePath(),
-              cswSourceConfiguration.getSslProtocol());
+          clientBuilder
+              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .interfaceClass(CswSubscribe.class)
+              .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
+              .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
+              .allowRedirects(false)
+              .connectionTimeout(cswSourceConfiguration.getConnectionTimeout())
+              .receiveTimeout(cswSourceConfiguration.getReceiveTimeout())
+              .clientKeyInfo(
+                  cswSourceConfiguration.getCertAlias(),
+                  Paths.get(cswSourceConfiguration.getKeystorePath()))
+              .sslProtocol(cswSourceConfiguration.getSslProtocol())
+              .useSamlEcp(true)
+              .build();
     } else {
       subscribeClientFactory =
-          clientFactoryFactory.getSecureCxfClientFactory(
-              cswSourceConfiguration.getEventServiceAddress(),
-              CswSubscribe.class,
-              initProviders(cswTransformConverter, cswSourceConfiguration),
-              null,
-              cswSourceConfiguration.getDisableCnCheck(),
-              false,
-              cswSourceConfiguration.getConnectionTimeout(),
-              cswSourceConfiguration.getReceiveTimeout());
+          clientBuilder
+              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .interfaceClass(CswSubscribe.class)
+              .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
+              .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
+              .allowRedirects(false)
+              .connectionTimeout(cswSourceConfiguration.getConnectionTimeout())
+              .receiveTimeout(cswSourceConfiguration.getReceiveTimeout())
+              .useSamlEcp(true)
+              .build();
     }
   }
 
@@ -679,7 +698,11 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     configureCswSource();
 
-    initClientFactory();
+    try {
+      initClientFactory();
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException(e);
+    }
     configureEventService();
 
     forcePoll();
@@ -1938,7 +1961,11 @@ public abstract class AbstractCswSource extends MaskableImpl
       return;
     }
 
-    initSubscribeClientFactory();
+    try {
+      initSubscribeClientFactory();
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException(e);
+    }
     CswSubscribe cswSubscribe =
         subscribeClientFactory.getClientForSystemSubject(getSystemSubject());
     GetRecordsType request = createSubscriptionGetRecordsRequest();

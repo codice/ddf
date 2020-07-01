@@ -24,12 +24,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -51,6 +47,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
@@ -94,14 +91,17 @@ import net.opengis.wfs.v_1_1_0.WFSCapabilitiesType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
+import org.codice.ddf.cxf.oauth.OAuthSecurity;
+import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollectionImpl;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl.MetacardMapperImpl;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
-import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.GetCapabilitiesRequest;
@@ -263,7 +263,7 @@ public class WfsSourceTest {
 
   private WfsMetacardTypeRegistry mockWfsMetacardTypeRegistry = mock(WfsMetacardTypeRegistry.class);
 
-  private ClientFactoryFactory mockClientFactoryFactory = mock(ClientFactoryFactory.class);
+  private ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
 
   private List<MetacardMapper> metacardMappers = new ArrayList<>();
 
@@ -280,44 +280,20 @@ public class WfsSourceTest {
       final List<String> supportedGeos, final String srsName, final int results, final int hits)
       throws WfsException {
 
-    SecureCxfClientFactory<Object> mockFactory = mock(SecureCxfClientFactory.class);
+    SecureCxfClientFactory<Wfs> mockFactory = mock(SecureCxfClientFactory.class);
     when(mockFactory.getClient()).thenReturn(mockWfs);
 
-    when(mockClientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
-    when(mockClientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
-        .thenReturn(mockFactory);
-    when(mockClientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
-        .thenReturn(mockFactory);
-    when(mockClientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any(), any()))
-        .thenReturn(mockFactory);
-    when(mockClientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
-            anyBoolean(),
-            anyBoolean(),
-            any(),
-            any(),
-            anyString(),
-            anyString()))
-        .thenReturn(mockFactory);
-    when(mockClientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
-            anyBoolean(),
-            anyBoolean(),
-            any(),
-            any(),
-            anyString(),
-            anyString(),
-            anyString()))
-        .thenReturn(mockFactory);
+    clientBuilderFactory = mock(ClientBuilderFactory.class);
+    ClientBuilder<Wfs> clientBuilder =
+        new ClientBuilderImpl<Wfs>(
+            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+          @Override
+          public SecureCxfClientFactory<Wfs> build() {
+            return mockFactory;
+          }
+        };
+
+    when(clientBuilderFactory.<Wfs>getClientBuilder()).thenReturn(clientBuilder);
 
     // GetCapabilities Response
     when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilities);
@@ -380,7 +356,7 @@ public class WfsSourceTest {
         .when(mockScheduler)
         .scheduleWithFixedDelay(any(), anyInt(), anyInt(), any());
 
-    source = new WfsSource(mockClientFactoryFactory, encryptionService, mockScheduler);
+    source = new WfsSource(clientBuilderFactory, encryptionService, mockScheduler);
     source.setFilterAdapter(new GeotoolsFilterAdapterImpl());
     source.setContext(mockContext);
     source.setWfsMetacardTypeRegistry(mockWfsMetacardTypeRegistry);
@@ -1216,18 +1192,7 @@ public class WfsSourceTest {
             .build();
     source.refresh(configuration);
 
-    verify(mockClientFactoryFactory)
-        .getSecureCxfClientFactory(
-            eq(wfsUrl),
-            eq(Wfs.class),
-            any(List.class),
-            isA(MarkableStreamInterceptor.class),
-            eq(disableCnCheck),
-            eq(allowRedirects),
-            eq(connectionTimeout),
-            eq(receiveTimeout),
-            eq(username),
-            eq("unencrypted_password"));
+    verify(clientBuilderFactory, times(2)).getClientBuilder();
   }
 
   @Test
@@ -1261,19 +1226,7 @@ public class WfsSourceTest {
             .build();
     source.refresh(configuration);
 
-    verify(mockClientFactoryFactory)
-        .getSecureCxfClientFactory(
-            eq(wfsUrl),
-            eq(Wfs.class),
-            any(List.class),
-            isA(MarkableStreamInterceptor.class),
-            eq(disableCnCheck),
-            eq(allowRedirects),
-            eq(connectionTimeout),
-            eq(receiveTimeout),
-            eq(certAlias),
-            eq(keystorePath),
-            eq(sslProtocol));
+    verify(clientBuilderFactory, times(2)).getClientBuilder();
   }
 
   @Test
@@ -1300,16 +1253,7 @@ public class WfsSourceTest {
             .build();
     source.refresh(configuration);
 
-    verify(mockClientFactoryFactory)
-        .getSecureCxfClientFactory(
-            eq(wfsUrl),
-            eq(Wfs.class),
-            any(List.class),
-            isA(MarkableStreamInterceptor.class),
-            eq(disableCnCheck),
-            eq(allowRedirects),
-            eq(connectionTimeout),
-            eq(receiveTimeout));
+    verify(clientBuilderFactory, times(2)).getClientBuilder();
   }
 
   @Test

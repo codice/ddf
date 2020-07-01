@@ -14,7 +14,6 @@
 package org.codice.ddf.security.ocsp.checker;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.SecurityConstants;
@@ -22,6 +21,8 @@ import ddf.security.audit.SecurityLogger;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.AccessController;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -38,7 +39,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
@@ -68,7 +71,8 @@ import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.security.OcspService;
 import org.codice.ddf.system.alerts.NoticePriority;
@@ -83,15 +87,15 @@ public class OcspChecker implements OcspService {
   private static final String NOT_VERIFIED_MSG = " The certificate status could not be verified.";
   private static final String CONTINUING_MSG = " Continuing OCSP check.";
 
-  private final ClientFactoryFactory factory;
+  private final ClientBuilderFactory factory;
   private final EventAdmin eventAdmin;
 
   private boolean ocspEnabled; // metatype value
-  private List<String> ocspServerUrls = new ArrayList<>(); // metatype value
+  private List<URI> ocspServerUrls = new ArrayList<>(); // metatype value
 
   private SecurityLogger securityLogger;
 
-  public OcspChecker(ClientFactoryFactory factory, EventAdmin eventAdmin) {
+  public OcspChecker(ClientBuilderFactory factory, EventAdmin eventAdmin) {
     this.factory = factory;
     this.eventAdmin = eventAdmin;
   }
@@ -116,8 +120,8 @@ public class OcspChecker implements OcspService {
       try {
         Certificate certificate = convertToBouncyCastleCert(cert);
         OCSPReq ocspRequest = generateOcspRequest(certificate);
-        Map<String, CertificateStatus> ocspStatuses = sendOcspRequests(cert, ocspRequest);
-        String revokedStatusUrl = getFirstRevokedStatusUrl(ocspStatuses);
+        Map<URI, CertificateStatus> ocspStatuses = sendOcspRequests(cert, ocspRequest);
+        URI revokedStatusUrl = getFirstRevokedStatusUrl(ocspStatuses);
         if (revokedStatusUrl != null) {
           securityLogger.audit(
               "Certificate {} has been revoked by the OCSP server at URL {}.",
@@ -282,8 +286,8 @@ public class OcspChecker implements OcspService {
    *     represented as null values.
    */
   @VisibleForTesting
-  Map<String, CertificateStatus> sendOcspRequests(X509Certificate cert, OCSPReq ocspRequest) {
-    Set<String> urlsToCheck = new HashSet<>();
+  Map<URI, CertificateStatus> sendOcspRequests(X509Certificate cert, OCSPReq ocspRequest) {
+    Set<URI> urlsToCheck = new HashSet<>();
     if (ocspServerUrls != null) {
       urlsToCheck.addAll(ocspServerUrls);
     }
@@ -295,33 +299,32 @@ public class OcspChecker implements OcspService {
       logRequest(ocspRequest);
     }
 
-    Map<String, CertificateStatus> ocspStatuses = new HashMap<>();
+    Map<URI, CertificateStatus> ocspStatuses = new HashMap<>();
 
-    for (String ocspServerUrl : urlsToCheck) {
-      if (isNotBlank(ocspServerUrl)) {
-        try {
-          SecureCxfClientFactory cxfClientFactory =
-              factory.getSecureCxfClientFactory(ocspServerUrl, WebClient.class);
-          WebClient client =
-              cxfClientFactory
-                  .getWebClient()
-                  .accept("application/ocsp-response")
-                  .type("application/ocsp-request");
+    for (URI ocspServerUrl : urlsToCheck) {
+      try {
+        ClientBuilder<WebClient> clientBuilder = factory.getClientBuilder();
+        SecureCxfClientFactory<WebClient> cxfClientFactory =
+            clientBuilder.endpoint(ocspServerUrl).interfaceClass(WebClient.class).build();
+        WebClient client =
+            cxfClientFactory
+                .getWebClient()
+                .accept("application/ocsp-response")
+                .type("application/ocsp-request");
 
-          LOGGER.debug("Sending OCSP request to URL: {}", ocspServerUrl);
-          Response response = client.post(ocspRequest.getEncoded());
-          OCSPResp ocspResponse = createOcspResponse(response);
-          if (LOGGER.isTraceEnabled()) {
-            logResponse(ocspResponse);
-          }
-          ocspStatuses.put(ocspServerUrl, getStatusFromOcspResponse(ocspResponse, cert));
-          continue;
-        } catch (IOException | OcspCheckerException | ProcessingException e) {
-          LOGGER.debug(
-              "Problem with the response from the OCSP Server at URL {}." + CONTINUING_MSG,
-              ocspServerUrl,
-              e);
+        LOGGER.debug("Sending OCSP request to URL: {}", ocspServerUrl);
+        Response response = client.post(ocspRequest.getEncoded());
+        OCSPResp ocspResponse = createOcspResponse(response);
+        if (LOGGER.isTraceEnabled()) {
+          logResponse(ocspResponse);
         }
+        ocspStatuses.put(ocspServerUrl, getStatusFromOcspResponse(ocspResponse, cert));
+        continue;
+      } catch (IOException | OcspCheckerException | ProcessingException e) {
+        LOGGER.debug(
+            "Problem with the response from the OCSP Server at URL {}." + CONTINUING_MSG,
+            ocspServerUrl,
+            e);
       }
       ocspStatuses.put(
           ocspServerUrl,
@@ -337,8 +340,8 @@ public class OcspChecker implements OcspService {
    * @param - the {@link X509Certificate} to check.
    * @return {@link List} of additional OCSP server urls found on the given {@param cert}.
    */
-  private List<String> getOcspUrlsFromCert(X509Certificate cert) {
-    List<String> ocspUrls = new ArrayList<>();
+  private List<URI> getOcspUrlsFromCert(X509Certificate cert) {
+    List<URI> ocspUrls = new ArrayList<>();
 
     try {
       byte[] authorityInfoAccess = cert.getExtensionValue(Extension.authorityInfoAccess.getId());
@@ -358,7 +361,11 @@ public class OcspChecker implements OcspService {
       for (AccessDescription description : authorityInformationAccess.getAccessDescriptions()) {
         GeneralName accessLocation = description.getAccessLocation();
         if (accessLocation.getTagNo() == GeneralName.uniformResourceIdentifier)
-          ocspUrls.add(((DERIA5String) accessLocation.getName()).getString());
+          try {
+            ocspUrls.add(new URI(((DERIA5String) accessLocation.getName()).getString()));
+          } catch (URISyntaxException e) {
+            LOGGER.debug("Location is not a URI.", e);
+          }
       }
     } catch (IOException e) {
       LOGGER.debug(
@@ -441,7 +448,7 @@ public class OcspChecker implements OcspService {
    *     CertificateStatus}.
    * @return the URL of the first revoked status, or null if no revoked status was found.
    */
-  private @Nullable String getFirstRevokedStatusUrl(Map<String, CertificateStatus> ocspStatuses) {
+  private @Nullable URI getFirstRevokedStatusUrl(Map<URI, CertificateStatus> ocspStatuses) {
     return ocspStatuses
         .entrySet()
         .stream()
@@ -664,7 +671,20 @@ public class OcspChecker implements OcspService {
   }
 
   public void setOcspServerUrls(List<String> ocspServerUrls) {
-    this.ocspServerUrls = ocspServerUrls;
+    this.ocspServerUrls =
+        ocspServerUrls
+            .stream()
+            .map(
+                str -> {
+                  try {
+                    return new URI(str);
+                  } catch (URISyntaxException e) {
+                    LOGGER.warn("OCSP URL is not URI.", e);
+                  }
+                  return null;
+                })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
   }
 
   /**

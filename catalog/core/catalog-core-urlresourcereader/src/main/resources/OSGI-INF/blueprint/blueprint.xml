@@ -24,7 +24,7 @@
                 persistent-id="ddf.catalog.resource.impl.URLResourceReader"
                 update-strategy="container-managed"/>
         <argument ref="mimeTypeMapper"/>
-        <argument ref="clientFactoryFactory"/>
+        <argument ref="clientBuilderFactory"/>
         <property name="rootResourceDirectories">
             <set>
                 <value type="java.lang.String">${ddf.data}/products</value>
@@ -34,7 +34,7 @@
 
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
-    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
 
     <service ref="urlReader" interface="ddf.catalog.resource.ResourceReader">
         <service-properties>

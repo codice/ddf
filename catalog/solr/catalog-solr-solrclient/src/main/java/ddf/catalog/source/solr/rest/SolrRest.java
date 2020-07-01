@@ -17,6 +17,8 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import ddf.security.encryption.EncryptionService;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -25,7 +27,8 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.ClientBuilder;
+import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +50,7 @@ public class SolrRest {
 
   private static final String B_PROPERTY = "b";
 
-  private final ClientFactoryFactory clientFactoryFactory;
+  private final ClientBuilderFactory clientBuilderFactory;
 
   private final EncryptionService encryptionService;
 
@@ -71,9 +74,9 @@ public class SolrRest {
 
   private String solrBaseUrl;
 
-  public SolrRest(ClientFactoryFactory clientFactoryFactory, EncryptionService encryptionService) {
+  public SolrRest(ClientBuilderFactory clientBuilderFactory, EncryptionService encryptionService) {
     gson = new Gson();
-    this.clientFactoryFactory = clientFactoryFactory;
+    this.clientBuilderFactory = clientBuilderFactory;
     this.encryptionService = encryptionService;
   }
 
@@ -118,36 +121,56 @@ public class SolrRest {
     }
   }
 
-  public void init() {
+  public void init() throws URISyntaxException {
     String username = getUsername();
     String password = getPassword();
     if (StringUtils.isNotBlank(solrBaseUrl)) {
+      ClientBuilder<SolrRestClient> restFactoryBuilder = clientBuilderFactory.getClientBuilder();
+      ClientBuilder<SolrUpdateClient> updateFactoryBuilder =
+          clientBuilderFactory.getClientBuilder();
       if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
         solrCatalogSchemaClientFactory =
-            clientFactoryFactory.getSecureCxfClientFactory(
-                getSolrCatalogSchemaUrl(), SolrRestClient.class);
+            restFactoryBuilder
+                .endpoint(new URI(getSolrCatalogSchemaUrl()))
+                .interfaceClass(SolrRestClient.class)
+                .build();
         solrCatalogUpdateClientFactory =
-            clientFactoryFactory.getSecureCxfClientFactory(
-                getSolrCatalogUpdateUrl(), SolrUpdateClient.class);
+            updateFactoryBuilder
+                .endpoint(new URI(getSolrCatalogUpdateUrl()))
+                .interfaceClass(SolrUpdateClient.class)
+                .build();
         solrMetacardCacheSchemaClientFactory =
-            clientFactoryFactory.getSecureCxfClientFactory(
-                getSolrMetacardCacheSchemaUrl(), SolrRestClient.class);
+            restFactoryBuilder.endpoint(new URI(getSolrMetacardCacheSchemaUrl())).build();
         solrMetacardCacheUpdateClientFactory =
-            clientFactoryFactory.getSecureCxfClientFactory(
-                getSolrMetacardCacheUpdateUrl(), SolrUpdateClient.class);
+            solrCatalogUpdateClientFactory =
+                updateFactoryBuilder.endpoint(new URI(getSolrMetacardCacheUpdateUrl())).build();
       } else {
         solrCatalogSchemaClientFactory =
-            clientFactoryFactory.getSecureCxfClientFactory(
-                getSolrCatalogSchemaUrl(), SolrRestClient.class, username, password);
+            restFactoryBuilder
+                .endpoint(new URI(getSolrCatalogSchemaUrl()))
+                .interfaceClass(SolrRestClient.class)
+                .username(username)
+                .password(password)
+                .build();
         solrCatalogUpdateClientFactory =
-            clientFactoryFactory.getSecureCxfClientFactory(
-                getSolrCatalogUpdateUrl(), SolrUpdateClient.class, username, password);
+            updateFactoryBuilder
+                .endpoint(new URI(getSolrCatalogUpdateUrl()))
+                .interfaceClass(SolrUpdateClient.class)
+                .username(username)
+                .password(password)
+                .build();
         solrMetacardCacheSchemaClientFactory =
-            clientFactoryFactory.getSecureCxfClientFactory(
-                getSolrMetacardCacheSchemaUrl(), SolrRestClient.class, username, password);
+            restFactoryBuilder
+                .endpoint(new URI(getSolrMetacardCacheSchemaUrl()))
+                .username(username)
+                .password(password)
+                .build();
         solrMetacardCacheUpdateClientFactory =
-            clientFactoryFactory.getSecureCxfClientFactory(
-                getSolrMetacardCacheUpdateUrl(), SolrUpdateClient.class, username, password);
+            updateFactoryBuilder
+                .endpoint(new URI(getSolrMetacardCacheUpdateUrl()))
+                .username(username)
+                .password(password)
+                .build();
       }
 
       similarityFormat = new LinkedTreeMap<>();
@@ -183,7 +206,11 @@ public class SolrRest {
       setB((Float) bObject);
     }
 
-    init();
+    try {
+      init();
+    } catch (URISyntaxException e) {
+      LOGGER.debug("Endpoint is not a URI", e);
+    }
   }
 
   private void setSimilarities() {

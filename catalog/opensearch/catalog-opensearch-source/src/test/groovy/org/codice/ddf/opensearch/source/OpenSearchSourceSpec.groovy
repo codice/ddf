@@ -28,7 +28,7 @@ import ddf.security.Subject
 import ddf.security.encryption.EncryptionService
 import org.apache.cxf.jaxrs.client.WebClient
 import org.codice.ddf.cxf.client.SecureCxfClientFactory
-import org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl
+import org.codice.ddf.cxf.client.impl.ClientBuilderFactoryImpl
 import org.codice.ddf.opensearch.OpenSearchConstants
 import org.opengis.filter.Filter
 import org.opengis.filter.PropertyIsLike
@@ -91,7 +91,7 @@ class OpenSearchSourceSpec extends Specification {
             getWebClientForSubject(subject) >> webClient
         }
 
-        source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchParserImpl(), new OpenSearchFilterVisitor(), Mock(EncryptionService), new ClientFactoryFactoryImpl()) {
+        source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchParserImpl(), new OpenSearchFilterVisitor(), Mock(EncryptionService), new ClientBuilderFactoryImpl()) {
 
             @Override
             protected Bundle getBundle() {
@@ -100,7 +100,7 @@ class OpenSearchSourceSpec extends Specification {
 
             @Override
             protected SecureCxfClientFactory createClientFactory(
-                    String url, String username, String password) {
+                    URI url, String username, String password) {
                 return factory
             }
         }
