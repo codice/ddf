@@ -135,7 +135,7 @@ class SortedQueryMonitor implements Runnable {
               Comparator.comparing(
                   r -> getAttributeValue((Result) r, sortType),
                   ((sortOrder == SortOrder.ASCENDING)
-                      ? Comparator.nullsFirst(Comparator.<Comparable>naturalOrder())
+                      ? Comparator.nullsLast(Comparator.<Comparable>naturalOrder())
                       : Comparator.nullsLast(Comparator.<Comparable>reverseOrder())));
         }
         resultComparator.addComparator(comparator);
