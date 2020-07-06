@@ -17,6 +17,7 @@ import com.google.common.base.Verify;
 import ddf.catalog.data.MetacardType;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import org.codice.ddf.configuration.DictionaryMap;
@@ -81,7 +82,24 @@ public final class WfsMetacardTypeRegistryImpl implements WfsMetacardTypeRegistr
   }
 
   /** {@inheritDoc} */
-  public void clear() {
+  @Override
+  public void clear(String sourceId) {
+    Verify.verifyNotNull(sourceId, "argument 'sourceId' may not be null.");
+    for (Iterator<ServiceRegistration<MetacardType>> iter = serviceRegistrations.iterator();
+        iter.hasNext(); ) {
+      ServiceRegistration registration = iter.next();
+      if (registration.getReference() != null
+          && registration.getReference().getProperty((SOURCE_ID)) != null
+          && registration.getReference().getProperty(SOURCE_ID).equals(sourceId)) {
+        registration.unregister();
+        iter.remove();
+      }
+    }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void clearAll() {
     serviceRegistrations.stream().forEach(ServiceRegistration::unregister);
     serviceRegistrations.clear();
   }

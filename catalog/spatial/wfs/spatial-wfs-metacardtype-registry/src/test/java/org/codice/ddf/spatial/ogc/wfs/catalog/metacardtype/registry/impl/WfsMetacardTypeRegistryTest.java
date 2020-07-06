@@ -36,6 +36,8 @@ public class WfsMetacardTypeRegistryTest {
 
   public static final String TEST_SOURCE_ID = "test-source";
 
+  public static final String TEST_SOURCE_ID_2 = "test-source2";
+
   public static final String TEST_FEATURE_SIMPLE_NAME = "amazon-waters";
 
   private BundleContext mockBundleContext;
@@ -51,6 +53,7 @@ public class WfsMetacardTypeRegistryTest {
     mockBundleContext = mock(BundleContext.class);
     mockServiceRegistration = mock(ServiceRegistration.class);
     ServiceReference mockServiceReference = mock(ServiceReference.class);
+    //    ServiceReference mockServiceReference = mock(ServiceReference.class);
     mockMetacardType = mock(MetacardType.class);
 
     when(mockServiceRegistration.getReference()).thenReturn(mockServiceReference);
@@ -94,11 +97,45 @@ public class WfsMetacardTypeRegistryTest {
   }
 
   @Test
-  public void testClear() {
+  public void testClearAll() {
     wfsMetacardTypeRegistry.registerMetacardType(
         mockMetacardType, TEST_SOURCE_ID, TEST_FEATURE_SIMPLE_NAME);
-    wfsMetacardTypeRegistry.clear();
+    wfsMetacardTypeRegistry.clearAll();
     verify(mockServiceRegistration, times(1)).unregister();
+  }
+
+  @Test
+  public void testClear() {
+    // setup
+    ServiceRegistration mockServiceRegistration1 = mock(ServiceRegistration.class);
+    ServiceRegistration mockServiceRegistration2 = mock(ServiceRegistration.class);
+    ServiceReference mockServiceReference1 = mock(ServiceReference.class);
+    ServiceReference mockServiceReference2 = mock(ServiceReference.class);
+    String featureA = "featureA";
+    String featureB = "featureB";
+
+    when(mockServiceRegistration1.getReference()).thenReturn(mockServiceReference1);
+    when(mockServiceRegistration2.getReference()).thenReturn(mockServiceReference2);
+    when(mockServiceReference1.getProperty(WfsMetacardTypeRegistryImpl.SOURCE_ID))
+        .thenReturn(TEST_SOURCE_ID);
+    when(mockServiceReference2.getProperty(WfsMetacardTypeRegistryImpl.SOURCE_ID))
+        .thenReturn(TEST_SOURCE_ID_2);
+    when(mockServiceReference1.getProperty(WfsMetacardTypeRegistryImpl.FEATURE_NAME))
+        .thenReturn("feature_a");
+    when(mockServiceReference2.getProperty(WfsMetacardTypeRegistryImpl.FEATURE_NAME))
+        .thenReturn("feature_b");
+    when(mockBundleContext.registerService(
+            same(MetacardType.class), any(MetacardType.class), any(Dictionary.class)))
+        .thenReturn(mockServiceRegistration1)
+        .thenReturn(mockServiceRegistration2);
+    wfsMetacardTypeRegistry = new WfsMetacardTypeRegistryImpl(mockBundleContext);
+
+    wfsMetacardTypeRegistry.registerMetacardType(mockMetacardType, TEST_SOURCE_ID, featureA);
+    wfsMetacardTypeRegistry.registerMetacardType(mockMetacardType, TEST_SOURCE_ID_2, featureB);
+    wfsMetacardTypeRegistry.clear(TEST_SOURCE_ID);
+    verify(mockBundleContext, times(2))
+        .registerService(same(MetacardType.class), same(mockMetacardType), any(Dictionary.class));
+    verify(mockServiceRegistration1, times(1)).unregister();
   }
 
   @Test(expected = VerifyException.class)
