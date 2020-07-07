@@ -141,7 +141,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.listenTo(
       this,
       'change:usngbbUpperLeft change:usngbbLowerRight',
-      this.setBboxUsngUL
+      this.setBboxUsng
     )
     this.listenTo(this, 'change:locationType', this.handleLocationType)
     this.listenTo(this, 'change:bbox', _.debounce(this.setBboxLatLon, 150))
@@ -460,7 +460,7 @@ module.exports = Backbone.AssociatedModel.extend({
     return {}
   },
 
-  setBboxUsngUL() {
+  setBboxUsng() {
     if (this.get('locationType') !== 'usng') {
       return
     }
@@ -499,45 +499,6 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
 
-  setBboxUsng() {
-    if (this.get('locationType') !== 'usng') {
-      return
-    }
-
-    let result
-    try {
-      result = converter.USNGtoLL(this.get('usngbb'))
-    } catch (err) {
-      // do nothing
-    }
-
-    if (result === undefined) {
-      return
-    }
-
-    const newResult = {}
-    newResult.mapNorth = result.north
-    newResult.mapSouth = result.south
-    newResult.mapEast = result.east
-    newResult.mapWest = result.west
-    this.set(newResult)
-    this.set(result, { silent: true })
-
-    var utmUps = this.LLtoUtmUps(result.north, result.west)
-    if (utmUps !== undefined) {
-      var utmUpsFormatted = this.formatUtmUps(utmUps)
-      this.setUtmUpsUpperLeft(utmUpsFormatted, true)
-    }
-
-    // eslint-disable-next-line no-redeclare
-    var utmUps = this.LLtoUtmUps(result.south, result.east)
-    if (utmUps !== undefined) {
-      // eslint-disable-next-line no-redeclare
-      var utmUpsFormatted = this.formatUtmUps(utmUps)
-      this.setUtmUpsLowerRight(utmUpsFormatted, true)
-    }
-  },
-
   setBBox() {
     //we need these to always be inferred
     //as numeric values and never as strings
@@ -559,14 +520,12 @@ module.exports = Backbone.AssociatedModel.extend({
           !this.get('drawing'),
       })
     }
-    if (this.get('locationType') !== 'usng' && !this.isLocationTypeUtmUps()) {
-      this.set({
-        mapNorth: north,
-        mapSouth: south,
-        mapEast: east,
-        mapWest: west,
-      })
-    }
+    this.set({
+      mapNorth: north,
+      mapSouth: south,
+      mapEast: east,
+      mapWest: west,
+    })
   },
 
   setRadiusUsng() {
