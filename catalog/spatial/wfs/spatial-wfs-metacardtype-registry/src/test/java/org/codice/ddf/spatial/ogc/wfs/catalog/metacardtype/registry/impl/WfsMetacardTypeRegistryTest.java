@@ -53,7 +53,6 @@ public class WfsMetacardTypeRegistryTest {
     mockBundleContext = mock(BundleContext.class);
     mockServiceRegistration = mock(ServiceRegistration.class);
     ServiceReference mockServiceReference = mock(ServiceReference.class);
-    //    ServiceReference mockServiceReference = mock(ServiceReference.class);
     mockMetacardType = mock(MetacardType.class);
 
     when(mockServiceRegistration.getReference()).thenReturn(mockServiceReference);
@@ -106,7 +105,6 @@ public class WfsMetacardTypeRegistryTest {
 
   @Test
   public void testClear() {
-    // setup
     ServiceRegistration mockServiceRegistration1 = mock(ServiceRegistration.class);
     ServiceRegistration mockServiceRegistration2 = mock(ServiceRegistration.class);
     ServiceReference mockServiceReference1 = mock(ServiceReference.class);
