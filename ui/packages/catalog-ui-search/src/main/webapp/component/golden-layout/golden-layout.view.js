@@ -79,7 +79,7 @@ const defaultGoldenLayoutContent = {
   ],
 }
 
-const getHtml = width => {
+const getTabContainer = width => {
   return `<div class="lm_tab" id="addVis" title="test" style="position:absolute; left:${width}px;"><i class="lm_left"></i><span id="vis"></span><i class="lm_right"></i></div>`
 }
 
@@ -302,7 +302,9 @@ module.exports = Marionette.LayoutView.extend({
       this.goldenLayout.container.find('#addVis').remove()
     }
     if (width > 0) {
-      this.goldenLayout.container.find('.lm_header').append(getHtml(width))
+      this.goldenLayout.container
+        .find('.lm_header')
+        .append(getTabContainer(width))
       this.regionManager.addRegion('vis', '#vis').show(
         new VisualizationDropdown({
           model: new DropdownModel(),
