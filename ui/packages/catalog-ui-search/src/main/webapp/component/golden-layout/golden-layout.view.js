@@ -216,7 +216,9 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   updateSize() {
-    this.goldenLayout.updateSize()
+    Common.repaintForTimeframe(2000, () => {
+      this.goldenLayout.updateSize()
+    })
   },
   showWidgetDropdown() {
     this.widgetDropdown.show(
