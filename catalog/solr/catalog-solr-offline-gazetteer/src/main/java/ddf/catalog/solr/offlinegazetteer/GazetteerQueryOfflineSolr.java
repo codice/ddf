@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import net.jodah.failsafe.Failsafe;
@@ -68,11 +67,6 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   private static final ThreadLocal<WKTReader> WKT_READER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTReader::new);
 
-  private static final RetryPolicy RETRY_POLICY =
-      new RetryPolicy()
-          .withMaxDuration(20, TimeUnit.SECONDS)
-          .withBackoff(100, 1_000, TimeUnit.MILLISECONDS);
-
   protected static final String SUGGEST_Q = "suggest.q";
   protected static final String SUGGEST_DICT = "suggest.dictionary";
   protected static final String SUGGEST_PLACE_KEY = "suggestPlace";
@@ -84,15 +78,22 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
 
   private SolrClient client;
 
-  private ExecutorService executor = Executors.newSingleThreadExecutor();
+  private final ExecutorService executor;
 
-  public GazetteerQueryOfflineSolr(SolrClientFactory clientFactory) {
+  public GazetteerQueryOfflineSolr(
+      SolrClientFactory clientFactory, ExecutorService startupBuilderExecutor) {
     this.clientFactory = clientFactory;
     this.client = clientFactory.newClient(OfflineGazetteerPlugin.STANDALONE_GAZETTEER_CORE_NAME);
+    this.executor = startupBuilderExecutor;
     executor.submit(
         () -> {
+          RetryPolicy retryPolicy =
+              new RetryPolicy()
+                  .retryOn(Collections.singletonList(Exception.class))
+                  .withMaxDuration(20, TimeUnit.SECONDS)
+                  .withBackoff(100, 1_000, TimeUnit.MILLISECONDS);
           SolrPingResponse ping =
-              Failsafe.with(RETRY_POLICY)
+              Failsafe.with(retryPolicy)
                   .onFailure(
                       e ->
                           LOGGER.error(
@@ -106,7 +107,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
           query.setParam("suggest.q", "GQOSInitialSuggesterBuild");
           query.setParam("suggest.dictionary", "suggestPlace");
           try {
-            QueryResponse response = client.query(query);
+            QueryResponse response = client.query(query, METHOD.POST);
             LOGGER.debug("Initial Suggester build response: {}", response);
           } catch (SolrServerException | IOException e) {
             LOGGER.error(

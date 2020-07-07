@@ -1290,6 +1290,7 @@
       <str name="sortField">ext.population_lng</str>
       <str name="payloadField">id_txt</str>
       <str name="buildOnStartup">false</str>
+      <str name="highlight">false</str>
     </lst>
   </searchComponent>
 

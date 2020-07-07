@@ -54,31 +54,6 @@
         <feature>catalog-core</feature>
         <feature>guava</feature>
         <bundle>mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}</bundle>
-
-        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/solrconfig.xml">
-            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/solrconfig
-        </configfile>
-        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/schema.xml">
-            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/schema
-        </configfile>
-        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/solr.xml">
-            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/solr
-        </configfile>
-        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/dictionary.txt">
-            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/dictionary
-        </configfile>
-        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/protwords.txt">
-            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/protwords
-        </configfile>
-        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/stopwords.txt">
-            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/stopwords
-        </configfile>
-        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/stopwords_en.txt">
-            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/stopwordsen
-        </configfile>
-        <configfile finalname="${ddf.etc}/solr/configsets/standalone-solr-gazetteer/conf/synonyms.txt">
-            mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}/file/synonyms
-        </configfile>
     </feature>
 
     <feature name="catalog-solr-app" version="${project.version}"

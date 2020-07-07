@@ -66,7 +66,7 @@ public class SyncCatalogCommand implements Action {
   @Reference private FilterBuilder filterBuilder;
   @Reference private Security security;
 
-  private static final RetryPolicy RETRY_POLICY =
+  private final RetryPolicy retryPolicy =
       new RetryPolicy()
           .retryOn(ImmutableList.of(UnavailableSolrException.class, SolrServerException.class))
           .withMaxDuration(5, TimeUnit.SECONDS)
@@ -81,7 +81,7 @@ public class SyncCatalogCommand implements Action {
     SolrClient solrClient =
         clientFactory.newClient(OfflineGazetteerPlugin.STANDALONE_GAZETTEER_CORE_NAME);
 
-    Failsafe.with(RETRY_POLICY).get(() -> solrClient.ping());
+    Failsafe.with(retryPolicy).get(() -> solrClient.ping());
 
     Iterable<Result> iterable =
         ResultIterable.resultIterable(catalogFramework, getGazetteerFilter());

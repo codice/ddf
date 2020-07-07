@@ -137,63 +137,6 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-artifacts</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>attach-artifact</goal>
-                </goals>
-                <configuration>
-                  <artifacts>
-                    <artifact>
-                      <file>src/main/resources/solrconfig.xml</file>
-                      <type>file</type>
-                      <classifier>solrconfig</classifier>
-                    </artifact>
-                    <artifact>
-                      <file>src/main/resources/schema.xml</file>
-                      <type>file</type>
-                      <classifier>schema</classifier>
-                    </artifact>
-                    <artifact>
-                      <file>src/main/resources/solr.xml</file>
-                      <type>file</type>
-                      <classifier>solr</classifier>
-                    </artifact>
-                    <artifact>
-                      <file>src/main/resources/dictionary.txt</file>
-                      <type>file</type>
-                      <classifier>dictionary</classifier>
-                    </artifact>
-                    <artifact>
-                      <file>src/main/resources/protwords.txt</file>
-                      <type>file</type>
-                      <classifier>protwords</classifier>
-                    </artifact>
-                    <artifact>
-                      <file>src/main/resources/stopwords.txt</file>
-                      <type>file</type>
-                      <classifier>stopwords</classifier>
-                    </artifact>
-                    <artifact>
-                      <file>src/main/resources/stopwords_en.txt</file>
-                      <type>file</type>
-                      <classifier>stopwordsen</classifier>
-                    </artifact>
-                    <artifact>
-                      <file>src/main/resources/synonyms.txt</file>
-                      <type>file</type>
-                      <classifier>synonyms</classifier>
-                    </artifact>
-                  </artifacts>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
             <executions>
