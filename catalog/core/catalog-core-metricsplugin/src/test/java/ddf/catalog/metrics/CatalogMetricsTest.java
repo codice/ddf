@@ -102,6 +102,14 @@ public class CatalogMetricsTest {
   }
 
   @Test
+  public void testQueryWithNullSourceId() throws Exception {
+    QueryRequest query = new QueryRequestImpl(new QueryImpl(idFilter), Collections.singleton(null));
+    catalogMetrics.process(query);
+
+    assertThat(meterRegistry.counter("ddf.catalog.queries").count(), is(0.0));
+  }
+
+  @Test
   public void testLocalComparisonQuery() throws Exception {
     Iterable<Tag> tags = getTags("comparison", "testSite", "local");
     QueryRequest query =
