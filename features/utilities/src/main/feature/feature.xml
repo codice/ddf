@@ -35,7 +35,6 @@
     <feature name="util-uuidgenerator" version="${project.version}"
              description="A UUID generator service">
         <feature>util-uuidgenerator-api</feature>
-        <feature>platform-util</feature>
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
         <bundle>mvn:ddf.platform.util/util-uuidgenerator-impl/${project.version}</bundle>
     </feature>
@@ -84,9 +83,9 @@
         <feature>guava</feature>
         <feature>spring</feature>
         <feature>common-system</feature>
+        <feature>slf4j</feature>
         <feature>platform-util</feature>
         <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
-        <feature>slf4j</feature>
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-csw.config">
@@ -156,6 +155,11 @@
 
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
 
+    <feature name="platform-api" version="${project.version}"
+             description="Top Level Platform API">
+        <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-usng4j" version="${project.version}"
              description="Service to convert coordinates between various coordinate systems.">
         <bundle>mvn:ddf.platform.usng4j/platform-usng4j-api/${project.version}</bundle>
@@ -167,11 +171,6 @@
         <feature>guava</feature>
         <feature>javax-validation</feature>
         <bundle>mvn:ddf.platform/platform-logging/${project.version}</bundle>
-    </feature>
-
-    <feature name="platform-api" version="${project.version}"
-             description="Top Level Platform API">
-        <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
     </feature>
 
     <feature name="tika" version="${project.version}"

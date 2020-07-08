@@ -46,7 +46,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <!-- Exported for ITests -->
+                        <Export-Package>
+                            org.codice.ddf.security.policy.context.impl
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

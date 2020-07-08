@@ -65,7 +65,6 @@
         <feature>security-core-services</feature>
         <feature>oidc-auth</feature>
         <feature>saml-auth</feature>
-        <feature>ldap-auth</feature>
         <feature>platform-app</feature>
         <feature>admin-app</feature>
     </feature>

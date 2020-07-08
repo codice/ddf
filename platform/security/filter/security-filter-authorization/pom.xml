@@ -80,8 +80,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
                         <Embed-Dependency>httpclient,httpcore</Embed-Dependency>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

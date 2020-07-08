@@ -324,6 +324,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>${javax-mail-version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.email</groupId>
             <artifactId>platform-email-api</artifactId>
             <version>${project.version}</version>

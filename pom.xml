@@ -550,6 +550,11 @@
                             <include>**/*Test.java</include>
                             <include>**/*Spec.class</include>
                         </includes>
+                        <systemPropertyVariables>
+                            <org.ops4j.pax.logging.DefaultServiceLog.level>
+                                INFO
+                            </org.ops4j.pax.logging.DefaultServiceLog.level>
+                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
                 <plugin>
