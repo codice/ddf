@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.content.impl.MockMemoryStorageProvider;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -31,6 +32,7 @@ import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.impl.QueryResponsePostProcessor;
+import ddf.catalog.impl.operations.ResourceOperations.ResourceInfo;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
@@ -324,6 +326,83 @@ public class ResourceOperationsTest {
     resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
 
     verifyGetResourceMocks();
+  }
+
+  @Test
+  public void testGetResourceOrDerivedUriNoQualifier() throws Exception {
+
+    URI resourceUri = URI.create("http://example.com");
+
+    ResourceRequest resourceRequest = mock(ResourceRequest.class);
+    when(resourceRequest.getPropertyValue(ResourceRequest.QUALIFIER)).thenReturn(null);
+
+    ResourceInfo resourceInfo = mock(ResourceInfo.class);
+    when(resourceInfo.getResourceUri()).thenReturn(resourceUri);
+
+    URI uri = ResourceOperations.getResourceOrDerivedUri(resourceInfo, resourceRequest);
+    assertThat(uri, equalTo(resourceUri));
+  }
+
+  @Test
+  public void testGetResourceOrDerivedUriUnknownSchemeWithQualifier() throws Exception {
+
+    String qualifier = "qualifier";
+    URI resourceUri = URI.create("scheme://example.com#" + qualifier);
+
+    ResourceRequest resourceRequest = mock(ResourceRequest.class);
+    when(resourceRequest.getPropertyValue(ResourceRequest.QUALIFIER)).thenReturn(resourceUri);
+
+    ResourceInfo resourceInfo = mock(ResourceInfo.class);
+    when(resourceInfo.getResourceUri()).thenReturn(resourceUri);
+
+    URI uri = ResourceOperations.getResourceOrDerivedUri(resourceInfo, resourceRequest);
+    assertThat(uri, equalTo(resourceUri));
+  }
+
+  @Test
+  public void testGetResourceOrDerivedUriHttpSchemeWithQualifier() throws Exception {
+
+    String qualifier = "pdf";
+    URI resourceUri = URI.create("http://example.com/resource");
+    URI derivedResourceUri = URI.create("http://example.com/resource?qualifier=pdf");
+
+    Attribute derivedResourceUriAttribute = mock(Attribute.class);
+    when(derivedResourceUriAttribute.getValue()).thenReturn(derivedResourceUri);
+    when(derivedResourceUriAttribute.getValues())
+        .thenReturn(Collections.singletonList(derivedResourceUri));
+
+    Metacard metacard = mock(Metacard.class);
+    when(metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI))
+        .thenReturn(derivedResourceUriAttribute);
+
+    ResourceRequest resourceRequest = mock(ResourceRequest.class);
+    when(resourceRequest.getPropertyValue(ResourceRequest.QUALIFIER)).thenReturn(qualifier);
+
+    ResourceInfo resourceInfo = mock(ResourceInfo.class);
+    when(resourceInfo.getResourceUri()).thenReturn(resourceUri);
+    when(resourceInfo.getMetacard()).thenReturn(metacard);
+
+    URI uri = ResourceOperations.getResourceOrDerivedUri(resourceInfo, resourceRequest);
+    assertThat(uri, equalTo(derivedResourceUri));
+  }
+
+  @Test(expected = ResourceNotFoundException.class)
+  public void testGetResourceOrDerivedUriMissingDerivedResourceUri() throws Exception {
+
+    String qualifier = "qualifier";
+    URI resourceUri = URI.create("content://example.com#" + qualifier);
+
+    Metacard metacard = mock(Metacard.class);
+    when(metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI)).thenReturn(null);
+
+    ResourceRequest resourceRequest = mock(ResourceRequest.class);
+    when(resourceRequest.getPropertyValue(ResourceRequest.QUALIFIER)).thenReturn(qualifier);
+
+    ResourceInfo resourceInfo = mock(ResourceInfo.class);
+    when(resourceInfo.getResourceUri()).thenReturn(resourceUri);
+    when(resourceInfo.getMetacard()).thenReturn(metacard);
+
+    ResourceOperations.getResourceOrDerivedUri(resourceInfo, resourceRequest);
   }
 
   @Test(expected = ResourceNotSupportedException.class)

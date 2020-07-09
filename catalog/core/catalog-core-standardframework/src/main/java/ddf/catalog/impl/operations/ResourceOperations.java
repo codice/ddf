@@ -13,6 +13,7 @@
  */
 package ddf.catalog.impl.operations;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.Constants;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Attribute;
@@ -425,7 +426,8 @@ public class ResourceOperations extends DescribableImpl {
     return resourceResponse;
   }
 
-  private static URI getResourceOrDerivedUri(ResourceInfo resourceInfo, ResourceRequest resourceReq)
+  @VisibleForTesting
+  static URI getResourceOrDerivedUri(ResourceInfo resourceInfo, ResourceRequest resourceReq)
       throws ResourceNotFoundException {
     // check if the resource request included a qualifier in which case we are trying to retrieve
     // a derived resource and not the resource
