@@ -199,9 +199,9 @@ public final class BoundingBoxUtils {
    * @param boundingBox
    * @return
    */
-  public static List<List> getBoundingBoxCoordinatesList(BoundingBox boundingBox) {
-    List<List> coordinates = new ArrayList<>();
-    List coordinate = new ArrayList<>();
+  public static List<List<Double>> getBoundingBoxCoordinatesList(BoundingBox boundingBox) {
+    List<List<Double>> coordinates = new ArrayList<>();
+    List<Double> coordinate = new ArrayList<>();
     coordinate.add(boundingBox.getWest());
     coordinate.add(boundingBox.getSouth());
     coordinates.add(coordinate);
