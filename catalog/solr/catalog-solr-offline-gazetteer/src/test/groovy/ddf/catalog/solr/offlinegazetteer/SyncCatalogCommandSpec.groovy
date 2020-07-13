@@ -28,7 +28,9 @@ class SyncCatalogCommandSpec extends Specification {
     Security security
 
     void setup() {
-        solrClient = Mock(SolrClient)
+        solrClient = Mock(SolrClient) {
+            isAvailable() >> true
+        }
         solrClientFactory = Mock(SolrClientFactory) {
             newClient(_) >> solrClient
         }

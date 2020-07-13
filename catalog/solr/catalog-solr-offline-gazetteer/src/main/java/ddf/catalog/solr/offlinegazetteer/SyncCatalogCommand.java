@@ -79,9 +79,20 @@ public class SyncCatalogCommand implements Action {
 
   public Object executeWithSubject() throws Exception {
     SolrClient solrClient =
-        clientFactory.newClient(OfflineGazetteerPlugin.STANDALONE_GAZETTEER_CORE_NAME);
+        clientFactory.newClient(GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME);
 
-    Failsafe.with(retryPolicy).get(() -> solrClient.ping());
+    Boolean response =
+        Failsafe.with(
+                new RetryPolicy()
+                    .retryWhen(false)
+                    .withMaxDuration(5, TimeUnit.SECONDS)
+                    .withBackoff(50, 1_000, TimeUnit.MILLISECONDS))
+            .get(() -> solrClient.isAvailable());
+    if (response == null || !response) {
+      LOGGER.error("Could not contact solr to remove all");
+      session.getConsole().println("Could not contact solr to remove all, exiting.");
+      return null;
+    }
 
     Iterable<Result> iterable =
         ResultIterable.resultIterable(catalogFramework, getGazetteerFilter());
@@ -125,7 +136,10 @@ public class SyncCatalogCommand implements Action {
   public QueryRequest getGazetteerFilter() {
     return new QueryRequestImpl(
         new QueryImpl(
-            filterBuilder.attribute(Core.METACARD_TAGS).like().text("gazetteer"),
+            filterBuilder
+                .attribute(Core.METACARD_TAGS)
+                .like()
+                .text(GazetteerConstants.GAZETTEER_METACARD_TAG),
             1,
             PARTITION_SIZE,
             new SortByImpl(Core.ID, SortOrder.ASCENDING),

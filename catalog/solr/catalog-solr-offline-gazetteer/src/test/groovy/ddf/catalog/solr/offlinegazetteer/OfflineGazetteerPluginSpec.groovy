@@ -51,7 +51,7 @@ class OfflineGazetteerPluginSpec extends Specification {
     void setup() {
         solrClient = Mock(SolrClient)
         solrClientFactory = Mock(SolrClientFactory) {
-            newClient(OfflineGazetteerPlugin.STANDALONE_GAZETTEER_CORE_NAME) >> solrClient
+            newClient(GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME) >> solrClient
         }
         testedPlugin = new OfflineGazetteerPlugin(solrClientFactory)
 

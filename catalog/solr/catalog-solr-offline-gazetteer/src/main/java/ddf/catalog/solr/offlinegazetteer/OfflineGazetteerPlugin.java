@@ -14,6 +14,9 @@
 package ddf.catalog.solr.offlinegazetteer;
 
 import static ddf.catalog.Constants.SUGGESTION_BUILD_KEY;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_METACARD_TAG;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAMES;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -34,6 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
@@ -45,14 +49,10 @@ import org.slf4j.LoggerFactory;
 
 public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin {
   private static final Logger LOGGER = LoggerFactory.getLogger(OfflineGazetteerPlugin.class);
-  private static final String GAZETTEER_METACARD_TAG = "gazetteer";
-  public static final String STANDALONE_GAZETTEER_CORE_NAME = "standalone-solr-gazetteer";
 
-  private final SolrClientFactory clientFactory;
   private final SolrClient solrClient;
 
   public OfflineGazetteerPlugin(SolrClientFactory clientFactory) {
-    this.clientFactory = clientFactory;
     this.solrClient = clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
   }
 
@@ -77,8 +77,7 @@ public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin 
               .map(OfflineGazetteerPlugin::convert)
               .collect(Collectors.toList()));
     } catch (SolrServerException | IOException e) {
-      LOGGER.debug("Error while processing gazetteer data", e);
-      throw new PluginExecutionException(e);
+      throw new PluginExecutionException("Error while processing gazetteer data", e);
     }
 
     return input;
@@ -138,9 +137,10 @@ public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin 
   protected static SolrInputDocument convert(Metacard metacard) {
     SolrInputDocument solrDoc = new SolrInputDocument();
     Consumer<String> getAttrAndAdd =
-        (attribute) ->
-            Optional.ofNullable(getStringAttribute(metacard, attribute))
-                .ifPresent(attr -> solrDoc.addField(attribute + "_txt", attr));
+        (attributeName) ->
+            Optional.ofNullable(getStringAttribute(metacard, attributeName))
+                .ifPresent(
+                    attributeValue -> solrDoc.addField(NAMES.get(attributeName), attributeValue));
 
     getAttrAndAdd.accept(Metacard.DESCRIPTION);
     getAttrAndAdd.accept(GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME);
@@ -150,25 +150,27 @@ public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin 
 
     Optional.of(metacard)
         .map(m -> getStringAttribute(m, Core.LOCATION))
-        .ifPresent(v -> solrDoc.addField(Core.LOCATION + "_geo", v));
+        .ifPresent(v -> solrDoc.addField(NAMES.get(Core.LOCATION), v));
 
     Optional.of(metacard)
         .map(m -> m.getAttribute(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME))
         .map(Attribute::getValue)
         .filter(Long.class::isInstance)
         .map(Long.class::cast)
-        .ifPresent(v -> solrDoc.addField(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME + "_lng", v));
+        .ifPresent(
+            v -> solrDoc.addField(NAMES.get(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME), v));
 
     Optional.of(metacard)
         .map(m -> m.getAttribute(GeoEntryAttributes.GAZETTEER_SORT_VALUE))
         .map(Attribute::getValue)
         .filter(Integer.class::isInstance)
         .map(Integer.class::cast)
-        .ifPresent(v -> solrDoc.addField(GeoEntryAttributes.GAZETTEER_SORT_VALUE + "_int", v));
+        .ifPresent(v -> solrDoc.addField(NAMES.get(GeoEntryAttributes.GAZETTEER_SORT_VALUE), v));
 
     return solrDoc;
   }
 
+  @Nullable
   private static String getStringAttribute(Metacard metacard, String attributeName) {
     Attribute attribute = metacard.getAttribute(attributeName);
     if (attribute != null && attribute.getValue() instanceof String) {

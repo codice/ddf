@@ -13,12 +13,19 @@
  */
 package ddf.catalog.solr.offlinegazetteer;
 
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAMES;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_VALUE;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q;
+
+import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Location;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -31,7 +38,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
@@ -48,6 +54,13 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.context.jts.ValidationRule;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +71,21 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   private static final String CITY_SOLR_QUERY =
       GeoCodingConstants.CITY_FEATURE_CODES
           .stream()
-          .map(fc -> String.format("ext.feature-code_txt:%s", fc))
+          .map(fc -> String.format("feature-code_txt:%s", fc))
           .collect(Collectors.joining(" OR ", "(", ")"));
+
+  private static final int MAX_RESULTS = 100;
+  private static final double KM_PER_DEGREE = 111.139;
+
+  private static final Map<String, String> SPATIAL_CONTEXT_ARGUMENTS =
+      ImmutableMap.of(
+          "spatialContextFactory",
+          JtsSpatialContextFactory.class.getName(),
+          "validationRule",
+          ValidationRule.repairConvexHull.name());
+
+  private static final SpatialContext SPATIAL_CONTEXT =
+      SpatialContextFactory.makeSpatialContext(SPATIAL_CONTEXT_ARGUMENTS, null);
 
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTWriter::new);
@@ -67,55 +93,13 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   private static final ThreadLocal<WKTReader> WKT_READER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTReader::new);
 
-  protected static final String SUGGEST_Q = "suggest.q";
-  protected static final String SUGGEST_DICT = "suggest.dictionary";
-  protected static final String SUGGEST_PLACE_KEY = "suggestPlace";
-
-  public static final int MAX_RESULTS = 100;
-  public static final double KM_PER_DEGREE = 111.139;
-
-  private SolrClientFactory clientFactory;
-
-  private SolrClient client;
-
-  private final ExecutorService executor;
+  private final SolrClient client;
 
   public GazetteerQueryOfflineSolr(
       SolrClientFactory clientFactory, ExecutorService startupBuilderExecutor) {
-    this.clientFactory = clientFactory;
-    this.client = clientFactory.newClient(OfflineGazetteerPlugin.STANDALONE_GAZETTEER_CORE_NAME);
-    this.executor = startupBuilderExecutor;
-    executor.submit(
-        () -> {
-          RetryPolicy retryPolicy =
-              new RetryPolicy()
-                  .retryOn(Collections.singletonList(Exception.class))
-                  .withMaxDuration(20, TimeUnit.SECONDS)
-                  .withBackoff(100, 1_000, TimeUnit.MILLISECONDS);
-          SolrPingResponse ping =
-              Failsafe.with(retryPolicy)
-                  .onFailure(
-                      e ->
-                          LOGGER.error(
-                              "Could not get solrclient to start initial suggester build for {} core. Please try to start a build manually with the `build-suggester-index` karaf command or by sending a request to solr with the property `suggest.build=true`",
-                              OfflineGazetteerPlugin.STANDALONE_GAZETTEER_CORE_NAME,
-                              e))
-                  .get(() -> client.ping());
-          SolrQuery query = new SolrQuery();
-          query.setRequestHandler("/suggest");
-          query.setParam("suggest.build", true);
-          query.setParam("suggest.q", "GQOSInitialSuggesterBuild");
-          query.setParam("suggest.dictionary", "suggestPlace");
-          try {
-            QueryResponse response = client.query(query, METHOD.POST);
-            LOGGER.debug("Initial Suggester build response: {}", response);
-          } catch (SolrServerException | IOException e) {
-            LOGGER.error(
-                "Error while trying to build initial suggester for {}",
-                OfflineGazetteerPlugin.STANDALONE_GAZETTEER_CORE_NAME,
-                e);
-          }
-        });
+
+    this.client = clientFactory.newClient(GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME);
+    startupBuilderExecutor.submit(this::pingAndInitializeSuggester);
   }
 
   @Override
@@ -147,7 +131,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     try {
       response = client.query(solrQuery, METHOD.POST);
     } catch (SolrServerException | IOException e) {
-      throw new GeoEntryQueryException("Error while querying", e);
+      throw new GeoEntryQueryException("Error while querying by ID", e);
     }
 
     return response
@@ -164,28 +148,57 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     SolrQuery solrQuery = new SolrQuery();
     solrQuery.setRequestHandler("/suggest");
     solrQuery.setParam(SUGGEST_Q, ClientUtils.escapeQueryChars(queryString));
-    solrQuery.setParam(SUGGEST_DICT, SUGGEST_PLACE_KEY);
+    solrQuery.setParam(SUGGEST_DICT, SUGGEST_DICT_VALUE);
     solrQuery.setParam("suggest.count", Integer.toString(Math.min(maxResults, MAX_RESULTS)));
 
     QueryResponse response;
     try {
       response = client.query(solrQuery);
     } catch (SolrServerException | IOException e) {
-      LOGGER.debug("Something went wrong when querying", e);
       throw new GeoEntryQueryException("Error while querying", e);
     }
 
     return Optional.ofNullable(response)
         .map(QueryResponse::getSuggesterResponse)
         .map(SuggesterResponse::getSuggestions)
-        .map(suggestionsPerDict -> suggestionsPerDict.get(SUGGEST_PLACE_KEY))
+        .map(suggestionsPerDict -> suggestionsPerDict.get(SUGGEST_DICT_VALUE))
         .orElse(Collections.emptyList())
         .stream()
         .map(suggestion -> new SuggestionImpl(suggestion.getPayload(), suggestion.getTerm()))
         .collect(Collectors.toList());
   }
 
-  public static class SuggestionImpl implements Suggestion {
+  private void pingAndInitializeSuggester() {
+    Failsafe.with(
+            new RetryPolicy()
+                .retryWhen(false)
+                .withMaxDuration(5, TimeUnit.MINUTES)
+                .withBackoff(100, 3_000, TimeUnit.MILLISECONDS))
+        .onFailure(
+            e ->
+                LOGGER.error(
+                    "Could not get solrclient to start initial suggester build for {} core. Please try to start a build manually with the `build-suggester-index` karaf command or by sending a request to solr with the property `suggest.build=true`",
+                    GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME,
+                    e))
+        .get(() -> client.isAvailable());
+
+    SolrQuery query = new SolrQuery();
+    query.setRequestHandler("/suggest");
+    query.setParam("suggest.build", true);
+    query.setParam(SUGGEST_Q, "GQOSInitialSuggesterBuild");
+    query.setParam(SUGGEST_DICT, SUGGEST_DICT_VALUE);
+    try {
+      QueryResponse response = client.query(query, METHOD.POST);
+      LOGGER.debug("Initial Suggester build response: {}", response);
+    } catch (SolrServerException | IOException e) {
+      LOGGER.error(
+          "Error while trying to build initial suggester for {}",
+          GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME,
+          e);
+    }
+  }
+
+  public static final class SuggestionImpl implements Suggestion {
     private final String id;
     private final String name;
 
@@ -214,10 +227,8 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     } catch (org.locationtech.jts.io.ParseException e) {
       throw new GeoEntryQueryException("Could not parse location");
     }
-    // conver km to rough degree measurement, approximately 111km per degree
-    double distanceInDegrees = radiusInKm / KM_PER_DEGREE;
     final Geometry originalGeometry = geometry;
-    Geometry bufferedGeo = originalGeometry.buffer(distanceInDegrees, 14);
+    Geometry bufferedGeo = originalGeometry.buffer(convertKilometerToDegree(radiusInKm), 14);
     String wkt = WKT_WRITER_THREAD_LOCAL.get().write(bufferedGeo);
 
     String q =
@@ -232,8 +243,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     try {
       response = client.query(solrQuery, METHOD.POST);
     } catch (SolrServerException | IOException e) {
-      LOGGER.debug("Error executing query for nearest cities", e);
-      throw new GeoEntryQueryException("Error executing query", e);
+      throw new GeoEntryQueryException("Error executing query for nearest cities", e);
     }
 
     return response
@@ -248,7 +258,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     String title =
         Optional.ofNullable(getField(doc, "title_txt", String.class))
             .filter(Objects::nonNull)
-            .filter(s -> !"".equals(s))
+            .filter(s -> !s.isEmpty())
             .orElse("NO TITLE");
 
     String cardinalDirection = "";
@@ -258,7 +268,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
       cardinalDirection =
           bearingToCardinalDirection(getBearing(originalLocation.getCentroid(), geo.getCentroid()));
       // convert distance to KM
-      distance = originalLocation.distance(geo.getCentroid()) * KM_PER_DEGREE;
+      distance = convertDegreeToKilometer(originalLocation.distance(geo.getCentroid()));
     } catch (org.locationtech.jts.io.ParseException e) {
       LOGGER.debug("Could not parse location for item (object: {})", doc.toString(), e);
     }
@@ -266,7 +276,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     return new NearbyLocationImpl(title, cardinalDirection, distance);
   }
 
-  public static class NearbyLocationImpl implements NearbyLocation {
+  public static final class NearbyLocationImpl implements NearbyLocation {
     private final String name;
     private final String cardinalDirection;
     private final double distance;
@@ -334,8 +344,12 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
       throws GeoEntryQueryException, ParseException {
     String wkt;
     try {
-      Point center = WKT_READER_THREAD_LOCAL.get().read(wktLocation).getCentroid();
-      wkt = WKT_WRITER_THREAD_LOCAL.get().write(center.buffer(radius / KM_PER_DEGREE));
+      Point center =
+          WKT_READER_THREAD_LOCAL
+              .get()
+              .read(fixSelfIntersectingGeometry(wktLocation))
+              .getCentroid();
+      wkt = WKT_WRITER_THREAD_LOCAL.get().write(center.buffer(convertKilometerToDegree(radius)));
     } catch (org.locationtech.jts.io.ParseException e) {
       LOGGER.debug("Could not parse wkt: {}", wktLocation, e);
       throw new GeoEntryQueryException("Could not parse wkt", e);
@@ -362,38 +376,53 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
         .map(doc -> getField(doc, Location.COUNTRY_CODE + "_txt", String.class));
   }
 
+  private String fixSelfIntersectingGeometry(String wkt) {
+    try {
+      Shape wktShape = SPATIAL_CONTEXT.getFormats().getWktReader().read(wkt);
+      // All polygons will be an instance of JtsGeometry. If it is not a polygon we don't need
+      // to do anything with it so just return the original wkt string.
+      if (!(wktShape instanceof JtsGeometry)) {
+        return wkt;
+      }
+      return SPATIAL_CONTEXT.getFormats().getWktWriter().toString(wktShape);
+    } catch (IOException | java.text.ParseException | InvalidShapeException e) {
+      LOGGER.info("Failed to fix or read WKT: {}", wkt, e);
+    }
+    return wkt;
+  }
+
   private GeoEntry transformMetacardToGeoEntry(SolrDocument document) {
     GeoEntry.Builder geoEntryBuilder = new GeoEntry.Builder();
     String featureCode =
-        getField(document, GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME + "_txt", String.class);
+        getField(document, NAMES.get(GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME), String.class);
 
     if (StringUtils.isNotBlank(featureCode)) {
       geoEntryBuilder.featureCode(featureCode);
     }
 
-    String countryCode = getField(document, Location.COUNTRY_CODE + "_txt", String.class);
+    String countryCode = getField(document, NAMES.get(Location.COUNTRY_CODE), String.class);
     if (StringUtils.isNotBlank(countryCode)) {
       geoEntryBuilder.countryCode(countryCode);
     }
 
-    String name = getField(document, Core.TITLE + "_txt", String.class);
+    String name = getField(document, NAMES.get(Core.TITLE), String.class);
     if (StringUtils.isNotBlank(name)) {
       geoEntryBuilder.name(name);
     }
 
     Long population =
-        getField(document, GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME + "_lng", Long.class);
+        getField(document, NAMES.get(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME), Long.class);
     if (population != null) {
       geoEntryBuilder.population(population);
     }
 
     Integer sortValue =
-        getField(document, GeoEntryAttributes.GAZETTEER_SORT_VALUE + "_int", Integer.class);
+        getField(document, NAMES.get(GeoEntryAttributes.GAZETTEER_SORT_VALUE), Integer.class);
     if (sortValue != null) {
       geoEntryBuilder.gazetteerSort(sortValue);
     }
 
-    String location = getField(document, Core.LOCATION + "_geo", String.class);
+    String location = getField(document, NAMES.get(Core.LOCATION), String.class);
     if (StringUtils.isNotBlank(location)) {
       try {
         Geometry geometry = WKT_READER_THREAD_LOCAL.get().read(location);
@@ -408,6 +437,9 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
         LOGGER.debug("GeoEntry metacard does not contain (readable) location attribute.");
       }
     }
+    LOGGER.trace("Original solr document: {}", document);
+    LOGGER.trace("GeoEntry Builder: {}", geoEntryBuilder);
+
     return geoEntryBuilder.build();
   }
 
@@ -422,5 +454,13 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
         .map(clazz::cast)
         .findFirst()
         .orElse(null);
+  }
+
+  private double convertKilometerToDegree(int distanceInKilometers) {
+    return distanceInKilometers / KM_PER_DEGREE;
+  }
+
+  private double convertDegreeToKilometer(double distanceInDegrees) {
+    return distanceInDegrees * KM_PER_DEGREE;
   }
 }

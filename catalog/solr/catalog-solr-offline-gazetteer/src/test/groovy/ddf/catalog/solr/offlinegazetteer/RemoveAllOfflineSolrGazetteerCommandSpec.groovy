@@ -15,7 +15,9 @@ class RemoveAllOfflineSolrGazetteerCommandSpec extends Specification {
     Session session
 
     void setup() {
-        solrClient = Mock(SolrClient)
+        solrClient = Mock(SolrClient) {
+            isAvailable() >> true
+        }
         solrClientFactory = Mock(SolrClientFactory) {
             newClient(_) >> solrClient
         }
@@ -44,7 +46,7 @@ class RemoveAllOfflineSolrGazetteerCommandSpec extends Specification {
         testedClass.execute()
 
         then:
-        FailsafeException e = thrown()
+        RuntimeException e = thrown()
     }
 
 }

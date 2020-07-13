@@ -13,7 +13,6 @@
  */
 package ddf.catalog.solr.offlinegazetteer;
 
-import com.google.common.collect.ImmutableList;
 import java.util.concurrent.TimeUnit;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
@@ -23,9 +22,7 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.api.console.Session;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.client.solrj.UnavailableSolrException;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,12 +48,6 @@ public class RemoveAllOfflineSolrGazetteerCommand implements Action {
   )
   boolean force = false;
 
-  private final RetryPolicy retryPolicy =
-      new RetryPolicy()
-          .retryOn(ImmutableList.of(UnavailableSolrException.class, SolrServerException.class))
-          .withMaxDuration(5, TimeUnit.SECONDS)
-          .withBackoff(25, 1_000, TimeUnit.MILLISECONDS);
-
   @Override
   public Object execute() throws Exception {
     if (!force) {
@@ -71,11 +62,24 @@ public class RemoveAllOfflineSolrGazetteerCommand implements Action {
         return null;
       }
     }
-    try {
-      SolrClient solrClient =
-          clientFactory.newClient(OfflineGazetteerPlugin.STANDALONE_GAZETTEER_CORE_NAME);
 
-      Failsafe.with(retryPolicy).get(() -> solrClient.deleteByQuery("*:*"));
+    SolrClient solrClient =
+        clientFactory.newClient(GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME);
+
+    Boolean response =
+        Failsafe.with(
+                new RetryPolicy()
+                    .retryWhen(false)
+                    .withMaxDuration(5, TimeUnit.SECONDS)
+                    .withBackoff(25, 1_000, TimeUnit.MILLISECONDS))
+            .get(() -> solrClient.isAvailable());
+    if (response == null || !response) {
+      LOGGER.error("Could not contact solr to remove all");
+      session.getConsole().println("Could not contact solr to remove all, exiting.");
+      return null;
+    }
+    try {
+      solrClient.deleteByQuery("*:*");
     } catch (Exception e) {
       LOGGER.info("Error while executing", e);
       session.getConsole().println("Error while submitting remove all, exiting.");
@@ -83,9 +87,5 @@ public class RemoveAllOfflineSolrGazetteerCommand implements Action {
     }
     session.getConsole().println("Removeall submitted successfully.");
     return null;
-  }
-
-  public void setClientFactory(SolrClientFactory clientFactory) {
-    this.clientFactory = clientFactory;
   }
 }

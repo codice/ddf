@@ -68,6 +68,11 @@
             <artifactId>jts-core</artifactId>
             <version>${jts.spatial4j.version}</version>
         </dependency>
+      <dependency>
+        <groupId>org.locationtech.spatial4j</groupId>
+        <artifactId>spatial4j</artifactId>
+        <version>0.7</version>
+      </dependency>
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
@@ -89,8 +94,6 @@
         <artifactId>slf4j-nop</artifactId>
         <scope>test</scope>
       </dependency>
-
-
     </dependencies>
 
     <build>
@@ -160,12 +163,12 @@
                         <limit implementation="org.codice.jacoco.LenientLimit">
                           <counter>BRANCH</counter>
                           <value>COVEREDRATIO</value>
-                          <minimum>0.70</minimum>
+                          <minimum>0.67</minimum>
                         </limit>
                         <limit implementation="org.codice.jacoco.LenientLimit">
                           <counter>COMPLEXITY</counter>
                           <value>COVEREDRATIO</value>
-                          <minimum>0.80</minimum>
+                          <minimum>0.77</minimum>
                         </limit>
                       </limits>
                     </rule>
