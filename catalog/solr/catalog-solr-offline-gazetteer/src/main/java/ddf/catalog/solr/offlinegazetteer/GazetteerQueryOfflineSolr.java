@@ -267,7 +267,6 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
       Geometry geo = WKT_READER_THREAD_LOCAL.get().read(location);
       cardinalDirection =
           bearingToCardinalDirection(getBearing(originalLocation.getCentroid(), geo.getCentroid()));
-      // convert distance to KM
       distance = convertDegreeToKilometer(originalLocation.distance(geo.getCentroid()));
     } catch (org.locationtech.jts.io.ParseException e) {
       LOGGER.debug("Could not parse location for item (object: {})", doc.toString(), e);
