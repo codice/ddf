@@ -24,7 +24,8 @@ import static org.ops4j.pax.logging.PaxLogger.LEVEL_INFO;
 import static org.ops4j.pax.logging.PaxLogger.LEVEL_TRACE;
 import static org.ops4j.pax.logging.PaxLogger.LEVEL_WARNING;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import org.codice.ddf.platform.logging.LogEvent.Level;
 import org.junit.Test;
 import org.ops4j.pax.logging.spi.PaxLevel;
@@ -117,14 +118,6 @@ public class LogEventTest {
     assertThat(level, equalTo(Level.INFO));
   }
 
-  private void addBundleNameProperty(Properties properties, String bundleName) {
-    properties.put(BUNDLE_NAME_KEY, bundleName);
-  }
-
-  private void addBundleVersionProperty(Properties properties, String bundleVersion) {
-    properties.put(BUNDLE_VERSION_KEY, bundleVersion);
-  }
-
   private PaxLevel getMockPaxLevel(String level) {
     PaxLevel mockPaxLevel =
         new PaxLevel() {
@@ -165,10 +158,10 @@ public class LogEventTest {
     return mockPaxLevel;
   }
 
-  private Properties getLoggingProperties(String bundleName, String bundleVersion) {
-    Properties properties = new Properties();
-    addBundleNameProperty(properties, bundleName);
-    addBundleVersionProperty(properties, bundleVersion);
+  private Map<String, Object> getLoggingProperties(String bundleName, String bundleVersion) {
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(BUNDLE_NAME_KEY, bundleName);
+    properties.put(BUNDLE_VERSION_KEY, bundleVersion);
     return properties;
   }
 
