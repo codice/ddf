@@ -13,6 +13,7 @@
  */
 package ddf.catalog.impl.operations;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.Constants;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Attribute;
@@ -55,6 +56,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -424,13 +426,23 @@ public class ResourceOperations extends DescribableImpl {
     return resourceResponse;
   }
 
-  private static URI getResourceOrDerivedUri(ResourceInfo resourceInfo, ResourceRequest resourceReq)
+  @VisibleForTesting
+  static URI getResourceOrDerivedUri(ResourceInfo resourceInfo, ResourceRequest resourceReq)
       throws ResourceNotFoundException {
     // check if the resource request included a qualifier in which case we are trying to retrieve
     // a derived resource and not the resource
     final Serializable qualifier = resourceReq.getPropertyValue(ResourceRequest.QUALIFIER);
+    final String scheme = resourceInfo.getResourceUri().getScheme();
 
-    if (qualifier == null) { // no qualifier means we are retrieving the resource
+    // no qualifier means we are retrieving the resource
+    // presence of a qualifier can mean different things. We interpret it based on protocol:
+    //   - content: this always means we are retrieving a derived resource.
+    //   - http(s): we assume the intent is to retrieve a derived resource. Is this always true?
+    //   - other: we assume we are retrieving the resource. This assumption is based on experience
+    //            with protocols that use the qualifier for purposes other than derived resources.
+    //            If protocols besides content and http(s) need to support derived resources, this
+    //            could be an issue.
+    if (qualifier == null || !Arrays.asList("http", "https", "content").contains(scheme)) {
       return resourceInfo.getResourceUri();
     } // else we are retrieving a specific derived resource
     LOGGER.debug("Derived resource qualifier = {}", qualifier);

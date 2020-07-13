@@ -326,7 +326,7 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
       }
 
       Collection<AssertionInfo> ais = getAllAssertionsByLocalname(aim, SPConstants.ISSUED_TOKEN);
-      if (ais == null) {
+      if (ais == null || ais.isEmpty()) {
         return;
       }
 
