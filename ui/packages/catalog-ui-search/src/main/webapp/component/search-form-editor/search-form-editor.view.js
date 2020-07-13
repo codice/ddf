@@ -52,7 +52,6 @@ const Left = styled.div`
   display: flex;
   flex-direction: column;
   > .search-form-editor-title {
-    height: 40px;
     flex-shrink: 0;
   }
   > .search-form-editor-query-input {
