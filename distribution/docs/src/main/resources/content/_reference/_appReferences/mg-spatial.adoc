@@ -47,6 +47,47 @@ index again.
 
 |===
 
+=== Standalone Solr Offline Gazetteer Feature
+
+The Standalone Solr Offline Gazetteer is meant to to be a reflection of the gazetteer data stored
+in the catalog while not being mixed in with all the other data. This allows the core to be
+separately reindexed much quicker than the the entire catalog core.
+
+====  Installing Standalone Solr Offline Gazetteer
+
+The Standalone Solr Offline Gazetteer is not installed by default but can be installed by running
+`feature:install catalog-solr-offline-gazetteer`. This will install:
+
+* The plugin that intercepts gazetteer metacard creates/updates/deletes to the catalog core
+(and stores them in the standalone solr gazetteer core)
+* The gazetteer query service which registers the Query component that responds to requests from
+the UI gazetteer search box
+* The `offline-solr-gazetteer:removeall` command which will delete all records in the standalone
+solr gazetteer core
+* The `offline-solr-gazetteer:synccatalog` command which will sync with the catalog and update all
+records in the standalone solr gazetteer core to reflect it (or add them if they are not yet
+created)
+
+==== Special Note Regarding Installation
+
+If the Spatial Geocoding Offline Catalog bundle and the bundle using the Gazetteer query service
+(EG, Intrigue) are both already running, you will need to restart the bundles consuming the service
+(EG, Intrigue) in order to pick up the correct one. The Standalone Solr Offline Gazetteer has a
+service ranking of 80, which should win against the catalog gazetteer query service (with ranking
+50).
+
+==== Building the suggester index on Standalone Solr Offline Gazetteer
+
+The suggester index will be built when any of the other methods of building the catalog gazetteer
+are ran, along with on initial install. So you can run `gazetteer:build-suggester-index` to build
+the suggester.
+
+Another option is to send a build request via a solr client. An example of this is done through
+the Solr Dashboard after selecting the `standalone-solr-gazetteer` core and clicking `query`.
+Ensure that the Request-Handler (qt) is set to `/suggest` and then in the 'Extra Parameters' field
+add `suggest.build=true&suggest.dictionary=suggestPlace&suggest.q=bla`.
+
+
 ===  ${ddf-spatial} Prerequisites
 
 To use the ${ddf-spatial} Application, the following apps/features must be installed:
