@@ -125,18 +125,34 @@ public class GeoEntry {
 
     @Override
     public String toString() {
-      return "Builder{" +
-          "name='" + name + '\'' +
-          ", latitude=" + latitude +
-          ", longitude=" + longitude +
-          ", featureCode='" + featureCode + '\'' +
-          ", population=" + population +
-          ", alternateNames='" + alternateNames + '\'' +
-          ", countryCode='" + countryCode + '\'' +
-          ", importLocation='" + importLocation + '\'' +
-          ", gazetteerSort=" + gazetteerSort +
-          ", featureClass='" + featureClass + '\'' +
-          '}';
+      return "Builder{"
+          + "name='"
+          + name
+          + '\''
+          + ", latitude="
+          + latitude
+          + ", longitude="
+          + longitude
+          + ", featureCode='"
+          + featureCode
+          + '\''
+          + ", population="
+          + population
+          + ", alternateNames='"
+          + alternateNames
+          + '\''
+          + ", countryCode='"
+          + countryCode
+          + '\''
+          + ", importLocation='"
+          + importLocation
+          + '\''
+          + ", gazetteerSort="
+          + gazetteerSort
+          + ", featureClass='"
+          + featureClass
+          + '\''
+          + '}';
     }
   }
 
@@ -178,17 +194,33 @@ public class GeoEntry {
 
   @Override
   public String toString() {
-    return "GeoEntry{" +
-        "name='" + name + '\'' +
-        ", latitude=" + latitude +
-        ", longitude=" + longitude +
-        ", featureCode='" + featureCode + '\'' +
-        ", population=" + population +
-        ", alternateNames='" + alternateNames + '\'' +
-        ", countryCode='" + countryCode + '\'' +
-        ", importLocation='" + importLocation + '\'' +
-        ", gazetteerSort=" + gazetteerSort +
-        ", featureClass='" + featureClass + '\'' +
-        '}';
+    return "GeoEntry{"
+        + "name='"
+        + name
+        + '\''
+        + ", latitude="
+        + latitude
+        + ", longitude="
+        + longitude
+        + ", featureCode='"
+        + featureCode
+        + '\''
+        + ", population="
+        + population
+        + ", alternateNames='"
+        + alternateNames
+        + '\''
+        + ", countryCode='"
+        + countryCode
+        + '\''
+        + ", importLocation='"
+        + importLocation
+        + '\''
+        + ", gazetteerSort="
+        + gazetteerSort
+        + ", featureClass='"
+        + featureClass
+        + '\''
+        + '}';
   }
 }
