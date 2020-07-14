@@ -1,11 +1,14 @@
 var EventSource = require('eventsource')
+const Common = require('./Common.js')
 
 const REQUEST_HEADER = 'XMLHttpRequest'
 const HEADERS = {
   'X-Requested-With': REQUEST_HEADER,
 }
 
-var sources = []
+var source
+
+var id = Common.generateUUID()
 
 // const defaultHandlers = source => {
 //   return {
@@ -37,20 +40,38 @@ module.exports = {
     //     .substring(2, 15)
 
     const { onMessage } = handlers
-    if (sources.length != 0) {
-      sources[0].addEventListener(type, event => {
+    if (source) {
+      console.log('IF on message')
+      console.log('id: ', id)
+      source.addEventListener(type, event => {
         onMessage(event)
       })
     } else {
-      var source = new EventSource('./internal/events', {
+      id = Common.generateUUID()
+      source = new EventSource('./internal/events/' + id, {
         withCredentials: true,
         credentials: 'same-origin',
         headers: HEADERS,
       })
       source.addEventListener(type, event => {
+        console.log('ELSE on message')
+        console.log('id: ', id)
         onMessage(event)
       })
-      sources.push(source)
+      source.onerror = event => {
+        console.log('on error')
+        console.log(event)
+        console.log('id: ', id)
+        source.close()
+        source = null
+      }
+      source.addEventListener('close', event => {
+        console.log('on close')
+        console.log(event)
+        console.log('id: ', id)
+        source.close()
+        source = null
+      })
     }
   },
 }
