@@ -3,8 +3,8 @@ package org.codice.ddf.catalog.ui.events;
 import static spark.Spark.get;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
@@ -13,39 +13,44 @@ import spark.servlet.SparkApplication;
 
 public class EventApplication implements SparkApplication {
 
-  private static final List<PrintWriter> listeners = new ArrayList<>();
+  private static final Map<String, PrintWriter> listeners = new ConcurrentHashMap<>();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EventApplication.class);
 
+  // HEARTBEAT is used to write silent messages to keep the client connection. It is also used to
+  // trigger events
+  // by sending it with the data: tag. For more information, see
+  // https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format
   private static final String HEARTBEAT = ": \n\n";
 
   @Override
   public void init() {
     get(
-        "/events",
+        "/events/:id",
         (req, res) -> {
           try {
+            String sourceId = req.params(":id");
+            if (listeners.size() >= 5) {
+              notifyListener(sourceId, "close");
+              res.status(429);
+              return "Too many HTTP connections - cannot create new Event Source";
+            }
             res.type("text/event-stream; charset=UTF-8");
             res.header("Connection", "keep-alive");
             res.header("Cache-Control", "no-cache");
-            res.status(200);
-            PrintWriter out = res.raw().getWriter();
-            synchronized (listeners) {
-              listeners.add(out);
-            }
-            out.write(HEARTBEAT);
-            out.flush();
 
-            while (true) {
+            PrintWriter out = res.raw().getWriter();
+
+            res.status(200);
+            listeners.put(sourceId, out);
+            while (!out.checkError()) {
               out.write(HEARTBEAT);
-              if (out.checkError()) {
-                // Subscriber error, break out of loop
-                break;
-              }
-              Thread.sleep(1000);
+              out.flush();
+              Thread.sleep(15000);
             }
-            listeners.remove(out);
-            return "Event Source setup successful";
+            notifyListener(sourceId, "close");
+            listeners.remove(sourceId);
+            return "Event Source connection closed";
           } catch (Exception e) {
             LOGGER.error("Event Source configuration error");
           }
@@ -67,13 +72,33 @@ public class EventApplication implements SparkApplication {
     es.submit(
         () -> {
           synchronized (listeners) {
-            listeners.forEach(
-                (listener) -> {
-                  listener.write("event: " + type + "\n");
-                  listener.write("data" + HEARTBEAT);
-                  listener.flush();
-                });
+            listeners
+                .values()
+                .forEach(
+                    (listener) -> {
+                      listener.write("event: " + type + "\n");
+                      listener.write("data" + HEARTBEAT);
+                      listener.flush();
+                    });
           }
+        });
+  }
+
+  public static void notifyListener(String id, String type) {
+    ExecutorService es = Executors.newSingleThreadExecutor();
+    es.submit(
+        () -> {
+          try {
+            Thread.sleep(3000);
+          } catch (InterruptedException e) {
+            LOGGER.error("Event Source notification error");
+          }
+        });
+    es.submit(
+        () -> {
+          listeners.get(id).write("event: " + type + "\n");
+          listeners.get(id).write("data" + HEARTBEAT);
+          listeners.get(id).flush();
         });
   }
 }

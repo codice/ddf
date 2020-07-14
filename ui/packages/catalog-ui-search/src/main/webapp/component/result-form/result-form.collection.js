@@ -41,16 +41,7 @@ module.exports = Backbone.AssociatedModel.extend({
     resultForms: [],
   },
   initialize() {
-    if (promiseIsResolved === true) {
-      this.addResultForms()
-      promiseIsResolved = false
-      bootstrapPromise = new resultTemplatePromise()
-    }
-    bootstrapPromise.then(() => {
-      this.addResultForms()
-      this.doneLoading()
-    })
-    const onMessage = () => {
+    const getForms = () => {
       if (promiseIsResolved === true) {
         self.addResultForms()
         promiseIsResolved = false
@@ -63,8 +54,10 @@ module.exports = Backbone.AssociatedModel.extend({
     }
 
     EventSourceUtil.createEventListener('resultform', {
-      onMessage: onMessage,
+      onMessage: getForms,
     })
+
+    getForms()
   },
   relations: [
     {
