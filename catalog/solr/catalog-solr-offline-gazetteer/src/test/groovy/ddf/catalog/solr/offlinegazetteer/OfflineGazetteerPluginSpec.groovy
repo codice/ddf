@@ -25,7 +25,6 @@ import ddf.catalog.operation.QueryRequest
 import ddf.catalog.operation.Update
 import ddf.catalog.operation.UpdateResponse
 import ddf.catalog.plugin.PluginExecutionException
-import ddf.catalog.solr.offlinegazetteer.OfflineGazetteerPlugin
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.common.SolrInputDocument
 import org.apache.solr.common.params.SolrParams
@@ -302,7 +301,7 @@ class OfflineGazetteerPluginSpec extends Specification {
             args ->
                 args.first().with { SolrParams it ->
                     assert it.get("suggest.build") == "true"
-                    assert it.get("suggest.dictionary") == "suggestPlace"
+                    assert it.get("suggest.dictionary") == GazetteerConstants.SUGGEST_DICT
                 }
 
         }

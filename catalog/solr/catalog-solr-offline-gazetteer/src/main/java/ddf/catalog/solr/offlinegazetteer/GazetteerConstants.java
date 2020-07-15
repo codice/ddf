@@ -24,8 +24,8 @@ public class GazetteerConstants {
   /* Solr Requests */
   public static final String GAZETTEER_REQUEST_HANDLER = "/suggest";
   public static final String SUGGEST_Q = "suggest.q";
-  public static final String SUGGEST_DICT = "suggest.dictionary";
-  public static final String SUGGEST_DICT_VALUE = "suggestPlace";
+  public static final String SUGGEST_DICT_KEY = "suggest.dictionary";
+  public static final String SUGGEST_DICT = "suggestPlace";
 
   /* Naming */
   public static final String GAZETTEER_METACARD_TAG = GeoCodingConstants.GAZETTEER_METACARD_TAG;

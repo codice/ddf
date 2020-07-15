@@ -50,7 +50,7 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
         1 * solrClient.query(*_) >> { SolrQuery query , METHOD method ->
             assert query.requestHandler == "/suggest"
             assert query.get("suggest.build") == "true"
-            assert query.get("suggest.dictionary") == "suggestPlace"
+            assert query.get("suggest.dictionary") == GazetteerConstants.SUGGEST_DICT
         }
 
         when:
@@ -198,7 +198,7 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
             Mock(QueryResponse) {
                 getSuggesterResponse() >> Mock(SuggesterResponse) {
                     getSuggestions() >>
-                            [(GazetteerConstants.SUGGEST_DICT_VALUE): [Mock(Suggestion) {
+                            [(GazetteerConstants.SUGGEST_DICT): [Mock(Suggestion) {
                                 getPayload() >> "id"
                                 getTerm() >> "title"
 
@@ -222,7 +222,7 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
             Mock(QueryResponse) {
                 getSuggesterResponse() >> Mock(SuggesterResponse) {
                     getSuggestions() >>
-                            [(GazetteerConstants.SUGGEST_DICT_VALUE): [Mock(Suggestion) {
+                            [(GazetteerConstants.SUGGEST_DICT): [Mock(Suggestion) {
                                 getPayload() >> "id"
                                 getTerm() >> "title"
 

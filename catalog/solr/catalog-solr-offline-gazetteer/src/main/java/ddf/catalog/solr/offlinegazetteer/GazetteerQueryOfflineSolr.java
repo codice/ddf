@@ -15,8 +15,8 @@ package ddf.catalog.solr.offlinegazetteer;
 
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAMES;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_VALUE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q;
 
 import com.google.common.collect.ImmutableMap;
@@ -149,7 +149,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     SolrQuery solrQuery = new SolrQuery();
     solrQuery.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
     solrQuery.setParam(SUGGEST_Q, ClientUtils.escapeQueryChars(queryString));
-    solrQuery.setParam(SUGGEST_DICT, SUGGEST_DICT_VALUE);
+    solrQuery.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
     solrQuery.setParam("suggest.count", Integer.toString(Math.min(maxResults, MAX_RESULTS)));
 
     QueryResponse response;
@@ -162,7 +162,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     return Optional.ofNullable(response)
         .map(QueryResponse::getSuggesterResponse)
         .map(SuggesterResponse::getSuggestions)
-        .map(suggestionsPerDict -> suggestionsPerDict.get(SUGGEST_DICT_VALUE))
+        .map(suggestionsPerDict -> suggestionsPerDict.get(SUGGEST_DICT))
         .orElse(Collections.emptyList())
         .stream()
         .map(suggestion -> new SuggestionImpl(suggestion.getPayload(), suggestion.getTerm()))
@@ -454,7 +454,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     query.setRequestHandler("/suggest");
     query.setParam("suggest.build", true);
     query.setParam(SUGGEST_Q, "GQOSInitialSuggesterBuild");
-    query.setParam(SUGGEST_DICT, SUGGEST_DICT_VALUE);
+    query.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
     try {
       QueryResponse response = client.query(query, METHOD.POST);
       LOGGER.debug("Initial Suggester build response: {}", response);

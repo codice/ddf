@@ -18,6 +18,7 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_MET
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAMES;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -196,7 +197,7 @@ public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin 
       query.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
       query.setParam("suggest.q", "SGOSBuildSuggester");
       query.setParam("suggest.build", true);
-      query.setParam("suggest.dictionary", "suggestPlace");
+      query.setParam("suggest.dictionary", SUGGEST_DICT);
       try {
         solrClient.query(query);
       } catch (SolrServerException | IOException e) {
