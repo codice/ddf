@@ -19,9 +19,9 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.DESCRIPTION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.FEATURE_CODE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_METACARD_TAG;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_TO_CATALOG;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.ID;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.LOCATION;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_TO_CATALOG;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.POPULATION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
@@ -58,7 +58,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQueryPlugin {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogGazetteerForwardingPlugin.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(CatalogGazetteerForwardingPlugin.class);
 
   private final SolrClient solrClient;
 
@@ -150,7 +151,9 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
         (attributeName) ->
             Optional.ofNullable(getStringAttribute(metacard, attributeName))
                 .ifPresent(
-                    attributeValue -> solrDoc.addField(GAZETTEER_TO_CATALOG.inverse().get(attributeName), attributeValue));
+                    attributeValue ->
+                        solrDoc.addField(
+                            GAZETTEER_TO_CATALOG.inverse().get(attributeName), attributeValue));
 
     getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(DESCRIPTION));
     getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(FEATURE_CODE));
@@ -167,8 +170,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
         .map(Attribute::getValue)
         .filter(Long.class::isInstance)
         .map(Long.class::cast)
-        .ifPresent(
-            v -> solrDoc.addField(POPULATION, v));
+        .ifPresent(v -> solrDoc.addField(POPULATION, v));
 
     Optional.of(metacard)
         .map(m -> m.getAttribute(GAZETTEER_TO_CATALOG.get(SORT_VALUE)))

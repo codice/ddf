@@ -81,8 +81,7 @@ public class SyncCatalogCommand implements Action {
   }
 
   public Object executeWithSubject() throws Exception {
-    SolrClient solrClient =
-        clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
+    SolrClient solrClient = clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
 
     Boolean response =
         Failsafe.with(
@@ -139,10 +138,7 @@ public class SyncCatalogCommand implements Action {
   public QueryRequest getGazetteerFilter() {
     return new QueryRequestImpl(
         new QueryImpl(
-            filterBuilder
-                .attribute(Core.METACARD_TAGS)
-                .like()
-                .text(GAZETTEER_METACARD_TAG),
+            filterBuilder.attribute(Core.METACARD_TAGS).like().text(GAZETTEER_METACARD_TAG),
             1,
             PARTITION_SIZE,
             new SortByImpl(Core.ID, SortOrder.ASCENDING),

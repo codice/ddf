@@ -65,8 +65,7 @@ public class RemoveAllOfflineSolrGazetteerCommand implements Action {
       }
     }
 
-    SolrClient solrClient =
-        clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
+    SolrClient solrClient = clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
 
     Boolean response =
         Failsafe.with(

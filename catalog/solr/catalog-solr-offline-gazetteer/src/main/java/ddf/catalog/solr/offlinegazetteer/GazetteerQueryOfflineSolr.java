@@ -21,13 +21,12 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.POPULATION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.TITLE;
 
 import com.google.common.collect.ImmutableMap;
-import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Location;
 import java.io.IOException;
 import java.text.ParseException;
@@ -51,7 +50,6 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
-import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
 import org.codice.ddf.spatial.geocoding.Suggestion;
@@ -175,8 +173,6 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
         .map(suggestion -> new SuggestionImpl(suggestion.getPayload(), suggestion.getTerm()))
         .collect(Collectors.toList());
   }
-
-
 
   public static final class SuggestionImpl implements Suggestion {
     private final String id;
@@ -372,8 +368,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
 
   private GeoEntry transformMetacardToGeoEntry(SolrDocument document) {
     GeoEntry.Builder geoEntryBuilder = new GeoEntry.Builder();
-    String featureCode =
-        getField(document, FEATURE_CODE, String.class);
+    String featureCode = getField(document, FEATURE_CODE, String.class);
 
     if (StringUtils.isNotBlank(featureCode)) {
       geoEntryBuilder.featureCode(featureCode);
@@ -389,14 +384,12 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
       geoEntryBuilder.name(name);
     }
 
-    Long population =
-        getField(document, POPULATION, Long.class);
+    Long population = getField(document, POPULATION, Long.class);
     if (population != null) {
       geoEntryBuilder.population(population);
     }
 
-    Integer sortValue =
-        getField(document, SORT_VALUE, Integer.class);
+    Integer sortValue = getField(document, SORT_VALUE, Integer.class);
     if (sortValue != null) {
       geoEntryBuilder.gazetteerSort(sortValue);
     }
@@ -445,10 +438,10 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
 
   private void pingAndInitializeSuggester() {
     Failsafe.with(
-        new RetryPolicy()
-            .retryWhen(false)
-            .withMaxDuration(5, TimeUnit.MINUTES)
-            .withBackoff(100, 3_000, TimeUnit.MILLISECONDS))
+            new RetryPolicy()
+                .retryWhen(false)
+                .withMaxDuration(5, TimeUnit.MINUTES)
+                .withBackoff(100, 3_000, TimeUnit.MILLISECONDS))
         .onFailure(
             e ->
                 LOGGER.error(
