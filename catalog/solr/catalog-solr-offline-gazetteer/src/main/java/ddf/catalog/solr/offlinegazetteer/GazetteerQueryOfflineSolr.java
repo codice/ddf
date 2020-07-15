@@ -13,6 +13,7 @@
  */
 package ddf.catalog.solr.offlinegazetteer;
 
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAMES;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_VALUE;
@@ -146,7 +147,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   public List<Suggestion> getSuggestedNames(String queryString, int maxResults)
       throws GeoEntryQueryException {
     SolrQuery solrQuery = new SolrQuery();
-    solrQuery.setRequestHandler("/suggest");
+    solrQuery.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
     solrQuery.setParam(SUGGEST_Q, ClientUtils.escapeQueryChars(queryString));
     solrQuery.setParam(SUGGEST_DICT, SUGGEST_DICT_VALUE);
     solrQuery.setParam("suggest.count", Integer.toString(Math.min(maxResults, MAX_RESULTS)));
@@ -168,35 +169,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
         .collect(Collectors.toList());
   }
 
-  private void pingAndInitializeSuggester() {
-    Failsafe.with(
-            new RetryPolicy()
-                .retryWhen(false)
-                .withMaxDuration(5, TimeUnit.MINUTES)
-                .withBackoff(100, 3_000, TimeUnit.MILLISECONDS))
-        .onFailure(
-            e ->
-                LOGGER.error(
-                    "Could not get solrclient to start initial suggester build for {} core. Please try to start a build manually with the `build-suggester-index` karaf command or by sending a request to solr with the property `suggest.build=true`",
-                    GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME,
-                    e))
-        .get(() -> client.isAvailable());
 
-    SolrQuery query = new SolrQuery();
-    query.setRequestHandler("/suggest");
-    query.setParam("suggest.build", true);
-    query.setParam(SUGGEST_Q, "GQOSInitialSuggesterBuild");
-    query.setParam(SUGGEST_DICT, SUGGEST_DICT_VALUE);
-    try {
-      QueryResponse response = client.query(query, METHOD.POST);
-      LOGGER.debug("Initial Suggester build response: {}", response);
-    } catch (SolrServerException | IOException e) {
-      LOGGER.error(
-          "Error while trying to build initial suggester for {}",
-          GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME,
-          e);
-    }
-  }
 
   public static final class SuggestionImpl implements Suggestion {
     private final String id;
@@ -461,5 +434,35 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
 
   private double convertDegreeToKilometer(double distanceInDegrees) {
     return distanceInDegrees * KM_PER_DEGREE;
+  }
+
+  private void pingAndInitializeSuggester() {
+    Failsafe.with(
+        new RetryPolicy()
+            .retryWhen(false)
+            .withMaxDuration(5, TimeUnit.MINUTES)
+            .withBackoff(100, 3_000, TimeUnit.MILLISECONDS))
+        .onFailure(
+            e ->
+                LOGGER.error(
+                    "Could not get solrclient to start initial suggester build for {} core. Please try to start a build manually with the `build-suggester-index` karaf command or by sending a request to solr with the property `suggest.build=true`",
+                    GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME,
+                    e))
+        .get(() -> client.isAvailable());
+
+    SolrQuery query = new SolrQuery();
+    query.setRequestHandler("/suggest");
+    query.setParam("suggest.build", true);
+    query.setParam(SUGGEST_Q, "GQOSInitialSuggesterBuild");
+    query.setParam(SUGGEST_DICT, SUGGEST_DICT_VALUE);
+    try {
+      QueryResponse response = client.query(query, METHOD.POST);
+      LOGGER.debug("Initial Suggester build response: {}", response);
+    } catch (SolrServerException | IOException e) {
+      LOGGER.error(
+          "Error while trying to build initial suggester for {}",
+          GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME,
+          e);
+    }
   }
 }

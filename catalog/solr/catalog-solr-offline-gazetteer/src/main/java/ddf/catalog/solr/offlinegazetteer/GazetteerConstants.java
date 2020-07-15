@@ -22,6 +22,7 @@ import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 
 public class GazetteerConstants {
   /* Solr Requests */
+  public static final String GAZETTEER_REQUEST_HANDLER = "/suggest";
   public static final String SUGGEST_Q = "suggest.q";
   public static final String SUGGEST_DICT = "suggest.dictionary";
   public static final String SUGGEST_DICT_VALUE = "suggestPlace";

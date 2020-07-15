@@ -15,6 +15,7 @@ package ddf.catalog.solr.offlinegazetteer;
 
 import static ddf.catalog.Constants.SUGGESTION_BUILD_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_METACARD_TAG;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAMES;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
 
@@ -192,7 +193,7 @@ public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin 
     Serializable build = input.getPropertyValue(SUGGESTION_BUILD_KEY);
     if (build instanceof Boolean && (Boolean) build) {
       SolrQuery query = new SolrQuery();
-      query.setRequestHandler("/suggest");
+      query.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
       query.setParam("suggest.q", "SGOSBuildSuggester");
       query.setParam("suggest.build", true);
       query.setParam("suggest.dictionary", "suggestPlace");
