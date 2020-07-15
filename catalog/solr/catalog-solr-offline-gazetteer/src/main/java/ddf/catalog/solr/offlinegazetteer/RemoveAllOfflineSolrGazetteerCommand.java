@@ -13,6 +13,8 @@
  */
 package ddf.catalog.solr.offlinegazetteer;
 
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
+
 import java.util.concurrent.TimeUnit;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
@@ -64,7 +66,7 @@ public class RemoveAllOfflineSolrGazetteerCommand implements Action {
     }
 
     SolrClient solrClient =
-        clientFactory.newClient(GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME);
+        clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
 
     Boolean response =
         Failsafe.with(

@@ -15,9 +15,11 @@ package ddf.catalog.solr.offlinegazetteer;
 
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAMES;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.types.Core;
@@ -99,7 +101,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   public GazetteerQueryOfflineSolr(
       SolrClientFactory clientFactory, ExecutorService startupBuilderExecutor) {
 
-    this.client = clientFactory.newClient(GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME);
+    this.client = clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
     startupBuilderExecutor.submit(this::pingAndInitializeSuggester);
   }
 
@@ -148,7 +150,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
       throws GeoEntryQueryException {
     SolrQuery solrQuery = new SolrQuery();
     solrQuery.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
-    solrQuery.setParam(SUGGEST_Q, ClientUtils.escapeQueryChars(queryString));
+    solrQuery.setParam(SUGGEST_Q_KEY, ClientUtils.escapeQueryChars(queryString));
     solrQuery.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
     solrQuery.setParam("suggest.count", Integer.toString(Math.min(maxResults, MAX_RESULTS)));
 
@@ -446,14 +448,14 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
             e ->
                 LOGGER.error(
                     "Could not get solrclient to start initial suggester build for {} core. Please try to start a build manually with the `build-suggester-index` karaf command or by sending a request to solr with the property `suggest.build=true`",
-                    GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME,
+                    STANDALONE_GAZETTEER_CORE_NAME,
                     e))
         .get(() -> client.isAvailable());
 
     SolrQuery query = new SolrQuery();
     query.setRequestHandler("/suggest");
-    query.setParam("suggest.build", true);
-    query.setParam(SUGGEST_Q, "GQOSInitialSuggesterBuild");
+    query.setParam(SUGGEST_BUILD_KEY, true);
+    query.setParam(SUGGEST_Q_KEY, "GQOSInitialSuggesterBuild");
     query.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
     try {
       QueryResponse response = client.query(query, METHOD.POST);
@@ -461,7 +463,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     } catch (SolrServerException | IOException e) {
       LOGGER.error(
           "Error while trying to build initial suggester for {}",
-          GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME,
+          STANDALONE_GAZETTEER_CORE_NAME,
           e);
     }
   }

@@ -18,8 +18,10 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_MET
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAMES;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -196,8 +198,8 @@ public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin 
     if (build instanceof Boolean && (Boolean) build) {
       SolrQuery query = new SolrQuery();
       query.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
-      query.setParam("suggest.q", "SGOSBuildSuggester");
-      query.setParam("suggest.build", true);
+      query.setParam(SUGGEST_Q_KEY, "SGOSBuildSuggester");
+      query.setParam(SUGGEST_BUILD_KEY, true);
       query.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
       try {
         solrClient.query(query);

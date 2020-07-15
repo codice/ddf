@@ -33,6 +33,11 @@ import org.codice.solr.client.solrj.SolrClient
 import org.codice.solr.factory.SolrClientFactory
 import spock.lang.Specification
 
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY
+
 class OfflineGazetteerPluginSpec extends Specification {
     OfflineGazetteerPlugin testedPlugin
 
@@ -50,7 +55,7 @@ class OfflineGazetteerPluginSpec extends Specification {
     void setup() {
         solrClient = Mock(SolrClient)
         solrClientFactory = Mock(SolrClientFactory) {
-            newClient(GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME) >> solrClient
+            newClient(STANDALONE_GAZETTEER_CORE_NAME) >> solrClient
         }
         testedPlugin = new OfflineGazetteerPlugin(solrClientFactory)
 
@@ -300,8 +305,8 @@ class OfflineGazetteerPluginSpec extends Specification {
         1 * solrClient.query(*_) >> {
             args ->
                 args.first().with { SolrParams it ->
-                    assert it.get("suggest.build") == "true"
-                    assert it.get(GazetteerConstants.SUGGEST_DICT_KEY) == GazetteerConstants.SUGGEST_DICT
+                    assert it.get(SUGGEST_BUILD_KEY) == "true"
+                    assert it.get(SUGGEST_DICT_KEY) == SUGGEST_DICT
                 }
 
         }

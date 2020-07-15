@@ -13,6 +13,9 @@
  */
 package ddf.catalog.solr.offlinegazetteer;
 
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_METACARD_TAG;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import ddf.catalog.CatalogFramework;
@@ -79,7 +82,7 @@ public class SyncCatalogCommand implements Action {
 
   public Object executeWithSubject() throws Exception {
     SolrClient solrClient =
-        clientFactory.newClient(GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME);
+        clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
 
     Boolean response =
         Failsafe.with(
@@ -139,7 +142,7 @@ public class SyncCatalogCommand implements Action {
             filterBuilder
                 .attribute(Core.METACARD_TAGS)
                 .like()
-                .text(GazetteerConstants.GAZETTEER_METACARD_TAG),
+                .text(GAZETTEER_METACARD_TAG),
             1,
             PARTITION_SIZE,
             new SortByImpl(Core.ID, SortOrder.ASCENDING),
