@@ -301,7 +301,7 @@ class OfflineGazetteerPluginSpec extends Specification {
             args ->
                 args.first().with { SolrParams it ->
                     assert it.get("suggest.build") == "true"
-                    assert it.get("suggest.dictionary") == GazetteerConstants.SUGGEST_DICT
+                    assert it.get(GazetteerConstants.SUGGEST_DICT_KEY) == GazetteerConstants.SUGGEST_DICT
                 }
 
         }
