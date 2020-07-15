@@ -38,8 +38,8 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY
 
-class OfflineGazetteerPluginSpec extends Specification {
-    OfflineGazetteerPlugin testedPlugin
+class CatalogGazetteerForwardingPluginSpec extends Specification {
+    CatalogGazetteerForwardingPlugin testedPlugin
 
     SolrClientFactory solrClientFactory
     SolrClient solrClient
@@ -57,7 +57,7 @@ class OfflineGazetteerPluginSpec extends Specification {
         solrClientFactory = Mock(SolrClientFactory) {
             newClient(STANDALONE_GAZETTEER_CORE_NAME) >> solrClient
         }
-        testedPlugin = new OfflineGazetteerPlugin(solrClientFactory)
+        testedPlugin = new CatalogGazetteerForwardingPlugin(solrClientFactory)
 
         // testing data
         resourceMetacards = [

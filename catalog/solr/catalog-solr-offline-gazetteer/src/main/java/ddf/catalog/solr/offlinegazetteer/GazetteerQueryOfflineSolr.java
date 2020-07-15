@@ -13,13 +13,18 @@
  */
 package ddf.catalog.solr.offlinegazetteer;
 
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COUNTRY_CODE;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.FEATURE_CODE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAMES;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.LOCATION;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.POPULATION;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.TITLE;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.types.Core;
@@ -368,35 +373,35 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   private GeoEntry transformMetacardToGeoEntry(SolrDocument document) {
     GeoEntry.Builder geoEntryBuilder = new GeoEntry.Builder();
     String featureCode =
-        getField(document, NAMES.get(GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME), String.class);
+        getField(document, FEATURE_CODE, String.class);
 
     if (StringUtils.isNotBlank(featureCode)) {
       geoEntryBuilder.featureCode(featureCode);
     }
 
-    String countryCode = getField(document, NAMES.get(Location.COUNTRY_CODE), String.class);
+    String countryCode = getField(document, COUNTRY_CODE, String.class);
     if (StringUtils.isNotBlank(countryCode)) {
       geoEntryBuilder.countryCode(countryCode);
     }
 
-    String name = getField(document, NAMES.get(Core.TITLE), String.class);
+    String name = getField(document, TITLE, String.class);
     if (StringUtils.isNotBlank(name)) {
       geoEntryBuilder.name(name);
     }
 
     Long population =
-        getField(document, NAMES.get(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME), Long.class);
+        getField(document, POPULATION, Long.class);
     if (population != null) {
       geoEntryBuilder.population(population);
     }
 
     Integer sortValue =
-        getField(document, NAMES.get(GeoEntryAttributes.GAZETTEER_SORT_VALUE), Integer.class);
+        getField(document, SORT_VALUE, Integer.class);
     if (sortValue != null) {
       geoEntryBuilder.gazetteerSort(sortValue);
     }
 
-    String location = getField(document, NAMES.get(Core.LOCATION), String.class);
+    String location = getField(document, LOCATION, String.class);
     if (StringUtils.isNotBlank(location)) {
       try {
         Geometry geometry = WKT_READER_THREAD_LOCAL.get().read(location);
@@ -453,7 +458,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
         .get(() -> client.isAvailable());
 
     SolrQuery query = new SolrQuery();
-    query.setRequestHandler("/suggest");
+    query.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
     query.setParam(SUGGEST_BUILD_KEY, true);
     query.setParam(SUGGEST_Q_KEY, "GQOSInitialSuggesterBuild");
     query.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);

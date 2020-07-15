@@ -22,7 +22,7 @@
   </bean>
 
   <bean id="offlineGazetteerPlugin"
-    class="ddf.catalog.solr.offlinegazetteer.OfflineGazetteerPlugin">
+    class="ddf.catalog.solr.offlinegazetteer.CatalogGazetteerForwardingPlugin">
     <argument ref="solrFactory"/>
   </bean>
   <service ref="offlineGazetteerPlugin">

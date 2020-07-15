@@ -32,16 +32,25 @@ public class GazetteerConstants {
   public static final String GAZETTEER_METACARD_TAG = GeoCodingConstants.GAZETTEER_METACARD_TAG;
   public static final String STANDALONE_GAZETTEER_CORE_NAME = "standalone-solr-gazetteer";
 
-  public static final BiMap<String, String> NAMES =
+  public static final String DESCRIPTION = "description_txt";
+  public static final String FEATURE_CODE = "feature-code_txt";
+  public static final String TITLE = "title_txt";
+  public static final String ID = "id_txt";
+  public static final String COUNTRY_CODE = "country-code_txt";
+  public static final String LOCATION = "location_geo";
+  public static final String POPULATION = "population_lng";
+  public static final String SORT_VALUE = "gazetteer-sort-value_int";
+
+  public static final BiMap<String, String> GAZETTEER_TO_CATALOG =
       new ImmutableBiMap.Builder<String, String>()
-          .put(Core.DESCRIPTION, "description_txt")
-          .put(GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, "feature-code_txt")
-          .put(Core.TITLE, "title_txt")
-          .put(Core.ID, "id_txt")
-          .put(Location.COUNTRY_CODE, "country-code_txt")
-          .put(Core.LOCATION, "location_geo")
-          .put(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, "population_lng")
-          .put(GeoEntryAttributes.GAZETTEER_SORT_VALUE, "gazetteer-sort-value_int")
+          .put(DESCRIPTION, Core.DESCRIPTION)
+          .put(FEATURE_CODE, GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME)
+          .put(TITLE, Core.TITLE)
+          .put(ID, Core.ID)
+          .put(COUNTRY_CODE, Location.COUNTRY_CODE)
+          .put(LOCATION, Core.LOCATION)
+          .put(POPULATION, GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME)
+          .put(SORT_VALUE, GeoEntryAttributes.GAZETTEER_SORT_VALUE)
           .build();
 
   private GazetteerConstants() {}

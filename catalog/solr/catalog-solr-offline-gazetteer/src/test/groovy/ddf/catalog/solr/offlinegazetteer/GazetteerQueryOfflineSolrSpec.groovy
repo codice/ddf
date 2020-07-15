@@ -20,6 +20,7 @@ import spock.lang.Specification
 import java.util.concurrent.ExecutorService
 import java.util.stream.Stream
 
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY
@@ -52,7 +53,7 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
         2 * solrClient.isAvailable() >> false >> true
 
         1 * solrClient.query(*_) >> { SolrQuery query , METHOD method ->
-            assert query.requestHandler == "/suggest"
+            assert query.requestHandler == GAZETTEER_REQUEST_HANDLER
             assert query.get(SUGGEST_BUILD_KEY) == "true"
             assert query.get(SUGGEST_DICT_KEY) == SUGGEST_DICT
         }
@@ -198,7 +199,7 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
         int maxResults = 10
         1 * solrClient.query(*_) >> { SolrQuery query ->
             assert query.get("suggest.count") == "${maxResults}"
-            assert query.requestHandler == "/suggest"
+            assert query.requestHandler == GAZETTEER_REQUEST_HANDLER
             Mock(QueryResponse) {
                 getSuggesterResponse() >> Mock(SuggesterResponse) {
                     getSuggestions() >>
@@ -222,7 +223,7 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
         int maxResults = 8675309
         1 * solrClient.query(*_) >> { SolrQuery query ->
             assert query.get("suggest.count") == "${GazetteerQueryOfflineSolr.MAX_RESULTS}"
-            assert query.requestHandler == "/suggest"
+            assert query.requestHandler == GAZETTEER_REQUEST_HANDLER
             Mock(QueryResponse) {
                 getSuggesterResponse() >> Mock(SuggesterResponse) {
                     getSuggestions() >>

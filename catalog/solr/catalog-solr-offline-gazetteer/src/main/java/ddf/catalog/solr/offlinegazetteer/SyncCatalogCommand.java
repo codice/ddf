@@ -117,10 +117,10 @@ public class SyncCatalogCommand implements Action {
             results
                 .stream()
                 .map(Result::getMetacard)
-                .map(OfflineGazetteerPlugin::convert)
+                .map(CatalogGazetteerForwardingPlugin::convert)
                 .collect(Collectors.toList()));
       } catch (SolrServerException | IOException e) {
-        LOGGER.info("error while adding items to solr", e);
+        LOGGER.info("error during syncing while adding items to solr", e);
         session.getConsole().printf("An error occured while syncing: %s", e.getMessage());
         throw e;
       }

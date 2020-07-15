@@ -14,19 +14,25 @@
 package ddf.catalog.solr.offlinegazetteer;
 
 import static ddf.catalog.Constants.SUGGESTION_BUILD_KEY;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COUNTRY_CODE;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.DESCRIPTION;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.FEATURE_CODE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_METACARD_TAG;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAMES;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.ID;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.LOCATION;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_TO_CATALOG;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.POPULATION;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.TITLE;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.types.Core;
-import ddf.catalog.data.types.Location;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
@@ -46,18 +52,17 @@ import javax.annotation.Nullable;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
-import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin {
-  private static final Logger LOGGER = LoggerFactory.getLogger(OfflineGazetteerPlugin.class);
+public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQueryPlugin {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogGazetteerForwardingPlugin.class);
 
   private final SolrClient solrClient;
 
-  public OfflineGazetteerPlugin(SolrClientFactory clientFactory) {
+  public CatalogGazetteerForwardingPlugin(SolrClientFactory clientFactory) {
     this.solrClient = clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
   }
 
@@ -79,7 +84,7 @@ public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin 
           STANDALONE_GAZETTEER_CORE_NAME,
           gazetteerMetacards
               .stream()
-              .map(OfflineGazetteerPlugin::convert)
+              .map(CatalogGazetteerForwardingPlugin::convert)
               .collect(Collectors.toList()));
     } catch (SolrServerException | IOException e) {
       throw new PluginExecutionException("Error while processing gazetteer data", e);
@@ -107,7 +112,7 @@ public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin 
           STANDALONE_GAZETTEER_CORE_NAME,
           gazetteerMetacards
               .stream()
-              .map(OfflineGazetteerPlugin::convert)
+              .map(CatalogGazetteerForwardingPlugin::convert)
               .collect(Collectors.toList()));
     } catch (SolrServerException | IOException e) {
       LOGGER.debug("Error while processing gazetteer data", e);
@@ -145,32 +150,32 @@ public class OfflineGazetteerPlugin implements PostIngestPlugin, PreQueryPlugin 
         (attributeName) ->
             Optional.ofNullable(getStringAttribute(metacard, attributeName))
                 .ifPresent(
-                    attributeValue -> solrDoc.addField(NAMES.get(attributeName), attributeValue));
+                    attributeValue -> solrDoc.addField(GAZETTEER_TO_CATALOG.inverse().get(attributeName), attributeValue));
 
-    getAttrAndAdd.accept(Metacard.DESCRIPTION);
-    getAttrAndAdd.accept(GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME);
-    getAttrAndAdd.accept(Core.TITLE);
-    getAttrAndAdd.accept(Core.ID);
-    getAttrAndAdd.accept(Location.COUNTRY_CODE);
-
-    Optional.of(metacard)
-        .map(m -> getStringAttribute(m, Core.LOCATION))
-        .ifPresent(v -> solrDoc.addField(NAMES.get(Core.LOCATION), v));
+    getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(DESCRIPTION));
+    getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(FEATURE_CODE));
+    getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(TITLE));
+    getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(ID));
+    getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(COUNTRY_CODE));
 
     Optional.of(metacard)
-        .map(m -> m.getAttribute(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME))
+        .map(m -> getStringAttribute(m, GAZETTEER_TO_CATALOG.get(LOCATION)))
+        .ifPresent(v -> solrDoc.addField(LOCATION, v));
+
+    Optional.of(metacard)
+        .map(m -> m.getAttribute(GAZETTEER_TO_CATALOG.get(POPULATION)))
         .map(Attribute::getValue)
         .filter(Long.class::isInstance)
         .map(Long.class::cast)
         .ifPresent(
-            v -> solrDoc.addField(NAMES.get(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME), v));
+            v -> solrDoc.addField(POPULATION, v));
 
     Optional.of(metacard)
-        .map(m -> m.getAttribute(GeoEntryAttributes.GAZETTEER_SORT_VALUE))
+        .map(m -> m.getAttribute(GAZETTEER_TO_CATALOG.get(SORT_VALUE)))
         .map(Attribute::getValue)
         .filter(Integer.class::isInstance)
         .map(Integer.class::cast)
-        .ifPresent(v -> solrDoc.addField(NAMES.get(GeoEntryAttributes.GAZETTEER_SORT_VALUE), v));
+        .ifPresent(v -> solrDoc.addField(SORT_VALUE, v));
 
     return solrDoc;
   }
