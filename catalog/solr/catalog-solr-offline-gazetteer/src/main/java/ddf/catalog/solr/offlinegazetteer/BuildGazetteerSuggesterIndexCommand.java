@@ -1,12 +1,12 @@
 package ddf.catalog.solr.offlinegazetteer;
 
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY;
 
-import ddf.catalog.plugin.PluginExecutionException;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import net.jodah.failsafe.Failsafe;
@@ -39,8 +39,7 @@ public class BuildGazetteerSuggesterIndexCommand implements Action {
 
   @Override
   public Object execute() throws Exception {
-    SolrClient solrClient =
-        clientFactory.newClient(GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME);
+    SolrClient solrClient = clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
 
     Boolean response =
         Failsafe.with(
@@ -54,24 +53,21 @@ public class BuildGazetteerSuggesterIndexCommand implements Action {
       session.getConsole().println("Could not contact solr to build suggester index, exiting.");
       return null;
     }
+    SolrQuery query = new SolrQuery();
+    query.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
+    query.setParam(SUGGEST_Q_KEY, "CatalogSolrGazetteerBuildSuggester");
+    query.setParam(SUGGEST_BUILD_KEY, true);
+    query.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
+
     try {
-      SolrQuery query = new SolrQuery();
-      query.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
-      query.setParam(SUGGEST_Q_KEY, "CatalogSolrGazetteerBuildSuggester");
-      query.setParam(SUGGEST_BUILD_KEY, true);
-      query.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
-      try {
-        solrClient.query(query);
-      } catch (SolrServerException | IOException e) {
-        LOGGER.debug("Error while trying to build suggester");
-        throw new PluginExecutionException(e);
-      }
-    } catch (Exception e) {
-      LOGGER.info("Error while executing", e);
-      session.getConsole().println("Error while submitting remove all, exiting.");
+      solrClient.query(query);
+    } catch (SolrServerException | IOException e) {
+      LOGGER.info("Error while trying to build suggester", e);
+      session.getConsole().println("Error while trying to build suggester.");
       throw e;
     }
-    session.getConsole().println("Removeall submitted successfully.");
+
+    session.getConsole().println("Suggester built successfully.");
     return null;
   }
 }
