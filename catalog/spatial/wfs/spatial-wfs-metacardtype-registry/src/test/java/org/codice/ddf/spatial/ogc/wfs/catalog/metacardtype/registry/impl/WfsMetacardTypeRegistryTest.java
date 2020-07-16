@@ -118,10 +118,6 @@ public class WfsMetacardTypeRegistryTest {
         .thenReturn(TEST_SOURCE_ID);
     when(mockServiceReference2.getProperty(WfsMetacardTypeRegistryImpl.SOURCE_ID))
         .thenReturn(TEST_SOURCE_ID_2);
-    when(mockServiceReference1.getProperty(WfsMetacardTypeRegistryImpl.FEATURE_NAME))
-        .thenReturn("feature_a");
-    when(mockServiceReference2.getProperty(WfsMetacardTypeRegistryImpl.FEATURE_NAME))
-        .thenReturn("feature_b");
     when(mockBundleContext.registerService(
             same(MetacardType.class), any(MetacardType.class), any(Dictionary.class)))
         .thenReturn(mockServiceRegistration1)
