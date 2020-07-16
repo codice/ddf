@@ -188,4 +188,12 @@ public interface ClientBuilder<T> {
    * @return
    */
   ClientBuilder<T> useSamlEcp(boolean useSamlEcp);
+
+  /**
+   * True will enable the use of the SubjectRetrievalInterceptor for this client.
+   *
+   * @param useSubjectRetrievalInterceptor
+   * @return
+   */
+  ClientBuilder<T> useSubjectRetrievalInterceptor(boolean useSubjectRetrievalInterceptor);
 }

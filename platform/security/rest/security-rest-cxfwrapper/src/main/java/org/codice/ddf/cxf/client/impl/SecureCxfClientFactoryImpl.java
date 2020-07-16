@@ -23,6 +23,7 @@ import ddf.security.liberty.paos.impl.RequestUnmarshaller;
 import ddf.security.liberty.paos.impl.ResponseBuilder;
 import ddf.security.liberty.paos.impl.ResponseMarshaller;
 import ddf.security.liberty.paos.impl.ResponseUnmarshaller;
+import ddf.security.service.SecurityManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -75,6 +76,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.interceptor.SubjectRetrievalInterceptor;
 import org.codice.ddf.cxf.oauth.OAuthOutInterceptor;
 import org.codice.ddf.cxf.oauth.OAuthSecurity;
 import org.codice.ddf.cxf.paos.PaosInInterceptor;
@@ -101,6 +103,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
   public static final String PASSWORD_FLOW = "password";
 
   private JAXRSClientFactoryBean clientFactory;
+
+  private SecurityManager securityManager;
 
   private final boolean disableCnCheck;
 
@@ -145,6 +149,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
   private boolean useOauth;
 
   private boolean useSamlEcp;
+
+  private boolean useSubjectRetrievalInterceptor;
 
   private String discoveryUrl;
 
@@ -206,6 +212,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       boolean allowRedirects,
       boolean useOauth,
       boolean useSamlEcp,
+      boolean useSubjectRetrievalInterceptor,
       PropertyResolver propertyResolver,
       Integer connectionTimeout,
       Integer receiveTimeout,
@@ -221,7 +228,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Map<String, String> additionalOauthParameters,
       OAuthSecurity oauthSecurity,
       SamlSecurity samlSecurity,
-      SecurityLogger securityLogger) {
+      SecurityLogger securityLogger,
+      SecurityManager securityManager) {
     this.interfaceClass = interfaceClass;
     this.disableCnCheck = disableCnCheck;
     this.allowRedirects = allowRedirects;
@@ -261,9 +269,11 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.connectionTimeout = connectionTimeout;
     this.useOauth = useOauth;
     this.useSamlEcp = useSamlEcp;
+    this.useSubjectRetrievalInterceptor = useSubjectRetrievalInterceptor;
     this.oauthSecurity = oauthSecurity;
     this.samlSecurity = samlSecurity;
     this.securityLogger = securityLogger;
+    this.securityManager = securityManager;
 
     if (this.endpointUrl == null || interfaceClass == null) {
       throw new IllegalArgumentException(
@@ -290,6 +300,11 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
             .getInInterceptors()
             .add(new PaosInInterceptor(Phase.RECEIVE, samlSecurity));
         jaxrsClientFactoryBean.getOutInterceptors().add(new PaosOutInterceptor(Phase.POST_LOGICAL));
+      }
+      if (useSubjectRetrievalInterceptor) {
+        jaxrsClientFactoryBean
+            .getOutInterceptors()
+            .add(new SubjectRetrievalInterceptor(securityManager));
       }
     }
 

@@ -49,6 +49,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.client.ClientBuilder;
 import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.interceptor.SubjectRetrievalInterceptor;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -154,8 +155,8 @@ public class SendEvent implements DeliveryMethod, Pingable {
             .interfaceClass(CswSubscribe.class)
             .entityProviders(providers)
             .useSamlEcp(true)
+            .useSubjectRetrievalInterceptor(true)
             .build();
-    cxfClientFactory.addOutInterceptors(new OutgoingSubjectRetrievalInterceptor(securityManager));
     try {
       InetAddress address = InetAddress.getByName(callbackUrl.getHost());
       ip = address.getHostAddress();
@@ -323,7 +324,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
 
   List<AccessPlugin> getAccessPlugins() throws InvalidSyntaxException {
     BundleContext bundleContext =
-        FrameworkUtil.getBundle(OutgoingSubjectRetrievalInterceptor.class).getBundleContext();
+        FrameworkUtil.getBundle(SubjectRetrievalInterceptor.class).getBundleContext();
     Collection<ServiceReference<AccessPlugin>> serviceCollection =
         bundleContext.getServiceReferences(AccessPlugin.class, null);
     return serviceCollection.stream().map(bundleContext::getService).collect(Collectors.toList());
