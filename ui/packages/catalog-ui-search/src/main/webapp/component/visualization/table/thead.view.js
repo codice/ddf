@@ -42,14 +42,11 @@ module.exports = Marionette.LayoutView.extend({
               className={`${hidden ? 'is-hidden-column' : ''} ${
                 sortable ? 'is-sortable' : ''
               }`}
-              data-propertyid={`${id}`}
-              data-propertytext={`${label ? `${label} ${id}` : `${id}`}`}
+              data-propertyid={id}
+              data-propertytext={label || id}
             >
-              <span
-                className="column-text"
-                title={`${label ? `${label} ${id}` : `${id}`}`}
-              >
-                {`${label ? `${label} ${id}` : `${id}`}`}
+              <span className="column-text" title={label || id}>
+                {label || id}
               </span>
               <span className="fa fa-sort-asc" />
               <span className="fa fa-sort-desc" />
