@@ -14,6 +14,7 @@
 package org.codice.ddf.cxf.client.impl;
 
 import ddf.security.audit.SecurityLogger;
+import ddf.security.service.SecurityManager;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
@@ -43,6 +44,8 @@ public class ClientBuilderImpl<T> implements ClientBuilder<T> {
   protected boolean useOAuth;
 
   protected boolean useSamlEcp;
+
+  protected boolean useSubjectRetrievalInterceptor;
 
   protected Integer connectionTimeout;
 
@@ -76,11 +79,17 @@ public class ClientBuilderImpl<T> implements ClientBuilder<T> {
 
   private SecurityLogger securityLogger;
 
+  private SecurityManager securityManager;
+
   public ClientBuilderImpl(
-      OAuthSecurity oauthSecurity, SamlSecurity samlSecurity, SecurityLogger securityLogger) {
+      OAuthSecurity oauthSecurity,
+      SamlSecurity samlSecurity,
+      SecurityLogger securityLogger,
+      SecurityManager securityManager) {
     this.oauthSecurity = oauthSecurity;
     this.samlSecurity = samlSecurity;
     this.securityLogger = securityLogger;
+    this.securityManager = securityManager;
   }
 
   @Override
@@ -95,6 +104,7 @@ public class ClientBuilderImpl<T> implements ClientBuilder<T> {
             allowRedirects,
             useOAuth,
             useSamlEcp,
+            useSubjectRetrievalInterceptor,
             propertyResolver,
             connectionTimeout,
             receiveTimeout,
@@ -110,7 +120,8 @@ public class ClientBuilderImpl<T> implements ClientBuilder<T> {
             additionalOauthParameters,
             oauthSecurity,
             samlSecurity,
-            securityLogger);
+            securityLogger,
+            securityManager);
     secureCxfClientFactory.initialize();
     return secureCxfClientFactory;
   }
@@ -238,6 +249,12 @@ public class ClientBuilderImpl<T> implements ClientBuilder<T> {
   @Override
   public ClientBuilder<T> useSamlEcp(boolean useSamlEcp) {
     this.useSamlEcp = useSamlEcp;
+    return this;
+  }
+
+  @Override
+  public ClientBuilder<T> useSubjectRetrievalInterceptor(boolean useSubjectRetrievalInterceptor) {
+    this.useSubjectRetrievalInterceptor = useSubjectRetrievalInterceptor;
     return this;
   }
 }

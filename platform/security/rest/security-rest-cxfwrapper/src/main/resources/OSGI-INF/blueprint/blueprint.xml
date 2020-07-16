@@ -16,6 +16,8 @@
 
     <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
 
+    <reference id="securityManager" interface="org.codice.ddf.security.service.SecurityManager"/>
+
     <reference id="tokenStore" interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
 
     <bean id="oauthSecurity" class="org.codice.ddf.cxf.oauth.OAuthSecurityImpl">
@@ -32,6 +34,7 @@
         <property name="oauthSecurity" ref="oauthSecurity"/>
         <property name="samlSecurity" ref="samlSecurity" />
         <property name="securityLogger" ref="securityLogger"/>
+        <property name="securityManager" ref="securityManager"/>
     </bean>
 
     <service ref="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>

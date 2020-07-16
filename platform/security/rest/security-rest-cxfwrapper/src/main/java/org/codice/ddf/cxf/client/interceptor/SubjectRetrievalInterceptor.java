@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
+package org.codice.ddf.cxf.client.interceptor;
 
 import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
@@ -38,7 +38,7 @@ import org.codice.ddf.security.handler.AuthenticationTokenFactory;
  * that stores the receivers subject in the header of the response with a key of
  * ddf.security.Subject.
  */
-public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseInterceptor<Message>
+public class SubjectRetrievalInterceptor extends AbstractPhaseInterceptor<Message>
     implements Handler<WrappedMessageContext> {
 
   private final SecurityManager securityManager;
@@ -47,7 +47,7 @@ public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseIntercepto
 
   private EventSecurityEndingInterceptor ending = new EventSecurityEndingInterceptor();
 
-  public OutgoingSubjectRetrievalInterceptor(SecurityManager securityManager) {
+  public SubjectRetrievalInterceptor(SecurityManager securityManager) {
     super(Phase.PRE_STREAM);
     tokenFactory = new AuthenticationTokenFactory();
     this.securityManager = securityManager;
