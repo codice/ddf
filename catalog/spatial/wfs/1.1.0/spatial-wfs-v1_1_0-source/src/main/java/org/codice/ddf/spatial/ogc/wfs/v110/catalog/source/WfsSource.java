@@ -293,7 +293,7 @@ public class WfsSource extends AbstractWfsSource {
     "unused"
   })
   public void destroy(int code) {
-    wfsMetacardTypeRegistry.clear();
+    wfsMetacardTypeRegistry.clear(getId());
     availabilityPollFuture.cancel(true);
     scheduler.shutdownNow();
   }
@@ -608,7 +608,7 @@ public class WfsSource extends AbstractWfsSource {
     // registering the MetacardTypes - the concern is that if this registration is too lengthy
     // a query could come in that is handled while the MetacardType registrations are
     // in a state of flux.
-    wfsMetacardTypeRegistry.clear();
+    wfsMetacardTypeRegistry.clear(getId());
 
     List<String> featureNames = new ArrayList<>();
     if (!mcTypeRegs.isEmpty()) {

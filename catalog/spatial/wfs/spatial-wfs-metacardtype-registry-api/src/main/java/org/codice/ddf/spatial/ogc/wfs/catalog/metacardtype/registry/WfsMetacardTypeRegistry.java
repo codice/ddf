@@ -44,6 +44,9 @@ public interface WfsMetacardTypeRegistry {
    */
   void registerMetacardType(MetacardType metacardType, String sourceId, String featureSimpleName);
 
+  /** Used to clear all entries of the registry for a specific source */
+  void clear(String sourceId);
+
   /** Used to clear all entries of the registry */
-  void clear();
+  void clearAll();
 }

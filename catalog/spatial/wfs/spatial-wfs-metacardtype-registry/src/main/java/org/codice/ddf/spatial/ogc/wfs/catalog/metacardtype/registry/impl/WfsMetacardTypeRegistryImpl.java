@@ -17,8 +17,11 @@ import com.google.common.base.Verify;
 import ddf.catalog.data.MetacardType;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
 import org.osgi.framework.BundleContext;
@@ -34,6 +37,8 @@ public final class WfsMetacardTypeRegistryImpl implements WfsMetacardTypeRegistr
 
   private List<ServiceRegistration<MetacardType>> serviceRegistrations;
 
+  private final Lock registryLock = new ReentrantLock();
+
   public WfsMetacardTypeRegistryImpl(BundleContext bundleContext) {
     this.bundleContext = bundleContext;
     this.serviceRegistrations = new ArrayList<>();
@@ -46,19 +51,25 @@ public final class WfsMetacardTypeRegistryImpl implements WfsMetacardTypeRegistr
       return Optional.empty();
     }
 
-    Optional<ServiceRegistration<MetacardType>> serviceRegistrationOptional =
-        serviceRegistrations
-            .stream()
-            .filter(s -> s.getReference().getProperty(SOURCE_ID) != null)
-            .filter(s -> s.getReference().getProperty(SOURCE_ID).equals(sourceId))
-            .filter(s -> s.getReference().getProperty(FEATURE_NAME) != null)
-            .filter(s -> s.getReference().getProperty(FEATURE_NAME).equals(simpleName))
-            .findFirst();
+    try {
+      // acquire a lock to protect read access on serviceRegistrations
+      registryLock.lock();
+      Optional<ServiceRegistration<MetacardType>> serviceRegistrationOptional =
+          serviceRegistrations
+              .stream()
+              .filter(s -> s.getReference().getProperty(SOURCE_ID) != null)
+              .filter(s -> s.getReference().getProperty(SOURCE_ID).equals(sourceId))
+              .filter(s -> s.getReference().getProperty(FEATURE_NAME) != null)
+              .filter(s -> s.getReference().getProperty(FEATURE_NAME).equals(simpleName))
+              .findFirst();
 
-    if (serviceRegistrationOptional.isPresent()) {
-      MetacardType featureMetacardType =
-          bundleContext.getService(serviceRegistrationOptional.get().getReference());
-      return Optional.of(featureMetacardType);
+      if (serviceRegistrationOptional.isPresent()) {
+        MetacardType featureMetacardType =
+            bundleContext.getService(serviceRegistrationOptional.get().getReference());
+        return Optional.of(featureMetacardType);
+      }
+    } finally {
+      registryLock.unlock();
     }
 
     return Optional.empty();
@@ -77,12 +88,43 @@ public final class WfsMetacardTypeRegistryImpl implements WfsMetacardTypeRegistr
     properties.put(FEATURE_NAME, featureSimpleName);
     ServiceRegistration<MetacardType> serviceRegistration =
         bundleContext.registerService(MetacardType.class, metacardType, properties);
-    serviceRegistrations.add(serviceRegistration);
+    try {
+      registryLock.lock();
+      serviceRegistrations.add(serviceRegistration);
+    } finally {
+      registryLock.unlock();
+    }
   }
 
   /** {@inheritDoc} */
-  public void clear() {
-    serviceRegistrations.stream().forEach(ServiceRegistration::unregister);
-    serviceRegistrations.clear();
+  @Override
+  public void clear(String sourceId) {
+    Verify.verifyNotNull(sourceId, "argument 'sourceId' may not be null.");
+    try {
+      registryLock.lock();
+      for (Iterator<ServiceRegistration<MetacardType>> iter = serviceRegistrations.iterator();
+          iter.hasNext(); ) {
+        ServiceRegistration registration = iter.next();
+        if (registration.getReference() != null
+            && registration.getReference().getProperty(SOURCE_ID).equals(sourceId)) {
+          registration.unregister();
+          iter.remove();
+        }
+      }
+    } finally {
+      registryLock.unlock();
+    }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void clearAll() {
+    try {
+      registryLock.lock();
+      serviceRegistrations.stream().forEach(ServiceRegistration::unregister);
+      serviceRegistrations.clear();
+    } finally {
+      registryLock.unlock();
+    }
   }
 }
