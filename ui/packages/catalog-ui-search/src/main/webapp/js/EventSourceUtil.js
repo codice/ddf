@@ -5,6 +5,7 @@ const REQUEST_HEADER = 'XMLHttpRequest'
 const HEADERS = {
   'X-Requested-With': REQUEST_HEADER,
 }
+import { EventType } from '../react-component/utils/event'
 
 var source
 
@@ -65,7 +66,7 @@ module.exports = {
         source.close()
         source = null
       }
-      source.addEventListener('close', event => {
+      source.addEventListener(EventType.Close, event => {
         console.log('on close')
         console.log(event)
         console.log('id: ', id)

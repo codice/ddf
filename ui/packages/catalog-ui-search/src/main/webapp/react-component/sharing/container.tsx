@@ -16,6 +16,7 @@ import * as React from 'react'
 import SharingPresentation from './presentation'
 import fetch from '../utils/fetch/index'
 import { Access, Entry, Restrictions, Security } from '../utils/security'
+import { EventType } from '../utils/event'
 
 const user = require('component/singletons/user-instance')
 const common = require('js/Common')
@@ -31,13 +32,13 @@ type Props = {
   id: number
   lightbox: any
   onUpdate?: (attributes: Attribute[]) => void
-  type: string
+  type: EventType
 }
 
 type State = {
   items: Item[]
   modified: string
-  type: string
+  type: EventType
 }
 
 export enum Category {
@@ -53,7 +54,10 @@ export type Item = {
   access: Access
 }
 
-export const handleRemoveSharedMetacard = async (id: number, type: string) => {
+export const handleRemoveSharedMetacard = async (
+  id: number,
+  type: EventType
+) => {
   const metacard = await fetchMetacard(id)
   const res = Restrictions.from(metacard)
   const security = new Security(res)
@@ -105,7 +109,7 @@ const fetchMetacard = async (id: number) => {
   return metacard.metacards[0]
 }
 
-const handleSave = (attributes: any, id: number, type: string) => {
+const handleSave = (attributes: any, id: number, type: EventType) => {
   return fetch(`/search/catalog/internal/metacards`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -154,7 +158,7 @@ export class Sharing extends React.Component<Props, State> {
         items: groups.concat(individuals),
         modified: metacard['metacard.modified'],
         type: data['metacard-tags'].includes('workspace')
-          ? 'workspace'
+          ? EventType.Workspace
           : this.state.type,
       })
       this.add()
@@ -171,7 +175,7 @@ export class Sharing extends React.Component<Props, State> {
       e => e.value !== '' && e.category === Category.User
     )
 
-    if (this.state.type === 'workspace' && guest[0].access === 0) {
+    if (this.state.type === EventType.Workspace && guest[0].access === 0) {
       usersToUnsubscribe = this.getUsersToUnsubscribe(users)
     }
     const attributes = [

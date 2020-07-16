@@ -18,6 +18,7 @@ const ResultForm = require('../search-form/search-form.js')
 const $ = require('jquery')
 const _ = require('underscore')
 const EventSourceUtil = require('../../js/EventSourceUtil')
+import { EventType } from '../../react-component/utils/event'
 
 let resultTemplates = []
 let promiseIsResolved = false
@@ -53,7 +54,7 @@ module.exports = Backbone.AssociatedModel.extend({
       })
     }
 
-    EventSourceUtil.createEventListener('resultform', {
+    EventSourceUtil.createEventListener(EventType.ResultForm, {
       onMessage: getForms,
     })
 

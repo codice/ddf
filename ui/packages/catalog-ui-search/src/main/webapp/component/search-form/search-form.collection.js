@@ -18,6 +18,7 @@ const $ = require('jquery')
 const Backbone = require('backbone')
 const SearchForm = require('./search-form')
 const EventSourceUtil = require('../../js/EventSourceUtil')
+import { EventType } from '../../react-component/utils/event'
 
 const fixFilter = function(filter) {
   if (filter.filters) {
@@ -69,7 +70,8 @@ module.exports = Backbone.AssociatedModel.extend({
         this.doneLoading()
       })
     }
-    EventSourceUtil.createEventListener('searchform', {
+
+    EventSourceUtil.createEventListener(EventType.SearchForm, {
       onMessage: getForms,
     })
 

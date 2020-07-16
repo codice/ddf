@@ -21,6 +21,7 @@ const moment = require('moment')
 require('backbone-associations')
 const WorkspaceModel = require('./Workspace.js')
 const EventSourceUtil = require('../../js/EventSourceUtil')
+import { EventType } from '../../react-component/utils/event'
 
 module.exports = Backbone.Collection.extend({
   model: WorkspaceModel,
@@ -44,7 +45,7 @@ module.exports = Backbone.Collection.extend({
     const onMessage = () => {
       this.fetch({ remove: true, merge: false })
     }
-    EventSourceUtil.createEventListener('workspace', {
+    EventSourceUtil.createEventListener(EventType.Workspace, {
       onMessage: onMessage,
     })
   },

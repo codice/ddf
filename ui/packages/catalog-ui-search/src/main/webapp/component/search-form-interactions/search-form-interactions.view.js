@@ -28,6 +28,7 @@ const ConfirmationView = require('../confirmation/confirmation.view.js')
 const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 const wreqr = require('../../exports/wreqr.js')
 const properties = require('../../js/properties')
+import { EventType } from '../../react-component/utils/event'
 
 const formTitle = properties.i18n['form.title']
   ? properties.i18n['form.title']
@@ -156,7 +157,9 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
           const id = this.model.get('id')
           handleRemoveSharedMetacard(
             id,
-            this.model.get('type') === 'result' ? 'resultform' : 'searchform'
+            this.model.get('type') === 'result'
+              ? EventType.ResultForm
+              : EventType.SearchForm
           ).then(res => {
             if (res.status !== 200) {
               announcement.announce(
@@ -303,7 +306,11 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
         key={this.model.id}
         id={this.model.id}
         lightbox={lightboxInstance}
-        type={this.model.get('type') === 'result' ? 'resultform' : 'searchform'}
+        type={
+          this.model.get('type') === 'result'
+            ? EventType.ResultForm
+            : EventType.SearchForm
+        }
       />
     )
     this.handleClick()
