@@ -124,8 +124,6 @@ module.exports = Marionette.LayoutView.extend({
     this.editor.show(
       new QueryAdvanced({
         model: this.model,
-        isForm: true,
-        isFormBuilder: true,
         isSearchFormEditor: true,
         onSave: () => {
           if (this.model.get('title').trim() !== '') {
@@ -201,6 +199,7 @@ module.exports = Marionette.LayoutView.extend({
       error: () => {
         this.errorMessage()
       },
+      wait: true,
     }
     this.model.set(json)
     json.id ? this.model.save({}, options) : collection.create(json, options)
