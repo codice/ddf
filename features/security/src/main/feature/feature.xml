@@ -57,6 +57,7 @@
         -->
         <bundle>mvn:org.ow2.asm/asm/5.2</bundle>
         <bundle>wrap:mvn:com.github.stephenc.jcip/jcip-annotations/1.0-1</bundle>
+        <bundle>mvn:ddf.platform.security/security-oidc-bundle/${project.version}</bundle>
     </feature>
 
     <feature name="security-core-api" version="${project.version}"
@@ -102,9 +103,6 @@
 
         <!-- Miscellaneous -->
         <bundle>mvn:ddf.security.servlet/security-servlet-web-socket-api/${project.version}</bundle>
-        <bundle>mvn:ddf.security.interceptor/security-interceptor-guest-wrapper/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.security/security-oidc-bundle/${project.version}</bundle>
-        <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
     </feature>
 
     <feature name="security-core-impl-dependencies" version="${project.version}"
@@ -131,6 +129,10 @@
 
         <!-- Policy Extension Point -->
         <bundle>mvn:ddf.security.pep/security-pep-interceptor/${project.version}</bundle>
+
+        <!-- Miscellaneous -->
+        <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
+        <bundle>mvn:ddf.security.interceptor/security-interceptor-guest-wrapper/${project.version}</bundle>
     </feature>
 
     <feature name="security-core-services-dependencies" version="${project.version}"
