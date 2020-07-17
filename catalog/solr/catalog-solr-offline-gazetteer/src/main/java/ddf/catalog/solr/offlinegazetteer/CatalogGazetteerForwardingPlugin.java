@@ -14,6 +14,7 @@
 package ddf.catalog.solr.offlinegazetteer;
 
 import static ddf.catalog.Constants.SUGGESTION_BUILD_KEY;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COUNTRY_CODE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.DESCRIPTION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.FEATURE_CODE;
@@ -22,14 +23,13 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQ
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_TO_CATALOG;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.ID;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.LOCATION;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.POPULATION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.TITLE;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -157,7 +157,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
 
     getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(DESCRIPTION));
     getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(FEATURE_CODE));
-    getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(TITLE));
+    getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(NAME));
     getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(ID));
     getAttrAndAdd.accept(GAZETTEER_TO_CATALOG.get(COUNTRY_CODE));
 

@@ -13,18 +13,18 @@
  */
 package ddf.catalog.solr.offlinegazetteer;
 
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COUNTRY_CODE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.FEATURE_CODE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.LOCATION;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.POPULATION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.TITLE;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.types.Location;
@@ -102,10 +102,9 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   private final SolrClient client;
 
   public GazetteerQueryOfflineSolr(
-      SolrClientFactory clientFactory, ExecutorService startupBuilderExecutor) {
+      SolrClientFactory clientFactory) {
 
     this.client = clientFactory.newClient(COLLECTION_NAME);
-    startupBuilderExecutor.submit(this::pingAndInitializeSuggester);
   }
 
   @Override
@@ -379,7 +378,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
       geoEntryBuilder.countryCode(countryCode);
     }
 
-    String name = getField(document, TITLE, String.class);
+    String name = getField(document, NAME, String.class);
     if (StringUtils.isNotBlank(name)) {
       geoEntryBuilder.name(name);
     }
@@ -434,35 +433,5 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
 
   private double convertDegreeToKilometer(double distanceInDegrees) {
     return distanceInDegrees * KM_PER_DEGREE;
-  }
-
-  private void pingAndInitializeSuggester() {
-    Failsafe.with(
-            new RetryPolicy()
-                .retryWhen(false)
-                .withMaxDuration(5, TimeUnit.MINUTES)
-                .withBackoff(100, 3_000, TimeUnit.MILLISECONDS))
-        .onFailure(
-            e ->
-                LOGGER.error(
-                    "Could not get solrclient to start initial suggester build for {} core. Please try to start a build manually with the `build-suggester-index` karaf command or by sending a request to solr with the property `suggest.build=true`",
-                    COLLECTION_NAME,
-                    e))
-        .get(() -> client.isAvailable());
-
-    SolrQuery query = new SolrQuery();
-    query.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
-    query.setParam(SUGGEST_BUILD_KEY, true);
-    query.setParam(SUGGEST_Q_KEY, "GQOSInitialSuggesterBuild");
-    query.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
-    try {
-      QueryResponse response = client.query(query, METHOD.POST);
-      LOGGER.debug("Initial Suggester build response: {}", response);
-    } catch (SolrServerException | IOException e) {
-      LOGGER.error(
-          "Error while trying to build initial suggester for {}",
-          COLLECTION_NAME,
-          e);
-    }
   }
 }

@@ -22,11 +22,11 @@ import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 
 public class GazetteerConstants {
   /* Solr Requests */
-  public static final String GAZETTEER_REQUEST_HANDLER = "/suggest";
+  public static final String GAZETTEER_REQUEST_HANDLER = "/gazetteer";
   public static final String SUGGEST_Q_KEY = "suggest.q";
   public static final String SUGGEST_BUILD_KEY = "suggest.build";
   public static final String SUGGEST_DICT_KEY = "suggest.dictionary";
-  public static final String SUGGEST_DICT = "suggestPlace";
+  public static final String SUGGEST_DICT = "gazetteerSuggest";
 
   /* Naming */
   public static final String GAZETTEER_METACARD_TAG = GeoCodingConstants.GAZETTEER_METACARD_TAG;
@@ -34,18 +34,18 @@ public class GazetteerConstants {
 
   public static final String DESCRIPTION = "description_txt";
   public static final String FEATURE_CODE = "feature-code_txt";
-  public static final String TITLE = "title_txt";
+  public static final String NAME = "name_txt";
   public static final String ID = "id_txt";
   public static final String COUNTRY_CODE = "country-code_txt";
   public static final String LOCATION = "location_geo";
   public static final String POPULATION = "population_lng";
-  public static final String SORT_VALUE = "gazetteer-sort-value_int";
+  public static final String SORT_VALUE = "sort-value_int";
 
   public static final BiMap<String, String> GAZETTEER_TO_CATALOG =
       new ImmutableBiMap.Builder<String, String>()
           .put(DESCRIPTION, Core.DESCRIPTION)
           .put(FEATURE_CODE, GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME)
-          .put(TITLE, Core.TITLE)
+          .put(NAME, Core.TITLE)
           .put(ID, Core.ID)
           .put(COUNTRY_CODE, Location.COUNTRY_CODE)
           .put(LOCATION, Core.LOCATION)

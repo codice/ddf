@@ -13,8 +13,8 @@
  */
 package ddf.catalog.solr.offlinegazetteer;
 
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_METACARD_TAG;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_METACARD_TAG;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;

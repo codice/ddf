@@ -14,13 +14,6 @@
 
   <reference id="solrFactory" interface="org.codice.solr.factory.SolrClientFactory"/>
 
-
-  <bean id="offlineGazetteerThreadFactory"
-    class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
-    factory-method="newThreadFactory">
-    <argument value="offlineGazetteerThread"/>
-  </bean>
-
   <bean id="offlineGazetteerPlugin"
     class="ddf.catalog.solr.offlinegazetteer.CatalogGazetteerForwardingPlugin">
     <argument ref="solrFactory"/>
@@ -32,14 +25,9 @@
     </interfaces>
   </service>
 
-  <bean id="executorService" class="java.util.concurrent.Executors"
-    factory-method="newCachedThreadPool">
-    <argument ref="offlineGazetteerThreadFactory" />
-  </bean>
   <bean id="gazetteerQueryOfflineSolr"
     class="ddf.catalog.solr.offlinegazetteer.GazetteerQueryOfflineSolr">
     <argument ref="solrFactory"/>
-    <argument ref="executorService"/>
   </bean>
   <service ref="gazetteerQueryOfflineSolr"
     interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable" ranking="80"/>

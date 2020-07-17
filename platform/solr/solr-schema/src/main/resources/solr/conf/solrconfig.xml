@@ -1304,6 +1304,32 @@
     </arr>
   </requestHandler>
 
+  <searchComponent name="gazetteer" class="solr.SuggestComponent">
+    <lst name="suggester">
+      <str name="name">gazetteerSuggest</str>
+      <str name="lookupImpl">BlendedInfixLookupFactory</str>
+      <str name="indexPath">gazetteer_index</str>
+      <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+      <str name="suggestAnalyzerFieldType">lowercase</str>
+      <str name="field">name_txt</str>
+      <str name="weightField">sort-value_int</str>
+      <str name="sortField">population_lng</str>
+      <str name="payloadField">id_txt</str>
+      <str name="buildOnStartup">true</str>
+      <str name="highlight">false</str>
+    </lst>
+  </searchComponent>
+
+  <requestHandler name="/gazetteer" class="solr.SearchHandler" startup="lazy">
+    <lst name="defaults">
+      <str name="suggest">true</str>
+      <str name="suggest.count">50</str>
+    </lst>
+    <arr name="components">
+      <str>gazetteer</str>
+    </arr>
+  </requestHandler>
+
   <requestHandler name="/admin/ping" class="solr.PingRequestHandler">
     <lst name="invariants">
       <str name="qt">/query</str>
