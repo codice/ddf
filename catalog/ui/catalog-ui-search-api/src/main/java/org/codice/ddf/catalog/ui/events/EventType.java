@@ -11,39 +11,27 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.edit;
+package org.codice.ddf.catalog.ui.events;
 
-import java.util.List;
-import org.codice.ddf.catalog.ui.events.EventType;
+import com.google.gson.annotations.SerializedName;
 
-public class MetacardChanges {
-  private List<String> ids;
+public enum EventType {
+  @SerializedName("resultform")
+  RESULTFORM("resultform"),
+  @SerializedName("searchform")
+  SEARCHFORM("searchform"),
+  @SerializedName("workspace")
+  WORKSPACE("workspace"),
+  @SerializedName("close")
+  CLOSE("close");
 
-  private List<AttributeChange> attributes;
+  private final String id;
 
-  private EventType type;
-
-  public List<String> getIds() {
-    return ids;
+  EventType(String id) {
+    this.id = id;
   }
 
-  public void setIds(List<String> ids) {
-    this.ids = ids;
-  }
-
-  public List<AttributeChange> getAttributes() {
-    return attributes;
-  }
-
-  public void setAttributes(List<AttributeChange> attributes) {
-    this.attributes = attributes;
-  }
-
-  public EventType getType() {
-    return type;
-  }
-
-  public void setType(EventType type) {
-    this.type = type;
+  public String identifier() {
+    return this.id;
   }
 }

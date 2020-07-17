@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.catalog.ui.events;
 
 import static spark.Spark.get;
@@ -31,7 +44,7 @@ public class EventApplication implements SparkApplication {
           try {
             String sourceId = req.params(":id");
             if (listeners.size() >= 5) {
-              notifyListener(sourceId, "close");
+              notifyListener(sourceId, EventType.CLOSE);
               res.status(429);
               return "Too many HTTP connections - cannot create new Event Source";
             }
@@ -40,7 +53,6 @@ public class EventApplication implements SparkApplication {
             res.header("Cache-Control", "no-cache");
 
             PrintWriter out = res.raw().getWriter();
-
             res.status(200);
             listeners.put(sourceId, out);
             while (!out.checkError()) {
@@ -48,7 +60,7 @@ public class EventApplication implements SparkApplication {
               out.flush();
               Thread.sleep(15000);
             }
-            notifyListener(sourceId, "close");
+            notifyListener(sourceId, EventType.CLOSE);
             listeners.remove(sourceId);
             return "Event Source connection closed";
           } catch (Exception e) {
@@ -59,7 +71,7 @@ public class EventApplication implements SparkApplication {
         });
   }
 
-  public static void notifyListeners(String type) {
+  public static void notifyListeners(EventType type) {
     ExecutorService es = Executors.newSingleThreadExecutor();
     es.submit(
         () -> {
@@ -76,7 +88,7 @@ public class EventApplication implements SparkApplication {
                 .values()
                 .forEach(
                     (listener) -> {
-                      listener.write("event: " + type + "\n");
+                      listener.write("event: " + type.identifier() + "\n");
                       listener.write("data" + HEARTBEAT);
                       listener.flush();
                     });
@@ -84,7 +96,7 @@ public class EventApplication implements SparkApplication {
         });
   }
 
-  public static void notifyListener(String id, String type) {
+  public static void notifyListener(String id, EventType type) {
     ExecutorService es = Executors.newSingleThreadExecutor();
     es.submit(
         () -> {
@@ -96,7 +108,7 @@ public class EventApplication implements SparkApplication {
         });
     es.submit(
         () -> {
-          listeners.get(id).write("event: " + type + "\n");
+          listeners.get(id).write("event: " + type.identifier() + "\n");
           listeners.get(id).write("data" + HEARTBEAT);
           listeners.get(id).flush();
         });

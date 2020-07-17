@@ -116,6 +116,7 @@ import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.enumeration.ExperimentalEnumerationExtractor;
 import org.codice.ddf.catalog.ui.events.EventApplication;
+import org.codice.ddf.catalog.ui.events.EventType;
 import org.codice.ddf.catalog.ui.metacard.associations.Associated;
 import org.codice.ddf.catalog.ui.metacard.edit.AttributeChange;
 import org.codice.ddf.catalog.ui.metacard.edit.MetacardChanges;
@@ -338,8 +339,9 @@ public class MetacardApplication implements SparkApplication {
           List<MetacardChanges> metacardChanges = GSON.fromJson(body, METACARD_CHANGES_LIST_TYPE);
           metacardChanges.forEach(
               change -> {
-                if (change.getType() != null) {
-                  EventApplication.notifyListeners(change.getType());
+                EventType type = change.getType();
+                if (type != null) {
+                  EventApplication.notifyListeners(type);
                 }
               });
           UpdateResponse updateResponse = patchMetacards(metacardChanges, getSubjectIdentifier());
@@ -624,7 +626,7 @@ public class MetacardApplication implements SparkApplication {
           catalogFramework.delete(new DeleteRequestImpl(id));
 
           subscriptions.removeSubscriptions(id);
-          EventApplication.notifyListeners("workspace");
+          EventApplication.notifyListeners(EventType.WORKSPACE);
           return ImmutableMap.of("message", "Successfully deleted.");
         },
         util::getJson);
