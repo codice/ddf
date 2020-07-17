@@ -33,7 +33,7 @@ import org.codice.solr.client.solrj.SolrClient
 import org.codice.solr.factory.SolrClientFactory
 import spock.lang.Specification
 
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY
@@ -55,7 +55,7 @@ class CatalogGazetteerForwardingPluginSpec extends Specification {
     void setup() {
         solrClient = Mock(SolrClient)
         solrClientFactory = Mock(SolrClientFactory) {
-            newClient(STANDALONE_GAZETTEER_CORE_NAME) >> solrClient
+            newClient(COLLECTION_NAME) >> solrClient
         }
         testedPlugin = new CatalogGazetteerForwardingPlugin(solrClientFactory)
 

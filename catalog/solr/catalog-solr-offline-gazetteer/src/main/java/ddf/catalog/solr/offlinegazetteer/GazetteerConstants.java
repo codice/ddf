@@ -30,7 +30,7 @@ public class GazetteerConstants {
 
   /* Naming */
   public static final String GAZETTEER_METACARD_TAG = GeoCodingConstants.GAZETTEER_METACARD_TAG;
-  public static final String STANDALONE_GAZETTEER_CORE_NAME = "standalone-solr-gazetteer";
+  public static final String COLLECTION_NAME = "gazetteer";
 
   public static final String DESCRIPTION = "description_txt";
   public static final String FEATURE_CODE = "feature-code_txt";

@@ -19,7 +19,7 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQ
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.LOCATION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.POPULATION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
@@ -104,7 +104,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   public GazetteerQueryOfflineSolr(
       SolrClientFactory clientFactory, ExecutorService startupBuilderExecutor) {
 
-    this.client = clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
+    this.client = clientFactory.newClient(COLLECTION_NAME);
     startupBuilderExecutor.submit(this::pingAndInitializeSuggester);
   }
 
@@ -446,7 +446,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
             e ->
                 LOGGER.error(
                     "Could not get solrclient to start initial suggester build for {} core. Please try to start a build manually with the `build-suggester-index` karaf command or by sending a request to solr with the property `suggest.build=true`",
-                    STANDALONE_GAZETTEER_CORE_NAME,
+                    COLLECTION_NAME,
                     e))
         .get(() -> client.isAvailable());
 
@@ -461,7 +461,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     } catch (SolrServerException | IOException e) {
       LOGGER.error(
           "Error while trying to build initial suggester for {}",
-          STANDALONE_GAZETTEER_CORE_NAME,
+          COLLECTION_NAME,
           e);
     }
   }

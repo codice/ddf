@@ -24,7 +24,7 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.ID;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.LOCATION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.POPULATION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.STANDALONE_GAZETTEER_CORE_NAME;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
@@ -64,7 +64,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
   private final SolrClient solrClient;
 
   public CatalogGazetteerForwardingPlugin(SolrClientFactory clientFactory) {
-    this.solrClient = clientFactory.newClient(STANDALONE_GAZETTEER_CORE_NAME);
+    this.solrClient = clientFactory.newClient(COLLECTION_NAME);
   }
 
   @Override
@@ -82,7 +82,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
 
     try {
       solrClient.add(
-          STANDALONE_GAZETTEER_CORE_NAME,
+          COLLECTION_NAME,
           gazetteerMetacards
               .stream()
               .map(CatalogGazetteerForwardingPlugin::convert)
@@ -110,7 +110,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
 
     try {
       solrClient.add(
-          STANDALONE_GAZETTEER_CORE_NAME,
+          COLLECTION_NAME,
           gazetteerMetacards
               .stream()
               .map(CatalogGazetteerForwardingPlugin::convert)

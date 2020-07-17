@@ -81,7 +81,7 @@ are run, along with on initial install. So you can run `gazetteer:build-suggeste
 the suggester.
 
 Another option is to send a build request via a solr client. An example of this is done through
-the Solr Dashboard after selecting the `standalone-solr-gazetteer` core and clicking `query`.
+the Solr Dashboard after selecting the `gazetteer` core and clicking `query`.
 Ensure that the Request-Handler (qt) is set to `/suggest` and then in the 'Extra Parameters' field
 add `suggest.build=true&suggest.dictionary=suggestPlace&suggest.q=bla`.
 
