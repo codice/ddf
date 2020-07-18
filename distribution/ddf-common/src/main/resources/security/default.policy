@@ -100,7 +100,9 @@ grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorag
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.cxf.osgi.cfg", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read, write";
 }
 
 grant codeBase "file:/registry-federation-admin-impl/registry-publication-action-provider" {
