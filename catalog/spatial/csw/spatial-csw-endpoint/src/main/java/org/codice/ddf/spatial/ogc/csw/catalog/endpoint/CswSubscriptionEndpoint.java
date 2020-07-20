@@ -20,7 +20,6 @@ import ddf.catalog.event.Subscription;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.security.service.SecurityManager;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -112,8 +111,6 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
   private Security security;
 
-  private SecurityManager securityManager;
-
   public CswSubscriptionEndpoint(
       EventProcessor eventProcessor,
       TransformerManager mimeTypeTransformerManager,
@@ -122,8 +119,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       Validator validator,
       CswQueryFactory queryFactory,
       ClientBuilderFactory clientBuilderFactory,
-      Security security,
-      SecurityManager securityManager) {
+      Security security) {
     this.eventProcessor = eventProcessor;
     this.mimeTypeTransformerManager = mimeTypeTransformerManager;
     this.schemaTransformerManager = schemaTransformerManager;
@@ -132,7 +128,6 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     this.queryFactory = queryFactory;
     this.clientBuilderFactory = clientBuilderFactory;
     this.security = security;
-    this.securityManager = securityManager;
 
     try {
       this.datatypeFactory = DatatypeFactory.newInstance();
@@ -423,20 +418,10 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     // if it is an empty query we need to create a filterless subscription
     if (((QueryType) request.getAbstractQuery().getValue()).getConstraint() == null) {
       return CswSubscription.getFilterlessSubscription(
-          mimeTypeTransformerManager,
-          request,
-          query,
-          clientBuilderFactory,
-          security,
-          securityManager);
+          mimeTypeTransformerManager, request, query, clientBuilderFactory, security);
     }
     return new CswSubscription(
-        mimeTypeTransformerManager,
-        request,
-        query,
-        clientBuilderFactory,
-        security,
-        securityManager);
+        mimeTypeTransformerManager, request, query, clientBuilderFactory, security);
   }
 
   public synchronized String addOrUpdateSubscription(
