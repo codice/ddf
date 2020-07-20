@@ -27,6 +27,7 @@ public class GazetteerConstants {
   public static final String SUGGEST_BUILD_KEY = "suggest.build";
   public static final String SUGGEST_DICT_KEY = "suggest.dictionary";
   public static final String SUGGEST_DICT = "gazetteerSuggest";
+  public static final String SUGGEST_COUNT_KEY = "suggest.count";
 
   /* Naming */
   public static final String GAZETTEER_METACARD_TAG = GeoCodingConstants.GAZETTEER_METACARD_TAG;

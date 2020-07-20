@@ -17,53 +17,31 @@ import org.codice.solr.client.solrj.SolrClient
 import org.codice.solr.factory.SolrClientFactory
 import spock.lang.Specification
 
-import java.util.concurrent.ExecutorService
 import java.util.stream.Stream
 
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COUNTRY_CODE
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.FEATURE_CODE
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.LOCATION
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAME
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.POPULATION
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_COUNT_KEY
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY
 
 class GazetteerQueryOfflineSolrSpec extends Specification {
     GazetteerQueryOfflineSolr testedClass
     SolrClientFactory solrClientFactory
     SolrClient solrClient
-    ExecutorService executorService
 
     void setup() {
-        executorService = Mock(ExecutorService)
         solrClient = Mock(SolrClient)
         solrClientFactory = Mock(SolrClientFactory) {
             newClient(_) >> solrClient
         }
-        testedClass = new GazetteerQueryOfflineSolr(solrClientFactory, executorService)
+        testedClass = new GazetteerQueryOfflineSolr(solrClientFactory)
     }
 
-    def "Test normal startup ping and suggester build"() {
-        setup:
-        executorService = Mock(ExecutorService) {
-            submit(_ as Runnable) >> {Runnable task -> task.run()}
-        }
-        solrClient = Mock(SolrClient)
-        solrClientFactory = Mock(SolrClientFactory) {
-            newClient(_) >> solrClient
-        }
-
-        2 * solrClient.isAvailable() >> false >> true
-
-        1 * solrClient.query(*_) >> { SolrQuery query , METHOD method ->
-            assert query.requestHandler == GAZETTEER_REQUEST_HANDLER
-            assert query.get(SUGGEST_BUILD_KEY) == "true"
-            assert query.get(SUGGEST_DICT_KEY) == SUGGEST_DICT
-        }
-
-        when:
-        testedClass = new GazetteerQueryOfflineSolr(solrClientFactory, executorService)
-
-        then:
-        notThrown(Exception)
-    }
 
     def "Test normal query"() {
         setup:
@@ -73,12 +51,12 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
                     getResults() >> Mock(SolrDocumentList) {
                         stream() >> {
                             Stream.of(Mock(SolrDocument) {
-                                get("title_txt") >> ["title"]
-                                get("population_lng") >> [1337l]
-                                get("location_geo") >> ["POINT (-98.86253 29.18968)"]
-                                get("feature-code_txt") >> ["PPL"]
-                                get("country-code_txt") >> ["USA"]
-                                get("gazetteer-sort-value_int") >> [42i]
+                                get(NAME) >> ["title"]
+                                get(POPULATION) >> [1337l]
+                                get(LOCATION) >> ["POINT (-98.86253 29.18968)"]
+                                get(FEATURE_CODE) >> ["PPL"]
+                                get(COUNTRY_CODE) >> ["USA"]
+                                get(SORT_VALUE) >> [42i]
                             })
                         }
                     }
@@ -130,9 +108,9 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
                     getResults() >> Mock(SolrDocumentList) {
                         stream() >> {
                             Stream.of(Mock(SolrDocument) {
-                                get("title_txt") >> ["title"]
-                                get("population_lng") >> [1337l]
-                                get("location_geo") >> ["POINT (!!!!!INVALIDWKT"]
+                                get(NAME) >> ["title"]
+                                get(POPULATION) >> [1337l]
+                                get(LOCATION) >> ["POINT (!!!!!INVALIDWKT"]
                             })
                         }
                     }
@@ -171,8 +149,8 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
                     getResults() >> Mock(SolrDocumentList) {
                         stream() >> {
                             Stream.of(Mock(SolrDocument) {
-                                get("title_txt") >> ["title"]
-                                get("population_lng") >> [1337l]
+                                get(NAME) >> ["title"]
+                                get(POPULATION) >> [1337l]
                             })
                         }
                     }
@@ -198,7 +176,7 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
         setup:
         int maxResults = 10
         1 * solrClient.query(*_) >> { SolrQuery query ->
-            assert query.get("suggest.count") == "${maxResults}"
+            assert query.get(SUGGEST_COUNT_KEY) == "${maxResults}"
             assert query.requestHandler == GAZETTEER_REQUEST_HANDLER
             Mock(QueryResponse) {
                 getSuggesterResponse() >> Mock(SuggesterResponse) {
@@ -222,7 +200,7 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
         setup: "request asking for an absurdly large number of results"
         int maxResults = 8675309
         1 * solrClient.query(*_) >> { SolrQuery query ->
-            assert query.get("suggest.count") == "${GazetteerQueryOfflineSolr.MAX_RESULTS}"
+            assert query.get(SUGGEST_COUNT_KEY) == "${GazetteerQueryOfflineSolr.MAX_RESULTS}"
             assert query.requestHandler == GAZETTEER_REQUEST_HANDLER
             Mock(QueryResponse) {
                 getSuggesterResponse() >> Mock(SuggesterResponse) {
@@ -270,8 +248,8 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
                 getResults() >> Mock(SolrDocumentList) {
                     stream() >> {
                         Stream.of(Mock(SolrDocument) {
-                            get("title_txt") >> ["title"]
-                            get("location_geo") >> [pointAbout42kmAway]
+                            get(NAME) >> ["title"]
+                            get(LOCATION) >> [pointAbout42kmAway]
                         })
                     }
                 }
@@ -339,8 +317,8 @@ class GazetteerQueryOfflineSolrSpec extends Specification {
                 getResults() >> Mock(SolrDocumentList) {
                     stream() >> {
                         Stream.of(Mock(SolrDocument) {
-                            get("title_txt") >> ["title"]
-                            get("location.country-code_txt") >> ["USA"]
+                            get(NAME) >> ["title"]
+                            get(COUNTRY_CODE) >> ["USA"]
                         })
                     }
                 }

@@ -17,17 +17,17 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NA
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COUNTRY_CODE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.FEATURE_CODE;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.GAZETTEER_REQUEST_HANDLER;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.ID;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.LOCATION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.NAME;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.POPULATION;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE;
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD_KEY;
+import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_COUNT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY;
 
 import com.google.common.collect.ImmutableMap;
-import ddf.catalog.data.types.Location;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Collections;
@@ -35,11 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
@@ -77,7 +73,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   private static final String CITY_SOLR_QUERY =
       GeoCodingConstants.CITY_FEATURE_CODES
           .stream()
-          .map(fc -> String.format("feature-code_txt:%s", fc))
+          .map(fc -> String.format("%s:%s", FEATURE_CODE, fc))
           .collect(Collectors.joining(" OR ", "(", ")"));
 
   private static final int MAX_RESULTS = 100;
@@ -101,16 +97,14 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
 
   private final SolrClient client;
 
-  public GazetteerQueryOfflineSolr(
-      SolrClientFactory clientFactory) {
-
+  public GazetteerQueryOfflineSolr(SolrClientFactory clientFactory) {
     this.client = clientFactory.newClient(COLLECTION_NAME);
   }
 
   @Override
   public List<GeoEntry> query(String queryString, int maxResults) throws GeoEntryQueryException {
     SolrQuery solrQuery =
-        new SolrQuery(String.format("title_txt:\"%s\"", ClientUtils.escapeQueryChars(queryString)));
+        new SolrQuery(String.format("%s:\"%s\"", NAME, ClientUtils.escapeQueryChars(queryString)));
     solrQuery.setRows(Math.min(maxResults, GazetteerQueryOfflineSolr.MAX_RESULTS));
 
     QueryResponse response = null;
@@ -129,7 +123,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   @Override
   public GeoEntry queryById(String id) throws GeoEntryQueryException {
     SolrQuery solrQuery =
-        new SolrQuery(String.format("id_txt:\"%s\"", ClientUtils.escapeQueryChars(id)));
+        new SolrQuery(String.format("%s:\"%s\"", ID, ClientUtils.escapeQueryChars(id)));
     solrQuery.setRows(1);
 
     QueryResponse response = null;
@@ -154,7 +148,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     solrQuery.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
     solrQuery.setParam(SUGGEST_Q_KEY, ClientUtils.escapeQueryChars(queryString));
     solrQuery.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
-    solrQuery.setParam("suggest.count", Integer.toString(Math.min(maxResults, MAX_RESULTS)));
+    solrQuery.setParam(SUGGEST_COUNT_KEY, Integer.toString(Math.min(maxResults, MAX_RESULTS)));
 
     QueryResponse response;
     try {
@@ -208,8 +202,8 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
 
     String q =
         String.format(
-            "location_geo_index:\"Intersects( %s ) AND %s\"",
-            ClientUtils.escapeQueryChars(wkt), CITY_SOLR_QUERY);
+            "%s_index:\"Intersects( %s ) AND %s\"",
+            LOCATION, ClientUtils.escapeQueryChars(wkt), CITY_SOLR_QUERY);
 
     SolrQuery solrQuery = new SolrQuery(q);
     solrQuery.setRows(Math.min(maxResults, MAX_RESULTS));
@@ -229,9 +223,9 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   }
 
   private NearbyLocation convert(SolrDocument doc, Geometry originalLocation) {
-    String location = getField(doc, "location_geo", String.class);
+    String location = getField(doc, LOCATION, String.class);
     String title =
-        Optional.ofNullable(getField(doc, "title_txt", String.class))
+        Optional.ofNullable(getField(doc, NAME, String.class))
             .filter(Objects::nonNull)
             .filter(s -> !s.isEmpty())
             .orElse("NO TITLE");
@@ -332,7 +326,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     SolrQuery solrQuery =
         new SolrQuery(
             String.format(
-                "location_geo_index:\"Intersects( %s )\"", ClientUtils.escapeQueryChars(wkt)));
+                "%s_index:\"Intersects( %s )\"", LOCATION, ClientUtils.escapeQueryChars(wkt)));
     solrQuery.setRows(1);
 
     QueryResponse response;
@@ -347,7 +341,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
         .getResults()
         .stream()
         .findFirst()
-        .map(doc -> getField(doc, Location.COUNTRY_CODE + "_txt", String.class));
+        .map(doc -> getField(doc, COUNTRY_CODE, String.class));
   }
 
   private String fixSelfIntersectingGeometry(String wkt) {
