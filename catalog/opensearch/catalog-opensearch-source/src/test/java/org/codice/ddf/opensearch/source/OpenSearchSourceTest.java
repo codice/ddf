@@ -53,6 +53,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.service.SecurityManager;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -418,7 +419,10 @@ public class OpenSearchSourceTest {
 
     ClientBuilder<WebClient> clientBuilder =
         new ClientBuilderImpl<WebClient>(
-            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+            mock(OAuthSecurity.class),
+            mock(SamlSecurity.class),
+            mock(SecurityLogger.class),
+            mock(SecurityManager.class)) {
           @Override
           public SecureCxfClientFactory<WebClient> build() {
             return factory;
