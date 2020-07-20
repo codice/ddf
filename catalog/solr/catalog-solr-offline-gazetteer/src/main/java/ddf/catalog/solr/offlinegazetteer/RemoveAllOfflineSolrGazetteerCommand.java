@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 @Command(
   scope = "offline-solr-gazetteer",
   name = "removeall",
-  description = "Deletes all items in the offline solr gazetteer solr core"
+  description = "Deletes all items in the solr gazetteer collection"
 )
 public class RemoveAllOfflineSolrGazetteerCommand implements Action {
   private static final Logger LOGGER =
@@ -56,7 +56,7 @@ public class RemoveAllOfflineSolrGazetteerCommand implements Action {
       String answer =
           session
               .readLine(
-                  "Are you sure you want to remove all gazetteer entries inside of the offline solr gazetteer core?(y/n)",
+                  "Are you sure you want to remove all gazetteer entries inside of the solr gazetteer collection?(y/n)",
                   ' ')
               .toLowerCase();
       if (!("y".equals(answer) || "yes".equals(answer))) {

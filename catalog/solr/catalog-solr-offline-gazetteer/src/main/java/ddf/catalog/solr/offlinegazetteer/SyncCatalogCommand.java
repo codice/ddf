@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 @Command(
   scope = "offline-solr-gazetteer",
   name = "synccatalog",
-  description = "Syncs all catalog items to the offline solr gazetteer core"
+  description = "Syncs all catalog items to the solr gazetteer collection"
 )
 public class SyncCatalogCommand implements Action {
 
