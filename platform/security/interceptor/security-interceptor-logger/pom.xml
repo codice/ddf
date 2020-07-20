@@ -55,12 +55,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>
-                            ddf.security.interceptor*;version=${project.version}
-                        </Export-Package>
-                        <Import-Package>
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

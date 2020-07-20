@@ -42,7 +42,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
-                            ddf.security.encryption;version=${project.version}
+                            ddf.security.encryption
                         </Export-Package>
                     </instructions>
                 </configuration>

@@ -39,6 +39,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>
+                            org.codice.ddf.platform.email
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

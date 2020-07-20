@@ -33,6 +33,7 @@ deny {
 }
 
 grant codeBase "file:/admin-core-appservice" {
+    permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read,write";
     permission java.util.PropertyPermission "karaf.restart.jvm", "write";
     permission java.io.FilePermission "${ddf.home.perm}bin${/}restart.jvm", "read, write";

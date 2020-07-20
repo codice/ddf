@@ -61,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.servlet</groupId>
-            <artifactId>security-servlet-logout-service</artifactId>
+            <artifactId>security-servlet-logout-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -96,6 +96,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             gson-support,
                             <!-- Embedding httpclient and httpcore instead of using the bundles -->
@@ -103,10 +104,7 @@
                             httpclient,
                             httpcore
                         </Embed-Dependency>
-                        <Import-Package>
-                            *
-                        </Import-Package>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

@@ -121,9 +121,6 @@
                             ddf.catalog.util.impl,
                             org.codice.ddf.platform.util
                         </Private-Package>
-                        <Import-Package>
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

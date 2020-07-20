@@ -215,7 +215,7 @@
         <module>pep</module>
         <module>handler</module>
         <module>filter</module>
-        <module>session-management-service</module>
+        <module>session-management-api</module>
         <module>session-management-impl</module>
         <module>servlet</module>
         <module>interceptor</module>

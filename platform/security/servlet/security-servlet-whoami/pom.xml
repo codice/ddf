@@ -79,6 +79,7 @@
                             com.sun.management;resolution:=optional,
                             *
                         </Import-Package>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

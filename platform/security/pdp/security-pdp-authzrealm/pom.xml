@@ -109,6 +109,27 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            arbitro-core,
+                            commons-io,
+                            httpclient,
+                            httpcore,
+                            commons-beanutils,
+                            commons-validator,
+                            commons-collections,
+                            commons-digester,
+                            security-pdp-authzrealm
+                        </Embed-Dependency>
+                        <Export-Package />
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
@@ -129,27 +150,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            arbitro-core,
-                            commons-io,
-                            httpclient,
-                            httpcore,
-                            commons-beanutils,
-                            commons-validator,
-                            commons-collections,
-                            commons-digester,
-                            security-pdp-authzrealm
-                        </Embed-Dependency>
-                        <Export-Package />
-                    </instructions>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

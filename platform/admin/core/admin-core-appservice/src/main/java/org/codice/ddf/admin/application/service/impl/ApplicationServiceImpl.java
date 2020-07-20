@@ -18,10 +18,13 @@ import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.Permissions;
 import ddf.security.service.SecurityServiceException;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,7 +85,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
   @Override
   public Set<Application> getApplications() {
-    File[] appDefinitions = APPLICATION_DEFINITIONS_FOLDER.toFile().listFiles();
+    File[] appDefinitions =
+        AccessController.doPrivileged(
+            (PrivilegedAction<File[]>) () -> APPLICATION_DEFINITIONS_FOLDER.toFile().listFiles());
     if (appDefinitions == null) {
       LOGGER.warn("No application-definitions configuration files found.");
       return Collections.emptySet();
@@ -92,14 +97,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     Set<Application> apps = new HashSet<>();
     for (File appDef : appDefinitions) {
       try {
-        ApplicationImpl app =
-            JsonUtils.fromJson(IOUtils.toString(appDef.toURI()), ApplicationImpl.class);
+        String appJson =
+            AccessController.doPrivileged(
+                (PrivilegedExceptionAction<String>) () -> IOUtils.toString(appDef.toURI()));
+        ApplicationImpl app = JsonUtils.fromJson(appJson, ApplicationImpl.class);
         if (isPermittedToViewFeature(app.getName())) {
           app.loadBundles(bundlesByLocation);
           apps.add(app);
         }
 
-      } catch (IOException e) {
+      } catch (PrivilegedActionException e) {
         LOGGER.warn("Unable to parse application from file {} ", appDef.getPath());
       }
     }

@@ -74,7 +74,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
-                            ddf.security.pep.interceptor;version=${project.version}
+                            ddf.security.pep.interceptor
                         </Export-Package>
                     </instructions>
                 </configuration>

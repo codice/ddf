@@ -21,8 +21,8 @@
         <version>2.26.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>platform-session-invalidator</artifactId>
-    <name>DDF :: Platform :: Session Invalidator</name>
+    <artifactId>platform-session-invalidator-api</artifactId>
+    <name>DDF :: Platform :: Session Invalidator API</name>
     <packaging>bundle</packaging>
 
     <build>

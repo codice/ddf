@@ -27,7 +27,7 @@
     <feature name="ddf-core" version="${project.version}"
              description="Features that will be started on container startup.">
         <feature>kernel</feature>
-        <feature>platform-paxweb-jettyconfig</feature>
+        <feature>security-core-api</feature>
         <feature>war</feature>
         <feature>ddf-branding</feature>
     </feature>
@@ -39,7 +39,6 @@
         <feature>metrics-core</feature>
         <feature>mime-core</feature>
         <feature>mime-tika-resolver</feature>
-        <feature>security-logger</feature>
         <feature>error-api</feature>
         <feature>error-impl</feature>
         <feature>util-uuidgenerator</feature>
@@ -63,13 +62,16 @@
     <feature name="ddf-boot-features" version="${project.version}"
              description="Features that will be started on container startup.">
         <feature>ddf-core</feature>
-        <feature>security-services-app</feature>
+        <feature>security-core-services</feature>
+        <feature>oidc-auth</feature>
+        <feature>saml-auth</feature>
         <feature>platform-app</feature>
         <feature>admin-app</feature>
     </feature>
 
     <feature name="platform-app" version="${project.version}"
-             description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::Platform">
+             description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics">
+        <feature>security-core-services</feature>
         <feature>platform-core</feature>
         <feature>platform-api</feature>
         <feature>platform-solr-app</feature>
@@ -79,15 +81,11 @@
         <feature>platform-scheduler</feature>
         <feature>platform-commands</feature>
         <feature>platform-configuration</feature>
-        <feature>security-encryption</feature>
-        <feature>security-core-api</feature>
         <feature>persistence-core</feature>
         <feature>io</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
-        <feature>platform-email</feature>
         <feature>platform-alerts</feature>
-        <feature>session-manager-command</feature>
         <feature>resource-bundle-locator</feature>
     </feature>
 

@@ -88,10 +88,6 @@
                         <Bundle-Activator>
                             org.codice.ddf.condpermadmin.PermissionActivator
                         </Bundle-Activator>
-
-                        <Import-Package>
-                            *
-                        </Import-Package>
                         <Embed-Dependency>
                             pro-grade,
                             commons-lang3

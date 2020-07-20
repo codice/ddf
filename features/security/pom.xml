@@ -85,7 +85,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
-            <artifactId>platform-session-invalidator</artifactId>
+            <artifactId>platform-session-invalidator-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -265,7 +265,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.security</groupId>
-            <artifactId>session-management-service</artifactId>
+            <artifactId>session-management-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -275,7 +275,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.servlet</groupId>
-            <artifactId>security-servlet-logout-service</artifactId>
+            <artifactId>security-servlet-logout-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -322,6 +322,11 @@
             <groupId>ddf.security.command</groupId>
             <artifactId>security-command-listener</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>${javax-mail-version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.email</groupId>

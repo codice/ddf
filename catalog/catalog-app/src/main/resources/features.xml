@@ -32,7 +32,7 @@
 
     <feature name="catalog-core-api" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
-        <feature>security-core</feature>
+        <feature>security-core-api</feature>
         <feature>action-core-impl</feature>
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
@@ -44,8 +44,8 @@
 
     <feature name="catalog-core-impl" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
-        <feature>security-core-services</feature>
         <feature>catalog-core-api</feature>
+        <feature>security-core-services</feature>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
 
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/2.0.6_1</bundle>
@@ -78,7 +78,6 @@
         <bundle>mvn:org.locationtech.spatial4j/spatial4j/${spatial4j.version}</bundle>
         <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
 
-        <feature>jackson</feature>
         <bundle>mvn:nu.validator.htmlparser/htmlparser/1.4</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
@@ -102,7 +101,6 @@
 
     <feature name="catalog-core-plugins" version="${project.version}"
              description="Catalog core plugins">
-        <feature>jackson</feature>
         <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-tagsfilterplugin/${project.version}</bundle>
@@ -289,7 +287,7 @@
 
     <feature name="catalog-plugins" version="${project.version}"
              description="Catalog core plugins">
-        <feature>jackson</feature>
+        <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcestatusplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-eventcommands/${project.version}</bundle>
@@ -477,7 +475,6 @@
     <feature name="catalog-security-resourceplugin" version="${project.version}"
              description="Catalog Resource URI Policy Plugins">
         <feature>security-core-services</feature>
-        <feature>security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-resourceplugin/${project.version}</bundle>
     </feature>
 

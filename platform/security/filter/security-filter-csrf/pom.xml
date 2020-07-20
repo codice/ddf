@@ -65,6 +65,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

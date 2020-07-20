@@ -90,7 +90,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>httpclient,httpcore</Embed-Dependency>
+                        <Embed-Dependency>
+                            httpclient,
+                            httpcore
+                        </Embed-Dependency>
                         <Export-Package />
                     </instructions>
                 </configuration>

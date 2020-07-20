@@ -48,9 +48,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import-Package>
-                            *
-                        </Import-Package>
                         <Embed-Dependency>
                             catalog-core-api-impl;scope=!test
                         </Embed-Dependency>

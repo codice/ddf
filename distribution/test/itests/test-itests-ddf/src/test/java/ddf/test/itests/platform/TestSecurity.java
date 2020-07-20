@@ -104,8 +104,7 @@ public class TestSecurity extends AbstractIntegrationTest {
           "testCreateFactoryPid",
           "org.codice.ddf.admin.config.policy.AdminConfigPolicy");
 
-  protected static final List<String> FEATURES_TO_FILTER =
-      Arrays.asList("catalog-security-plugin", "security-claims-property");
+  protected static final List<String> FEATURES_TO_FILTER = Arrays.asList("catalog-security-plugin");
 
   protected static final String ADD_SDK_APP_JOLOKIA_REQ =
       "{\"type\":\"EXEC\",\"mbean\":\"org.codice.ddf.admin.application.service.ApplicationService:service=application-service\",\"operation\":\"addApplications\",\"arguments\":[[{\"value\":\"mvn:ddf.distribution/sdk-app/"
