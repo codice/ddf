@@ -137,7 +137,7 @@ module.exports = plugin(
     handleChangeDetailLevel(model, values) {
       $.each(model.get('enum'), (index, value) => {
         if (values[0] === value.value) {
-          this.model.set('detail-level', value)
+          this.model.set('detail-level', value.value)
         }
       })
     },
