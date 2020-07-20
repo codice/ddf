@@ -26,7 +26,6 @@ import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.service.SecurityManager;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -49,7 +48,6 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.client.ClientBuilder;
 import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.cxf.client.interceptor.SubjectRetrievalInterceptor;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -112,8 +110,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
       GetRecordsType request,
       QueryRequest query,
       ClientBuilderFactory clientBuilderFactory,
-      Security security,
-      SecurityManager securityManager)
+      Security security)
       throws CswException {
 
     URL deliveryMethodUrl;
@@ -323,8 +320,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
   }
 
   List<AccessPlugin> getAccessPlugins() throws InvalidSyntaxException {
-    BundleContext bundleContext =
-        FrameworkUtil.getBundle(SubjectRetrievalInterceptor.class).getBundleContext();
+    BundleContext bundleContext = FrameworkUtil.getBundle(CswSubscription.class).getBundleContext();
     Collection<ServiceReference<AccessPlugin>> serviceCollection =
         bundleContext.getServiceReferences(AccessPlugin.class, null);
     return serviceCollection.stream().map(bundleContext::getService).collect(Collectors.toList());
