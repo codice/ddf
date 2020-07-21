@@ -124,6 +124,7 @@ module.exports = Marionette.LayoutView.extend({
     this.editor.show(
       new QueryAdvanced({
         model: this.model,
+        isFormBuilder: true,
         isSearchFormEditor: true,
         onSave: () => {
           if (this.model.get('title').trim() !== '') {
