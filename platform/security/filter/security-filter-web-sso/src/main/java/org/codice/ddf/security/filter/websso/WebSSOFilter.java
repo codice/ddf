@@ -153,7 +153,7 @@ public class WebSSOFilter implements SecurityFilter {
         result = getResultFromHandlers(httpRequest, httpResponse, filterChain, handlers);
       } else { // no configured handlers
         if (contextPolicyManager.getGuestAccess()) {
-          LOGGER.info(
+          LOGGER.trace(
               "No configured handlers found, but guest access is enabled. Continuing with an empty handler result for guest login.");
           result = new HandlerResult(Status.NO_ACTION, null);
           result.setSource("default");
