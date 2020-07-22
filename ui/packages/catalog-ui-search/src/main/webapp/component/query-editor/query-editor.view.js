@@ -22,6 +22,7 @@ const QueryTitle = require('../query-title/query-title.view.js')
 const store = require('../../js/store.js')
 import ExtensionPoints from '../../extension-points'
 import { showErrorMessages } from '../../react-component/utils/validation'
+import ResultFormCollection from '../result-form/result-form-collection-instance'
 
 module.exports = Marionette.LayoutView.extend({
   template,
@@ -89,7 +90,10 @@ module.exports = Marionette.LayoutView.extend({
   },
   showForm(form) {
     const options = form.options || {}
-    if (this.model.get('detail-level') === undefined) {
+    if (
+      this.model.get('detail-level') === undefined ||
+      this.resultFormIsInvalid(this.model.get('detail-level'))
+    ) {
       this.model.set('detail-level', 'allFields')
     }
     this.queryContent.show(
@@ -97,6 +101,13 @@ module.exports = Marionette.LayoutView.extend({
         model: this.model,
         ...options,
       })
+    )
+  },
+  resultFormIsInvalid(resultFormTitle) {
+    return (
+      ResultFormCollection.getCollection().findWhere({
+        title: resultFormTitle,
+      }) === undefined
     )
   },
   showQueryForm(form) {
