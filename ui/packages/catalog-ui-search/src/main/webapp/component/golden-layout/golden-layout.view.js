@@ -263,16 +263,16 @@ module.exports = Marionette.LayoutView.extend({
   detectIfGoldenLayoutEmpty() {
     const isEmpty = this.goldenLayout.root.contentItems.length === 0
     this.$el.toggleClass('is-empty', isEmpty)
-    if (isEmpty) {
-      this.addEmptyVisualizationTab()
-    }
   },
   handleGoldenLayoutInitialised() {
     this.detectIfGoldenLayoutMaximised()
     this.detectIfGoldenLayoutEmpty()
   },
   addVisualizationTab() {
-    if (this.goldenLayout.container.find('#addVis').length) {
+    if (
+      this.goldenLayout.root.contentItems.length === 0 ||
+      this.goldenLayout.container.find('#addVis').length
+    ) {
       return
     }
     this.goldenLayout.container.find('.lm_tabs').append(getTabContainer())
@@ -304,7 +304,6 @@ module.exports = Marionette.LayoutView.extend({
   },
   handleGoldenLayoutStateChange(event) {
     this.addVisualizationTab()
-
     this.detectIfGoldenLayoutMaximised()
     this.detectIfGoldenLayoutEmpty()
     //https://github.com/deepstreamIO/golden-layout/issues/253
@@ -335,6 +334,7 @@ module.exports = Marionette.LayoutView.extend({
   onRender() {
     this.showGoldenLayout()
     this.setupListeners()
+    this.addEmptyVisualizationTab()
   },
   handleToggleSize() {
     this.$el.toggleClass('is-minimised')
