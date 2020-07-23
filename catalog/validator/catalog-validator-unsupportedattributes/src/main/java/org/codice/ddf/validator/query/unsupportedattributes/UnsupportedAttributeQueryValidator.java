@@ -61,8 +61,7 @@ public class UnsupportedAttributeQueryValidator implements QueryValidator {
     Set<String> sourceIds =
         request.getSourceIds() != null ? request.getSourceIds() : Collections.emptySet();
 
-    return queryAttributes
-        .stream()
+    return queryAttributes.stream()
         .map(attr -> getViolation(attr, sourceIds))
         .filter(Optional::isPresent)
         .map(Optional::get)

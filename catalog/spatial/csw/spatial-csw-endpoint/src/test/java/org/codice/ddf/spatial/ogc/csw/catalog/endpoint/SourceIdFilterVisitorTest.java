@@ -80,8 +80,7 @@ public class SourceIdFilterVisitorTest {
     Filter isLikeFilter = filterBuilder.attribute("isLikeFilter").is().like().text("value");
 
     List<Filter> filters =
-        sourceIds
-            .stream()
+        sourceIds.stream()
             .map(id -> filterBuilder.attribute(Core.SOURCE_ID).is().equalTo().text(id))
             .collect(Collectors.toList());
 

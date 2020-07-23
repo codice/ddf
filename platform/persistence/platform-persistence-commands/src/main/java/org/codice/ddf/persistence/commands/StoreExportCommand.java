@@ -32,30 +32,27 @@ import org.codice.gsonsupport.GsonTypeAdapters.PersistenceMapTypeAdapter;
 
 @Service
 @Command(
-  scope = "store",
-  name = "export",
-  description = "Export entries that are available in the persistent store."
-)
+    scope = "store",
+    name = "export",
+    description = "Export entries that are available in the persistent store.")
 public class StoreExportCommand extends AbstractStoreCommand {
 
   @Option(
-    name = "User ID",
-    aliases = {"-u", "--user"},
-    required = false,
-    description =
-        "User ID to search for the specified persistence type. If an id is not provided, then all of the specified persistence type for all users are displayed.",
-    multiValued = false
-  )
+      name = "User ID",
+      aliases = {"-u", "--user"},
+      required = false,
+      description =
+          "User ID to search for the specified persistence type. If an id is not provided, then all of the specified persistence type for all users are displayed.",
+      multiValued = false)
   String user;
 
   @Argument(
-    name = "Dump directory path",
-    description =
-        "Directory to export into. Paths are absolute and must be in quotes.  Files in directory will be overwritten if they already exist.",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "Dump directory path",
+      description =
+          "Directory to export into. Paths are absolute and must be in quotes.  Files in directory will be overwritten if they already exist.",
+      index = 0,
+      multiValued = false,
+      required = true)
   String dirPath = null;
 
   private final Gson gson =
@@ -89,8 +86,7 @@ public class StoreExportCommand extends AbstractStoreCommand {
 
     Function<List<Map<String, Object>>, Integer> exportFunction =
         results -> {
-          return results
-              .stream()
+          return results.stream()
               .map(gson::toJson)
               .map(json -> writeRecordToFile(json, dumpDir))
               .reduce(0, (a, b) -> a + b);

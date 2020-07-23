@@ -132,9 +132,7 @@ public class ServiceOperation implements Operation<Void> {
       Map<String, Object> configResults = adminConsoleServiceMBean.getProperties(pid);
       if (configResults.isEmpty()) {
         Optional<Service> defaultMetatypeValues =
-            adminConsoleServiceMBean
-                .listServices()
-                .stream()
+            adminConsoleServiceMBean.listServices().stream()
                 .filter(service -> service.getId() != null && service.getId().equals(pid))
                 .findFirst();
 
@@ -143,8 +141,7 @@ public class ServiceOperation implements Operation<Void> {
           metatypes = defaultMetatypeValues.get().getAttributeDefinitions();
         }
 
-        return metatypes
-            .stream()
+        return metatypes.stream()
             .collect(
                 Collectors.toMap(MetatypeAttribute::getId, MetatypeAttribute::getDefaultValue));
       } else {

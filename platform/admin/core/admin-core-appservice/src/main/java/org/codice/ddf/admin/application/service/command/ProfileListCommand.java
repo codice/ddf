@@ -48,9 +48,7 @@ public class ProfileListCommand extends AbstractProfileCommand {
 
   private void listProfiles(ApplicationService applicationService) {
     printSectionHeading("Available Profiles:");
-    applicationService
-        .getInstallationProfiles()
-        .stream()
+    applicationService.getInstallationProfiles().stream()
         .filter(feature -> !Objects.equals(feature.getInstall(), Feature.DEFAULT_INSTALL_MODE))
         .map(Feature::getName)
         .forEach(profile -> console.println(profile.replaceAll(".*-", "")));

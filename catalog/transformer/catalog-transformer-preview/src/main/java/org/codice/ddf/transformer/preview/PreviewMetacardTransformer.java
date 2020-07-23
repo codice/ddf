@@ -96,8 +96,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
   }
 
   private String getPreviewTextFromMetadata(Metacard metacard) {
-    return elementXPathExpressions
-        .stream()
+    return elementXPathExpressions.stream()
         .map(x -> evaluateXPath(metacard.getMetadata(), x))
         .filter(Objects::nonNull)
         .findFirst()

@@ -140,9 +140,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       throw new GeoEntryQueryException(ERROR_MESSAGE, e);
     }
 
-    return queryResponse
-        .getResults()
-        .stream()
+    return queryResponse.getResults().stream()
         .map(Result::getMetacard)
         .map(this::transformMetacardToGeoEntry)
         .filter(Objects::nonNull)
@@ -193,8 +191,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
             (List<Map.Entry<String, String>>)
                 suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
 
-        return suggestions
-            .stream()
+        return suggestions.stream()
             .map(suggestion -> new SuggestionImpl(suggestion.getKey(), suggestion.getValue()))
             .limit(maxResults)
             .collect(Collectors.toList());
@@ -286,9 +283,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       throw new GeoEntryQueryException(ERROR_MESSAGE, e);
     }
 
-    return queryResponse
-        .getResults()
-        .stream()
+    return queryResponse.getResults().stream()
         .map(Result::getMetacard)
         .map(metacard -> transformMetacardToNearbyLocation(location, metacard))
         .filter(Objects::nonNull)

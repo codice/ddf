@@ -256,9 +256,7 @@ public class MetacardServicesTest {
 
   private void assertThatMetacardHasAttributesEqualToThoseInMap(
       Metacard metacard, Map<String, String> attributeMap) {
-    attributeMap
-        .entrySet()
-        .stream()
+    attributeMap.entrySet().stream()
         .filter(entry -> metacard.getAttribute(entry.getKey()) != null)
         .forEach(
             entry -> {

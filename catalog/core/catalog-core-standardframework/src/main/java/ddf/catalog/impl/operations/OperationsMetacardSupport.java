@@ -168,9 +168,7 @@ public class OperationsMetacardSupport {
                 metacard);
         contentItems.add(generatedContentItem);
       } catch (Exception e) {
-        tmpContentPaths
-            .values()
-            .stream()
+        tmpContentPaths.values().stream()
             .flatMap(id -> id.values().stream())
             .forEach(path -> FileUtils.deleteQuietly(path.toFile()));
         tmpContentPaths.clear();
@@ -189,9 +187,7 @@ public class OperationsMetacardSupport {
     MetacardType metacardType = metacard.getMetacardType();
     DefaultAttributeValueRegistry registry = frameworkProperties.getDefaultAttributeValueRegistry();
 
-    metacardType
-        .getAttributeDescriptors()
-        .stream()
+    metacardType.getAttributeDescriptors().stream()
         .map(AttributeDescriptor::getName)
         .filter(attributeName -> hasNoValue(metacard.getAttribute(attributeName)))
         .forEach(

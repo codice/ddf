@@ -160,10 +160,7 @@ public class MetacardCreatorTest {
     ImmutableSet<String> attrNames = ImmutableSet.of("attr1", "attr2");
     int count =
         (int)
-            metacard
-                .getMetacardType()
-                .getAttributeDescriptors()
-                .stream()
+            metacard.getMetacardType().getAttributeDescriptors().stream()
                 .map(AttributeDescriptor::getName)
                 .filter(attrNames::contains)
                 .count();

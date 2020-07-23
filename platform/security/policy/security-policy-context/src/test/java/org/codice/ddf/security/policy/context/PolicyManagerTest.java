@@ -378,9 +378,7 @@ public class PolicyManagerTest {
 
     // test OIDC auth type is ignored
     assertTrue(
-        manager
-            .getAllContextPolicies()
-            .stream()
+        manager.getAllContextPolicies().stream()
             .flatMap(contextPolicy -> contextPolicy.getAuthenticationMethods().stream())
             .noneMatch(auth -> auth.equals("OIDC")));
   }

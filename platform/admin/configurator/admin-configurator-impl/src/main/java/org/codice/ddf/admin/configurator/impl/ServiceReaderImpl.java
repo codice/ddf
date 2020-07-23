@@ -47,9 +47,7 @@ public class ServiceReaderImpl implements ServiceReader {
   public <S> Set<S> getServices(Class<S> serviceClass, String filter) throws ConfiguratorException {
     BundleContext context = getBundleContext();
     try {
-      return context
-          .getServiceReferences(serviceClass, filter)
-          .stream()
+      return context.getServiceReferences(serviceClass, filter).stream()
           .map(context::getService)
           .collect(Collectors.toSet());
     } catch (InvalidSyntaxException e) {

@@ -262,9 +262,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
                     // CXF Expects pairs of <String, List<String>>
                     entry.getValue() instanceof List
                         ? ((List<Object>) entry.getValue())
-                            .stream()
-                            .map(String::valueOf)
-                            .collect(Collectors.toList())
+                            .stream().map(String::valueOf).collect(Collectors.toList())
                         : Lists.newArrayList(String.valueOf(entry.getValue()))));
 
       } else {

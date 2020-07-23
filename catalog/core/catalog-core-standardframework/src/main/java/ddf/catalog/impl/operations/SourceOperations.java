@@ -188,9 +188,7 @@ public class SourceOperations extends DescribableImpl {
 
     ids.add(getId());
     if (!fanoutEnabled) {
-      frameworkProperties
-          .getFederatedSources()
-          .stream()
+      frameworkProperties.getFederatedSources().stream()
           .map(Describable::getId)
           .forEach(
               e -> {
@@ -235,9 +233,7 @@ public class SourceOperations extends DescribableImpl {
           // Check if the requestedSourceId can be found in the known federatedSources
 
           final List<FederatedSource> sources =
-              frameworkProperties
-                  .getFederatedSources()
-                  .stream()
+              frameworkProperties.getFederatedSources().stream()
                   .filter(e -> e.getId().equals(requestedSourceId))
                   .collect(Collectors.toList());
 
@@ -358,15 +354,12 @@ public class SourceOperations extends DescribableImpl {
       // Fanout will only add one source descriptor with all the contents
       // Using a List here instead of a Set because we should not rely on how Sources are compared
       final List<Source> availableSources =
-          frameworkProperties
-              .getFederatedSources()
-              .stream()
+          frameworkProperties.getFederatedSources().stream()
               .filter(this::isSourceAvailable)
               .collect(Collectors.toList());
 
       final Set<ContentType> contentTypes =
-          availableSources
-              .stream()
+          availableSources.stream()
               .map(
                   source ->
                       contentTypesCache

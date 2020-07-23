@@ -804,8 +804,7 @@ public class CswEndpoint implements Csw {
   }
 
   private String[] getNextQueryBatch(QueryRequest queryRequest) {
-    return ResultIterable.resultIterable(framework, queryRequest, DEFAULT_BATCH)
-        .stream()
+    return ResultIterable.resultIterable(framework, queryRequest, DEFAULT_BATCH).stream()
         .filter(Objects::nonNull)
         .map(Result::getMetacard)
         .filter(Objects::nonNull)

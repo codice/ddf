@@ -154,9 +154,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
       // dive down into the response to get the created ID's. We need these so we can query
       // the source again to get the created metacards and put them in the result
       createdMetacardFilters =
-          response
-              .getInsertResult()
-              .stream()
+          response.getInsertResult().stream()
               .map(InsertResultType::getBriefRecord)
               .flatMap(Collection::stream)
               .map(BriefRecordType::getIdentifier)
@@ -173,8 +171,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
       metacardIds.removeAll(processedIds);
 
       errors.addAll(
-          metacardIds
-              .stream()
+          metacardIds.stream()
               .map(id -> new ProcessingDetailsImpl(id, null, "Failed to create metacard"))
               .collect(Collectors.toList()));
 
@@ -377,10 +374,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
     }
 
     Optional result =
-        capabilities
-            .getOperationsMetadata()
-            .getOperation()
-            .stream()
+        capabilities.getOperationsMetadata().getOperation().stream()
             .filter(e -> e.getName().equals(CswConstants.TRANSACTION))
             .findFirst();
     if (!result.isPresent()) {

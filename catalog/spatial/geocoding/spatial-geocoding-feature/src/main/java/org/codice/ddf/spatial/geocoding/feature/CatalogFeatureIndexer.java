@@ -134,8 +134,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
   private Metacard createMetacardForFeature(SimpleFeature feature) throws FeatureIndexingException {
     Metacard metacard =
         new MetacardImpl(
-            metacardTypes
-                .stream()
+            metacardTypes.stream()
                 .findFirst()
                 .orElseThrow(
                     () -> new FeatureIndexingException(GEO_ENTRY_METACARD_TYPE_MISSING_ERROR_MSG)));

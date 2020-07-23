@@ -115,13 +115,11 @@ public class SystemStateManager {
               .map(Feature::getName)
               .collect(Collectors.toList());
       List<String> featuresToStart =
-          baseFeatures
-              .stream()
+          baseFeatures.stream()
               .filter(e -> !currentFeatures.contains(e))
               .collect(Collectors.toList());
       List<String> featuresToStop =
-          currentFeatures
-              .stream()
+          currentFeatures.stream()
               .filter(e -> !baseFeatures.contains(e))
               .collect(Collectors.toList());
       for (String feature : featuresToStart) {

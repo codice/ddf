@@ -108,9 +108,7 @@ public class ReportingMetacardValidatorImplTest {
     assertThat(report.getMetacardValidationViolations(), empty());
 
     final List<String> violatedAttributes =
-        report
-            .getAttributeValidationViolations()
-            .stream()
+        report.getAttributeValidationViolations().stream()
             .flatMap(violation -> violation.getAttributes().stream())
             .collect(Collectors.toList());
     assertThat(

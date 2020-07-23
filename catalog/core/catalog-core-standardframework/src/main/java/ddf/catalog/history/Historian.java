@@ -160,9 +160,7 @@ public class Historian {
     }
 
     List<Metacard> inputMetacards =
-        updateResponse
-            .getUpdatedMetacards()
-            .stream()
+        updateResponse.getUpdatedMetacards().stream()
             .map(Update::getOldMetacard)
             .filter(isNotVersionNorDeleted)
             .collect(Collectors.toList());
@@ -220,9 +218,7 @@ public class Historian {
     }
 
     List<Metacard> updatedMetacards =
-        updateStorageResponse
-            .getUpdatedContentItems()
-            .stream()
+        updateStorageResponse.getUpdatedContentItems().stream()
             .filter(ci -> StringUtils.isBlank(ci.getQualifier()))
             .map(ContentItem::getMetacard)
             .filter(Objects::nonNull)
@@ -233,9 +229,7 @@ public class Historian {
       LOGGER.trace("No updated metacards applicable to versioning");
       securityLogger.audit(
           "Skipping versioning updated metacards with ids: {}",
-          updateStorageResponse
-              .getUpdatedContentItems()
-              .stream()
+          updateStorageResponse.getUpdatedContentItems().stream()
               .map(ContentItem::getMetacard)
               .filter(Objects::nonNull)
               .map(Metacard::getId)
@@ -244,9 +238,7 @@ public class Historian {
     }
 
     Map<String, Metacard> originalMetacards =
-        updateResponse
-            .getUpdatedMetacards()
-            .stream()
+        updateResponse.getUpdatedMetacards().stream()
             .map(Update::getOldMetacard)
             .collect(
                 Collectors.toMap(
@@ -312,9 +304,7 @@ public class Historian {
     }
 
     List<Metacard> originalMetacards =
-        deleteResponse
-            .getDeletedMetacards()
-            .stream()
+        deleteResponse.getDeletedMetacards().stream()
             .filter(isNotVersionNorDeleted)
             .collect(Collectors.toList());
 
@@ -334,8 +324,7 @@ public class Historian {
 
     // [OriginalMetacardId: Original Metacard]
     Map<String, Metacard> originalMetacardsMap =
-        originalMetacards
-            .stream()
+        originalMetacards.stream()
             .collect(
                 Collectors.toMap(
                     Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
@@ -402,9 +391,7 @@ public class Historian {
         subjectIdentity.getUniqueIdentifier(
             (Subject) deleteResponse.getProperties().get(SecurityConstants.SECURITY_SUBJECT));
     List<Metacard> deletionMetacards =
-        versionedMap
-            .entrySet()
-            .stream()
+        versionedMap.entrySet().stream()
             .map(
                 s ->
                     new DeletedMetacardImpl(
@@ -424,9 +411,7 @@ public class Historian {
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
           "Successfully created deletion metacards under ids: {}",
-          deletionMetacardsCreateResponse
-              .getCreatedMetacards()
-              .stream()
+          deletionMetacardsCreateResponse.getCreatedMetacards().stream()
               .map(Metacard::getId)
               .collect(TO_A_STRING));
     }
@@ -491,9 +476,7 @@ public class Historian {
                 new QueryRequestImpl(
                     new QueryImpl(filter, 1, 250, null, false, TimeUnit.SECONDS.toMillis(10))));
 
-    return response
-        .getResults()
-        .stream()
+    return response.getResults().stream()
         .map(Result::getMetacard)
         .filter(Objects::nonNull)
         .collect(
@@ -521,8 +504,7 @@ public class Historian {
   }
 
   private List<ReadStorageRequest> getReadStorageRequests(List<Metacard> metacards) {
-    return metacards
-        .stream()
+    return metacards.stream()
         .filter(m -> m.getResourceURI() != null)
         .filter(m -> ContentItem.CONTENT_SCHEME.equals(m.getResourceURI().getScheme()))
         .map(m -> new ReadStorageRequestImpl(m.getResourceURI(), m.getId(), new HashMap<>()))
@@ -547,9 +529,7 @@ public class Historian {
       Map<String, List<ContentItem>> items, Map<String, Metacard> versionedMetacards)
       throws SourceUnavailableException, IngestException {
     List<ContentItem> contentItems =
-        items
-            .entrySet()
-            .stream()
+        items.entrySet().stream()
             .map(e -> getVersionedContentItems(e.getValue(), versionedMetacards))
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
@@ -589,8 +569,7 @@ public class Historian {
 
   private List<ContentItemImpl> getVersionedContentItems(
       List<ContentItem> entry, Map<String, Metacard> versionedMetacards) {
-    return entry
-        .stream()
+    return entry.stream()
         .map(content -> createContentItem(content, versionedMetacards))
         .collect(Collectors.toList());
   }
@@ -620,8 +599,7 @@ public class Historian {
   /*Map<MetacardVersion.VERSION_OF_ID -> MetacardVersion>*/
   private Map<String, Metacard> getVersionMetacards(
       Collection<Metacard> metacards, Function<String, Action> action, Subject subject) {
-    return metacards
-        .stream()
+    return metacards.stream()
         .filter(MetacardVersionImpl::isNotVersion)
         .filter(DeletedMetacardImpl::isNotDeleted)
         .map(
@@ -680,9 +658,7 @@ public class Historian {
       CreateStorageResponse createStorageResponse) {
     for (ContentItem contentItem : createStorageResponse.getCreatedContentItems()) {
       Metacard metacard =
-          versionMetacards
-              .values()
-              .stream()
+          versionMetacards.values().stream()
               .filter(m -> contentItem.getId().equals(m.getId()))
               .findFirst()
               .orElse(null);
@@ -699,16 +675,14 @@ public class Historian {
   }
 
   private StorageProvider storageProvider() {
-    return storageProviders
-        .stream()
+    return storageProviders.stream()
         .findFirst()
         .orElseThrow(
             () -> new IllegalStateException("Cannot version metacards without a storage provider"));
   }
 
   private CatalogProvider catalogProvider() {
-    return catalogProviders
-        .stream()
+    return catalogProviders.stream()
         .findFirst()
         .orElseThrow(
             () -> new IllegalStateException("Cannot version metacards without a storage provider"));
@@ -734,10 +708,7 @@ public class Historian {
       // TODO (DDF-3845) - This should be removed when we have a logging utility library.
       Function<Metacard, String> metacardToString =
           (metacard) ->
-              metacard
-                  .getMetacardType()
-                  .getAttributeDescriptors()
-                  .stream()
+              metacard.getMetacardType().getAttributeDescriptors().stream()
                   .map(AttributeDescriptor::getName)
                   .map(oldMetacard::getAttribute)
                   .filter(Objects::nonNull)
@@ -749,9 +720,7 @@ public class Historian {
                               .append(
                                   attribute.getValues() == null
                                       ? "null"
-                                      : attribute
-                                          .getValues()
-                                          .stream()
+                                      : attribute.getValues().stream()
                                           .map(Object::toString)
                                           .collect(Collectors.joining(", ", "{", "}"))))
                   .collect(Collectors.joining(", ", "{", "}"));

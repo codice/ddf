@@ -194,8 +194,7 @@ public class SaxEventHandlerUtilsTest {
   }
 
   private Attribute getAttributeByName(List<Attribute> attributes, String name) {
-    return attributes
-        .stream()
+    return attributes.stream()
         .filter(attribute -> attribute.getName().equals(name))
         .findFirst()
         .orElseGet(null);
@@ -218,8 +217,7 @@ public class SaxEventHandlerUtilsTest {
     assertThat(values, is(not(empty())));
 
     long count =
-        values
-            .stream()
+        values.stream()
             .filter(serializable -> serializable instanceof String)
             .map(String.class::cast)
             .filter(string -> string.contains(findThisString))

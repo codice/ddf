@@ -364,9 +364,7 @@ public class ResourceOperations extends DescribableImpl {
         LOGGER.debug("metacard for product found on source: {}", resolvedSourceId);
 
         final List<FederatedSource> sources =
-            frameworkProperties
-                .getFederatedSources()
-                .stream()
+            frameworkProperties.getFederatedSources().stream()
                 .filter(e -> e.getId().equals(resourceSourceName))
                 .collect(Collectors.toList());
 
@@ -737,9 +735,7 @@ public class ResourceOperations extends DescribableImpl {
     LOGGER.trace("ENTERING: getOptionsFromFederatedSource");
 
     final List<FederatedSource> sources =
-        frameworkProperties
-            .getFederatedSources()
-            .stream()
+        frameworkProperties.getFederatedSources().stream()
             .filter(e -> e.getId().equals(sourceId))
             .collect(Collectors.toList());
 

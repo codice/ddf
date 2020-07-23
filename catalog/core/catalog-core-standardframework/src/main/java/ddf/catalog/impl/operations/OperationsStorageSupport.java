@@ -95,9 +95,7 @@ public class OperationsStorageSupport {
       }
     }
 
-    tmpContentPaths
-        .values()
-        .stream()
+    tmpContentPaths.values().stream()
         .flatMap(id -> id.values().stream())
         .forEach(path -> FileUtils.deleteQuietly(path.toFile()));
     tmpContentPaths.clear();

@@ -91,8 +91,7 @@ public class GeoNamesWebService implements GeoEntryQueryable {
         JSONObject jsonResult = (JSONObject) result;
         JSONArray geoNames = (JSONArray) jsonResult.get(GEONAMES_KEY);
         if (geoNames != null) {
-          return geoNames
-              .stream()
+          return geoNames.stream()
               .map(JSONObject.class::cast)
               .map(
                   obj ->
@@ -148,8 +147,7 @@ public class GeoNamesWebService implements GeoEntryQueryable {
       JSONObject jsonResult = (JSONObject) result;
       JSONArray geoNames = (JSONArray) jsonResult.get(GEONAMES_KEY);
       if (geoNames != null) {
-        return geoNames
-            .stream()
+        return geoNames.stream()
             .map(JSONObject.class::cast)
             .map(
                 obj -> {

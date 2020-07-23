@@ -78,9 +78,7 @@ public class GeoCoderPlugin implements PreIngestPlugin {
 
     GeoCoder geoCoder = geoCoderFactory.getService();
     try {
-      input
-          .getUpdates()
-          .stream()
+      input.getUpdates().stream()
           .map(Map.Entry::getValue)
           .forEach(metacard -> setCountryCode(metacard, geoCoder));
     } catch (Exception e) {

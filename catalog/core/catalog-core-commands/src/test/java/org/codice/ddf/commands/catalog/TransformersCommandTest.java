@@ -68,8 +68,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
     serviceReferences.add(serviceReference);
 
     List<ServiceReference<InputTransformer>> serviceReferencesFiltered =
-        serviceReferences
-            .stream()
+        serviceReferences.stream()
             .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
             .collect(Collectors.toList());
 
@@ -91,8 +90,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
     serviceReferences.add(serviceReference);
 
     List<ServiceReference<MetacardTransformer>> serviceReferencesFiltered =
-        serviceReferences
-            .stream()
+        serviceReferences.stream()
             .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
             .collect(Collectors.toList());
 
@@ -128,8 +126,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
     }
 
     List<ServiceReference<InputTransformer>> serviceReferencesFiltered =
-        serviceReferences
-            .stream()
+        serviceReferences.stream()
             .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
             .collect(Collectors.toList());
 
@@ -164,8 +161,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
     }
 
     List<ServiceReference<MetacardTransformer>> serviceReferencesFiltered =
-        serviceReferences
-            .stream()
+        serviceReferences.stream()
             .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
             .collect(Collectors.toList());
 
@@ -204,8 +200,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
     }
 
     List<ServiceReference<MetacardTransformer>> serviceReferencesFiltered =
-        serviceReferences
-            .stream()
+        serviceReferences.stream()
             .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
             .collect(Collectors.toList());
 

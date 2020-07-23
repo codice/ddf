@@ -114,9 +114,7 @@ public class MetacardValidityMarkerPluginTest {
   }
 
   private List<Metacard> getUpdatedMetacards(UpdateRequest updateRequest) {
-    return updateRequest
-        .getUpdates()
-        .stream()
+    return updateRequest.getUpdates().stream()
         .map(Map.Entry::getValue)
         .collect(Collectors.toList());
   }

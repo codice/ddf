@@ -42,14 +42,13 @@ public class SAMLAuthenticationToken extends BaseAuthenticationToken {
    */
   public Element getSAMLTokenAsElement() {
     return ((PrincipalCollection) getCredentials())
-        .byType(SecurityAssertion.class)
-        .stream()
-        .filter(sa -> StringUtils.containsIgnoreCase(sa.getTokenType(), "saml"))
-        .map(SecurityAssertion::getToken)
-        .filter(Element.class::isInstance)
-        .map(Element.class::cast)
-        .findFirst()
-        .orElse(null);
+        .byType(SecurityAssertion.class).stream()
+            .filter(sa -> StringUtils.containsIgnoreCase(sa.getTokenType(), "saml"))
+            .map(SecurityAssertion::getToken)
+            .filter(Element.class::isInstance)
+            .map(Element.class::cast)
+            .findFirst()
+            .orElse(null);
   }
 
   @Override

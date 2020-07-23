@@ -275,9 +275,7 @@ public interface Metacard extends Serializable {
       return new HashSet<>();
     } else {
       return new HashSet<>(
-          getAttribute(TAGS)
-              .getValues()
-              .stream()
+          getAttribute(TAGS).getValues().stream()
               .map(String::valueOf)
               .collect(Collectors.toList()));
     }

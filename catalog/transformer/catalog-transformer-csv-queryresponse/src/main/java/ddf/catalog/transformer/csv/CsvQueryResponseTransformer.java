@@ -74,9 +74,7 @@ public class CsvQueryResponseTransformer implements QueryResponseTransformer {
       throws CatalogTransformerException {
 
     List<Metacard> metacards =
-        upstreamResponse
-            .getResults()
-            .stream()
+        upstreamResponse.getResults().stream()
             .map(Result::getMetacard)
             .collect(Collectors.toList());
 
@@ -100,8 +98,7 @@ public class CsvQueryResponseTransformer implements QueryResponseTransformer {
             : getOnlyRequestedAttributes(metacards, requestedFields);
 
     Set<AttributeDescriptor> filteredAttributeDescriptors =
-        requestedAttributeDescriptors
-            .stream()
+        requestedAttributeDescriptors.stream()
             .filter(desc -> !hiddenFields.contains(desc.getName()))
             .collect(Collectors.toSet());
 

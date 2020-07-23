@@ -19,10 +19,9 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 
 @Service
 @Command(
-  scope = PlatformCommands.NAMESPACE,
-  name = "envlist",
-  description = "Provides a list of environment variables"
-)
+    scope = PlatformCommands.NAMESPACE,
+    name = "envlist",
+    description = "Provides a list of environment variables")
 public class EnvListCommand extends PlatformCommands {
 
   @Override

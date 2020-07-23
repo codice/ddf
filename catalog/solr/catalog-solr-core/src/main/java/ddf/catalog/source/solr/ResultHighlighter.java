@@ -182,8 +182,7 @@ public class ResultHighlighter {
     List<Highlight> highlights = new ArrayList<>();
     if (baseValues != null && !baseValues.isEmpty()) {
       List<HighlightContext> highlightedValues = new ArrayList<>();
-      highlightResults
-          .stream()
+      highlightResults.stream()
           .forEach(result -> highlightedValues.addAll(getHighlightedValues(result)));
 
       int index = 0;
@@ -274,8 +273,7 @@ public class ResultHighlighter {
 
   private boolean isHighlightBlacklisted(String fieldName) {
     List<String> blacklist =
-        highlightBlacklist
-            .stream()
+        highlightBlacklist.stream()
             .filter(item -> fieldName.matches(item))
             .collect(Collectors.toList());
     return !blacklist.isEmpty() || resolver.isPrivateField(fieldName);
@@ -304,9 +302,7 @@ public class ResultHighlighter {
   }
 
   private Optional<SolrDocument> getResponseDocument(String resultId, QueryResponse response) {
-    return response
-        .getResults()
-        .stream()
+    return response.getResults().stream()
         .filter(doc -> resultId.equals(doc.getFirstValue(Core.ID + SchemaFields.TEXT_SUFFIX)))
         .findFirst();
   }

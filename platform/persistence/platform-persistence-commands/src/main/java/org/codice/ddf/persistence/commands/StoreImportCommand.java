@@ -46,20 +46,18 @@ import org.codice.gsonsupport.GsonTypeAdapters.PersistenceMapTypeAdapter;
 
 @Service
 @Command(
-  scope = "store",
-  name = "import",
-  description = "Import entries into the persistent store."
-)
+    scope = "store",
+    name = "import",
+    description = "Import entries into the persistent store.")
 public class StoreImportCommand extends AbstractStoreCommand {
 
   @Argument(
-    name = "File path or Directory path",
-    description =
-        "Path to a file or a directory of file(s) to be ingested. Paths can be absolute or relative to installation directory.",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "File path or Directory path",
+      description =
+          "Path to a file or a directory of file(s) to be ingested. Paths can be absolute or relative to installation directory.",
+      index = 0,
+      multiValued = false,
+      required = true)
   @Completion(FileCompleter.class)
   String filePath;
 
@@ -92,8 +90,7 @@ public class StoreImportCommand extends AbstractStoreCommand {
           ingestStream.filter(Files::isRegularFile).collect(Collectors.toList());
 
       for (Collection<Path> batch : Lists.partition(regularFiles, batchSize)) {
-        batch
-            .stream()
+        batch.stream()
             .map(Path::toFile)
             .map(this::processFile)
             .filter(Objects::nonNull)

@@ -256,9 +256,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
 
         QueryResponse response = catalogFramework.query(queryRequest);
         List<Serializable> metacardsToDelete =
-            response
-                .getResults()
-                .stream()
+            response.getResults().stream()
                 .map(Result::getMetacard)
                 .map(Metacard::getId)
                 .collect(Collectors.toList());

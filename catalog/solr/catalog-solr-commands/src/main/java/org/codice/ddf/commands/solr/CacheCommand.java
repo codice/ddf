@@ -25,10 +25,9 @@ import org.codice.solr.factory.SolrClientFactory;
 
 @Service
 @Command(
-  scope = SolrCommands.NAMESPACE,
-  name = "cache",
-  description = "Support the remote result cache."
-)
+    scope = SolrCommands.NAMESPACE,
+    name = "cache",
+    description = "Support the remote result cache.")
 public class CacheCommand extends SolrCommands {
 
   @Option(name = "--clear", description = "Clear the remote result cache.", required = true)
@@ -36,10 +35,9 @@ public class CacheCommand extends SolrCommands {
   protected boolean clear = false;
 
   @Option(
-    name = "-f",
-    aliases = {"--force"},
-    description = "Force the operation without further user confirmation."
-  )
+      name = "-f",
+      aliases = {"--force"},
+      description = "Force the operation without further user confirmation.")
   @VisibleForTesting
   protected boolean force = false;
 

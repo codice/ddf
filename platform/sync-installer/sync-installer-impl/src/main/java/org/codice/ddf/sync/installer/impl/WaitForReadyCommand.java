@@ -26,29 +26,26 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
 
 @Command(
-  scope = "system",
-  name = "wait-for-ready",
-  description = "Waits for the system to be in a ready state for operations."
-)
+    scope = "system",
+    name = "wait-for-ready",
+    description = "Waits for the system to be in a ready state for operations.")
 @Service
 public class WaitForReadyCommand implements Action {
 
   @Option(
-    name = "-l",
-    aliases = {"--log"},
-    description = "Increases log level of wait information.",
-    required = false,
-    multiValued = false
-  )
+      name = "-l",
+      aliases = {"--log"},
+      description = "Increases log level of wait information.",
+      required = false,
+      multiValued = false)
   boolean increaseLogLevel = false;
 
   @Option(
-    name = "-wt",
-    aliases = {"--wait-time"},
-    description = "Amount of time to wait for the system to reach a ready state in seconds.",
-    required = false,
-    multiValued = false
-  )
+      name = "-wt",
+      aliases = {"--wait-time"},
+      description = "Amount of time to wait for the system to reach a ready state in seconds.",
+      required = false,
+      multiValued = false)
   Integer waitTime = null;
 
   @Reference SynchronizedInstaller syncInstaller;

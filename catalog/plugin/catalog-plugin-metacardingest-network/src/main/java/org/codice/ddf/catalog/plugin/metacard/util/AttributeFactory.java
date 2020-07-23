@@ -68,8 +68,7 @@ public class AttributeFactory {
       List<String> values = convertMultiValuedStringToList(value);
       notEmpty(values);
       List<Serializable> serializables =
-          values
-              .stream()
+          values.stream()
               .map(string -> parseAttributeValue(attributeDescriptor, string))
               .peek(Validate::notNull)
               .collect(Collectors.toList());

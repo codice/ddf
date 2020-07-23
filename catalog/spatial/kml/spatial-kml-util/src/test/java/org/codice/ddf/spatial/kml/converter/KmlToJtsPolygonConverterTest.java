@@ -110,9 +110,7 @@ public class KmlToJtsPolygonConverterTest {
     assertThat(linearRing, notNullValue());
 
     List<LinearRing> holes =
-        polygon
-            .getInnerBoundaryIs()
-            .stream()
+        polygon.getInnerBoundaryIs().stream()
             .map(Boundary::getLinearRing)
             .collect(Collectors.toList());
     assertThat(holes, not(empty()));

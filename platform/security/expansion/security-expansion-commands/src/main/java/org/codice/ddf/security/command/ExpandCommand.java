@@ -29,27 +29,24 @@ import org.fusesource.jansi.Ansi;
  */
 @Service
 @Command(
-  scope = "security",
-  name = "expand",
-  description = "Expands a given key and set of values."
-)
+    scope = "security",
+    name = "expand",
+    description = "Expands a given key and set of values.")
 public class ExpandCommand implements Action {
   @Argument(
-    name = "key",
-    description = "The of the value to be encrypted.",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "key",
+      description = "The of the value to be encrypted.",
+      index = 0,
+      multiValued = false,
+      required = true)
   private String key = null;
 
   @Argument(
-    name = "values",
-    description = "The set of values to be expanded.",
-    index = 1,
-    multiValued = true,
-    required = true
-  )
+      name = "values",
+      description = "The set of values to be expanded.",
+      index = 1,
+      multiValued = true,
+      required = true)
   private Set<String> values = null;
 
   // live list of expansion services

@@ -172,8 +172,7 @@ public class LoginFilter implements SecurityFilter {
             javax.security.auth.Subject javaSubject =
                 new javax.security.auth.Subject(
                     true,
-                    securityAssertions
-                        .stream()
+                    securityAssertions.stream()
                         .map(SecurityAssertion::getPrincipals)
                         .flatMap(Collection::stream)
                         .collect(Collectors.toSet()),

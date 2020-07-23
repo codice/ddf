@@ -25,21 +25,19 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "replicate",
-  description = "Replicates Metacards from a Federated Source into the Catalog."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "replicate",
+    description = "Replicates Metacards from a Federated Source into the Catalog.")
 public class ReplicateCommand extends DuplicateCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ReplicateCommand.class);
 
   @Argument(
-    name = "Source Id",
-    description = "The ID of the Source to replicate the data from.",
-    index = 0,
-    multiValued = false,
-    required = false
-  )
+      name = "Source Id",
+      description = "The ID of the Source to replicate the data from.",
+      index = 0,
+      multiValued = false,
+      required = false)
   String sourceId;
 
   @Override

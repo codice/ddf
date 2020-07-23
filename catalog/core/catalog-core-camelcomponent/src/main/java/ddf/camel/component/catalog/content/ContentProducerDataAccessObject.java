@@ -242,8 +242,7 @@ public class ContentProducerDataAccessObject {
       LOGGER.debug(
           "content item(s) {} with id = {}",
           action,
-          metacards
-              .stream()
+          metacards.stream()
               .map(Metacard::getId)
               .filter(Objects::nonNull)
               .collect(Collectors.joining(", ")));

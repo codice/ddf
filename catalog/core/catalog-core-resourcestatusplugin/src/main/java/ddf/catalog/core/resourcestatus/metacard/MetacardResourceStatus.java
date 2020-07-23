@@ -57,8 +57,7 @@ public class MetacardResourceStatus implements PostQueryPlugin {
       throws PluginExecutionException, StopProcessingException {
     List<Result> results = input.getResults();
 
-    results
-        .stream()
+    results.stream()
         .map(Result::getMetacard)
         .filter(Objects::nonNull)
         .forEach(this::addResourceLocalAttribute);

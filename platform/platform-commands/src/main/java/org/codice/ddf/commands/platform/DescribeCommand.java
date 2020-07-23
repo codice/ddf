@@ -20,10 +20,9 @@ import org.codice.ddf.configuration.SystemInfo;
 
 @Service
 @Command(
-  scope = PlatformCommands.NAMESPACE,
-  name = "describe",
-  description = "Provides a description of the platform"
-)
+    scope = PlatformCommands.NAMESPACE,
+    name = "describe",
+    description = "Provides a description of the platform")
 public class DescribeCommand extends PlatformCommands {
   private String format = "%s=%s%n";
 

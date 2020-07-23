@@ -28,10 +28,9 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = SubscriptionsCommand.NAMESPACE,
-  name = "delete",
-  description = "Allows users to delete registered subscriptions."
-)
+    scope = SubscriptionsCommand.NAMESPACE,
+    name = "delete",
+    description = "Allows users to delete registered subscriptions.")
 public class DeleteCommand extends SubscriptionsCommand {
   static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
 
@@ -54,29 +53,27 @@ public class DeleteCommand extends SubscriptionsCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(DeleteCommand.class);
 
   @Argument(
-    name = "search phrase or LDAP filter",
-    description =
-        "Subscription ID to search for. Wildcard characters (*) can be used in the ID, e.g., my*name or *123. ",
-    index = 0,
-    multiValued = false,
-    required = true
-  )
+      name = "search phrase or LDAP filter",
+      description =
+          "Subscription ID to search for. Wildcard characters (*) can be used in the ID, e.g., my*name or *123. ",
+      index = 0,
+      multiValued = false,
+      required = true)
   String id = null;
 
   @Option(
-    name = "filter",
-    required = false,
-    aliases = {"-f"},
-    multiValued = false,
-    description =
-        "Allows user to specify any type of LDAP filter rather than deleting on single subscription ID.\n"
-            + "You should enclose the LDAP filter in quotes since it will often have special characters in it.\n"
-            + "An example would be:\n"
-            + "(& (subscription-id=my*) (subscription-id=*169*))\n"
-            + "which searches for all subscriptions starting with \"my\" and having 169 in the ID, which can be thought of as part of an IP address.\n"
-            + "An example of the entire quote command would be:\n"
-            + "subscriptions:delete -f \"\"(& (subscription-id=my*) (subscription-id=*169*))\""
-  )
+      name = "filter",
+      required = false,
+      aliases = {"-f"},
+      multiValued = false,
+      description =
+          "Allows user to specify any type of LDAP filter rather than deleting on single subscription ID.\n"
+              + "You should enclose the LDAP filter in quotes since it will often have special characters in it.\n"
+              + "An example would be:\n"
+              + "(& (subscription-id=my*) (subscription-id=*169*))\n"
+              + "which searches for all subscriptions starting with \"my\" and having 169 in the ID, which can be thought of as part of an IP address.\n"
+              + "An example of the entire quote command would be:\n"
+              + "subscriptions:delete -f \"\"(& (subscription-id=my*) (subscription-id=*169*))\"")
   boolean ldapFilter = false;
 
   @Override

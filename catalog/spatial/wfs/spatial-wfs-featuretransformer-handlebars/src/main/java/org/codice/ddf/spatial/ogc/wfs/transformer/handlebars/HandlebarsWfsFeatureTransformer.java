@@ -216,9 +216,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
   }
 
   private String getNamespaceAlias(String namespace, Map<String, String> namespaces) {
-    return namespaces
-        .entrySet()
-        .stream()
+    return namespaces.entrySet().stream()
         .filter(entry -> entry.getValue().contains(namespace))
         .map(Map.Entry::getKey)
         .findFirst()
@@ -339,9 +337,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     MetacardImpl metacard = new MetacardImpl(metacardType);
 
     List<Attribute> attributes =
-        mappingEntries
-            .values()
-            .stream()
+        mappingEntries.values().stream()
             .map(entry -> createAttribute(entry, contextMap, wfsMetadata.getCoordinateOrder()))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
@@ -643,8 +639,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     LOGGER.trace("Setting attribute mappings to: {}", attributeMappingsList);
     if (attributeMappingsList != null) {
       mappingEntries.clear();
-      attributeMappingsList
-          .stream()
+      attributeMappingsList.stream()
           .filter(StringUtils::isNotEmpty)
           .map(this::jsonToMap)
           .filter(this::validAttributeMapping)
