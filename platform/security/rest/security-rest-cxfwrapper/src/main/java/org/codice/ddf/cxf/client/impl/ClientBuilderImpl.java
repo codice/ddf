@@ -253,8 +253,8 @@ public class ClientBuilderImpl<T> implements ClientBuilder<T> {
   }
 
   @Override
-  public ClientBuilder<T> useSubjectRetrievalInterceptor(boolean useSubjectRetrievalInterceptor) {
-    this.useSubjectRetrievalInterceptor = useSubjectRetrievalInterceptor;
+  public ClientBuilder<T> useSubjectRetrievalInterceptor() {
+    this.useSubjectRetrievalInterceptor = true;
     return this;
   }
 }

@@ -35,9 +35,8 @@ import org.codice.ddf.security.handler.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.BaseAuthenticationToken;
 
 /**
- * OutgoingSubjectRetrievalInterceptor provides a implementation of {@link AbstractPhaseInterceptor}
- * that stores the receivers subject in the header of the response with a key of
- * ddf.security.Subject.
+ * SubjectRetrievalInterceptor provides a implementation of {@link AbstractPhaseInterceptor} that
+ * stores the receivers subject in the header of the response with a key of ddf.security.Subject.
  */
 public class SubjectRetrievalInterceptor extends AbstractPhaseInterceptor<Message>
     implements Handler<WrappedMessageContext> {

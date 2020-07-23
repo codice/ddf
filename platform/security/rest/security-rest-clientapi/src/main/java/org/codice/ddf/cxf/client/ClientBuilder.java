@@ -195,5 +195,5 @@ public interface ClientBuilder<T> {
    * @param useSubjectRetrievalInterceptor
    * @return
    */
-  ClientBuilder<T> useSubjectRetrievalInterceptor(boolean useSubjectRetrievalInterceptor);
+  ClientBuilder<T> useSubjectRetrievalInterceptor();
 }
