@@ -51,12 +51,11 @@ import org.slf4j.LoggerFactory;
 @Service
 public class ProfileInstallCommand extends AbstractProfileCommand {
   @Argument(
-    index = 0,
-    name = "profileName",
-    description = "Name of install profile to use",
-    required = true,
-    multiValued = false
-  )
+      index = 0,
+      name = "profileName",
+      description = "Name of install profile to use",
+      required = true,
+      multiValued = false)
   String profileName;
 
   private static final String ADVANCED_PROFILE_INSTALL_FEATURES = "install-features";
@@ -112,10 +111,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
     try {
       if (optionalProfile.isPresent()) {
         List<String> profileApps =
-            optionalProfile
-                .get()
-                .getDependencies()
-                .stream()
+            optionalProfile.get().getDependencies().stream()
                 .map(Dependency::getName)
                 .collect(Collectors.toList());
         installFeatures(featuresService, profileApps);
@@ -226,9 +222,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
    * @return {@link Optional} if the profile doesn't exist the {@link Optional} will be empty
    */
   private Optional<Feature> getProfile(ApplicationService applicationService, String profileName) {
-    return applicationService
-        .getInstallationProfiles()
-        .stream()
+    return applicationService.getInstallationProfiles().stream()
         .filter(i -> i.getName().replaceFirst(PROFILE_PREFIX, "").equals(profileName))
         .findFirst();
   }

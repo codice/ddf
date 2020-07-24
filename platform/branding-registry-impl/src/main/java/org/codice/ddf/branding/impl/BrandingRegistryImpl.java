@@ -30,8 +30,7 @@ public class BrandingRegistryImpl implements BrandingRegistry {
 
   @Override
   public String getProductName() {
-    return getBrandingPlugins()
-        .stream()
+    return getBrandingPlugins().stream()
         .map(plugin -> StringUtils.substringBeforeLast(plugin.getProductName(), " "))
         .filter(Objects::nonNull)
         .findFirst()
@@ -40,8 +39,7 @@ public class BrandingRegistryImpl implements BrandingRegistry {
 
   @Override
   public String getAttributeFromBranding(BrandingMethod supplier) {
-    return getBrandingPlugins()
-        .stream()
+    return getBrandingPlugins().stream()
         .map(
             plugin -> {
               try {
@@ -58,8 +56,7 @@ public class BrandingRegistryImpl implements BrandingRegistry {
 
   @Override
   public String getProductVersion() {
-    return getBrandingPlugins()
-        .stream()
+    return getBrandingPlugins().stream()
         .map(plugin -> StringUtils.substringAfterLast(plugin.getProductName(), " "))
         .filter(Objects::nonNull)
         .findFirst()

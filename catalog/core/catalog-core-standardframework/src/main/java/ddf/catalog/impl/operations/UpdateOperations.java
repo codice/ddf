@@ -330,9 +330,7 @@ public class UpdateOperations {
     }
 
     List<Map.Entry<Serializable, Metacard>> updatedList =
-        response
-            .getResults()
-            .stream()
+        response.getResults().stream()
             .map(Result::getMetacard)
             .map(this::toEntryById)
             .collect(Collectors.toList());
@@ -344,16 +342,12 @@ public class UpdateOperations {
   private boolean foundAllUpdateRequestMetacards(
       UpdateRequest updateRequest, QueryResponse response) {
     Set<String> originalKeys =
-        updateRequest
-            .getUpdates()
-            .stream()
+        updateRequest.getUpdates().stream()
             .map(Map.Entry::getKey)
             .map(Object::toString)
             .collect(Collectors.toSet());
     Set<String> responseKeys =
-        response
-            .getResults()
-            .stream()
+        response.getResults().stream()
             .map(Result::getMetacard)
             .map(m -> m.getAttribute(updateRequest.getAttributeName()))
             .filter(Objects::nonNull)
@@ -384,9 +378,7 @@ public class UpdateOperations {
   }
 
   private UpdateRequest setDefaultValues(UpdateRequest updateRequest) {
-    updateRequest
-        .getUpdates()
-        .stream()
+    updateRequest.getUpdates().stream()
         .filter(Objects::nonNull)
         .map(Map.Entry::getValue)
         .filter(Objects::nonNull)
@@ -592,9 +584,7 @@ public class UpdateOperations {
     // Construct the metacardMap using the metacard's ID in order to match the UpdateRequest
     HashMap<String, Metacard> metacardMap =
         new HashMap<>(
-            queryResponse
-                .getResults()
-                .stream()
+            queryResponse.getResults().stream()
                 .map(Result::getMetacard)
                 .collect(
                     Collectors.toMap(
@@ -621,9 +611,7 @@ public class UpdateOperations {
 
   private QueryRequestImpl createQueryRequest(UpdateRequest updateRequest) {
     List<Filter> idFilters =
-        updateRequest
-            .getUpdates()
-            .stream()
+        updateRequest.getUpdates().stream()
             .map(
                 update ->
                     frameworkProperties
@@ -695,9 +683,7 @@ public class UpdateOperations {
     if (LOGGER.isDebugEnabled()) {
       final String attributeName = updateRequest.getAttributeName();
       Set<String> queryResults =
-          query
-              .getResults()
-              .stream()
+          query.getResults().stream()
               .map(Result::getMetacard)
               .map(m -> m.getAttribute(attributeName))
               .filter(Objects::nonNull)
@@ -711,9 +697,7 @@ public class UpdateOperations {
       LOGGER.debug("Original Update By attribute was: {}", attributeName);
       LOGGER.debug(
           "Unable to get Metacard IDs from metacards:: {}",
-          updateRequest
-              .getUpdates()
-              .stream()
+          updateRequest.getUpdates().stream()
               .map(Map.Entry::getKey)
               .map(Object::toString)
               .filter(s -> !queryResults.contains(s))

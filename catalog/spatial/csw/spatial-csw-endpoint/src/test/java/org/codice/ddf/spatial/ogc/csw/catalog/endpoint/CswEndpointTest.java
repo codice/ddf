@@ -2165,8 +2165,7 @@ public class CswEndpointTest {
   private List<DeleteResponse> getDelBatch(List<QueryResponse> qrBatch) {
     List<DeleteResponse> results = new ArrayList<>();
     List<Metacard> deletedMetacards =
-        qrBatch
-            .stream()
+        qrBatch.stream()
             .map(SourceResponse::getResults)
             .flatMap(Collection::stream)
             .map(Result::getMetacard)
@@ -2180,9 +2179,7 @@ public class CswEndpointTest {
 
   private long countTypeNames(
       CapabilitiesType ct, String operationName, String parameterName, String typeName) {
-    return ct.getOperationsMetadata()
-        .getOperation()
-        .stream()
+    return ct.getOperationsMetadata().getOperation().stream()
         .filter(Objects::nonNull)
         .filter(operation -> operation.getName().equals(operationName))
         .map(Operation::getParameter)

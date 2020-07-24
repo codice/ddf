@@ -236,8 +236,7 @@ public final class SubjectUtils implements SubjectOperations {
     List<SecurityAssertion> assertionList = new ArrayList<>(assertions);
     assertionList.sort(new SecurityAssertionComparator());
 
-    return assertionList
-        .stream()
+    return assertionList.stream()
         .map(SecurityAssertion::getAttributeStatements)
         .flatMap(List::stream)
         .flatMap(as -> as.getAttributes().stream())
@@ -257,10 +256,7 @@ public final class SubjectUtils implements SubjectOperations {
       return Collections.emptyMap();
     }
 
-    return subject
-        .getPrincipals()
-        .byType(SecurityAssertion.class)
-        .stream()
+    return subject.getPrincipals().byType(SecurityAssertion.class).stream()
         .map(SecurityAssertion::getAttributeStatements)
         .flatMap(Collection::stream)
         .map(AttributeStatement::getAttributes)

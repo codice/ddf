@@ -78,9 +78,7 @@ public class CatalogBundle {
       try {
         SourceInfoResponse sources = framework.getSourceInfo(sourceInfoRequestEnterprise);
 
-        return sources
-            .getSourceInfo()
-            .stream()
+        return sources.getSourceInfo().stream()
             .filter(descriptor -> descriptor.getSourceId().equals(provider.getId()))
             .map(descriptor -> descriptor.isAvailable() && provider.isAvailable())
             .findFirst()
@@ -103,9 +101,7 @@ public class CatalogBundle {
   private boolean isFederatedSourceReady(String id) throws InvalidSyntaxException {
     CatalogFramework framework = getService(CatalogFramework.class);
     FederatedSource source =
-        serviceManager
-            .getServiceReferences(FederatedSource.class, null)
-            .stream()
+        serviceManager.getServiceReferences(FederatedSource.class, null).stream()
             .map(serviceManager::getService)
             .filter(src -> id.equals(src.getId()))
             .findFirst()
@@ -116,9 +112,7 @@ public class CatalogBundle {
 
       try {
         SourceInfoResponse sources = framework.getSourceInfo(request);
-        return sources
-            .getSourceInfo()
-            .stream()
+        return sources.getSourceInfo().stream()
             .filter(descriptor -> descriptor.getSourceId().equals(source.getId()))
             .map(descriptor -> descriptor.isAvailable() && source.isAvailable())
             .findFirst()

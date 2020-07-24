@@ -162,9 +162,7 @@ public class PolicyManager implements ContextPolicyManager {
 
     // duplicate and add the new context policy
     List<ContextAttributeMapping> newContextAttrs =
-        newContextPolicy
-            .getAllowedAttributes()
-            .stream()
+        newContextPolicy.getAllowedAttributes().stream()
             .map(
                 contextAttribute ->
                     new DefaultContextAttributeMapping(
@@ -348,9 +346,7 @@ public class PolicyManager implements ContextPolicyManager {
     copiedAuthenticationMethods.addAll(contextPolicy.getAuthenticationMethods());
 
     copiedContextAttributes.addAll(
-        contextPolicy
-            .getAllowedAttributes()
-            .stream()
+        contextPolicy.getAllowedAttributes().stream()
             .map(
                 contextAttribute ->
                     new DefaultContextAttributeMapping(

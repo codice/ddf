@@ -490,9 +490,7 @@ public class TikaInputTransformer implements InputTransformer {
   }
 
   private MetacardType getMetacardType(String contentType) {
-    return metadataExtractors
-        .values()
-        .stream()
+    return metadataExtractors.values().stream()
         .filter(e -> e.canProcess(contentType))
         .findFirst()
         .map(e -> e.getMetacardType(contentType))
@@ -501,9 +499,7 @@ public class TikaInputTransformer implements InputTransformer {
 
   protected MetacardType mergeAttributes(MetacardType metacardType) {
     Set<AttributeDescriptor> additionalAttributes =
-        contentExtractors
-            .values()
-            .stream()
+        contentExtractors.values().stream()
             .map(ContentMetadataExtractor::getMetacardAttributes)
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
@@ -549,17 +545,13 @@ public class TikaInputTransformer implements InputTransformer {
 
     LOGGER.debug("Attempting to map {}", mimeType);
     Optional<Map.Entry<com.google.common.net.MediaType, String>> returnType =
-        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP
-            .entrySet()
-            .stream()
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.entrySet().stream()
             .filter(mediaTypeStringEntry -> mediaType.is(mediaTypeStringEntry.getKey()))
             .findFirst();
 
     if (!returnType.isPresent()) {
       Optional<Map.Entry<com.google.common.net.MediaType, String>> fallback =
-          FALLBACK_MIME_TYPE_DATA_TYPE_MAP
-              .entrySet()
-              .stream()
+          FALLBACK_MIME_TYPE_DATA_TYPE_MAP.entrySet().stream()
               .filter(mediaTypeStringEntry -> mediaType.is(mediaTypeStringEntry.getKey()))
               .findFirst();
 

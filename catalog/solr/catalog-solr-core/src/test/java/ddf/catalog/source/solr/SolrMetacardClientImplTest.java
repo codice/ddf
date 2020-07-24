@@ -319,15 +319,13 @@ public class SolrMetacardClientImplTest {
         highlights.get(0).getAttributeHighlights();
 
     List<String> attributeNames =
-        highlightedAttributes
-            .stream()
+        highlightedAttributes.stream()
             .map(ResultAttributeHighlight::getAttributeName)
             .collect(Collectors.toList());
     assertThat(attributeNames, containsInAnyOrder("title", "description"));
 
     Optional<List<Highlight>> descriptionHighlights =
-        highlightedAttributes
-            .stream()
+        highlightedAttributes.stream()
             .filter(attr -> attr.getAttributeName().equals("description"))
             .findFirst()
             .map(ResultAttributeHighlight::getHighlights);

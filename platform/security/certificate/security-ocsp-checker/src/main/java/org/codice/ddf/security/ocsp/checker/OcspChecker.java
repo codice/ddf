@@ -449,9 +449,7 @@ public class OcspChecker implements OcspService {
    * @return the URL of the first revoked status, or null if no revoked status was found.
    */
   private @Nullable URI getFirstRevokedStatusUrl(Map<URI, CertificateStatus> ocspStatuses) {
-    return ocspStatuses
-        .entrySet()
-        .stream()
+    return ocspStatuses.entrySet().stream()
         .filter(entry -> entry.getValue() instanceof RevokedStatus)
         .map(Entry::getKey)
         .findFirst()
@@ -672,8 +670,7 @@ public class OcspChecker implements OcspService {
 
   public void setOcspServerUrls(List<String> ocspServerUrls) {
     this.ocspServerUrls =
-        ocspServerUrls
-            .stream()
+        ocspServerUrls.stream()
             .map(
                 str -> {
                   try {

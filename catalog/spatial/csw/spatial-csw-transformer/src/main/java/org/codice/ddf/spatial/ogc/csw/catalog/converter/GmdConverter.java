@@ -319,9 +319,7 @@ public class GmdConverter extends AbstractGmdConverter {
     if (descriptions != null && CollectionUtils.isNotEmpty(descriptions.getValues())) {
       pathValueTracker.add(
           new Path(path),
-          descriptions
-              .getValues()
-              .stream()
+          descriptions.getValues().stream()
               .map(Serializable::toString)
               .collect(Collectors.toList()));
     }

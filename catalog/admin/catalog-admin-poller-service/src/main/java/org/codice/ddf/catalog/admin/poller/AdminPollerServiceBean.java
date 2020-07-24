@@ -258,16 +258,14 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     String includes =
         (includeAsSource == null || CollectionUtils.isEmpty(includeAsSource))
             ? String.format("(%s=*)", pidKey)
-            : includeAsSource
-                .stream()
+            : includeAsSource.stream()
                 .map(pid -> String.format("(%s=%s)", pidKey, pid))
                 .collect(Collectors.joining());
     if (excludeAsSource == null || CollectionUtils.isEmpty(excludeAsSource)) {
       return String.format("(|%s)", includes);
     } else {
       String excludes =
-          excludeAsSource
-              .stream()
+          excludeAsSource.stream()
               .map(pid -> String.format("(!(%s=%s))", pidKey, pid))
               .collect(Collectors.joining());
       return String.format("(&(|%s)(&%s))", includes, excludes);

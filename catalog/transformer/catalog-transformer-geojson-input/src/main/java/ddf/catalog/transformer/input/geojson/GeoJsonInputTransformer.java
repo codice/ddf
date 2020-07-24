@@ -113,9 +113,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
     }
 
     Map<String, AttributeDescriptor> attributeDescriptorMap =
-        metacardType
-            .getAttributeDescriptors()
-            .stream()
+        metacardType.getAttributeDescriptors().stream()
             .collect(toMap(AttributeDescriptor::getName, Function.identity()));
 
     properties
@@ -203,16 +201,14 @@ public class GeoJsonInputTransformer implements InputTransformer {
       Optional<MetacardImpl> first =
           inputTransformers == null
               ? Optional.of(new MetacardImpl())
-              : inputTransformers
-                  .stream()
+              : inputTransformers.stream()
                   .map(service -> tryTransformers(properties, service))
                   .filter(Objects::nonNull)
                   .findFirst();
       return first.orElse(new MetacardImpl());
     } else {
       MetacardType metacardType =
-          metacardTypes
-              .stream()
+          metacardTypes.stream()
               .filter(type -> type.getName().equals(propertyTypeName))
               .findFirst()
               .orElseThrow(

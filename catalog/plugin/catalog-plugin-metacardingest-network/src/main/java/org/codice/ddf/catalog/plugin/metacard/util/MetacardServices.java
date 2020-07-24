@@ -82,22 +82,18 @@ public class MetacardServices {
     Map<String, AttributeDescriptor> systemAndMetacardDescriptors =
         getUniqueSystemAndMetacardDescriptors(metacards);
 
-    return metacards
-        .stream()
+    return metacards.stream()
         .map(
             metacard -> {
               Set<AttributeDescriptor> relevantDescriptors =
-                  attributeMap
-                      .keySet()
-                      .stream()
+                  attributeMap.keySet().stream()
                       .filter(key -> metacard.getAttribute(key) == null)
                       .map(systemAndMetacardDescriptors::get)
                       .filter(Objects::nonNull)
                       .collect(Collectors.toSet());
               return createNewMetacardWithInjectedAttributes(
                   metacard,
-                  relevantDescriptors
-                      .stream()
+                  relevantDescriptors.stream()
                       .map(
                           descriptor ->
                               attributeFactory.createAttribute(
@@ -120,13 +116,11 @@ public class MetacardServices {
       List<Metacard> metacards) {
     List<MetacardType> systemMetacardTypesCopy = ImmutableList.copyOf(systemMetacardTypes);
     return Stream.concat(
-            systemMetacardTypesCopy
-                .stream()
+            systemMetacardTypesCopy.stream()
                 .map(MetacardType::getAttributeDescriptors)
                 .flatMap(Set::stream)
                 .filter(Objects::nonNull),
-            metacards
-                .stream()
+            metacards.stream()
                 .map(Metacard::getMetacardType)
                 .map(MetacardType::getAttributeDescriptors)
                 .flatMap(Set::stream)

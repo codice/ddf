@@ -83,8 +83,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
     Map<String, Integer> counter = new HashMap<>();
 
     List<T> validated =
-        requestItems
-            .stream()
+        requestItems.stream()
             .map(item -> validate(item, itemToMetacard, counter))
             .filter(didNotFailEnforcedValidator)
             .collect(Collectors.toList());
@@ -249,8 +248,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
     this.metacardValidators = metacardValidators;
 
     List<String> validatorsNoDescribable =
-        metacardValidators
-            .stream()
+        metacardValidators.stream()
             .filter(validator -> !(validator instanceof Describable))
             .map(this::getValidatorName)
             .collect(Collectors.toList());

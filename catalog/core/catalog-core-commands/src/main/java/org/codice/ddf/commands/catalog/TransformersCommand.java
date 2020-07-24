@@ -35,11 +35,10 @@ import org.osgi.framework.ServiceReference;
 /** Provides information on available transformers */
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "transformers",
-  description =
-      "Provides information on available transformers. By default, prints out all Metacard and Input transformers."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "transformers",
+    description =
+        "Provides information on available transformers. By default, prints out all Metacard and Input transformers.")
 public class TransformersCommand extends CatalogCommands {
 
   // output strings
@@ -61,30 +60,27 @@ public class TransformersCommand extends CatalogCommands {
   private static final String NOT_AVAILABLE = "N/A";
 
   @Option(
-    name = "--input",
-    required = false,
-    aliases = {"-i", "-input"},
-    multiValued = false,
-    description = "Displays only input transformers"
-  )
+      name = "--input",
+      required = false,
+      aliases = {"-i", "-input"},
+      multiValued = false,
+      description = "Displays only input transformers")
   private boolean inputOption = false;
 
   @Option(
-    name = "--metacard",
-    required = false,
-    aliases = {"-m", "-metacard"},
-    multiValued = false,
-    description = "Displays only metacard transformers"
-  )
+      name = "--metacard",
+      required = false,
+      aliases = {"-m", "-metacard"},
+      multiValued = false,
+      description = "Displays only metacard transformers")
   private boolean metacardOption = false;
 
   @Option(
-    name = "--all",
-    required = false,
-    aliases = {"-a", "-all"},
-    multiValued = false,
-    description = "Displays all the properties of the desired transformers"
-  )
+      name = "--all",
+      required = false,
+      aliases = {"-a", "-all"},
+      multiValued = false,
+      description = "Displays all the properties of the desired transformers")
   private boolean allOption = false;
 
   @Override

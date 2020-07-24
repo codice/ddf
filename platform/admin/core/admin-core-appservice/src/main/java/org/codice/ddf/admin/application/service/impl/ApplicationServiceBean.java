@@ -286,9 +286,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   @Override
   public List<Map<String, Object>> getApplications() {
     try {
-      return appService
-          .getApplications()
-          .stream()
+      return appService.getApplications().stream()
           .filter(
               app ->
                   !getPluginsForApplication(app.getName()).isEmpty()
@@ -345,8 +343,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
                   .map(metatypeService::getMetaTypeInformation)
                   .collect(Collectors.toSet());
 
-      return services
-          .stream()
+      return services.stream()
           .filter(
               service ->
                   hasBundleLocation(service, bundleLocations)

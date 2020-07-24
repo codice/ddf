@@ -120,9 +120,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     Set<String> existingAttributeNames =
         getAttributeDescriptors().stream().map(AttributeDescriptor::getName).collect(toSet());
 
-    metacardTypeEnhancer
-        .getAttributeDescriptors()
-        .stream()
+    metacardTypeEnhancer.getAttributeDescriptors().stream()
         .filter(
             attributeDescriptor -> !existingAttributeNames.contains(attributeDescriptor.getName()))
         .forEach(this::add);

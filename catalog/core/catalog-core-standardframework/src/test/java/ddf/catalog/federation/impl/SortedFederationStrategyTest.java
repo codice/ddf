@@ -157,10 +157,7 @@ public class SortedFederationStrategyTest {
     QueryResponse federateResponse = strategy.federate(sourceList, fedQueryRequest);
 
     List<Map.Entry<String, Serializable>> metrics =
-        federateResponse
-            .getProperties()
-            .entrySet()
-            .stream()
+        federateResponse.getProperties().entrySet().stream()
             .filter(entry -> entry.getKey().startsWith(METRICS_SOURCE_ELAPSED_PREFIX))
             .collect(Collectors.toList());
 

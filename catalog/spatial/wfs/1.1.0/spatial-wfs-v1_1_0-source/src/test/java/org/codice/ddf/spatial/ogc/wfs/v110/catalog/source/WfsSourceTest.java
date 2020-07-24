@@ -310,8 +310,7 @@ public class WfsSourceTest {
           .getSpatialOperators()
           .getSpatialOperator()
           .addAll(
-              supportedGeos
-                  .stream()
+              supportedGeos.stream()
                   .map(
                       opName -> {
                         SpatialOperatorType spatialOperatorType = new SpatialOperatorType();
@@ -951,9 +950,7 @@ public class WfsSourceTest {
     assertMaxFeatures(getFeatureType, inQuery);
 
     List<QueryType> filterQueries =
-        getFeatureType
-            .getQuery()
-            .stream()
+        getFeatureType.getQuery().stream()
             .filter(QueryType::isSetFilter)
             .collect(Collectors.toList());
     assertThat(filterQueries, hasSize(ONE_FEATURE));

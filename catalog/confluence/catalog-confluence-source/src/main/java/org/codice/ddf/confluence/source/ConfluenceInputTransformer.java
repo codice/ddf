@@ -107,8 +107,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
 
     String baseUrl = getString(json, "_links", "base");
 
-    getJsonArray(json, RESULTS)
-        .stream()
+    getJsonArray(json, RESULTS).stream()
         .forEach(
             e -> {
               try {
@@ -170,8 +169,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
     Object labelsElement = getJsonElement(json, METADATA, "labels");
     if (labelsElement != null) {
       ArrayList<String> labels = new ArrayList<>();
-      getJsonArray(labelsElement, RESULTS)
-          .stream()
+      getJsonArray(labelsElement, RESULTS).stream()
           .forEach(e -> labels.add(getStringOrDefault(e, UNKNOWN, "name")));
       metacard.setAttribute(Topic.KEYWORD, labels);
     }
@@ -196,8 +194,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
     }
 
     ArrayList<String> contributors = new ArrayList<>();
-    getJsonArray(history, "contributors", "publishers", "users")
-        .stream()
+    getJsonArray(history, "contributors", "publishers", "users").stream()
         .forEach(e -> addContributor(contributors, e));
     metacard.setAttribute(Contact.CONTRIBUTOR_NAME, contributors);
   }
@@ -274,11 +271,9 @@ public class ConfluenceInputTransformer implements InputTransformer {
       ArrayList<String> userRestrictions = new ArrayList<>();
       ArrayList<String> groupRestrictions = new ArrayList<>();
 
-      getJsonArray(restrictions, "user", RESULTS)
-          .stream()
+      getJsonArray(restrictions, "user", RESULTS).stream()
           .forEach(e -> userRestrictions.add(getStringOrDefault(e, UNKNOWN, USERNAME)));
-      getJsonArray(restrictions, "group", RESULTS)
-          .stream()
+      getJsonArray(restrictions, "group", RESULTS).stream()
           .forEach(e -> groupRestrictions.add(getStringOrDefault(e, UNKNOWN, "name")));
       metacard.setAttribute(Security.ACCESS_INDIVIDUALS, userRestrictions);
       metacard.setAttribute(Security.ACCESS_GROUPS, groupRestrictions);

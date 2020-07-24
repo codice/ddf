@@ -54,8 +54,7 @@ public class KmlToJtsPolygonConverter {
       return new ArrayList<>();
     }
 
-    return kmlInnerBoundaries
-        .stream()
+    return kmlInnerBoundaries.stream()
         .map(Boundary::getLinearRing)
         .filter(Objects::nonNull)
         .map(KmlToJtsLinearRingConverter::from)

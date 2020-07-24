@@ -161,9 +161,7 @@ public class PaxExamRuleIT {
       new TestWatcher() {
         @Override
         protected void failed(Throwable e, Description description) {
-          result
-              .getFailures()
-              .stream()
+          result.getFailures().stream()
               .map(Failure::getException)
               .forEach(Throwable::printStackTrace);
         }
@@ -185,15 +183,11 @@ public class PaxExamRuleIT {
     result = core.run(FailingBeforeExamTest.class);
 
     boolean examFail =
-        result
-            .getFailures()
-            .stream()
+        result.getFailures().stream()
             .anyMatch(
                 failure -> failure.getMessage().equals(PaxExamRule.EXAM_SETUP_FAILED_MESSAGE));
     boolean beforeExamFail =
-        result
-            .getFailures()
-            .stream()
+        result.getFailures().stream()
             .anyMatch(failure -> failure.getMessage().contains(EXPECTED_BEFORE_EXAM_ERROR_MESSAGE));
 
     assertThat(examFail && beforeExamFail).isTrue();
@@ -206,14 +200,10 @@ public class PaxExamRuleIT {
     result = core.run(FailingAfterExamTest.class);
 
     boolean examFail =
-        result
-            .getFailures()
-            .stream()
+        result.getFailures().stream()
             .anyMatch(failure -> failure.getMessage().equals(FAILING_TEST_MESSAGE));
     boolean afterExamFail =
-        result
-            .getFailures()
-            .stream()
+        result.getFailures().stream()
             .anyMatch(failure -> failure.getMessage().contains(EXPECTED_AFTER_EXAM_ERROR_MESSAGE));
 
     assertThat(examFail && afterExamFail).isTrue();

@@ -19,10 +19,9 @@ import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "describe",
-  description = "Provides a basic description of the Catalog implementation."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "describe",
+    description = "Provides a basic description of the Catalog implementation.")
 public class DescribeCommand extends CatalogCommands {
 
   @Override

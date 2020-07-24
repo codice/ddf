@@ -89,8 +89,7 @@ public class FeatureUtilities {
    */
   public static List<Object[]> featureRepoToFeatureParameters(
       String featureFilePath, List<String> ignoredFeatures) {
-    return getFeaturesFromFeatureRepo(featureFilePath)
-        .stream()
+    return getFeaturesFromFeatureRepo(featureFilePath).stream()
         .filter(f -> !ignoredFeatures.contains(f))
         .map(feat -> new Object[] {feat})
         .collect(Collectors.toList());

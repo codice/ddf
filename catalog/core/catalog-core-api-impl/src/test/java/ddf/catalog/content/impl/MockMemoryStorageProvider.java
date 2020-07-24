@@ -70,9 +70,7 @@ public class MockMemoryStorageProvider implements StorageProvider {
   @Override
   public DeleteStorageResponse delete(DeleteStorageRequest deleteRequest) throws StorageException {
     List<ContentItem> contentItems =
-        deleteRequest
-            .getMetacards()
-            .stream()
+        deleteRequest.getMetacards().stream()
             .map(metacard -> tempItemMap.remove(metacard.getId()))
             .collect(Collectors.toList());
     return new DeleteStorageResponseImpl(deleteRequest, contentItems);

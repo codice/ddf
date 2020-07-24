@@ -39,8 +39,7 @@ public class DynamicMetacardType implements MetacardType {
 
   @Override
   public AttributeDescriptor getAttributeDescriptor(String attributeName) {
-    return attributeDescriptors
-        .stream()
+    return attributeDescriptors.stream()
         .filter(p -> p.getName().equals(attributeName))
         .findFirst()
         .orElse(null);

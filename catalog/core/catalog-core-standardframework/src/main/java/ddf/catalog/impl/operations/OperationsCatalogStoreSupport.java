@@ -58,9 +58,7 @@ public class OperationsCatalogStoreSupport {
     List<CatalogStore> results = new ArrayList<>(request.getStoreIds().size());
     for (String destination : request.getStoreIds()) {
       final List<CatalogStore> sources =
-          frameworkProperties
-              .getCatalogStores()
-              .stream()
+          frameworkProperties.getCatalogStores().stream()
               .filter(e -> e.getId().equals(destination))
               .collect(Collectors.toList());
 

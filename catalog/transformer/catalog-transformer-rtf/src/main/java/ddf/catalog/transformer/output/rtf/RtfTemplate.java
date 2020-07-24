@@ -102,10 +102,7 @@ public class RtfTemplate {
     Function<Map.Entry, RtfRow> appendPropertyFunction = memoizeForRowData.apply(metacard.getId());
 
     Collection<RtfPara> rows =
-        category
-            .toExportMap(metacard)
-            .entrySet()
-            .stream()
+        category.toExportMap(metacard).entrySet().stream()
             .map(appendPropertyFunction)
             .collect(Collectors.toList());
 

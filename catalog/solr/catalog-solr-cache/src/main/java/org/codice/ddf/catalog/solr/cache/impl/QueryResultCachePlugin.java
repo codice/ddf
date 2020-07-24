@@ -115,9 +115,7 @@ public class QueryResultCachePlugin implements PostFederatedQueryPlugin {
   private SourceResponse cloneResponse(SourceResponse sourceResponse) {
 
     List<Result> clonedResults =
-        sourceResponse
-            .getResults()
-            .stream()
+        sourceResponse.getResults().stream()
             .map(Result::getMetacard)
             .map(m -> new MetacardImpl(m, m.getMetacardType()))
             .map(ResultImpl::new)
@@ -127,9 +125,7 @@ public class QueryResultCachePlugin implements PostFederatedQueryPlugin {
     if (clonedResults.size() > 0) {
       String sourceId = clonedResults.get(0).getMetacard().getSourceId();
       processingDetails =
-          sourceResponse
-              .getProcessingDetails()
-              .stream()
+          sourceResponse.getProcessingDetails().stream()
               .map(sourceDetails -> new ProcessingDetailsImpl(sourceDetails, sourceId))
               .collect(Collectors.toSet());
     }

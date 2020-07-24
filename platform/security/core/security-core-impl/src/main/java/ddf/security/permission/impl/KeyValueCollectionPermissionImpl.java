@@ -100,8 +100,7 @@ public class KeyValueCollectionPermissionImpl extends CollectionPermissionImpl
   @Override
   public void addAll(Map<String, ? extends Collection<String>> map) {
     permissionList.addAll(
-        map.entrySet()
-            .stream()
+        map.entrySet().stream()
             .map(
                 entry ->
                     new KeyValuePermissionImpl(entry.getKey(), new HashSet<>(entry.getValue())))

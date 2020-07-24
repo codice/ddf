@@ -82,8 +82,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     List<Result> results = input.getResults();
     Map<String, Serializable> properties = input.getProperties();
 
-    processingDetails
-        .stream()
+    processingDetails.stream()
         .filter(ProcessingDetails::hasException)
         .map(ProcessingDetails::getSourceId)
         .forEach(
@@ -93,8 +92,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
                         Tags.of(SOURCE_TAG, id))
                     .increment());
 
-    results
-        .stream()
+    results.stream()
         .map(Result::getMetacard)
         .map(Metacard::getSourceId)
         .forEach(
@@ -104,9 +102,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
                         Tags.of(SOURCE_TAG, id))
                     .increment());
 
-    properties
-        .entrySet()
-        .stream()
+    properties.entrySet().stream()
         .filter(e -> e.getKey() != null && e.getKey().startsWith(METRICS_SOURCE_ELAPSED_PREFIX))
         .forEach(SourceMetricsImpl::updateLatencyMetric);
 

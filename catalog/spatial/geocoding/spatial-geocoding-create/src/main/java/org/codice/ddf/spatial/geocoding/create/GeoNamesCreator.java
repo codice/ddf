@@ -38,9 +38,7 @@ public class GeoNamesCreator implements GeoEntryCreator {
 
     final String countryCodeAlpha2 = fields[8];
     String countryCodeAlpha3 =
-        isoStandard
-            .getStandardEntries()
-            .stream()
+        isoStandard.getStandardEntries().stream()
             .filter(c -> c.getAsFormat("alpha2").equals(countryCodeAlpha2))
             .findFirst()
             .map(cc -> cc.getAsFormat("alpha3"))

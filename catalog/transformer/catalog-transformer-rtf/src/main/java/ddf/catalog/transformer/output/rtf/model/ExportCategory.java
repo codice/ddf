@@ -88,8 +88,7 @@ public class ExportCategory implements RtfCategory {
 
   @Override
   public Map<String, ExportValue> toExportMap(Metacard metacard) {
-    return attributes
-        .stream()
+    return attributes.stream()
         .map(
             key ->
                 new AbstractMap.SimpleEntry<>(

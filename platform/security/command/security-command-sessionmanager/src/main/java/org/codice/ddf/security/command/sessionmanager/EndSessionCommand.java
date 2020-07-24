@@ -27,10 +27,9 @@ public class EndSessionCommand implements Action {
   @Reference private SessionHandler sessionHandler;
 
   @Argument(
-    name = "subjectName",
-    description = "The name of the subject attached to the SAML session to be deleted.",
-    required = true
-  )
+      name = "subjectName",
+      description = "The name of the subject attached to the SAML session to be deleted.",
+      required = true)
   private String subjectName;
 
   @Override

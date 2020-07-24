@@ -323,8 +323,7 @@ class Poller<K, V> {
             keysToRemoveFromTheCache.size(),
             StringUtils.join(keysToRemoveFromTheCache, ", "));
       }
-      keysToRemoveFromTheCache
-          .stream()
+      keysToRemoveFromTheCache.stream()
           .peek(key -> LOGGER.debug("Removing {} from the cache", key))
           .forEach(cache::invalidate);
     } else {

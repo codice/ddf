@@ -77,9 +77,7 @@ public class LogoutMessageImpl implements LogoutMessage {
   }
 
   public String getIdpSingleLogoutLocation(IDPSSODescriptor descriptor) {
-    return descriptor
-        .getSingleLogoutServices()
-        .stream()
+    return descriptor.getSingleLogoutServices().stream()
         .filter(service -> SOAP_BINDING.equals(service.getBinding()))
         .map(SingleLogoutService::getLocation)
         .findFirst()

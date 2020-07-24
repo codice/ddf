@@ -134,8 +134,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
     if (polygons.size() == 1) {
       return POLYGON + polygons.get(0) + "))";
     } else {
-      return polygons
-          .stream()
+      return polygons.stream()
           .map(polygon -> "((" + polygon + "))")
           .collect(Collectors.joining(",", MULTIPOLYGON, ")"));
     }

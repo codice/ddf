@@ -178,8 +178,7 @@ public class AdaptedMetacard implements Metacard {
     if (Metacard.ID.equals(name)) {
       return this.idAttribute;
     }
-    return attributes
-        .stream()
+    return attributes.stream()
         .filter(Objects::nonNull)
         .filter(attr -> name.equals(attr.getName()))
         .findFirst()

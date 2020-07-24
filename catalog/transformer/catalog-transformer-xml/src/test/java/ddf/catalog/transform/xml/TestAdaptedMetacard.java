@@ -110,9 +110,7 @@ public class TestAdaptedMetacard {
     }
 
     List<Attribute> getAttributesThroughDescriptors() {
-      return getMetacardType()
-          .getAttributeDescriptors()
-          .stream()
+      return getMetacardType().getAttributeDescriptors().stream()
           .map(AttributeDescriptor::getName)
           .map(this::getAttribute)
           .collect(Collectors.toList());

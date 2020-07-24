@@ -107,8 +107,7 @@ public class SamlProtocolTest {
             .getIDPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
             .getSingleSignOnServices();
     assertTrue(
-        ssoServices
-            .stream()
+        ssoServices.stream()
             .filter(
                 service ->
                     service.getBinding().equals(REDIRECT_BINDING)
@@ -117,8 +116,7 @@ public class SamlProtocolTest {
             .isPresent());
 
     assertTrue(
-        ssoServices
-            .stream()
+        ssoServices.stream()
             .filter(
                 service ->
                     service.getBinding().equals(POST_BINDING)
@@ -127,8 +125,7 @@ public class SamlProtocolTest {
             .isPresent());
 
     assertTrue(
-        ssoServices
-            .stream()
+        ssoServices.stream()
             .filter(
                 service ->
                     service.getBinding().equals(SOAP_BINDING)
@@ -195,8 +192,7 @@ public class SamlProtocolTest {
             .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
             .getAssertionConsumerServices();
     assertTrue(
-        acServices
-            .stream()
+        acServices.stream()
             .filter(
                 service ->
                     service.getBinding().equals(REDIRECT_BINDING)
@@ -205,8 +201,7 @@ public class SamlProtocolTest {
             .isPresent());
 
     assertTrue(
-        acServices
-            .stream()
+        acServices.stream()
             .filter(
                 service ->
                     service.getBinding().equals(POST_BINDING)
@@ -215,8 +210,7 @@ public class SamlProtocolTest {
             .isPresent());
 
     assertTrue(
-        acServices
-            .stream()
+        acServices.stream()
             .filter(
                 service ->
                     service.getBinding().equals(PAOS_BINDING)

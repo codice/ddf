@@ -72,41 +72,37 @@ public abstract class DuplicateCommands extends CqlCommands {
   protected long start;
 
   @Option(
-    name = "--batchsize",
-    required = false,
-    aliases = {"-b"},
-    multiValued = false,
-    description =
-        "Number of Metacards to query and ingest at a time. Change this argument based on system memory and Catalog Provider limits."
-  )
+      name = "--batchsize",
+      required = false,
+      aliases = {"-b"},
+      multiValued = false,
+      description =
+          "Number of Metacards to query and ingest at a time. Change this argument based on system memory and Catalog Provider limits.")
   int batchSize = MAX_BATCH_SIZE;
 
   @Option(
-    name = "--multithreaded",
-    required = false,
-    aliases = {"-m"},
-    multiValued = false,
-    description =
-        "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation."
-  )
+      name = "--multithreaded",
+      required = false,
+      aliases = {"-m"},
+      multiValued = false,
+      description =
+          "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
   int multithreaded = 1;
 
   @Option(
-    name = "--failedDir",
-    required = false,
-    aliases = {"-f"},
-    multiValued = false,
-    description = "Option to specify where to write metacards that failed to ingest."
-  )
+      name = "--failedDir",
+      required = false,
+      aliases = {"-f"},
+      multiValued = false,
+      description = "Option to specify where to write metacards that failed to ingest.")
   String failedDir;
 
   @Option(
-    name = "--maxMetacards",
-    required = false,
-    aliases = {"-mm", "-max"},
-    multiValued = false,
-    description = "Option to specify a maximum amount of metacards to query."
-  )
+      name = "--maxMetacards",
+      required = false,
+      aliases = {"-mm", "-max"},
+      multiValued = false,
+      description = "Option to specify a maximum amount of metacards to query.")
   int maxMetacards;
 
   /**

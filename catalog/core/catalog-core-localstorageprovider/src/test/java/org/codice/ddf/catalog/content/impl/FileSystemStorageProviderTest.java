@@ -226,9 +226,7 @@ public class FileSystemStorageProviderTest {
     String id = createResponse.getCreatedContentItems().get(0).getId();
     DeleteStorageRequest deleteRequest =
         new DeleteStorageRequestImpl(
-            createResponse
-                .getCreatedContentItems()
-                .stream()
+            createResponse.getCreatedContentItems().stream()
                 .map(ContentItem::getMetacard)
                 .collect(Collectors.toList()),
             null);
@@ -352,9 +350,7 @@ public class FileSystemStorageProviderTest {
     String id = createResponse.getCreatedContentItems().get(0).getId();
     DeleteStorageRequest deleteRequest =
         new DeleteStorageRequestImpl(
-            createResponse
-                .getCreatedContentItems()
-                .stream()
+            createResponse.getCreatedContentItems().stream()
                 .map(ContentItem::getMetacard)
                 .collect(Collectors.toList()),
             null);
@@ -479,9 +475,7 @@ public class FileSystemStorageProviderTest {
     String id = createResponse.getCreatedContentItems().get(0).getId();
     DeleteStorageRequest deleteRequest =
         new DeleteStorageRequestImpl(
-            createResponse
-                .getCreatedContentItems()
-                .stream()
+            createResponse.getCreatedContentItems().stream()
                 .map(ContentItem::getMetacard)
                 .collect(Collectors.toList()),
             null);
@@ -553,9 +547,7 @@ public class FileSystemStorageProviderTest {
 
     DeleteStorageRequest deleteRequest =
         new DeleteStorageRequestImpl(
-            createResponse
-                .getCreatedContentItems()
-                .stream()
+            createResponse.getCreatedContentItems().stream()
                 .map(ContentItem::getMetacard)
                 .collect(Collectors.toList()),
             null);
@@ -597,9 +589,7 @@ public class FileSystemStorageProviderTest {
     String id = createResponse.getCreatedContentItems().get(0).getId();
     DeleteStorageRequest deleteRequest =
         new DeleteStorageRequestImpl(
-            createResponse
-                .getCreatedContentItems()
-                .stream()
+            createResponse.getCreatedContentItems().stream()
                 .map(ContentItem::getMetacard)
                 .collect(Collectors.toList()),
             null);

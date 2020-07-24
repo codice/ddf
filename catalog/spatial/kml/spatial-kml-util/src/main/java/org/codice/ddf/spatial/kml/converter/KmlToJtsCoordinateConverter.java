@@ -38,8 +38,7 @@ public class KmlToJtsCoordinateConverter {
     }
 
     List<org.locationtech.jts.geom.Coordinate> jtsCoordinates =
-        kmlCoordinates
-            .stream()
+        kmlCoordinates.stream()
             .filter(Objects::nonNull)
             .map(KmlToJtsCoordinateConverter::from)
             .collect(Collectors.toList());

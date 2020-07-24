@@ -37,10 +37,9 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = CatalogCommands.NAMESPACE,
-  name = "search",
-  description = "Searches records in the Catalog Provider."
-)
+    scope = CatalogCommands.NAMESPACE,
+    name = "search",
+    description = "Searches records in the Catalog Provider.")
 public class SearchCommand extends CqlCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchCommand.class);
@@ -58,22 +57,20 @@ public class SearchCommand extends CqlCommands {
   private static final int EXCERPT_MAX_LENGTH = 50;
 
   @Argument(
-    name = "NUMBER_OF_ITEMS",
-    description = "Number of maximum records to display.",
-    index = 1,
-    multiValued = false,
-    required = false
-  )
+      name = "NUMBER_OF_ITEMS",
+      description = "Number of maximum records to display.",
+      index = 1,
+      multiValued = false,
+      required = false)
   int numberOfItems = DEFAULT_NUMBER_OF_ITEMS;
 
   @Argument(
-    name = "SEARCH_PHRASE",
-    index = 0,
-    multiValued = false,
-    required = false,
-    description =
-        "Phrase to query the Catalog Provider. Will take precedence over --searchPhrase option."
-  )
+      name = "SEARCH_PHRASE",
+      index = 0,
+      multiValued = false,
+      required = false,
+      description =
+          "Phrase to query the Catalog Provider. Will take precedence over --searchPhrase option.")
   String searchPhraseArgument = WILDCARD;
 
   @Override

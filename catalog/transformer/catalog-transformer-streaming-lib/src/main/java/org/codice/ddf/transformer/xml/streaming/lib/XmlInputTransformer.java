@@ -79,8 +79,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      * Gets new instances of each SaxEventHandler denoted in saxEventHandlerConfiguration
      */
     List<SaxEventHandler> filteredSaxEventHandlers =
-        saxEventHandlerFactories
-            .stream()
+        saxEventHandlerFactories.stream()
             .filter(p -> saxEventHandlerConfiguration.contains(p.getId()))
             .map(SaxEventHandlerFactory::getNewSaxEventHandler)
             .collect(Collectors.toList());

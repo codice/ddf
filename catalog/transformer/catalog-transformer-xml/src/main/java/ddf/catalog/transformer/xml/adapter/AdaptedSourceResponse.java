@@ -42,9 +42,8 @@ import org.slf4j.LoggerFactory;
 /** @see http://stackoverflow.com/a/11967459 */
 @XmlRootElement(name = "metacards", namespace = "urn:catalog:metacard")
 @XmlType(
-  name = "",
-  propOrder = {"metacard"}
-)
+    name = "",
+    propOrder = {"metacard"})
 @XmlAccessorType(XmlAccessType.NONE)
 public class AdaptedSourceResponse implements SourceResponse {
 
