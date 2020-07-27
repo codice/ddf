@@ -136,14 +136,17 @@ module.exports = PartialAssociatedModel.extend({
         .length === 0
     ) {
       this.set('saved', false)
+      this.set('metacard.modified', Date.now())
     }
   },
   handleQueryChange() {
     this.set('saved', false)
+    this.set('metacard.modified', Date.now())
   },
   handleChange(model) {
     if (workspaceShouldBeResaved(model)) {
       this.set('saved', false)
+      this.set('metacard.modified', Date.now())
     }
   },
   saveLocal(options) {
