@@ -271,11 +271,20 @@ module.exports = Marionette.LayoutView.extend({
   addVisualizationTab() {
     if (
       this.goldenLayout.root.contentItems.length === 0 ||
-      this.goldenLayout.container.find('#addVis').length
+      this.goldenLayout.container
+        .find('.lm_tabs')
+        .first()
+        .find('#addVis').length
     ) {
       return
     }
-    this.goldenLayout.container.find('.lm_tabs').append(getTabContainer())
+    if (this.goldenLayout.container.find('#addVis').length) {
+      this.goldenLayout.container.find('#addVis').remove()
+    }
+    this.goldenLayout.container
+      .find('.lm_tabs')
+      .first()
+      .append(getTabContainer())
     this.regionManager.addRegion('vis', '#vis').show(
       new VisualizationDropdown({
         model: new DropdownModel(),

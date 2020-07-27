@@ -312,20 +312,14 @@
     .to-toggle-size:hover > span {
       opacity: 1;
     }
-
-    .to-add .dropdown-label {
-      display: none;
-    }
-
-    .to-toggle-size,
-    .to-add {
+    .to-toggle-size {
       background: inherit;
       .dropshadow;
     }
   }
 
   > .golden-layout-container {
-    height: ~'calc(99.5%)';
+    height: ~'calc(100%)';
   }
 }
 
@@ -338,15 +332,9 @@
   .empty-add-visualization {
     display: block;
     width: @minimumButtonSize;
-  }
-}
-
-//interim styles (delete me later, after we add layout switching etc.)
-@{customElementNamespace}golden-layout.is-minimised {
-  > .golden-layout-toolbar {
-    .to-add .dropdown-label {
-      display: inline !important;
-    }
+    position: absolute;
+    left: 0;
+    top: 0;
   }
 }
 
