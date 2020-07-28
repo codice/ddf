@@ -20,8 +20,7 @@
 
     <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
     <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
-    <reference id="security" interface="org.codice.ddf.security.Security" />
-    <reference id="securityManager" interface="ddf.security.service.SecurityManager" />
+    <reference id="security" interface="org.codice.ddf.security.Security"/>
     <reference id="permissions" interface="ddf.security.permission.Permissions"/>
 
     <bean id="CswResourceComparator"
@@ -231,7 +230,6 @@
         <argument ref="cswFilterFactory"/>
         <argument ref="clientBuilderFactory"/>
         <argument ref="security"/>
-        <argument ref="securityManager" />
     </bean>
 
     <service ref="ddf.catalog.endpoint.csw" interface="ddf.catalog.endpoint.CatalogEndpoint"/>

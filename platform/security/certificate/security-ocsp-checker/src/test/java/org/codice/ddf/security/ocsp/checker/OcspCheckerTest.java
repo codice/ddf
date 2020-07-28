@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
 import ddf.security.audit.SecurityLogger;
+import ddf.security.service.SecurityManager;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -150,7 +151,10 @@ public class OcspCheckerTest {
 
     ClientBuilder<WebClient> clientBuilder =
         new ClientBuilderImpl<WebClient>(
-            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+            mock(OAuthSecurity.class),
+            mock(SamlSecurity.class),
+            mock(SecurityLogger.class),
+            mock(SecurityManager.class)) {
           @Override
           public SecureCxfClientFactory<WebClient> build() {
             if (inGoodList.matches(endpointUrl)) {

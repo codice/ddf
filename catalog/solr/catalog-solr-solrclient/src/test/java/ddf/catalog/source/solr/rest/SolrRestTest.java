@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.service.SecurityManager;
 import java.util.HashMap;
 import java.util.Map;
 import org.codice.ddf.cxf.client.ClientBuilder;
@@ -44,7 +45,10 @@ public class SolrRestTest {
     SecureCxfClientFactory secureCxfClientFactory = mock(SecureCxfClientFactory.class);
     ClientBuilder clientBuilder =
         new ClientBuilderImpl(
-            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+            mock(OAuthSecurity.class),
+            mock(SamlSecurity.class),
+            mock(SecurityLogger.class),
+            mock(SecurityManager.class)) {
           @Override
           public SecureCxfClientFactory build() {
             return secureCxfClientFactory;

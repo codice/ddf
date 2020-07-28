@@ -24,6 +24,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.audit.SecurityLogger;
+import ddf.security.service.SecurityManager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -80,6 +81,8 @@ public class SecureCxfClientFactoryTest {
 
   private SecurityLogger securityLogger = mock(SecurityLogger.class);
 
+  private SecurityManager securityManager = mock(SecurityManager.class);
+
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
@@ -114,7 +117,7 @@ public class SecureCxfClientFactoryTest {
     boolean invalid = false;
     try { // null for url
       secureCxfClientFactory =
-          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger, securityManager)
               .endpoint(null)
               .interfaceClass(IDummy.class)
               .build();
@@ -125,7 +128,7 @@ public class SecureCxfClientFactoryTest {
     invalid = false;
     try { // null for url and class
       secureCxfClientFactory =
-          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger, securityManager)
               .endpoint(null)
               .interfaceClass(null)
               .build();
@@ -136,7 +139,7 @@ public class SecureCxfClientFactoryTest {
     invalid = false;
     try { // null for class
       secureCxfClientFactory =
-          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger, securityManager)
               .endpoint(insecureEndpoint)
               .interfaceClass(null)
               .build();
@@ -147,7 +150,7 @@ public class SecureCxfClientFactoryTest {
     invalid = false;
     try {
       secureCxfClientFactory =
-          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+          new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger, securityManager)
               .endpoint(null)
               .interfaceClass(null)
               .entityProviders(null)
@@ -168,7 +171,7 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testInsecureWebClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger, securityManager)
             .endpoint(insecureEndpoint)
             .interfaceClass(IDummy.class)
             .build();
@@ -181,7 +184,7 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testSecureClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger, securityManager)
             .endpoint(secureEndpoint)
             .interfaceClass(IDummy.class)
             .useSamlEcp(true)
@@ -194,7 +197,7 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testSecureWebClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger, securityManager)
             .endpoint(secureEndpoint)
             .interfaceClass(IDummy.class)
             .useSamlEcp(true)
@@ -208,7 +211,7 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void validateConduit() {
     IDummy clientForSubject =
-        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger, securityManager)
             .endpoint(secureEndpoint)
             .interfaceClass(IDummy.class)
             .entityProviders(null)
@@ -227,7 +230,7 @@ public class SecureCxfClientFactoryTest {
     PropertyResolver mockPropertyResolver = mock(PropertyResolver.class);
     when(mockPropertyResolver.getResolvedString()).thenReturn(secureEndpoint.toString());
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
+        new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger, securityManager)
             .endpoint(secureEndpoint)
             .interfaceClass(IDummy.class)
             .entityProviders(null)
