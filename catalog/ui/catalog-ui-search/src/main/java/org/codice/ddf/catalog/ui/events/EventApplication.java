@@ -44,7 +44,7 @@ public class EventApplication implements SparkApplication {
           try {
             String sourceId = req.params(":id");
             if (listeners.size() >= 5) {
-              notifyListener(sourceId, EventType.CLOSE);
+              notifyListener(sourceId, new EventType("CLOSE"));
               res.status(429);
               return "Too many HTTP connections - cannot create new Event Source";
             }
@@ -60,7 +60,7 @@ public class EventApplication implements SparkApplication {
               out.flush();
               Thread.sleep(15000);
             }
-            notifyListener(sourceId, EventType.CLOSE);
+            notifyListener(sourceId, new EventType("CLOSE"));
             listeners.remove(sourceId);
             return "Event Source connection closed";
           } catch (Exception e) {
@@ -88,7 +88,32 @@ public class EventApplication implements SparkApplication {
                 .values()
                 .forEach(
                     (listener) -> {
-                      listener.write("event: " + type.identifier() + "\n");
+                      listener.write("event: " + type.getType() + "\n");
+                      listener.write("data" + HEARTBEAT);
+                      listener.flush();
+                    });
+          }
+        });
+  }
+
+  public static void notifyListeners(String type) {
+    ExecutorService es = Executors.newSingleThreadExecutor();
+    es.submit(
+        () -> {
+          try {
+            Thread.sleep(3000);
+          } catch (InterruptedException e) {
+            LOGGER.error("Event Source notification error");
+          }
+        });
+    es.submit(
+        () -> {
+          synchronized (listeners) {
+            listeners
+                .values()
+                .forEach(
+                    (listener) -> {
+                      listener.write("event: " + type + "\n");
                       listener.write("data" + HEARTBEAT);
                       listener.flush();
                     });
@@ -108,7 +133,7 @@ public class EventApplication implements SparkApplication {
         });
     es.submit(
         () -> {
-          listeners.get(id).write("event: " + type.identifier() + "\n");
+          listeners.get(id).write("event: " + type.getType() + "\n");
           listeners.get(id).write("data" + HEARTBEAT);
           listeners.get(id).flush();
         });

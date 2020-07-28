@@ -1,6 +1,7 @@
 export enum EventType {
-  SearchForm = 'searchform',
-  ResultForm = 'resultform',
-  Workspace = 'workspace',
-  Close = 'close',
+  SearchForm = 'SEARCHFORM',
+  ResultForm = 'RESULTFORM',
+  Workspace = 'WORKSPACE',
+  Close = 'CLOSE',
+  Unknown = 'UNKNOWN',
 }

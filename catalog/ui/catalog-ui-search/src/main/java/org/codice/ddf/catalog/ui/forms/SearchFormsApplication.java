@@ -228,8 +228,8 @@ public class SearchFormsApplication implements SparkApplication {
         "/forms/:id",
         APPLICATION_JSON,
         (req, res) -> {
-          EventApplication.notifyListeners(EventType.SEARCHFORM);
-          EventApplication.notifyListeners(EventType.RESULTFORM);
+          EventApplication.notifyListeners(new EventType("SEARCHFORM"));
+          EventApplication.notifyListeners(new EventType("RESULTFORM"));
           String id = req.params(":id");
           DeleteResponse deleteResponse = catalogFramework.delete(new DeleteRequestImpl(id));
           if (!deleteResponse.getProcessingErrors().isEmpty()) {

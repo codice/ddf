@@ -36,6 +36,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.ByteSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.content.data.ContentItem;
@@ -117,6 +118,7 @@ import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.enumeration.ExperimentalEnumerationExtractor;
 import org.codice.ddf.catalog.ui.events.EventApplication;
 import org.codice.ddf.catalog.ui.events.EventType;
+import org.codice.ddf.catalog.ui.events.EventTypeDeserializer;
 import org.codice.ddf.catalog.ui.metacard.associations.Associated;
 import org.codice.ddf.catalog.ui.metacard.edit.AttributeChange;
 import org.codice.ddf.catalog.ui.metacard.edit.MetacardChanges;
@@ -181,6 +183,7 @@ public class MetacardApplication implements SparkApplication {
           .serializeNulls()
           .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
           .registerTypeAdapter(Date.class, new DateLongFormatTypeAdapter())
+          .registerTypeAdapter(EventType.class, new EventTypeDeserializer())
           .create();
 
   private final CatalogFramework catalogFramework;
@@ -342,6 +345,10 @@ public class MetacardApplication implements SparkApplication {
                 EventType type = change.getType();
                 if (type != null) {
                   EventApplication.notifyListeners(type);
+                } else {
+                  String unknownType =
+                      new Gson().fromJson(body, JsonObject.class).get("type").getAsString();
+                  EventApplication.notifyListeners(unknownType);
                 }
               });
           UpdateResponse updateResponse = patchMetacards(metacardChanges, getSubjectIdentifier());
@@ -626,7 +633,7 @@ public class MetacardApplication implements SparkApplication {
           catalogFramework.delete(new DeleteRequestImpl(id));
 
           subscriptions.removeSubscriptions(id);
-          EventApplication.notifyListeners(EventType.WORKSPACE);
+          EventApplication.notifyListeners(new EventType("WORKSPACE"));
           return ImmutableMap.of("message", "Successfully deleted.");
         },
         util::getJson);
@@ -1177,32 +1184,6 @@ public class MetacardApplication implements SparkApplication {
     final QueryMetacardImpl queryMetacard = new QueryMetacardImpl();
     transformer.transformIntoMetacard(queryJson, queryMetacard);
     return queryMetacard;
-  }
-
-  private void notifyAllListeners() {
-    ExecutorService es = Executors.newSingleThreadExecutor();
-    es.submit(
-        () -> {
-          try {
-            // currently 3 sec. will adjust to ~1 sec. later
-            Thread.sleep(3000);
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
-        });
-    es.submit(
-        () -> {
-          synchronized (listeners) {
-            listeners.forEach(
-                (listener) -> {
-                  JSONObject data = new JSONObject();
-                  data.put("data", "id=1234");
-                  data.put("type", "search");
-                  listener.write(data + "\n");
-                  listener.flush();
-                });
-          }
-        });
   }
 
   private static class ByteSourceWrapper extends ByteSource {

@@ -117,7 +117,7 @@ const handleSave = (attributes: any, id: number, type: EventType) => {
       {
         ids: [id],
         attributes: attributes,
-        type: 'result',
+        type: type,
       },
     ]),
   })

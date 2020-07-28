@@ -13,25 +13,35 @@
  */
 package org.codice.ddf.catalog.ui.events;
 
-import com.google.gson.annotations.SerializedName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public enum EventType {
-  @SerializedName("resultform")
-  RESULTFORM("resultform"),
-  @SerializedName("searchform")
-  SEARCHFORM("searchform"),
-  @SerializedName("workspace")
-  WORKSPACE("workspace"),
-  @SerializedName("close")
-  CLOSE("close");
+public class EventType {
 
-  private final String id;
+  private static final Logger LOGGER = LoggerFactory.getLogger(EventType.class);
 
-  EventType(String id) {
-    this.id = id;
+  enum BaseEventType {
+    RESULTFORM,
+    SEARCHFORM,
+    WORKSPACE,
+    CLOSE,
+    UNKNOWN;
   }
 
-  public String identifier() {
-    return this.id;
+  private final String id;
+  private BaseEventType type;
+
+  public EventType(String id) {
+    this.id = id;
+    try {
+      type = BaseEventType.valueOf(id);
+    } catch (IllegalArgumentException ex) {
+      LOGGER.trace("UNKNOWN EVENT SOURCE EVENT TYPE");
+      type = BaseEventType.UNKNOWN;
+    }
+  }
+
+  public String getType() {
+    return type != BaseEventType.UNKNOWN ? type.name() : id;
   }
 }
