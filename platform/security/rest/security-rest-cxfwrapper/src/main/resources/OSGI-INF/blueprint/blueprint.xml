@@ -16,7 +16,7 @@
 
     <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
 
-    <reference id="securityManager" interface="org.codice.ddf.security.service.SecurityManager"/>
+    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
     <reference id="tokenStore" interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
 

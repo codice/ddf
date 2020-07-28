@@ -154,7 +154,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
               .interfaceClass(CswSubscribe.class)
               .entityProviders(providers)
               .useSamlEcp(true)
-              .useSubjectRetrievalInterceptor(true)
+              .useSubjectRetrievalInterceptor()
               .build();
     } catch (URISyntaxException e) {
       throw new IllegalArgumentException(e);

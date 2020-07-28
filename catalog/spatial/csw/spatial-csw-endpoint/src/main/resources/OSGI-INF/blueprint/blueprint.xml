@@ -20,7 +20,7 @@
 
     <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
     <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
-    <reference id="security" interface="org.codice.ddf.security.Security" />
+    <reference id="security" interface="org.codice.ddf.security.Security"/>
     <reference id="permissions" interface="ddf.security.permission.Permissions"/>
 
     <bean id="CswResourceComparator"
