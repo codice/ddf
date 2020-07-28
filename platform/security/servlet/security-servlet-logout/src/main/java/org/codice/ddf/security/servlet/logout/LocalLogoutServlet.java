@@ -26,9 +26,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.token.storage.api.TokenStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,16 +38,12 @@ public class LocalLogoutServlet extends HttpServlet {
 
   private final TokenStorage tokenStorage;
 
-  private final String redirectUri;
+  private String redirectUrl;
 
   private final SecurityLogger securityLogger;
 
-  public LocalLogoutServlet(
-      final TokenStorage tokenStorage,
-      final String redirectUri,
-      final SecurityLogger securityLogger) {
+  public LocalLogoutServlet(final TokenStorage tokenStorage, final SecurityLogger securityLogger) {
     this.tokenStorage = tokenStorage;
-    this.redirectUri = redirectUri;
     this.securityLogger = securityLogger;
   }
 
@@ -56,22 +52,36 @@ public class LocalLogoutServlet extends HttpServlet {
     response.setHeader("Cache-Control", "no-cache, no-store");
     response.setHeader("Pragma", "no-cache");
     response.setContentType("text/html");
-
+    String redirectUrlMessage = "";
     invalidateSession(request, response);
+    try {
+      redirectUrlMessage = getRedirectUrlMessage();
+      response.setStatus(HttpServletResponse.SC_OK);
+    } catch (URISyntaxException e) {
+      LOGGER.debug(
+          "Invalid URL of {} set for logout redirect URL. Users will not be redirected to {} upon logout.",
+          redirectUrl,
+          redirectUrl,
+          e);
+      response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+    }
 
     try {
-      URIBuilder redirectUrlBuilder =
-          new URIBuilder(SystemBaseUrl.EXTERNAL.constructUrl(redirectUri));
-      redirectUrlBuilder.addParameter("mustCloseBrowser", "true");
-
-      response.sendRedirect(redirectUrlBuilder.build().toString());
-    } catch (URISyntaxException e) {
-      LOGGER.debug("Invalid URI: ", e);
-      response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+      response.sendRedirect(redirectUrlMessage);
     } catch (IOException e) {
       LOGGER.warn("Unable to redirect to logout page.", e);
       response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
     }
+  }
+
+  private String getRedirectUrlMessage() throws URISyntaxException {
+    String redirectUrlMessage = "";
+    if (Strings.isNotBlank(redirectUrl)) {
+      URIBuilder redirectUrlBuilder = new URIBuilder(redirectUrl);
+      redirectUrlBuilder.addParameter("mustCloseBrowser", "true");
+      redirectUrlMessage = redirectUrlBuilder == null ? "" : redirectUrlBuilder.build().toString();
+    }
+    return redirectUrlMessage;
   }
 
   private void invalidateSession(HttpServletRequest request, HttpServletResponse response) {
@@ -110,5 +120,9 @@ public class LocalLogoutServlet extends HttpServlet {
   /** Removes OAuth tokens stored for the given session */
   private void removeTokens(String sessionId) {
     tokenStorage.delete(sessionId);
+  }
+
+  public void setRedirectUrl(String redirectUrl) {
+    this.redirectUrl = redirectUrl;
   }
 }

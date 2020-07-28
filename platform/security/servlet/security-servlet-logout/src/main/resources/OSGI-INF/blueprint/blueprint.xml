@@ -36,6 +36,7 @@
     <service ref="logoutService" interface="org.codice.ddf.security.logout.service.LogoutService"/>
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
+    
 
     <service interface="javax.servlet.Servlet">
         <service-properties>
@@ -46,10 +47,10 @@
             <argument>
                 <reference interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
             </argument>
-            <argument value="/logout/logout-response.html"/>
             <argument>
                 <reference interface="ddf.security.audit.SecurityLogger"/>
             </argument>
+            <property name="redirectUrl" value="/logout/logout-response.html"/>
         </bean>
     </service>
 

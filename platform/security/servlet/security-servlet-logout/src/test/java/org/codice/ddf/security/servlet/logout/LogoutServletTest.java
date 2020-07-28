@@ -33,6 +33,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.security.token.storage.api.TokenStorage;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,7 +51,7 @@ public class LogoutServletTest {
   @Before
   public void testsetup() throws Exception {
     localLogoutServlet =
-        new MockLocalLogoutServlet(mock(TokenStorage.class), "/logout", mock(SecurityLogger.class));
+        new MockLocalLogoutServlet(mock(TokenStorage.class), mock(SecurityLogger.class));
     request = mock(HttpServletRequest.class);
     response = mock(HttpServletResponse.class);
     printWriter = mock(PrintWriter.class);
@@ -68,16 +69,48 @@ public class LogoutServletTest {
     System.setProperty("security.audit.roles", "none");
   }
 
+  @After
+  public void cleanup() {
+    localLogoutServlet.setRedirectUrl("");
+  }
+
   @Test
   public void testLocalLogout() throws Exception {
     PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(principalHolderMock);
 
+    localLogoutServlet.setRedirectUrl("/logout");
     localLogoutServlet.doGet(request, response);
 
     verify(httpSession).invalidate();
-    verify(response).sendRedirect("https://localhost:8993/logout?mustCloseBrowser=true");
+    verify(response).sendRedirect("/logout?mustCloseBrowser=true");
+  }
+
+  @Test
+  public void testLocalLogoutRedirectUrl() throws Exception {
+    PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
+    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
+        .thenReturn(principalHolderMock);
+
+    localLogoutServlet.setRedirectUrl("https://www.redirectUrlAddress.com");
+    localLogoutServlet.doGet(request, response);
+
+    verify(httpSession).invalidate();
+    verify(response).sendRedirect("https://www.redirectUrlAddress.com?mustCloseBrowser=true");
+  }
+
+  @Test
+  public void testLocalLogoutInvalidRedirectUrl() throws Exception {
+    PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
+    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
+        .thenReturn(principalHolderMock);
+
+    localLogoutServlet.setRedirectUrl("/redirect    UrlAddress");
+    localLogoutServlet.doGet(request, response);
+
+    verify(httpSession).invalidate();
+    verify(response).sendRedirect("");
   }
 
   @Test()
@@ -125,10 +158,8 @@ public class LogoutServletTest {
   private class MockLocalLogoutServlet extends LocalLogoutServlet {
 
     public MockLocalLogoutServlet(
-        final TokenStorage tokenStorage,
-        final String redirectUri,
-        final SecurityLogger securityLogger) {
-      super(tokenStorage, redirectUri, securityLogger);
+        final TokenStorage tokenStorage, final SecurityLogger securityLogger) {
+      super(tokenStorage, securityLogger);
     }
 
     @Override
