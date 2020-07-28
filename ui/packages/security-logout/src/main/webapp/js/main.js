@@ -63,6 +63,9 @@ async function logout(actions) {
 
   if (localLogoutAction) {
     const response = await $.ajax(localLogoutAction.url)
+    if (response.redirectUrl && response.redirectUrl != '') {
+      window.location.href = response.redirectUrl
+    }
     if (response.mustCloseBrowser === true) {
       $('#close-browser-msg').show()
       return
