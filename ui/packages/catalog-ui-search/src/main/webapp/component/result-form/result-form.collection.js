@@ -44,13 +44,13 @@ module.exports = Backbone.AssociatedModel.extend({
   initialize() {
     const getForms = () => {
       if (promiseIsResolved === true) {
-        self.addResultForms()
+        this.addResultForms()
         promiseIsResolved = false
         bootstrapPromise = new resultTemplatePromise()
       }
       bootstrapPromise.then(() => {
-        self.addResultForms()
-        self.doneLoading()
+        this.addResultForms()
+        this.doneLoading()
       })
     }
 
