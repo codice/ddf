@@ -152,7 +152,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
             .interfaceClass(CswSubscribe.class)
             .entityProviders(providers)
             .useSamlEcp(true)
-            .useSubjectRetrievalInterceptor(true)
+            .useSubjectRetrievalInterceptor()
             .build();
     try {
       InetAddress address = InetAddress.getByName(callbackUrl.getHost());
