@@ -20,12 +20,13 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 import javax.servlet.Filter;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilter;
 import org.junit.Test;
 
-public class DelegateServletFilterTest {
+public class DelegatingSecurityFilterTest {
 
   @Test
   public void testDelegateFilter() throws Exception {
@@ -36,13 +37,14 @@ public class DelegateServletFilterTest {
 
     doAnswer(
             invocationOnMock -> {
-              ((FilterChain) invocationOnMock.getArgument(2)).doFilter(request, response);
+              ((javax.servlet.FilterChain) invocationOnMock.getArgument(2))
+                  .doFilter(request, response);
               return null;
             })
         .when(filter)
         .doFilter(any(), any(), any());
 
-    Filter underTest = new DelegateServletFilter(Collections.singletonList(filter));
+    SecurityFilter underTest = new DelegatingSecurityFilter(Collections.singletonList(filter));
 
     underTest.doFilter(request, response, chain);
 

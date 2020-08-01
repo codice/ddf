@@ -35,11 +35,8 @@ public class ProxyFilterChain implements FilterChain {
 
   private final Iterator<Filter> iterator;
 
-  private final FilterChain chain;
-
-  public ProxyFilterChain(List<Filter> filters, FilterChain chain) {
+  public ProxyFilterChain(List<Filter> filters) {
     iterator = filters.iterator();
-    this.chain = chain;
   }
 
   @Override
@@ -54,8 +51,6 @@ public class ProxyFilterChain implements FilterChain {
           servletResponse,
           this);
       filter.doFilter(servletRequest, servletResponse, this);
-    } else {
-      chain.doFilter(servletRequest, servletResponse);
     }
   }
 }
