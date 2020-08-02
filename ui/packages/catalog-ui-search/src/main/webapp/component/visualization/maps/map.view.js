@@ -154,6 +154,7 @@ const View = Marionette.LayoutView.extend({
   mapModel: undefined,
   hasLoadedMap: false,
   initialize(options) {
+    this.showResultFilter = options.showResultFilter === undefined || options.showResultFilter
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
@@ -458,7 +459,7 @@ const View = Marionette.LayoutView.extend({
       .get('user')
       .get('preferences')
       .get('resultFilter')
-    if (resultFilter) {
+    if (resultFilter && this.showResultFilter) {
       this.handleFilter(
         CQLUtils.transformCQLToFilter(
           CQLUtils.transformFilterToCQL(resultFilter)
