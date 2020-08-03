@@ -77,7 +77,7 @@ class TimeSettingsPresentation extends React.Component<Props, {}> {
         <MarionetteRegionContainer view={this.timeZoneView} />
         <MarionetteRegionContainer view={this.timeFormatView} />
         <Time>
-          <TimeLabel>Current Time (example)</TimeLabel>
+          <TimeLabel>Example Time</TimeLabel>
           <TimeValue>{this.props.currentTime}</TimeValue>
         </Time>
       </Root>
