@@ -33,6 +33,7 @@ type Props = {
 
 type State = {
   propertyModel: any
+  regionComponentKey: number
 }
 
 export default hot(module)(
@@ -48,7 +49,10 @@ export default hot(module)(
           isEditing: true,
         })
 
-        this.state = { propertyModel: propertyModel }
+        this.state = {
+          propertyModel: propertyModel,
+          regionComponentKey: Math.random(),
+        }
       }
       componentDidMount() {
         if (this.props.onChange !== undefined) {
@@ -63,6 +67,7 @@ export default hot(module)(
         if (nextProps.value !== this.props.value) {
           this.state.propertyModel &&
             this.state.propertyModel.setValue([nextProps.value])
+          this.setState({ regionComponentKey: Math.random() }) //Forces re-render of the MarionetteRegionContainer
         }
       }
       onChange() {
@@ -71,11 +76,9 @@ export default hot(module)(
         }
       }
       render() {
-        //Forces re-render otherwise the region doesn't get replaced because the view doesn't change
-        const Container = class extends MarionetteRegionContainer {}
-
         return (
-          <Container
+          <MarionetteRegionContainer
+            key={this.state.regionComponentKey}
             view={PropertyView}
             viewOptions={() => ({
               model: this.state.propertyModel,
