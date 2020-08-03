@@ -76,7 +76,12 @@ const ThemeCustom = styled.div`
 `
 
 const saveFontChanges = (fontSize: string) => {
-  getPreferences().set('fontSize', ThemeUtils.getFontSize(fontSize))
+  getPreferences().set(
+    'fontSize',
+    ThemeUtils.getFontSize(
+      ThemeUtils.getCalculatedZoomScale(fontSize, 1, 100, 62, 200)
+    )
+  )
 }
 
 const saveSpacingChanges = (spacingMode: string) => {
@@ -189,8 +194,8 @@ class ThemeSettings extends React.Component<
         isEditing: true,
         label: 'Zoom Percentage',
         value: [themeScale],
-        min: 62,
-        max: 200,
+        min: 1,
+        max: 100,
         units: '%',
         type: 'RANGE',
       }),

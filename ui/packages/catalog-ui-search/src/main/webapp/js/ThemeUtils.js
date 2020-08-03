@@ -18,6 +18,12 @@ module.exports = {
     return (percentage * 16) / 100
   },
   getZoomScale(fontSize) {
-    return Math.floor(100 * (fontSize / 16))
+    let value = 100 * (fontSize / 16)
+    return Math.floor(this.getCalculatedZoomScale(value, 62, 200, 1, 100))
+  },
+  getCalculatedZoomScale(value, oldMin, oldMax, newMin, newMax) {
+    let percent = (value - oldMin) / (oldMax - oldMin)
+    let adjustedValue = percent * (newMax - newMin) + newMin
+    return adjustedValue
   },
 }
