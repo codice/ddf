@@ -43,6 +43,9 @@ Prior to installing ${branding}, ensure the system time is accurate to prevent f
 
 === Quick Install of ${branding}
 
+WARNING: The ${branding} installation will not succeed unless SolrCloud is running.
+See <<_quick_install_of_solrcloud>> for instructions.
+
 . Download the ${branding} {download-url}[zip file] {external-link}.
 . Install ${branding} by unzipping the zip file.
 +
