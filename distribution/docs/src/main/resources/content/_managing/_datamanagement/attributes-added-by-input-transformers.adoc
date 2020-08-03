@@ -21,6 +21,5 @@ If no transformer can successfully transform the resource, the ingest process fa
 
 [IMPORTANT]
 ====
-Each of the ingest methods have their own subtle differences when resolving the resource's mimetype/input transformer. +
-For example: a resource ingested through Intrigue may not produce the same metacard attributes as the same resource ingested through the Content Directory Monitor.
+Each of the ingest methods may have subtle differences when resolving the resource's mimetype/input transformer.
 ====

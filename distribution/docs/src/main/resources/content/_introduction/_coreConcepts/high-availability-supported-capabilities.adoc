@@ -10,9 +10,8 @@
 Only these capabilities are supported in a Highly Available Cluster.
 For a detailed list of features, look at the `ha.json` file located in `${home_directory}/etc/profiles/`.
 
-* User Interfaces:
+* User Interface:
 ** Simple
-** Intrigue
 * Catalog:
 ** Validation
 ** Plug-ins: Expiration Date, JPEG2000, Metacard Validation, Schematron, Versioning
