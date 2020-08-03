@@ -47,6 +47,10 @@ public class TransformerManagerTest {
 
   private static final String SCHEMA_B = "urn:example:schema:B";
 
+  private static final String SCHEMA_LOCATION_A = "schema/locationA";
+
+  private static final String SCHEMA_LOCATION_B = "schema/locationB";
+
   private static BundleContext mockContext = mock(BundleContext.class);
 
   private static class MockTransformerManager extends TransformerManager {
@@ -69,19 +73,27 @@ public class TransformerManagerTest {
     when(serviceRefA.getPropertyKeys())
         .thenReturn(
             new String[] {
-              TransformerManager.ID, TransformerManager.SCHEMA, TransformerManager.MIME_TYPE
+              TransformerManager.ID,
+              TransformerManager.SCHEMA,
+              TransformerManager.MIME_TYPE,
+              TransformerManager.SCHEMA_LOCATION
             });
     when(serviceRefA.getProperty(TransformerManager.ID)).thenReturn(ID_A);
     when(serviceRefA.getProperty(TransformerManager.MIME_TYPE)).thenReturn(MIME_TYPE_A);
     when(serviceRefA.getProperty(TransformerManager.SCHEMA)).thenReturn(SCHEMA_A);
+    when(serviceRefA.getProperty(TransformerManager.SCHEMA_LOCATION)).thenReturn(SCHEMA_LOCATION_A);
     when(serviceRefB.getPropertyKeys())
         .thenReturn(
             new String[] {
-              TransformerManager.ID, TransformerManager.SCHEMA, TransformerManager.MIME_TYPE
+              TransformerManager.ID,
+              TransformerManager.SCHEMA,
+              TransformerManager.MIME_TYPE,
+              TransformerManager.SCHEMA_LOCATION
             });
     when(serviceRefB.getProperty(TransformerManager.ID)).thenReturn(ID_B);
     when(serviceRefB.getProperty(TransformerManager.MIME_TYPE)).thenReturn(MIME_TYPE_B);
     when(serviceRefB.getProperty(TransformerManager.SCHEMA)).thenReturn(SCHEMA_B);
+    when(serviceRefB.getProperty(TransformerManager.SCHEMA_LOCATION)).thenReturn(SCHEMA_LOCATION_B);
     serviceReferences.add(serviceRefA);
     serviceReferences.add(serviceRefB);
 
@@ -103,6 +115,12 @@ public class TransformerManagerTest {
   }
 
   @Test
+  public void testGetAvailableIds() throws Exception {
+    List<String> schemas = manager.getAvailableIds();
+    assertThat(schemas, hasItems(ID_A, ID_B));
+  }
+
+  @Test
   public void testGetTransformerBySchema() throws Exception {
     assertThat(manager.getTransformerBySchema(SCHEMA_A), is(transformerA));
     assertThat(manager.getTransformerBySchema(SCHEMA_B), is(transformerB));
@@ -112,6 +130,26 @@ public class TransformerManagerTest {
   public void testGetTransformerByMimeType() throws Exception {
     assertThat(manager.getTransformerByMimeType(MIME_TYPE_A), is(transformerA));
     assertThat(manager.getTransformerByMimeType(MIME_TYPE_B), is(transformerB));
+  }
+
+  @Test
+  public void testGetTransformerById() throws Exception {
+    assertThat(manager.getTransformerById(ID_A), is(transformerA));
+    assertThat(manager.getTransformerById(ID_B), is(transformerB));
+  }
+
+  @Test
+  public void testGetTransformerByNullValue() throws Exception {
+    assertThat(manager.getTransformerByMimeType(null), is((String) null));
+    assertThat(manager.getTransformerBySchema(null), is((String) null));
+    assertThat(manager.getTransformerById(null), is((String) null));
+  }
+
+  @Test
+  public void testGetTransformerByInvalidValue() throws Exception {
+    assertThat(manager.getTransformerByMimeType("abc123"), is((String) null));
+    assertThat(manager.getTransformerBySchema("abc123"), is((String) null));
+    assertThat(manager.getTransformerById("abc123"), is((String) null));
   }
 
   @Test
@@ -134,5 +172,16 @@ public class TransformerManagerTest {
   @Test
   public void testGetTransformerIdForInvalidSchema() throws Exception {
     assertThat(manager.getTransformerIdForSchema("abc123"), is(""));
+  }
+
+  @Test
+  public void testGetTransformerSchemaLocationForId() throws Exception {
+    assertThat(manager.getTransformerSchemaLocationForId(ID_A), is(SCHEMA_LOCATION_A));
+    assertThat(manager.getTransformerSchemaLocationForId(ID_B), is(SCHEMA_LOCATION_B));
+  }
+
+  @Test
+  public void testGetTransformerSchemaLocationForInvalidId() throws Exception {
+    assertThat(manager.getTransformerSchemaLocationForId("abc123"), is(""));
   }
 }

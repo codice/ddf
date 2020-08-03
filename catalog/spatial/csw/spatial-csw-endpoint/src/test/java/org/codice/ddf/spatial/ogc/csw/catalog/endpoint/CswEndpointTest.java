@@ -175,6 +175,15 @@ public class CswEndpointTest {
 
   private static final String VALID_PREFIX_LOCAL_TYPE = VALID_PREFIX + ":" + VALID_TYPE;
 
+  private static final String GMD_PREFIX_LOCAL_TYPE =
+      GmdConstants.GMD_PREFIX + ":" + GmdConstants.GMD_LOCAL_NAME;
+
+  private static final String CSW_SCHEMA_LOCATION = "csw/2.0.2/record.xsd";
+
+  private static final String GMD_SCHEMA_LOCATION = "gmd/record_gmd.xsd";
+
+  private static final String RECORD_SCHEMA_LOCATION = "record.xsd";
+
   private static final String CONTEXTUAL_TEST_ATTRIBUTE = "csw:title";
 
   private static final String CQL_CONTEXTUAL_PATTERN = "some title";
@@ -193,6 +202,8 @@ public class CswEndpointTest {
   private static final int BATCH_TOTAL = 70;
 
   private static final String THIRD_PARTY_TYPE_NAME = "thirdPartyTypeName";
+
+  private static final String SAMPLE_NAME_SPACE = "http://example.com/services/csw";
 
   private static final String USER_ID = "testUser";
 
@@ -237,13 +248,13 @@ public class CswEndpointTest {
           FederationException, ParseException, IngestException, CswException,
           InvalidSyntaxException {
     addSecurity();
-    URI mockUri = new URI("http://example.com/services/csw");
+    URI mockUri = new URI(SAMPLE_NAME_SPACE);
     when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
     URL resourceUrl = CswEndpointTest.class.getResource("/record.xsd");
     URL resourceUrlDot = CswEndpointTest.class.getResource(".");
-    when(mockBundle.getResource("record.xsd")).thenReturn(resourceUrl);
-    when(mockBundle.getResource("csw/2.0.2/record.xsd")).thenReturn(resourceUrl);
-    when(mockBundle.getResource("gmd/record_gmd.xsd")).thenReturn(resourceUrl);
+    when(mockBundle.getResource(RECORD_SCHEMA_LOCATION)).thenReturn(resourceUrl);
+    when(mockBundle.getResource(CSW_SCHEMA_LOCATION)).thenReturn(resourceUrl);
+    when(mockBundle.getResource(GMD_SCHEMA_LOCATION)).thenReturn(resourceUrl);
     when(mockBundle.getResource(".")).thenReturn(resourceUrlDot);
     when(mockBundle.getBundleContext()).thenReturn(mockBundleContext);
     ServiceReference<QueryFilterTransformer> serviceReference = mock(ServiceReference.class);
@@ -778,6 +789,10 @@ public class CswEndpointTest {
         new QName(
             GmdConstants.GMD_NAMESPACE, GmdConstants.GMD_LOCAL_NAME, GmdConstants.GMD_PREFIX));
     drt.setTypeName(typeNames);
+    when(mockSchemaManager.getTransformerSchemaForId(GMD_PREFIX_LOCAL_TYPE))
+        .thenReturn(GmdConstants.GMD_NAMESPACE);
+    when(mockSchemaManager.getTransformerSchemaLocationForId(GMD_PREFIX_LOCAL_TYPE))
+        .thenReturn(GMD_SCHEMA_LOCATION);
     DescribeRecordResponseType drrt = null;
 
     try {
@@ -796,6 +811,14 @@ public class CswEndpointTest {
   public void testDescribeRecordRequestNoTypesPassed() {
     DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     LOGGER.info("Resource directory is {}", this.getClass().getResource(".").getPath());
+    when(mockSchemaManager.getTransformerSchemaForId(VALID_PREFIX_LOCAL_TYPE))
+        .thenReturn(CswConstants.CSW_OUTPUT_SCHEMA);
+    when(mockSchemaManager.getTransformerSchemaLocationForId(VALID_PREFIX_LOCAL_TYPE))
+        .thenReturn(CSW_SCHEMA_LOCATION);
+    when(mockSchemaManager.getTransformerSchemaForId(THIRD_PARTY_TYPE_NAME))
+        .thenReturn(SAMPLE_NAME_SPACE);
+    when(mockSchemaManager.getTransformerSchemaLocationForId(THIRD_PARTY_TYPE_NAME))
+        .thenReturn(RECORD_SCHEMA_LOCATION);
     DescribeRecordResponseType drrt = null;
     try {
       drrt = csw.describeRecord(drr);
@@ -816,6 +839,15 @@ public class CswEndpointTest {
     DescribeRecordType request = createDefaultDescribeRecordType();
 
     LOGGER.info("Resource directory is {}", this.getClass().getResource(".").getPath());
+
+    when(mockSchemaManager.getTransformerSchemaForId(VALID_PREFIX_LOCAL_TYPE))
+        .thenReturn(CswConstants.CSW_OUTPUT_SCHEMA);
+    when(mockSchemaManager.getTransformerSchemaLocationForId(VALID_PREFIX_LOCAL_TYPE))
+        .thenReturn(CSW_SCHEMA_LOCATION);
+    when(mockSchemaManager.getTransformerSchemaForId(THIRD_PARTY_TYPE_NAME))
+        .thenReturn(SAMPLE_NAME_SPACE);
+    when(mockSchemaManager.getTransformerSchemaLocationForId(THIRD_PARTY_TYPE_NAME))
+        .thenReturn(RECORD_SCHEMA_LOCATION);
 
     DescribeRecordResponseType drrt = null;
 
@@ -904,6 +936,10 @@ public class CswEndpointTest {
     DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_TYPE);
     drr.setNamespace("xmlns(" + CswConstants.CSW_OUTPUT_SCHEMA + ")");
+    when(mockSchemaManager.getTransformerSchemaForId(VALID_TYPE))
+        .thenReturn(CswConstants.CSW_OUTPUT_SCHEMA);
+    when(mockSchemaManager.getTransformerSchemaLocationForId(VALID_TYPE))
+        .thenReturn(CSW_SCHEMA_LOCATION);
     DescribeRecordResponseType drrt = null;
     try {
       drrt = csw.describeRecord(drr);
@@ -1046,6 +1082,10 @@ public class CswEndpointTest {
     DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     drr.setSchemaLanguage(CswConstants.SCHEMA_LANGUAGE_X_SCHEMA);
+    when(mockSchemaManager.getTransformerSchemaForId(VALID_PREFIX_LOCAL_TYPE))
+        .thenReturn(CswConstants.CSW_OUTPUT_SCHEMA);
+    when(mockSchemaManager.getTransformerSchemaLocationForId(VALID_PREFIX_LOCAL_TYPE))
+        .thenReturn(CSW_SCHEMA_LOCATION);
     DescribeRecordResponseType drrt = null;
     try {
       drrt = csw.describeRecord(drr);
