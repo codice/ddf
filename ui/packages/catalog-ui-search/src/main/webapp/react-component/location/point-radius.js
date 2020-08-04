@@ -286,9 +286,9 @@ const PointRadiusUtmUps = props => {
         onChange={value => setState({ ['utmUpsEasting']: value })}
         onBlur={() =>
           setUtmError(
-            validateGeo('utmUpsEasting', {
-              utmUpsEasting,
-              utmUpsNorthing,
+            validateGeo('easting', {
+              easting: utmUpsEasting,
+              northing: utmUpsNorthing,
               zoneNumber: utmUpsZone,
               hemisphere: utmUpsHemisphere,
             })
@@ -304,9 +304,9 @@ const PointRadiusUtmUps = props => {
         onChange={value => setState({ ['utmUpsNorthing']: value })}
         onBlur={() =>
           setUtmError(
-            validateGeo('utmUpsNorthing', {
-              utmUpsEasting,
-              utmUpsNorthing,
+            validateGeo('northing', {
+              easting: utmUpsEasting,
+              northing: utmUpsNorthing,
               zoneNumber: utmUpsZone,
               hemisphere: utmUpsHemisphere,
             })
@@ -319,9 +319,9 @@ const PointRadiusUtmUps = props => {
         onChange={value => setState({ ['utmUpsZone']: value })}
         onBlur={() =>
           setUtmError(
-            validateGeo('utmUpsZone', {
-              utmUpsEasting,
-              utmUpsNorthing,
+            validateGeo('zoneNumber', {
+              easting: utmUpsEasting,
+              northing: utmUpsNorthing,
               zoneNumber: utmUpsZone,
               hemisphere: utmUpsHemisphere,
             })
@@ -333,9 +333,9 @@ const PointRadiusUtmUps = props => {
         onChange={value => setState({ ['utmUpsHemisphere']: value })}
         onBlur={() =>
           setUtmError(
-            validateGeo('utmUpsHemisphere', {
-              utmUpsEasting,
-              utmUpsNorthing,
+            validateGeo('hemisphere', {
+              easting: utmUpsEasting,
+              northing: utmUpsNorthing,
               zoneNumber: utmUpsZone,
               hemisphere: utmUpsHemisphere,
             })
