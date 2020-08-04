@@ -4,10 +4,6 @@
     display: none;
   }
 
-  .empty-add-visualization {
-    display: none;
-  }
-
   .lm_maximised .lm_header,
   .lm_goldenlayout,
   .lm_item,
@@ -312,14 +308,20 @@
     .to-toggle-size:hover > span {
       opacity: 1;
     }
-    .to-toggle-size {
+
+    .to-add .dropdown-label {
+      display: none;
+    }
+
+    .to-toggle-size,
+    .to-add {
       background: inherit;
       .dropshadow;
     }
   }
 
   > .golden-layout-container {
-    height: ~'calc(100%)';
+    height: ~'calc(99.5%)';
   }
 }
 
@@ -329,12 +331,14 @@
 
 @{customElementNamespace}golden-layout.is-empty {
   // might be useful to make it clearer to the user in the future when they're in this mode
-  .empty-add-visualization {
-    display: block;
-    width: @minimumButtonSize;
-    position: absolute;
-    left: 0;
-    top: 0;
+}
+
+//interim styles (delete me later, after we add layout switching etc.)
+@{customElementNamespace}golden-layout.is-minimised {
+  > .golden-layout-toolbar {
+    .to-add .dropdown-label {
+      display: inline !important;
+    }
   }
 }
 

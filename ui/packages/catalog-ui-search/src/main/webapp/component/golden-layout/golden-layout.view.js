@@ -79,10 +79,6 @@ const defaultGoldenLayoutContent = {
   ],
 }
 
-const getTabContainer = () => {
-  return `<div class="lm_tab" id="addVis" title="test" style="float: right;"><i class="lm_left"></i><span id="vis"></span><i class="lm_right"></i></div>`
-}
-
 function getGoldenLayoutSettings() {
   const minimumScreenSize = 20 //20 rem or 320px at base font size
   const fontSize = parseInt(
@@ -200,7 +196,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   regions: {
     toolbar: '> .golden-layout-toolbar',
-    emptyAddVis: '> .empty-add-visualization',
+    widgetDropdown: '> .golden-layout-toolbar .to-add',
   },
   initialize(options) {
     this.options.selectionInterface = options.selectionInterface || store
@@ -223,6 +219,14 @@ module.exports = Marionette.LayoutView.extend({
     Common.repaintForTimeframe(2000, () => {
       this.goldenLayout.updateSize()
     })
+  },
+  showWidgetDropdown() {
+    this.widgetDropdown.show(
+      new VisualizationDropdown({
+        model: new DropdownModel(),
+        goldenLayout: this.goldenLayout,
+      })
+    )
   },
   showGoldenLayout() {
     this.goldenLayout = new GoldenLayout(
@@ -261,44 +265,14 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-maximised', isMaximised(this.goldenLayout.root))
   },
   detectIfGoldenLayoutEmpty() {
-    const isEmpty = this.goldenLayout.root.contentItems.length === 0
-    this.$el.toggleClass('is-empty', isEmpty)
+    this.$el.toggleClass(
+      'is-empty',
+      this.goldenLayout.root.contentItems.length === 0
+    )
   },
   handleGoldenLayoutInitialised() {
     this.detectIfGoldenLayoutMaximised()
     this.detectIfGoldenLayoutEmpty()
-  },
-  addVisualizationTab() {
-    if (
-      this.goldenLayout.root.contentItems.length === 0 ||
-      this.goldenLayout.container
-        .find('.lm_tabs')
-        .first()
-        .find('#addVis').length
-    ) {
-      return
-    }
-    if (this.goldenLayout.container.find('#addVis').length) {
-      this.goldenLayout.container.find('#addVis').remove()
-    }
-    this.goldenLayout.container
-      .find('.lm_tabs')
-      .first()
-      .append(getTabContainer())
-    this.regionManager.addRegion('vis', '#vis').show(
-      new VisualizationDropdown({
-        model: new DropdownModel(),
-        goldenLayout: this.goldenLayout,
-      })
-    )
-  },
-  addEmptyVisualizationTab() {
-    this.emptyAddVis.show(
-      new VisualizationDropdown({
-        model: new DropdownModel(),
-        goldenLayout: this.goldenLayout,
-      })
-    )
   },
   handleGoldenLayoutStackCreated(stack) {
     stack.header.controlsContainer
@@ -312,7 +286,6 @@ module.exports = Marionette.LayoutView.extend({
       })
   },
   handleGoldenLayoutStateChange(event) {
-    this.addVisualizationTab()
     this.detectIfGoldenLayoutMaximised()
     this.detectIfGoldenLayoutEmpty()
     //https://github.com/deepstreamIO/golden-layout/issues/253
@@ -342,8 +315,8 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender() {
     this.showGoldenLayout()
+    this.showWidgetDropdown()
     this.setupListeners()
-    this.addEmptyVisualizationTab()
   },
   handleToggleSize() {
     this.$el.toggleClass('is-minimised')
