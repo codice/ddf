@@ -1,0 +1,3 @@
+property1=${systemProperty1}
+property2=${systemProperty2}
+unresolvedProperty=${nonExistentSystemProperty}

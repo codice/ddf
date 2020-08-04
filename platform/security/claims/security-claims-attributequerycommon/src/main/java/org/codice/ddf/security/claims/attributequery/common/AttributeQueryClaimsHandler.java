@@ -21,6 +21,7 @@ import ddf.security.claims.ClaimsParameters;
 import ddf.security.claims.impl.ClaimImpl;
 import ddf.security.claims.impl.ClaimsCollectionImpl;
 import ddf.security.samlp.impl.SimpleSign;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -29,6 +30,7 @@ import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Dispatch;
@@ -36,6 +38,7 @@ import javax.xml.ws.Service;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.resource.URIResolver;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
@@ -50,9 +53,13 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
   protected static final String ERROR_RETRIEVING_ATTRIBUTES =
       "Error retrieving attributes from external attribute store [{}] for DN [{}]. ";
 
-  private Object signatureProperties;
+  private String signaturePropertiesLocation;
 
-  private Object encryptionProperties;
+  private String encryptionPropertiesLocation;
+
+  private Properties signatureProperties;
+
+  private Properties encryptionProperties;
 
   private String wsdlLocation;
 
@@ -281,11 +288,37 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     return dispatch;
   }
 
-  public void setSignatureProperties(Object signatureProperties) {
+  public void setSignaturePropertiesLocation(String signaturePropertiesLocation) {
+    this.signaturePropertiesLocation =
+        PropertyResolver.resolveProperties(signaturePropertiesLocation);
+
+    try {
+      this.setSignatureProperties(
+          PropertyResolver.resolvePropertiesFromLocation(this.signaturePropertiesLocation));
+    } catch (IOException e) {
+      LOGGER.warn(
+          "Problem reading signature properties file {}.", this.signaturePropertiesLocation);
+    }
+  }
+
+  public void setEncryptionPropertiesLocation(String encryptionPropertiesLocation) {
+    this.encryptionPropertiesLocation =
+        PropertyResolver.resolveProperties(encryptionPropertiesLocation);
+
+    try {
+      this.setEncryptionProperties(
+          PropertyResolver.resolvePropertiesFromLocation(this.encryptionPropertiesLocation));
+    } catch (IOException e) {
+      LOGGER.warn(
+          "Problem reading encryption properties file {}.", this.encryptionPropertiesLocation, e);
+    }
+  }
+
+  public void setSignatureProperties(Properties signatureProperties) {
     this.signatureProperties = signatureProperties;
   }
 
-  public void setEncryptionProperties(Object encryptionProperties) {
+  public void setEncryptionProperties(Properties encryptionProperties) {
     this.encryptionProperties = encryptionProperties;
   }
 
