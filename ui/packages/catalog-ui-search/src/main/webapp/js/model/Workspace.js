@@ -136,22 +136,22 @@ module.exports = PartialAssociatedModel.extend({
         .length === 0
     ) {
       this.set('saved', false)
-      this.set('metacard.modified', Date.now())
+      this.updateMetacardModifiedTimestamp()
     }
   },
   handleQueryChange() {
     this.set('saved', false)
-    this.set('metacard.modified', Date.now())
+    this.updateMetacardModifiedTimestamp()
   },
   handleChange(model) {
     if (workspaceShouldBeResaved(model)) {
       this.set('saved', false)
-      this.set('metacard.modified', Date.now())
+      this.updateMetacardModifiedTimestamp()
     }
   },
   saveLocal(options) {
     this.set('id', this.get('id') || Common.generateUUID())
-    this.set('metacard.modified', Date.now())
+    this.updateMetacardModifiedTimestamp()
     const localWorkspaces = this.collection.getLocalWorkspaces()
     localWorkspaces[this.get('id')] = this.toJSON()
     window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces))
@@ -185,6 +185,9 @@ module.exports = PartialAssociatedModel.extend({
         Backbone.AssociatedModel.prototype.save.apply(this, arguments)
       }
     }
+  },
+  updateMetacardModifiedTimestamp() {
+    this.set('metacard.modified', Date.now())
   },
   handleError() {
     this.set('saved', false)
