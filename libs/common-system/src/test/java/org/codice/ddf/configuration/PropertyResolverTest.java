@@ -17,8 +17,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.IsEqual.equalTo;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import org.junit.Test;
 
 public class PropertyResolverTest {
@@ -50,5 +52,25 @@ public class PropertyResolverTest {
     assertThat(
         PropertyResolver.resolveProperties(list),
         contains("/some/value", "/bar/value", "/baz/value"));
+  }
+
+  @Test
+  public void testResolvePropertiesFromLocation() throws Exception {
+    System.setProperty("systemProperty1", "foo");
+    System.setProperty("systemProperty2", "bar");
+
+    Properties properties =
+        PropertyResolver.resolvePropertiesFromLocation("./src/test/resources/properties.txt");
+
+    assertThat(properties.size(), equalTo(3));
+    assertThat(properties.getProperty("property1"), equalTo("foo"));
+    assertThat(properties.getProperty("property2"), equalTo("bar"));
+    assertThat(
+        properties.getProperty("unresolvedProperty"), equalTo("${nonExistentSystemProperty}"));
+  }
+
+  @Test(expected = IOException.class)
+  public void testResolvePropertiesFromLocationNonExistentFile() throws Exception {
+    PropertyResolver.resolvePropertiesFromLocation("/non/existent/path/non-existent-file.txt");
   }
 }
