@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.claims.attributequery.common;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.claims.Claim;
 import ddf.security.claims.ClaimsCollection;
@@ -314,11 +315,13 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     }
   }
 
-  public void setSignatureProperties(Properties signatureProperties) {
+  @VisibleForTesting
+  void setSignatureProperties(Properties signatureProperties) {
     this.signatureProperties = signatureProperties;
   }
 
-  public void setEncryptionProperties(Properties encryptionProperties) {
+  @VisibleForTesting
+  void setEncryptionProperties(Properties encryptionProperties) {
     this.encryptionProperties = encryptionProperties;
   }
 
