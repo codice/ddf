@@ -19,12 +19,15 @@ import ddf.catalog.validation.AttributeValidator;
 import ddf.catalog.validation.impl.report.AttributeValidationReportImpl;
 import ddf.catalog.validation.report.AttributeValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections.CollectionUtils;
 
 public class MatchAnyValidator implements AttributeValidator {
   private final List<AttributeValidator> validators;
@@ -93,5 +96,25 @@ public class MatchAnyValidator implements AttributeValidator {
       }
     }
     return Optional.of(result);
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(23, 37).append(validators).toHashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+
+    MatchAnyValidator that = (MatchAnyValidator) obj;
+
+    return new EqualsBuilder().append(validators, that.validators).isEquals();
   }
 }
