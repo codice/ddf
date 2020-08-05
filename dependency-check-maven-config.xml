@@ -1,245 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
 
-    <!-- proxy-camel-servlet false positives - these are all because the proxy-camel-servlet is getting confused with the camel-servlet-->
-    <suppress>
-        <notes>
-            This is an issue with Camel version before 2.16.1 OWASP appears to have confused the
-            internal proxy-camel-servlet version with the overall Camel version - marking as false
-            positive.
-            ddf distribution -> org.apache.karaf.decanter.appender.camel-1.3.0.jar
-        </notes>
-        <cve>CVE-2014-0002</cve>
-        <cve>CVE-2014-0003</cve>
-        <cve>CVE-2015-5344</cve>
-        <cve>CVE-2017-3159</cve>
-        <cve>CVE-2017-12633</cve>
-        <cve>CVE-2017-12634</cve>
-        <cve>CVE-2016-8749</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This is an issue with Camel version before 2.16.1 OWASP appears to have confused the
-            internal proxy-camel-servlet version with the overall Camel version - marking as false
-            positive.
-            org.apache.karaf.decanter.appender.camel-1.3.0.jar
-            org.apache.karaf.decanter.collector.camel-tracer-1.3.0.jar
-            org.apache.karaf.decanter.sla.camel-1.3.0.jar
-        </notes>
-        <cve>CVE-2014-0002</cve>
-        <cve>CVE-2014-0003</cve>
-        <cve>CVE-2015-5344</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs are incorrectly attributing a CXF vulnerability to Camel
-            camel-cxf-2.19.0.jar.
-            The CVEs are in CXF versions in this case the camel version is incorrectly being used
-        </notes>
-        <cve>CVE-2016-8739</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs are all related to asciidoc and jruby vulnerabilities which are only used
-            when the documentation is building.
-            asciidoctorj-1.5.6.jar: jruby_cache_backend.jar
-            jruby-complete-9.0.4.0.jar: jopenssl.jar
-            jruby-complete-9.0.4.0.jar: readline.jar
-            jruby-complete-9.0.4.0.jar: cparse-jruby.jar
-            jruby-complete-9.0.4.0.jar/META-INF/maven/com.boundary/high-scale-lib/pom.xml
-        </notes>
-        <cve>CVE-1999-0428</cve>
-        <cve>CVE-2009-3245</cve>
-        <cve>CVE-2010-0742</cve>
-        <cve>CVE-2010-4252</cve>
-        <cve>CVE-2011-4838</cve>
-        <cve>CVE-2012-2110</cve>
-        <cve>CVE-2014-3567</cve>
-        <cve>CVE-2014-8176</cve>
-        <cve>CVE-2015-0292</cve>
-        <cve>CVE-2015-8768</cve>
-        <cve>CVE-2016-2108</cve>
-        <cve>CVE-2016-2109</cve>
-        <cve>CVE-2018-20997</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE is related to hash collisions at the Java level. This is mitigated by newer
-            versions of Java (8+).
-            See http://openjdk.java.net/jeps/180 for more information.
-            xercesImpl-2.11.0.jar
-        </notes>
-        <cve>CVE-2012-0881</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs apply to org.apache.geronimo:geronimo which is not a dependency of any of
-            these artifacts.
+    <!--
+       SUPPRESSION GUIDANCE:
+       ====================
 
-            geronimo-activation_1.1_spec-1.1.jar
-            geronimo-javamail_1.4_spec-1.7.1.jar
-            geronimo-jms_1.1_spec-1.1.1.jar
-            geronimo-jms_2.0_spec-1.0-alpha-2.jar
-            geronimo-servlet_3.0_spec-1.0.jar
-            geronimo-stax-api_1.0_spec-1.0.1.jar
-            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar:
-            org.apache.servicemix.specs.saaj-api-1.3-2.9.0.jar/META-INF/maven/org.apache.geronimo.specs/geronimo-saaj_1.3_spec/pom.xml
-            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar:
-            org.apache.servicemix.specs.jaxws-api-2.2-2.9.0.jar/META-INF/maven/org.apache.geronimo.specs/geronimo-jaxws_2.2_spec/pom.xml
-            geronimo-javamail_1.4_mail-1.8.4.jar: transitive dependency of wss4j-ws-security-dom
-        </notes>
-        <cve>CVE-2011-5034</cve>
-    </suppress>
+       1. This is a global suppression file, meaning it is used when scanning all modules in DDF.
+       We decided to use a single suppression file since managing files for each module was
+       impractical. However, this approach has a notable downside: there is no way to suppress
+       vulnerabilities for a single module.
+
+       This is problematic because we would like to ignore vulnerabilities for certain modules -
+       docs & itest modules in particular. The dependency-check plugin skips test-scoped
+       dependencies, but docs and itests have compile-time dependencies and so they get reported
+       by the plugin, even though they don't matter at runtime (all we care about).
+
+       What this means:
+       When you go to suppress a vulnerability because it only affects the itests or the docs,
+       be very sure that it isn't used at runtime.
+
+       Real-world example:
+       JRuby 9.2.6.0 (used by docs only) depends on Bouncy Castle (BC) 1.59, which has known
+       vulnerabilities. But BC is used at runtime by other dependencies, so this vulnerability
+       can't be suppressed.
+
+       NOTE: If the dependency-check plugin aggregate goal supported skipping children or
+       overriding the suppression file, we could work around this. It currently doesn't. See
+       https://github.com/jeremylong/DependencyCheck/issues/2152
+
+       2. Due to how dependency-check identifies libraries false positives may occur
+       (i.e. a CPE was identified that is incorrect). Suppressing these false positives is fairly
+       easy using the HTML report. In the report next to each CPE identified (and on CVE entries)
+       there is a suppress button. Clicking the suppression button will create a dialogue box which
+       you can simple hit Control-C to copy the XML that you would place into a suppression XML
+       file.
+
+       3. In general, prefer fixing a vulnerability over suppressing it, even if DDF isn't
+       affected. Pulling on dependencies with no vulnerabilities is better than relying on
+       assumptions that DDF isn't affected (which may be subject to change - unfortunately this
+       file isn't checked for accuracy often).
+
+       If you do choose to suppress, consider adding guidance on how to address the vulnerability
+       in the future if others choose to do so.
+
+       4. If the dependency-check plugin reports a particular dependency version is used, it's
+       often right, even if it isn't an installed bundle at runtime. The OWASP report includes a
+       section "Referenced In Projects/Scopes" for each vulnerable dependency. Before calling
+       something a false positive, run `mvn dependency:tree` on those affected projects and inspect
+       the output.
+
+      -->
+
     <suppress>
         <notes>
-            This CVE applies to Apache-SSL 1.3.28+1.52 and earlier. It does not apply to the
-            artifact that OWASP is reporting.
-            apache-karaf-4.2.2.tar.gz: apache-karaf-4.2.2.tar:
-            org.apache.servicemix.bundles.not-yet-commons-ssl-0.3.11_1.jar
+            org.springframework.osgi:spring-osgi-core:1.2.1 pulls in Spring 2.5.6.SEC01
+            dependencies, which have a bunch of CVEs. It's only used in itests, though, so
+            suppressing for now.
+
+            TODO: Look into migrating to org.apache.servicemix.bundles.spring-core, as Spring
+            stopped supporting releases as OSGi bundles a long time ago.
         </notes>
-        <cve>CVE-2004-0009</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            Applies to an LDAP class that we do not use in the system.
-            - groovy-all-2.4.7.jar is only used in tests.
-            - rest-assured 2.9.0 uses groovy-2.4.4.jar and groovy-xml-2.4.4.jar
-        </notes>
-        <cve>CVE-2016-6814</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE has been addressed by upgrading commons-beanutils to version 1.9.3. OWASP will
-            continue to report the vulnerability since OWASP sees the DDF version instead of the
-            actual version.
-            security-pdp-authzrealm-2.11.4-SNAPSHOT.jar (cpe:/a:apache:commons_beanutils:2.11.4,
-            cpe:/a:apache:commons_collections:2.11.4,
-            ddf.security.pdp:security-pdp-authzrealm:2.11.4-SNAPSHOT)
-            security-sts-attributequeryclaimshandler-2.17.0-SNAPSHOT.jar
-        </notes>
-        <cve>CVE-2017-15708</cve>
-        <cve>CVE-2015-6420</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            False positive. This CVE is for a Perl library
-            Algorithmic complexity vulnerability in Address.pm in the Email-Address module 1.908 and earlier for Perl allows
-            remote attackers to cause a denial of service (CPU consumption) via a crafted string containing a list of e-mail
-            addresses in conjunction with parenthesis characters that can be associated with nested comments.
-            NOTE: the default configuration in 1.908 mitigates this vulnerability but misparses certain realistic comments.
-            platform-email-impl -> simple-java-mail-4.1.3.jar/META-INF/maven/com.github.bbottema/emailaddress-rfc2822/pom.xml
-            simple-java-mail could be upgraded.
-        </notes>
-        <cve>CVE-2015-7686</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            restito-0.8.2.jar: is still used in thirdparty/restito in DDF
-        </notes>
-        <cve>CVE-2015-1820</cve>
-    </suppress>
-    <suppress>
-        <notes>This CVE is related to a PHP script. There are no PHP scripts in the DDF.</notes>
-        <cve>CVE-2006-6460</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs are not an issue since the software is not exposing STOMP over WebSocket
-            endpoints.
-            security-sts-ldapclaimshandler -> spring-ldap-core -> spring-tx-4.3.4.RELEASE.jar
-        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/org\.springframework\..*@2.5.6.SEC01$</packageUrl>
+        <cve>CVE-2011-2730</cve>
+        <cve>CVE-2013-4152</cve>
+        <cve>CVE-2013-7315</cve>
+        <cve>CVE-2014-0054</cve>
+        <cve>CVE-2016-9878</cve>
         <cve>CVE-2018-1270</cve>
-        <cve>CVE-2018-1275</cve>
+        <cve>CVE-2018-1271</cve>
+        <cve>CVE-2018-1272</cve>
     </suppress>
-    <suppress>
-        <notes>
-            These CVEs affect Jetty 9.3.x up to 9.3.23 and 9.4.x up to 9.4.10. DDF is using a
-            version of jetty that does not fall within those ranges.
-            However, org.apache.cxf:cxf-rt-ws-security:jar:3.2.6 uses ehcache:jar:2.10.5 which has a vulnerable jetty
-            ehcache-2.10.5.jar/rest-management-private-classpath/META-INF/maven/org.eclipse.jetty/jetty-http/pom.xml
-        </notes>
-        <cve>CVE-2017-7658</cve>
-        <cve>CVE-2017-7657</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            Nearly all of these are not an issue because either we are not using those features
-            entirely or (and in addition to the fact) that solr is now running as an external
-            process and completely locked down, so no one could access solr to take advantage of
-            these vulnerabilities. All communication is controlled by DDF.
 
-            kernel -> solr-assembly.zip -> velocity-tools-2.0.jar
-        </notes>
-        <cve>CVE-2016-3081</cve>
-        <cve>CVE-2013-4316</cve>
-        <cve>CVE-2016-4436</cve>
-        <cve>CVE-2013-2115</cve>
-        <cve>CVE-2012-0391</cve>
-        <cve>CVE-2016-3082</cve>
-        <cve>CVE-2013-2135</cve>
-        <cve>CVE-2014-0112</cve>
-        <cve>CVE-2012-0838</cve>
-        <cve>CVE-2013-1965</cve>
-        <cve>CVE-2013-1966</cve>
-        <cve>CVE-2014-0113</cve>
-        <cve>CVE-2013-2134</cve>
-        <cve>CVE-2013-2251</cve>
-        <cve>CVE-2016-0785</cve>
-        <cve>CVE-2016-4461</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            Apache httpd vulnerabilities inaccurately associated with
-            cxf-rt-transports-http-netty-server-3.2.5.jar in the DDF distribution.
-        </notes>
-        <cve>CVE-1999-0236</cve>
-        <cve>CVE-1999-1237</cve>
-        <cve>CVE-1999-1412</cve>
-        <cve>CVE-2007-0086</cve>
-        <cve>CVE-2007-4723</cve>
-        <cve>CVE-2009-1955</cve>
-        <cve>CVE-2009-3095</cve>
-        <cve>CVE-2007-6423</cve>
-        <cve>CVE-2010-0425</cve>
-        <cve>CVE-2009-1890</cve>
-        <cve>CVE-2009-1891</cve>
-    </suppress>
     <suppress>
         <notes>
             A CVE against slf4j for the class "EventData", which is not used in DDF or pax-logging.
         </notes>
+        <packageUrl regex="true">^pkg:maven/org\.slf4j/slf4j\-ext@.*$</packageUrl>
         <cve>CVE-2018-8088</cve>
     </suppress>
-    <suppress>
-        <notes>
-            A CVE against tomcat-embed-jasper, which is brought in transitively from pax-web-jsp.
-            The CVE applies to the Windows command-line, which has no impact on DDF as it is used.
-        </notes>
-        <cve>CVE-2019-0232</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This vulnerability is related to the use of Apache Hadoop YARN. YARN is a resource
-            management application for Hadoop. DDF only include Hadoop JAR files to support Solr
-            dependencies. DDF does not make use of YARN.
 
-            solr-dependencies -> hadoop-auth-2.7.4.jar (latest versions available)
+    <suppress>
+        <notes>
+            These CVEs come from the Codice country code converter library, though it's a little
+            unclear why.
+
+            CVE-2015-6420 affects Apache Synapse, which it doesn't use.
+            CVE-2017-15708 affects a number of Cisco products, which it doesn't use.
+            Moreover, these vulnerabilities are only exploitable when using a version of Apache
+            Commons Collections before 3.2.2, and neither it nor DDF do.
         </notes>
-        <cve>CVE-2018-8029</cve>
-        <cve>CVE-2018-11766</cve>
-        <cve>CVE-2016-6811</cve>
-        <cve>CVE-2017-3162</cve>
-        <!-- Remove this once Solr is upgraded to 8.2 -->
-        <cve>CVE-2019-0193</cve>
+        <packageUrl regex="true">^pkg:maven/org\.codice\.countrycode/converter@.*$</packageUrl>
+        <cve>CVE-2015-6420</cve>
+        <cve>CVE-2017-15708</cve>
     </suppress>
 
     <suppress>
         <notes>
-            This CVE is coming from artemis. Suppressing the CVE until Artemis is removed from DDF.
-            https://github.com/codice/ddf/issues/5315
+            Ignore vulnerabilities in AsciiDoc and JRuby. They are used only when building the
+            documentation, not at runtime.
         </notes>
-        <gav regex="true">^commons-beanutils:commons-beanutils:.*$</gav>
-        <cve>CVE-2019-10086</cve>
+        <cpe>cpe:/a:asciidoctor:asciidoctor</cpe>
+        <cpe>cpe:/a:jruby:jruby</cpe>
+    </suppress>
+
+    <suppress>
+        <notes>
+            This is a SUSE-specific security issue related to file permissions in the tomcat
+            packaging. The vulnerable dependency is embedded the pax-web-jsp bundle, so file
+            permissions are not an issue.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-jasper@.*$</packageUrl>
+        <cve>CVE-2020-8022</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
+            file name: groovy-2.4.4.jar
+            file name: groovy-xml-2.4.4.jar
+            file name: groovy-json-2.4.4.jar
+
+            DDF uses an old version of REST Assured which pulls in these vulnerable Groovy
+            dependencies. Suppressing since REST Assured and Groovy are only used for testing.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.groovy/groovy.*@2\.4\.4$</packageUrl>
+        <cve>CVE-2016-6814</cve>
     </suppress>
 
 </suppressions>
