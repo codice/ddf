@@ -40,7 +40,7 @@ public class ScheduledCommandTaskTest {
   @Before
   public void setUp() {
     scheduler = mock(Scheduler.class);
-    scheduledCommandTask = new ScheduledCommandTask(scheduler, CommandJob.class);
+    scheduledCommandTask = new ScheduledCommandTask(scheduler, mock(CommandJob.class));
     scheduledCommandTask.setCommand(INFO);
   }
 
