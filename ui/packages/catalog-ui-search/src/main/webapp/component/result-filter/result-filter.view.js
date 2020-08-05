@@ -18,7 +18,10 @@ const template = require('./result-filter.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const user = require('../singletons/user-instance.js')
 const FilterBuilderView = require('../filter-builder/filter-builder.view.js')
-const cql = require('../../js/cql.js')
+import {
+  getFilterErrors,
+  showErrorMessages,
+} from '../../react-component/utils/validation'
 
 module.exports = Marionette.LayoutView.extend({
   template,
@@ -44,14 +47,14 @@ module.exports = Marionette.LayoutView.extend({
   onRender() {
     const resultFilter = this.getResultFilter()
     let filter
-    if (resultFilter) {
-      filter = cql.simplify(cql.read(resultFilter))
-    } else {
+    if (!resultFilter) {
       filter = {
         property: 'anyText',
         value: '',
         type: 'ILIKE',
       }
+    } else {
+      filter = resultFilter
     }
     this.editorProperties.show(
       new FilterBuilderView({
@@ -64,7 +67,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleFilter()
   },
   getFilter() {
-    return this.editorProperties.currentView.transformToCql()
+    return this.editorProperties.currentView.getFilters()
   },
   removeFilter() {
     user
@@ -78,10 +81,16 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   saveFilter() {
+    const filter = this.getFilter()
+    const errorMessages = getFilterErrors(filter.filters)
+    if (errorMessages.length !== 0) {
+      showErrorMessages(errorMessages)
+      return
+    }
     user
       .get('user')
       .get('preferences')
-      .set('resultFilter', this.getFilter())
+      .set('resultFilter', filter)
     user
       .get('user')
       .get('preferences')

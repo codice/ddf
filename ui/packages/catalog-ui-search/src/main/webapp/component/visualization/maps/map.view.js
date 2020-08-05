@@ -459,7 +459,12 @@ const View = Marionette.LayoutView.extend({
       .get('preferences')
       .get('resultFilter')
     if (resultFilter) {
-      this.handleFilter(CQLUtils.transformCQLToFilter(resultFilter), '#c89600')
+      this.handleFilter(
+        CQLUtils.transformCQLToFilter(
+          CQLUtils.transformFilterToCQL(resultFilter)
+        ),
+        '#c89600'
+      )
     }
   },
   handleFilter(filter, color) {
@@ -470,14 +475,15 @@ const View = Marionette.LayoutView.extend({
     } else {
       let pointText
       let locationModel
+      const value = filter.value
       switch (filter.type) {
         case 'DWITHIN':
-          if (CQLUtils.isPolygonFilter(filter.value)) {
-            this.handleFilterAsPolygon(filter.value, color, filter.distance)
+          if (CQLUtils.isPolygonFilter(value)) {
+            this.handleFilterAsPolygon(value, color, filter.distance)
             break
           }
-          if (CQLUtils.isPointRadiusFilter(filter.value)) {
-            pointText = filter.value.value.substring(6)
+          if (CQLUtils.isPointRadiusFilter(value)) {
+            pointText = value.value.substring(6)
             pointText = pointText.substring(0, pointText.length - 1)
             const latLon = pointText.split(' ')
             locationModel = new LocationModel({

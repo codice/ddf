@@ -183,6 +183,9 @@ module.exports = Marionette.LayoutView.extend({
     this.filterOperator.currentView.turnOffEditing()
     this.filterContents.currentView.turnOffEditing()
   },
+  turnOffNesting: function() {
+    this.$el.addClass('hide-nesting')
+  },
   turnOffFieldAdditions() {
     this.$el.addClass('hide-field-button')
   },
