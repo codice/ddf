@@ -126,9 +126,9 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
     try {
       oidcConfiguration.init();
     } catch (TechnicalException e) {
-      LOGGER.warn(
-          "OIDC Configuration could not initialize; this may be due to a configuration issue. See the configuration under \"OIDC Handler Configuration\" in the Admin Console");
-      LOGGER.debug(e.getMessage());
+      LOGGER.debug(
+          "OIDC Configuration could not initialize; this may be due to a configuration issue. See the configuration under \"OIDC Handler Configuration\" in the Admin Console",
+          e);
     }
 
     return oidcConfiguration;
@@ -141,9 +141,9 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
     try {
       oidcClient.init();
     } catch (TechnicalException e) {
-      LOGGER.warn(
-          "OIDC Client could not initialize; this may be due to a configuration issue. See the configuration under \"OIDC Handler Configuration\" in the Admin Console");
-      LOGGER.debug(e.getMessage());
+      LOGGER.debug(
+          "OIDC Client could not initialize; this may be due to a configuration issue. See the configuration under \"OIDC Handler Configuration\" in the Admin Console",
+          e);
     }
 
     return oidcClient;
