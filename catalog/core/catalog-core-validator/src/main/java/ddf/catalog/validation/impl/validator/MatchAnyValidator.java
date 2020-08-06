@@ -25,15 +25,21 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MatchAnyValidator implements AttributeValidator {
   private final List<AttributeValidator> validators;
 
   public MatchAnyValidator(List<AttributeValidator> validators) {
-    this.validators = validators;
+    this.validators =
+        validators
+            .stream()
+            .sorted(Comparator.comparingInt(Object::hashCode))
+            .collect(Collectors.toList());
   }
 
   @Override
