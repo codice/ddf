@@ -24,11 +24,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
+import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.apache.shiro.subject.ExecutionException;
-import org.codice.ddf.security.impl.Security;
+import org.codice.ddf.security.Security;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.quartz.JobDataMap;
@@ -47,8 +48,11 @@ public class CommandJobTest {
   @Test
   public void testNullCommand() {
     // given
-    CommandJob commandJob = new CommandJob(new Security());
-
+    CommandJob commandJob =
+        createCommandJob(
+            createMockSubject(),
+            createMockSessionFactory(mock(Session.class)),
+            createMockSecurity());
     String command = null;
 
     // when
@@ -59,8 +63,11 @@ public class CommandJobTest {
   @Test
   public void testEmptyCommand() {
     // given
-    CommandJob commandJob = new CommandJob(new Security());
-
+    CommandJob commandJob =
+        createCommandJob(
+            createMockSubject(),
+            createMockSessionFactory(mock(Session.class)),
+            createMockSecurity());
     String command = "";
 
     // when
@@ -71,23 +78,12 @@ public class CommandJobTest {
   @Test
   public void testSimpleCommand() throws Exception {
     FirstArgumentAnswer captureInput = new FirstArgumentAnswer();
-    Session session = mock(Session.class);
-    when(session.execute(isA(CharSequence.class))).then(captureInput);
+    Session sessionMock = mock(Session.class);
+    when(sessionMock.execute(isA(CharSequence.class))).then(captureInput);
 
     CommandJob commandJob =
-        new CommandJob(new Security()) {
-          @Override
-          public Subject getSystemSubject() {
-            return createMockSubject();
-          }
-
-          @Override
-          protected SessionFactory getSessionFactory() {
-            SessionFactory sessionFactory = mock(SessionFactory.class);
-            when(sessionFactory.create(notNull(), any(), any())).thenReturn(session);
-            return sessionFactory;
-          }
-        };
+        createCommandJob(
+            createMockSubject(), createMockSessionFactory(sessionMock), createMockSecurity());
 
     String command = VALID_COMMAND;
 
@@ -97,17 +93,18 @@ public class CommandJobTest {
     // then
     assertThat(captureInput.getInputArg(), is(command));
 
-    verify(session, times(1)).execute(command);
-    verify(session, times(1)).close();
+    verify(sessionMock, times(1)).execute(command);
+    verify(sessionMock, times(1)).close();
   }
 
   /** Tests that there is no exception when the {@link JobExecutionContext} is null */
   @Test
   public void testNullContext() {
-    // given
-    CommandJob commandJob = new CommandJob(new Security());
-
-    // when
+    CommandJob commandJob =
+        createCommandJob(
+            createMockSubject(),
+            createMockSessionFactory(mock(Session.class)),
+            createMockSecurity());
     commandJob.execute(null);
   }
 
@@ -118,8 +115,11 @@ public class CommandJobTest {
   @Test
   public void testNullMergedJobDataMap() {
     // given
-    CommandJob commandJob = new CommandJob(new Security());
-
+    CommandJob commandJob =
+        createCommandJob(
+            createMockSubject(),
+            createMockSessionFactory(mock(Session.class)),
+            createMockSecurity());
     JobExecutionContext jobExecutionContext = mock(JobExecutionContext.class);
     when(jobExecutionContext.getMergedJobDataMap()).thenReturn(null);
 
@@ -131,18 +131,7 @@ public class CommandJobTest {
   @Test
   public void testUnableToGetSessionFactory() {
     // given
-    CommandJob commandJob =
-        new CommandJob(new Security()) {
-          @Override
-          public Subject getSystemSubject() {
-            return createMockSubject();
-          }
-
-          @Override
-          protected SessionFactory getSessionFactory() {
-            return null;
-          }
-        };
+    CommandJob commandJob = createCommandJob(createMockSubject(), null, createMockSecurity());
 
     String command = VALID_COMMAND;
 
@@ -159,12 +148,7 @@ public class CommandJobTest {
   public void testUnableToGetSystemSubject() {
     // given
     CommandJob commandJob =
-        new CommandJob(new Security()) {
-          @Override
-          public Subject getSystemSubject() {
-            return null;
-          }
-        };
+        createCommandJob(null, createMockSessionFactory(mock(Session.class)), createMockSecurity());
 
     String command = VALID_COMMAND;
 
@@ -181,7 +165,7 @@ public class CommandJobTest {
   public void testExceptionGettingSystemSubject() {
     // given
     CommandJob commandJob =
-        new CommandJob(new Security()) {
+        new CommandJob() {
           @Override
           public Subject getSystemSubject() {
             throw new RuntimeException();
@@ -198,21 +182,38 @@ public class CommandJobTest {
   @Test
   public void testUnableToExecuteWithSubject() {
     // given
+    Subject subjectMock = mock(Subject.class);
+    when(subjectMock.execute(ArgumentMatchers.<Callable<Object>>any()))
+        .thenThrow(ExecutionException.class);
+
     CommandJob commandJob =
-        new CommandJob(new Security()) {
-          @Override
-          public Subject getSystemSubject() {
-            Subject subject = mock(Subject.class);
-            when(subject.execute(ArgumentMatchers.<Callable<Object>>any()))
-                .thenThrow(ExecutionException.class);
-            return subject;
-          }
-        };
+        createCommandJob(
+            subjectMock, createMockSessionFactory(mock(Session.class)), createMockSecurity());
 
     String command = VALID_COMMAND;
 
     // when
     commandJob.execute(createMockJobExecutionContext(command));
+  }
+
+  private CommandJob createCommandJob(
+      Subject subject, SessionFactory sessionFactory, Security security) {
+    return new CommandJob() {
+      @Override
+      public Subject getSystemSubject() {
+        return subject;
+      }
+
+      @Override
+      protected SessionFactory getSessionFactory() {
+        return sessionFactory;
+      }
+
+      @Override
+      protected Security getSecurity() {
+        return security;
+      }
+    };
   }
 
   private JobExecutionContext createMockJobExecutionContext(String command) {
@@ -234,5 +235,23 @@ public class CommandJobTest {
               return callable.call();
             });
     return subject;
+  }
+
+  private static SessionFactory createMockSessionFactory(Session session) {
+    SessionFactory sessionFactory = mock(SessionFactory.class);
+    when(sessionFactory.create(notNull(), any(), any())).thenReturn(session);
+    return sessionFactory;
+  }
+
+  private static Security createMockSecurity() {
+    Security security = mock(Security.class);
+
+    when(security.runAsAdmin(ArgumentMatchers.<PrivilegedAction<?>>any()))
+        .thenAnswer(
+            invocation -> {
+              PrivilegedAction<?> action = (PrivilegedAction<?>) invocation.getArguments()[0];
+              return action.run();
+            });
+    return security;
   }
 }

@@ -13,6 +13,7 @@
  */
 package ddf.platform.scheduler;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.Subject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import org.codice.ddf.security.Security;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -49,8 +51,8 @@ public class CommandJob implements Job {
 
   private final Security security;
 
-  public CommandJob(Security security) {
-    this.security = security;
+  public CommandJob() {
+    this.security = getSecurity();
   }
 
   protected Subject getSystemSubject() {
@@ -101,6 +103,36 @@ public class CommandJob implements Job {
   @Nullable
   private Bundle getBundle() {
     return FrameworkUtil.getBundle(getClass());
+  }
+
+  @Nullable
+  @VisibleForTesting
+  protected Security getSecurity() {
+    Bundle bundle = getBundle();
+    if (bundle == null) {
+      LOGGER.warn("Could not get bundle from osgi framework.");
+      return null;
+    }
+
+    BundleContext bundleContext = bundle.getBundleContext();
+    if (bundleContext == null) {
+      LOGGER.warn("Could not get bundle context from bundle.");
+      return null;
+    }
+
+    ServiceReference<Security> serviceReference = bundleContext.getServiceReference(Security.class);
+    if (serviceReference == null) {
+      LOGGER.warn("Could not get Security service reference from bundle context.");
+      return null;
+    }
+
+    Security security = bundleContext.getService(serviceReference);
+    if (security == null) {
+      LOGGER.warn("Could not get Security service from bundle context.");
+      return null;
+    }
+
+    return security;
   }
 
   @Nullable

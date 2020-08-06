@@ -73,11 +73,11 @@ public class ScheduledCommandTask implements ScheduledTask {
 
   /**
    * @param scheduler - A reference to the Quartz Scheduler
-   * @param jobClass - A reference to the Quartz Job Implementing Class
+   * @param job - A reference to the Quartz Job to get the class from
    */
-  public ScheduledCommandTask(Scheduler scheduler, Class jobClass) {
+  public ScheduledCommandTask(Scheduler scheduler, Job job) {
     this.scheduler = scheduler;
-    this.jobClass = jobClass;
+    this.jobClass = job.getClass();
   }
 
   public void setCommand(String command) {
