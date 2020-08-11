@@ -67,7 +67,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
 
-  private Security security;
+  private static final Security SECURITY = Security.getInstance();
 
   private final int maxRetries;
 
@@ -115,15 +115,13 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       AttributeRegistry attributeRegistry,
       int maxRetries,
       int delayBetweenRetries,
-      Executor configurationExecutor,
-      Security security) {
+      Executor configurationExecutor) {
     this.camelContext = camelContext;
     this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;
     this.configurationExecutor = configurationExecutor;
-    this.security = security;
-    systemSubjectBinder = new SystemSubjectBinder(security);
+    systemSubjectBinder = new SystemSubjectBinder();
     setBlacklist();
   }
 
@@ -177,7 +175,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    */
   public void init() {
     CDM_LOGGER.debug("Initializing monitor for {}", monitoredDirectory);
-    security.runAsAdmin(
+    SECURITY.runAsAdmin(
         () -> {
           CompletableFuture.runAsync(this::configure, configurationExecutor);
           return null;
@@ -445,12 +443,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   public static class SystemSubjectBinder implements Processor {
 
-    private Security security;
-
-    public SystemSubjectBinder(Security security) {
-      this.security = security;
-    }
-
     /**
      * Adds the system subject to the {@link ThreadContext} to allow proper authentication with the
      * catalog framework.
@@ -459,7 +451,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      */
     @Override
     public void process(Exchange exchange) {
-      ThreadContext.bind(security.getSystemSubject());
+      ThreadContext.bind(SECURITY.getSystemSubject());
     }
   }
 }
