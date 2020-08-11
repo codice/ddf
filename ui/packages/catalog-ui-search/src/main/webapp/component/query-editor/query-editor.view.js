@@ -187,7 +187,7 @@ module.exports = Marionette.LayoutView.extend({
       store.getCurrentQueries().add(this.model)
     }
     this.cancel()
-    this.model.startSearch()
+    this.model.startSearchFromFirstPage()
     store.setCurrentQuery(this.model)
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     this.originalType = this.model.get('type')
