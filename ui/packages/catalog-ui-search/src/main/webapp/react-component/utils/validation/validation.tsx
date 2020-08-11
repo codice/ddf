@@ -27,6 +27,10 @@ const {
   parseDmsCoordinate,
   dmsCoordinateToDD,
 } = require('../../../component/location-new/utils/dms-utils.js')
+const {
+  deserialize,
+  relativeTimeError,
+} = require('../../filter/filter-input/filter-date-inputs/filter-relative-time-input/relativeTimeHelper.js')
 
 export function showErrorMessages(errors: any) {
   if (errors.length === 0) {
@@ -50,17 +54,28 @@ export function showErrorMessages(errors: any) {
 }
 
 export function getFilterErrors(filters: any) {
+  console.log(filters)
   const errors = new Set()
   let geometryErrors = new Set<string>()
+  let dateErrors = new Set<string>()
   for (let i = 0; i < filters.length; i++) {
     const filter = filters[i]
     getGeometryErrors(filter).forEach(msg => {
       geometryErrors.add(msg)
     })
+    getDateErrors(filter).forEach(msg => {
+      dateErrors.add(msg)
+    })
   }
   geometryErrors.forEach(err => {
     errors.add({
       title: 'Invalid geometry filter',
+      body: err,
+    })
+  })
+  dateErrors.forEach(err => {
+    errors.add({
+      title: 'Invalid date filter',
       body: err,
     })
   })
@@ -170,6 +185,19 @@ function hasPointError(point: any[]) {
     return true
   }
   return point[0] > 180 || point[0] < -180 || point[1] > 90 || point[1] < -90
+}
+
+function getDateErrors(filter: any): Set<string> {
+  const errors = new Set<string>()
+  const value = deserialize(filter.value)
+  if (value === undefined) {
+    return errors
+  }
+  console.log(value)
+  if (relativeTimeError(value)) {
+    errors.add('relative time too large')
+  }
+  return errors
 }
 
 function getGeometryErrors(filter: any): Set<string> {

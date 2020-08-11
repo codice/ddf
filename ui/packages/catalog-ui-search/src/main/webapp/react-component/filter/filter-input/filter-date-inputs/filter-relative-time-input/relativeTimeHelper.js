@@ -43,3 +43,27 @@ export const deserialize = value => {
     unit,
   }
 }
+
+export const relativeTimeError = ({ last, unit }) => {
+  console.log(unit)
+  const value = getTimeMinutes(last,unit)
+  return value > 100000000000
+}
+
+const getTimeMinutes=(time, unit)=>{
+  if(unit === 'm'){
+    return time
+  }
+  if(unit === 'h'){
+    return time * 60 
+  }
+  if(unit === 'D'){
+    return time * 60 * 24
+  } 
+  if(unit === 'M'){
+    return time * 60 * 24 * 30
+  }
+  if(unit === 'y'){
+    return time * 60 * 24 * 365
+  }
+}
