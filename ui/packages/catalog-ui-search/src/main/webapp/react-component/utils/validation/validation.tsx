@@ -193,7 +193,7 @@ function getDateErrors(filter: any): Set<string> {
     return errors
   }
   if (relativeTimeError(value)) {
-    errors.add('relative time too large')
+    errors.add('relative time exceeds max value')
   }
   return errors
 }

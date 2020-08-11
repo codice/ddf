@@ -35,7 +35,7 @@ const LastInput = styled(TextField)`
 const getErrorState = (value, unit) => {
   let newValue = Number.parseFloat(value)
   return relativeTimeError({ last: newValue, unit })
-    ? { error: true, message: 'too big value' }
+    ? { error: true, message: 'value too large' }
     : { error: false }
 }
 
