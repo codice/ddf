@@ -54,7 +54,6 @@ export function showErrorMessages(errors: any) {
 }
 
 export function getFilterErrors(filters: any) {
-  console.log(filters)
   const errors = new Set()
   let geometryErrors = new Set<string>()
   let dateErrors = new Set<string>()
@@ -193,7 +192,6 @@ function getDateErrors(filter: any): Set<string> {
   if (value === undefined) {
     return errors
   }
-  console.log(value)
   if (relativeTimeError(value)) {
     errors.add('relative time too large')
   }
