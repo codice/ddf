@@ -75,12 +75,29 @@ Draw.BboxView = Marionette.View.extend({
     let west = parseFloat(model.get('mapWest'))
 
     if (isNaN(north) || isNaN(south) || isNaN(east) || isNaN(west)) {
+      this.destroyPrimitive()
       return
     }
 
-    // If south is greater than north, return in order to
-    // prevent displaying the shape on the map
+    // If south is greater than north,
+    // remove shape from map
     if (south > north) {
+      this.destroyPrimitive()
+      return
+    }
+
+    if (
+      validateGeo(
+        'polygon',
+        JSON.stringify([
+          [west, north],
+          [east, north],
+          [west, south],
+          [east, south],
+          [west, north],
+        ])
+      ).error
+    ) {
       return
     }
 
@@ -121,10 +138,6 @@ Draw.BboxView = Marionette.View.extend({
     coords.push(southEast)
     coords.push(southWest)
     coords.push(northWest)
-
-    if (validateGeo('polygon', JSON.stringify(coords)).error) {
-      return
-    }
 
     const rectangle = new ol.geom.LineString(coords)
     return rectangle
