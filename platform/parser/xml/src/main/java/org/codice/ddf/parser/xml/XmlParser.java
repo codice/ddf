@@ -20,6 +20,9 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -171,58 +174,79 @@ public class XmlParser implements Parser {
 
   private void marshal(ParserConfigurator configurator, Consumer<Marshaller> marshallerConsumer)
       throws ParserException {
-    JAXBContext jaxbContext =
-        getContext(configurator.getContextPath(), configurator.getClassLoader());
-
-    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
     try {
-      Thread.currentThread().setContextClassLoader(configurator.getClassLoader());
-      Marshaller marshaller = jaxbContext.createMarshaller();
-      if (configurator.getAdapter() != null) {
-        marshaller.setAdapter(configurator.getAdapter());
-      }
-      if (configurator.getHandler() != null) {
-        marshaller.setEventHandler(configurator.getHandler());
-      }
-      for (Map.Entry<String, Object> propRow : configurator.getProperties().entrySet()) {
-        marshaller.setProperty(propRow.getKey(), propRow.getValue());
-      }
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Void>)
+              () -> {
+                JAXBContext jaxbContext =
+                    getContext(configurator.getContextPath(), configurator.getClassLoader());
 
-      marshallerConsumer.accept(marshaller);
-    } catch (RuntimeException | JAXBException e) {
+                ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+                try {
+                  Thread.currentThread().setContextClassLoader(configurator.getClassLoader());
+                  Marshaller marshaller = jaxbContext.createMarshaller();
+                  if (configurator.getAdapter() != null) {
+                    marshaller.setAdapter(configurator.getAdapter());
+                  }
+                  if (configurator.getHandler() != null) {
+                    marshaller.setEventHandler(configurator.getHandler());
+                  }
+                  for (Map.Entry<String, Object> propRow :
+                      configurator.getProperties().entrySet()) {
+                    marshaller.setProperty(propRow.getKey(), propRow.getValue());
+                  }
+
+                  marshallerConsumer.accept(marshaller);
+                } finally {
+                  Thread.currentThread().setContextClassLoader(tccl);
+                }
+                return null;
+              });
+    } catch (final RuntimeException e) {
       LOGGER.debug(MARSHALLING_ERROR_MSG, e);
       throw new ParserException(MARSHALLING_ERROR_MSG, e);
-    } finally {
-      Thread.currentThread().setContextClassLoader(tccl);
+    } catch (final PrivilegedActionException e) {
+      LOGGER.debug(MARSHALLING_ERROR_MSG, e);
+      throw new ParserException(MARSHALLING_ERROR_MSG, e.getException());
     }
   }
 
   private <T> T unmarshal(ParserConfigurator configurator, Function<Unmarshaller, T> func)
       throws ParserException {
-    JAXBContext jaxbContext =
-        getContext(configurator.getContextPath(), configurator.getClassLoader());
-
-    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
     try {
-      Thread.currentThread().setContextClassLoader(configurator.getClassLoader());
+      return AccessController.doPrivileged(
+          (PrivilegedExceptionAction<T>)
+              () -> {
+                JAXBContext jaxbContext =
+                    getContext(configurator.getContextPath(), configurator.getClassLoader());
 
-      Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-      if (configurator.getAdapter() != null) {
-        unmarshaller.setAdapter(configurator.getAdapter());
-      }
-      if (configurator.getHandler() != null) {
-        unmarshaller.setEventHandler(configurator.getHandler());
-      }
-      for (Map.Entry<String, Object> propRow : configurator.getProperties().entrySet()) {
-        unmarshaller.setProperty(propRow.getKey(), propRow.getValue());
-      }
+                ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+                try {
+                  Thread.currentThread().setContextClassLoader(configurator.getClassLoader());
 
-      return func.apply(unmarshaller);
-    } catch (RuntimeException | JAXBException e) {
+                  Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+                  if (configurator.getAdapter() != null) {
+                    unmarshaller.setAdapter(configurator.getAdapter());
+                  }
+                  if (configurator.getHandler() != null) {
+                    unmarshaller.setEventHandler(configurator.getHandler());
+                  }
+                  for (Map.Entry<String, Object> propRow :
+                      configurator.getProperties().entrySet()) {
+                    unmarshaller.setProperty(propRow.getKey(), propRow.getValue());
+                  }
+
+                  return func.apply(unmarshaller);
+                } finally {
+                  Thread.currentThread().setContextClassLoader(tccl);
+                }
+              });
+    } catch (final RuntimeException e) {
+      LOGGER.debug(MARSHALLING_ERROR_MSG, e);
+      throw new ParserException(MARSHALLING_ERROR_MSG, e);
+    } catch (final PrivilegedActionException e) {
       LOGGER.debug(UNMARSHALLING_ERROR_MSG, e);
-      throw new ParserException(UNMARSHALLING_ERROR_MSG, e);
-    } finally {
-      Thread.currentThread().setContextClassLoader(tccl);
+      throw new ParserException(UNMARSHALLING_ERROR_MSG, e.getException());
     }
   }
 
