@@ -47,6 +47,47 @@ index again.
 
 |===
 
+=== Standalone Solr Offline Gazetteer Feature
+
+The Standalone Solr Offline Gazetteer is a reflection of the gazetteer data stored
+in the catalog but separated from other data. This allows the suggester to be separately rebuilt
+much quicker than for the entire catalog collection.
+
+
+
+====  Installing Standalone Solr Offline Gazetteer
+
+The Standalone Solr Offline Gazetteer is not installed by default but can be installed by running
+`feature:install catalog-solr-offline-gazetteer`. This will install:
+
+* The plugin that intercepts gazetteer metacard creates/updates/deletes to the catalog collection
+(and stores them in the standalone solr gazetteer collection)
+* The gazetteer query service which registers the Query component that responds to requests from
+the UI gazetteer search box
+* The `offline-solr-gazetteer:removeall` command which will delete all records in the gazetteer
+collection.
+* The `offline-solr-gazetteer:synccatalog` command which will sync with the catalog and update all
+records in the gazetteer collection to reflect it (or add them if they are not yet
+created)
+
+==== Special Note Regarding Installation
+
+If the Spatial Geocoding Offline Catalog bundle and the bundle using the Gazetteer query service
+(for example, Intrigue) are both already running, you will need to restart the bundles consuming the service
+(for example, Intrigue) in order to pick up the correct one.
+
+==== Building the suggester index on Standalone Solr Offline Gazetteer
+
+The suggester index will be built when any of the other methods of building the catalog gazetteer
+are run, along with on initial install. So you can run `gazetteer:build-suggester-index` or
+`offline-solr-gazetteer:build-suggester-index` to build the suggester.
+
+Another option is to send a build request via a solr client. An example of this is done through
+the Solr Dashboard after selecting the `gazetteer` collection and clicking `query`.
+Ensure that the Request-Handler (qt) is set to `/suggest` and then in the 'Extra Parameters' field
+add `suggest.build=true&suggest.dictionary=suggestPlace&suggest.q=bla`.
+
+
 ===  ${ddf-spatial} Prerequisites
 
 To use the ${ddf-spatial} Application, the following apps/features must be installed:
