@@ -17,14 +17,13 @@ import com.google.common.collect.ImmutableList
 import com.google.common.net.HttpHeaders
 import ddf.security.audit.SecurityLogger
 import org.codice.ddf.platform.filter.AuthenticationException
-import org.codice.ddf.platform.filter.FilterChain
+import org.codice.ddf.platform.filter.SecurityFilterChain
 import org.codice.ddf.security.filter.csrf.CsrfFilter
 import org.eclipse.jetty.http.HttpMethod
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
 
-import javax.servlet.ServletRequest
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -82,7 +81,7 @@ class CsrfFilterSpec extends Specification {
     CsrfFilter csrfFilter = new CsrfFilter(Mock(SecurityLogger))
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
-    FilterChain chain = Mock(FilterChain)
+    SecurityFilterChain chain = Mock(SecurityFilterChain)
 
     when:
     HttpServletRequest request = Mock(HttpServletRequest)
@@ -162,7 +161,7 @@ class CsrfFilterSpec extends Specification {
     CsrfFilter csrfFilter = new CsrfFilter(Mock(SecurityLogger))
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
-    FilterChain chain = Mock(FilterChain)
+    SecurityFilterChain chain = Mock(SecurityFilterChain)
 
     when:
     String requestUrl = "https://ddf:123" + requestContext
@@ -228,7 +227,7 @@ class CsrfFilterSpec extends Specification {
     CsrfFilter csrfFilter = new CsrfFilter(Mock(SecurityLogger))
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
-    FilterChain chain = Mock(FilterChain)
+    SecurityFilterChain chain = Mock(SecurityFilterChain)
 
     when:
     HttpServletRequest request = Mock(HttpServletRequest)
@@ -296,7 +295,7 @@ class CsrfFilterSpec extends Specification {
     CsrfFilter csrfFilter = new CsrfFilter(Mock(SecurityLogger))
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
-    FilterChain chain = Mock(FilterChain)
+    SecurityFilterChain chain = Mock(SecurityFilterChain)
 
     when:
     HttpServletRequest request = Mock(HttpServletRequest)

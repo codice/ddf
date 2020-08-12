@@ -18,18 +18,15 @@ import io.micrometer.core.instrument.Metrics;
 import java.io.IOException;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.codice.ddf.platform.filter.HttpFilter;
+import org.codice.ddf.platform.filter.HttpFilterChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServletMetrics implements Filter {
+public class ServletMetrics implements HttpFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServletMetrics.class);
 
@@ -38,25 +35,17 @@ public class ServletMetrics implements Filter {
   private static final String HISTOGRAM_NAME = "latency";
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-    LOGGER.debug("Adding metrics security filter.");
-  }
-
-  @Override
   public void doFilter(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
+      HttpServletRequest request, HttpServletResponse response, HttpFilterChain filterChain)
       throws IOException, ServletException {
     boolean hadException = false;
     long startTime = System.currentTimeMillis();
     try {
-      chain.doFilter(servletRequest, servletResponse);
+      filterChain.doFilter(request, response);
     } catch (Exception ex) {
       hadException = true;
       throw ex;
     } finally {
-      HttpServletRequest request = (HttpServletRequest) servletRequest;
-      HttpServletResponse response = (HttpServletResponse) servletResponse;
-
       if (!hadException && request.isAsyncStarted()) {
         request.getAsyncContext().addListener(new AsyncResponseListener(startTime));
       } else {
@@ -104,11 +93,6 @@ public class ServletMetrics implements Filter {
     }
 
     return result;
-  }
-
-  @Override
-  public void destroy() {
-    LOGGER.debug("Removing metrics security filter.");
   }
 
   private static final class AsyncResponseListener implements AsyncListener {

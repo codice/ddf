@@ -15,32 +15,23 @@
 
     <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" availability="optional" />
 
-    <reference-list id="filterList" availability="optional" interface="javax.servlet.Filter" />
-
-    <!-- Set ranking=0 so this will run after all SecurityFilters (as if it were a ServletFilter) -->
-    <service id="delegatingSecurityFilter" interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="0">
-        <bean class="org.codice.ddf.pax.web.jetty.DelegatingSecurityFilter">
-            <argument ref="filterList"/>
-        </bean>
-    </service>
-
     <!-- Global ServletFilters -->
-    <service id="clientInfoFilter" interface="javax.servlet.Filter">
+    <service id="clientInfoFilter" interface="org.codice.ddf.platform.filter.HttpFilter">
         <bean class="org.codice.ddf.pax.web.jetty.ClientInfoFilter"/>
     </service>
 
-    <service ref="responseFilter" interface="javax.servlet.Filter"/>
     <bean id="responseFilter" class="org.codice.ddf.pax.web.jetty.ResponseFilter">
         <cm:managed-properties
           persistent-id="org.codice.ddf.platform.response.filter.ResponseHeaderConfig"
           update-strategy="container-managed"/>
     </bean>
+    <service ref="responseFilter" interface="org.codice.ddf.platform.filter.HttpFilter"/>
 
-    <service id="securityJavaSubjectFilter" interface="javax.servlet.Filter">
+    <service id="securityJavaSubjectFilter" interface="org.codice.ddf.platform.filter.HttpFilter">
         <bean class="org.codice.ddf.pax.web.jetty.SecurityJavaSubjectFilter"/>
     </service>
 
-    <service id="doPrivilegedFilter" interface="javax.servlet.Filter">
+    <service id="doPrivilegedFilter" interface="org.codice.ddf.platform.filter.HttpFilter">
         <bean class="org.codice.ddf.pax.web.jetty.DoPrivilegedFilter"/>
     </service>
 

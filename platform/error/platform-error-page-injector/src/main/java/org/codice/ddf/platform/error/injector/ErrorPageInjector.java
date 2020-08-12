@@ -212,6 +212,7 @@ public class ErrorPageInjector implements EventListenerHook {
 
     ErrorPageErrorHandler errorPageErrorHandler = new ErrorPageErrorHandler();
     errorPageErrorHandler.setErrorPages(errorCodesMap);
+    errorPageErrorHandler.setShowStacks(false);
     httpServiceContext.setErrorHandler(errorPageErrorHandler);
   }
 }

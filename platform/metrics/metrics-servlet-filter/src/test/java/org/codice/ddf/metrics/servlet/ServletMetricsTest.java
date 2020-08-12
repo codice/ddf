@@ -30,11 +30,10 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.junit.After;
+import org.codice.ddf.pax.web.jetty.ProxyHttpFilterChain;
+import org.eclipse.jetty.server.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -51,11 +50,13 @@ public class ServletMetricsTest {
 
   public static final Iterable<Tag> DEFAULT_TAGS = getTags(DEFAULT_METHOD, DEFAULT_STATUS);
 
-  @Mock private HttpServletRequest request;
+  @Mock private Request mockBaseRequest;
 
-  @Mock private HttpServletResponse response;
+  @Mock private HttpServletRequest mockRequest;
 
-  @Mock private FilterChain chain;
+  @Mock private HttpServletResponse mockResponse;
+
+  @Mock private ProxyHttpFilterChain mockFilterChain;
 
   private final ServletMetrics underTest = new ServletMetrics();
 
@@ -75,22 +76,16 @@ public class ServletMetricsTest {
               sleep(10);
               return null;
             })
-        .when(chain)
-        .doFilter(request, response);
-    when(request.isAsyncStarted()).thenReturn(false);
-    when(request.getMethod()).thenReturn(DEFAULT_METHOD);
-    when(response.getStatus()).thenReturn(DEFAULT_STATUS);
-    underTest.init(mock(FilterConfig.class));
-  }
-
-  @After
-  public void after() throws Exception {
-    underTest.destroy();
+        .when(mockFilterChain)
+        .doFilter(mockRequest, mockResponse);
+    when(mockRequest.isAsyncStarted()).thenReturn(false);
+    when(mockRequest.getMethod()).thenReturn(DEFAULT_METHOD);
+    when(mockResponse.getStatus()).thenReturn(DEFAULT_STATUS);
   }
 
   @Test
   public void syncDoFilter() throws Exception {
-    underTest.doFilter(request, response, chain);
+    underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
 
     assertThat(meterRegistry.summary(LATENCY, tags).count(), is(1L));
     assertThat(meterRegistry.summary(LATENCY, tags).max(), greaterThanOrEqualTo(10.0));
@@ -98,14 +93,14 @@ public class ServletMetricsTest {
 
   @Test
   public void asyncDoFilter() throws Exception {
-    when(request.isAsyncStarted()).thenReturn(true);
+    when(mockRequest.isAsyncStarted()).thenReturn(true);
     AsyncContext asyncContext = mock(AsyncContext.class);
-    when(request.getAsyncContext()).thenReturn(asyncContext);
+    when(mockRequest.getAsyncContext()).thenReturn(asyncContext);
     AsyncEvent event = mock(AsyncEvent.class);
-    when(event.getSuppliedRequest()).thenReturn(request);
-    when(event.getSuppliedResponse()).thenReturn(response);
+    when(event.getSuppliedRequest()).thenReturn(mockRequest);
+    when(event.getSuppliedResponse()).thenReturn(mockResponse);
 
-    underTest.doFilter(request, response, chain);
+    underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
 
     ArgumentCaptor<AsyncListener> arg = ArgumentCaptor.forClass(AsyncListener.class);
     verify(asyncContext).addListener(arg.capture());
@@ -121,14 +116,14 @@ public class ServletMetricsTest {
 
   @Test
   public void asyncDoFilterTimeout() throws Exception {
-    when(request.isAsyncStarted()).thenReturn(true);
+    when(mockRequest.isAsyncStarted()).thenReturn(true);
     AsyncContext asyncContext = mock(AsyncContext.class);
-    when(request.getAsyncContext()).thenReturn(asyncContext);
+    when(mockRequest.getAsyncContext()).thenReturn(asyncContext);
     AsyncEvent event = mock(AsyncEvent.class);
-    when(event.getSuppliedRequest()).thenReturn(request);
-    when(event.getSuppliedResponse()).thenReturn(response);
+    when(event.getSuppliedRequest()).thenReturn(mockRequest);
+    when(event.getSuppliedResponse()).thenReturn(mockResponse);
 
-    underTest.doFilter(request, response, chain);
+    underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
 
     ArgumentCaptor<AsyncListener> arg = ArgumentCaptor.forClass(AsyncListener.class);
     verify(asyncContext).addListener(arg.capture());
@@ -143,14 +138,14 @@ public class ServletMetricsTest {
 
   @Test
   public void asyncDoFilterError() throws Exception {
-    when(request.isAsyncStarted()).thenReturn(true);
+    when(mockRequest.isAsyncStarted()).thenReturn(true);
     AsyncContext asyncContext = mock(AsyncContext.class);
-    when(request.getAsyncContext()).thenReturn(asyncContext);
+    when(mockRequest.getAsyncContext()).thenReturn(asyncContext);
     AsyncEvent event = mock(AsyncEvent.class);
-    when(event.getSuppliedRequest()).thenReturn(request);
-    when(event.getSuppliedResponse()).thenReturn(response);
+    when(event.getSuppliedRequest()).thenReturn(mockRequest);
+    when(event.getSuppliedResponse()).thenReturn(mockResponse);
 
-    underTest.doFilter(request, response, chain);
+    underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
 
     ArgumentCaptor<AsyncListener> arg = ArgumentCaptor.forClass(AsyncListener.class);
     verify(asyncContext).addListener(arg.capture());
@@ -165,12 +160,12 @@ public class ServletMetricsTest {
 
   @Test(expected = Exception.class)
   public void syncException() throws Exception {
-    doThrow(Exception.class).when(chain).doFilter(request, response);
-    when(request.getMethod()).thenReturn("POST");
-    when(response.getStatus()).thenReturn(500);
+    doThrow(Exception.class).when(mockFilterChain).doFilter(mockRequest, mockResponse);
+    when(mockRequest.getMethod()).thenReturn("POST");
+    when(mockResponse.getStatus()).thenReturn(500);
 
     try {
-      underTest.doFilter(request, response, chain);
+      underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
     } finally {
       tags = getTags("POST", 500);
       assertThat(meterRegistry.summary(LATENCY, tags).count(), is(1L));
@@ -179,12 +174,12 @@ public class ServletMetricsTest {
 
   @Test(expected = Exception.class)
   public void syncExceptionWithConflictingStatusCode() throws Exception {
-    doThrow(Exception.class).when(chain).doFilter(request, response);
-    when(request.getMethod()).thenReturn("POST");
-    when(response.getStatus()).thenReturn(200);
+    doThrow(Exception.class).when(mockFilterChain).doFilter(mockRequest, mockResponse);
+    when(mockRequest.getMethod()).thenReturn("POST");
+    when(mockResponse.getStatus()).thenReturn(200);
 
     try {
-      underTest.doFilter(request, response, chain);
+      underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
     } finally {
       tags = getTags("POST", 500);
       assertThat(meterRegistry.summary(LATENCY, tags).count(), is(1L));

@@ -48,13 +48,27 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure_9_0.dtd">
               class="org.codice.ddf.security.session.AttributeSharingSessionDataStoreFactory"/>
         </Arg>
     </Call>
+    <!--
+        pax-web has a property that's supposed to take care of this. But stack traces were still
+        showing even with that set. It appears the ErrorHandler that pax-web creates gets unset or
+        overridden at some point. This is the only way I could get it to work.
+
+        The pax-web property: https://github.com/ops4j/org.ops4j.pax.web/pull/268
+      -->
+    <Call name="setErrorHandler">
+        <Arg>
+            <New class="org.eclipse.jetty.server.handler.ErrorHandler">
+                <Set name="showStacks" type="boolean">false</Set>
+            </New>
+        </Arg>
+    </Call>
 
     <Get name="handler">
         <Call name="addHandler">
-          <Arg>
-            <New id="RequestLog"
-                class="org.eclipse.jetty.server.handler.RequestLogHandler"/>
-          </Arg>
+            <Arg>
+                <New id="RequestLog"
+                  class="org.eclipse.jetty.server.handler.RequestLogHandler"/>
+            </Arg>
         </Call>
     </Get>
     <Ref refid="RequestLog">
@@ -66,5 +80,26 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure_9_0.dtd">
             </New>
         </Set>
     </Ref>
+
+    <!--
+        Need to wrap pax-web's JettyServerHandlerCollection, which is the default configured
+        handler. This changes the handler hierarchy to look like the following:
+
+        Server
+        `—— DelegatingHttpFilterHandler
+            `—— JettyServerHandlerCollection
+                |—— handler 1
+                |—— handler 2
+                |—— ...
+                `—— handler n
+      -->
+    <Get id="oldHandler" name="handler"/>
+    <Set name="handler">
+        <New class="org.codice.ddf.pax.web.jetty.DelegatingHttpFilterHandler">
+            <Set name="handler">
+                <Ref refid="oldHandler"/>
+            </Set>
+        </New>
+    </Set>
 
 </Configure>

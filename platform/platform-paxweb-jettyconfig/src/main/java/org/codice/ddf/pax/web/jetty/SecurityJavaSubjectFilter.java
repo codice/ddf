@@ -17,37 +17,29 @@ import ddf.security.SecurityConstants;
 import java.io.IOException;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.codice.ddf.platform.filter.HttpFilter;
+import org.codice.ddf.platform.filter.HttpFilterChain;
 import org.slf4j.LoggerFactory;
 
-public class SecurityJavaSubjectFilter implements Filter {
+public class SecurityJavaSubjectFilter implements HttpFilter {
   private static final org.slf4j.Logger LOGGER =
       LoggerFactory.getLogger(SecurityJavaSubjectFilter.class);
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-    LOGGER.debug("Starting SecurityJavaSubjectFilter...");
-  }
-
-  @Override
   public void doFilter(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+      HttpServletRequest request, HttpServletResponse response, HttpFilterChain filterChain)
       throws IOException, ServletException {
-
     javax.security.auth.Subject subject =
-        (javax.security.auth.Subject)
-            servletRequest.getAttribute(SecurityConstants.SECURITY_JAVA_SUBJECT);
+        (javax.security.auth.Subject) request.getAttribute(SecurityConstants.SECURITY_JAVA_SUBJECT);
 
     if (subject != null) {
       if (filterChain != null) {
         PrivilegedExceptionAction<Void> action =
             () -> {
-              filterChain.doFilter(servletRequest, servletResponse);
+              filterChain.doFilter(request, response);
               return null;
             };
         try {
@@ -60,13 +52,8 @@ public class SecurityJavaSubjectFilter implements Filter {
         }
       }
     } else {
-      filterChain.doFilter(servletRequest, servletResponse);
+      filterChain.doFilter(request, response);
       LOGGER.debug("No java subject found to attach to thread.");
     }
-  }
-
-  @Override
-  public void destroy() {
-    // not needed
   }
 }
