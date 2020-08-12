@@ -56,6 +56,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigInteger;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -158,7 +159,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
@@ -1052,23 +1052,38 @@ public class CswEndpoint implements Csw {
 
     DescribeRecordResponseType response = new DescribeRecordResponseType();
     List<SchemaComponentType> schemas = new ArrayList<>();
+    String schemaLocation;
+    String schema;
 
     if (types.isEmpty()) {
-      schemas.add(getSchemaComponentType(CswConstants.CSW_OUTPUT_SCHEMA));
-      schemas.add(getSchemaComponentType(GmdConstants.GMD_NAMESPACE));
-    } else {
-      if (types.contains(
-          new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME))) {
-        schemas.add(getSchemaComponentType(CswConstants.CSW_OUTPUT_SCHEMA));
+      List<String> typeNames = getTypeNames();
+      for (String typeName : typeNames) {
+        schema = schemaTransformerManager.getTransformerSchemaForId(typeName);
+        schemaLocation = schemaTransformerManager.getTransformerSchemaLocationForId(typeName);
+        if (StringUtils.isNotBlank(schema) && StringUtils.isNotBlank(schemaLocation)) {
+          schemas.add(getSchemaComponentType(schema, schemaLocation));
+        }
       }
-
-      if (types.contains(new QName(GmdConstants.GMD_NAMESPACE, GmdConstants.GMD_LOCAL_NAME))) {
-        schemas.add(getSchemaComponentType(GmdConstants.GMD_NAMESPACE));
+    } else {
+      for (QName type : types) {
+        String typeName =
+            StringUtils.isNotBlank(type.getPrefix())
+                ? type.getPrefix() + CswConstants.NAMESPACE_DELIMITER
+                : "";
+        typeName += type.getLocalPart();
+        schema = schemaTransformerManager.getTransformerSchemaForId(typeName);
+        if (schema != null && schema.equals(type.getNamespaceURI())) {
+          schemaLocation = schemaTransformerManager.getTransformerSchemaLocationForId(typeName);
+          if (StringUtils.isNotBlank(schemaLocation)) {
+            schemas.add(getSchemaComponentType(schema, schemaLocation));
+          }
+        }
       }
 
       if (types.contains(
           new QName(CswConstants.EBRIM_SCHEMA, CswConstants.EBRIM_RECORD_LOCAL_NAME))) {
-        schemas.add(getSchemaComponentType(CswConstants.EBRIM_SCHEMA));
+        schemas.add(
+            getSchemaComponentType(CswConstants.EBRIM_SCHEMA, "csw-ebrim.1.0.2/csw-ebrim.xsd"));
       }
     }
 
@@ -1147,19 +1162,12 @@ public class CswEndpoint implements Csw {
     return response;
   }
 
-  private SchemaComponentType getSchemaComponentType(String outputSchema) throws CswException {
+  private SchemaComponentType getSchemaComponentType(String outputSchema, String schemaLocation)
+      throws CswException {
 
     SchemaComponentType schemaComponentType = new SchemaComponentType();
     List<Object> listOfObject = new ArrayList<>();
-
-    if (outputSchema.equals(CswConstants.CSW_OUTPUT_SCHEMA)) {
-      listOfObject.add(getDocElementFromResourcePath("csw/2.0.2/record.xsd"));
-    } else if (outputSchema.equals(GmdConstants.GMD_NAMESPACE)) {
-      listOfObject.add(getDocElementFromResourcePath("gmd/record_gmd.xsd"));
-    } else if (outputSchema.equals(CswConstants.EBRIM_SCHEMA)) {
-      listOfObject.add(getDocElementFromResourcePath("csw-ebrim.1.0.2/csw-ebrim.xsd"));
-    }
-
+    listOfObject.add(getDocElementFromResourcePath(schemaLocation));
     schemaComponentType.setContent(listOfObject);
     schemaComponentType.setSchemaLanguage(CswConstants.XML_SCHEMA_LANGUAGE);
     schemaComponentType.setTargetNamespace(outputSchema);
@@ -1177,7 +1185,7 @@ public class CswEndpoint implements Csw {
 
   private Element loadDocElementFromResourcePath(String resourcePath) throws CswException {
     URL recordUrl = getBundle().getResource(resourcePath);
-
+    String recordPath = null;
     if (recordUrl == null) {
       /* Using DescribeRecordType since that is the bundle where other csw resources live */
       recordUrl =
@@ -1185,6 +1193,9 @@ public class CswEndpoint implements Csw {
               .map(b -> b.getResource(resourcePath))
               .orElse(null);
       if (recordUrl /*still*/ == null) {
+        recordPath = Paths.get(System.getProperty("ddf.etc"), resourcePath).toString();
+      }
+      if (recordUrl /*still*/ == null && StringUtils.isBlank(recordPath)) {
         throw new CswException("Cannot find the resource: " + resourcePath);
       }
     }
@@ -1192,7 +1203,11 @@ public class CswEndpoint implements Csw {
     Document doc;
     try {
       DocumentBuilder docBuilder = XML_UTILS.getSecureDocumentBuilder(true);
-      doc = docBuilder.parse(recordUrl.openStream());
+      if (recordPath != null) {
+        doc = docBuilder.parse(recordPath);
+      } else {
+        doc = docBuilder.parse(recordUrl.openStream());
+      }
     } catch (ParserConfigurationException | SAXException | IOException e) {
       throw new CswException(e);
     }
@@ -1362,6 +1377,9 @@ public class CswEndpoint implements Csw {
 
     List<QName> getAndPost = Arrays.asList(CswConstants.GET, CswConstants.POST);
 
+    Set<String> schemasSet = new HashSet<>(schemaTransformerManager.getAvailableSchemas());
+    List<String> availableSchemas = new ArrayList<>(schemasSet);
+
     // Builds GetCapabilities operation metadata
     Operation getCapabilitiesOp = buildOperation(CswConstants.GET_CAPABILITIES, getAndPost);
     addOperationParameter("sections", GET_CAPABILITIES_PARAMS, getCapabilitiesOp);
@@ -1383,10 +1401,7 @@ public class CswEndpoint implements Csw {
         Arrays.asList("hits", "results", "validate"),
         getRecordsOp);
     addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordsOp);
-    addOperationParameter(
-        CswConstants.OUTPUT_SCHEMA_PARAMETER,
-        schemaTransformerManager.getAvailableSchemas(),
-        getRecordsOp);
+    addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER, availableSchemas, getRecordsOp);
     addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER, typeNames, getRecordsOp);
     addOperationParameter(
         CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
@@ -1396,7 +1411,7 @@ public class CswEndpoint implements Csw {
 
     // Builds GetRecordById operation metadata
     mimeTypes.add(MediaType.APPLICATION_OCTET_STREAM);
-    List<String> supportedSchemas = schemaTransformerManager.getAvailableSchemas();
+    List<String> supportedSchemas = new ArrayList<>(availableSchemas);
     supportedSchemas.add(OCTET_STREAM_OUTPUT_SCHEMA);
     Operation getRecordByIdOp = buildOperation(CswConstants.GET_RECORD_BY_ID, getAndPost);
     addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER, supportedSchemas, getRecordByIdOp);

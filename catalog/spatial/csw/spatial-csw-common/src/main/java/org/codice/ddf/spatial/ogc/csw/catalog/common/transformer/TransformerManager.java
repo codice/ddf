@@ -32,6 +32,8 @@ public class TransformerManager {
 
   public static final String SCHEMA = "schema";
 
+  public static final String SCHEMA_LOCATION = "schema-location";
+
   public static final String ID = "id";
 
   private final List<ServiceReference> serviceRefs;
@@ -65,6 +67,15 @@ public class TransformerManager {
     List<Map<String, Object>> properties = getRelatedTransformerProperties(ID, id);
     if (properties.size() > 0) {
       return (String) properties.get(0).get(SCHEMA);
+    }
+    return "";
+  }
+
+  public String getTransformerSchemaLocationForId(String id) {
+
+    List<Map<String, Object>> properties = getRelatedTransformerProperties(ID, id);
+    if (properties.size() > 0) {
+      return (String) properties.get(0).get(SCHEMA_LOCATION);
     }
     return "";
   }
