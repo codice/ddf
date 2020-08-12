@@ -71,8 +71,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   private static final Logger LOGGER = LoggerFactory.getLogger(GazetteerQueryOfflineSolr.class);
 
   private static final String CITY_SOLR_QUERY =
-      GeoCodingConstants.CITY_FEATURE_CODES
-          .stream()
+      GeoCodingConstants.CITY_FEATURE_CODES.stream()
           .map(fc -> String.format("%s:%s", FEATURE_CODE, fc))
           .collect(Collectors.joining(" OR ", "(", ")"));
 
@@ -113,9 +112,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
     } catch (SolrServerException | IOException e) {
       throw new GeoEntryQueryException("Error while querying", e);
     }
-    return response
-        .getResults()
-        .stream()
+    return response.getResults().stream()
         .map(this::transformMetacardToGeoEntry)
         .collect(Collectors.toList());
   }
@@ -133,9 +130,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
       throw new GeoEntryQueryException("Error while querying by ID", e);
     }
 
-    return response
-        .getResults()
-        .stream()
+    return response.getResults().stream()
         .map(this::transformMetacardToGeoEntry)
         .findFirst()
         .orElseThrow(() -> new GeoEntryQueryException("Could not find id"));
@@ -157,12 +152,10 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
       throw new GeoEntryQueryException("Error while querying", e);
     }
 
-    return Optional.ofNullable(response)
-        .map(QueryResponse::getSuggesterResponse)
+    return Optional.ofNullable(response).map(QueryResponse::getSuggesterResponse)
         .map(SuggesterResponse::getSuggestions)
         .map(suggestionsPerDict -> suggestionsPerDict.get(SUGGEST_DICT))
-        .orElse(Collections.emptyList())
-        .stream()
+        .orElse(Collections.emptyList()).stream()
         .map(suggestion -> new SuggestionImpl(suggestion.getPayload(), suggestion.getTerm()))
         .collect(Collectors.toList());
   }
@@ -215,9 +208,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
       throw new GeoEntryQueryException("Error executing query for nearest cities", e);
     }
 
-    return response
-        .getResults()
-        .stream()
+    return response.getResults().stream()
         .map(result -> convert(result, originalGeometry))
         .collect(Collectors.toList());
   }
@@ -337,9 +328,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
       throw new GeoEntryQueryException("Error encountered when querying", e);
     }
 
-    return response
-        .getResults()
-        .stream()
+    return response.getResults().stream()
         .findFirst()
         .map(doc -> getField(doc, COUNTRY_CODE, String.class));
   }
@@ -409,12 +398,8 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
   }
 
   private <T> T getField(SolrDocument document, String attribute, Class<T> clazz) {
-    return Optional.of(document)
-        .map(d -> d.get(attribute))
-        .filter(List.class::isInstance)
-        .map(l -> (List<Object>) l)
-        .orElse(Collections.emptyList())
-        .stream()
+    return Optional.of(document).map(d -> d.get(attribute)).filter(List.class::isInstance)
+        .map(l -> (List<Object>) l).orElse(Collections.emptyList()).stream()
         .filter(clazz::isInstance)
         .map(clazz::cast)
         .findFirst()

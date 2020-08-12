@@ -51,10 +51,9 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = "offline-solr-gazetteer",
-  name = "synccatalog",
-  description = "Syncs all catalog items to the solr gazetteer collection"
-)
+    scope = "offline-solr-gazetteer",
+    name = "synccatalog",
+    description = "Syncs all catalog items to the solr gazetteer collection")
 public class SyncCatalogCommand implements Action {
 
   private static final Logger LOGGER =
@@ -113,8 +112,7 @@ public class SyncCatalogCommand implements Action {
 
       try {
         solrClient.add(
-            results
-                .stream()
+            results.stream()
                 .map(Result::getMetacard)
                 .map(CatalogGazetteerForwardingPlugin::convert)
                 .collect(Collectors.toList()));
