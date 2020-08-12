@@ -409,10 +409,6 @@ grant codeBase "file:/security-certificate-generator" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read,write";
 }
 
-grant codeBase "file:/platform-parser-xml" {
-    permission java.lang.RuntimePermission "setContextClassLoader";
-}
-
 grant codeBase "file:/catalog-core-localstorageprovider/token-storage-impl" {
     permission java.io.FilePermission "${ddf.home.perm}content", "write";
     permission java.io.FilePermission "${ddf.home.perm}content${/}-", "read, write";
