@@ -166,7 +166,7 @@ grant codeBase "file:/catalog-transformer-csw-profile/persistence-core-impl/pers
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
 }
 
-grant codeBase "file:/solr-factory-impl" {
+grant codeBase "file:/solr-factory-impl/catalog-solr-offline-gazetteer" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverTruststore.jks", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverKeystore.jks", "read";
 }
