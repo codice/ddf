@@ -70,9 +70,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
   @Override
   public CreateResponse process(CreateResponse input) throws PluginExecutionException {
     List<Metacard> gazetteerMetacards =
-        input
-            .getCreatedMetacards()
-            .stream()
+        input.getCreatedMetacards().stream()
             .filter(this::isGazetteerMetacard)
             .collect(Collectors.toList());
 
@@ -83,8 +81,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
     try {
       solrClient.add(
           COLLECTION_NAME,
-          gazetteerMetacards
-              .stream()
+          gazetteerMetacards.stream()
               .map(CatalogGazetteerForwardingPlugin::convert)
               .collect(Collectors.toList()));
     } catch (SolrServerException | IOException e) {
@@ -97,9 +94,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
   @Override
   public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
     List<Metacard> gazetteerMetacards =
-        input
-            .getUpdatedMetacards()
-            .stream()
+        input.getUpdatedMetacards().stream()
             .map(Update::getNewMetacard)
             .filter(this::isGazetteerMetacard)
             .collect(Collectors.toList());
@@ -111,8 +106,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
     try {
       solrClient.add(
           COLLECTION_NAME,
-          gazetteerMetacards
-              .stream()
+          gazetteerMetacards.stream()
               .map(CatalogGazetteerForwardingPlugin::convert)
               .collect(Collectors.toList()));
     } catch (SolrServerException | IOException e) {
@@ -125,9 +119,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
   @Override
   public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
     List<String> ids =
-        input
-            .getDeletedMetacards()
-            .stream()
+        input.getDeletedMetacards().stream()
             .filter(this::isGazetteerMetacard)
             .map(Metacard::getId)
             .collect(Collectors.toList());

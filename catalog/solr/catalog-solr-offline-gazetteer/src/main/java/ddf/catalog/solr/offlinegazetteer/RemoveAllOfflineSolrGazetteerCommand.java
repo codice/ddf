@@ -31,10 +31,9 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = "offline-solr-gazetteer",
-  name = "removeall",
-  description = "Deletes all items in the solr gazetteer collection"
-)
+    scope = "offline-solr-gazetteer",
+    name = "removeall",
+    description = "Deletes all items in the solr gazetteer collection")
 public class RemoveAllOfflineSolrGazetteerCommand implements Action {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(RemoveAllOfflineSolrGazetteerCommand.class);
@@ -44,10 +43,9 @@ public class RemoveAllOfflineSolrGazetteerCommand implements Action {
   @Reference private SolrClientFactory clientFactory;
 
   @Option(
-    name = "--force",
-    aliases = {"-f"},
-    description = "Force the removal without a confirmation message."
-  )
+      name = "--force",
+      aliases = {"-f"},
+      description = "Force the removal without a confirmation message.")
   boolean force = false;
 
   @Override

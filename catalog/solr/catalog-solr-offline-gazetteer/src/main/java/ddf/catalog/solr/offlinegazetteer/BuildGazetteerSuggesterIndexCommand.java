@@ -38,10 +38,9 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = "offline-solr-gazetteer",
-  name = "build-suggester-index",
-  description = "Sends a request to build the suggester index"
-)
+    scope = "offline-solr-gazetteer",
+    name = "build-suggester-index",
+    description = "Sends a request to build the suggester index")
 public class BuildGazetteerSuggesterIndexCommand implements Action {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(BuildGazetteerSuggesterIndexCommand.class);
