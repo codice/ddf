@@ -19,18 +19,20 @@ const DropdownView = require('../dropdown.view')
 const ComponentView = require('../../hover-preview/hover-preview.view.js')
 const Common = require('../../../js/Common.js')
 const user = require('../../singletons/user-instance.js')
+const plugin = require('plugins/dropdown.hover-preview.view.js')
 
 module.exports = DropdownView.extend({
   events: {}, // remove base events
   template() {
-    const metadataThumbnail = this.modelForComponent
+    const metacardProperties = this.modelForComponent
       .get('metacard')
       .get('properties')
-      .get('thumbnail')
     const model = this.model
 
-    const openThumbnailInNewWindow = () =>
-      window.open(Common.getImageSrc(metadataThumbnail))
+    const openThumbnailInNewWindow = plugin(metacardProperties =>
+      window.open(Common.getImageSrc(metacardProperties.get('thumbnail')))
+    )
+
     const onMouseEnter = () => user.getHoverPreview() && model.open()
     const onMouseLeave = () => model.close()
     const onImageError = () => {
@@ -39,8 +41,11 @@ module.exports = DropdownView.extend({
     }
 
     return (
-      (metadataThumbnail && (
-        <React.Fragment>
+      (metacardProperties.get('thumbnail') && (
+        <div
+          onClick={() => openThumbnailInNewWindow(metacardProperties)}
+          title="Click to open image in a new window."
+        >
           {(this.imageLoadError && (
             <span>
               <i className="fa fa-picture-o" aria-hidden="true" />
@@ -48,7 +53,7 @@ module.exports = DropdownView.extend({
             </span>
           )) || (
             <img
-              src={Common.getImageSrc(metadataThumbnail)}
+              src={Common.getImageSrc(metacardProperties.get('thumbnail'))}
               onError={onImageError}
             />
           )}
@@ -56,12 +61,10 @@ module.exports = DropdownView.extend({
             className="is-primary"
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            onClick={openThumbnailInNewWindow}
-            title="Click to open image in a new window."
           >
             <span className="fa fa-search-plus" />
           </button>
-        </React.Fragment>
+        </div>
       )) || <React.Fragment />
     )
   },
