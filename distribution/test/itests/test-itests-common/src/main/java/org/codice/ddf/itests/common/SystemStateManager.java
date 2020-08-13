@@ -176,7 +176,6 @@ public class SystemStateManager {
 
   private void clearCatalogAndWait() {
     clearCatalog();
-    clearCache();
     with()
         .pollInterval(1, SECONDS)
         .await()
@@ -190,14 +189,6 @@ public class SystemStateManager {
             AbstractIntegrationTest.REMOVE_ALL,
             AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS);
     LOGGER.debug("{} output: {}", AbstractIntegrationTest.REMOVE_ALL, output);
-  }
-
-  private void clearCache() {
-    String output =
-        console.runCommand(
-            "catalog:removeall -f -p --cache",
-            AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS);
-    LOGGER.debug("{} output: {}", "catalog:removeall -f -p --cache", output);
   }
 
   private boolean isCatalogEmpty() {
