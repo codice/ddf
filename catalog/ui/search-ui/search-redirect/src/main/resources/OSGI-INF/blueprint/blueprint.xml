@@ -28,7 +28,7 @@
 
     <bean id="redirectServlet" class="org.codice.ddf.ui.searchui.filter.RedirectServlet"
           init-method="init">
-        <argument value="${org.codice.ddf.external.context}/search/catalog/"/>
+        <argument value="${org.codice.ddf.external.context}/search/simple/"/>
         <cm:managed-properties persistent-id="org.codice.ddf.ui.searchui.filter.RedirectServlet"
                                update-strategy="container-managed"/>
     </bean>
