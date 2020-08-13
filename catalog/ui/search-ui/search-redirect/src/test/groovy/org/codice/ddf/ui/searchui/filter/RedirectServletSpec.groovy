@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse
 class RedirectServletSpec extends Specification {
 
     // the default property value for defaultUri
-    private static final String DEFAULT_DEFAULTURI = '/search/catalog/'
+    private static final String DEFAULT_DEFAULTURI = '/search/simple/'
 
     def 'test default defaultUri'() {
         given:
