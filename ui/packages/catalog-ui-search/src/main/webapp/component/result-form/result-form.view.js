@@ -179,8 +179,10 @@ module.exports = Marionette.LayoutView.extend({
       error: () => {
         this.errorMessage()
       },
+      wait: true,
     }
     this.model.set('type', 'result')
+    this.model.collection = collection
     this.model.id
       ? this.model.save({}, options)
       : collection.create(this.model, options)
