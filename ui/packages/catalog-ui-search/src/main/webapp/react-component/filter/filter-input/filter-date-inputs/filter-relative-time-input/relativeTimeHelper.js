@@ -43,3 +43,7 @@ export const deserialize = value => {
     unit,
   }
 }
+
+export const relativeTimeError = ({ last, unit }) => {
+  return last >= Math.pow(2, 31)
+}

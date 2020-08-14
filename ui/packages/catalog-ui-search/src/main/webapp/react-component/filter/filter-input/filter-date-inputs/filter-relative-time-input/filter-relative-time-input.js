@@ -17,6 +17,7 @@ import React, { useEffect, useState } from 'react'
 import RelativeTimeInput from '../../../../inputs/relative-time-input'
 import { deserialize, serialize } from './relativeTimeHelper'
 import styled from 'styled-components'
+import { initialErrorState } from '../../../../../react-component/utils/validation'
 
 const Component = styled(RelativeTimeInput)`
   width: ${({ theme }) => `calc(14*${theme.mediumSpacing})`};
@@ -26,13 +27,24 @@ const FilterRelativeTimeInput = props => {
   const [value, setValue] = useState(
     deserialize(props.value) || { last: '', unit: '' }
   )
+  const [relativeError, setRelativeError] = useState(initialErrorState)
   useEffect(
     () => {
       props.onChange(serialize(value))
     },
     [value]
   )
-  return <Component last={value.last} unit={value.unit} onChange={setValue} />
+  return (
+    <Component
+      last={value.last}
+      unit={value.unit}
+      errorState={relativeError}
+      onChange={(props, errorState) => {
+        setValue(props)
+        setRelativeError(errorState)
+      }}
+    />
+  )
 }
 
 export default FilterRelativeTimeInput

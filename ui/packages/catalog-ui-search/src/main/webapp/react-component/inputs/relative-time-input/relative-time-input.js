@@ -16,6 +16,8 @@ import React from 'react'
 import styled from 'styled-components'
 import UnitsDropdown from './units-dropdown'
 import TextField from '../../text-field'
+import { ErrorComponent } from '../../../react-component/utils/validation'
+import { relativeTimeError } from '../../../react-component/filter/filter-input/filter-date-inputs/filter-relative-time-input/relativeTimeHelper'
 
 const Label = styled.div`
   font-weight: bolder;
@@ -30,6 +32,13 @@ const LastInput = styled(TextField)`
   width: 100%;
 `
 
+const getErrorState = (value, unit) => {
+  let newValue = Number.parseFloat(value)
+  return relativeTimeError({ last: newValue, unit })
+    ? { error: true, message: 'value too large' }
+    : { error: false }
+}
+
 const serialize = (last, unit) => ({ last, unit })
 
 const RelativeTime = props => {
@@ -40,14 +49,25 @@ const RelativeTime = props => {
         <LastInput
           type="number"
           value={props.last}
-          onChange={value => props.onChange(serialize(value, props.unit))}
+          onChange={value => {
+            props.onChange(
+              serialize(value, props.unit),
+              getErrorState(value, props.unit)
+            )
+          }}
         />
+        <ErrorComponent errorState={props.errorState} />
       </InputContainer>
       <InputContainer>
         <Label>Units</Label>
         <UnitsDropdown
           value={props.unit}
-          onChange={value => props.onChange(serialize(props.last, value))}
+          onChange={value => {
+            props.onChange(
+              serialize(props.last, value),
+              getErrorState(props.last, value)
+            )
+          }}
         />
       </InputContainer>
     </div>
