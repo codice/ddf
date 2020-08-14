@@ -65,7 +65,7 @@ public class AsyncFileAlterationObserver {
 
   private Timer timer;
 
-  private Map<String, Long> expiredFiles = new HashMap<>();
+  Map<String, Long> expiredFiles = new HashMap<>();
 
   private boolean isProcessing = false;
 
@@ -116,14 +116,14 @@ public class AsyncFileAlterationObserver {
   }
 
   /**
-   * Initializes the timed logging for processing AsyncFiles.
+   * Initializes the timed processing and logging for processing AsyncFiles.
    *
    * <p>Some logging should be done periodically to avoid overwhelming the logs
    */
-  public void initializePeriodicLogging() {
+  public void initializePeriodicProcessing() {
     if (timer == null) {
       timer = new Timer();
-      timer.scheduleAtFixedRate(new LogProcessing(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
+      timer.scheduleAtFixedRate(new ProcessingTask(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
     }
   }
 
@@ -343,7 +343,7 @@ public class AsyncFileAlterationObserver {
    * @return true if the file has expired on processing before and has not been updated
    */
   private boolean expiredNotUpdated(File file) {
-    if (expiredFiles.containsKey(file.getPath())) return false;
+    if (file.isDirectory() || !expiredFiles.containsKey(file.getPath())) return false;
 
     long lastModified = expiredFiles.get(file.getPath());
     boolean expiredNotUpdated = lastModified == file.lastModified();
@@ -446,30 +446,30 @@ public class AsyncFileAlterationObserver {
     }
   }
 
-  private class LogProcessing extends TimerTask {
+  /**
+   * Processing and logging operations which should be done periodically
+   */
+  private class ProcessingTask extends TimerTask {
 
-    private final int EXPIRATION_TIME = 60000;
+    private int DEFAULT_EXPIRATION_TIME = 300_000;
+
+    private long expirationTime =
+        Long.getLong("org.codice.ddf.catalog.content.monitor.expirationTime", DEFAULT_EXPIRATION_TIME);
 
     /** Log files still in processing at scheduled intervals */
     public void run() {
       if (!processing.isEmpty()) {
         long now = System.currentTimeMillis();
-        List<AsyncFileEntry> expiredFilesList =
-            processing
-                .stream()
-                .filter(entry -> entry.getEntryCreatedTime() + EXPIRATION_TIME < now)
-                .collect(Collectors.toList());
-        for (AsyncFileEntry entry : expiredFilesList) {
-          processing.remove(entry);
-          expiredFiles.put(entry.getFile().getPath(), entry.getLastModified());
-          // deleteFromListener(entry);
+        List<AsyncFileEntry> expiredFilesList = new ArrayList<>();
+        for (AsyncFileEntry entry : processing) {
+          if (entry.getEntryCreatedTime() + expirationTime < now) {
+            expiredFilesList.add(entry);
+            processing.remove(entry);
+            expiredFiles.put(entry.getFile().getPath(), entry.getLastModified());
+          }
         }
 
         if (LOGGER.isDebugEnabled()) {
-          String files =
-              processing.stream().map(AsyncFileEntry::getName).collect(Collectors.joining(", "));
-          LOGGER.debug("{} files being processed: {}", processing.size(), files);
-
           if (!expiredFilesList.isEmpty()) {
             String expiredFilesStr =
                 expiredFilesList
@@ -481,6 +481,10 @@ public class AsyncFileAlterationObserver {
                 expiredFilesList.size(),
                 expiredFilesStr);
           }
+
+          String files =
+                  processing.stream().map(AsyncFileEntry::getName).collect(Collectors.joining(", "));
+          LOGGER.debug("{} files being processed: {}", processing.size(), files);
         }
       }
     }

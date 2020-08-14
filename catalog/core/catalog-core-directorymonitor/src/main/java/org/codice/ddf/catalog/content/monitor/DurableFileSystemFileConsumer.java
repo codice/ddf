@@ -76,7 +76,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       }
 
       if (observer != null) {
-        observer.initializePeriodicLogging();
+        observer.initializePeriodicProcessing();
       }
     }
   }
@@ -96,7 +96,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
 
     try {
       newObserver.initialize();
-      newObserver.initializePeriodicLogging();
+      newObserver.initializePeriodicProcessing();
     } catch (IllegalStateException e) {
       //  There was an IO error setting up the initial state of the observer
       LOGGER.info("Error initializing the new state of the CDM. retrying on next poll");

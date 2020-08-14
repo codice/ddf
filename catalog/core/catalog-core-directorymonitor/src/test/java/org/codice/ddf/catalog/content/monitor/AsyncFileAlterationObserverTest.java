@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static java.lang.Thread.sleep;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -229,6 +230,29 @@ public class AsyncFileAlterationObserverTest {
         .onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
+  }
+
+  @Test
+  public void testHangingFile() throws Exception {
+
+    System.setProperty("org.codice.ddf.catalog.content.monitor.expirationTime", "100");
+    observer = new AsyncFileAlterationObserver(monitoredDirectory, store);
+    observer.initializePeriodicProcessing();
+    observer.setListener(fileListener);
+
+    File[] files = initFiles(1, monitoredDirectory, "file00");
+    int toFail = Integer.MAX_VALUE;
+    timesToFail.set(toFail);
+    init();
+
+    observer.checkAndNotify();
+    sleep(60000);
+    observer.checkAndNotify();
+
+    verify(fileListener, times(1))
+            .onFileCreate(any(File.class), any(Synchronization.class));
+
+    assertThat(observer.expiredFiles.size(), is(1));
   }
 
   @Test
