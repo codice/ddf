@@ -28,7 +28,7 @@ import org.eclipse.jetty.server.Request;
 import org.junit.Test;
 import org.osgi.util.tracker.ServiceTracker;
 
-public class HttpFilterHandlerTest {
+public class DelegatingHttpFilterHandlerTest {
 
   @Test
   public void testDelegatingHttpFilterHandler() throws Exception {

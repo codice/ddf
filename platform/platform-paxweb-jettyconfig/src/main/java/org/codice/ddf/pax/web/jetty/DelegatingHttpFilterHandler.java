@@ -63,7 +63,7 @@ public class DelegatingHttpFilterHandler extends HandlerWrapper {
       String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     HttpFilter[] filters = getFilters();
-    LOGGER.debug("Delegating to {} HttpFilters.", filters.length);
+    LOGGER.trace("Delegating to {} HttpFilters.", filters.length);
 
     ProxyHttpFilterChain filterChain =
         new ProxyHttpFilterChain(filters, getHandler(), target, baseRequest);
@@ -78,10 +78,12 @@ public class DelegatingHttpFilterHandler extends HandlerWrapper {
   protected void doStart() throws Exception {
     super.doStart();
     this.filterTracker.open();
+    LOGGER.debug("Started {}", DelegatingHttpFilterHandler.class.getSimpleName());
   }
 
   protected void doStop() throws Exception {
     this.filterTracker.close();
     super.doStop();
+    LOGGER.debug("Stopped {}", DelegatingHttpFilterHandler.class.getSimpleName());
   }
 }
