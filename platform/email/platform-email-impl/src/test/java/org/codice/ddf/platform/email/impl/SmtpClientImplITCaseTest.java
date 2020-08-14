@@ -16,9 +16,13 @@ package org.codice.ddf.platform.email.impl;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 import com.dumbster.smtp.SimpleSmtpServer;
 import com.dumbster.smtp.SmtpMessage;
+import ddf.security.encryption.EncryptionService;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,6 +47,7 @@ import javax.mail.internet.MimeMultipart;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mock;
 
 public class SmtpClientImplITCaseTest {
 
@@ -68,6 +73,12 @@ public class SmtpClientImplITCaseTest {
 
   @Rule public TemporaryFolder folder = new TemporaryFolder();
 
+  @Mock private static EncryptionService mockEncryptionService;
+
+  static {
+    when(mockEncryptionService.decryptValue(anyString())).then(returnsFirstArg());
+  }
+
   @Test
   public void testSendWithAttachments()
       throws IOException, MessagingException, ExecutionException, InterruptedException {
@@ -76,7 +87,7 @@ public class SmtpClientImplITCaseTest {
 
     SimpleSmtpServer server = SimpleSmtpServer.start(port);
 
-    SmtpClientImpl emailService = new SmtpClientImpl();
+    SmtpClientImpl emailService = new SmtpClientImpl(mockEncryptionService);
 
     emailService.setHostName(HOSTNAME);
     emailService.setPortNumber(port);
@@ -130,7 +141,7 @@ public class SmtpClientImplITCaseTest {
 
     SimpleSmtpServer server = SimpleSmtpServer.start(port);
 
-    SmtpClientImpl emailService = new SmtpClientImpl();
+    SmtpClientImpl emailService = new SmtpClientImpl(mockEncryptionService);
 
     emailService.setHostName(HOSTNAME);
     emailService.setPortNumber(port);
@@ -189,18 +200,18 @@ public class SmtpClientImplITCaseTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWithNullHostname() {
-    SmtpClientImpl emailService = new SmtpClientImpl();
+    SmtpClientImpl emailService = new SmtpClientImpl(mockEncryptionService);
     emailService.createSession();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void throwsIllegalArgumentExceptionWhenPortNumberIsLessThanOne() {
-    new SmtpClientImpl().setPortNumber(0);
+    new SmtpClientImpl(mockEncryptionService).setPortNumber(0);
   }
 
   private void validateUsernamePassword(String username, String password)
       throws UnknownHostException {
-    SmtpClientImpl emailService = new SmtpClientImpl();
+    SmtpClientImpl emailService = new SmtpClientImpl(mockEncryptionService);
 
     emailService.setHostName("host.com");
     emailService.setPortNumber(25);
