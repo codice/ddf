@@ -234,22 +234,27 @@ public class AsyncFileAlterationObserverTest {
 
   @Test
   public void testHangingFile() throws Exception {
-
     System.setProperty("org.codice.ddf.catalog.content.monitor.expirationTime", "100");
+
+    // observer onCreate method will hang for longer than the set expiration time
+    doAnswer(
+            (InvocationOnMock e) -> {
+              sleep(500);
+              return null;
+            })
+        .when(fileListener)
+        .onFileCreate(any(File.class), any(Synchronization.class));
+
     observer = new AsyncFileAlterationObserver(monitoredDirectory, store);
     observer.initialize();
+    observer.setListener(fileListener);
     observer.initializePeriodicProcessing();
 
     File[] files = initFiles(1, monitoredDirectory, "file00");
-    int toFail = 1000000;
-    timesToFail.set(toFail);
-
     observer.checkAndNotify();
 
-    // sleep(8000);
-
-//    verify(fileListener, times(files.length))
-//            .onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, times(files.length))
+        .onFileCreate(any(File.class), any(Synchronization.class));
 
     assertThat(observer.expiredFiles.size(), is(1));
   }

@@ -446,15 +446,14 @@ public class AsyncFileAlterationObserver {
     }
   }
 
-  /**
-   * Processing and logging operations which should be done periodically
-   */
+  /** Processing and logging operations which should be done periodically */
   private class ProcessingTask extends TimerTask {
 
     private int DEFAULT_EXPIRATION_TIME = 300_000;
 
     private long expirationTime =
-        Long.getLong("org.codice.ddf.catalog.content.monitor.expirationTime", DEFAULT_EXPIRATION_TIME);
+        Long.getLong(
+            "org.codice.ddf.catalog.content.monitor.expirationTime", DEFAULT_EXPIRATION_TIME);
 
     /** Log files still in processing at scheduled intervals */
     public void run() {
@@ -483,7 +482,7 @@ public class AsyncFileAlterationObserver {
           }
 
           String files =
-                  processing.stream().map(AsyncFileEntry::getName).collect(Collectors.joining(", "));
+              processing.stream().map(AsyncFileEntry::getName).collect(Collectors.joining(", "));
           LOGGER.debug("{} files being processed: {}", processing.size(), files);
         }
       }
