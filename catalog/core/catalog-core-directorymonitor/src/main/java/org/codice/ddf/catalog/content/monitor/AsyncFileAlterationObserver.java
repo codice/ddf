@@ -375,24 +375,24 @@ public class AsyncFileAlterationObserver {
 
     int c = 0;
     for (final AsyncFileEntry entry : previous) {
-      if (!expiredNotUpdated(files[c])) {
+      if (c < files.length && !expiredNotUpdated(files[c])) {
         while (c < files.length && entry.compareToFile(files[c]) > 0) {
           doCreate(new AsyncFileEntry(parent, files[c]), listenerCopy);
           c++;
         }
-        if (c < files.length && entry.compareToFile(files[c]) == 0) {
-          doMatch(entry, listenerCopy);
-          checkAndNotify(entry, entry.getChildren(), listFiles(files[c]), listenerCopy);
-          c++;
-        } else {
-          //  Do Delete
-          if (!entry.checkNetwork()) {
-            //  The file may still exist but it's the network that's down.
-            return;
-          }
-          checkAndNotify(entry, entry.getChildren(), FileUtils.EMPTY_FILE_ARRAY, listenerCopy);
-          doDelete(entry, listenerCopy);
+      }
+      if (c < files.length && entry.compareToFile(files[c]) == 0) {
+        doMatch(entry, listenerCopy);
+        checkAndNotify(entry, entry.getChildren(), listFiles(files[c]), listenerCopy);
+        c++;
+      } else {
+        //  Do Delete
+        if (!entry.checkNetwork()) {
+          //  The file may still exist but it's the network that's down.
+          return;
         }
+        checkAndNotify(entry, entry.getChildren(), FileUtils.EMPTY_FILE_ARRAY, listenerCopy);
+        doDelete(entry, listenerCopy);
       }
     }
     for (; c < files.length; c++) {
