@@ -165,6 +165,13 @@ log:set DEBUG cdmLogger
 ----
 ====
 
+.Timeout
+CDM will expire files whose processing times exceed a specified threshold. By default, that threshold is 5 minutes. After expiration, CDM will not attempt to ingest the file until it changes have been made.
+[TIP]
+====
+The expiration time can be configured by setting *org.codice.ddf.catalog.content.monitor.expirationTime* in "etc/custom.system.properties"
+====
+
 .Other
 * Multiple directories can be monitored. Each directory has an independent configuration.
 * To support the monitoring in place behavior, ${branding} indexes the files to track their names and modification timestamps. This enables the Content Directory Monitor to take appropriate action when files are changed or deleted.
