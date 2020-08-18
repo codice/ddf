@@ -128,6 +128,7 @@
         <pax.logging.version>1.11.6</pax.logging.version>
         <pax.url.version>2.6.2</pax.url.version>
         <pax.web.version>7.2.16</pax.web.version>
+        <pax.web.jsp.version>7.2.18</pax.web.jsp.version>
         <restito.version>0.8.2</restito.version>
         <xmlunit.version>1.4</xmlunit.version>
         <xmlunit-matchers.version>2.5.1</xmlunit-matchers.version>
