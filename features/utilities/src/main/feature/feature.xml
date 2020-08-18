@@ -136,6 +136,7 @@
     <feature name="metrics-servlet-filter" version="${project.version}" description="Servlet metrics reporter">
         <feature>pax-jetty</feature>
         <feature>metrics-micrometer</feature>
+        <bundle dependency="true">mvn:ddf.platform/http-filter-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.metrics/metrics-servlet-filter/${project.version}</bundle>
     </feature>
 

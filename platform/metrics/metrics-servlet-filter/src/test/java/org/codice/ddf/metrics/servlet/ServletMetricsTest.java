@@ -32,8 +32,7 @@ import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.codice.ddf.pax.web.jetty.ProxyHttpFilterChain;
-import org.eclipse.jetty.server.Request;
+import org.codice.ddf.platform.filter.http.HttpFilterChain;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -50,13 +49,11 @@ public class ServletMetricsTest {
 
   public static final Iterable<Tag> DEFAULT_TAGS = getTags(DEFAULT_METHOD, DEFAULT_STATUS);
 
-  @Mock private Request mockBaseRequest;
-
   @Mock private HttpServletRequest mockRequest;
 
   @Mock private HttpServletResponse mockResponse;
 
-  @Mock private ProxyHttpFilterChain mockFilterChain;
+  @Mock private HttpFilterChain mockFilterChain;
 
   private final ServletMetrics underTest = new ServletMetrics();
 

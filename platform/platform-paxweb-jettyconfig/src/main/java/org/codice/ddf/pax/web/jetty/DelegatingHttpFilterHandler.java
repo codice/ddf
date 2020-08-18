@@ -13,24 +13,28 @@
  */
 package org.codice.ddf.pax.web.jetty;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Objects;
-import javax.servlet.Filter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.codice.ddf.platform.filter.HttpFilter;
+import org.codice.ddf.platform.filter.http.HttpFilter;
+import org.codice.ddf.platform.util.SortedServiceList;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Hands the request off to a set chain of servlet {@link Filter}s. Since SecurityFilters are run on
+ * Hands the request off to a set chain of {@link HttpFilter}s. Since SecurityFilters are run on
  * each request, this provides a mechanism to add global servlet filters. As of OSGi R6, there is a
  * proper way to define global servlets/filters/listeners/etc., defined by the HTTP Whiteboard spec.
  * However, pax-web does not yet implement that feature, so we're left using this workaround.
@@ -42,48 +46,84 @@ public class DelegatingHttpFilterHandler extends HandlerWrapper {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DelegatingHttpFilterHandler.class);
 
-  private final ServiceTracker<HttpFilter, HttpFilter> filterTracker;
+  private static final String FILTER = "(objectclass=" + HttpFilter.class.getName() + ")";
 
-  @VisibleForTesting
-  DelegatingHttpFilterHandler(ServiceTracker<HttpFilter, HttpFilter> filterTracker) {
-    this.filterTracker = Objects.requireNonNull(filterTracker);
+  private final HttpFilterServiceListener listener = new HttpFilterServiceListener();
+
+  private final SortedServiceList<HttpFilter> httpFilters;
+
+  private final BundleContext context;
+
+  private static BundleContext getContext() {
+    Bundle bundle = FrameworkUtil.getBundle(DelegatingHttpFilterHandler.class);
+    Objects.requireNonNull(bundle, "Bundle cannot be null");
+    return bundle.getBundleContext();
   }
 
-  public DelegatingHttpFilterHandler() {
-    Bundle bundle = FrameworkUtil.getBundle(DelegatingHttpFilterHandler.class);
-    Objects.requireNonNull(bundle, "Bundle must not be null");
-    Objects.requireNonNull(bundle.getBundleContext(), "Bundle has no valid BundleContext");
+  public DelegatingHttpFilterHandler() throws InvalidSyntaxException {
+    this(getContext());
+  }
 
-    this.filterTracker =
-        new ServiceTracker(bundle.getBundleContext(), HttpFilter.class.getName(), null);
+  public DelegatingHttpFilterHandler(BundleContext context) throws InvalidSyntaxException {
+    Objects.requireNonNull(context, "Bundle context cannot be null");
+    this.context = context;
+    this.context.addServiceListener(listener, FILTER);
+    this.httpFilters =
+        new SortedServiceList<HttpFilter>() {
+          @Override
+          protected BundleContext getContext() {
+            return context;
+          }
+        };
+
+    /*
+     * The service listener won't pick up services that are already registered. Must manually
+     * add them to the service list.
+     */
+    Collection<ServiceReference<HttpFilter>> serviceReferences =
+        this.context.getServiceReferences(HttpFilter.class, FILTER);
+    for (ServiceReference<HttpFilter> reference : serviceReferences) {
+      this.listener.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, reference));
+    }
   }
 
   @Override
   public void handle(
       String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
-    HttpFilter[] filters = getFilters();
-    LOGGER.trace("Delegating to {} HttpFilters.", filters.length);
+    LOGGER.trace("Delegating to {} HttpFilters.", httpFilters.size());
 
     ProxyHttpFilterChain filterChain =
-        new ProxyHttpFilterChain(filters, getHandler(), target, baseRequest);
+        new ProxyHttpFilterChain(httpFilters, getHandler(), target, baseRequest);
     filterChain.doFilter(request, response);
-  }
-
-  private HttpFilter[] getFilters() {
-    HttpFilter[] filters = new HttpFilter[filterTracker.size()];
-    return filterTracker.getServices(filters);
   }
 
   protected void doStart() throws Exception {
     super.doStart();
-    this.filterTracker.open();
     LOGGER.debug("Started {}", DelegatingHttpFilterHandler.class.getSimpleName());
   }
 
   protected void doStop() throws Exception {
-    this.filterTracker.close();
     super.doStop();
     LOGGER.debug("Stopped {}", DelegatingHttpFilterHandler.class.getSimpleName());
+  }
+
+  private class HttpFilterServiceListener implements ServiceListener {
+
+    @Override
+    public void serviceChanged(ServiceEvent event) {
+      ServiceReference<?> reference = event.getServiceReference();
+      switch (event.getType()) {
+        case ServiceEvent.REGISTERED:
+          httpFilters.bindPlugin(reference);
+          break;
+        case ServiceEvent.UNREGISTERING:
+          httpFilters.unbindPlugin(reference);
+          break;
+        default:
+          /* only care when services are added or removed */
+          break;
+      }
+    }
   }
 }

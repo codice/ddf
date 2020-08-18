@@ -20,8 +20,8 @@ import java.security.PrivilegedExceptionAction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.codice.ddf.platform.filter.HttpFilter;
-import org.codice.ddf.platform.filter.HttpFilterChain;
+import org.codice.ddf.platform.filter.http.HttpFilter;
+import org.codice.ddf.platform.filter.http.HttpFilterChain;
 import org.slf4j.LoggerFactory;
 
 public class SecurityJavaSubjectFilter implements HttpFilter {

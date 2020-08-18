@@ -11,23 +11,14 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.platform.filter;
+package org.codice.ddf.platform.filter.http;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * An HttpFilter is an object that performs filtering tasks on either the request to a resource (a
- * servlet or static content), or on the response from a resource, or both.
- *
- * <p>It is modelled after {@link javax.servlet.Filter} but its {@code doFilter} method accepts
- * {@link HttpServletRequest} and {@link HttpServletResponse} arguments instead.
- */
-public interface HttpFilter {
-
-  void doFilter(
-      HttpServletRequest request, HttpServletResponse response, HttpFilterChain filterChain)
+public interface HttpFilterChain {
+  void doFilter(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException;
 }

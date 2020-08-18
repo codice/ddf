@@ -13,15 +13,15 @@
  */
 package org.codice.ddf.pax.web.jetty;
 
-import com.google.common.collect.Iterators;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import javax.servlet.Filter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.codice.ddf.platform.filter.HttpFilter;
-import org.codice.ddf.platform.filter.HttpFilterChain;
+import org.codice.ddf.platform.filter.http.HttpFilter;
+import org.codice.ddf.platform.filter.http.HttpFilterChain;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Implementation of filter chain that allows the ability to dynamically add new {@link Filter}s to
  * a chain. The {@link ProxyHttpFilterChain} may not be reused. That is, once the {@link
- * ProxyHttpFilterChain#doFilter} method is called, no more {@link Filter}s may be added.
+ * ProxyHttpFilterChain#doFilter} method is called, no more {@link HttpFilter}s may be added.
  */
 public class ProxyHttpFilterChain implements HttpFilterChain {
 
@@ -42,8 +42,8 @@ public class ProxyHttpFilterChain implements HttpFilterChain {
   private final Request baseRequest;
 
   public ProxyHttpFilterChain(
-      HttpFilter[] filters, Handler handler, String target, Request baseRequest) {
-    this.iterator = Iterators.forArray(filters);
+      List<HttpFilter> filters, Handler handler, String target, Request baseRequest) {
+    this.iterator = filters.iterator();
     this.handler = handler;
     this.target = target;
     this.baseRequest = baseRequest;

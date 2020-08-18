@@ -19,8 +19,8 @@ import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.codice.ddf.platform.filter.HttpFilter;
-import org.codice.ddf.platform.filter.HttpFilterChain;
+import org.codice.ddf.platform.filter.http.HttpFilter;
+import org.codice.ddf.platform.filter.http.HttpFilterChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
