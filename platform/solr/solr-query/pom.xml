@@ -22,9 +22,6 @@
     <artifactId>solr-query</artifactId>
     <name>DDF :: Platform :: Solr :: Query</name>
     <packaging>jar</packaging>
-    <properties>
-        <xerces.version>2.9.1</xerces.version>
-    </properties>
     <build>
         <plugins>
             <plugin>
@@ -92,11 +89,6 @@
             <artifactId>gt-cql</artifactId>
             <version>${org.geotools.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>${xerces.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
