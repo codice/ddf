@@ -15,6 +15,7 @@ package ddf.catalog.federation.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -286,6 +287,48 @@ public class SortedFederationStrategyTest {
   }
 
   @Test
+  public void testSortedQueryMonitorException() throws Exception {
+
+    SortedQueryMonitorFactory mockSortedQueryMonitorFactory = mock(SortedQueryMonitorFactory.class);
+
+    when(mockSortedQueryMonitorFactory.createMonitor(
+            any(CompletionService.class),
+            any(Map.class),
+            responseArgumentCaptor.capture(),
+            requestArgumentCaptor.capture(),
+            any(List.class)))
+        .thenReturn(
+            () -> {
+              throw new RuntimeException("Unhandled sorted query monitor exception");
+            });
+
+    SortedFederationStrategy federateStrategy =
+        new SortedFederationStrategy(
+            queryExecutor,
+            Arrays.asList(preQueryPlugin),
+            new ArrayList<>(),
+            mockSortedQueryMonitorFactory);
+
+    QueryRequest fedQueryRequest =
+        new QueryRequestImpl(
+            new QueryImpl(mock(NullFilterImpl.class), 1, 10, SortBy.NATURAL_ORDER, true, 1),
+            properties);
+
+    List<Source> sources = Collections.singletonList(mock(Source.class));
+
+    QueryResponse federateResponse = federateStrategy.federate(sources, fedQueryRequest);
+
+    assertThat(federateResponse.getResults().size(), is(0));
+    assertThat(federateResponse.hasMoreResults(), is(false));
+    assertThat(federateResponse.getProcessingDetails().size(), is(1));
+
+    ProcessingDetails details = federateResponse.getProcessingDetails().iterator().next();
+    assertThat(details.hasException(), is(true));
+    assertThat(details.getException().getCause(), instanceOf(RuntimeException.class));
+    assertThat(details.getSourceId(), is("unknown"));
+  }
+
+  @Test
   public void testOffsetResultHandler() throws Exception {
     QueryResponseImpl originalResults = mock(QueryResponseImpl.class);
     QueryResponseImpl offsetResultQueue = mock(QueryResponseImpl.class);
@@ -314,6 +357,7 @@ public class SortedFederationStrategyTest {
     assertThat(results.size(), is(1));
     assertThat(results.get(0).getMetacard().getId(), is("mock metacard"));
     verify(offsetResultQueue, atLeastOnce()).addResult(any(Result.class), any(Boolean.class));
+    verify(offsetResultQueue).closeResultQueue();
   }
 
   @Test

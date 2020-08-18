@@ -178,7 +178,7 @@ public class DeleteOperations {
       throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
 
     } catch (RuntimeException re) {
-      LOGGER.info("Exception during runtime while performing delete", re);
+      LOGGER.debug("Unhandled runtime exception during delete", re);
       throw new InternalIngestException("Exception during runtime while performing delete.");
 
     } finally {

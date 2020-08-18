@@ -219,16 +219,36 @@ public class QueryOperations extends DescribableImpl {
       queryResponse = processPostQueryAccessPlugins(queryResponse);
       queryResponse = processPostQueryPlugins(queryResponse);
 
-      LOGGER.trace("AfterPostQueryFilter result size: {}", queryResponse.getResults().size());
-      LOGGER.trace("Total Hit count: {}", queryResponse.getHits());
+      log(queryResponse);
 
     } catch (OAuthPluginException e) {
       throw e;
     } catch (RuntimeException re) {
+      LOGGER.debug("Unhandled runtime exception during query", re);
       throw new UnsupportedQueryException("Exception during runtime while performing query", re);
     }
 
     return queryResponse;
+  }
+
+  private void log(QueryResponse queryResponse) {
+    LOGGER.trace("AfterPostQueryFilter result size: {}", queryResponse.getResults().size());
+    LOGGER.trace("Total Hit count: {}", queryResponse.getHits());
+    if (LOGGER.isTraceEnabled() && queryResponse.getProcessingDetails() != null) {
+      LOGGER.trace("Processing details count: {}", queryResponse.getProcessingDetails().size());
+      for (ProcessingDetails details : queryResponse.getProcessingDetails()) {
+        if (details.getException() != null) {
+          LOGGER.trace(
+              "Source [{}] query exception", details.getSourceId(), details.getException());
+        }
+        if (details.getWarnings() != null && !details.getWarnings().isEmpty()) {
+          LOGGER.trace(
+              "Source [{}] warnings: {}",
+              details.getSourceId(),
+              String.join(", ", details.getWarnings()));
+        }
+      }
+    }
   }
 
   /**

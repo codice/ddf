@@ -30,7 +30,7 @@ public class QueryImpl implements Query {
 
   protected boolean requestsTotalResultsCount;
 
-  protected long timeoutMillis = 0 /* no timeout */;
+  protected long timeoutMillis = 300000;
 
   protected SortBy sortBy = null;
 
