@@ -34,10 +34,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Hands the request off to a set chain of {@link HttpFilter}s. Since SecurityFilters are run on
- * each request, this provides a mechanism to add global servlet filters. As of OSGi R6, there is a
- * proper way to define global servlets/filters/listeners/etc., defined by the HTTP Whiteboard spec.
- * However, pax-web does not yet implement that feature, so we're left using this workaround.
+ * The {@code DelegatingHttpFilterHandler} provides a way to create global filters which will apply
+ * to all requests. It finds any registered {@link HttpFilter} services and passes incoming
+ * requests to them in order of service ranking.
+ *
+ * As of OSGi R6, there is a proper way to define global servlets/filters/listeners/etc., defined
+ * by the HTTP Whiteboard spec. However, pax-web does not yet implement that feature, so we're left
+ * using this workaround.
  *
  * <p>When https://ops4j1.jira.com/browse/PAXWEB-1123 is resolved, this workaround should be
  * revisited.
