@@ -815,8 +815,8 @@ module.exports = function CesiumMap(
         shape.destroy()
       })
       shapes = []
-      if (this.map && this.map.scene) {
-        this.map.scene.requestRender()
+      if (map && map.scene) {
+        map.scene.requestRender()
       }
     },
     destroy() {
