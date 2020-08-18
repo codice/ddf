@@ -153,6 +153,7 @@
         <awaitility.version>3.1.5</awaitility.version>
         <aws-java-sdk-bundle.version>1.11.344_1</aws-java-sdk-bundle.version>
         <bouncy.version>1.61</bouncy.version>
+        <c3p0.version>0.9.5.4</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
         <camel.version>2.24.2</camel.version>
@@ -282,6 +283,7 @@
         <protobuf.version>3.6.1</protobuf.version>
         <proton.version>0.31.0</proton.version>
         <qpid-jms.version>0.39.0</qpid-jms.version>
+        <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
         <hazelcast.version>3.12.3</hazelcast.version>
