@@ -35,10 +35,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The {@code DelegatingHttpFilterHandler} provides a way to create global filters which will apply
- * to all requests. It finds any registered {@link HttpFilter} services and passes incoming
- * requests to them in order of service ranking.
+ * to all requests. It finds any registered {@link HttpFilter} services and passes incoming requests
+ * to them in order of service ranking.
  *
- * As of OSGi R6, there is a proper way to define global servlets/filters/listeners/etc., defined
+ * <p>As of OSGi R6, there is a proper way to define global servlets/filters/listeners/etc., defined
  * by the HTTP Whiteboard spec. However, pax-web does not yet implement that feature, so we're left
  * using this workaround.
  *
