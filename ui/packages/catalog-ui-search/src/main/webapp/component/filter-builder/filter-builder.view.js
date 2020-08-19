@@ -59,29 +59,47 @@ module.exports = Marionette.LayoutView.extend({
   },
   onBeforeShow() {
     this.$el.toggleClass('is-sortable', this.options.isSortable || false)
-    this.filterOperator.show(
-      DropdownView.createSimpleDropdown({
-        list: [
-          {
-            label: 'AND',
-            value: 'AND',
-          },
-          {
-            label: 'OR',
-            value: 'OR',
-          },
-          {
-            label: 'NOT AND',
-            value: 'NOT AND',
-          },
-          {
-            label: 'NOT OR',
-            value: 'NOT OR',
-          },
-        ],
-        defaultSelection: [this.model.get('operator') || 'AND'],
-      })
-    )
+    if (this.options.isFormBuilder === true) {
+      this.filterOperator.show(
+        DropdownView.createSimpleDropdown({
+          list: [
+            {
+              label: 'AND',
+              value: 'AND',
+            },
+            {
+              label: 'OR',
+              value: 'OR',
+            },
+          ],
+          defaultSelection: [this.model.get('operator') || 'AND'],
+        })
+      )
+    } else {
+      this.filterOperator.show(
+        DropdownView.createSimpleDropdown({
+          list: [
+            {
+              label: 'AND',
+              value: 'AND',
+            },
+            {
+              label: 'OR',
+              value: 'OR',
+            },
+            {
+              label: 'NOT AND',
+              value: 'NOT AND',
+            },
+            {
+              label: 'NOT OR',
+              value: 'NOT OR',
+            },
+          ],
+          defaultSelection: [this.model.get('operator') || 'AND'],
+        })
+      )
+    }
     this.listenTo(
       this.filterOperator.currentView.model,
       'change:value',
