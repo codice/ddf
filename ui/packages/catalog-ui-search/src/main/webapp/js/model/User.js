@@ -35,6 +35,8 @@ const ThemeUtils = require('../ThemeUtils.js')
 const QuerySettings = require('./QuerySettings.js')
 require('backbone-associations')
 
+import plugin from 'plugins/user'
+
 const User = {}
 
 User.updateMapLayers = function(layers) {
@@ -473,4 +475,4 @@ User.Response = Backbone.AssociatedModel.extend({
   },
 })
 
-module.exports = User
+module.exports = plugin(User)
