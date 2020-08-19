@@ -17,7 +17,14 @@ import static ddf.catalog.Constants.CDM_LOGGER_NAME;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -449,7 +456,7 @@ public class AsyncFileAlterationObserver {
   /** Processing and logging operations which should be done periodically */
   private class ProcessingTask extends TimerTask {
 
-    private int DEFAULT_EXPIRATION_TIME = 300_000;
+    private static final int DEFAULT_EXPIRATION_TIME = 300_000;
 
     private long expirationTime =
         Long.getLong(
