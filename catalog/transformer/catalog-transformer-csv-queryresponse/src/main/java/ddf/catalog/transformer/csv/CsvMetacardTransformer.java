@@ -58,8 +58,7 @@ public class CsvMetacardTransformer implements MetacardTransformer {
     List<AttributeDescriptor> descriptors =
         CollectionUtils.isEmpty(attributes)
             ? allAttributes
-            : allAttributes
-                .stream()
+            : allAttributes.stream()
                 .filter(attr -> attributes.contains(attr.getName()))
                 .collect(Collectors.toList());
     Appendable appendable =
