@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -57,8 +56,6 @@ public class ScheduledCommandTask implements ScheduledTask {
 
   private static final long TRIGGER_DELAY_DURATION = 1;
 
-  private final Class<? extends Job> jobClass;
-
   private final Scheduler scheduler;
 
   private String intervalString = ONE_DAY;
@@ -73,11 +70,12 @@ public class ScheduledCommandTask implements ScheduledTask {
 
   /**
    * @param scheduler - A reference to the Quartz Scheduler
-   * @param jobClass - A reference to the Quartz Job Implementing Class
+   * @param commandJobFactory - A reference to a Quartz CommandJobFactory for the scheduler to use
    */
-  public ScheduledCommandTask(Scheduler scheduler, Class jobClass) {
+  public ScheduledCommandTask(Scheduler scheduler, CommandJobFactory commandJobFactory)
+      throws SchedulerException {
     this.scheduler = scheduler;
-    this.jobClass = jobClass;
+    this.scheduler.setJobFactory(commandJobFactory);
   }
 
   public void setCommand(String command) {
@@ -114,9 +112,9 @@ public class ScheduledCommandTask implements ScheduledTask {
 
     long identifier = System.currentTimeMillis();
 
-    this.jobKey = new JobKey("job" + identifier, jobClass.getSimpleName());
+    this.jobKey = new JobKey("job" + identifier, CommandJob.class.getSimpleName());
 
-    this.triggerKey = new TriggerKey("trigger" + identifier, jobClass.getSimpleName());
+    this.triggerKey = new TriggerKey("trigger" + identifier, CommandJob.class.getSimpleName());
 
     JobDetail jobDetail = createJob();
 
@@ -183,7 +181,7 @@ public class ScheduledCommandTask implements ScheduledTask {
 
   private JobDetail createJob() {
     return newJob()
-        .ofType(jobClass)
+        .ofType(CommandJob.class)
         .withIdentity(jobKey)
         .storeDurably()
         .usingJobData(CommandJob.COMMAND_KEY, command)
