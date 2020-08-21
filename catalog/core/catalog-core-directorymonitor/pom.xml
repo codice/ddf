@@ -340,7 +340,7 @@
         <dependency>
             <groupId>ch.qos.cal10n</groupId>
             <artifactId>cal10n-api</artifactId>
-            <version>0.7.4</version>
+            <version>${cal10n.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -19,8 +19,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import javax.management.MBeanServer;
 import org.apache.log4j.Priority;
 import org.junit.Test;
@@ -192,18 +193,10 @@ public class LoggingServiceTest {
     return new LogEvent(mockPaxLoggingEvent);
   }
 
-  private void addBundleNameProperty(Properties properties, String bundleName) {
+  private Map<String, Object> getLoggingProperties(String bundleName, String bundleVersion) {
+    Map<String, Object> properties = new HashMap<>();
     properties.put(BUNDLE_NAME_KEY, bundleName);
-  }
-
-  private void addBundleVersionProperty(Properties properties, String bundleVersion) {
     properties.put(BUNDLE_VERSION_KEY, bundleVersion);
-  }
-
-  private Properties getLoggingProperties(String bundleName, String bundleVersion) {
-    Properties properties = new Properties();
-    addBundleNameProperty(properties, bundleName);
-    addBundleVersionProperty(properties, bundleVersion);
     return properties;
   }
 

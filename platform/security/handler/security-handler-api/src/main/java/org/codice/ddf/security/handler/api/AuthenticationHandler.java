@@ -16,7 +16,7 @@ package org.codice.ddf.security.handler.api;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationException;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 
 public interface AuthenticationHandler {
 
@@ -47,7 +47,7 @@ public interface AuthenticationHandler {
    * @return result containing a status and the credentials to be placed into the http request
    */
   HandlerResult getNormalizedToken(
-      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
+      ServletRequest request, ServletResponse response, SecurityFilterChain chain, boolean resolve)
       throws AuthenticationException;
 
   /**
@@ -58,6 +58,6 @@ public interface AuthenticationHandler {
    * @return result containing a status indicating if further action is necessary
    */
   HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
+      ServletRequest servletRequest, ServletResponse servletResponse, SecurityFilterChain chain)
       throws AuthenticationException;
 }

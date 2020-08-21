@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationException;
-import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * chain. The {@link SecurityFilterChain} may not be reused. That is, once the {@link
  * SecurityFilterChain#doFilter} method is called, no more {@link SecurityFilter}s may be added.
  */
-public class SecurityFilterChain implements FilterChain {
+public class SecurityFilterChain implements org.codice.ddf.platform.filter.SecurityFilterChain {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityFilterChain.class);
 

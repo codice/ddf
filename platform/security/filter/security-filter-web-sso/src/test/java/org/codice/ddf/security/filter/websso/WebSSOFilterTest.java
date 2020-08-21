@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.platform.filter.AuthenticationException;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
@@ -95,20 +95,20 @@ public class WebSSOFilterTest {
     when(handler1.getNormalizedToken(
             any(ServletRequest.class),
             any(ServletResponse.class),
-            any(FilterChain.class),
+            any(SecurityFilterChain.class),
             eq(true)))
         .thenReturn(completedResult);
     when(handler1.getNormalizedToken(
             any(ServletRequest.class),
             any(ServletResponse.class),
-            any(FilterChain.class),
+            any(SecurityFilterChain.class),
             eq(false)))
         .thenReturn(noActionResult);
 
     filter.setHandlerList(Collections.singletonList(handler1));
     filter.setContextPolicyManager(policyManager);
 
-    FilterChain filterChain = mock(FilterChain.class);
+    SecurityFilterChain filterChain = mock(SecurityFilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getContextPath()).thenReturn(MOCK_CONTEXT);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -121,7 +121,7 @@ public class WebSSOFilterTest {
         .getNormalizedToken(
             any(HttpServletRequest.class),
             any(HttpServletResponse.class),
-            any(FilterChain.class),
+            any(SecurityFilterChain.class),
             anyBoolean());
   }
 
@@ -155,11 +155,11 @@ public class WebSSOFilterTest {
     when(handlerMock.getNormalizedToken(
             any(ServletRequest.class),
             any(ServletResponse.class),
-            any(FilterChain.class),
+            any(SecurityFilterChain.class),
             anyBoolean()))
         .thenReturn(completedResult);
 
-    FilterChain filterChain = mock(FilterChain.class);
+    SecurityFilterChain filterChain = mock(SecurityFilterChain.class);
 
     WebSSOFilter filter = new WebSSOFilter();
     filter.setContextPolicyManager(policyManager);
@@ -204,11 +204,11 @@ public class WebSSOFilterTest {
     when(handlerMock.getNormalizedToken(
             any(ServletRequest.class),
             any(ServletResponse.class),
-            any(FilterChain.class),
+            any(SecurityFilterChain.class),
             anyBoolean()))
         .thenReturn(completedResult);
 
-    FilterChain filterChain = mock(FilterChain.class);
+    SecurityFilterChain filterChain = mock(SecurityFilterChain.class);
 
     WebSSOFilter filter = new WebSSOFilter();
     filter.setContextPolicyManager(policyManager);
@@ -243,20 +243,20 @@ public class WebSSOFilterTest {
     when(handler1.getNormalizedToken(
             any(ServletRequest.class),
             any(ServletResponse.class),
-            any(FilterChain.class),
+            any(SecurityFilterChain.class),
             eq(true)))
         .thenReturn(completedResult);
     when(handler1.getNormalizedToken(
             any(ServletRequest.class),
             any(ServletResponse.class),
-            any(FilterChain.class),
+            any(SecurityFilterChain.class),
             eq(false)))
         .thenReturn(noActionResult);
 
     filter.setContextPolicyManager(policyManager);
     filter.setHandlerList(Collections.singletonList(handler1));
 
-    FilterChain filterChain = mock(FilterChain.class);
+    SecurityFilterChain filterChain = mock(SecurityFilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getContextPath()).thenReturn(MOCK_CONTEXT);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -271,7 +271,7 @@ public class WebSSOFilterTest {
         .getNormalizedToken(
             any(HttpServletRequest.class),
             any(HttpServletResponse.class),
-            any(FilterChain.class),
+            any(SecurityFilterChain.class),
             anyBoolean());
     // the next filter should NOT be called
     verify(filterChain, never()).doFilter(request, response);
@@ -298,20 +298,20 @@ public class WebSSOFilterTest {
     when(handler1.getNormalizedToken(
             any(ServletRequest.class),
             any(ServletResponse.class),
-            any(FilterChain.class),
+            any(SecurityFilterChain.class),
             eq(false)))
         .thenReturn(noActionResult);
     when(handler1.getNormalizedToken(
             any(ServletRequest.class),
             any(ServletResponse.class),
-            any(FilterChain.class),
+            any(SecurityFilterChain.class),
             eq(true)))
         .thenReturn(redirectedResult);
 
     filter.setContextPolicyManager(policyManager);
     filter.setHandlerList(Collections.singletonList(handler1));
 
-    FilterChain filterChain = mock(FilterChain.class);
+    SecurityFilterChain filterChain = mock(SecurityFilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getContextPath()).thenReturn(MOCK_CONTEXT);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -337,7 +337,7 @@ public class WebSSOFilterTest {
     WebSSOFilter filter = new WebSSOFilter();
     filter.setContextPolicyManager(policyManager);
 
-    FilterChain filterChain = mock(FilterChain.class);
+    SecurityFilterChain filterChain = mock(SecurityFilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
     filter.doFilter(request, response, filterChain);
@@ -357,7 +357,7 @@ public class WebSSOFilterTest {
     WebSSOFilter filter = new WebSSOFilter();
     filter.setContextPolicyManager(policyManager);
 
-    FilterChain filterChain = mock(FilterChain.class);
+    SecurityFilterChain filterChain = mock(SecurityFilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
     filter.doFilter(request, response, filterChain);

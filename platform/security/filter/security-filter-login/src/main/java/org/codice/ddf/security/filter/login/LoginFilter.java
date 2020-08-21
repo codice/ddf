@@ -42,8 +42,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.platform.filter.AuthenticationException;
-import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -100,7 +100,7 @@ public class LoginFilter implements SecurityFilter {
    */
   @Override
   public void doFilter(
-      final ServletRequest request, final ServletResponse response, final FilterChain chain)
+      final ServletRequest request, final ServletResponse response, final SecurityFilterChain chain)
       throws IOException, AuthenticationException {
     LOGGER.debug("Performing doFilter() on LoginFilter");
     HttpServletRequest httpRequest = (HttpServletRequest) request;

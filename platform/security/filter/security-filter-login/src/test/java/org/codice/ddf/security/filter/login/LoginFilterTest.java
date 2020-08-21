@@ -38,7 +38,7 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -50,7 +50,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 public class LoginFilterTest {
-  private static final FilterChain FAIL_FILTER_CHAIN =
+  private static final SecurityFilterChain FAIL_FILTER_CHAIN =
       (request, response) ->
           fail("Should not have continued down the filter chain without a valid Subject.");
 
@@ -62,7 +62,7 @@ public class LoginFilterTest {
   @Mock private HttpServletRequest requestMock;
   @Mock private HttpServletResponse responseMock;
   @Mock private HttpSession sessionMock;
-  @Mock private FilterChain filterChainMock;
+  @Mock private SecurityFilterChain filterChainMock;
   @Mock private SecurityManager securityManagerMock;
   @Mock private SecurityAssertion securityAssertionMock;
   @Mock private PrincipalCollection principalCollectionMock;

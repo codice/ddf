@@ -22,7 +22,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationException;
-import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -102,12 +101,15 @@ public class SecurityFilterChainTest {
             invocation -> {
               Object[] args = invocation.getArguments();
               LOGGER.debug("{} was called.", name);
-              ((FilterChain) args[2])
+              ((org.codice.ddf.platform.filter.SecurityFilterChain) args[2])
                   .doFilter(((ServletRequest) args[0]), ((ServletResponse) args[1]));
               return null;
             })
         .when(mockFilter)
-        .doFilter(any(ServletRequest.class), any(ServletResponse.class), any(FilterChain.class));
+        .doFilter(
+            any(ServletRequest.class),
+            any(ServletResponse.class),
+            any(org.codice.ddf.platform.filter.SecurityFilterChain.class));
 
     return mockFilter;
   }

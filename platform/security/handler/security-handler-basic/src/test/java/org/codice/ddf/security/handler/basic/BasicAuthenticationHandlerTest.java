@@ -31,7 +31,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class BasicAuthenticationHandlerTest {
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
-    FilterChain chain = mock(FilterChain.class);
+    SecurityFilterChain chain = mock(SecurityFilterChain.class);
 
     HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
 
@@ -85,7 +85,7 @@ public class BasicAuthenticationHandlerTest {
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
-    FilterChain chain = mock(FilterChain.class);
+    SecurityFilterChain chain = mock(SecurityFilterChain.class);
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION))
         .thenReturn("Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
@@ -114,7 +114,7 @@ public class BasicAuthenticationHandlerTest {
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
-    FilterChain chain = mock(FilterChain.class);
+    SecurityFilterChain chain = mock(SecurityFilterChain.class);
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION))
         .thenReturn("Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
@@ -137,7 +137,7 @@ public class BasicAuthenticationHandlerTest {
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
-    FilterChain chain = mock(FilterChain.class);
+    SecurityFilterChain chain = mock(SecurityFilterChain.class);
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION))
         .thenReturn("Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));

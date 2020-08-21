@@ -11,25 +11,23 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.platform.filter;
+package org.codice.ddf.platform.filter.http;
 
 import java.io.IOException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
- * {@link SecurityFilter} is a marker interface that indicates that the {@link Filter}s will be
- * handled by the {@link org.codice.ddf.pax.web.jetty.JettyAuthenticator} instead of injected in
- * servlets directly.
+ * An HttpFilter is an object that performs filtering tasks on either the request to a resource (a
+ * servlet or static content), or on the response from a resource, or both.
  *
- * <p><b> This code is experimental. While this interface is functional and tested, it may change or
- * be removed in a future version of the library. </b>
+ * <p>It is modelled after {@link javax.servlet.Filter} but its {@code doFilter} method accepts
+ * {@link HttpServletRequest} and {@link HttpServletResponse} arguments instead.
  */
-public interface SecurityFilter {
-  void init();
+public interface HttpFilter {
 
-  void doFilter(ServletRequest var1, ServletResponse var2, SecurityFilterChain var3)
-      throws IOException, AuthenticationException;
-
-  void destroy();
+  void doFilter(
+      HttpServletRequest request, HttpServletResponse response, HttpFilterChain filterChain)
+      throws IOException, ServletException;
 }

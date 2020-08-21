@@ -35,6 +35,11 @@
             <artifactId>sync-installer-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>cal10n-api</artifactId>
+            <version>${cal10n.thirdparty.bundle.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

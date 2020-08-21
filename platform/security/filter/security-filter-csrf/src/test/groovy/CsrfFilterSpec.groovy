@@ -16,7 +16,7 @@
 import com.google.common.collect.ImmutableList
 import com.google.common.net.HttpHeaders
 import org.codice.ddf.platform.filter.AuthenticationException
-import org.codice.ddf.platform.filter.FilterChain
+import org.codice.ddf.platform.filter.SecurityFilterChain
 import org.codice.ddf.security.filter.csrf.CsrfFilter
 import org.eclipse.jetty.http.HttpMethod
 import spock.lang.Specification
@@ -80,7 +80,7 @@ class CsrfFilterSpec extends Specification {
     CsrfFilter csrfFilter = new CsrfFilter()
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
-    FilterChain chain = Mock(FilterChain)
+    SecurityFilterChain chain = Mock(SecurityFilterChain)
 
     when:
     HttpServletRequest request = Mock(HttpServletRequest)
@@ -160,7 +160,7 @@ class CsrfFilterSpec extends Specification {
     CsrfFilter csrfFilter = new CsrfFilter()
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
-    FilterChain chain = Mock(FilterChain)
+    SecurityFilterChain chain = Mock(SecurityFilterChain)
 
     when:
     String requestUrl = "https://ddf:123" + requestContext
@@ -226,7 +226,7 @@ class CsrfFilterSpec extends Specification {
     CsrfFilter csrfFilter = new CsrfFilter()
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
-    FilterChain chain = Mock(FilterChain)
+    SecurityFilterChain chain = Mock(SecurityFilterChain)
 
     when:
     HttpServletRequest request = Mock(HttpServletRequest)
@@ -294,7 +294,7 @@ class CsrfFilterSpec extends Specification {
     CsrfFilter csrfFilter = new CsrfFilter()
     csrfFilter.init()
     HttpServletResponse response = Mock(HttpServletResponse)
-    FilterChain chain = Mock(FilterChain)
+    SecurityFilterChain chain = Mock(SecurityFilterChain)
 
     when:
     HttpServletRequest request = Mock(HttpServletRequest)

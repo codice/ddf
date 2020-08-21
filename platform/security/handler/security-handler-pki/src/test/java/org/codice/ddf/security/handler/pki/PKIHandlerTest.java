@@ -33,7 +33,7 @@ import java.security.cert.X509Certificate;
 import java.util.Base64;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
@@ -51,7 +51,7 @@ public class PKIHandlerTest {
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
-    FilterChain chain = mock(FilterChain.class);
+    SecurityFilterChain chain = mock(SecurityFilterChain.class);
 
     when(request.getAttribute(("javax.servlet.request.X509Certificate")))
         .thenReturn(getTestCerts());
@@ -99,7 +99,7 @@ public class PKIHandlerTest {
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
-    FilterChain chain = mock(FilterChain.class);
+    SecurityFilterChain chain = mock(SecurityFilterChain.class);
 
     when(request.getAttribute(("javax.servlet.request.X509Certificate"))).thenReturn(null);
 
@@ -120,7 +120,7 @@ public class PKIHandlerTest {
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
-    FilterChain chain = mock(FilterChain.class);
+    SecurityFilterChain chain = mock(SecurityFilterChain.class);
 
     when(request.getAttribute(("javax.servlet.request.X509Certificate")))
         .thenReturn(getTestCerts());
@@ -140,7 +140,7 @@ public class PKIHandlerTest {
     PKIHandler handler = getPKIHandlerWithMockedCrl(true);
 
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
-    FilterChain chain = mock(FilterChain.class);
+    SecurityFilterChain chain = mock(SecurityFilterChain.class);
 
     when(httpRequest.getAttribute(("javax.servlet.request.X509Certificate")))
         .thenReturn(getTestCerts());
@@ -159,7 +159,7 @@ public class PKIHandlerTest {
 
     HttpServletResponse httpResponse = mock(HttpServletResponse.class);
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
-    FilterChain filterChain = mock(FilterChain.class);
+    SecurityFilterChain filterChain = mock(SecurityFilterChain.class);
 
     HandlerResult result = handler.handleError(httpRequest, httpResponse, filterChain);
 

@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.pax.web.jetty;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,42 +20,45 @@ import static org.mockito.Mockito.when;
 import ddf.security.SecurityConstants;
 import java.io.IOException;
 import javax.security.auth.Subject;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class SecurityJavaSubjectFilterTest {
+
+  @Mock private HttpServletRequest mockRequest;
+
+  @Mock private HttpServletResponse mockResponse;
+
+  @Mock private ProxyHttpFilterChain mockFilterChain;
 
   /** Tests that the filter is registered when the injectFilter method is called. */
   @Test
   public void testSecurityJavaSubjectNotAvailable() throws IOException, ServletException {
     // given
-    ServletRequest servletRequest = mock(ServletRequest.class);
-    ServletResponse servletResponse = mock(ServletResponse.class);
-    FilterChain filterChain = mock(FilterChain.class);
     SecurityJavaSubjectFilter securityJavaSubjectFilter = new SecurityJavaSubjectFilter();
     // when
-    when(servletRequest.getAttribute(SecurityConstants.SECURITY_JAVA_SUBJECT)).thenReturn(null);
-    securityJavaSubjectFilter.doFilter(servletRequest, servletResponse, filterChain);
+    when(mockRequest.getAttribute(SecurityConstants.SECURITY_JAVA_SUBJECT)).thenReturn(null);
+    securityJavaSubjectFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
     // verify
-    verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
+    verify(mockFilterChain, times(1)).doFilter(mockRequest, mockResponse);
   }
 
   @Test
   public void testSecurityJavaSubjectISAvailable() throws IOException, ServletException {
     // given
-    ServletRequest servletRequest = mock(ServletRequest.class);
-    ServletResponse servletResponse = mock(ServletResponse.class);
-    FilterChain filterChain = mock(FilterChain.class);
     Subject subject = new Subject();
     SecurityJavaSubjectFilter securityJavaSubjectFilter = new SecurityJavaSubjectFilter();
     // when
-    when(servletRequest.getAttribute(SecurityConstants.SECURITY_JAVA_SUBJECT)).thenReturn(subject);
-    securityJavaSubjectFilter.doFilter(servletRequest, servletResponse, filterChain);
+    when(mockRequest.getAttribute(SecurityConstants.SECURITY_JAVA_SUBJECT)).thenReturn(subject);
+    securityJavaSubjectFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
     // verify
-    verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
+    verify(mockFilterChain, times(1)).doFilter(mockRequest, mockResponse);
     // cannot really verify static Subject.doAs() was called with subject...
   }
 }

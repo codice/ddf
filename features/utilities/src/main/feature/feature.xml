@@ -1,5 +1,5 @@
 <!--
-/**
+ /**
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
@@ -12,70 +12,70 @@
  **/
  -->
 <features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          name="${project.artifactId}-${project.version}"
-          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
-          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
-
+    name="${project.artifactId}-${project.version}"
+    xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+    xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+    
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
-
+    
     <feature name="util-uuidgenerator-api" version="${project.version}"
-             description="UUID Generator API">
+        description="UUID Generator API">
         <bundle>mvn:ddf.platform.util/util-uuidgenerator-api/${project.version}</bundle>
     </feature>
-
+    
     <feature name="util-uuidgenerator" version="${project.version}"
-             description="A UUID generator service">
+        description="A UUID generator service">
         <feature>util-uuidgenerator-api</feature>
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
         <bundle>mvn:ddf.platform.util/util-uuidgenerator-impl/${project.version}</bundle>
     </feature>
-
+    
     <feature name="platform-usng4j" version="${project.version}"
-             description="Service to convert coordinates between various coordinate systems.">
+        description="Service to convert coordinates between various coordinate systems.">
         <bundle>mvn:ddf.platform.usng4j/platform-usng4j-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.usng4j/platform-usng4j-impl/${project.version}</bundle>
     </feature>
-
+    
     <feature name="parser-xml" version="${project.version}"
-             description="Platform JAXB support.">
+        description="Platform JAXB support.">
         <feature>guava</feature>
         <bundle>mvn:ddf.platform/platform-parser-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform/platform-parser-xml/${project.version}</bundle>
     </feature>
-
+    
     <feature name="action-core-api" version="${project.version}"
-             description="Action API">
+        description="Action API">
         <bundle>mvn:ddf.action.core/action-core-api/${project.version}</bundle>
     </feature>
-
+    
     <feature name="action-core-impl" version="${project.version}"
-             description="Action Core">
+        description="Action Core">
         <feature>action-core-api</feature>
         <bundle>mvn:ddf.action.core/action-core-impl/${project.version}</bundle>
     </feature>
-
+    
     <feature name="error-api" version="${project.version}"
-             description="Platform error handler API.">
+        description="Platform error handler API.">
         <feature>pax-jetty</feature>
         <bundle>mvn:ddf.platform.error/platform-error-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.error/platform-error-servlet/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
     </feature>
-
+    
     <feature name="error-impl" version="${project.version}"
-             description="Platform error handler">
+        description="Platform error handler">
         <feature>error-api</feature>
         <bundle>mvn:ddf.platform.error/platform-error-impl/${project.version}</bundle>
     </feature>
-
+    
     <feature name="mime-core-api" version="${project.version}"
-             description="MIME API">
+        description="MIME API">
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
     </feature>
-
+    
     <feature name="mime-core" version="${project.version}"
-             description="MIME Core">
+        description="MIME Core">
         <feature>mime-core-api</feature>
         <feature>guava</feature>
         <feature>spring</feature>
@@ -98,47 +98,47 @@
             mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-xml
         </configfile>
     </feature>
-
+    
     <feature name="mime-tika-resolver" version="${project.version}"
-             description="Tika MIME Resolver">
+        description="Tika MIME Resolver">
         <feature>mime-core-api</feature>
         <feature>slf4j</feature>
         <bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
     </feature>
-
+    
     <feature name="compression-exi" version="${project.version}"
-             description="Adds EXI compression support for CXF services.">
+        description="Adds EXI compression support for CXF services.">
         <feature>cxf-core</feature>
         <bundle>mvn:ddf.compression/compression-exi/${project.version}</bundle>
     </feature>
-
+    
     <feature name="compression-gzip" version="${project.version}"
-             description="Adds GZip compression support for CXF services.">
+        description="Adds GZip compression support for CXF services.">
         <feature>cxf-core</feature>
         <bundle>mvn:ddf.compression/compression-gzip/${project.version}</bundle>
     </feature>
-
-
+    
+    
     <feature name="common-system" version="${project.version}"
-             description="common system">
+        description="common system">
         <feature>apache-commons</feature>
         <bundle>mvn:ddf.lib/common-system/${project.version}</bundle>
     </feature>
-
+    
     <feature name="platform-logging" version="${project.version}"
-             description="platform-logging">
+        description="platform-logging">
         <feature>guava</feature>
         <feature>javax-validation</feature>
         <bundle>mvn:ddf.platform/platform-logging/${project.version}</bundle>
     </feature>
-
+    
     <feature name="platform-api" version="${project.version}"
-             description="Top Level Platform API">
+        description="Top Level Platform API">
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
     </feature>
-
+    
     <feature name="bootflag-api" version="${project.version}"
-             description="API for registering services to indicate a boot condition in the system has been met.">
+        description="API for registering services to indicate a boot condition in the system has been met.">
         <bundle>mvn:ddf.platform/bootflag-api/${project.version}</bundle>
     </feature>
 </features>

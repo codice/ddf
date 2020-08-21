@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.platform.filter.AuthenticationException;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Before;
@@ -61,7 +61,7 @@ public class AuthorizationFilterTest {
     HttpServletRequest servletRequest = getMockServletRequest();
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
 
-    FilterChain filterChain = (request, response) -> sucess = true;
+    SecurityFilterChain filterChain = (request, response) -> sucess = true;
 
     try {
       loginFilter.doFilter(servletRequest, servletResponse, filterChain);
@@ -86,7 +86,7 @@ public class AuthorizationFilterTest {
 
     HttpServletRequest servletRequest = getMockServletRequest();
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    FilterChain filterChain =
+    SecurityFilterChain filterChain =
         (request, response) -> fail("Should not have called doFilter without a valid Subject");
 
     try {
@@ -106,7 +106,7 @@ public class AuthorizationFilterTest {
 
     HttpServletRequest servletRequest = getMockServletRequest();
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    FilterChain filterChain =
+    SecurityFilterChain filterChain =
         (request, response) -> fail("Should not have called doFilter without a valid Subject");
 
     try {
@@ -125,7 +125,7 @@ public class AuthorizationFilterTest {
     HttpServletRequest servletRequest = getMockServletRequest();
     servletRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    FilterChain filterChain =
+    SecurityFilterChain filterChain =
         (request, response) -> fail("Should not have called doFilter without a valid Subject");
 
     try {

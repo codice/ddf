@@ -20,7 +20,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
@@ -80,7 +80,7 @@ public class OidcHandler implements AuthenticationHandler {
    */
   @Override
   public HandlerResult getNormalizedToken(
-      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
+      ServletRequest request, ServletResponse response, SecurityFilterChain chain, boolean resolve)
       throws AuthenticationFailureException {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -146,7 +146,7 @@ public class OidcHandler implements AuthenticationHandler {
 
   @Override
   public HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
+      ServletRequest servletRequest, ServletResponse servletResponse, SecurityFilterChain chain) {
     LOGGER.debug("In error handler for Oidc - no action taken.");
     return noActionResult;
   }

@@ -27,10 +27,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.util.ThreadContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,20 +53,20 @@ public class ClientInfoFilterTest {
 
   @Mock private ServletContext mockServletContext;
 
-  @Mock private ServletRequest mockServletRequest;
+  @Mock private HttpServletRequest mockRequest;
 
-  @Mock private ServletResponse mockServletResponse;
+  @Mock private HttpServletResponse mockResponse;
 
-  @Mock private FilterChain mockFilterChain;
+  @Mock private ProxyHttpFilterChain mockFilterChain;
 
   private ClientInfoFilter clientInfoFilter;
 
   @Before
   public void setup() throws Exception {
-    when(mockServletRequest.getRemoteAddr()).thenReturn(MOCK_REMOTE_ADDRESS);
-    when(mockServletRequest.getRemoteHost()).thenReturn(MOCK_REMOTE_HOST);
-    when(mockServletRequest.getScheme()).thenReturn(MOCK_SCHEME);
-    when(mockServletRequest.getServletContext()).thenReturn(mockServletContext);
+    when(mockRequest.getRemoteAddr()).thenReturn(MOCK_REMOTE_ADDRESS);
+    when(mockRequest.getRemoteHost()).thenReturn(MOCK_REMOTE_HOST);
+    when(mockRequest.getScheme()).thenReturn(MOCK_SCHEME);
+    when(mockRequest.getServletContext()).thenReturn(mockServletContext);
     when(mockServletContext.getContextPath()).thenReturn(MOCK_CONTEXT_PATH);
 
     clientInfoFilter = new ClientInfoFilter();
@@ -77,18 +76,16 @@ public class ClientInfoFilterTest {
   public void testClientInfoPresentInMap() throws Exception {
     doAnswer(invocationOnMock -> assertThatMapIsAccurate())
         .when(mockFilterChain)
-        .doFilter(mockServletRequest, mockServletResponse);
-    clientInfoFilter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain);
+        .doFilter(mockRequest, mockResponse);
+    clientInfoFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
     assertThatMapIsNull();
   }
 
   @Test(expected = RuntimeException.class)
   public void testClientInfoCleansUpOnException() throws Exception {
-    doThrow(RuntimeException.class)
-        .when(mockFilterChain)
-        .doFilter(mockServletRequest, mockServletResponse);
+    doThrow(RuntimeException.class).when(mockFilterChain).doFilter(mockRequest, mockResponse);
     try {
-      clientInfoFilter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain);
+      clientInfoFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
     } finally {
       assertThatMapIsNull();
     }

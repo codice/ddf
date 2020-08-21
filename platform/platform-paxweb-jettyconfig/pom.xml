@@ -125,6 +125,11 @@
             <version>${objenesis.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>http-filter-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

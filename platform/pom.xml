@@ -380,5 +380,6 @@
         <module>branding-registry-impl</module>
         <module>sync-installer</module>
         <module>resource-bundle-locator</module>
+        <module>http-filter-api</module>
     </modules>
 </project>

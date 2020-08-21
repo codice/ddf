@@ -34,8 +34,8 @@ import javax.servlet.http.HttpSession;
 import org.codice.ddf.platform.filter.AuthenticationChallengeException;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
-import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -92,7 +92,9 @@ public class WebSSOFilter implements SecurityFilter {
    */
   @Override
   public void doFilter(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+      ServletRequest servletRequest,
+      ServletResponse servletResponse,
+      SecurityFilterChain filterChain)
       throws IOException, AuthenticationException {
     LOGGER.debug("Performing doFilter() on WebSSOFilter");
     HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
@@ -127,7 +129,7 @@ public class WebSSOFilter implements SecurityFilter {
   private void handleRequest(
       HttpServletRequest httpRequest,
       HttpServletResponse httpResponse,
-      FilterChain filterChain,
+      SecurityFilterChain filterChain,
       List<AuthenticationHandler> handlers)
       throws AuthenticationException, IOException {
     HandlerResult result = null;
@@ -301,7 +303,7 @@ public class WebSSOFilter implements SecurityFilter {
   private HandlerResult getResultFromHandlers(
       HttpServletRequest httpRequest,
       HttpServletResponse httpResponse,
-      FilterChain filterChain,
+      SecurityFilterChain filterChain,
       List<AuthenticationHandler> handlers)
       throws AuthenticationException {
     HandlerResult result = new HandlerResult();

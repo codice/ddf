@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.STSAuthenticationToken;
@@ -67,7 +67,10 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
    */
   @Override
   public HandlerResult getNormalizedToken(
-      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
+      ServletRequest request,
+      ServletResponse response,
+      SecurityFilterChain chain,
+      boolean resolve) {
 
     HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
     handlerResult.setSource(SOURCE);
@@ -95,7 +98,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
 
   @Override
   public HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
+      ServletRequest servletRequest, ServletResponse servletResponse, SecurityFilterChain chain) {
     doAuthPrompt((HttpServletResponse) servletResponse);
     HandlerResult result = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
     result.setSource(SOURCE);

@@ -16,14 +16,14 @@ package org.codice.ddf.pax.web.jetty;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.filter.http.HttpFilter;
+import org.codice.ddf.platform.filter.http.HttpFilterChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * string of {@code client-info}, is the key used to access the entire client information map. It
  * may contain different kinds of data that does not necessarily correlate to the servlet API.
  */
-public class ClientInfoFilter implements Filter {
+public class ClientInfoFilter implements HttpFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ClientInfoFilter.class);
 
@@ -58,18 +58,12 @@ public class ClientInfoFilter implements Filter {
   public static final String SERVLET_CONTEXT_PATH = "contextPath";
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {}
-
-  @Override
-  public void destroy() {}
-
-  @Override
   public void doFilter(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+      HttpServletRequest request, HttpServletResponse response, HttpFilterChain filterChain)
       throws IOException, ServletException {
-    ThreadContext.put(CLIENT_INFO_KEY, createClientInfoMap(servletRequest));
+    ThreadContext.put(CLIENT_INFO_KEY, createClientInfoMap(request));
     try {
-      filterChain.doFilter(servletRequest, servletResponse);
+      filterChain.doFilter(request, response);
     } finally {
       ThreadContext.remove(CLIENT_INFO_KEY);
     }
