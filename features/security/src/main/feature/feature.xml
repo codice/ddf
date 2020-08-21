@@ -74,6 +74,7 @@
         <bundle>mvn:ddf.platform.security/security-rest-clientapi/${project.version}</bundle>
 
         <!-- Filters -->
+        <bundle>mvn:ddf.platform/http-filter-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform/security-filter-api/${project.version}</bundle>
 
         <!-- Handlers -->

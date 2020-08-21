@@ -17,10 +17,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -31,33 +30,33 @@ public class DoPrivilegedFilterTest {
 
   private final DoPrivilegedFilter underTest = new DoPrivilegedFilter();
 
-  @Mock private ServletRequest request;
+  @Mock private HttpServletRequest mockRequest;
 
-  @Mock private ServletResponse response;
+  @Mock private HttpServletResponse mockResponse;
 
-  @Mock private FilterChain chain;
+  @Mock private ProxyHttpFilterChain mockFilterChain;
 
   @Test
   public void testDefaultDoFilter() throws Exception {
-    underTest.doFilter(request, response, chain);
-    verify(chain).doFilter(request, response);
+    underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
+    verify(mockFilterChain).doFilter(mockRequest, mockResponse);
   }
 
   @Test(expected = IOException.class)
   public void testIoException() throws Exception {
-    doThrow(IOException.class).when(chain).doFilter(request, response);
-    underTest.doFilter(request, response, chain);
+    doThrow(IOException.class).when(mockFilterChain).doFilter(mockRequest, mockResponse);
+    underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
   }
 
   @Test(expected = ServletException.class)
   public void testServletException() throws Exception {
-    doThrow(ServletException.class).when(chain).doFilter(request, response);
-    underTest.doFilter(request, response, chain);
+    doThrow(ServletException.class).when(mockFilterChain).doFilter(mockRequest, mockResponse);
+    underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
   }
 
   @Test(expected = ServletException.class)
   public void testUnknownException() throws Exception {
-    doThrow(Exception.class).when(chain).doFilter(request, response);
-    underTest.doFilter(request, response, chain);
+    doThrow(Exception.class).when(mockFilterChain).doFilter(mockRequest, mockResponse);
+    underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
   }
 }

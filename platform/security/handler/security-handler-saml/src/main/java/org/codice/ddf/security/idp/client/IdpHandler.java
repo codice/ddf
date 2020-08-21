@@ -66,7 +66,7 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.platform.util.HttpUtils;
 import org.codice.ddf.security.handler.HandlerResultImpl;
 import org.codice.ddf.security.handler.SAMLAuthenticationToken;
@@ -237,7 +237,7 @@ public class IdpHandler implements AuthenticationHandler {
    */
   @Override
   public HandlerResult getNormalizedToken(
-      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
+      ServletRequest request, ServletResponse response, SecurityFilterChain chain, boolean resolve)
       throws AuthenticationFailureException {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -707,7 +707,7 @@ public class IdpHandler implements AuthenticationHandler {
 
   @Override
   public HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
+      ServletRequest servletRequest, ServletResponse servletResponse, SecurityFilterChain chain)
       throws AuthenticationFailureException {
     HandlerResult result = new HandlerResultImpl(HandlerResult.Status.NO_ACTION, null);
     result.setSource(SOURCE);

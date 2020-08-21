@@ -29,8 +29,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpSession;
 import org.codice.ddf.platform.filter.AuthenticationException;
-import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.ServerAuthException;
 import org.eclipse.jetty.server.Request;
@@ -100,7 +100,7 @@ public class JettyAuthenticatorTest {
     final InOrder inOrder = Mockito.inOrder(securityFilter);
     inOrder
         .verify(securityFilter)
-        .doFilter(eq(servletRequest), eq(servletResponse), any(FilterChain.class));
+        .doFilter(eq(servletRequest), eq(servletResponse), any(SecurityFilterChain.class));
   }
 
   /**
@@ -125,7 +125,7 @@ public class JettyAuthenticatorTest {
     inOrder.verify(securityFilter).init();
     inOrder
         .verify(securityFilter)
-        .doFilter(eq(servletRequest), eq(servletResponse), any(FilterChain.class));
+        .doFilter(eq(servletRequest), eq(servletResponse), any(SecurityFilterChain.class));
   }
 
   @Test
@@ -274,19 +274,19 @@ public class JettyAuthenticatorTest {
             securityFilter0, securityFilter100, securityFilter1, securityFilter, securityFilter99);
     inOrder
         .verify(securityFilter100)
-        .doFilter(eq(servletRequest), eq(servletResponse), any(FilterChain.class));
+        .doFilter(eq(servletRequest), eq(servletResponse), any(SecurityFilterChain.class));
     inOrder
         .verify(securityFilter99)
-        .doFilter(eq(servletRequest), eq(servletResponse), any(FilterChain.class));
+        .doFilter(eq(servletRequest), eq(servletResponse), any(SecurityFilterChain.class));
     inOrder
         .verify(securityFilter1)
-        .doFilter(eq(servletRequest), eq(servletResponse), any(FilterChain.class));
+        .doFilter(eq(servletRequest), eq(servletResponse), any(SecurityFilterChain.class));
     inOrder
         .verify(securityFilter0)
-        .doFilter(eq(servletRequest), eq(servletResponse), any(FilterChain.class));
+        .doFilter(eq(servletRequest), eq(servletResponse), any(SecurityFilterChain.class));
     inOrder
         .verify(securityFilter)
-        .doFilter(eq(servletRequest), eq(servletResponse), any(FilterChain.class));
+        .doFilter(eq(servletRequest), eq(servletResponse), any(SecurityFilterChain.class));
   }
 
   private SecurityFilter registerSecurityFilter(Dictionary serviceProperties)
@@ -295,12 +295,13 @@ public class JettyAuthenticatorTest {
     Mockito.doAnswer(
             invocation -> {
               Object[] args = invocation.getArguments();
-              ((FilterChain) args[2])
+              ((SecurityFilterChain) args[2])
                   .doFilter(((ServletRequest) args[0]), ((ServletResponse) args[1]));
               return null;
             })
         .when(securityFilter)
-        .doFilter(any(ServletRequest.class), any(ServletResponse.class), any(FilterChain.class));
+        .doFilter(
+            any(ServletRequest.class), any(ServletResponse.class), any(SecurityFilterChain.class));
 
     final MockServiceReference securityFilterServiceReference = new MockServiceReference();
     securityFilterServiceReference.setProperties(serviceProperties);

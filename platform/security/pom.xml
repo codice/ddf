@@ -24,7 +24,6 @@
     <name>DDF Platform Security</name>
     <packaging>pom</packaging>
     <properties>
-        <jasypt.version>1.9.2</jasypt.version>
         <opensaml.version>3.3.0</opensaml.version>
     </properties>
     <dependencyManagement>

@@ -19,7 +19,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.security.handler.HandlerResultImpl;
 import org.codice.ddf.security.handler.OidcAuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
@@ -52,7 +52,7 @@ public class OAuthHandler implements AuthenticationHandler {
 
   @Override
   public HandlerResult getNormalizedToken(
-      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
+      ServletRequest request, ServletResponse response, SecurityFilterChain chain, boolean resolve)
       throws AuthenticationFailureException {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -123,7 +123,7 @@ public class OAuthHandler implements AuthenticationHandler {
 
   @Override
   public HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
+      ServletRequest servletRequest, ServletResponse servletResponse, SecurityFilterChain chain) {
     LOGGER.debug("In error handler for OAuth - no action taken.");
     return noActionResult;
   }

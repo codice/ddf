@@ -51,7 +51,7 @@ They are passed in the `AuthorizationInfo` of the Subject along with the permiss
 |Description
 
 |org.codice.ddf.platform.filter.delegate.DelegateServletFilter
-|The `DelegateServletFilter` detects any servlet filters that have been exposed as OSGi services implementing `org.codice.ddf.platform.filter.SecurityFilter` and places them in-order in front of any servlet or web application running on the container.
+|The `DelegatingHttpFilterHandler` detects any servlet filters that have been exposed as OSGi services implementing `org.codice.ddf.platform.filter.SecurityFilter` and places them in-order in front of any servlet or web application running on the container.
 
 |org.codice.ddf.security.filter.websso.WebSSOFilter
 |This filter is the main security filter that works with a number of handlers to protect a variety of web contexts, each using different authentication schemes and policies.

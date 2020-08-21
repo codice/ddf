@@ -14,6 +14,7 @@
 package org.codice.ddf.platform.error.servlet;
 
 import java.io.IOException;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -112,7 +113,7 @@ public class ErrorServlet extends HttpServlet {
       try {
         jettyErrorHandler.handle(
             request.getRequestURI(), (org.eclipse.jetty.server.Request) request, request, response);
-      } catch (IOException e) {
+      } catch (IOException | ServletException e) {
         LOGGER.warn("Problem handling Jetty Error due to: ", e);
       }
     }

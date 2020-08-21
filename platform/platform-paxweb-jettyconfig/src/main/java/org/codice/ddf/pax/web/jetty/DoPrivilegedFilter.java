@@ -17,32 +17,27 @@ import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.codice.ddf.platform.filter.http.HttpFilter;
+import org.codice.ddf.platform.filter.http.HttpFilterChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DoPrivilegedFilter implements Filter {
+public class DoPrivilegedFilter implements HttpFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DoPrivilegedFilter.class);
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-    LOGGER.debug("Starting DoPrivilegedFilter...");
-  }
-
-  @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+  public void doFilter(
+      HttpServletRequest request, HttpServletResponse response, HttpFilterChain filterChain)
       throws IOException, ServletException {
     try {
       AccessController.doPrivileged(
           (PrivilegedExceptionAction<Void>)
               () -> {
-                chain.doFilter(request, response);
+                filterChain.doFilter(request, response);
                 return null;
               });
     } catch (PrivilegedActionException e) {
@@ -54,10 +49,5 @@ public class DoPrivilegedFilter implements Filter {
         throw new ServletException(e.getException());
       }
     }
-  }
-
-  @Override
-  public void destroy() {
-    LOGGER.debug("Destroying DoPrivilegedFilter...");
   }
 }

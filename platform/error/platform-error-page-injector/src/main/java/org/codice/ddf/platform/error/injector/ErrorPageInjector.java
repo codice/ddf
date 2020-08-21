@@ -40,6 +40,13 @@ import org.osgi.framework.hooks.service.ListenerHook.ListenerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This error page injector is a workaround because pax-web does not correctly implement the OSGi R6
+ * Whiteboard spec. See this issue https://ops4j1.jira.com/browse/PAXWEB-1123
+ *
+ * <p>When that is fixed, we can instead use the whiteboard to register global error pages instead
+ * of interacting with Jetty directly.
+ */
 public class ErrorPageInjector implements EventListenerHook {
 
   private static final String ERROR_PAGE_PATH = "/ErrorServlet";
@@ -205,6 +212,7 @@ public class ErrorPageInjector implements EventListenerHook {
 
     ErrorPageErrorHandler errorPageErrorHandler = new ErrorPageErrorHandler();
     errorPageErrorHandler.setErrorPages(errorCodesMap);
+    errorPageErrorHandler.setShowStacks(false);
     httpServiceContext.setErrorHandler(errorPageErrorHandler);
   }
 }

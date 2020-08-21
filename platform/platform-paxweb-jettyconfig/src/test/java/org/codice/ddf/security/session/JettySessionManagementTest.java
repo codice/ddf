@@ -58,7 +58,8 @@ public class JettySessionManagementTest {
     server.setHandler(handlers);
     // Configure server according to the jetty.xml file
     XmlConfiguration configuration =
-        new XmlConfiguration(JettySessionManagementTest.class.getResourceAsStream("/jetty.xml"));
+        new XmlConfiguration(
+            JettySessionManagementTest.class.getResourceAsStream("/jetty-session.xml"));
     configuration.configure(server);
     // Have server bind to first available port
     ServerConnector connector = new ServerConnector(server);

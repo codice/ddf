@@ -30,6 +30,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>http-filter-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
             <version>${micrometer.version}</version>

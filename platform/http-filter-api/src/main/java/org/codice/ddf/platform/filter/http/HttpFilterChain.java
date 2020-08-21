@@ -11,13 +11,14 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.platform.filter;
+package org.codice.ddf.platform.filter.http;
 
 import java.io.IOException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-public interface FilterChain {
-  void doFilter(ServletRequest var1, ServletResponse var2)
-      throws IOException, AuthenticationException;
+public interface HttpFilterChain {
+  void doFilter(HttpServletRequest request, HttpServletResponse response)
+      throws IOException, ServletException;
 }

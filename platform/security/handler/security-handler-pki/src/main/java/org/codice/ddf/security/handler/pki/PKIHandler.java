@@ -20,7 +20,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.HandlerResultImpl;
@@ -69,7 +69,10 @@ public class PKIHandler implements AuthenticationHandler {
    */
   @Override
   public HandlerResult getNormalizedToken(
-      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
+      ServletRequest request,
+      ServletResponse response,
+      SecurityFilterChain chain,
+      boolean resolve) {
     HandlerResult handlerResult = new HandlerResultImpl(HandlerResult.Status.NO_ACTION, null);
     handlerResult.setSource(SOURCE);
 
@@ -127,7 +130,7 @@ public class PKIHandler implements AuthenticationHandler {
 
   @Override
   public HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
+      ServletRequest servletRequest, ServletResponse servletResponse, SecurityFilterChain chain) {
     HandlerResult result = new HandlerResultImpl(HandlerResult.Status.NO_ACTION, null);
     result.setSource(SOURCE);
     LOGGER.debug("In error handler for pki - no action taken.");
