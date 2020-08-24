@@ -601,7 +601,7 @@ public class URLResourceReader implements ResourceReader {
     if (properties.get(USERNAME) != null && properties.get(PASSWORD) != null) {
       factory =
           clientBuilder
-              .endpoint(uri)
+              .endpoint(uri.toString())
               .interfaceClass(WebClient.class)
               .disableCnCheck(false)
               .allowRedirects(getFollowRedirects())
@@ -617,7 +617,7 @@ public class URLResourceReader implements ResourceReader {
       try {
         factory =
             clientBuilder
-                .endpoint(uri)
+                .endpoint(uri.toString())
                 .interfaceClass(WebClient.class)
                 .disableCnCheck(false)
                 .allowRedirects(getFollowRedirects())
@@ -633,7 +633,7 @@ public class URLResourceReader implements ResourceReader {
     } else {
       factory =
           clientBuilder
-              .endpoint(uri)
+              .endpoint(uri.toString())
               .interfaceClass(WebClient.class)
               .disableCnCheck(false)
               .allowRedirects(getFollowRedirects())

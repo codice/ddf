@@ -305,7 +305,10 @@ public class OcspChecker implements OcspService {
       try {
         ClientBuilder<WebClient> clientBuilder = factory.getClientBuilder();
         SecureCxfClientFactory<WebClient> cxfClientFactory =
-            clientBuilder.endpoint(ocspServerUrl).interfaceClass(WebClient.class).build();
+            clientBuilder
+                .endpoint(ocspServerUrl.toString())
+                .interfaceClass(WebClient.class)
+                .build();
         WebClient client =
             cxfClientFactory
                 .getWebClient()

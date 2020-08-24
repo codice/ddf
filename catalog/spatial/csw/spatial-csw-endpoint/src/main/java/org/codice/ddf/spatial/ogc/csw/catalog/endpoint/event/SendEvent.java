@@ -28,7 +28,6 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -147,18 +146,14 @@ public class SendEvent implements DeliveryMethod, Pingable {
 
     List providers = ImmutableList.of(new CswRecordCollectionMessageBodyWriter(transformerManager));
     ClientBuilder<CswSubscribe> clientBuilder = clientBuilderFactory.getClientBuilder();
-    try {
-      cxfClientFactory =
-          clientBuilder
-              .endpoint(callbackUrl.toURI())
-              .interfaceClass(CswSubscribe.class)
-              .entityProviders(providers)
-              .useSamlEcp(true)
-              .useSubjectRetrievalInterceptor()
-              .build();
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
+    cxfClientFactory =
+        clientBuilder
+            .endpoint(callbackUrl.toString())
+            .interfaceClass(CswSubscribe.class)
+            .entityProviders(providers)
+            .useSamlEcp(true)
+            .useSubjectRetrievalInterceptor()
+            .build();
     try {
       InetAddress address = InetAddress.getByName(callbackUrl.getHost());
       ip = address.getHostAddress();

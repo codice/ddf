@@ -42,7 +42,6 @@ import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.ConnectException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -345,56 +344,52 @@ public class WfsSource extends AbstractWfsSource {
   /* This method should only be called after all properties have been set. */
   private void createClientFactory() {
     ClientBuilder<Wfs> clientBuilder = clientBuilderFactory.getClientBuilder();
-    try {
-      if (BASIC.equals(authenticationType)
-          && StringUtils.isNotBlank(username)
-          && StringUtils.isNotBlank(password)) {
-        factory =
-            clientBuilder
-                .endpoint(new URI(wfsUrl))
-                .interfaceClass(Wfs.class)
-                .entityProviders(initProviders())
-                .interceptor(new MarkableStreamInterceptor())
-                .disableCnCheck(disableCnCheck)
-                .allowRedirects(false)
-                .connectionTimeout(connectionTimeout)
-                .receiveTimeout(receiveTimeout)
-                .username(username)
-                .password(password)
-                .useSamlEcp(true)
-                .build();
-      } else if (StringUtils.isNotBlank(getCertAlias())
-          && StringUtils.isNotBlank(getKeystorePath())) {
-        factory =
-            clientBuilder
-                .endpoint(new URI(wfsUrl))
-                .interfaceClass(Wfs.class)
-                .entityProviders(initProviders())
-                .interceptor(new MarkableStreamInterceptor())
-                .disableCnCheck(disableCnCheck)
-                .allowRedirects(false)
-                .connectionTimeout(connectionTimeout)
-                .receiveTimeout(receiveTimeout)
-                .clientKeyInfo(getCertAlias(), Paths.get(getKeystorePath()))
-                .sslProtocol(sslProtocol)
-                .useSamlEcp(true)
-                .build();
-      } else {
-        factory =
-            clientBuilder
-                .endpoint(new URI(wfsUrl))
-                .interfaceClass(Wfs.class)
-                .entityProviders(initProviders())
-                .interceptor(new MarkableStreamInterceptor())
-                .disableCnCheck(disableCnCheck)
-                .allowRedirects(false)
-                .connectionTimeout(connectionTimeout)
-                .receiveTimeout(receiveTimeout)
-                .useSamlEcp(true)
-                .build();
-      }
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
+    if (BASIC.equals(authenticationType)
+        && StringUtils.isNotBlank(username)
+        && StringUtils.isNotBlank(password)) {
+      factory =
+          clientBuilder
+              .endpoint(wfsUrl)
+              .interfaceClass(Wfs.class)
+              .entityProviders(initProviders())
+              .interceptor(new MarkableStreamInterceptor())
+              .disableCnCheck(disableCnCheck)
+              .allowRedirects(false)
+              .connectionTimeout(connectionTimeout)
+              .receiveTimeout(receiveTimeout)
+              .username(username)
+              .password(password)
+              .useSamlEcp(true)
+              .build();
+    } else if (StringUtils.isNotBlank(getCertAlias())
+        && StringUtils.isNotBlank(getKeystorePath())) {
+      factory =
+          clientBuilder
+              .endpoint(wfsUrl)
+              .interfaceClass(Wfs.class)
+              .entityProviders(initProviders())
+              .interceptor(new MarkableStreamInterceptor())
+              .disableCnCheck(disableCnCheck)
+              .allowRedirects(false)
+              .connectionTimeout(connectionTimeout)
+              .receiveTimeout(receiveTimeout)
+              .clientKeyInfo(getCertAlias(), Paths.get(getKeystorePath()))
+              .sslProtocol(sslProtocol)
+              .useSamlEcp(true)
+              .build();
+    } else {
+      factory =
+          clientBuilder
+              .endpoint(wfsUrl)
+              .interfaceClass(Wfs.class)
+              .entityProviders(initProviders())
+              .interceptor(new MarkableStreamInterceptor())
+              .disableCnCheck(disableCnCheck)
+              .allowRedirects(false)
+              .connectionTimeout(connectionTimeout)
+              .receiveTimeout(receiveTimeout)
+              .useSamlEcp(true)
+              .build();
     }
   }
 

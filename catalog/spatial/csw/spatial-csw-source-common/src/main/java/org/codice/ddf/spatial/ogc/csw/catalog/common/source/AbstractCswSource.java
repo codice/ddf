@@ -344,7 +344,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
       factory =
           clientBuilder
-              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .endpoint(cswSourceConfiguration.getCswUrl())
               .interfaceClass(Csw.class)
               .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
               .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
@@ -361,7 +361,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         && StringUtils.isNotBlank(cswSourceConfiguration.getOauthClientSecret())) {
       factory =
           clientBuilder
-              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .endpoint(cswSourceConfiguration.getCswUrl())
               .interfaceClass(Csw.class)
               .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
               .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
@@ -379,7 +379,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
       factory =
           clientBuilder
-              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .endpoint(cswSourceConfiguration.getCswUrl())
               .interfaceClass(Csw.class)
               .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
               .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
@@ -395,7 +395,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     } else {
       factory =
           clientBuilder
-              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .endpoint(cswSourceConfiguration.getCswUrl())
               .interfaceClass(Csw.class)
               .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
               .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
@@ -414,7 +414,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
       subscribeClientFactory =
           clientBuilder
-              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .endpoint(cswSourceConfiguration.getCswUrl())
               .interfaceClass(CswSubscribe.class)
               .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
               .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
@@ -431,7 +431,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         && StringUtils.isNotBlank(cswSourceConfiguration.getOauthClientSecret())) {
       subscribeClientFactory =
           clientBuilder
-              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .endpoint(cswSourceConfiguration.getCswUrl())
               .interfaceClass(CswSubscribe.class)
               .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
               .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
@@ -449,7 +449,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
       subscribeClientFactory =
           clientBuilder
-              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .endpoint(cswSourceConfiguration.getCswUrl())
               .interfaceClass(CswSubscribe.class)
               .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
               .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
@@ -465,7 +465,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     } else {
       subscribeClientFactory =
           clientBuilder
-              .endpoint(new URI(cswSourceConfiguration.getCswUrl()))
+              .endpoint(cswSourceConfiguration.getCswUrl())
               .interfaceClass(CswSubscribe.class)
               .entityProviders(initProviders(cswTransformConverter, cswSourceConfiguration))
               .disableCnCheck(cswSourceConfiguration.getDisableCnCheck())
