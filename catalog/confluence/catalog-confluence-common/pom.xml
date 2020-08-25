@@ -65,7 +65,6 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-wadl2java-plugin</artifactId>
-                <version>${cxf.version}</version>
                 <executions>
                     <execution>
                         <id>generate-sources</id>
