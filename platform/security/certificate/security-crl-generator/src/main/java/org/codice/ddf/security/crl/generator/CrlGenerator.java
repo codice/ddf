@@ -22,8 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -175,12 +173,8 @@ public class CrlGenerator implements Runnable {
   private Object getRemoteCrl() {
     ClientBuilder<WebClient> clientBuilder = factory.getClientBuilder();
     SecureCxfClientFactory<WebClient> cxfClientFactory = null;
-    try {
-      cxfClientFactory =
-          clientBuilder.endpoint(new URI(crlLocationUrl)).interfaceClass(WebClient.class).build();
-    } catch (URISyntaxException e) {
-      LOGGER.debug("Endpoint is not a URI", e);
-    }
+    cxfClientFactory =
+        clientBuilder.endpoint(crlLocationUrl).interfaceClass(WebClient.class).build();
     WebClient client = cxfClientFactory.getWebClient();
     Response response = client.get();
     return response.getEntity();

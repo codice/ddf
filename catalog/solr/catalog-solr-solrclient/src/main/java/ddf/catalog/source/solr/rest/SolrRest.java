@@ -17,7 +17,6 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import ddf.security.encryption.EncryptionService;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -131,43 +130,43 @@ public class SolrRest {
       if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
         solrCatalogSchemaClientFactory =
             restFactoryBuilder
-                .endpoint(new URI(getSolrCatalogSchemaUrl()))
+                .endpoint(getSolrCatalogSchemaUrl())
                 .interfaceClass(SolrRestClient.class)
                 .build();
         solrCatalogUpdateClientFactory =
             updateFactoryBuilder
-                .endpoint(new URI(getSolrCatalogUpdateUrl()))
+                .endpoint(getSolrCatalogUpdateUrl())
                 .interfaceClass(SolrUpdateClient.class)
                 .build();
         solrMetacardCacheSchemaClientFactory =
-            restFactoryBuilder.endpoint(new URI(getSolrMetacardCacheSchemaUrl())).build();
+            restFactoryBuilder.endpoint(getSolrMetacardCacheSchemaUrl()).build();
         solrMetacardCacheUpdateClientFactory =
             solrCatalogUpdateClientFactory =
-                updateFactoryBuilder.endpoint(new URI(getSolrMetacardCacheUpdateUrl())).build();
+                updateFactoryBuilder.endpoint(getSolrMetacardCacheUpdateUrl()).build();
       } else {
         solrCatalogSchemaClientFactory =
             restFactoryBuilder
-                .endpoint(new URI(getSolrCatalogSchemaUrl()))
+                .endpoint(getSolrCatalogSchemaUrl())
                 .interfaceClass(SolrRestClient.class)
                 .username(username)
                 .password(password)
                 .build();
         solrCatalogUpdateClientFactory =
             updateFactoryBuilder
-                .endpoint(new URI(getSolrCatalogUpdateUrl()))
+                .endpoint(getSolrCatalogUpdateUrl())
                 .interfaceClass(SolrUpdateClient.class)
                 .username(username)
                 .password(password)
                 .build();
         solrMetacardCacheSchemaClientFactory =
             restFactoryBuilder
-                .endpoint(new URI(getSolrMetacardCacheSchemaUrl()))
+                .endpoint(getSolrMetacardCacheSchemaUrl())
                 .username(username)
                 .password(password)
                 .build();
         solrMetacardCacheUpdateClientFactory =
             updateFactoryBuilder
-                .endpoint(new URI(getSolrMetacardCacheUpdateUrl()))
+                .endpoint(getSolrMetacardCacheUpdateUrl())
                 .username(username)
                 .password(password)
                 .build();
