@@ -204,7 +204,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
    * @param useOauth whether to use oauth or not
    */
   public SecureCxfClientFactoryImpl(
-      URI endpointUrl,
+      String endpointUrl,
       Class<T> interfaceClass,
       List<?> providers,
       Interceptor<? extends Message> interceptor,
@@ -233,10 +233,17 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.interfaceClass = interfaceClass;
     this.disableCnCheck = disableCnCheck;
     this.allowRedirects = allowRedirects;
+
+    if (propertyResolver == null && endpointUrl != null) {
+      LOGGER.debug(
+          "Called without a valid propertyResolver, using default propertyResolver to resolve system properties in URI.");
+      propertyResolver = new PropertyResolver(endpointUrl);
+    }
+
     if (propertyResolver != null) {
       this.endpointUrl = propertyResolver.getResolvedString();
-    } else if (endpointUrl != null) {
-      this.endpointUrl = endpointUrl.toString();
+    } else {
+      this.endpointUrl = endpointUrl;
       LOGGER.warn(
           "Called without a valid propertyResolver, system properties in URI may not resolve.");
     }

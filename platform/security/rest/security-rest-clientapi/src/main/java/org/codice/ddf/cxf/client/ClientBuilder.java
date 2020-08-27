@@ -37,7 +37,7 @@ public interface ClientBuilder<T> {
    * @param endpointUrl
    * @return
    */
-  ClientBuilder<T> endpoint(URI endpointUrl);
+  ClientBuilder<T> endpoint(String endpointUrl);
 
   /**
    * The JAX-RS interface class/type that represents the endpoint

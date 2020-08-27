@@ -29,7 +29,7 @@ import org.codice.ddf.security.jaxrs.SamlSecurity;
 
 public class ClientBuilderImpl<T> implements ClientBuilder<T> {
 
-  protected URI endpointUrl;
+  protected String endpointUrl;
 
   protected Class<T> interfaceClass;
 
@@ -127,7 +127,7 @@ public class ClientBuilderImpl<T> implements ClientBuilder<T> {
   }
 
   @Override
-  public ClientBuilder<T> endpoint(URI endpointUrl) {
+  public ClientBuilder<T> endpoint(String endpointUrl) {
     this.endpointUrl = endpointUrl;
     return this;
   }

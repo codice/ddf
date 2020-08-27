@@ -326,7 +326,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
         && StringUtils.isNotBlank(password)) {
       ClientBuilder<OpenSearch> clientBuilder = clientBuilderFactory.getClientBuilder();
       return clientBuilder
-          .endpoint(url)
+          .endpoint(url.toString())
           .interfaceClass(OpenSearch.class)
           .disableCnCheck(disableCnCheck)
           .allowRedirects(allowRedirects)
@@ -343,7 +343,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
       ClientBuilder<OpenSearch> clientBuilder = clientBuilderFactory.getClientBuilder();
       try {
         return clientBuilder
-            .endpoint(url)
+            .endpoint(url.toString())
             .interfaceClass(OpenSearch.class)
             .disableCnCheck(disableCnCheck)
             .allowRedirects(allowRedirects)
@@ -361,7 +361,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     } else {
       ClientBuilder<OpenSearch> clientBuilder = clientBuilderFactory.getClientBuilder();
       return clientBuilder
-          .endpoint(url)
+          .endpoint(url.toString())
           .interfaceClass(OpenSearch.class)
           .disableCnCheck(disableCnCheck)
           .allowRedirects(allowRedirects)

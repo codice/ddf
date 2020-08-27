@@ -157,19 +157,23 @@ public class OcspCheckerTest {
             mock(SecurityManager.class)) {
           @Override
           public SecureCxfClientFactory<WebClient> build() {
-            if (inGoodList.matches(endpointUrl)) {
-              return goodSecureCxfClientFactory;
+            try {
+              if (inGoodList.matches(new URI(endpointUrl))) {
+                return goodSecureCxfClientFactory;
+              }
+              if (inRevokedList.matches(new URI(endpointUrl))) {
+                return revokedSecureCxfClientFactory;
+              }
+              if (inUnknownList.matches(new URI(endpointUrl))) {
+                return unknownSecureCxfClientFactory;
+              }
+              if (inBrokenList.matches(new URI(endpointUrl))) {
+                return brokenSecureCxfClientFactory;
+              }
+              return null;
+            } catch (URISyntaxException e) {
+              return null;
             }
-            if (inRevokedList.matches(endpointUrl)) {
-              return revokedSecureCxfClientFactory;
-            }
-            if (inUnknownList.matches(endpointUrl)) {
-              return unknownSecureCxfClientFactory;
-            }
-            if (inBrokenList.matches(endpointUrl)) {
-              return brokenSecureCxfClientFactory;
-            }
-            return null;
           }
         };
 

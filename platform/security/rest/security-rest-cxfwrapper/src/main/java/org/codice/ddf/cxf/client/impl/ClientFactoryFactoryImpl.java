@@ -48,23 +48,19 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
       String username,
       String password) {
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
-    try {
-      return clientBuilder
-          .endpoint(new URI(endpointUrl))
-          .interfaceClass(interfaceClass)
-          .entityProviders(providers)
-          .interceptor(interceptor)
-          .disableCnCheck(disableCnCheck)
-          .allowRedirects(allowRedirects)
-          .connectionTimeout(connectionTimeout)
-          .receiveTimeout(receiveTimeout)
-          .username(username)
-          .password(password)
-          .useSamlEcp(true)
-          .build();
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
+    return clientBuilder
+        .endpoint(endpointUrl)
+        .interfaceClass(interfaceClass)
+        .entityProviders(providers)
+        .interceptor(interceptor)
+        .disableCnCheck(disableCnCheck)
+        .allowRedirects(allowRedirects)
+        .connectionTimeout(connectionTimeout)
+        .receiveTimeout(receiveTimeout)
+        .username(username)
+        .password(password)
+        .useSamlEcp(true)
+        .build();
   }
 
   @Override
@@ -82,23 +78,19 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
       String sslProtocol) {
 
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
-    try {
-      return clientBuilder
-          .endpoint(new URI(endpointUrl))
-          .interfaceClass(interfaceClass)
-          .entityProviders(providers)
-          .interceptor(interceptor)
-          .disableCnCheck(disableCnCheck)
-          .allowRedirects(allowRedirects)
-          .connectionTimeout(connectionTimeout)
-          .receiveTimeout(receiveTimeout)
-          .clientKeyInfo(certAlias, Paths.get(keystorePath))
-          .sslProtocol(sslProtocol)
-          .useSamlEcp(true)
-          .build();
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
+    return clientBuilder
+        .endpoint(endpointUrl)
+        .interfaceClass(interfaceClass)
+        .entityProviders(providers)
+        .interceptor(interceptor)
+        .disableCnCheck(disableCnCheck)
+        .allowRedirects(allowRedirects)
+        .connectionTimeout(connectionTimeout)
+        .receiveTimeout(receiveTimeout)
+        .clientKeyInfo(certAlias, Paths.get(keystorePath))
+        .sslProtocol(sslProtocol)
+        .useSamlEcp(true)
+        .build();
   }
 
   @Override
@@ -122,7 +114,7 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
     try {
       return clientBuilder
-          .endpoint(new URI(endpointUrl))
+          .endpoint(endpointUrl)
           .interfaceClass(interfaceClass)
           .entityProviders(providers)
           .interceptor(interceptor)
@@ -155,21 +147,17 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
       Integer connectionTimeout,
       Integer receiveTimeout) {
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
-    try {
-      return clientBuilder
-          .endpoint(new URI(endpointUrl))
-          .interfaceClass(interfaceClass)
-          .entityProviders(providers)
-          .interceptor(interceptor)
-          .disableCnCheck(disableCnCheck)
-          .allowRedirects(allowRedirects)
-          .connectionTimeout(connectionTimeout)
-          .receiveTimeout(receiveTimeout)
-          .useSamlEcp(true)
-          .build();
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
+    return clientBuilder
+        .endpoint(endpointUrl)
+        .interfaceClass(interfaceClass)
+        .entityProviders(providers)
+        .interceptor(interceptor)
+        .disableCnCheck(disableCnCheck)
+        .allowRedirects(allowRedirects)
+        .connectionTimeout(connectionTimeout)
+        .receiveTimeout(receiveTimeout)
+        .useSamlEcp(true)
+        .build();
   }
 
   @Override
@@ -190,7 +178,7 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
     try {
       return clientBuilder
-          .endpoint(new URI(endpointUrl))
+          .endpoint(endpointUrl)
           .interfaceClass(interfaceClass)
           .entityProviders(providers)
           .interceptor(interceptor)
@@ -230,7 +218,7 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
     try {
       return clientBuilder
-          .endpoint(new URI(endpointUrl))
+          .endpoint(endpointUrl)
           .interfaceClass(interfaceClass)
           .entityProviders(providers)
           .interceptor(interceptor)
@@ -262,20 +250,16 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
       boolean allowRedirects,
       PropertyResolver propertyResolver) {
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
-    try {
-      return clientBuilder
-          .endpoint(new URI(endpointUrl))
-          .interfaceClass(interfaceClass)
-          .entityProviders(providers)
-          .interceptor(interceptor)
-          .disableCnCheck(disableCnCheck)
-          .allowRedirects(allowRedirects)
-          .propertyResolver(propertyResolver)
-          .useSamlEcp(true)
-          .build();
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
+    return clientBuilder
+        .endpoint(endpointUrl)
+        .interfaceClass(interfaceClass)
+        .entityProviders(providers)
+        .interceptor(interceptor)
+        .disableCnCheck(disableCnCheck)
+        .allowRedirects(allowRedirects)
+        .propertyResolver(propertyResolver)
+        .useSamlEcp(true)
+        .build();
   }
 
   @Override
@@ -287,36 +271,28 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
       boolean disableCnCheck,
       boolean allowRedirects) {
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
-    try {
-      return clientBuilder
-          .endpoint(new URI(endpointUrl))
-          .interfaceClass(interfaceClass)
-          .entityProviders(providers)
-          .interceptor(interceptor)
-          .disableCnCheck(disableCnCheck)
-          .allowRedirects(allowRedirects)
-          .useSamlEcp(true)
-          .build();
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
+    return clientBuilder
+        .endpoint(endpointUrl)
+        .interfaceClass(interfaceClass)
+        .entityProviders(providers)
+        .interceptor(interceptor)
+        .disableCnCheck(disableCnCheck)
+        .allowRedirects(allowRedirects)
+        .useSamlEcp(true)
+        .build();
   }
 
   @Override
   public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
       String endpointUrl, Class<T> interfaceClass, String username, String password) {
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
-    try {
-      return clientBuilder
-          .endpoint(new URI(endpointUrl))
-          .interfaceClass(interfaceClass)
-          .username(username)
-          .password(password)
-          .useSamlEcp(true)
-          .build();
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
+    return clientBuilder
+        .endpoint(endpointUrl)
+        .interfaceClass(interfaceClass)
+        .username(username)
+        .password(password)
+        .useSamlEcp(true)
+        .build();
   }
 
   @Override
@@ -331,7 +307,7 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
     try {
       return clientBuilder
-          .endpoint(new URI(endpointUrl))
+          .endpoint(endpointUrl)
           .interfaceClass(interfaceClass)
           .sourceId(sourceId)
           .discovery(new URI(discoveryUrl))
@@ -349,14 +325,10 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
   public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
       String endpointUrl, Class<T> interfaceClass) {
     ClientBuilder<T> clientBuilder = clientBuilderFactory.getClientBuilder();
-    try {
-      return clientBuilder
-          .endpoint(new URI(endpointUrl))
-          .interfaceClass(interfaceClass)
-          .useSamlEcp(true)
-          .build();
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
+    return clientBuilder
+        .endpoint(endpointUrl)
+        .interfaceClass(interfaceClass)
+        .useSamlEcp(true)
+        .build();
   }
 }
