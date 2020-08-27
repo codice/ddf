@@ -292,10 +292,7 @@
              description="SAML features and bundles.">
         <feature>security-core-services</feature>
 
-        <!--  TODO (https://github.com/codice/ddf/issues/5327)
-                Remove wrapped OpenSAML after security refactor is complete  -->
-        <!--  <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${opensaml.osgi.version}-->
-        <!--  </bundle>-->
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${opensaml.osgi.version}</bundle>
         <bundle>mvn:ddf.lib.bundles/libs-bundles-opensaml/${project.version}</bundle>
 
         <bundle>mvn:ddf.security/security-saml-util/${project.version}</bundle>
