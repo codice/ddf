@@ -33,6 +33,15 @@
                     <groupId>org.slf4j</groupId>
                     <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
+                <!--
+                    HTrace is a retired project. It shades com.fasterxml.jackson.core:jackson-databind:2.4.0,
+                    which pulls in a bunch of CVEs. See
+                    https://ossindex.sonatype.org/component/pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.4.0
+                  -->
+                <exclusion>
+                    <groupId>org.apache.htrace</groupId>
+                    <artifactId>htrace-core4</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

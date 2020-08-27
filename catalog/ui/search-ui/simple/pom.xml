@@ -34,10 +34,9 @@
             <version>${commons-lang.version}</version>
         </dependency>
         <dependency>
-            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlets</artifactId>
-            <version>9.2.19.v20160908</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

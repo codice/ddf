@@ -20,6 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
+import org.codice.ddf.security.Security;
 import org.junit.Before;
 import org.junit.Test;
 import org.quartz.JobDetail;
@@ -35,12 +36,15 @@ public class ScheduledCommandTaskTest {
 
   private Scheduler scheduler;
 
+  private Security security;
+
   private ScheduledCommandTask scheduledCommandTask;
 
   @Before
-  public void setUp() {
+  public void setUp() throws SchedulerException {
     scheduler = mock(Scheduler.class);
-    scheduledCommandTask = new ScheduledCommandTask(scheduler, CommandJob.class);
+    security = mock(Security.class);
+    scheduledCommandTask = new ScheduledCommandTask(scheduler, new CommandJobFactory(security));
     scheduledCommandTask.setCommand(INFO);
   }
 

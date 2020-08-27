@@ -66,14 +66,8 @@
             <version>${tink.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>${protobuf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>${org.json.version}</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
 
@@ -100,11 +94,16 @@
                             tink
                         </Embed-Dependency>
                         <Import-Package>
-                            <!-- Omit unnecessary transient crypter dependencies -->
-                            !com.amazonaws.*,
+                            <!-- BEGIN: Exclude unnecessary transitive dependencies -->
                             !com.google.api.*,
+                            !com.google.errorprone.annotations.*,
                             !org.joda.time.*,
                             !sun.misc.*,
+                            <!-- END -->
+                            <!-- BEGIN: Exclude packages from embedded dependencies -->
+                            !com.google.protobuf.*,
+                            !org.json.*,
+                            <!-- END -->
                             *
                         </Import-Package>
                         <Private-Package>

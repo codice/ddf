@@ -55,14 +55,14 @@
         <commons-pool-version>${commons-pool.version}</commons-pool-version>
         <commons-io-version>${commons-io.version}</commons-io-version>
         <cxf-version-range>[3.1,4.0)</cxf-version-range>
-        <c3p0-bundle-version>0.9.5.3</c3p0-bundle-version>
+        <c3p0-bundle-version>${c3p0.version}_1</c3p0-bundle-version>
         <freemarker-version>2.3.28</freemarker-version>
         <geronimo-jms-spec-version>1.1.1</geronimo-jms-spec-version>
         <geronimo-jms2-spec-version>${geronimo-jms_2_spec.version}</geronimo-jms2-spec-version>
         <geronimo-jta-spec-version>1.1.1</geronimo-jta-spec-version>
         <camel.guava.version>19.0</camel.guava.version>
         <cxf.jackson.version>${jackson.version}</cxf.jackson.version>
-        <hikaricp-version>2.3.13</hikaricp-version>
+        <hikaricp-version>2.4.13</hikaricp-version>
         <httpcore4-version>4.4.10</httpcore4-version>
         <httpclient4-version>4.5.6</httpclient4-version>
         <jackson2-version>${cxf.jackson.version}</jackson2-version>
@@ -77,7 +77,7 @@
         <protobuf-version>${protobuf.version}</protobuf-version>
         <qpid-proton-j-bundle-version>${proton.version}</qpid-proton-j-bundle-version>
         <qpid-jms-client-version>${qpid-jms.version}</qpid-jms-client-version>
-        <quartz2-version>2.3.0</quartz2-version>
+        <quartz2-version>${quartz.version}</quartz2-version>
         <servicemix-specs-version>2.9.0</servicemix-specs-version>
         <spring-version-range>[4.3,6)</spring-version-range>
         <!--END versions for camel features in platform-app-->
@@ -171,7 +171,6 @@
       Any bundle dependent on classes from these jars should depend on the jar itself -
       not on the bundlized version. -->
         <javax.inject.bundle.version>${javax.inject.version}_3</javax.inject.bundle.version>
-        <commons.fileupload.version>1.3.2</commons.fileupload.version>
 
         <pax.url.version>2.5.2</pax.url.version>
     </properties>

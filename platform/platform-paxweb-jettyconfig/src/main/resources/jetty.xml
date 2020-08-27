@@ -86,18 +86,23 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure_9_0.dtd">
         handler. This changes the handler hierarchy to look like the following:
 
         Server
-        `—— DelegatingHttpFilterHandler
-            `—— JettyServerHandlerCollection
-                |—— handler 1
-                |—— handler 2
-                |—— ...
-                `—— handler n
+        `—— GzipHandler
+            `—— DelegatingHttpFilterHandler
+                `—— JettyServerHandlerCollection
+                    |—— handler 1
+                    |—— handler 2
+                    |—— ...
+                    `—— handler n
       -->
     <Get id="oldHandler" name="handler"/>
     <Set name="handler">
-        <New class="org.codice.ddf.pax.web.jetty.DelegatingHttpFilterHandler">
+        <New id="GzipHandler" class="org.eclipse.jetty.server.handler.gzip.GzipHandler">
             <Set name="handler">
-                <Ref refid="oldHandler"/>
+                <New class="org.codice.ddf.pax.web.jetty.DelegatingHttpFilterHandler">
+                    <Set name="handler">
+                        <Ref refid="oldHandler"/>
+                    </Set>
+                </New>
             </Set>
         </New>
     </Set>
