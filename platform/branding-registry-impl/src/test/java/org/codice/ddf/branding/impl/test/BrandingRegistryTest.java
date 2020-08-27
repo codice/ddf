@@ -19,12 +19,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.ddf.branding.BrandingRegistry;
 import org.codice.ddf.branding.impl.BrandingRegistryImpl;
 import org.junit.Test;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 public class BrandingRegistryTest {
   @Test
@@ -97,25 +101,63 @@ public class BrandingRegistryTest {
   }
 
   private BrandingRegistry getEmptyBrandingRegistry() {
-    return new BrandingRegistryImpl();
+
+    return new BrandingRegistryImpl() {
+      public BundleContext getContext() {
+        BundleContext bundleContext = mock(BundleContext.class);
+        try {
+          when(bundleContext.getServiceReferences(BrandingPlugin.class, ""))
+              .thenReturn(new ArrayList<>());
+        } catch (InvalidSyntaxException e) {
+          // won't happen
+        }
+        return bundleContext;
+      }
+    };
   }
 
   private BrandingRegistry getBrandingRegistry() {
     BrandingPlugin plugin = mock(BrandingPlugin.class);
     when(plugin.getProductName()).thenReturn("DDF1 v1.0.0");
-    BrandingRegistry registry = new BrandingRegistryImpl();
-    registry.setBrandingPlugins(Collections.singletonList(plugin));
-    return registry;
+    return new BrandingRegistryImpl() {
+      public BundleContext getContext() {
+        BundleContext bundleContext = mock(BundleContext.class);
+        ServiceReference<BrandingPlugin> serviceReference = mock(ServiceReference.class);
+        when(bundleContext.getService(serviceReference)).thenReturn(plugin);
+        try {
+          when(bundleContext.getServiceReferences(BrandingPlugin.class, ""))
+              .thenReturn(Collections.singletonList(serviceReference));
+        } catch (InvalidSyntaxException e) {
+          // won't happen
+        }
+        return bundleContext;
+      }
+    };
   }
 
   private BrandingRegistry getBrandingRegistryMultiplePlugins(
       String firstReturnValue, String secondReturnValue) {
     BrandingPlugin plugin = mock(BrandingPlugin.class);
     when(plugin.getProductName()).thenReturn(firstReturnValue);
-    BrandingRegistry registry = new BrandingRegistryImpl();
     BrandingPlugin plugin2 = mock(BrandingPlugin.class);
     when(plugin2.getProductName()).thenReturn(secondReturnValue);
-    registry.setBrandingPlugins(Arrays.asList(plugin, plugin2));
-    return registry;
+    return new BrandingRegistryImpl() {
+      public BundleContext getContext() {
+        BundleContext bundleContext = mock(BundleContext.class);
+        ServiceReference<BrandingPlugin> serviceReference = mock(ServiceReference.class);
+        when(bundleContext.getService(serviceReference)).thenReturn(plugin);
+        ServiceReference<BrandingPlugin> serviceReference2 = mock(ServiceReference.class);
+        when(bundleContext.getService(serviceReference2)).thenReturn(plugin2);
+        when(serviceReference.compareTo(serviceReference2)).thenReturn(1);
+        when(serviceReference2.compareTo(serviceReference)).thenReturn(-1);
+        try {
+          when(bundleContext.getServiceReferences(BrandingPlugin.class, ""))
+              .thenReturn(Arrays.asList(serviceReference, serviceReference2));
+        } catch (InvalidSyntaxException e) {
+          // won't happen
+        }
+        return bundleContext;
+      }
+    };
   }
 }
