@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>1.15.0</version>
+            <version>${jts.spatial4j.version}</version>
             <!-- Exclude all transitives unnecessary transitives. 
               This ensures that extra files are not sent to the docker daemon
               as part of the build context. -->

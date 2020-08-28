@@ -215,7 +215,6 @@
         <jboss-logging.version>3.3.1.Final</jboss-logging.version>
         <jcodec.version>0.2.0_1</jcodec.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
-        <jetty.solr.version>9.4.19.v20190610</jetty.solr.version>
         <jetty.version>9.4.18.v20190429</jetty.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
@@ -284,12 +283,15 @@
         <servicemix.specs.version>2.9.0</servicemix.specs.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <smtp.client.version>1.7.1</smtp.client.version>
-        <solr.version>8.5.0</solr.version>
-        <solr.docs.version>8_5</solr.docs.version>
-        <solr.httpclient.version>4.5.6</solr.httpclient.version>
-        <solr.httpcore.version>4.4.10</solr.httpcore.version>
-        <solr.zookeeper.version>3.5.5</solr.zookeeper.version>
+        <solr.version>8.9.0</solr.version>
+        <solr.docs.version>8_9</solr.docs.version>
+        <solr.httpclient.version>4.5.12</solr.httpclient.version>
+        <solr.httpcore.version>4.4.13</solr.httpcore.version>
+        <solr.httpmime.version>4.5.12</solr.httpmime.version>
+        <solr.log4j.version>2.13.2</solr.log4j.version>
+        <solr.zookeeper.version>3.6.2</solr.zookeeper.version>
         <solr.spatial4j.version>0.7</solr.spatial4j.version>
+        <jetty.solr.version>9.4.41.v20210516</jetty.solr.version>
         <spark.version>2.5.5</spark.version>
         <spatial4j.version>0.7</spatial4j.version>
         <spring.version>5.1.7.RELEASE</spring.version>
