@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>1.15.0</version>
+            <version>${jts.spatial4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.pro-grade</groupId>
@@ -84,7 +84,7 @@
                             </url>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
-                            <sha512>56a2555edbc06e96e4241e38ebd75755b265f0ffddbba1ffb13a86bc6c4c2ee31d7c12d168ba2081cc5b52b11545c8f619c5a8eb7f4cd1456d51a330b445546f</sha512>
+                            <sha512>fd5aca06748b7902cc81f8d4ab66fb4c236fec0a0ab6b13b1c838e3f9ed2f36b72ddc9c045c4452e808956b514ba5ee5ac6d07c93535537036fdc17066762307</sha512>
                             <checkSignature>true</checkSignature>
                         </configuration>
                     </execution>

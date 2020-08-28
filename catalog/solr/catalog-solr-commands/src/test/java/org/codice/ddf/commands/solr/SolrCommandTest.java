@@ -147,6 +147,7 @@ public abstract class SolrCommandTest {
 
   protected static void createMiniSolrCloudCluster() throws Exception {
     System.setProperty("jetty.testMode", "true");
+    System.setProperty("solr.allowPaths", "*");
     miniSolrCloud =
         new MiniSolrCloudCluster(
             1, getBaseDirPath(), JettyConfig.builder().setContext("/solr").build());
