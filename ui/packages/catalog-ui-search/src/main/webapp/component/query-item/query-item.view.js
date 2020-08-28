@@ -22,119 +22,125 @@ const QueryFeedView = require('../query-feed/query-feed.view.js')
 const QueryScheduleView = require('../query-schedule/query-schedule.view.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const QueryEditorView = require('../query-editor/query-editor.view.js')
+const plugin = require('plugins/query-item.view')
 require('../../behaviors/button.behavior.js')
 require('../../behaviors/dropdown.behavior.js')
 
-module.exports = Marionette.LayoutView.extend({
-  template,
-  attributes() {
-    return {
-      'data-queryid': this.model.id,
-    }
-  },
-  behaviors() {
-    return {
-      button: {},
-      dropdown: {
-        dropdowns: [
-          {
-            selector: '.query-actions',
-            view: QueryInteractionsView.extend({
-              behaviors: {
-                navigation: {},
+module.exports = plugin(
+  Marionette.LayoutView.extend({
+    template,
+    attributes() {
+      return {
+        'data-queryid': this.model.id,
+      }
+    },
+    behaviors() {
+      return {
+        button: {},
+        dropdown: {
+          dropdowns: [
+            {
+              selector: '.query-actions',
+              view: QueryInteractionsView.extend({
+                behaviors: {
+                  navigation: {},
+                },
+              }),
+              viewOptions: {
+                model: this.options.model,
               },
-            }),
-            viewOptions: {
-              model: this.options.model,
             },
-          },
-          {
-            selector: '.query-edit',
-            view: QueryEditorView,
-            viewOptions: {
-              model: this.options.model,
+            {
+              selector: '.query-edit',
+              view: QueryEditorView,
+              viewOptions: {
+                model: this.options.model,
+              },
             },
-          },
-          {
-            selector: '.query-settings',
-            view: QuerySettingsView,
-            viewOptions: {
-              model: this.options.model,
+            {
+              selector: '.query-settings',
+              view: QuerySettingsView,
+              viewOptions: {
+                model: this.options.model,
+              },
             },
-          },
-          {
-            selector: '.query-schedule',
-            view: QueryScheduleView,
-            viewOptions: {
-              model: this.options.model,
+            {
+              selector: '.query-schedule',
+              view: QueryScheduleView,
+              viewOptions: {
+                model: this.options.model,
+              },
             },
-          },
-        ],
-      },
-    }
-  },
-  tagName: CustomElements.register('query-item'),
-  events: {
-    'click .query-run': 'runQuery',
-    'click .query-stop': 'stopQuery',
-  },
-  regions: {
-    queryFeed: '.details-feed',
-    queryActions: '.query-actions',
-    queryEditor: '.query-edit',
-    querySettings: '.query-settings',
-    querySchedule: '.query-schedule',
-  },
-  initialize(options) {
-    if (this.model.has('result')) {
-      this.startListeningToStatus()
-    } else {
-      this.listenTo(this.model, 'change:result', this.resultAdded)
-    }
-    this.listenTo(this.model, 'change:polling', this.handlePolling)
-    this.handlePolling()
-  },
-  serializeData() {
-    return this.model.toJSON({
-      additionalProperties: ['cid', 'color'],
-    })
-  },
-  onRender() {
-    this.queryFeed.show(
-      new QueryFeedView({
-        model: this.model,
+          ],
+        },
+      }
+    },
+    tagName: CustomElements.register('query-item'),
+    events: {
+      'click .query-run': 'runQuery',
+      'click .query-stop': 'stopQuery',
+    },
+    regions: {
+      queryFeed: '.details-feed',
+      queryActions: '.query-actions',
+      queryEditor: '.query-edit',
+      querySettings: '.query-settings',
+      querySchedule: '.query-schedule',
+    },
+    initialize(options) {
+      if (this.model.has('result')) {
+        this.startListeningToStatus()
+      } else {
+        this.listenTo(this.model, 'change:result', this.resultAdded)
+      }
+      this.listenTo(this.model, 'change:polling', this.handlePolling)
+      this.handlePolling()
+    },
+    serializeData() {
+      return this.model.toJSON({
+        additionalProperties: ['cid', 'color'],
       })
-    )
-  },
-  handlePolling() {
-    const polling = this.model.get('polling')
-    this.$el.toggleClass(
-      'is-polling',
-      polling !== undefined && polling !== false
-    )
-  },
-  handleStatus() {
-    this.$el.toggleClass('is-searching', this.model.get('result').isSearching())
-  },
-  resultAdded(model) {
-    if (model.has('result') && _.isUndefined(model.previous('result'))) {
-      this.startListeningToStatus()
-    }
-  },
-  startListeningToStatus() {
-    this.handleStatus()
-    this.listenTo(
-      this.model.get('result'),
-      'sync request error',
-      this.handleStatus
-    )
-  },
-  runQuery(e) {
-    this.model.startSearchFromFirstPage()
-    e.stopPropagation()
-  },
-  stopQuery(e) {
-    this.model.cancelCurrentSearches()
-    e.stopPropagation()
-  },
-})
+    },
+    onRender() {
+      this.queryFeed.show(
+        new QueryFeedView({
+          model: this.model,
+        })
+      )
+    },
+    handlePolling() {
+      const polling = this.model.get('polling')
+      this.$el.toggleClass(
+        'is-polling',
+        polling !== undefined && polling !== false
+      )
+    },
+    handleStatus() {
+      this.$el.toggleClass(
+        'is-searching',
+        this.model.get('result').isSearching()
+      )
+    },
+    resultAdded(model) {
+      if (model.has('result') && _.isUndefined(model.previous('result'))) {
+        this.startListeningToStatus()
+      }
+    },
+    startListeningToStatus() {
+      this.handleStatus()
+      this.listenTo(
+        this.model.get('result'),
+        'sync request error',
+        this.handleStatus
+      )
+    },
+    runQuery(e) {
+      this.model.startSearchFromFirstPage()
+      e.stopPropagation()
+    },
+    stopQuery(e) {
+      this.model.cancelCurrentSearches()
+      e.stopPropagation()
+    },
+  })
+)
