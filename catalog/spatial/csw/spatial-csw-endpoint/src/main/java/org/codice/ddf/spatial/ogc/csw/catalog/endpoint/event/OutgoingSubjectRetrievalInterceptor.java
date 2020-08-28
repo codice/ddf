@@ -32,6 +32,7 @@ import org.apache.cxf.transport.http.UntrustedURLConnectionIOException;
 import org.apache.cxf.transport.https.HttpsURLConnectionInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.codice.ddf.security.handler.AuthenticationTokenFactory;
+import org.codice.ddf.security.handler.BaseAuthenticationToken;
 
 /**
  * OutgoingSubjectRetrievalInterceptor provides a implementation of {@link AbstractPhaseInterceptor}
@@ -117,6 +118,7 @@ public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseIntercepto
         AuthenticationToken token =
             tokenFactory.fromCertificates(certs, urlConnectionInfo.getURI().getHost());
 
+        ((BaseAuthenticationToken) token).setAllowGuest(true);
         Subject receiverSubject = securityManager.getSubject(token);
         message.put(Subject.class, receiverSubject);
 
