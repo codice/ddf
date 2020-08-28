@@ -1,22 +1,31 @@
 # DDF SolrCloud Docker Compose
-This docker compose will start one Zookeeper and two DDF compatible SolrCloud nodes exposed to the local host.
+Docker compose will start one Zookeeper and two DDF compatible SolrCloud nodes exposed to the local host.
 
 ## How to use this
 
-Note: You may be asked to enabled file sharing in Docker with this directory on Windows or MacOS.
-
-To run:
-```
-docker-compose up
-```
+Note: You may have to enable file sharing in Docker with this directory on Windows or MacOS.
 
 Services are available locally at:
 * Zookeeper at localhost:2181
 * <http://localhost:8994/solr/>
 * <http://localhost:8995/solr/>
 
+To run:
+```
+mvn exec:exec@up
+```
+
+To see logs:
+```
+mvn exec:exec@logs
+```
+
+To stop:
+```
+mvn exec:exec@down
+```
+
 To remove volume data:
 ```
-docker-compose down
-docker volume rm solrcloud_solr1_data solrcloud_solr2_data solrcloud_zoo_data
+mvn exec:exec@rm
 ```

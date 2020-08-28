@@ -39,12 +39,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>1.15.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.pro-grade</groupId>
-            <artifactId>pro-grade</artifactId>
-            <version>${pro-grade.version}</version>
+            <version>${jts.spatial4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -71,7 +66,7 @@
             <plugin>
                 <groupId>com.googlecode.maven-download-plugin</groupId>
                 <artifactId>download-maven-plugin</artifactId>
-                <version>1.4.2</version>
+                <version>1.6.6</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>
@@ -84,7 +79,7 @@
                             </url>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
-                            <sha512>56a2555edbc06e96e4241e38ebd75755b265f0ffddbba1ffb13a86bc6c4c2ee31d7c12d168ba2081cc5b52b11545c8f619c5a8eb7f4cd1456d51a330b445546f</sha512>
+                            <sha512>cdc6bac53dce8a1b391cc9c467b1ca3d1ece57c822a67c5e0f939746b24aef1ce3bf2321d0f2a2aa2e851547c8218ac3078d79a55c466b5189bffb7b361be2c4</sha512>
                             <checkSignature>true</checkSignature>
                         </configuration>
                     </execution>

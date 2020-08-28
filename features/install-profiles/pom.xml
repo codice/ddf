@@ -24,16 +24,6 @@
     <packaging>feature</packaging>
 
     <dependencies>
-        <!--feature dependencies-->
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>apps</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <!--end feature dependencies-->
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -67,6 +57,16 @@
             <classifier>features</classifier>
             <scope>test</scope>
         </dependency>
+
+        <!--feature dependencies-->
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>apps</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <!--end feature dependencies-->
     </dependencies>
     <build>
         <plugins>

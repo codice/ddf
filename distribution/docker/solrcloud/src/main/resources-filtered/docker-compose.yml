@@ -5,7 +5,7 @@ version: '3.7'
 services:
 
   zoo:
-    image: zookeeper:3.5
+    image: zookeeper:${solr.zookeeper.version}
     container_name: zoo
     restart: always
     ports:
@@ -21,7 +21,7 @@ services:
       - solrcloud
 
   solr1:
-    image: codice/ddf-solr:2.24.0-SNAPSHOT
+    image: codice/ddf-solr:${project.version}
     container_name: solr1
     hostname: localhost
     restart: always
@@ -43,7 +43,7 @@ services:
       - zoo
 
   solr2:
-    image: codice/ddf-solr:2.24.0-SNAPSHOT
+    image: codice/ddf-solr:${project.version}
     container_name: solr2
     restart: always
     entrypoint: docker-entrypoint.sh
