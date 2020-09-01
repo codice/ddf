@@ -19,6 +19,7 @@ import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.repositories;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 import org.codice.ddf.test.common.DependencyVersionResolver;
@@ -69,6 +70,7 @@ public class PaxExamRuleIT {
       return options(
           junitBundles(),
           bundle("file:target/test-common-" + System.getProperty("ddf.version") + ".jar"),
+          repositories("https://repo1.maven.org/maven2@id=central"),
           wrappedBundle(
               mavenBundle("org.assertj", "assertj-core")
                   .version(DependencyVersionResolver.resolver())));
