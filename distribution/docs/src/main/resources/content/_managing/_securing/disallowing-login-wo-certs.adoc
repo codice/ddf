@@ -16,6 +16,14 @@ ${branding} can be configured to prevent login without a valid PKI certificate.
 ** For example, just configuring `PKI` as the authentication type for web pages will disallow login without certificates to ${branding}.
 * Click *Save*.
 
+If the `web-context-policy-config.properties` configuration file is used instead,
+
+* Navigate to `<${branding}_HOME>`.
+* Edit the `web-context-policy-config.properties` file.
+* Add a policy for each context requiring restriction.
+** For example: `/search=PKI` will disallow login without certificates to the Search UI.
+** The format for the policy should be: `/<CONTEXT>=PKI`
+
 [NOTE]
 ====
 Ensure certificates comply with organizational hardening policies.
