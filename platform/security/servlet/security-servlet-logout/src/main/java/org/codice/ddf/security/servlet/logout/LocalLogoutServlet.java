@@ -17,6 +17,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -26,6 +27,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
@@ -33,6 +36,8 @@ import org.slf4j.LoggerFactory;
 
 public class LocalLogoutServlet extends HttpServlet {
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalLogoutServlet.class);
+
+  private String redirectUrl = "";
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -44,11 +49,15 @@ public class LocalLogoutServlet extends HttpServlet {
     invalidateSession(request, response);
 
     boolean mustCloseBrowser = (checkForBasic(request) || checkForPki(request));
-    String message = String.format("{ \"mustCloseBrowser\": %b }", mustCloseBrowser);
 
+    String message =
+        String.format(
+            "{ \"mustCloseBrowser\": %b, \"redirectUrl\": \"%s\" }",
+            mustCloseBrowser, getRedirectUrlMessage());
+
+    response.setStatus(HttpServletResponse.SC_OK);
+    response.setContentType("application/json");
     try {
-      response.setStatus(HttpServletResponse.SC_OK);
-      response.setContentType("application/json");
       response.getWriter().write(message);
       response.flushBuffer();
     } catch (IOException e) {
@@ -101,5 +110,27 @@ public class LocalLogoutServlet extends HttpServlet {
     cookie.setPath("/");
     cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
     response.addCookie(cookie);
+  }
+
+  private String getRedirectUrlMessage() {
+    String redirectUrlMessage = "";
+    if (Strings.isNotBlank(redirectUrl)) {
+      try {
+        URIBuilder redirectUrlBuilder = new URIBuilder(redirectUrl);
+        redirectUrlMessage =
+            redirectUrlBuilder == null ? "" : redirectUrlBuilder.build().toString();
+      } catch (URISyntaxException e) {
+        LOGGER.debug(
+            "Invalid URL of {} set for logout redirect URL. Users will not be redirected to {} upon logout.",
+            redirectUrl,
+            redirectUrl,
+            e);
+      }
+    }
+    return redirectUrlMessage;
+  }
+
+  public void setRedirectUrl(String redirectUrl) {
+    this.redirectUrl = redirectUrl;
   }
 }

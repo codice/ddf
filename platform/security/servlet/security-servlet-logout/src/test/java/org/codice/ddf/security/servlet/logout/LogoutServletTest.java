@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,6 +69,11 @@ public class LogoutServletTest {
     System.setProperty("security.audit.roles", "none");
   }
 
+  @After
+  public void testCleanup() {
+    localLogoutServlet.setRedirectUrl("");
+  }
+
   @Test
   public void testLocalLogoutBasicAuth() {
     // Used for detecting basic auth
@@ -85,7 +91,7 @@ public class LogoutServletTest {
       fail(e.getMessage());
     }
     verify(httpSession).invalidate();
-    verify(printWriter).write("{ \"mustCloseBrowser\": true }");
+    verify(printWriter).write("{ \"mustCloseBrowser\": true, \"redirectUrl\": \"\" }");
   }
 
   @Test
@@ -107,7 +113,7 @@ public class LogoutServletTest {
       fail(e.getMessage());
     }
     verify(httpSession).invalidate();
-    verify(printWriter).write("{ \"mustCloseBrowser\": true }");
+    verify(printWriter).write("{ \"mustCloseBrowser\": true, \"redirectUrl\": \"\" }");
   }
 
   @Test
@@ -128,7 +134,52 @@ public class LogoutServletTest {
       fail(e.getMessage());
     }
     verify(httpSession).invalidate();
-    verify(printWriter).write("{ \"mustCloseBrowser\": false }");
+    verify(printWriter).write("{ \"mustCloseBrowser\": false, \"redirectUrl\": \"\" }");
+  }
+
+  @Test
+  public void testLocalLogoutredirectUrlNotBasicOrPki() {
+    // Used for detecting basic auth
+    localLogoutServlet.setRedirectUrl("redirectUrlAddress.com");
+    when(request.getHeaders(anyString()))
+        .thenReturn(Collections.enumeration(Collections.emptyList()));
+
+    // used for detecting pki
+    when(request.getAttribute("javax.servlet.request.X509Certificate")).thenReturn(null);
+
+    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
+        .thenReturn(securityTokenHolder);
+    try {
+      localLogoutServlet.doGet(request, response);
+    } catch (ServletException e) {
+      fail(e.getMessage());
+    }
+    verify(httpSession).invalidate();
+    verify(printWriter)
+        .write("{ \"mustCloseBrowser\": false, \"redirectUrl\": \"redirectUrlAddress.com\" }");
+  }
+
+  @Test
+  public void testLocalLogoutInvalidredirectUrl() {
+    // Used for detecting basic auth
+    localLogoutServlet.setRedirectUrl("/redirect    UrlAddress");
+    when(request.getHeaders(anyString()))
+        .thenReturn(Collections.enumeration(Collections.emptyList()));
+
+    // used for detecting pki
+    when(request.getAttribute("javax.servlet.request.X509Certificate")).thenReturn(null);
+
+    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
+        .thenReturn(securityTokenHolder);
+    try {
+      localLogoutServlet.doGet(request, response);
+    } catch (ServletException e) {
+      fail(e.getMessage());
+    }
+    verify(httpSession).invalidate();
+    verify(printWriter).write("{ \"mustCloseBrowser\": false, \"redirectUrl\": \"\" }");
   }
 
   @Test()
