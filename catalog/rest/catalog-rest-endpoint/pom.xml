@@ -251,6 +251,20 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>jacoco.argline</propertyName>
+                            <!-- This is a work around. This module has unit tests and integration
+                                 tests. Without this change the build can fail with
+                                 "Error while checking code coverage: null: EOFException"
+                                 This change attempts to have integration tests write to a separate file -->
+                            <destFile>${project.build.directory}/jacoco-it.exec</destFile>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>default-check</id>
                         <goals>
                             <goal>check</goal>
