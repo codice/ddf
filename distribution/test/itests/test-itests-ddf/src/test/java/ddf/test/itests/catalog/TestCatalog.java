@@ -1841,36 +1841,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     getServiceManager().stopManagedService(managedService.getPid());
   }
 
-  //  /**
-  //   * Terminate attempts to ingest certain files after a specified amount of time.
-  //   *
-  //   * @throws Exception
-  //   */
-  //  @Test
-  //  public void testContentDirectoryMonitorAvoidsHanging() throws Exception {
-  //    final String TMP_PREFIX = "tcdm_";
-  //    Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
-  //    tmpDir.toFile().deleteOnExit();
-  //    Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp.xml");
-  //    tmpFile.toFile().deleteOnExit();
-  //    Files.copy(
-  //        getFileContentAsStream("metacard5.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-  //
-  //    Map<String, Object> cdmProperties =
-  //        new HashMap<>(
-  //            getServiceManager()
-  //                .getMetatypeDefaults(
-  //                    "content-core-directorymonitor",
-  //                    "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
-  //    cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
-  //    cdmProperties.put("processingMechanism", ContentDirectoryMonitor.IN_PLACE);
-  //    Configuration managedService =
-  //        getServiceManager()
-  //            .createManagedService(
-  //                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor",
-  // cdmProperties);
-  //  }
-
   private ValidatableResponse assertIngestedDirectoryMonitor(String query, int numResults) {
     long startTime = System.nanoTime();
     ValidatableResponse response;
