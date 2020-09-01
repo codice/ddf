@@ -34,13 +34,15 @@ Through the Web Context Policy Manager, authentication types for ${branding} may
 ----
 
 Authentication types can be configured separately for:
+
 * web pages (these are all context paths that do not start with `/services` such as `/admin` and `/search`)
 * endpoints (these are all context paths that start with `/services`)
 
 Configuring separate authentication types for specific contexts is supported through the `web-context-policy-config.properties` configuration file.
+
 * Navigate to `${home_directory}/etc/`
 * Edit the `web-context-policy-config.properties` file
-* Restart ${branding}
+* ${branding} will pick up the changes automatically
 
 The `web-context-policy-config.properties` file format is:
 
