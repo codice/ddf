@@ -15,11 +15,13 @@ package ddf.catalog.federation.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.Result;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
@@ -207,12 +209,16 @@ public class SortedFederationStrategy implements FederationStrategy {
     if (offset > 1 && sources.size() > 1) {
       offsetResults = new QueryResponseImpl(queryRequest, properties);
       queryExecutorService.submit(
-          new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize, offset));
+          new QueryResponseRunnableMonitor(
+              new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize, offset),
+              offsetResults));
     }
 
     queryExecutorService.submit(
-        sortedQueryMonitorFactory.createMonitor(
-            queryCompletion, futures, queryResponseQueue, modifiedQueryRequest, postQuery));
+        new QueryResponseRunnableMonitor(
+            sortedQueryMonitorFactory.createMonitor(
+                queryCompletion, futures, queryResponseQueue, modifiedQueryRequest, postQuery),
+            queryResponseQueue));
 
     QueryResponse queryResponse;
     if (offset > 1 && sources.size() > 1) {
@@ -330,6 +336,38 @@ public class SortedFederationStrategy implements FederationStrategy {
       LOGGER.debug("Closing Queue and setting the total count");
       offsetResultQueue.setHits(originalResults.getHits());
       offsetResultQueue.closeResultQueue();
+    }
+  }
+
+  /**
+   * Logs unhandled Throwable, adds processing details, and closes the result queue when Errors
+   * (e.g. NoClassDefFoundError) and RuntimeExceptions are thrown from the wrapped runnable.
+   */
+  static class QueryResponseRunnableMonitor implements Runnable {
+
+    final Runnable wrapped;
+
+    final QueryResponseImpl queryResponse;
+
+    QueryResponseRunnableMonitor(Runnable runnable, QueryResponseImpl queryResponse) {
+      wrapped = runnable;
+      this.queryResponse = queryResponse;
+    }
+
+    @Override
+    public void run() {
+      try {
+        wrapped.run();
+      } catch (Throwable t) {
+        LOGGER.debug("Unhandled exception while watching query response runnable.", t);
+        queryResponse
+            .getProcessingDetails()
+            .add(
+                new ProcessingDetailsImpl(
+                    "unknown", new FederationException("Failed to apply federation strategy.", t)));
+        queryResponse.closeResultQueue();
+        throw t;
+      }
     }
   }
 }

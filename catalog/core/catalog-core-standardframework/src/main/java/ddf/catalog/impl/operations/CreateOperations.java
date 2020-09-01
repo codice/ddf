@@ -200,6 +200,7 @@ public class CreateOperations {
       rollbackStorage(createStorageRequest);
       throw e;
     } catch (IOException | RuntimeException e) {
+      LOGGER.debug("Unhandled runtime exception or IOException during create", e);
       ingestError = e;
       rollbackStorage(createStorageRequest);
       throw new IngestException("Unable to store products for request: " + fileNames, e);

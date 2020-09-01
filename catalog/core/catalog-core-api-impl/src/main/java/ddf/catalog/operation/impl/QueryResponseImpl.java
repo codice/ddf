@@ -142,7 +142,9 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
       Set<ProcessingDetails> processingDetails) {
     super(request, properties);
 
-    if (request != null && request.getQuery() != null) {
+    if (request != null
+        && request.getQuery() != null
+        && request.getQuery().getTimeoutMillis() > 0) {
       timeoutMillis = request.getQuery().getTimeoutMillis();
     }
 
@@ -187,19 +189,6 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
       }
     }
   }
-
-  // /**
-  // * Wrap a {@link QueryResponse} and add additional {@link
-  // ProcessingDetails}
-  // *
-  // * @param response
-  // * @param exceptions
-  // */
-  // public QueryResponseImpl(QueryResponse response,
-  // Set<ProcessingDetails> exceptions) {
-  //
-  //
-  // }
 
   @Override
   public long getHits() {

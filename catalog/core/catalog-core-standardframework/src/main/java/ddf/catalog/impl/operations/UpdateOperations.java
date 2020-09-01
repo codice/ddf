@@ -272,6 +272,7 @@ public class UpdateOperations {
     } catch (StopProcessingException see) {
       throw new IngestException(PRE_INGEST_ERROR, see);
     } catch (RuntimeException re) {
+      LOGGER.debug("Unhandled runtime exception during update", re);
       throw new InternalIngestException("Exception during runtime while performing update", re);
     }
   }
