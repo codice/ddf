@@ -81,7 +81,7 @@ public class DistributionOptions extends BasicOptions {
     return editConfigurationFilePut(
         "etc/org.ops4j.pax.url.mvn.cfg",
         "org.ops4j.pax.url.mvn.repositories",
-        "http://repo1.maven.org/maven2@id=central,"
+        "https://repo1.maven.org/maven2@id=central,"
             + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
             + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
             + "http://artifacts.codice.org/content/repositories/releases@id=codice,"
