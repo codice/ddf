@@ -130,7 +130,8 @@ public class AsyncFileAlterationObserver {
   public void initializePeriodicProcessing() {
     if (timer == null) {
       timer = new Timer();
-      timer.scheduleAtFixedRate(new ProcessingTask(), INGEST_CHECK_TIME_DELAY, INGEST_CHECK_TIME_INTERVAL);
+      timer.scheduleAtFixedRate(
+          new ProcessingTask(), INGEST_CHECK_TIME_DELAY, INGEST_CHECK_TIME_INTERVAL);
     }
   }
 
