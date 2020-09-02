@@ -17,8 +17,8 @@
     "mvn:ddf.security.claims/security-claims-property/${project.version}",
     "mvn:ddf.security.realm/security-realm-saml/${project.version}",
     "mvn:ddf.security.handler/security-handler-oidc/${project.version}",
-    "mvn:ddf.platform.security/security-oidc-realm/${project.version}",
-    "mvn:ddf.platform.security/security-guest-realm/${project.version}",
+    "mvn:ddf.security.realm/security-realm-oidc/${project.version}",
+    "mvn:ddf.security.realm/security-realm-guest/${project.version}",
     "mvn:ddf.security.certificate/security-crl-generator/${project.version}",
     "mvn:ddf.security.certificate/security-ocsp-checker/${project.version}"
   ]
