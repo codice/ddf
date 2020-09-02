@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -153,33 +152,26 @@ public class ConfluenceSource extends MaskableImpl
     if (StringUtils.isBlank(endpointUrl)) {
       return;
     }
-    try {
-      if (BASIC.equals(authenticationType)
-          && StringUtils.isNotBlank(username)
-          && StringUtils.isNotBlank(password)) {
-        securityLogger.audit("Setting up confluence client for user {}", username);
-        ClientBuilder<SearchResource> clientBuilder =
-            clientBuilderFactory.<SearchResource>getClientBuilder();
-        factory =
-            clientBuilder
-                .endpoint(new URI(endpointUrl))
-                .interfaceClass(SearchResource.class)
-                .username(username)
-                .password(password)
-                .build();
-      } else {
-        securityLogger.audit("Setting up confluence client for anonymous access");
-        ClientBuilder<SearchResource> clientBuilder =
-            clientBuilderFactory.<SearchResource>getClientBuilder();
 
-        factory =
-            clientBuilder
-                .endpoint(new URI(endpointUrl))
-                .interfaceClass(SearchResource.class)
-                .build();
-      }
-    } catch (URISyntaxException e) {
-      LOGGER.debug("Endpoint URL is not a URI.", e);
+    if (BASIC.equals(authenticationType)
+        && StringUtils.isNotBlank(username)
+        && StringUtils.isNotBlank(password)) {
+      securityLogger.audit("Setting up confluence client for user {}", username);
+      ClientBuilder<SearchResource> clientBuilder =
+          clientBuilderFactory.<SearchResource>getClientBuilder();
+      factory =
+          clientBuilder
+              .endpoint(endpointUrl)
+              .interfaceClass(SearchResource.class)
+              .username(username)
+              .password(password)
+              .build();
+    } else {
+      securityLogger.audit("Setting up confluence client for anonymous access");
+      ClientBuilder<SearchResource> clientBuilder =
+          clientBuilderFactory.<SearchResource>getClientBuilder();
+
+      factory = clientBuilder.endpoint(endpointUrl).interfaceClass(SearchResource.class).build();
     }
   }
 

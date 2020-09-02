@@ -28,8 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.UUID;
@@ -66,9 +64,9 @@ import org.w3c.dom.Element;
 
 public class SecureCxfClientFactoryTest {
 
-  private static URI insecureEndpoint;
+  private static final String INSECURE_ENDPOINT = "http://some.url.com/query";
 
-  private static URI secureEndpoint;
+  private static final String SECURE_ENDPOINT = "https://some.url.com/query";
 
   File systemKeystoreFile = null;
 
@@ -83,9 +81,7 @@ public class SecureCxfClientFactoryTest {
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
-  public void setup() throws IOException, URISyntaxException {
-    insecureEndpoint = new URI("http://some.url.com/query");
-    secureEndpoint = new URI("https://some.url.com/query");
+  public void setup() throws IOException {
     systemKeystoreFile = temporaryFolder.newFile("serverKeystore.jks");
     FileOutputStream systemKeyOutStream = new FileOutputStream(systemKeystoreFile);
     InputStream systemKeyStream =
@@ -137,7 +133,7 @@ public class SecureCxfClientFactoryTest {
     try { // null for class
       secureCxfClientFactory =
           new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
-              .endpoint(insecureEndpoint)
+              .endpoint(INSECURE_ENDPOINT)
               .interfaceClass(null)
               .build();
     } catch (IllegalArgumentException e) {
@@ -169,20 +165,20 @@ public class SecureCxfClientFactoryTest {
   public void testInsecureWebClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
         new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
-            .endpoint(insecureEndpoint)
+            .endpoint(INSECURE_ENDPOINT)
             .interfaceClass(IDummy.class)
             .build();
     WebClient client = secureCxfClientFactory.getWebClient();
 
     assertThat(hasEcpEnabled(client), is(false));
-    assertThat(client.getBaseURI().equals(insecureEndpoint), is(true));
+    assertThat(client.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT), is(true));
   }
 
   @Test
   public void testSecureClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
         new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
-            .endpoint(secureEndpoint)
+            .endpoint(SECURE_ENDPOINT)
             .interfaceClass(IDummy.class)
             .useSamlEcp(true)
             .build();
@@ -195,21 +191,21 @@ public class SecureCxfClientFactoryTest {
   public void testSecureWebClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
         new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
-            .endpoint(secureEndpoint)
+            .endpoint(SECURE_ENDPOINT)
             .interfaceClass(IDummy.class)
             .useSamlEcp(true)
             .build();
     WebClient client = secureCxfClientFactory.getWebClient();
 
     assertThat(hasEcpEnabled(client), is(true));
-    assertThat(client.getBaseURI().equals(secureEndpoint), is(true));
+    assertThat(client.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT), is(true));
   }
 
   @Test
   public void validateConduit() {
     IDummy clientForSubject =
         new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
-            .endpoint(secureEndpoint)
+            .endpoint(SECURE_ENDPOINT)
             .interfaceClass(IDummy.class)
             .entityProviders(null)
             .interceptor(null)
@@ -225,10 +221,10 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testHttpsClientWithSystemProperty() {
     PropertyResolver mockPropertyResolver = mock(PropertyResolver.class);
-    when(mockPropertyResolver.getResolvedString()).thenReturn(secureEndpoint.toString());
+    when(mockPropertyResolver.getResolvedString()).thenReturn(SECURE_ENDPOINT);
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
         new ClientBuilderImpl<IDummy>(null, samlSecurity, securityLogger)
-            .endpoint(secureEndpoint)
+            .endpoint(SECURE_ENDPOINT)
             .interfaceClass(IDummy.class)
             .entityProviders(null)
             .interceptor(null)
@@ -237,7 +233,7 @@ public class SecureCxfClientFactoryTest {
             .propertyResolver(mockPropertyResolver)
             .build();
     Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
-    assertThat(unsecuredClient.getBaseURI(), is(secureEndpoint));
+    assertThat(unsecuredClient.getBaseURI().toASCIIString(), is(SECURE_ENDPOINT));
     verify(mockPropertyResolver).getResolvedString();
   }
 
