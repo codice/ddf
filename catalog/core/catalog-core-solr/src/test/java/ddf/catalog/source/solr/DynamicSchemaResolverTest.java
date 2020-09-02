@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.solr.common.SolrInputDocument;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -56,6 +57,11 @@ public class DynamicSchemaResolverTest {
 
   private static final ObjectMapper METACARD_TYPE_MAPPER =
       MetacardTypeMapperFactory.newObjectMapper();
+
+  @AfterClass
+  public static void afterClass() throws Exception {
+    System.clearProperty("metadata.size.limit");
+  }
 
   /**
    * Verify that when a metacard type has attribute descriptors that inherit from

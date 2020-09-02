@@ -301,6 +301,7 @@ public class AsyncFileAlterationObserverTest {
     observer.checkAndNotify();
 
     assertThat(observer.expiredFiles.size(), is(0));
+    System.clearProperty("org.codice.ddf.catalog.content.monitor.expirationTime");
   }
 
   @Test
