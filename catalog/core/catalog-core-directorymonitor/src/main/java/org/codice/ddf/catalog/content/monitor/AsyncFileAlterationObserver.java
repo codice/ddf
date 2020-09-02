@@ -60,8 +60,8 @@ public class AsyncFileAlterationObserver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
-  private static final int LOGGING_TIME_DELAY = 500;
-  private static final int LOGGING_TIME_INTERVAL = 5000;
+  private static final int INGEST_CHECK_TIME_DELAY = 500;
+  private static final int INGEST_CHECK_TIME_INTERVAL = 5000;
 
   private final AsyncFileEntry rootFile;
   private AsyncFileAlterationListener listener = null;
@@ -130,7 +130,7 @@ public class AsyncFileAlterationObserver {
   public void initializePeriodicProcessing() {
     if (timer == null) {
       timer = new Timer();
-      timer.scheduleAtFixedRate(new ProcessingTask(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
+      timer.scheduleAtFixedRate(new ProcessingTask(), INGEST_CHECK_TIME_DELAY, INGEST_CHECK_TIME_INTERVAL);
     }
   }
 

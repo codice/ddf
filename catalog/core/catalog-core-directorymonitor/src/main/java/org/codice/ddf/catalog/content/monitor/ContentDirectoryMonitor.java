@@ -121,7 +121,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;
     this.configurationExecutor = configurationExecutor;
-    systemSubjectBinder = new SystemSubjectBinder();
     setBlacklist();
   }
 
