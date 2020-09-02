@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
-import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+import static org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor.CDM_LOGGER_NAME;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

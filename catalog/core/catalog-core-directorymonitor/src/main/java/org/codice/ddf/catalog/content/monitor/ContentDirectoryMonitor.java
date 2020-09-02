@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
-import static ddf.catalog.Constants.CDM_LOGGER_NAME;
-
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
 import java.io.Serializable;
@@ -50,6 +48,8 @@ import org.slf4j.LoggerFactory;
  * automatically ingested when dropped into the specified monitored directory.
  */
 public class ContentDirectoryMonitor implements DirectoryMonitor {
+
+  public static final String CDM_LOGGER_NAME = "cdmLogger";
 
   public static final String DELETE = "delete";
 
