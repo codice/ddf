@@ -41,8 +41,9 @@
             <version>${org.geotools.bundle.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
