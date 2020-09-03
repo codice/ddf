@@ -412,6 +412,13 @@
                 <artifactId>opensaml-soap-impl</artifactId>
                 <version>${opensaml.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-bom</artifactId>
+                <version>${jaxb.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
             <!-- END: BOMs -->
 
             <dependency>
