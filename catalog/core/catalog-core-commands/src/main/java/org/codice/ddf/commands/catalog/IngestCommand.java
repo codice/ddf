@@ -329,7 +329,7 @@ public class IngestCommand extends CatalogCommands {
       executorService.shutdown();
       batchScheduler.shutdown();
     } catch (SecurityException e) {
-      LOGGER.info("Executor service shutdown was not permitted: {}", e);
+      LOGGER.info("Executor service shutdown was not permitted", e);
     }
 
     printProgressAndFlush(start, fileCount.get(), (long) ingestCount.get() + ignoreCount.get());
