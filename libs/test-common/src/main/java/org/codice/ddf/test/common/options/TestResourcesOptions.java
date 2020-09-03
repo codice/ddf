@@ -25,6 +25,8 @@ public class TestResourcesOptions {
   public static final String DEFAULT_TEST_RESOURCES_PATH =
       Paths.get("target", "test-classes").toAbsolutePath().toString();
 
+  private TestResourcesOptions() {}
+
   /**
    * Allows test resources under "target/test-classes" to be accessed by the security manager during
    * test run time.

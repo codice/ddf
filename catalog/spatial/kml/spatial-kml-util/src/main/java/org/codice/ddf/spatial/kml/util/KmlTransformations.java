@@ -21,6 +21,8 @@ import de.micromata.opengis.kml.v_2_2_0.Style;
 
 public class KmlTransformations {
 
+  private KmlTransformations() {}
+
   /**
    * Wrap KML document with the opening and closing kml tags
    *

@@ -20,4 +20,6 @@ public class Confluence {
   public static final String JSON_RESPONSE = "confluence.json-response";
 
   public static final String CONFLUENCE_TAG = "confluence";
+
+  private Confluence() {}
 }

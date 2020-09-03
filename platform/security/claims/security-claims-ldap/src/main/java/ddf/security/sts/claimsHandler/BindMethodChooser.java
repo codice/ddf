@@ -21,6 +21,8 @@ import org.forgerock.opendj.ldap.requests.Requests;
 
 public class BindMethodChooser {
 
+  private BindMethodChooser() {}
+
   public static BindRequest selectBindMethod(
       String bindMethod,
       String bindUserDN,

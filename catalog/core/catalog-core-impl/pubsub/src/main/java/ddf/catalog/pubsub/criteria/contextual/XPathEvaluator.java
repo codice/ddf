@@ -23,6 +23,8 @@ import org.w3c.dom.Document;
 public class XPathEvaluator {
   private static final Logger LOGGER = LoggerFactory.getLogger(XPathEvaluator.class);
 
+  private XPathEvaluator() {}
+
   public static boolean evaluate(XPathEvaluationCriteria xpathCriteria) {
     Document document = xpathCriteria.getDocument();
     String xpath = xpathCriteria.getXPath();

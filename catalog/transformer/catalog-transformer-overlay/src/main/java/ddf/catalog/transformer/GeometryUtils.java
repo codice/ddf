@@ -20,6 +20,9 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
 class GeometryUtils {
+
+  private GeometryUtils() {}
+
   static Geometry parseGeometry(String wkt) throws CatalogTransformerException {
     if (StringUtils.isBlank(wkt)) {
       throw new CatalogTransformerException(

@@ -46,6 +46,8 @@ public class CswTestCommons {
 
   public static final String GMD_CSW_FEDERATED_SOURCE_FACTORY_PID = "Gmd_Csw_Federated_Source";
 
+  private CswTestCommons() {}
+
   public static Map<String, Object> getCswSourceProperties(
       String sourceId, String cswUrl, ServiceManager serviceManager) {
     return getCswSourceProperties(
