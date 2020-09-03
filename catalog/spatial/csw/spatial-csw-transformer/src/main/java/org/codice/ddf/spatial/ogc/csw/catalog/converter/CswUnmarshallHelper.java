@@ -67,7 +67,7 @@ public class CswUnmarshallHelper {
     try {
       return ISODateTimeFormat.dateOptionalTimeParser().parseDateTime(value).toDate();
     } catch (IllegalArgumentException e) {
-      LOGGER.debug(String.format("Failed to convert to date %s from ISO Format", value), e);
+      LOGGER.debug("Failed to convert to date {} from ISO Format", value, e);
     }
 
     // failed to convert iso format, attempt to convert from xsd:date or xsd:datetime format
@@ -78,15 +78,14 @@ public class CswUnmarshallHelper {
           .toGregorianCalendar()
           .getTime();
     } catch (IllegalArgumentException e) {
-      LOGGER.debug(String.format("Unable to convert date %s from XSD format {} ", value), e);
+      LOGGER.debug("Unable to convert date {} from XSD format", value, e);
     }
 
     // try from java date serialization for the default locale
     try {
       return DateFormat.getDateInstance().parse(value);
     } catch (ParseException e) {
-      LOGGER.debug(
-          String.format("Unable to convert date %s from default locale format {} ", value), e);
+      LOGGER.debug("Unable to convert date {} from default locale format", value, e);
     }
 
     // default to current date

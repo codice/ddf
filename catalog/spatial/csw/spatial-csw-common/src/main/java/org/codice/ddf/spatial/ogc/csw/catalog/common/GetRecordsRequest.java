@@ -328,9 +328,8 @@ public class GetRecordsRequest extends CswRequest {
         query.setElementSetName(eleSetName);
       } catch (IllegalArgumentException iae) {
         LOGGER.debug(
-            String.format(
-                "Failed to find \"%s\" as a valid elementSetType",
-                LogSanitizer.sanitize(getElementSetName())),
+            "Failed to find \"{}\" as a valid elementSetType",
+            LogSanitizer.sanitize(getElementSetName()),
             iae);
         throw new CswException(
             "A CSW getRecords request ElementSetType must be \"brief\", \"summary\", or \"full\"");
