@@ -116,7 +116,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
       response.setContentLength(0);
       response.flushBuffer();
     } catch (IOException ioe) {
-      LOGGER.debug("Failed to send auth response: {}", ioe);
+      LOGGER.debug("Failed to send auth response", ioe);
     }
   }
 

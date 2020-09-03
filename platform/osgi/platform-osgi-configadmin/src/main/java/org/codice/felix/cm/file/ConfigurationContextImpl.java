@@ -210,8 +210,9 @@ public class ConfigurationContextImpl implements ConfigurationContext {
       }
     } catch (URISyntaxException | MalformedURLException e) {
       LOGGER.debug(
-          "Was expecting a correctly formatted URL or URI for felix file name [{}], but got: {}",
-          felixConfigFileName,
+          String.format(
+              "Was expecting a correctly formatted URL or URI for felix file name [%s]",
+              felixConfigFileName),
           e);
       return null;
     }

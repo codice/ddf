@@ -221,8 +221,9 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
       mc.setTargetNamespace(new URI(WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
     } catch (URISyntaxException e) {
       LOGGER.debug(
-          "Unable to set Target Namespace on metacard: {}, Exception {}",
-          WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName(),
+          String.format(
+              "Unable to set Target Namespace on metacard: %s",
+              WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()),
           e);
     }
 

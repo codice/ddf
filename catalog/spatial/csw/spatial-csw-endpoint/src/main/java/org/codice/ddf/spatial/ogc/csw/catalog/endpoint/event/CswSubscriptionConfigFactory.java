@@ -74,8 +74,9 @@ public class CswSubscriptionConfigFactory {
       }
     } catch (JAXBException | CswException | ParserConfigurationException | SAXException e) {
       LOGGER.info(
-          "Error restoring subscription: {} with delivery URL: {} XML: {}",
-          new Object[] {subscriptionId, deliveryMethodUrl, filterXml},
+          String.format(
+              "Error restoring subscription: %s with delivery URL: %s XML: %s",
+              subscriptionId, deliveryMethodUrl, filterXml),
           e);
     }
   }

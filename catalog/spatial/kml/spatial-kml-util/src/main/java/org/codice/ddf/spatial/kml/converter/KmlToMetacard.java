@@ -192,7 +192,7 @@ public class KmlToMetacard {
     try {
       date = DateUtils.parseDate(dateTime, DATE_FORMATS);
     } catch (ParseException e) {
-      LOGGER.debug("Error parsing date from the string '{}'. \nException: {}", dateTime, e);
+      LOGGER.debug(String.format("Error parsing date from the string '%s'", dateTime), e);
     }
 
     return date;

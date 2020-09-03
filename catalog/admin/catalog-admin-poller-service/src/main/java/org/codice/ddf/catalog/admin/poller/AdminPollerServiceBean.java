@@ -154,7 +154,8 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
               try {
                 return source.isAvailable();
               } catch (Exception e) {
-                LOGGER.debug("Couldn't get availability on source {}: {}", servicePID, e);
+                LOGGER.debug(
+                    String.format("Couldn't get availability on source %s", servicePID), e);
               }
             }
           } catch (IOException e) {

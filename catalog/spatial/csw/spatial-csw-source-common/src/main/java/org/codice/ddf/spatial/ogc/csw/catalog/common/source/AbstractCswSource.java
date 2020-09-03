@@ -1733,9 +1733,8 @@ public abstract class AbstractCswSource extends MaskableImpl
           detailLevels.add(ElementSetType.fromValue(esn.toLowerCase()));
         } catch (IllegalArgumentException iae) {
           LOGGER.debug(
-              "{}: \"{}\" is not a ElementSetType, Error: {}",
-              cswSourceConfiguration.getId(),
-              esn,
+              String.format(
+                  "%s: \"%s\" is not a ElementSetType", cswSourceConfiguration.getId(), esn),
               iae);
         }
       }
@@ -1751,7 +1750,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     try {
       query(queryReq);
     } catch (UnsupportedQueryException e) {
-      LOGGER.info("{}: Failed to read Content-Types from CSW Server, Error: {}", getId(), e);
+      LOGGER.info(String.format("%s: Failed to read Content-Types from CSW Server", getId()), e);
     }
   }
 

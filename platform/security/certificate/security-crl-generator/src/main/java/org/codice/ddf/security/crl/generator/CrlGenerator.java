@@ -239,7 +239,7 @@ public class CrlGenerator implements Runnable {
               });
     } catch (PrivilegedActionException e) {
       LOGGER.warn("Unable to save the CRL.");
-      LOGGER.debug("Unable to save the CRL. {}", e.getCause());
+      LOGGER.debug("Unable to save the CRL.", e.getCause());
       postErrorEvent("Unable to save the CRL.");
     }
   }
@@ -302,7 +302,7 @@ public class CrlGenerator implements Runnable {
       LOGGER.warn(
           "Unable to remove the CRL property from the signature.properties and encryption.properties files.");
       LOGGER.debug(
-          "Unable to remove the CRL property from the signature.properties and encryption.properties files. {}",
+          "Unable to remove the CRL property from the signature.properties and encryption.properties files.",
           e.getCause());
       postErrorEvent(
           "Unable to remove the CRL property from the signature.properties and encryption.properties files.");
