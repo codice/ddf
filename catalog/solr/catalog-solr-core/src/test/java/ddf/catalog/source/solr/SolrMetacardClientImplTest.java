@@ -69,6 +69,7 @@ import org.apache.solr.client.solrj.response.SpellCheckResponse.Collation;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.util.NamedList;
 import org.codice.solr.client.solrj.SolrClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -272,6 +273,25 @@ public class SolrMetacardClientImplTest {
     List<Result> results = clientImpl.query(request).getResults();
     assertThat(results.size(), is(1));
     verify(queryResponse, times(2)).getResults();
+  }
+
+  @Test
+  public void testPartialResults() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+
+    List<String> names = Collections.emptyList();
+    List<String> values = Collections.emptyList();
+
+    Map<String, String> attributes = createAttributes(names, values);
+
+    when(queryResponse.getResults()).thenReturn(createSolrDocumentList(attributes));
+    NamedList responseHeader = mock(NamedList.class);
+    when(queryResponse.getResponseHeader()).thenReturn(responseHeader);
+    when(responseHeader.get("partialResults")).thenReturn(Boolean.TRUE);
+    mockDynamicSchemsolverCalls(createAttributeDescriptor(names), attributes);
+
+    SourceResponse response = clientImpl.query(request);
+    assertThat(response.getPropertyValue("partial-results"), is(Boolean.TRUE));
   }
 
   @Test
