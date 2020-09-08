@@ -15,7 +15,6 @@ package org.codice.ddf.commands.solr;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,8 +57,6 @@ public abstract class SolrCommands extends CommandSupport {
   protected static Map<String, String> configurationMap;
 
   protected static final String NAMESPACE = "solr";
-
-  protected PrintStream console = System.out;
 
   @Reference protected ConfigurationAdmin configurationAdmin;
 
