@@ -88,32 +88,6 @@ public class ConfigurationStore {
     this.forceAutoCommit = forceAutoCommit;
   }
 
-  public void setAnyTextFieldWhitelist(List<String> fieldWhitelist) {
-    this.anyTextFieldWhitelist.clear();
-    if (fieldWhitelist != null) {
-      this.anyTextFieldWhitelist.addAll(fieldWhitelist);
-    }
-
-    notifyListeners();
-  }
-
-  public List<String> getAnyTextFieldWhitelist() {
-    return new ArrayList<>(anyTextFieldWhitelist);
-  }
-
-  public void setAnyTextFieldBlacklist(List<String> fieldBlacklist) {
-    this.anyTextFieldBlacklist.clear();
-    if (fieldBlacklist != null) {
-      this.anyTextFieldBlacklist.addAll(fieldBlacklist);
-    }
-
-    notifyListeners();
-  }
-
-  public List<String> getAnyTextFieldBlacklist() {
-    return new ArrayList<>(anyTextFieldBlacklist);
-  }
-
   public void addConfigurationListener(ConfigurationListener listener) {
     this.listeners.add(listener);
   }
