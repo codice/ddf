@@ -239,7 +239,7 @@ public class AsyncFileAlterationObserverTest {
     // observer onCreate method will hang for longer than the set expiration time
     doAnswer(
             (InvocationOnMock e) -> {
-              sleep(1000);
+              sleep(500);
               return null;
             })
         .when(fileListener)
@@ -270,7 +270,7 @@ public class AsyncFileAlterationObserverTest {
     // observer onCreate method will hang for longer than the set expiration time
     doAnswer(
             (InvocationOnMock e) -> {
-              sleep(1000);
+              sleep(500);
               return null;
             })
         .when(fileListener)
