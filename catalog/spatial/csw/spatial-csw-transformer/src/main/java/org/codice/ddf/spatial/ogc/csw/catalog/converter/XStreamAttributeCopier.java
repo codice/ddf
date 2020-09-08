@@ -105,7 +105,7 @@ public class XStreamAttributeCopier {
               IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8.name())),
           parser);
     } catch (IOException e) {
-      LOGGER.debug("Unable create reader with UTF-8 encoding, Exception {}", e);
+      LOGGER.debug("Unable create reader with UTF-8 encoding", e);
       return new XppReader(new InputStreamReader(IOUtils.toInputStream(writer.toString())), parser);
     }
   }

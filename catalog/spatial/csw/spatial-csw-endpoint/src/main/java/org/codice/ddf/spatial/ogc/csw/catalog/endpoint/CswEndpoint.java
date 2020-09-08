@@ -1096,11 +1096,11 @@ public class CswEndpoint implements Csw {
           JAXBElement<GetRecordsType> jaxbElement = new ObjectFactory().createGetRecords(request);
           marshaller.marshal(jaxbElement, writer);
         } catch (JAXBException e) {
-          LOGGER.debug("Unable to marshall {} to XML.  Exception {}", GetRecordsType.class, e);
+          LOGGER.debug("Unable to marshall {} to XML", GetRecordsType.class, e);
         }
         LOGGER.debug(writer.toString());
       } catch (Exception e) {
-        LOGGER.debug("Unable to create debug message for getRecordsType: {}", e);
+        LOGGER.debug("Unable to create debug message for getRecordsType", e);
       }
     }
 
