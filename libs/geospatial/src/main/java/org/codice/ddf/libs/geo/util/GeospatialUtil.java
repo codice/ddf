@@ -55,8 +55,6 @@ public class GeospatialUtil {
 
   private GeospatialUtil() {}
 
-  private GeospatialUtil() {}
-
   /**
    * Parses Latitude in the DMS format of DD:MM:SS.S N/S
    *
