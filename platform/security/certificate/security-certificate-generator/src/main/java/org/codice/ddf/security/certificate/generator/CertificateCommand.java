@@ -23,6 +23,9 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 
 public class CertificateCommand {
+
+  private CertificateCommand() {}
+
   /**
    * Pass in a string to use as the common name of the certificate to be generated. Exception thrown
    * if 0 arguments or more than 2 argument (or more than 4 when -san is used).

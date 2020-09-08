@@ -27,6 +27,8 @@ decimal values so this class converts any decimal values to seconds and adds
 them to the seconds field of the period. For example: "P8.2M" will become "P8MT525601S" */
 public class PeriodParser {
 
+  private PeriodParser() {}
+
   private enum TimeUnit {
     YEARS, // 0
     MONTHS, // 1

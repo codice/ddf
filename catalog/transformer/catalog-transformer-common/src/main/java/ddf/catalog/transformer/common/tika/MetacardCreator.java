@@ -41,6 +41,8 @@ public class MetacardCreator {
 
   public static final String DURATION_METDATA_KEY = "xmpDM:duration";
 
+  private MetacardCreator() {}
+
   /**
    * @param metadata the {@code Metadata} object containing the metadata relevant to the metacard,
    *     must not be null

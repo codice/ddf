@@ -41,6 +41,8 @@ public class XPathCache {
 
   private static NamespaceContext namespaceResolver; // = new NamespaceResolver() ;
 
+  private XPathCache() {}
+
   public static XPath getXPath() {
     return XPATH;
   }

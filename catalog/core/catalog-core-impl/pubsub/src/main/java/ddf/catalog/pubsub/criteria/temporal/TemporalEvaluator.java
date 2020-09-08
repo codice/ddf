@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 public class TemporalEvaluator {
   private static final Logger LOGGER = LoggerFactory.getLogger(TemporalEvaluator.class);
 
+  private TemporalEvaluator() {}
+
   public static boolean evaluate(TemporalEvaluationCriteria tec) {
     String methodName = "evaluate";
     LOGGER.debug("ENTERING: {}", methodName);

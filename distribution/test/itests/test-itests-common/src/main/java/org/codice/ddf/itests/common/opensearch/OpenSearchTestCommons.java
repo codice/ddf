@@ -34,6 +34,8 @@ public class OpenSearchTestCommons {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
+  private OpenSearchTestCommons() {}
+
   public static Map<String, Object> getOpenSearchSourceProperties(
       String sourceId, String openSearchUrl, ServiceManager serviceManager) {
     Map<String, Object> openSearchSourcePropertes = new HashMap<>();
