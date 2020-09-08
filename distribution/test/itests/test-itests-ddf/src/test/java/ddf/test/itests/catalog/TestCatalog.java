@@ -1511,6 +1511,32 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  public void testPptxTumbnail() throws Exception {
+    final String file = "testPPT.pptx";
+
+    final String id;
+    try (InputStream inputStream = getFileContentAsStream(file)) {
+      final byte[] fileBytes = IOUtils.toByteArray(inputStream);
+
+      id =
+          given()
+              .multiPart(
+                  "file",
+                  file,
+                  fileBytes,
+                  "application/vnd.openxmlformats-officedocument.presentationml.presentation")
+              .expect()
+              .statusCode(201)
+              .post(REST_PATH.getUrl())
+              .getHeader("id");
+    }
+
+    getOpenSearch("xml", null, null, "q=*")
+        .body(
+            hasXPath(format("/metacards/metacard[@id='%s']/base64Binary[@name='thumbnail']", id)));
+  }
+
+  @Test
   public void testContentDirectoryMonitor() throws Exception {
     final String TMP_PREFIX = "tcdm_";
     Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
