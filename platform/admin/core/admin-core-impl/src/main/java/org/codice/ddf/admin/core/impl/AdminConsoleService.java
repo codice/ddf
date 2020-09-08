@@ -369,7 +369,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       return true;
 
     } catch (RuntimeException e) {
-      LOGGER.debug("An invalid guest claims profile was selected, caused by: {}", e);
+      LOGGER.debug("An invalid guest claims profile was selected", e);
       return false;
     }
   }
