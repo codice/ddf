@@ -28,6 +28,8 @@ public class OpenSearchFeature {
 
   public static final String BASIC_AUTH = "basic";
 
+  private OpenSearchFeature() {}
+
   public static Configuration createManagedService(
       ServiceManager serviceManager, String sourceId, String user, String pass) throws IOException {
     Map propertyMap = new HashMap();

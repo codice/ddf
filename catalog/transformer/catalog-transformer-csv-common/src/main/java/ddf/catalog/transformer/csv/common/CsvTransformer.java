@@ -63,6 +63,8 @@ public class CsvTransformer {
     }
   }
 
+  private CsvTransformer() {}
+
   public static BinaryContent createResponse(final Appendable csv) {
     InputStream inputStream =
         new ByteArrayInputStream(csv.toString().getBytes(StandardCharsets.UTF_8));

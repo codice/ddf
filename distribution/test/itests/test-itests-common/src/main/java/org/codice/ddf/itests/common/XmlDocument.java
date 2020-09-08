@@ -36,6 +36,8 @@ public class XmlDocument {
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
+  private XmlDocument() {}
+
   /**
    * Create an DOM from a string representation of an XML document.
    *

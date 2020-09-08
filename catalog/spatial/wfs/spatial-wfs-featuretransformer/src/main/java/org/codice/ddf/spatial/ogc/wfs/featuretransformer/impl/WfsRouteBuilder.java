@@ -99,6 +99,9 @@ public final class WfsRouteBuilder extends RouteBuilder {
 
   // Must be public for Camel bean binding
   public static class WfsCollectionFactory {
+
+    private WfsCollectionFactory() {}
+
     public static WfsFeatureCollection createEmptyWfsCollection() {
       return new WfsFeatureCollectionImpl(0);
     }

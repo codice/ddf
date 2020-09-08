@@ -17,6 +17,8 @@ import java.util.Date;
 
 public class DateUtils {
 
+  private DateUtils() {}
+
   public static Date copy(Date date) {
     if (date == null) {
       return null;

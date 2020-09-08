@@ -63,6 +63,8 @@ class CswMarshallHelper {
     XSD_FACTORY = factory;
   }
 
+  private CswMarshallHelper() {}
+
   static void writeNamespaces(HierarchicalStreamWriter writer) {
     writer.addAttribute(
         "xmlns:" + CswConstants.CSW_NAMESPACE_PREFIX, CswConstants.CSW_OUTPUT_SCHEMA);

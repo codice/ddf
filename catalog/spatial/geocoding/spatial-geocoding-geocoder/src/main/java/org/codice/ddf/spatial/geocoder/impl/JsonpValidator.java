@@ -89,6 +89,8 @@ public class JsonpValidator {
           "while",
           "with");
 
+  private JsonpValidator() {}
+
   public static boolean isValidJsonp(String jsonp) {
     String[] jsonpPortions = jsonp.split("\\.");
     if (jsonpPortions.length == 0) {

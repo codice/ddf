@@ -23,6 +23,8 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 /** Options for handling karaf features */
 public class FeatureOptions {
 
+  private FeatureOptions() {}
+
   /**
    * Adds the specified features to the distribution repository
    *

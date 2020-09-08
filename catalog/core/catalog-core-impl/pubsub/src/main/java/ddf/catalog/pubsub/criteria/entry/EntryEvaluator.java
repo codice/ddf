@@ -18,6 +18,8 @@ import java.util.List;
 
 public class EntryEvaluator {
 
+  private EntryEvaluator() {}
+
   public static boolean evaluate(EntryEvaluationCriteria eec) {
 
     List<String> idsList = Arrays.asList(eec.getId());

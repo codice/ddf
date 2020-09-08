@@ -59,4 +59,6 @@ public class PubSubConstants {
   public static final String EVENTS_TIME_NAME = "time";
 
   public static final String METADATA_DELETED = "<deleted/>";
+
+  private PubSubConstants() {}
 }

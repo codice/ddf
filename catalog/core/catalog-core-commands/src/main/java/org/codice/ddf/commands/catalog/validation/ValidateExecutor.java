@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 
 public class ValidateExecutor {
 
+  private ValidateExecutor() {}
+
   public static List<ValidateReport> execute(
       List<Metacard> metacards, List<MetacardValidator> validators)
       throws ExecutionException, InterruptedException {
