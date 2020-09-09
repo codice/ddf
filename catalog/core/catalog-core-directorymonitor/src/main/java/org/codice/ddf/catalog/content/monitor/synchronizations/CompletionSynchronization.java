@@ -53,7 +53,7 @@ public class CompletionSynchronization implements Synchronization {
           "a network error occurred, The file [{}] failed to process", asyncFileEntry.getName());
     } else if (exchange != null && exchange.getException() != null) {
       LOGGER.debug(
-          "Exchange {} failed synchronization on exception: {}",
+          "Exchange {} failed synchronization on exception",
           exchange.getExchangeId(),
           exchange.getException());
     }

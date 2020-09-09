@@ -201,7 +201,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
           featureCollection.setNumberReturned(numberReturned);
 
         } catch (XStreamException e) {
-          LOGGER.debug("Exception unmarshalling {}", e);
+          LOGGER.debug("Exception unmarshalling", e);
         } finally {
           IOUtils.closeQuietly(inStream);
         }

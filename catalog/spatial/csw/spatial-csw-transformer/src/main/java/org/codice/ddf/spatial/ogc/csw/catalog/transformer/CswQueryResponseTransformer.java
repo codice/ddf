@@ -429,7 +429,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         ack.setTimeStamp(
             DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
       } catch (DatatypeConfigurationException e) {
-        LOGGER.debug("Failed to set timestamp on Acknowledgement, Exception {}", e);
+        LOGGER.debug("Failed to set timestamp on Acknowledgement", e);
       }
 
       JAXBElement<AcknowledgementType> jaxBAck = new ObjectFactory().createAcknowledgement(ack);

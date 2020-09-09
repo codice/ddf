@@ -59,8 +59,8 @@ abstract class SourcePollerRunner<V> extends PollerRunner<SourceKey, V> {
       final SourceKey sourceKey = new SourceKey(source);
       if (map.put(sourceKey, () -> getCurrentValueForSource(source)) != null) {
         LOGGER.warn(
-            "Duplicate key {}. The Pollers may not be reporting correct values for the matching Sources. Confirm that each Source has a unique id, and try restarting."
-                + sourceKey);
+            "Duplicate key {}. The Pollers may not be reporting correct values for the matching Sources. Confirm that each Source has a unique id, and try restarting.",
+            sourceKey);
       }
     }
     return ImmutableMap.copyOf(map);

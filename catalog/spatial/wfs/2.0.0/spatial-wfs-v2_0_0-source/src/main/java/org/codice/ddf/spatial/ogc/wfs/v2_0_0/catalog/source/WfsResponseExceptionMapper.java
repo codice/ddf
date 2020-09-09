@@ -52,7 +52,7 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
           msg = IOUtils.toString(is);
         } catch (IOException e) {
           LOGGER.info("Unable to parse exception report: {}", e.getMessage());
-          LOGGER.debug("Unable to parse exception report: {}", e);
+          LOGGER.debug("Unable to parse exception report", e);
         }
         if (msg != null) {
           try {

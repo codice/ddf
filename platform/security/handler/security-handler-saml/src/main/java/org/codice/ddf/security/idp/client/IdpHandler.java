@@ -426,7 +426,7 @@ public class IdpHandler implements AuthenticationHandler {
       try {
         httpServletResponse.flushBuffer();
       } catch (IOException e1) {
-        LOGGER.debug("Failed to send error response: {}", e1);
+        LOGGER.debug("Failed to send error response", e1);
       }
       return handlerResult;
     }
@@ -443,7 +443,7 @@ public class IdpHandler implements AuthenticationHandler {
       httpServletResponse.getOutputStream().print(soapMessage);
       httpServletResponse.flushBuffer();
     } catch (IOException ioe) {
-      LOGGER.debug("Failed to send auth response: {}", ioe);
+      LOGGER.debug("Failed to send auth response", ioe);
     }
 
     return handlerResult;
