@@ -202,6 +202,7 @@ public class ContextualPredicate implements Predicate {
     return index == 0;
   }
 
+  @Override
   public boolean matches(Event properties) {
     String methodName = "matches";
     LOGGER.debug("ENTERING: {}", methodName);

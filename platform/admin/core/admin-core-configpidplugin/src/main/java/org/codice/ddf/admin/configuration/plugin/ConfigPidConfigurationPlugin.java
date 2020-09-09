@@ -37,6 +37,7 @@ public class ConfigPidConfigurationPlugin implements ConfigurationPlugin {
    *     "service.bundleLocation" property. The value of this property may be obtained from the
    *     Configuration.getBundleLocation method
    */
+  @Override
   public void modifyConfiguration(
       ServiceReference<?> reference, Dictionary<String, Object> properties) {
     // if for some reason service.pid was null, this would throw a null

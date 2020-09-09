@@ -26,14 +26,17 @@ import org.codice.ddf.admin.configurator.Result;
 public class OperationReportImpl implements OperationReport {
   private final Map<UUID, Result> results = new LinkedHashMap<>();
 
+  @Override
   public boolean hasTransactionSucceeded() {
     return results.values().stream().allMatch(Result::isOperationSucceeded);
   }
 
+  @Override
   public Result getResult(UUID key) {
     return results.get(key);
   }
 
+  @Override
   public List<Result> getFailedResults() {
     return Collections.unmodifiableList(
         results
@@ -43,6 +46,7 @@ public class OperationReportImpl implements OperationReport {
             .collect(Collectors.toList()));
   }
 
+  @Override
   public boolean containsFailedResults() {
     return !getFailedResults().isEmpty();
   }

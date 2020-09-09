@@ -19,6 +19,7 @@ import org.osgi.service.event.Event;
 public class FalsePredicate implements Predicate {
 
   /** This method always returns false. */
+  @Override
   public boolean matches(Event properties) {
     return false;
   }

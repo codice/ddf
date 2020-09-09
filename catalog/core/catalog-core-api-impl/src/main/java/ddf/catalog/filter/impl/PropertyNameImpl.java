@@ -36,10 +36,12 @@ public class PropertyNameImpl implements PropertyName {
     this.propertyName = propertyName;
   }
 
+  @Override
   public Object evaluate(Object object) {
     return evaluate(object, null);
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <T> T evaluate(Object object, Class<T> context) {
     if (object == null) {
@@ -57,14 +59,17 @@ public class PropertyNameImpl implements PropertyName {
     return null;
   }
 
+  @Override
   public Object accept(ExpressionVisitor visitor, Object extraData) {
     return visitor.visit(this, extraData);
   }
 
+  @Override
   public String getPropertyName() {
     return propertyName;
   }
 
+  @Override
   public NamespaceSupport getNamespaceContext() {
     // Not supported
     return null;

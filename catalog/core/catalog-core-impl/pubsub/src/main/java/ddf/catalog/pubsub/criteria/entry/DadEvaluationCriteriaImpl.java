@@ -25,10 +25,12 @@ public class DadEvaluationCriteriaImpl implements DadEvaluationCriteria {
     this.inputDad = inputDad;
   }
 
+  @Override
   public URI getDad() {
     return dad;
   }
 
+  @Override
   public URI getInputDad() {
     return inputDad;
   }

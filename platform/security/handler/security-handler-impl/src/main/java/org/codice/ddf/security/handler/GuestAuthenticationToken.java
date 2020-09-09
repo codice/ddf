@@ -61,6 +61,7 @@ public class GuestAuthenticationToken extends BaseAuthenticationToken {
     return ipAddress;
   }
 
+  @Override
   public String getIpAddress() {
     String ip = null;
     if (principal instanceof GuestPrincipal) {

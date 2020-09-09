@@ -30,5 +30,6 @@ public interface ApplicationOptions extends Supplier<Option> {
    *
    * @return Pax Exam configuration {@link Option}s
    */
+  @Override
   Option get();
 }

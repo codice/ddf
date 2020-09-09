@@ -127,6 +127,7 @@ public class AdaptedMetacard implements Metacard {
   }
 
   /** @param sourceId the sourceId to set */
+  @Override
   public void setSourceId(String sourceId) {
     this.sourceId = sourceId;
   }
@@ -210,6 +211,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getContentTypeName()
    */
+  @Override
   public String getContentTypeName() {
     return delegate.getContentTypeName();
   }
@@ -218,6 +220,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getContentTypeNamespace()
    */
+  @Override
   public URI getContentTypeNamespace() {
     return delegate.getContentTypeNamespace();
   }
@@ -226,6 +229,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getContentTypeVersion()
    */
+  @Override
   public String getContentTypeVersion() {
     return delegate.getContentTypeVersion();
   }
@@ -234,6 +238,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getCreatedDate()
    */
+  @Override
   public Date getCreatedDate() {
     return delegate.getCreatedDate();
   }
@@ -242,6 +247,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getEffectiveDate()
    */
+  @Override
   public Date getEffectiveDate() {
     return delegate.getEffectiveDate();
   }
@@ -250,6 +256,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getExpirationDate()
    */
+  @Override
   public Date getExpirationDate() {
     return delegate.getExpirationDate();
   }
@@ -258,6 +265,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getLocation()
    */
+  @Override
   public String getLocation() {
     return delegate.getLocation();
   }
@@ -266,6 +274,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getMetadata()
    */
+  @Override
   public String getMetadata() {
     return delegate.getMetadata();
   }
@@ -274,6 +283,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getModifiedDate()
    */
+  @Override
   public Date getModifiedDate() {
     return delegate.getModifiedDate();
   }
@@ -282,6 +292,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getResourceSize()
    */
+  @Override
   public String getResourceSize() {
     return delegate.getResourceSize();
   }
@@ -290,6 +301,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getResourceURI()
    */
+  @Override
   public URI getResourceURI() {
     return delegate.getResourceURI();
   }
@@ -298,6 +310,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getThumbnail()
    */
+  @Override
   public byte[] getThumbnail() {
     return delegate.getThumbnail();
   }
@@ -306,6 +319,7 @@ public class AdaptedMetacard implements Metacard {
    * @return
    * @see ddf.catalog.data.Metacard#getTitle()
    */
+  @Override
   public String getTitle() {
     return delegate.getTitle();
   }

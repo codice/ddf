@@ -94,6 +94,7 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
     return true;
   }
 
+  @Override
   protected Action createMetacardAction(
       String actionProviderId, String title, String description, URL url) {
     return new ActionImpl(actionProviderId, title, description, url);

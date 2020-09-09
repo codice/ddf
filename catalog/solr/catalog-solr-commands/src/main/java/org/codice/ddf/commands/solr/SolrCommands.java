@@ -94,6 +94,7 @@ public abstract class SolrCommands extends CommandSupport {
     this.configurationAdmin = configurationAdmin;
   }
 
+  @Override
   protected void printColor(Color color, String message) {
     String colorString;
     if (color == null || color.equals(Ansi.Color.DEFAULT)) {
@@ -106,10 +107,12 @@ public abstract class SolrCommands extends CommandSupport {
     console.println(Ansi.ansi().reset().toString());
   }
 
+  @Override
   protected void printSuccessMessage(String message) {
     printColor(SUCCESS_COLOR, message);
   }
 
+  @Override
   protected void printErrorMessage(String message) {
     printColor(ERROR_COLOR, message);
   }

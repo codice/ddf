@@ -64,6 +64,7 @@ public class SubjectIdentityImpl implements SubjectIdentity {
     return Collections.emptySortedSet();
   }
 
+  @Override
   public String getIdentityAttribute() {
     return identityAttribute;
   }

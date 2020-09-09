@@ -86,6 +86,7 @@ public class LogoutMessageImpl implements LogoutMessage {
         .orElse("");
   }
 
+  @Override
   public LogoutWrapper<SignableSAMLObject> extractXmlObject(String samlLogoutResponse)
       throws LogoutSecurityException, XMLStreamException {
     try {

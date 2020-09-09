@@ -456,6 +456,7 @@ public class PolicyManager implements ContextPolicyManager {
     }
   }
 
+  @Override
   public boolean isWhiteListed(String contextPath) {
     return (getContextPolicy(contextPath) == null);
   }

@@ -48,6 +48,7 @@ public abstract class PreFederatedLocalProviderQueryPlugin implements PreFederat
     return isCacheSource(source) || isCatalogProvider(source);
   }
 
+  @Override
   public abstract QueryRequest process(Source source, QueryRequest input)
       throws StopProcessingException;
 }

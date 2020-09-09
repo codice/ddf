@@ -33,10 +33,12 @@ public class LiteralImpl implements Literal {
     this.value = value;
   }
 
+  @Override
   public Object evaluate(Object object) {
     return evaluate(object, null);
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <T> T evaluate(Object object, Class<T> context) {
     if (object == null) {
@@ -54,10 +56,12 @@ public class LiteralImpl implements Literal {
     return null;
   }
 
+  @Override
   public Object accept(ExpressionVisitor visitor, Object extraData) {
     return visitor.visit(this, extraData);
   }
 
+  @Override
   public Object getValue() {
     return value;
   }

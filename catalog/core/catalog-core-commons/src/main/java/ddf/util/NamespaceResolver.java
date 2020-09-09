@@ -57,6 +57,7 @@ public class NamespaceResolver implements NamespaceContext {
    * @parameter prefix the namespace prefix to look up the URI for
    * @return the namespace URI for the given namespace prefix
    */
+  @Override
   public String getNamespaceURI(String prefix) {
     String methodName = "getNamespaceURI";
     LOGGER.trace("ENTERING: {}", methodName);
@@ -84,6 +85,7 @@ public class NamespaceResolver implements NamespaceContext {
    * @parameter namespace the namespace URI to look up the prefix for
    * @return the namespace prefix for the given namespace URI
    */
+  @Override
   public String getPrefix(String namespace) {
     String methodName = "getPrefix";
     LOGGER.trace("ENTERING: {},   namespace = {}", methodName, namespace);
@@ -109,6 +111,7 @@ public class NamespaceResolver implements NamespaceContext {
    *
    * @see javax.xml.namespace.NamespaceContext#getPrefixes(java.lang.String)
    */
+  @Override
   public Iterator getPrefixes(String namespace) {
     return null;
   }

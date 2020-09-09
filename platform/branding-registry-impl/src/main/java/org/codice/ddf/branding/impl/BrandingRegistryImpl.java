@@ -122,6 +122,7 @@ public class BrandingRegistryImpl implements BrandingRegistry {
     return new ArrayList<>(brandingPlugins.values());
   }
 
+  @Override
   public void setBrandingPlugins(List<BrandingPlugin> brandingPlugins) {}
 
   class BrandingListener implements ServiceListener {

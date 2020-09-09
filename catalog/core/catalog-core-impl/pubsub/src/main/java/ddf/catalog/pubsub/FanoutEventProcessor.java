@@ -37,6 +37,7 @@ public class FanoutEventProcessor extends EventProcessorImpl {
     LOGGER.trace("EXITING: FanoutEventProcessor constructor");
   }
 
+  @Override
   public void init() {
     String methodName = "init";
     LOGGER.debug("ENTERING: {}", methodName);
@@ -44,6 +45,7 @@ public class FanoutEventProcessor extends EventProcessorImpl {
     LOGGER.debug("EXITING: {}", methodName);
   }
 
+  @Override
   public void destroy() {
     String methodName = "destroy";
     LOGGER.debug("ENTERING: {}", methodName);
