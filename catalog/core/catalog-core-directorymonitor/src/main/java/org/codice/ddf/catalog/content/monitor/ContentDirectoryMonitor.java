@@ -49,6 +49,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ContentDirectoryMonitor implements DirectoryMonitor {
 
+  public static final String CDM_LOGGER_NAME = "cdmLogger";
+
   public static final String DELETE = "delete";
 
   public static final String MOVE = "move";
@@ -56,6 +58,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   public static final String IN_PLACE = "in_place";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
+
+  private static final Logger CDM_LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private static final int MAX_THREAD_SIZE = 8;
 
@@ -102,6 +106,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    *     attribute overrides for in-place monitoring
    * @param maxRetries Policy for polling the 'content' CamelComponent. Specifies, for any content
    *     directory monitor, the number of times it will poll.
+   * @param delayBetweenRetries Policy for polling the 'content' CamelComponent. Specifies, for any
+   *     content directory monitor, the number of seconds it will wait between consecutive polls.
    * @param configurationExecutor the executor used to run configuration and updates.
    */
   public ContentDirectoryMonitor(
@@ -167,6 +173,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * called whenever an existing route is updated.
    */
   public void init() {
+    CDM_LOGGER.debug("Initializing monitor for {}", monitoredDirectory);
     SECURITY.runAsAdmin(
         () -> {
           CompletableFuture.runAsync(this::configure, configurationExecutor);
@@ -175,6 +182,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   }
 
   private Object configure() {
+    CDM_LOGGER.debug("Configuring monitor for {}", monitoredDirectory);
     if (StringUtils.isEmpty(monitoredDirectory)) {
       LOGGER.warn("Cannot setup camel route - must specify a directory to be monitored");
       return null;
@@ -260,7 +268,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       String[] keyValue = s.split("=", 2);
 
       if (keyValue.length < 2) {
-        LOGGER.error("Invalid attribute override configured for monitored directory");
+        CDM_LOGGER.error("Invalid attribute override configured for monitored directory");
         throw new IllegalStateException(
             "Invalid attribute override configured for monitored directory");
       }
@@ -380,7 +388,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             break;
         }
 
-        LOGGER.debug("ContentDirectoryMonitor inbox = {}", stringBuilder);
+        CDM_LOGGER.debug("ContentDirectoryMonitor inbox = {}", stringBuilder);
 
         RouteDefinition routeDefinition = from(stringBuilder.toString());
 

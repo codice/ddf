@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static java.lang.Thread.sleep;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -229,6 +230,78 @@ public class AsyncFileAlterationObserverTest {
         .onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
+  }
+
+  @Test
+  public void testHangingFileExpires() throws Exception {
+    System.setProperty("org.codice.ddf.catalog.content.monitor.expirationTime", "100");
+
+    // observer onCreate method will hang for longer than the set expiration time
+    doAnswer(
+            (InvocationOnMock e) -> {
+              sleep(500);
+              return null;
+            })
+        .when(fileListener)
+        .onFileCreate(any(File.class), any(Synchronization.class));
+
+    observer = new AsyncFileAlterationObserver(monitoredDirectory, store);
+    observer.initialize();
+    observer.setListener(fileListener);
+    observer.initializePeriodicProcessing();
+
+    File[] files = initFiles(1, monitoredDirectory, "file00");
+    observer.checkAndNotify();
+
+    verify(fileListener, times(files.length))
+        .onFileCreate(any(File.class), any(Synchronization.class));
+
+    assertThat(observer.expiredFiles.size(), is(1));
+
+    // expiredFiles should not be reattempted
+    observer.checkAndNotify();
+    assertThat(observer.expiredFiles.size(), is(1));
+  }
+
+  @Test
+  public void testExpiredFileUpdated() throws Exception {
+    System.setProperty("org.codice.ddf.catalog.content.monitor.expirationTime", "100");
+
+    // observer onCreate method will hang for longer than the set expiration time
+    doAnswer(
+            (InvocationOnMock e) -> {
+              sleep(500);
+              return null;
+            })
+        .when(fileListener)
+        .onFileCreate(any(File.class), any(Synchronization.class));
+
+    observer = new AsyncFileAlterationObserver(monitoredDirectory, store);
+    observer.initialize();
+    observer.setListener(fileListener);
+    observer.initializePeriodicProcessing();
+
+    File[] files = initFiles(1, monitoredDirectory, "file00");
+    observer.checkAndNotify();
+
+    verify(fileListener, times(files.length))
+        .onFileCreate(any(File.class), any(Synchronization.class));
+
+    assertThat(observer.expiredFiles.size(), is(1));
+
+    // If working changes are made to the file, the file should be removed from expiredFiles
+    doAnswer(
+            (InvocationOnMock e) -> {
+              return null;
+            })
+        .when(fileListener)
+        .onFileCreate(any(File.class), any(Synchronization.class));
+
+    changeData(files[0]);
+    observer.checkAndNotify();
+
+    assertThat(observer.expiredFiles.size(), is(0));
+    System.clearProperty("org.codice.ddf.catalog.content.monitor.expirationTime");
   }
 
   @Test

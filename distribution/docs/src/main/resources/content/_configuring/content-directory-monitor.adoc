@@ -146,6 +146,24 @@ malicious or unwanted data from being ingested into DDF.  While the CDM automati
 an operating system automatically generates files that should not be ingested.  One such example of this is "thumbs.db" in Windows.
 This file type and any temporary files are included in the blacklist.
 
+.Timeout
+CDM will expire files whose processing times exceed a specified threshold. By default, that threshold is 5 minutes. After expiration, CDM will not attempt to ingest the file until it changes have been made.
+[TIP]
+====
+The expiration time can be configured by setting *org.codice.ddf.catalog.content.monitor.expirationTime* in "etc/custom.system.properties"
+====
+
+.Logging
+CDM will send logs detailing the processing of files in the directory to `cdm.log`.
+
+[TIP]
+====
+The log level for CDM can be set with the following console command. At the DEBUG level, CDM will periodically log the list of files still currently processing.
+----
+log:set DEBUG cdmLogger
+----
+====
+
 .Errors
 If the CDM fails to read the file, an error will be logged in the ingest log. If the directory monitor is
 configured to *Delete* or *Move*, the original file is also moved to the `\.errors` directory.
