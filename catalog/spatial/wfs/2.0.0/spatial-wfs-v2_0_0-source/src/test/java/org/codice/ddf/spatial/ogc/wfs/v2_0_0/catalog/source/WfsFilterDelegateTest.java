@@ -2312,7 +2312,7 @@ public class WfsFilterDelegateTest {
     TemporalCapabilitiesType temporal = new TemporalCapabilitiesType();
     temporal.setTemporalOperators(new TemporalOperatorsType());
     TemporalOperatorType duringOperator = new TemporalOperatorType();
-    duringOperator.setName(TEMPORAL_OPERATORS.DURING.name());
+    duringOperator.setName(TEMPORAL_OPERATORS.DURING.getValue());
     temporal.getTemporalOperators().getTemporalOperator().add(duringOperator);
 
     TemporalOperandsType temporalOperands = new TemporalOperandsType();
