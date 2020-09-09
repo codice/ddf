@@ -13,10 +13,13 @@
  */
 package org.codice.ddf.security.handler.oidc;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
@@ -35,6 +38,7 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
@@ -42,31 +46,28 @@ import org.pac4j.oidc.profile.OidcProfile;
 
 public class OidcLogoutActionProviderTest {
 
-  private static final String LOCATION = "https://localhost:8993/services/oidc/logout";
+  private static final String PREVIOUS_URL = "https://localhost:8993/admin";
+  private static final String PREVIOUS_URL_ENCODED = "https%3A%2F%2Flocalhost%3A8993%2Fadmin";
 
+  private OidcLogoutActionBuilder oidcLogoutActionBuilder;
   private OidcLogoutActionProvider oidcLogoutActionProvider;
+  private HttpServletRequest request;
+  private HttpServletResponse response;
+  private Subject subject;
 
   @Before
   public void setup() {
-    OidcLogoutActionBuilder oidcLogoutActionBuilder = mock(OidcLogoutActionBuilder.class);
-    FoundAction foundAction = mock(FoundAction.class);
-    when(foundAction.getLocation()).thenReturn(LOCATION);
-    when(oidcLogoutActionBuilder.getLogoutAction(any(), any(), any()))
-        .thenReturn(Optional.of(foundAction));
-
+    oidcLogoutActionBuilder = mock(OidcLogoutActionBuilder.class);
     OidcHandlerConfiguration handlerConfiguration = mock(OidcHandlerConfiguration.class);
     when(handlerConfiguration.getOidcLogoutActionBuilder()).thenReturn(oidcLogoutActionBuilder);
 
     oidcLogoutActionProvider = new OidcLogoutActionProvider(handlerConfiguration);
     oidcLogoutActionProvider.setSubjectOperations(new SubjectUtils());
-  }
 
-  @Test
-  public void testGetAction() {
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
+    request = mock(HttpServletRequest.class);
+    response = mock(HttpServletResponse.class);
+    subject = mock(Subject.class);
     HttpSession session = mock(HttpSession.class);
-    Subject subject = mock(Subject.class);
     PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
     SimplePrincipalCollection principalCollection = new SimplePrincipalCollection();
     SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
@@ -80,8 +81,16 @@ public class OidcLogoutActionProviderTest {
     when(session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(principalHolderMock);
     when(request.getSession(false)).thenReturn(session);
-    when(request.getHeader("Referer"))
-        .thenReturn("http://foo.bar?prevurl=https://localhost:8993/admin");
+  }
+
+  @Test
+  public void testGetAction() {
+    String actionUrl = "https://localhost:8993/services/oidc/logout";
+
+    FoundAction foundAction = mock(FoundAction.class);
+    when(foundAction.getLocation()).thenReturn(actionUrl);
+    when(oidcLogoutActionBuilder.getLogoutAction(any(), any(), any()))
+        .thenReturn(Optional.of(foundAction));
 
     Action action =
         oidcLogoutActionProvider.getAction(
@@ -92,7 +101,44 @@ public class OidcLogoutActionProviderTest {
                 request,
                 "http_response",
                 response));
-    assertEquals(LOCATION, action.getUrl().toString());
+
+    assertEquals(actionUrl, action.getUrl().toString());
+  }
+
+  @Test
+  public void testGetActionUnencodedReferer() {
+    when(request.getHeader("Referer")).thenReturn("http://foo.bar?prevurl=" + PREVIOUS_URL);
+
+    oidcLogoutActionProvider.getAction(
+        ImmutableMap.of(
+            SecurityConstants.SECURITY_SUBJECT,
+            subject,
+            "http_request",
+            request,
+            "http_response",
+            response));
+
+    ArgumentCaptor<String> callbackUri = ArgumentCaptor.forClass(String.class);
+    verify(oidcLogoutActionBuilder).getLogoutAction(any(), any(), callbackUri.capture());
+    assertThat(callbackUri.getValue(), containsString("prevurl=" + PREVIOUS_URL_ENCODED));
+  }
+
+  @Test
+  public void testGetActionEncodedReferer() {
+    when(request.getHeader("Referer")).thenReturn("http://foo.bar?prevurl=" + PREVIOUS_URL_ENCODED);
+
+    oidcLogoutActionProvider.getAction(
+        ImmutableMap.of(
+            SecurityConstants.SECURITY_SUBJECT,
+            subject,
+            "http_request",
+            request,
+            "http_response",
+            response));
+
+    ArgumentCaptor<String> callbackUri = ArgumentCaptor.forClass(String.class);
+    verify(oidcLogoutActionBuilder).getLogoutAction(any(), any(), callbackUri.capture());
+    assertThat(callbackUri.getValue(), containsString("prevurl=" + PREVIOUS_URL_ENCODED));
   }
 
   @Test
