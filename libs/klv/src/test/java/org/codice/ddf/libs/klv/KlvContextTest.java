@@ -28,7 +28,7 @@ import org.junit.Test;
 public class KlvContextTest {
   @Test
   public void testAddSingleDataElement() {
-    final KlvContext klvContext = new KlvContext(KeyLength.OneByte, LengthEncoding.OneByte);
+    final KlvContext klvContext = new KlvContext(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE);
     final KlvInt klvInt = new KlvInt(new byte[] {1}, "first");
     klvContext.addDataElement(klvInt);
     verifyKLVContextDataElements(klvContext, klvInt);
@@ -36,7 +36,7 @@ public class KlvContextTest {
 
   @Test
   public void testAddDataElementCollection() {
-    final KlvContext klvContext = new KlvContext(KeyLength.OneByte, LengthEncoding.OneByte);
+    final KlvContext klvContext = new KlvContext(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE);
     final Collection<KlvDataElement> dataElements = new HashSet<>();
     final KlvInt klvInt = new KlvInt(new byte[] {1}, "first");
     dataElements.add(klvInt);
@@ -63,26 +63,26 @@ public class KlvContextTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullKeyLength() {
-    new KlvContext(null, LengthEncoding.OneByte, new HashSet<>()).addDataElements(null);
+    new KlvContext(null, LengthEncoding.ONE_BYTE, new HashSet<>()).addDataElements(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullLengthEncoding() {
-    new KlvContext(KeyLength.OneByte, null, new HashSet<>()).addDataElements(null);
+    new KlvContext(KeyLength.ONE_BYTE, null, new HashSet<>()).addDataElements(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDataElementCollection() {
-    new KlvContext(KeyLength.OneByte, LengthEncoding.OneByte, null).addDataElements(null);
+    new KlvContext(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, null).addDataElements(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testAddNullDataElement() {
-    new KlvContext(KeyLength.OneByte, LengthEncoding.OneByte).addDataElements(null);
+    new KlvContext(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE).addDataElements(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testAddNullDataElementCollection() {
-    new KlvContext(KeyLength.OneByte, LengthEncoding.OneByte).addDataElement(null);
+    new KlvContext(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE).addDataElement(null);
   }
 }

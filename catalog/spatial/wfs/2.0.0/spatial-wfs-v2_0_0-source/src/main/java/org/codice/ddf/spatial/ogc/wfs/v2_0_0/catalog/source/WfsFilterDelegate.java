@@ -265,7 +265,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       List<DomainType> constraints = conformance.getConstraint();
       if (!CollectionUtils.isEmpty(constraints)) {
         for (DomainType constraint : constraints) {
-          if (CONFORMANCE_CONSTRAINTS.ImplementsSorting.equals(
+          if (CONFORMANCE_CONSTRAINTS.IMPLEMENTS_SORTING.equals(
               CONFORMANCE_CONSTRAINTS.valueOf(constraint.getName()))) {
             configureSorting(constraint);
           }
@@ -446,8 +446,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         continue;
       }
       if (filterType.isSetTemporalOps()
-          && (!isTemporalOpSupported(TEMPORAL_OPERATORS.Before)
-              && !isTemporalOpSupported(TEMPORAL_OPERATORS.After))
+          && (!isTemporalOpSupported(TEMPORAL_OPERATORS.BEFORE)
+              && !isTemporalOpSupported(TEMPORAL_OPERATORS.AFTER))
           && !isDuringFilter(filterType)) {
         BinaryTemporalOpType binaryTemporalOpType =
             (BinaryTemporalOpType) filterType.getTemporalOps().getValue();
@@ -467,14 +467,14 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       }
     }
 
-    if (isTemporalOpSupported(TEMPORAL_OPERATORS.During) && (StringUtils.isNotEmpty(startDate))) {
+    if (isTemporalOpSupported(TEMPORAL_OPERATORS.DURING) && (StringUtils.isNotEmpty(startDate))) {
       if (StringUtils.isEmpty(endDate)) {
         endDate = convertDateToIso8601Format(new Date());
       }
 
       FilterType duringFilter = buildDuringFilterType(property, startDate, endDate);
       newFilters.add(duringFilter);
-    } else if (isTemporalOpSupported(TEMPORAL_OPERATORS.During)
+    } else if (isTemporalOpSupported(TEMPORAL_OPERATORS.DURING)
         && (StringUtils.isEmpty(startDate) && StringUtils.isNotEmpty(endDate))) {
 
       for (FilterType filterType : filters) {
@@ -499,8 +499,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
             }
           }
 
-        } else if ((!isTemporalOpSupported(TEMPORAL_OPERATORS.Before)
-                && !isTemporalOpSupported(TEMPORAL_OPERATORS.After))
+        } else if ((!isTemporalOpSupported(TEMPORAL_OPERATORS.BEFORE)
+                && !isTemporalOpSupported(TEMPORAL_OPERATORS.AFTER))
             && isDuringFilter(filterType)) {
           BinaryTemporalOpType binaryTemporalOpType =
               (BinaryTemporalOpType) filterType.getTemporalOps().getValue();
@@ -553,92 +553,101 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   @Override
   public FilterType propertyIsEqualTo(
       String propertyName, String literal, boolean isCaseSensitive) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, Date date) {
     return buildPropertyIsFilterType(
-        propertyName, convertDateToIso8601Format(date), PROPERTY_IS_OPS.PropertyIsEqualTo);
+        propertyName, convertDateToIso8601Format(date), PROPERTY_IS_OPS.PROPERTY_IS_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, int literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, short literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, long literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, float literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, double literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, boolean literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsLike(String propertyName, String literal, boolean isCaseSensitive) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLike);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_LIKE);
   }
 
   @Override
   public FilterType propertyIsNotEqualTo(
       String propertyName, String literal, boolean isCaseSensitive) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_NOT_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsNotEqualTo(String propertyName, Date literal) {
     return buildPropertyIsFilterType(
-        propertyName, convertDateToIso8601Format(literal), PROPERTY_IS_OPS.PropertyIsNotEqualTo);
+        propertyName,
+        convertDateToIso8601Format(literal),
+        PROPERTY_IS_OPS.PROPERTY_IS_NOT_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsNotEqualTo(String propertyName, Number literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_NOT_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsNotEqualTo(String propertyName, boolean literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_NOT_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsGreaterThan(String propertyName, String literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThan);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_GREATER_THAN);
   }
 
   @Override
   public FilterType propertyIsGreaterThan(String propertyName, Date literal) {
     return buildPropertyIsFilterType(
-        propertyName, convertDateToIso8601Format(literal), PROPERTY_IS_OPS.PropertyIsGreaterThan);
+        propertyName,
+        convertDateToIso8601Format(literal),
+        PROPERTY_IS_OPS.PROPERTY_IS_GREATER_THAN);
   }
 
   @Override
   public FilterType propertyIsGreaterThan(String propertyName, Number literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThan);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_GREATER_THAN);
   }
 
   @Override
   public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, String literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
+        propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO);
   }
 
   @Override
@@ -646,35 +655,35 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return buildPropertyIsFilterType(
         propertyName,
         convertDateToIso8601Format(literal),
-        PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
+        PROPERTY_IS_OPS.PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, Number literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
+        propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsLessThan(String propertyName, String literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_LESS_THAN);
   }
 
   @Override
   public FilterType propertyIsLessThan(String propertyName, Date literal) {
     return buildPropertyIsFilterType(
-        propertyName, convertDateToIso8601Format(literal), PROPERTY_IS_OPS.PropertyIsLessThan);
+        propertyName, convertDateToIso8601Format(literal), PROPERTY_IS_OPS.PROPERTY_IS_LESS_THAN);
   }
 
   @Override
   public FilterType propertyIsLessThan(String propertyName, Number literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_LESS_THAN);
   }
 
   @Override
   public FilterType propertyIsLessThanOrEqualTo(String propertyName, String literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
+        propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_LESS_THAN_OR_EQUAL_TO);
   }
 
   @Override
@@ -682,13 +691,13 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return buildPropertyIsFilterType(
         propertyName,
         convertDateToIso8601Format(literal),
-        PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
+        PROPERTY_IS_OPS.PROPERTY_IS_LESS_THAN_OR_EQUAL_TO);
   }
 
   @Override
   public FilterType propertyIsLessThanOrEqualTo(String propertyName, Number literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
+        propertyName, literal, PROPERTY_IS_OPS.PROPERTY_IS_LESS_THAN_OR_EQUAL_TO);
   }
 
   @Override
@@ -737,7 +746,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   protected boolean isAfterFilter(FilterType filter) {
     if (isFilterSet(filter)) {
-      return TEMPORAL_OPERATORS.After.toString()
+      return TEMPORAL_OPERATORS
+          .AFTER
+          .toString()
           .equals(filter.getTemporalOps().getName().getLocalPart());
     } else {
       return false;
@@ -746,7 +757,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   protected boolean isBeforeFilter(FilterType filter) {
     if (isFilterSet(filter)) {
-      return TEMPORAL_OPERATORS.Before.toString()
+      return TEMPORAL_OPERATORS
+          .BEFORE
+          .toString()
           .equals(filter.getTemporalOps().getName().getLocalPart());
     } else {
       return false;
@@ -755,7 +768,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   protected boolean isDuringFilter(FilterType filter) {
     if (isFilterSet(filter)) {
-      return TEMPORAL_OPERATORS.During.toString()
+      return TEMPORAL_OPERATORS
+          .DURING
+          .toString()
           .equals(filter.getTemporalOps().getName().getLocalPart());
     } else {
       return false;
@@ -831,9 +846,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private FilterType buildDuringFilterType(String propertyName, String startDate, String endDate) {
 
-    if (!isTemporalOpSupported(TEMPORAL_OPERATORS.During)) {
+    if (!isTemporalOpSupported(TEMPORAL_OPERATORS.DURING)) {
       throw new UnsupportedOperationException(
-          "Temporal Operator [" + TEMPORAL_OPERATORS.During + "] is not supported.");
+          "Temporal Operator [" + TEMPORAL_OPERATORS.DURING + "] is not supported.");
     }
 
     TemporalOperand timePeriodTemporalOperand = new TemporalOperand();
@@ -892,8 +907,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
               + ".");
     }
 
-    if (!isTemporalOpSupported(TEMPORAL_OPERATORS.After)) {
-      if (isTemporalOpSupported(TEMPORAL_OPERATORS.During)) {
+    if (!isTemporalOpSupported(TEMPORAL_OPERATORS.AFTER)) {
+      if (isTemporalOpSupported(TEMPORAL_OPERATORS.DURING)) {
         return buildDuringFilterType(
             featurePropertyName, date, convertDateToIso8601Format(new Date()));
       }
@@ -1016,7 +1031,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private JAXBElement<? extends ComparisonOpsType> createPropertyIsFilter(
       String property, Object literal, PROPERTY_IS_OPS operation) {
     switch (operation) {
-      case PropertyIsEqualTo:
+      case PROPERTY_IS_EQUAL_TO:
         JAXBElement<BinaryComparisonOpType> propIsEqualTo =
             filterObjectFactory.createPropertyIsEqualTo(new BinaryComparisonOpType());
         propIsEqualTo.getValue().getExpression().add(createPropertyNameType(property));
@@ -1024,7 +1039,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
         return propIsEqualTo;
 
-      case PropertyIsNotEqualTo:
+      case PROPERTY_IS_NOT_EQUAL_TO:
         JAXBElement<BinaryComparisonOpType> propIsNotEqualTo =
             filterObjectFactory.createPropertyIsNotEqualTo(new BinaryComparisonOpType());
         propIsNotEqualTo.getValue().getExpression().add(createPropertyNameType(property));
@@ -1032,7 +1047,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
         return propIsNotEqualTo;
 
-      case PropertyIsGreaterThan:
+      case PROPERTY_IS_GREATER_THAN:
         JAXBElement<BinaryComparisonOpType> propIsGreaterThan =
             filterObjectFactory.createPropertyIsGreaterThan(new BinaryComparisonOpType());
         propIsGreaterThan.getValue().getExpression().add(createPropertyNameType(property));
@@ -1040,7 +1055,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
         return propIsGreaterThan;
 
-      case PropertyIsGreaterThanOrEqualTo:
+      case PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO:
         JAXBElement<BinaryComparisonOpType> propIsGreaterThanOrEqualTo =
             filterObjectFactory.createPropertyIsGreaterThanOrEqualTo(new BinaryComparisonOpType());
         propIsGreaterThanOrEqualTo.getValue().getExpression().add(createPropertyNameType(property));
@@ -1048,7 +1063,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
         return propIsGreaterThanOrEqualTo;
 
-      case PropertyIsLessThan:
+      case PROPERTY_IS_LESS_THAN:
         JAXBElement<BinaryComparisonOpType> propIsLessThan =
             filterObjectFactory.createPropertyIsLessThan(new BinaryComparisonOpType());
         propIsLessThan.getValue().getExpression().add(createPropertyNameType(property));
@@ -1056,7 +1071,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
         return propIsLessThan;
 
-      case PropertyIsLessThanOrEqualTo:
+      case PROPERTY_IS_LESS_THAN_OR_EQUAL_TO:
         JAXBElement<BinaryComparisonOpType> propIsLessThanOrEqualTo =
             filterObjectFactory.createPropertyIsLessThanOrEqualTo(new BinaryComparisonOpType());
         propIsLessThanOrEqualTo.getValue().getExpression().add(createPropertyNameType(property));
@@ -1064,7 +1079,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
         return propIsLessThanOrEqualTo;
 
-      case PropertyIsLike:
+      case PROPERTY_IS_LIKE:
         JAXBElement<PropertyIsLikeType> propIsLike =
             filterObjectFactory.createPropertyIsLike(new PropertyIsLikeType());
 
@@ -1213,10 +1228,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (spatialOps.containsKey(SPATIAL_OPERATORS.Beyond)) {
+    if (spatialOps.containsKey(SPATIAL_OPERATORS.BEYOND)) {
       return buildGeospatialFilterType(
-          SPATIAL_OPERATORS.Beyond.toString(), propertyName, wkt, distance);
-    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.DWithin)) {
+          SPATIAL_OPERATORS.BEYOND.toString(), propertyName, wkt, distance);
+    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.D_WITHIN)) {
       return not(dwithin(propertyName, wkt, distance));
     } else {
       LOGGER.debug("WFS Source does not support Beyond filters");
@@ -1234,10 +1249,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (spatialOps.containsKey(SPATIAL_OPERATORS.Contains)) {
+    if (spatialOps.containsKey(SPATIAL_OPERATORS.CONTAINS)) {
       return buildGeospatialFilterType(
-          SPATIAL_OPERATORS.Contains.toString(), propertyName, wkt, null);
-    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Within)) {
+          SPATIAL_OPERATORS.CONTAINS.toString(), propertyName, wkt, null);
+    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.WITHIN)) {
       return not(within(propertyName, wkt));
     } else {
       LOGGER.debug("WFS Source does not support Contains filters");
@@ -1255,9 +1270,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (spatialOps.containsKey(SPATIAL_OPERATORS.Crosses)) {
+    if (spatialOps.containsKey(SPATIAL_OPERATORS.CROSSES)) {
       return buildGeospatialFilterType(
-          SPATIAL_OPERATORS.Crosses.toString(), propertyName, wkt, null);
+          SPATIAL_OPERATORS.CROSSES.toString(), propertyName, wkt, null);
     } else {
       LOGGER.debug("WFS Source does not support Crosses filters");
       return null;
@@ -1274,12 +1289,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (spatialOps.containsKey(SPATIAL_OPERATORS.Disjoint)) {
+    if (spatialOps.containsKey(SPATIAL_OPERATORS.DISJOINT)) {
       return buildGeospatialFilterType(
-          SPATIAL_OPERATORS.Disjoint.toString(), propertyName, wkt, null);
+          SPATIAL_OPERATORS.DISJOINT.toString(), propertyName, wkt, null);
     } else if (spatialOps.containsKey(SPATIAL_OPERATORS.BBOX)) {
       return not(bbox(propertyName, wkt));
-    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Intersects)) {
+    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.INTERSECTS)) {
       return not(intersects(propertyName, wkt));
     } else {
       LOGGER.debug("WFS Source does not support Disjoint or BBOX filters");
@@ -1297,12 +1312,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (spatialOps.containsKey(SPATIAL_OPERATORS.DWithin)) {
+    if (spatialOps.containsKey(SPATIAL_OPERATORS.D_WITHIN)) {
       return this.buildGeospatialFilterType(
-          SPATIAL_OPERATORS.DWithin.toString(), propertyName, wkt, distance);
-    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Beyond)) {
+          SPATIAL_OPERATORS.D_WITHIN.toString(), propertyName, wkt, distance);
+    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.BEYOND)) {
       return not(beyond(propertyName, wkt, distance));
-    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Intersects)) {
+    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.INTERSECTS)) {
       String bufferedWkt = bufferGeometry(wkt, distance);
       return intersects(propertyName, bufferedWkt);
     } else {
@@ -1322,12 +1337,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (spatialOps.containsKey(SPATIAL_OPERATORS.Intersects)) {
+    if (spatialOps.containsKey(SPATIAL_OPERATORS.INTERSECTS)) {
       return buildGeospatialFilterType(
-          SPATIAL_OPERATORS.Intersects.toString(), propertyName, wkt, null);
+          SPATIAL_OPERATORS.INTERSECTS.toString(), propertyName, wkt, null);
     } else if (spatialOps.containsKey(SPATIAL_OPERATORS.BBOX)) {
       return bbox(propertyName, wkt);
-    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Disjoint)) {
+    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.DISJOINT)) {
       return not(disjoint(propertyName, wkt));
     } else {
       LOGGER.debug("WFS Source does not support Intersect or BBOX");
@@ -1345,9 +1360,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (spatialOps.containsKey(SPATIAL_OPERATORS.Overlaps)) {
+    if (spatialOps.containsKey(SPATIAL_OPERATORS.OVERLAPS)) {
       return buildGeospatialFilterType(
-          SPATIAL_OPERATORS.Overlaps.toString(), propertyName, wkt, null);
+          SPATIAL_OPERATORS.OVERLAPS.toString(), propertyName, wkt, null);
     } else {
       LOGGER.debug("WFS Source does not support Overlaps filters");
       return null;
@@ -1364,9 +1379,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (spatialOps.containsKey(SPATIAL_OPERATORS.Touches)) {
+    if (spatialOps.containsKey(SPATIAL_OPERATORS.TOUCHES)) {
       return buildGeospatialFilterType(
-          SPATIAL_OPERATORS.Touches.toString(), propertyName, wkt, null);
+          SPATIAL_OPERATORS.TOUCHES.toString(), propertyName, wkt, null);
     } else {
       LOGGER.debug("WFS Source does not support Beyond filters");
       return null;
@@ -1383,10 +1398,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (spatialOps.containsKey(SPATIAL_OPERATORS.Within)) {
+    if (spatialOps.containsKey(SPATIAL_OPERATORS.WITHIN)) {
       return buildGeospatialFilterType(
-          SPATIAL_OPERATORS.Within.toString(), propertyName, wkt, null);
-    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Contains)) {
+          SPATIAL_OPERATORS.WITHIN.toString(), propertyName, wkt, null);
+    } else if (spatialOps.containsKey(SPATIAL_OPERATORS.CONTAINS)) {
       return contains(propertyName, wkt);
     } else {
       LOGGER.debug("WFS Source does not support Within filters");
@@ -1476,37 +1491,37 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     switch (SPATIAL_OPERATORS.valueOf(operation)) {
       case BBOX:
         return buildBBoxType(propertyName, wkt);
-      case Beyond:
+      case BEYOND:
         return buildDistanceBufferType(
             filterObjectFactory.createBeyond(new DistanceBufferType()),
             propertyName,
             wkt,
             distance);
-      case Contains:
+      case CONTAINS:
         return buildBinarySpatialOpType(
             filterObjectFactory.createContains(new BinarySpatialOpType()), propertyName, wkt);
-      case Crosses:
+      case CROSSES:
         return buildBinarySpatialOpType(
             filterObjectFactory.createCrosses(new BinarySpatialOpType()), propertyName, wkt);
-      case Disjoint:
+      case DISJOINT:
         return buildBinarySpatialOpType(
             filterObjectFactory.createDisjoint(new BinarySpatialOpType()), propertyName, wkt);
-      case DWithin:
+      case D_WITHIN:
         return buildDistanceBufferType(
             filterObjectFactory.createDWithin(new DistanceBufferType()),
             propertyName,
             wkt,
             distance);
-      case Intersects:
+      case INTERSECTS:
         return buildBinarySpatialOpType(
             filterObjectFactory.createIntersects(new BinarySpatialOpType()), propertyName, wkt);
-      case Overlaps:
+      case OVERLAPS:
         return buildBinarySpatialOpType(
             filterObjectFactory.createOverlaps(new BinarySpatialOpType()), propertyName, wkt);
-      case Touches:
+      case TOUCHES:
         return buildBinarySpatialOpType(
             filterObjectFactory.createTouches(new BinarySpatialOpType()), propertyName, wkt);
-      case Within:
+      case WITHIN:
         return buildBinarySpatialOpType(
             filterObjectFactory.createWithin(new BinarySpatialOpType()), propertyName, wkt);
       default:
@@ -1841,12 +1856,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private enum PROPERTY_IS_OPS {
-    PropertyIsEqualTo,
-    PropertyIsLike,
-    PropertyIsNotEqualTo,
-    PropertyIsGreaterThan,
-    PropertyIsGreaterThanOrEqualTo,
-    PropertyIsLessThan,
-    PropertyIsLessThanOrEqualTo
+    PROPERTY_IS_EQUAL_TO,
+    PROPERTY_IS_LIKE,
+    PROPERTY_IS_NOT_EQUAL_TO,
+    PROPERTY_IS_GREATER_THAN,
+    PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO,
+    PROPERTY_IS_LESS_THAN,
+    PROPERTY_IS_LESS_THAN_OR_EQUAL_TO
   }
 }
