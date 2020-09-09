@@ -89,20 +89,20 @@ public class Wfs20Constants extends WfsConstants {
           MULTI_POINT,
           MULTI_POLYGON);
 
-  public static enum SPATIAL_OPERATORS {
+  public enum SPATIAL_OPERATORS {
     BBOX("BBOX"),
-    Beyond("Beyond"),
-    Contains("Contains"),
-    Crosses("Crosses"),
-    Disjoint("Disjoint"),
-    DWithin("DWithin"),
-    Intersects("Intersects"),
-    Equals("Equals"),
-    Overlaps("Overlaps"),
-    Touches("Touches"),
-    Within("Within");
+    BEYOND("Beyond"),
+    CONTAINS("Contains"),
+    CROSSES("Crosses"),
+    DISJOINT("Disjoint"),
+    D_WITHIN("DWithin"),
+    INTERSECTS("Intersects"),
+    EQUALS("Equals"),
+    OVERLAPS("Overlaps"),
+    TOUCHES("Touches"),
+    WITHIN("Within");
 
-    private String value;
+    private final String value;
 
     SPATIAL_OPERATORS(String value) {
       this.value = value;
@@ -111,27 +111,31 @@ public class Wfs20Constants extends WfsConstants {
     public String getValue() {
       return value;
     }
+
+    @Override
+    public String toString() {
+      return value;
+    }
   }
 
-  public static enum CONFORMANCE_CONSTRAINTS {
-    ImplementsQuery("ImplementsQuery"),
-    ImplementsAdHocQuery("ImplementsAdHocQuery"),
-    ImplementsFunctions("ImplementsFunctions"),
-    ImplementsResourceld("ImplementsResourceld"),
-    ImplementsMinStandardFilter("ImplementsMinStandardFilter"),
-    ImplementsStandardFilter("ImplementsStandardFilter"),
-    ImplementsMinSpatialFilter("ImplementsMinSpatialFilter"),
-    ImplementsSpatialFilter("ImplementsSpatialFilter"),
-    ImplementsMinTemporalFilter("ImplementsMinTemporalFilter"),
-    ImplementsTemporalFilter("ImplementsTemporalFilter"),
-    ImplementsVersionNav("ImplementsVersionNav"),
-    ImplementsSorting("ImplementsSorting"),
-    ImplementsExtendedOperators("ImplementsExtendedOperators"),
-    ImplementsMinimumXPath("ImplementsMinimumXPath"),
-    ImplementsSchemaElementFunc("ImplementsSchemaElementFunc"),
-    ImplementsResourceId("ImplementsResourceId");
+  public enum CONFORMANCE_CONSTRAINTS {
+    IMPLEMENTS_QUERY("ImplementsQuery"),
+    IMPLEMENTS_AD_HOC_QUERY("ImplementsAdHocQuery"),
+    IMPLEMENTS_FUNCTIONS("ImplementsFunctions"),
+    IMPLEMENTS_RESOURCE_ID("ImplementsResourceId"),
+    IMPLEMENTS_MIN_STANDARD_FILTER("ImplementsMinStandardFilter"),
+    IMPLEMENTS_STANDARD_FILTER("ImplementsStandardFilter"),
+    IMPLEMENTS_MIN_SPATIAL_FILTER("ImplementsMinSpatialFilter"),
+    IMPLEMENTS_SPATIAL_FILTER("ImplementsSpatialFilter"),
+    IMPLEMENTS_MIN_TEMPORAL_FILTER("ImplementsMinTemporalFilter"),
+    IMPLEMENTS_TEMPORAL_FILTER("ImplementsTemporalFilter"),
+    IMPLEMENTS_VERSION_NAV("ImplementsVersionNav"),
+    IMPLEMENTS_SORTING("ImplementsSorting"),
+    IMPLEMENTS_EXTENDED_OPERATORS("ImplementsExtendedOperators"),
+    IMPLEMENTS_MINIMUM_X_PATH("ImplementsMinimumXPath"),
+    IMPLEMENTS_SCHEMA_ELEMENT_FUNC("ImplementsSchemaElementFunc");
 
-    private String value;
+    private final String value;
 
     CONFORMANCE_CONSTRAINTS(String value) {
       this.value = value;
@@ -140,21 +144,26 @@ public class Wfs20Constants extends WfsConstants {
     public String getValue() {
       return value;
     }
+
+    @Override
+    public String toString() {
+      return value;
+    }
   }
 
-  public static enum COMPARISON_OPERATORS {
-    PropertyIsEqualTo("PropertyIsEqualTo"),
-    PropertyIsNotEqualTo("PropertyIsNotEqualTo"),
-    PropertyIsLessThan("PropertyIsLessThan"),
-    PropertyIsGreaterThan("PropertyIsGreaterThan"),
-    PropertyIsLessThanOrEqualTo("PropertyIsLessThanOrEqualTo"),
-    PropertyIsGreaterThanOrEqualTo("PropertyIsGreaterThanOrEqualTo"),
-    PropertyIsLike("PropertyIsLike"),
-    PropertyIsNull("PropertyIsNull"),
-    PropertyIsNil("PropertyIsNil"),
-    PropertyIsBetween("PropertyIsBetween");
+  public enum COMPARISON_OPERATORS {
+    PROPERTY_IS_EQUAL_TO("PropertyIsEqualTo"),
+    PROPERTY_IS_NOT_EQUAL_TO("PropertyIsNotEqualTo"),
+    PROPERTY_IS_LESS_THAN("PropertyIsLessThan"),
+    PROPERTY_IS_GREATER_THAN("PropertyIsGreaterThan"),
+    PROPERTY_IS_LESS_THAN_OR_EQUAL_TO("PropertyIsLessThanOrEqualTo"),
+    PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO("PropertyIsGreaterThanOrEqualTo"),
+    PROPERTY_IS_LIKE("PropertyIsLike"),
+    PROPERTY_IS_NULL("PropertyIsNull"),
+    PROPERTY_IS_NIL("PropertyIsNil"),
+    PROPERTY_IS_BETWEEN("PropertyIsBetween");
 
-    private String value;
+    private final String value;
 
     COMPARISON_OPERATORS(String value) {
       this.value = value;
@@ -163,30 +172,40 @@ public class Wfs20Constants extends WfsConstants {
     public String getValue() {
       return value;
     }
+
+    @Override
+    public String toString() {
+      return value;
+    }
   }
 
-  public static enum TEMPORAL_OPERATORS {
-    After("After"),
-    Before("Before"),
-    Begins("Begins"),
-    BegunBy("BegunBy"),
-    TContains("TContains"),
-    During("During"),
-    TEquals("TEquals"),
-    TOverlaps("TOverlaps"),
-    Meets("Meets"),
-    OverlappedBy("OverlappedBy"),
-    MetBy("MetBy"),
-    Ends("Ends"),
-    EndedBy("EndedBy");
+  public enum TEMPORAL_OPERATORS {
+    AFTER("After"),
+    BEFORE("Before"),
+    BEGINS("Begins"),
+    BEGUN_BY("BegunBy"),
+    T_CONTAINS("TContains"),
+    DURING("During"),
+    T_EQUALS("TEquals"),
+    T_OVERLAPS("TOverlaps"),
+    MEETS("Meets"),
+    OVERLAPPED_BY("OverlappedBy"),
+    MET_BY("MetBy"),
+    ENDS("Ends"),
+    ENDED_BY("EndedBy");
 
-    private String value;
+    private final String value;
 
     TEMPORAL_OPERATORS(String value) {
       this.value = value;
     }
 
     public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
       return value;
     }
   }

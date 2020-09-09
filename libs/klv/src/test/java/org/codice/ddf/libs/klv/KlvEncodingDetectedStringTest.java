@@ -60,7 +60,7 @@ public class KlvEncodingDetectedStringTest {
 
     final KlvEncodingDetectedString string = new KlvEncodingDetectedString(new byte[] {-8}, name);
     final KlvContext decodedKlvContext =
-        decodeKLV(Klv.KeyLength.OneByte, Klv.LengthEncoding.OneByte, string, byteArray);
+        decodeKLV(Klv.KeyLength.ONE_BYTE, Klv.LengthEncoding.ONE_BYTE, string, byteArray);
 
     return (KlvEncodingDetectedString) decodedKlvContext.getDataElementByName(name);
   }
