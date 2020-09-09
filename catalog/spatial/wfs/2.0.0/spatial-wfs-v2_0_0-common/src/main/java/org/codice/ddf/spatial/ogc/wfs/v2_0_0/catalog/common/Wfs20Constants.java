@@ -116,6 +116,13 @@ public class Wfs20Constants extends WfsConstants {
     public String toString() {
       return value;
     }
+
+    public static SPATIAL_OPERATORS getEnum(String value) {
+      return Arrays.stream(values())
+          .filter(spatialOperators -> spatialOperators.getValue().equals(value))
+          .findAny()
+          .orElseThrow(() -> new IllegalArgumentException("No enum value " + value));
+    }
   }
 
   public enum CONFORMANCE_CONSTRAINTS {
@@ -149,6 +156,13 @@ public class Wfs20Constants extends WfsConstants {
     public String toString() {
       return value;
     }
+
+    public static CONFORMANCE_CONSTRAINTS getEnum(String value) {
+      return Arrays.stream(values())
+          .filter(conformanceConstraints -> conformanceConstraints.getValue().equals(value))
+          .findAny()
+          .orElseThrow(() -> new IllegalArgumentException("No enum value " + value));
+    }
   }
 
   public enum COMPARISON_OPERATORS {
@@ -176,6 +190,13 @@ public class Wfs20Constants extends WfsConstants {
     @Override
     public String toString() {
       return value;
+    }
+
+    public static COMPARISON_OPERATORS getEnum(String value) {
+      return Arrays.stream(values())
+          .filter(comparisonOperators -> comparisonOperators.getValue().equals(value))
+          .findAny()
+          .orElseThrow(() -> new IllegalArgumentException("No enum value " + value));
     }
   }
 
@@ -207,6 +228,13 @@ public class Wfs20Constants extends WfsConstants {
     @Override
     public String toString() {
       return value;
+    }
+
+    public static TEMPORAL_OPERATORS getEnum(String value) {
+      return Arrays.stream(values())
+          .filter(temporalOperators -> temporalOperators.getValue().equals(value))
+          .findAny()
+          .orElseThrow(() -> new IllegalArgumentException("No enum value " + value));
     }
   }
 }

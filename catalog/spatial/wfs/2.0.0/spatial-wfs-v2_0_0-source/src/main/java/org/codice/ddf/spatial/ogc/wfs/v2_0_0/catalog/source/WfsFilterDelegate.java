@@ -212,7 +212,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       if (comparisonOperators != null) {
         for (ComparisonOperatorType comp : comparisonOperators.getComparisonOperator()) {
           if (null != comp) {
-            comparisonOps.add(COMPARISON_OPERATORS.valueOf(comp.getName()));
+            comparisonOps.add(COMPARISON_OPERATORS.getEnum(comp.getName()));
           }
         }
       }
@@ -266,7 +266,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       if (!CollectionUtils.isEmpty(constraints)) {
         for (DomainType constraint : constraints) {
           if (CONFORMANCE_CONSTRAINTS.IMPLEMENTS_SORTING.equals(
-              CONFORMANCE_CONSTRAINTS.valueOf(constraint.getName()))) {
+              CONFORMANCE_CONSTRAINTS.getEnum(constraint.getName()))) {
             configureSorting(constraint);
           }
         }
@@ -1488,7 +1488,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private JAXBElement<? extends SpatialOpsType> createSpatialOpType(
       String operation, String propertyName, String wkt, Double distance) {
 
-    switch (SPATIAL_OPERATORS.valueOf(operation)) {
+    switch (SPATIAL_OPERATORS.getEnum(operation)) {
       case BBOX:
         return buildBBoxType(propertyName, wkt);
       case BEYOND:
@@ -1754,7 +1754,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     for (SpatialOperatorType spatialOp : spatialOperators.getSpatialOperator()) {
       LOGGER.debug("Adding key [spatialOp Name: {}]", spatialOp.getName());
-      spatialOps.put(SPATIAL_OPERATORS.valueOf(spatialOp.getName()), spatialOp);
+      spatialOps.put(SPATIAL_OPERATORS.getEnum(spatialOp.getName()), spatialOp);
       LOGGER.debug("spatialOps Map: {}", spatialOps);
     }
   }
@@ -1772,7 +1772,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     for (TemporalOperatorType temporalOp : temporalOperators.getTemporalOperator()) {
       LOGGER.debug("Adding key [temporalOp Name: {}]", temporalOp.getName());
-      temporalOps.put(TEMPORAL_OPERATORS.valueOf(temporalOp.getName()), temporalOp);
+      temporalOps.put(TEMPORAL_OPERATORS.getEnum(temporalOp.getName()), temporalOp);
       LOGGER.debug("temporalOps Map: {}", temporalOps);
     }
   }
