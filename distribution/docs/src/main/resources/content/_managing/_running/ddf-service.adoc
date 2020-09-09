@@ -19,7 +19,16 @@ When installing as a service on *NIX, do not use spaces in the path for ${home_d
 [WARNING]
 ====
 Ensure that JAVA_HOME is properly set before beginning this process.
-See <<{introduction-prefix}java_requirements,Java Requirements>>
+See <<{introduction-prefix}java_requirements,Java Requirements>>.
+====
+[WARNING]
+====
+Install a profile on the first start of the system.
+Attempting to install a profile after the first start (i.e. when starting as a service) may cause issues.
+====
+[WARNING]
+====
+If using the default Security Manager, the service should be ran as the user who installed the service in order to avoid permission issues.
 ====
 
 . Create the service wrapper.
@@ -50,7 +59,7 @@ the property `#RUN_AS_USER=` to:
 RUN_AS_USER=<${branding-lowercase}-user>
 ----
 where <${branding-lowercase}-user> is the intended username:
-. (Windows users skip down) (All *NIX) Edit `${home_directory}/bin/${branding-lowercase}-service`.
+. (Windows users skip this step) (All *NIX) Edit `${home_directory}/bin/${branding-lowercase}-service`.
 Add `LimitNOFILE` to the [Service] section.
 +
 .${home_directory}/bin/${branding-lowercase}.service
@@ -74,26 +83,6 @@ Execute these commands as root or superuser:
 root${at-symbol}localhost# ln -s ${home_directory}/bin/${branding-lowercase}-service /etc/init.d/
 root${at-symbol}localhost# chkconfig ${branding-lowercase}-service --add
 root${at-symbol}localhost# chkconfig ${branding-lowercase}-service on
-----
-. (Windows only, if the system's `JAVA_HOME` variable has spaces in it) Edit `${home_directory}/etc/${branding-lowercase}-wrapper.conf`.
-Put quotes around `wrapper.java.additional.n` system properties for n from 1 to 13 like so:
-+
-.${home_directory}/etc/${branding-lowercase}-wrapper.conf
-----
-wrapper.java.additional.1=-Djava.endorsed.dirs="%JAVA_HOME%/jre/lib/endorsed;%JAVA_HOME%/lib/endorsed;%KARAF_HOME%/lib/endorsed"
-wrapper.java.additional.2=-Djava.ext.dirs="%JAVA_HOME%/jre/lib/ext;%JAVA_HOME%/lib/ext;%KARAF_HOME%/lib/ext"
-wrapper.java.additional.3=-Dkaraf.instances="%KARAF_HOME%/instances"
-wrapper.java.additional.4=-Dkaraf.home="%KARAF_HOME%"
-wrapper.java.additional.5=-Dkaraf.base="%KARAF_BASE%"
-wrapper.java.additional.6=-Dkaraf.data="%KARAF_DATA%"
-wrapper.java.additional.7=-Dkaraf.etc="%KARAF_ETC%"
-wrapper.java.additional.8=-Dkaraf.log="%KARAF_LOG%"
-wrapper.java.additional.9=-Dkaraf.restart.jvm.supported=true
-wrapper.java.additional.10=-Djava.io.tmpdir="%KARAF_DATA%/tmp"
-wrapper.java.additional.11=-Djava.util.logging.config.file="%KARAF_ETC%/java.util.logging.properties"
-wrapper.java.additional.12=-Dcom.sun.management.jmxremote
-wrapper.java.additional.13=-Dkaraf.startLocalConsole=false
-wrapper.java.additional.14=-Dkaraf.startRemoteShell=true
 ----
 
 . (Windows only) Install the wrapper startup/shutdown scripts.
