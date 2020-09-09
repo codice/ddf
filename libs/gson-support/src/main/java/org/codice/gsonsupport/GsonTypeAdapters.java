@@ -85,6 +85,7 @@ public class GsonTypeAdapters {
 
     public static final TypeAdapterFactory FACTORY =
         new TypeAdapterFactory() {
+          @Override
           public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
             return (TypeAdapter<T>) new PersistenceMapTypeAdapter(gson);
           }
@@ -250,6 +251,7 @@ public class GsonTypeAdapters {
     public static final TypeAdapterFactory FACTORY =
         new TypeAdapterFactory() {
 
+          @Override
           public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
             Type type = typeToken.getType();
             Class<? super T> rawType = typeToken.getRawType();
