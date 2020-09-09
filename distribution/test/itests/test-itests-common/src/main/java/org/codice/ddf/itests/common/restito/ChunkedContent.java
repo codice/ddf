@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 public class ChunkedContent {
   protected static final Logger LOGGER = LoggerFactory.getLogger(ChunkedContent.class);
 
+  private ChunkedContent() {}
+
   public static class ChunkedContentBuilder {
     private String message;
 

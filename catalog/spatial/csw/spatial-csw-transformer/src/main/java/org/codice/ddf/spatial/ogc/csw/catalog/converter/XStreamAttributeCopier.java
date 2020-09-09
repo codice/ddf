@@ -44,6 +44,8 @@ public class XStreamAttributeCopier {
 
   private static final HierarchicalStreamCopier COPIER = new HierarchicalStreamCopier();
 
+  private XStreamAttributeCopier() {}
+
   private static void copyElementWithAttributes(
       HierarchicalStreamReader source,
       HierarchicalStreamWriter destination,

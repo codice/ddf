@@ -38,6 +38,9 @@ import org.apache.wss4j.dom.handler.WSHandlerResult;
  * @author tustisos
  */
 public final class SecurityAssertionStore {
+
+  private SecurityAssertionStore() {}
+
   /**
    * Return the SecurityAssertion wrapper associated with the provided message
    *

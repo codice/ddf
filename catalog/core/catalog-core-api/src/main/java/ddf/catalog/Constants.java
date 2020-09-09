@@ -158,4 +158,6 @@ public final class Constants {
   public static final String SUGGESTION_BUILD_KEY = "suggestion-build";
 
   public static final String ADDITIONAL_SORT_BYS = "additional-sort-bys";
+
+  private Constants() {}
 }

@@ -18,6 +18,8 @@ import org.apache.commons.lang.StringUtils;
 
 public class WfsQnameBuilder {
 
+  private WfsQnameBuilder() {}
+
   public static QName buildQName(String metacardTypeName, String contentTypeName) {
     if (StringUtils.isEmpty(metacardTypeName) || StringUtils.isEmpty(contentTypeName)) {
       return null;

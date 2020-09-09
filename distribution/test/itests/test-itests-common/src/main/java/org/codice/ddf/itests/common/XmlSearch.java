@@ -36,6 +36,8 @@ import javax.xml.xpath.XPathFactory;
  */
 public class XmlSearch {
 
+  private XmlSearch() {}
+
   /**
    * @param xPathExpression string representation of an XPath expression
    * @param xml string representation of an XML document

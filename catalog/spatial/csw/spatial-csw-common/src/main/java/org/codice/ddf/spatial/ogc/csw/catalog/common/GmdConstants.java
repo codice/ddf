@@ -276,6 +276,8 @@ public class GmdConstants {
     GMD_TYPE_QNAME = createGMDQName(GMD_TYPE);
   }
 
+  private GmdConstants() {}
+
   private static QName createGMDQName(final String field) {
     return new QName(GMD_NAMESPACE, field, GMD_PREFIX);
   }

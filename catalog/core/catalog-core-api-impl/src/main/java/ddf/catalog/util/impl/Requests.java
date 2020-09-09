@@ -20,6 +20,9 @@ import java.util.Map;
 
 /** Class for static request helper method */
 public class Requests {
+
+  private Requests() {}
+
   /**
    * Returns true if this request will be run on a remote catalog. This does not mean that this same
    * request will not be run on the local catalog. Implementation requires the catalog framework to
