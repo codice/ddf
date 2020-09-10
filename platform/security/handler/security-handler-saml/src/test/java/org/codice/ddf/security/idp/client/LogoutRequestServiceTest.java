@@ -15,6 +15,7 @@ package org.codice.ddf.security.idp.client;
 
 import static org.codice.ddf.security.idp.client.LogoutRequestService.UNABLE_TO_PARSE_LOGOUT_REQUEST;
 import static org.codice.ddf.security.idp.client.LogoutRequestService.UNABLE_TO_VALIDATE_LOGOUT_REQUEST;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -81,19 +82,18 @@ import org.xml.sax.SAXException;
 
 public class LogoutRequestServiceTest {
 
-  public static final String UNENCODED_SAML_RESPONSE = "TEST-SAML-RESPONSE";
-  public static final String UNENCODED_SAML_REQUEST = "TEST-SAML-REQUEST";
-  public static final String SIGNATURE = "signature";
-  public static final String SIGNATURE_ALGORITHM = "sha1";
+  private static final String UNENCODED_SAML_RESPONSE = "TEST-SAML-RESPONSE";
+  private static final String UNENCODED_SAML_REQUEST = "TEST-SAML-REQUEST";
+  private static final String SIGNATURE = "signature";
+  private static final String SIGNATURE_ALGORITHM = "sha1";
   private static final long LOGOUT_PAGE_TIMEOUT = TimeUnit.HOURS.toMillis(1);
   private static final String SESSION_INDEX = "123";
   private static final String ID = "TEST-ID";
   private LogoutRequestService logoutRequestService;
-  private String nameId = "nameId";
-  private Long time = System.currentTimeMillis();
-  private String logoutUrl = "https://www.logout.url/logout";
-  private String redirectLogoutUrl = "https://www.redirectlogout.location.com/logout";
-  private String postLogoutUrl = "https://www.postlogout.location.com/logout";
+  private final String nameId = "nameId";
+  private final Long time = System.currentTimeMillis();
+  private final String redirectLogoutUrl = "https://www.redirectlogout.location.com/logout";
+  private final String postLogoutUrl = "https://www.postlogout.location.com/logout";
   private RelayStates<String> relayStates;
   private SessionFactory sessionFactory;
   private HttpServletRequest request;
@@ -101,9 +101,7 @@ public class LogoutRequestServiceTest {
   private EncryptionService encryptionService;
   private IdpMetadata idpMetadata;
   private SimpleSign simpleSign;
-  private HttpSession session;
-  private PrincipalHolder principalHolder;
-  private String relayState = UUID.randomUUID().toString();
+  private final String relayState = UUID.randomUUID().toString();
 
   public static Document readSamlAssertion()
       throws SAXException, IOException, ParserConfigurationException {
@@ -137,15 +135,15 @@ public class LogoutRequestServiceTest {
     doReturn(UUID.randomUUID().toString()).when(uuidGenerator).generateUuid();
     doReturn(uuidGenerator).when(logoutMessage).getUuidGenerator();
     encryptionService = mock(EncryptionService.class);
-    session = mock(HttpSession.class);
-    principalHolder = mock(PrincipalHolder.class);
     Element issuedAssertion = readSamlAssertion().getDocumentElement();
     SimplePrincipalCollection principalCollection = new SimplePrincipalCollection();
     SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
     principalCollection.add(securityAssertion, "default");
     when(securityAssertion.getToken()).thenReturn(issuedAssertion);
+    PrincipalHolder principalHolder = mock(PrincipalHolder.class);
     when(principalHolder.getPrincipals()).thenReturn(principalCollection);
-    initializeLogutRequestService();
+    initializeLogoutRequestService();
+    HttpSession session = mock(HttpSession.class);
     when(sessionFactory.getOrCreateSession(request)).thenReturn(session);
     when(session.getAttribute(eq(SecurityConstants.SECURITY_TOKEN_KEY)))
         .thenReturn(principalHolder);
@@ -156,11 +154,10 @@ public class LogoutRequestServiceTest {
     System.setProperty("security.audit.roles", "none");
   }
 
-  private void initializeLogutRequestService() {
+  private void initializeLogoutRequestService() {
     logoutRequestService = new LogoutRequestService(simpleSign, idpMetadata, relayStates);
     logoutRequestService.setEncryptionService(encryptionService);
     logoutRequestService.setLogOutPageTimeOut(LOGOUT_PAGE_TIMEOUT);
-    logoutRequestService.setLogoutMessage(logoutMessage);
     logoutRequestService.setRequest(request);
     logoutRequestService.setSessionFactory(sessionFactory);
     logoutRequestService.setSamlSecurity(new SamlSecurity());
@@ -175,8 +172,10 @@ public class LogoutRequestServiceTest {
     LogoutWrapper<LogoutRequest> requestLogoutWrapper = new LogoutWrapperImpl<>(logoutRequest);
     when(logoutMessage.buildLogoutRequest(eq(nameId), anyString(), anyList()))
         .thenReturn(requestLogoutWrapper);
+    String logoutUrl = "https://www.logout.url/logout";
     when(logoutMessage.signSamlGetRequest(any(LogoutWrapper.class), any(URI.class), anyString()))
         .thenReturn(new URI(logoutUrl));
+    logoutRequestService.setLogoutMessage(logoutMessage);
     when(relayStates.encode(nameId)).thenReturn("token");
     Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
     assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -185,7 +184,7 @@ public class LogoutRequestServiceTest {
   }
 
   @Test
-  public void testSendLogoutRequestGetPostRequest() throws Exception {
+  public void testSendLogoutRequestGetPostRequest() {
     String encryptedNameIdWithTime = nameId + "\n" + time;
     when(encryptionService.decrypt(any(String.class))).thenReturn(nameId + "\n" + time);
     when(idpMetadata.getSingleLogoutBinding()).thenReturn(SamlProtocol.POST_BINDING);
@@ -194,6 +193,7 @@ public class LogoutRequestServiceTest {
     LogoutWrapper<LogoutRequest> requestLogoutWrapper = new LogoutWrapperImpl<>(logoutRequest);
     when(logoutMessage.buildLogoutRequest(eq(nameId), anyString(), anyList()))
         .thenReturn(requestLogoutWrapper);
+    logoutRequestService.setLogoutMessage(logoutMessage);
     Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
     assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     assertTrue(
@@ -202,10 +202,11 @@ public class LogoutRequestServiceTest {
   }
 
   @Test
-  public void testSendLogoutRequestTimeout() throws Exception {
-    Long badTime = (time - TimeUnit.DAYS.toMillis(1));
+  public void testSendLogoutRequestTimeout() {
+    long badTime = (time - TimeUnit.DAYS.toMillis(1));
     String encryptedNameIdWithTime = nameId + "\n" + badTime;
     when(encryptionService.decrypt(any(String.class))).thenReturn(nameId + "\n" + badTime);
+    logoutRequestService.setLogoutMessage(logoutMessage);
     Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
     assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
     String msg =
@@ -226,6 +227,7 @@ public class LogoutRequestServiceTest {
     SessionIndex sessionIndex = mock(SessionIndex.class);
     when(sessionIndex.getSessionIndex()).thenReturn(SESSION_INDEX);
     when(logoutRequest.getSessionIndexes()).thenReturn(Collections.singletonList(sessionIndex));
+    logoutRequestService.setLogoutMessage(logoutMessage);
     Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
     assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
     insertLogoutRequest();
@@ -235,11 +237,12 @@ public class LogoutRequestServiceTest {
   }
 
   @Test
-  public void testSendLogoutRequestNoSupportedBindings() throws Exception {
+  public void testSendLogoutRequestNoSupportedBindings() {
     String encryptedNameIdWithTime = nameId + "\n" + time;
     when(encryptionService.decrypt(any(String.class))).thenReturn(nameId + "\n" + time);
     when(idpMetadata.getSingleLogoutBinding())
         .thenReturn("urn:oasis:names:tc:SAML:2.0:bindings:SOAP");
+    logoutRequestService.setLogoutMessage(logoutMessage);
     Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
     assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
     String msg =
@@ -250,7 +253,17 @@ public class LogoutRequestServiceTest {
   }
 
   @Test
-  public void getPostLogoutRequest() throws Exception {
+  public void testSendLogoutRequestNullLogoutMessage() {
+    final String encryptedNameIdTime = nameId + "\n" + time;
+    when(encryptionService.decrypt(any(String.class))).thenReturn(encryptedNameIdTime);
+    final Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdTime);
+    assertThat(response.getStatus(), is(Response.Status.SEE_OTHER.getStatusCode()));
+    final String msg = "Failed to create logout request".replaceAll(" ", "+");
+    assertThat(response.getLocation().getQuery(), containsString(msg));
+  }
+
+  @Test
+  public void testPostLogoutRequest() throws Exception {
     String encodedSamlRequest = "encodedSamlRequest";
     String issuerStr = "issuer";
     LogoutRequest logoutRequest = mock(LogoutRequest.class);
@@ -272,6 +285,7 @@ public class LogoutRequestServiceTest {
     LogoutWrapper<LogoutResponse> responseLogoutWrapper = new LogoutWrapperImpl<>(logoutResponse);
     when(logoutMessage.buildLogoutResponse(eq(issuerStr), eq(StatusCode.SUCCESS), anyString()))
         .thenReturn(responseLogoutWrapper);
+    logoutRequestService.setLogoutMessage(logoutMessage);
     when(idpMetadata.getSingleLogoutBinding()).thenReturn(SamlProtocol.POST_BINDING);
     when(idpMetadata.getSingleLogoutLocation()).thenReturn(postLogoutUrl);
     Response response =
@@ -283,9 +297,10 @@ public class LogoutRequestServiceTest {
   }
 
   @Test
-  public void soapLogoutRequestIssueInstantOld() throws Exception {
+  public void testSoapLogoutRequestIssueInstantOld() {
     HttpSessionInvalidator httpSessionInvalidator = mock(HttpSessionInvalidator.class);
     logoutRequestService.setHttpSessionInvalidator(httpSessionInvalidator);
+    logoutRequestService.setLogoutMessage(logoutMessage);
 
     InputStream requestStream =
         LogoutRequestServiceTest.class.getResourceAsStream("/SAMLSoapLogoutRequest-good.xml");
@@ -295,7 +310,7 @@ public class LogoutRequestServiceTest {
   }
 
   @Test
-  public void soapLogoutRequestBadSignature() throws Exception {
+  public void testSoapLogoutRequestBadSignature() throws Exception {
     HttpSessionInvalidator httpSessionInvalidator = mock(HttpSessionInvalidator.class);
     logoutRequestService.setHttpSessionInvalidator(httpSessionInvalidator);
 
@@ -305,6 +320,7 @@ public class LogoutRequestServiceTest {
     doReturn(logoutResponseWrapper)
         .when(logoutMessage)
         .buildLogoutResponse(anyString(), anyString(), anyString());
+    logoutRequestService.setLogoutMessage(logoutMessage);
     doThrow(SignatureException.class)
         .when(simpleSign)
         .validateSignature(any(Signature.class), any(Document.class));
@@ -317,15 +333,24 @@ public class LogoutRequestServiceTest {
   }
 
   @Test
-  public void soapLogoutRequestNotALogout() throws Exception {
+  public void testSoapLogoutRequestNotALogout() {
     HttpSessionInvalidator httpSessionInvalidator = mock(HttpSessionInvalidator.class);
     logoutRequestService.setHttpSessionInvalidator(httpSessionInvalidator);
+    logoutRequestService.setLogoutMessage(logoutMessage);
 
     InputStream requestStream =
         LogoutRequestServiceTest.class.getResourceAsStream("/SAMLSoapLogoutRequest-bad.xml");
     Response response = logoutRequestService.soapLogoutRequest(requestStream, null);
     assertThat(response.getStatus(), is(Status.INTERNAL_SERVER_ERROR.getStatusCode()));
     verify(httpSessionInvalidator, times(0)).invalidateSession(anyString(), any());
+  }
+
+  @Test
+  public void testSoapLogoutRequestNullLogoutMessage() {
+    final InputStream requestStream =
+        LogoutRequestServiceTest.class.getResourceAsStream("/SAMLSoapLogoutRequest-good.xml");
+    final Response response = logoutRequestService.soapLogoutRequest(requestStream, null);
+    assertThat(response.getStatus(), is(Status.INTERNAL_SERVER_ERROR.getStatusCode()));
   }
 
   @Test
@@ -337,6 +362,7 @@ public class LogoutRequestServiceTest {
     when(sessionIndex.getSessionIndex()).thenReturn(SESSION_INDEX);
     when(logoutRequest.getSessionIndexes()).thenReturn(Collections.singletonList(sessionIndex));
     insertLogoutRequest();
+    logoutRequestService.setLogoutMessage(logoutMessage);
     Response response =
         logoutRequestService.postLogoutRequest(encodedSamlRequest, null, relayState);
     assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
@@ -355,6 +381,7 @@ public class LogoutRequestServiceTest {
     LogoutWrapper<LogoutResponse> responseLogoutWrapper = new LogoutWrapperImpl<>(logoutResponse);
     when(logoutMessage.extractSamlLogoutResponse(any(String.class)))
         .thenReturn(responseLogoutWrapper);
+    logoutRequestService.setLogoutMessage(logoutMessage);
     when(logoutResponse.getIssuer()).thenReturn(issuer);
     when(logoutResponse.getIssueInstant()).thenReturn(new DateTime());
     when(logoutResponse.getVersion()).thenReturn(SAMLVersion.VERSION_20);
@@ -379,6 +406,7 @@ public class LogoutRequestServiceTest {
     when(logoutRequest.getSessionIndexes()).thenReturn(Collections.singletonList(sessionIndex));
     String encodedSamlResponse = "encodedSamlRequest";
     when(logoutMessage.extractSamlLogoutResponse(any(String.class))).thenReturn(null);
+    logoutRequestService.setLogoutMessage(logoutMessage);
     insertLogoutRequest();
     Response response =
         logoutRequestService.postLogoutRequest(null, encodedSamlResponse, relayState);
@@ -393,7 +421,7 @@ public class LogoutRequestServiceTest {
     SamlSecurity samlSecurity = new SamlSecurity();
     String deflatedSamlRequest = samlSecurity.deflateAndBase64Encode(UNENCODED_SAML_REQUEST);
     doReturn(true).when(simpleSign).validateSignature(anyString(), anyString(), anyString(), any());
-    initializeLogutRequestService();
+    initializeLogoutRequestService();
     insertLogoutRequest();
     LogoutResponse logoutResponse = mock(LogoutResponse.class);
     LogoutWrapper<LogoutResponse> responseLogoutWrapper = new LogoutWrapperImpl<>(logoutResponse);
@@ -401,6 +429,7 @@ public class LogoutRequestServiceTest {
         .thenReturn(responseLogoutWrapper);
     when(logoutMessage.signSamlGetResponse(any(LogoutWrapper.class), any(URI.class), anyString()))
         .thenReturn(new URI(redirectLogoutUrl));
+    logoutRequestService.setLogoutMessage(logoutMessage);
     Response response =
         logoutRequestService.getLogoutRequest(
             deflatedSamlRequest, null, relayState, SIGNATURE_ALGORITHM, SIGNATURE);
@@ -430,6 +459,7 @@ public class LogoutRequestServiceTest {
     SamlSecurity samlSecurity = new SamlSecurity();
     String deflatedSamlRequest = samlSecurity.deflateAndBase64Encode(UNENCODED_SAML_REQUEST);
     when(logoutMessage.extractSamlLogoutRequest(eq(UNENCODED_SAML_REQUEST))).thenReturn(null);
+    logoutRequestService.setLogoutMessage(logoutMessage);
     Response response =
         logoutRequestService.getLogoutRequest(
             deflatedSamlRequest, null, relayState, SIGNATURE_ALGORITHM, SIGNATURE);
@@ -447,6 +477,7 @@ public class LogoutRequestServiceTest {
     LogoutWrapper<LogoutRequest> requestLogoutWrapper = new LogoutWrapperImpl<>(logoutRequest);
     when(logoutMessage.extractSamlLogoutRequest(eq(UNENCODED_SAML_REQUEST)))
         .thenReturn(requestLogoutWrapper);
+    logoutRequestService.setLogoutMessage(logoutMessage);
 
     LogoutRequestService lrs = new LogoutRequestService(simpleSign, idpMetadata, relayStates);
 
@@ -481,6 +512,7 @@ public class LogoutRequestServiceTest {
     LogoutWrapper<LogoutResponse> responseLogoutWrapper = new LogoutWrapperImpl<>(logoutResponse);
     when(logoutMessage.extractSamlLogoutResponse(eq(UNENCODED_SAML_RESPONSE)))
         .thenReturn(responseLogoutWrapper);
+    logoutRequestService.setLogoutMessage(logoutMessage);
 
     doReturn(true)
         .when(simpleSign)
@@ -488,7 +520,7 @@ public class LogoutRequestServiceTest {
     Response response =
         logoutRequestService.getLogoutRequest(
             null, deflatedSamlResponse, relayState, SIGNATURE_ALGORITHM, SIGNATURE);
-    initializeLogutRequestService();
+    initializeLogoutRequestService();
     assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
     assertTrue(
         "Expected a successful logout message",
@@ -501,6 +533,7 @@ public class LogoutRequestServiceTest {
     SamlSecurity samlSecurity = new SamlSecurity();
     String deflatedSamlResponse = samlSecurity.deflateAndBase64Encode(UNENCODED_SAML_RESPONSE);
     when(logoutMessage.extractSamlLogoutResponse(eq(UNENCODED_SAML_RESPONSE))).thenReturn(null);
+    logoutRequestService.setLogoutMessage(logoutMessage);
     insertLogoutRequest();
     Response response =
         logoutRequestService.getLogoutRequest(
@@ -516,7 +549,7 @@ public class LogoutRequestServiceTest {
     SamlSecurity samlSecurity = new SamlSecurity();
     String deflatedSamlRequest = samlSecurity.deflateAndBase64Encode(UNENCODED_SAML_REQUEST);
     doReturn(true).when(simpleSign).validateSignature(anyString(), anyString(), anyString(), any());
-    initializeLogutRequestService();
+    initializeLogoutRequestService();
     LogoutRequest logoutRequest = mock(LogoutRequest.class);
     LogoutWrapper logoutRequestWrapper = mock(LogoutWrapper.class);
     doReturn(logoutRequest).when(logoutRequestWrapper).getMessage();
@@ -536,6 +569,7 @@ public class LogoutRequestServiceTest {
         .thenReturn(responseLogoutWrapper);
     when(logoutMessage.signSamlGetResponse(any(LogoutWrapper.class), any(URI.class), anyString()))
         .thenReturn(new URI(redirectLogoutUrl));
+    logoutRequestService.setLogoutMessage(logoutMessage);
     Response response =
         logoutRequestService.getLogoutRequest(
             deflatedSamlRequest, null, relayState, SIGNATURE_ALGORITHM, SIGNATURE);
@@ -553,6 +587,7 @@ public class LogoutRequestServiceTest {
     LogoutWrapper<LogoutResponse> responseLogoutWrapper = new LogoutWrapperImpl<>(logoutResponse);
     when(logoutMessage.extractSamlLogoutResponse(eq(UNENCODED_SAML_RESPONSE)))
         .thenReturn(responseLogoutWrapper);
+    logoutRequestService.setLogoutMessage(logoutMessage);
 
     LogoutRequestService lrs = new LogoutRequestService(simpleSign, idpMetadata, relayStates);
 
