@@ -139,8 +139,8 @@ public class PptxInputTransformer implements InputTransformer {
    *
    * <p>Because Apache POI dynamically loads the classes needed to handle a PPTX file, the default
    * class loader is unable to find the dependencies during runtime. Therefore, the original class
-   * loader is saved, then current class loader is set to this class's class loader, and finally the
-   * original class loader is restored.
+   * loader is saved, then the current classloader is set to the classloader of the bundle which
+   * exports the POI classes and, before returning, the original classloader is restored.
    *
    * @param metacard
    * @param input
@@ -150,7 +150,8 @@ public class PptxInputTransformer implements InputTransformer {
   private void extractThumbnail(Metacard metacard, InputStream input) throws IOException {
 
     ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
-    Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+    // This class is arbitrary. It just needs to be part of the bundle exporting POI classes
+    Thread.currentThread().setContextClassLoader(SlideShowFactory.class.getClassLoader());
     try (SlideShow<?, ?> genericSlideShow = SlideShowFactory.create(input)) {
 
       if (genericSlideShow instanceof XMLSlideShow) {
