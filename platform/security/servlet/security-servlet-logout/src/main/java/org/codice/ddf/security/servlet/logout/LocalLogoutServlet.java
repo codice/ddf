@@ -19,7 +19,6 @@ import ddf.security.common.PrincipalHolder;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -37,14 +36,23 @@ import org.slf4j.LoggerFactory;
 public class LocalLogoutServlet extends HttpServlet {
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalLogoutServlet.class);
 
-  private TokenStorage tokenStorage;
-  private String redirectUri;
+  private final TokenStorage tokenStorage;
 
-  private SecurityLogger securityLogger;
+  private final String redirectUri;
+
+  private final SecurityLogger securityLogger;
+
+  public LocalLogoutServlet(
+      final TokenStorage tokenStorage,
+      final String redirectUri,
+      final SecurityLogger securityLogger) {
+    this.tokenStorage = tokenStorage;
+    this.redirectUri = redirectUri;
+    this.securityLogger = securityLogger;
+  }
 
   @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException {
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) {
     response.setHeader("Cache-Control", "no-cache, no-store");
     response.setHeader("Pragma", "no-cache");
     response.setContentType("text/html");
@@ -102,17 +110,5 @@ public class LocalLogoutServlet extends HttpServlet {
   /** Removes OAuth tokens stored for the given session */
   private void removeTokens(String sessionId) {
     tokenStorage.delete(sessionId);
-  }
-
-  public void setTokenStorage(TokenStorage tokenStorage) {
-    this.tokenStorage = tokenStorage;
-  }
-
-  public void setRedirectUri(String redirectUri) {
-    this.redirectUri = redirectUri;
-  }
-
-  public void setSecurityLogger(SecurityLogger securityLogger) {
-    this.securityLogger = securityLogger;
   }
 }
