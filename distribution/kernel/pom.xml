@@ -154,6 +154,15 @@
                                         jakarta.annotation-api-${javax.annotation-api.version}.jar
                                     </destFileName>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.google.code.findbugs</groupId>
+                                    <artifactId>jsr305</artifactId>
+                                    <version>${jsr305.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>
+                                        jsr305-${jsr305.version}.jar
+                                    </destFileName>
+                                </artifactItem>
                                 <!-- Crypter dependencies -->
                                 <artifactItem>
                                     <groupId>com.google.crypto.tink</groupId>

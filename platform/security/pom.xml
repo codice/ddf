@@ -36,11 +36,6 @@
                 <version>${validation.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>ddf.platform</groupId>
                 <artifactId>platform-configuration</artifactId>
                 <version>${project.version}</version>
