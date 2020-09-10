@@ -76,15 +76,24 @@
             <artifactId>org.apache.karaf.shell.console</artifactId>
             <version>${karaf.version}</version>
         </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>net.jodah</groupId>
-        <artifactId>failsafe</artifactId>
-        <version>${jodah-failsafe.version}</version>
-      </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>failsafe</artifactId>
+            <version>${jodah-failsafe.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commands</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
 
       <!-- no-op slf4j impl so the tests expected exceptions don't puke to the logs -->
       <dependency>
