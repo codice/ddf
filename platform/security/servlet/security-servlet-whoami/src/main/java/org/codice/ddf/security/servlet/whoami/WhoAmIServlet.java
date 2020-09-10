@@ -41,7 +41,11 @@ public class WhoAmIServlet extends HttpServlet {
           .serializeNulls()
           .create();
 
-  private SubjectOperations subjectOperations;
+  private final SubjectOperations subjectOperations;
+
+  public WhoAmIServlet(final SubjectOperations subjectOperations) {
+    this.subjectOperations = subjectOperations;
+  }
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
@@ -60,9 +64,5 @@ public class WhoAmIServlet extends HttpServlet {
     } catch (IOException ex) {
       LOGGER.debug("Unable to write to response for /whoami", ex);
     }
-  }
-
-  public void setSubjectOperations(SubjectOperations subjectOperations) {
-    this.subjectOperations = subjectOperations;
   }
 }
