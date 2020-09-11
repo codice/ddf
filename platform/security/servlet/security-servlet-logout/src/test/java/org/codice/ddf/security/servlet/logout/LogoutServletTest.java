@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.security.servlet.logout;
 
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -28,7 +27,6 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -51,15 +49,11 @@ public class LogoutServletTest {
 
   @Before
   public void testsetup() throws Exception {
-    localLogoutServlet = new MockLocalLogoutServlet();
-    localLogoutServlet.setSecurityLogger(mock(SecurityLogger.class));
-    localLogoutServlet.setRedirectUri("/logout");
+    localLogoutServlet =
+        new MockLocalLogoutServlet(mock(TokenStorage.class), "/logout", mock(SecurityLogger.class));
     request = mock(HttpServletRequest.class);
     response = mock(HttpServletResponse.class);
     printWriter = mock(PrintWriter.class);
-
-    TokenStorage tokenStorage = mock(TokenStorage.class);
-    localLogoutServlet.setTokenStorage(tokenStorage);
 
     httpSession = mock(HttpSession.class);
     when(request.getSession()).thenReturn(httpSession);
@@ -79,11 +73,9 @@ public class LogoutServletTest {
     PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(principalHolderMock);
-    try {
-      localLogoutServlet.doGet(request, response);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
+
+    localLogoutServlet.doGet(request, response);
+
     verify(httpSession).invalidate();
     verify(response).sendRedirect("https://localhost:8993/logout?mustCloseBrowser=true");
   }
@@ -102,11 +94,9 @@ public class LogoutServletTest {
     PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(principalHolderMock);
-    try {
-      localLogoutServlet.doGet(request, response);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
+
+    localLogoutServlet.doGet(request, response);
+
     verify(httpSession).invalidate();
   }
 
@@ -124,17 +114,23 @@ public class LogoutServletTest {
     PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(principalHolderMock);
-    try {
-      localLogoutServlet.doGet(request, response);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
+
+    localLogoutServlet.doGet(request, response);
+
     verify(httpSession).invalidate();
   }
 
   // Since the servlet context is only set properly during startup, this mocks out the servlet
   // context to avoid an exception during redirect
   private class MockLocalLogoutServlet extends LocalLogoutServlet {
+
+    public MockLocalLogoutServlet(
+        final TokenStorage tokenStorage,
+        final String redirectUri,
+        final SecurityLogger securityLogger) {
+      super(tokenStorage, redirectUri, securityLogger);
+    }
+
     @Override
     public ServletContext getServletContext() {
       ServletContext servletContext = mock(ServletContext.class);

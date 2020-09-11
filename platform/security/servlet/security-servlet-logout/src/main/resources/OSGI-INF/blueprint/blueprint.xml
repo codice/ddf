@@ -19,9 +19,7 @@
     <reference-list id="logoutActionProvidersList" interface="ddf.action.ActionProvider"
                     filter="(id=security.logout.*)" availability="optional"/>
 
-    <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
-
-    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
+    <reference id="subjectOperations" interface="ddf.security.SubjectOperations"/>
 
     <bean id="logoutService" class="org.codice.ddf.security.servlet.logout.LogoutServiceImpl">
         <cm:managed-properties
@@ -32,26 +30,27 @@
         <property name="httpSessionFactory">
             <reference interface="ddf.security.http.SessionFactory" filter="(id=http)"/>
         </property>
-        <property name="subjectOperations" ref="subjectOperations" />
+        <property name="subjectOperations" ref="subjectOperations"/>
     </bean>
 
     <service ref="logoutService" interface="org.codice.ddf.security.logout.service.LogoutService"/>
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
-    <reference id="tokenStorage" interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
-
-    <bean id="logoutServlet" class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet">
-        <property name="tokenStorage" ref="tokenStorage"/>
-        <property name="redirectUri" value="/logout/logout-response.html"/>
-        <property name="securityLogger" ref="securityLogger"/>
-    </bean>
-
-    <service ref="logoutServlet" interface="javax.servlet.Servlet">
+    <service interface="javax.servlet.Servlet">
         <service-properties>
             <entry key="alias" value="/logout/local"/>
             <entry key="async-supported" value="true"/>
         </service-properties>
+        <bean class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet">
+            <argument>
+                <reference interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
+            </argument>
+            <argument value="/logout/logout-response.html"/>
+            <argument>
+                <reference interface="ddf.security.audit.SecurityLogger"/>
+            </argument>
+        </bean>
     </service>
 
 </blueprint>

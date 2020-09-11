@@ -26,8 +26,7 @@ class WhoAmIServletSpec extends SubjectSpec {
     WhoAmIServlet whoAmIServlet
 
     def setup() {
-        whoAmIServlet = new WhoAmIServlet()
-        whoAmIServlet.setSubjectOperations(new SubjectUtils())
+        whoAmIServlet = new WhoAmIServlet(new SubjectUtils())
 
         def securityManager = Mock(SecurityManager)
         securityManager.getSubject(_) >> mockSubject()
