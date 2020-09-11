@@ -905,10 +905,15 @@ public class DynamicSchemaResolver implements ConfigurationListener {
   }
 
   String getSortKey(String field) {
-    if (field.endsWith(SchemaFields.GEO_SUFFIX)) {
+    if (field.endsWith(SchemaFields.GEO_SUFFIX)
+        || (field.endsWith(SchemaFields.TEXT_SUFFIX) && caseInsensitiveSort())) {
       field = field + SchemaFields.SORT_SUFFIX;
     }
     return field;
+  }
+
+  private boolean caseInsensitiveSort() {
+    return "true".equals(System.getProperty("solr.sort.case-insensitive"));
   }
 
   Stream<String> anyTextFields() {
