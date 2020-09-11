@@ -346,15 +346,16 @@ public class LogoutRequestServiceTest {
   }
 
   @Test
-  public void testSoapLogoutRequestNullLogoutMessage() {
-    final InputStream requestStream =
-        LogoutRequestServiceTest.class.getResourceAsStream("/SAMLSoapLogoutRequest-good.xml");
-    final Response response = logoutRequestService.soapLogoutRequest(requestStream, null);
-    assertThat(response.getStatus(), is(Status.INTERNAL_SERVER_ERROR.getStatusCode()));
+  public void testSoapLogoutRequestNullLogoutMessage() throws Exception {
+    try (final InputStream requestStream =
+            LogoutRequestServiceTest.class.getResourceAsStream("/SAMLSoapLogoutRequest-good.xml");
+        final Response response = logoutRequestService.soapLogoutRequest(requestStream, null)) {
+      assertThat(response.getStatus(), is(Status.INTERNAL_SERVER_ERROR.getStatusCode()));
+    }
   }
 
   @Test
-  public void getPostLogoutRequestNotParsable() throws Exception {
+  public void testPostLogoutRequestNotParsable() throws Exception {
     String encodedSamlRequest = "encodedSamlRequest";
     LogoutRequest logoutRequest = mock(LogoutRequest.class);
     when(logoutRequest.getIssueInstant()).thenReturn(DateTime.now());
@@ -369,6 +370,15 @@ public class LogoutRequestServiceTest {
     String msg = UNABLE_TO_PARSE_LOGOUT_REQUEST.replaceAll(" ", "+");
     assertTrue(
         "Expected message containing " + msg, response.getLocation().getQuery().contains(msg));
+  }
+
+  @Test
+  public void testPostLogoutRequestNullRequestAndResponse() {
+    logoutRequestService.setLogoutMessage(logoutMessage);
+    try (final Response response = logoutRequestService.postLogoutRequest(null, null, relayState)) {
+      assertThat(response.getStatus(), is(Status.INTERNAL_SERVER_ERROR.getStatusCode()));
+      assertThat(response.getEntity().toString(), containsString("System cannot decode request."));
+    }
   }
 
   @Test

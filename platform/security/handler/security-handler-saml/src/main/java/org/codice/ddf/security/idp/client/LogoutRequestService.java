@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -101,6 +102,7 @@ public class LogoutRequestService {
       "Unable to decode and inflate logout response.";
   public static final String UNABLE_TO_DECRYPT_LOGOUT_REQUEST =
       "Failed to decrypt logout request params. Invalid number of params";
+  private static final String SYSTEM_CANNOT_DECODE_REQUEST = "System cannot decode request.";
   public static final String UNABLE_TO_PARSE_LOGOUT_REQUEST = "Unable to parse logout request";
   public static final String UNABLE_TO_PARSE_LOGOUT_RESPONSE = "Unable to parse logout response";
   public static final String UNABLE_TO_SIGN_LOGOUT_RESPONSE = "Failed to sign logout response";
@@ -132,7 +134,7 @@ public class LogoutRequestService {
 
   @Context private HttpServletRequest request;
 
-  private LogoutMessage logoutMessage;
+  @Nullable private LogoutMessage logoutMessage;
 
   private String submitForm;
 
@@ -144,7 +146,7 @@ public class LogoutRequestService {
 
   private long logOutPageTimeOut = 3600000;
 
-  private SamlSecurity samlSecurity;
+  @Nullable private SamlSecurity samlSecurity;
 
   private SubjectOperations subjectOperations;
 
@@ -387,12 +389,12 @@ public class LogoutRequestService {
   @POST
   @Produces(MediaType.APPLICATION_FORM_URLENCODED)
   public Response postLogoutRequest(
-      @FormParam(SAML_REQUEST) String encodedSamlRequest,
-      @FormParam(SAML_RESPONSE) String encodedSamlResponse,
+      @FormParam(SAML_REQUEST) @Nullable String encodedSamlRequest,
+      @FormParam(SAML_RESPONSE) @Nullable String encodedSamlResponse,
       @FormParam(RELAY_STATE) String relayState) {
 
     if (samlSecurity == null || logoutMessage == null) {
-      return Response.serverError().entity("System cannot decode request.").build();
+      return Response.serverError().entity(SYSTEM_CANNOT_DECODE_REQUEST).build();
     }
 
     if (encodedSamlRequest != null) {
@@ -424,6 +426,10 @@ public class LogoutRequestService {
         LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_REQUEST, e);
         return buildLogoutResponse(UNABLE_TO_VALIDATE_LOGOUT_REQUEST);
       }
+    }
+
+    if (encodedSamlResponse == null) {
+      return Response.serverError().entity(SYSTEM_CANNOT_DECODE_REQUEST).build();
     }
 
     try {
@@ -458,7 +464,7 @@ public class LogoutRequestService {
       @QueryParam(SIGNATURE) String signature) {
 
     if (samlSecurity == null || logoutMessage == null) {
-      return Response.serverError().entity("System cannot decode request.").build();
+      return Response.serverError().entity(SYSTEM_CANNOT_DECODE_REQUEST).build();
     }
 
     if (deflatedSamlRequest != null) {
