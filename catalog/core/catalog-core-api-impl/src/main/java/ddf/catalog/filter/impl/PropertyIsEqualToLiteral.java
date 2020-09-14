@@ -41,26 +41,31 @@ public class PropertyIsEqualToLiteral implements PropertyIsEqualTo {
     this.literal = literal;
   }
 
+  @Override
   @XmlElement("expression")
   public Expression getExpression1() {
     return propertyName;
   }
 
+  @Override
   @XmlElement("expression")
   public Expression getExpression2() {
     return literal;
   }
 
+  @Override
   @XmlElement("matchCase")
   public boolean isMatchingCase() {
     return true;
   }
 
+  @Override
   @XmlElement("matchAction")
   public MatchAction getMatchAction() {
     return MatchAction.ANY;
   }
 
+  @Override
   public boolean evaluate(Object object) {
     if (object == null || literal == null || literal.getValue() == null) {
       return false;
@@ -73,6 +78,7 @@ public class PropertyIsEqualToLiteral implements PropertyIsEqualTo {
     return false;
   }
 
+  @Override
   public Object accept(FilterVisitor visitor, Object extraData) {
     return visitor.visit(this, extraData);
   }

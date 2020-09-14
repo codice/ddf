@@ -38,6 +38,7 @@ public class ContentTypePredicate implements Predicate {
     }
   }
 
+  @Override
   public boolean matches(Event properties) {
     LOGGER.debug("ENTERING: matches");
 

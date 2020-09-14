@@ -1013,6 +1013,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     this.parameters = parameters;
   }
 
+  @Override
   public String getAuthenticationType() {
     return authenticationType;
   }
@@ -1040,6 +1041,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     updateFactory();
   }
 
+  @Override
   public String getOauthDiscoveryUrl() {
     return oauthDiscoveryUrl;
   }
@@ -1049,6 +1051,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     updateFactory();
   }
 
+  @Override
   public String getOauthClientId() {
     return oauthClientId;
   }
@@ -1058,6 +1061,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     updateFactory();
   }
 
+  @Override
   public String getOauthClientSecret() {
     return oauthClientSecret;
   }
@@ -1067,6 +1071,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     updateFactory();
   }
 
+  @Override
   public String getOauthFlow() {
     return oauthFlow;
   }

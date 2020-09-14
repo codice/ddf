@@ -58,6 +58,7 @@ public class BodyWriter extends AbstractOutDatabindingInterceptor {
     super(Phase.WRITE);
   }
 
+  @Override
   public void handleMessage(Message outMessage) throws Fault {
 
     MessageContentsList objs = MessageContentsList.getContentsList(outMessage);

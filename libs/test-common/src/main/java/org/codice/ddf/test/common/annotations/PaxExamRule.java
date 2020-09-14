@@ -77,6 +77,7 @@ public class PaxExamRule implements TestRule {
     this.testInstance = testInstance;
   }
 
+  @Override
   public Statement apply(final Statement base, final Description description) {
     return new Statement() {
       @Override

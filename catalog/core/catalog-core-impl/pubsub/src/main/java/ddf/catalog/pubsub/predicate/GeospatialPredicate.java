@@ -75,6 +75,7 @@ public class GeospatialPredicate implements Predicate {
     return hasCriteria && !geoCriteria.isEmpty();
   }
 
+  @Override
   public boolean matches(Event properties) {
     Metacard entry = (Metacard) properties.getProperty(PubSubConstants.HEADER_ENTRY_KEY);
 

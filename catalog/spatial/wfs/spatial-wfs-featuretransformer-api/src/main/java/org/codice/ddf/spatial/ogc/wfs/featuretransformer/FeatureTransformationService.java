@@ -34,5 +34,6 @@ public interface FeatureTransformationService
    * @return a {@link WfsFeatureCollection} representing a response to either a 'hits' or 'results'
    *     request.
    */
+  @Override
   WfsFeatureCollection apply(InputStream featureCollection, WfsMetadata metadata);
 }

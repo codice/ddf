@@ -59,6 +59,7 @@ public class BinaryContentImpl implements BinaryContent {
    *
    * @see ddf.catalog.Resource#getInputStream()
    */
+  @Override
   public InputStream getInputStream() {
     return inputStream;
   }

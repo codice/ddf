@@ -112,6 +112,7 @@ public class OAuthSecurityImpl implements OAuthSecurity {
    * @param subject subject used to get the session ID
    * @param sourceId the id of the source using OAuth needed to get the correct tokens
    */
+  @Override
   public void setUserTokenOnClient(Client client, Subject subject, String sourceId) {
     if (client == null || subject == null || Strings.isBlank(sourceId)) {
       return;
@@ -152,6 +153,7 @@ public class OAuthSecurityImpl implements OAuthSecurity {
    * @param discoveryUrl The metadata URL of the OAuth provider
    * @param additionalParameters Additional queryParameters to send to the OAuth provider
    */
+  @Override
   public void setUserTokenOnClient(
       Client client,
       String sourceId,
@@ -196,6 +198,7 @@ public class OAuthSecurityImpl implements OAuthSecurity {
    * @param clientSecret The client secret registered with the OAuth provider
    * @param discoveryUrl the metadata URL of the OAuth provider
    */
+  @Override
   public void setSystemTokenOnClient(
       Client client, String clientId, String clientSecret, String discoveryUrl) {
     if (client == null

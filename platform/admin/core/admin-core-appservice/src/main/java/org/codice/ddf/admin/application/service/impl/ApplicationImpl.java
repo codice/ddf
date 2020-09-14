@@ -84,10 +84,12 @@ public class ApplicationImpl implements Application {
     };
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public String getDescription() {
     return description;
   }

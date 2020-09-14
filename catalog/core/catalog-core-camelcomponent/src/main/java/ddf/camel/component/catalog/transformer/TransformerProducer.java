@@ -58,6 +58,7 @@ public abstract class TransformerProducer extends DefaultProducer {
    *
    * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
    */
+  @Override
   public void process(Exchange exchange)
       throws CatalogTransformerException, MimeTypeParseException, IOException {
     LOGGER.trace("ENTERING: process");

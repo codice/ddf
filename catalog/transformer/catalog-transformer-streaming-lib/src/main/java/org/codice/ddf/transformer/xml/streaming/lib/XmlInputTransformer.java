@@ -101,6 +101,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
    * @throws CatalogTransformerException
    * @throws IOException
    */
+  @Override
   public Metacard transform(InputStream inputStream) throws CatalogTransformerException {
     if (inputStream == null) {
       throw new CatalogTransformerException();
@@ -156,6 +157,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
    * @throws CatalogTransformerException
    * @throws IOException
    */
+  @Override
   public Metacard transform(InputStream inputStream, String id)
       throws CatalogTransformerException, IOException {
     Metacard metacard = transform(inputStream);

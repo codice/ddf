@@ -54,6 +54,7 @@ public class GazetteerGeoCoder implements GeoCoder {
     return null;
   }
 
+  @Override
   @Nullable
   public NearbyLocation getNearbyCity(String location) throws GeoEntryQueryException {
 

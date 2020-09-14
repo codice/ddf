@@ -72,6 +72,7 @@ public class ConfiguratorImpl implements Configurator {
    * @return report of the commit status, whether successful, successfully rolled back, or partially
    *     rolled back with errors
    */
+  @Override
   public OperationReport commit(String auditMessage, String... auditParams) {
     OperationReport report = commit();
     if (report.hasTransactionSucceeded()) {

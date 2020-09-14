@@ -122,6 +122,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
   private static final Pattern RELATIVE_TEMPORAL_REGEX =
       Pattern.compile(SHORTENED_RELATIVE_TEMPORAL_REGEX.replaceAll("dec", DECIMAL_REGEX));
 
+  @Override
   public <T> T adapt(Filter filter, FilterDelegate<T> filterDelegate)
       throws UnsupportedQueryException {
     if (filter == null) {
@@ -136,15 +137,18 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(NilExpression expression, Object delegate) {
     throw new UnsupportedOperationException(
         NilExpression.class.getSimpleName() + EXPRESSION_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(Add expression, Object delegate) {
     throw new UnsupportedOperationException(Add.NAME + EXPRESSION_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(Divide expression, Object delegate) {
     throw new UnsupportedOperationException(Divide.NAME + EXPRESSION_NOT_SUPPORTED);
   }
@@ -193,10 +197,12 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return expression.getValue();
   }
 
+  @Override
   public Object visit(Multiply expression, Object delegate) {
     throw new UnsupportedOperationException(Multiply.NAME + " expression not supported.");
   }
 
+  @Override
   public Object visit(PropertyName expression, Object delegate) {
     if (expression.getPropertyName() == null) {
       throw new UnsupportedOperationException("Property name must not be null.");
@@ -204,26 +210,32 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return expression.getPropertyName();
   }
 
+  @Override
   public Object visit(Subtract expression, Object delegate) {
     throw new UnsupportedOperationException(Subtract.NAME + " expresssion not supported.");
   }
 
+  @Override
   public Object visitNullFilter(Object delegate) {
     throw new UnsupportedOperationException("Null filter not supported by Filter Adapter.");
   }
 
+  @Override
   public Object visit(ExcludeFilter filter, Object delegate) {
     return ((FilterDelegate<?>) delegate).exclude();
   }
 
+  @Override
   public Object visit(IncludeFilter filter, Object delegate) {
     return ((FilterDelegate<?>) delegate).include();
   }
 
+  @Override
   public Object visit(Id filter, Object delegate) {
     throw new UnsupportedOperationException(Id.class.getSimpleName() + FILTER_NOT_SUPPORTED);
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public Object visit(And filter, Object delegate) {
     List<Object> results = new ArrayList<>();
@@ -244,6 +256,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     throw new UnsupportedOperationException("No valid operands for And filter.");
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public Object visit(Not filter, Object delegate) {
     Filter child = filter.getFilter();
@@ -251,6 +264,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return ((FilterDelegate<Object>) delegate).not(child.accept(this, delegate));
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public Object visit(Or filter, Object delegate) {
     List<Object> results = new ArrayList<>();
@@ -268,6 +282,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     throw new UnsupportedOperationException("No valid operands for And filter.");
   }
 
+  @Override
   public Object visit(PropertyIsBetween filter, Object delegate) {
     String propertyName;
     Object lower;
@@ -320,6 +335,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(PropertyIsEqualTo filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String propertyName = filterValues.propertyName;
@@ -379,6 +395,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(PropertyIsNotEqualTo filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String propertyName = filterValues.propertyName;
@@ -423,6 +440,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(PropertyIsGreaterThan filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String propertyName = filterValues.propertyName;
@@ -463,6 +481,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(PropertyIsGreaterThanOrEqualTo filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String propertyName = filterValues.propertyName;
@@ -505,6 +524,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(PropertyIsLessThan filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String propertyName = filterValues.propertyName;
@@ -545,6 +565,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(PropertyIsLessThanOrEqualTo filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String propertyName = filterValues.propertyName;
@@ -587,6 +608,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(PropertyIsLike filter, Object delegate) {
     String propertyName;
     String wildcard = filter.getWildCard();
@@ -678,6 +700,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return sb.toString();
   }
 
+  @Override
   public Object visit(PropertyIsNull filter, Object delegate) {
     if (filter.getExpression() instanceof PropertyName) {
       String propertyName = (String) filter.getExpression().accept(this, delegate);
@@ -694,11 +717,13 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         PropertyIsNil.NAME + " filter is not supported by Filter Adapter.");
   }
 
+  @Override
   public Object visit(BBOX filter, Object delegate) {
     throw new UnsupportedOperationException(
         BBOX.NAME + " filter is not supported by Filter Adapter.");
   }
 
+  @Override
   public Object visit(Beyond filter, Object delegate) {
     double distance = normalizeDistance(filter.getDistance(), filter.getDistanceUnits());
 
@@ -712,6 +737,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(Contains filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String wkt = geometryToWkt(filterValues.literal);
@@ -719,6 +745,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return ((FilterDelegate<?>) delegate).contains(filterValues.propertyName, wkt);
   }
 
+  @Override
   public Object visit(DWithin filter, Object delegate) {
     double distance = normalizeDistance(filter.getDistance(), filter.getDistanceUnits());
 
@@ -728,6 +755,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return ((FilterDelegate<?>) delegate).dwithin(filterValues.propertyName, wkt, distance);
   }
 
+  @Override
   public Object visit(Intersects filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String wkt = geometryToWkt(filterValues.literal);
@@ -735,6 +763,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return ((FilterDelegate<?>) delegate).intersects(filterValues.propertyName, wkt);
   }
 
+  @Override
   public Object visit(Within filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String wkt = geometryToWkt(filterValues.literal);
@@ -742,6 +771,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return ((FilterDelegate<?>) delegate).within(filterValues.propertyName, wkt);
   }
 
+  @Override
   public Object visit(Crosses filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String wkt = geometryToWkt(filterValues.literal);
@@ -749,6 +779,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return ((FilterDelegate<?>) delegate).crosses(filterValues.propertyName, wkt);
   }
 
+  @Override
   public Object visit(Disjoint filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String wkt = geometryToWkt(filterValues.literal);
@@ -756,6 +787,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return ((FilterDelegate<?>) delegate).disjoint(filterValues.propertyName, wkt);
   }
 
+  @Override
   public Object visit(Overlaps filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String wkt = geometryToWkt(filterValues.literal);
@@ -763,6 +795,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return ((FilterDelegate<?>) delegate).overlaps(filterValues.propertyName, wkt);
   }
 
+  @Override
   public Object visit(Touches filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String wkt = geometryToWkt(filterValues.literal);
@@ -805,11 +838,13 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return wkt;
   }
 
+  @Override
   public Object visit(Equals filter, Object delegate) {
     throw new UnsupportedOperationException(
         "Spatial Equals filter not supported by Filter Adapter.");
   }
 
+  @Override
   public Object visit(After after, Object delegate) {
     ExpressionValues filterValues = getExpressions(after, delegate);
     String propertyName = filterValues.propertyName;
@@ -829,6 +864,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(Before before, Object delegate) {
     ExpressionValues filterValues = getExpressions(before, delegate);
     String propertyName = filterValues.propertyName;
@@ -848,6 +884,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(During during, Object delegate) {
     ExpressionValues filterValues = getExpressions(during, delegate);
 
@@ -872,10 +909,12 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(AnyInteracts anyInteracts, Object delegate) {
     throw new UnsupportedOperationException(AnyInteracts.NAME + FILTER_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(Begins begins, Object delegate) {
 
     ExpressionValues filterValues = getExpressions(begins, delegate);
@@ -891,38 +930,47 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
   }
 
+  @Override
   public Object visit(BegunBy begunBy, Object delegate) {
     throw new UnsupportedOperationException(BegunBy.NAME + FILTER_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(EndedBy endedBy, Object delegate) {
     throw new UnsupportedOperationException(EndedBy.NAME + FILTER_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(Ends ends, Object delegate) {
     throw new UnsupportedOperationException(Ends.NAME + FILTER_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(Meets meets, Object delegate) {
     throw new UnsupportedOperationException(Meets.NAME + FILTER_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(MetBy metBy, Object delegate) {
     throw new UnsupportedOperationException(MetBy.NAME + FILTER_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(OverlappedBy overlappedBy, Object delegate) {
     throw new UnsupportedOperationException(OverlappedBy.NAME + FILTER_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(TContains contains, Object delegate) {
     throw new UnsupportedOperationException(TContains.NAME + FILTER_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(TEquals equals, Object delegate) {
     throw new UnsupportedOperationException(TEquals.NAME + FILTER_NOT_SUPPORTED);
   }
 
+  @Override
   public Object visit(TOverlaps contains, Object delegate) {
     throw new UnsupportedOperationException(TOverlaps.NAME + FILTER_NOT_SUPPORTED);
   }

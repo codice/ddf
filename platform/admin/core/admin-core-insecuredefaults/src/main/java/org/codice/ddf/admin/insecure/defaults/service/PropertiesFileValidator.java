@@ -41,6 +41,7 @@ public abstract class PropertiesFileValidator implements Validator {
     this.path = path;
   }
 
+  @Override
   public abstract List<Alert> validate();
 
   protected Properties readFile() {

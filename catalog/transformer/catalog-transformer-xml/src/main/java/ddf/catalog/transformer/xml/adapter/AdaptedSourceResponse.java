@@ -152,6 +152,7 @@ public class AdaptedSourceResponse implements SourceResponse {
     return metacards;
   }
 
+  @Override
   public List<Result> getResults() {
     return delegate.getResults();
   }

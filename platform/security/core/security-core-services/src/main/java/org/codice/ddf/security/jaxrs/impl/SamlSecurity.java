@@ -38,6 +38,7 @@ public final class SamlSecurity implements org.codice.ddf.security.jaxrs.SamlSec
    * @return String
    * @throws IOException if the value cannot be converted
    */
+  @Override
   public String deflateAndBase64Encode(String value) throws IOException {
     ByteArrayOutputStream valueBytes = new ByteArrayOutputStream();
     try (OutputStream tokenStream =
@@ -49,6 +50,7 @@ public final class SamlSecurity implements org.codice.ddf.security.jaxrs.SamlSec
     }
   }
 
+  @Override
   public String inflateBase64(String base64EncodedValue) throws IOException {
     if (base64EncodedValue == null) {
       return "";
@@ -68,6 +70,7 @@ public final class SamlSecurity implements org.codice.ddf.security.jaxrs.SamlSec
    * @param base64EncodedValue value to decode
    * @return decoded value
    */
+  @Override
   public String base64Decode(String base64EncodedValue) {
     if (base64EncodedValue == null) {
       return "";

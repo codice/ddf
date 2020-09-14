@@ -87,6 +87,7 @@ public class ValidationExceptionImpl extends ValidationException {
     setWarnings(warnings);
   }
 
+  @Override
   public List<String> getErrors() {
     return errors;
   }
@@ -101,6 +102,7 @@ public class ValidationExceptionImpl extends ValidationException {
     }
   }
 
+  @Override
   public List<String> getWarnings() {
     return warnings;
   }

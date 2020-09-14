@@ -87,6 +87,7 @@ public class Security implements org.codice.ddf.security.Security {
    * @param password password
    * @return {@link Subject} associated with the user name and password provided
    */
+  @Override
   public Subject getSubject(String username, String password, String ip) {
     AuthenticationTokenFactory tokenFactory = createBasicTokenFactory();
     AuthenticationToken token = tokenFactory.fromUsernamePassword(username, password, ip);
@@ -115,6 +116,7 @@ public class Security implements org.codice.ddf.security.Security {
    *     javax.security.auth.AuthPermission AuthPermission("getSubject")} permission is not
    *     authorized
    */
+  @Override
   public final boolean javaSubjectHasAdminRole() {
     javax.security.auth.Subject subject =
         javax.security.auth.Subject.getSubject(AccessController.getContext());
@@ -149,6 +151,7 @@ public class Security implements org.codice.ddf.security.Security {
    *     Callable} exception can be retrieved using the {@link
    *     InvocationTargetException#getCause()}.
    */
+  @Override
   public <T> T runWithSubjectOrElevate(Callable<T> codeToRun)
       throws SecurityServiceException, InvocationTargetException {
     notNull(codeToRun, "Callable cannot be null");
@@ -186,6 +189,7 @@ public class Security implements org.codice.ddf.security.Security {
    *     javax.security.auth.AuthPermission AuthPermission("getSubject")} permissions are not
    *     authorized
    */
+  @Override
   @Nullable
   public final synchronized Subject getSystemSubject() {
     auditSystemSubjectAccess();
@@ -251,6 +255,7 @@ public class Security implements org.codice.ddf.security.Security {
    *
    * @return system's {@link Subject}
    */
+  @Override
   public Subject getGuestSubject(String ipAddress) {
     Subject subject = null;
     GuestAuthenticationToken token = new GuestAuthenticationToken(ipAddress, securityLogger);
@@ -287,10 +292,12 @@ public class Security implements org.codice.ddf.security.Security {
     return null;
   }
 
+  @Override
   public <T> T runAsAdmin(PrivilegedAction<T> action) {
     return javax.security.auth.Subject.doAs(JAVA_ADMIN_SUBJECT, action);
   }
 
+  @Override
   public <T> T runAsAdminWithException(PrivilegedExceptionAction<T> action)
       throws PrivilegedActionException {
     return javax.security.auth.Subject.doAs(JAVA_ADMIN_SUBJECT, action);
@@ -354,6 +361,7 @@ public class Security implements org.codice.ddf.security.Security {
     return System.getProperty("org.codice.ddf.system.hostname");
   }
 
+  @Override
   public KeyStore getSystemKeyStore() {
     KeyStore keyStore;
 

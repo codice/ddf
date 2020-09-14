@@ -56,6 +56,7 @@ public class PublishedEventHandler implements EventHandler {
     this.threadPool = threadPool;
   }
 
+  @Override
   public void handleEvent(Event event) {
     threadPool.submit(new EventProcessor(event));
   }

@@ -81,6 +81,7 @@ public class CswQueryFilterTransformerProvider implements QueryFilterTransformer
     }
   }
 
+  @Override
   public synchronized Optional<QueryFilterTransformer> getTransformer(@Nullable String typeName) {
     if (StringUtils.isEmpty(typeName)) {
       return Optional.empty();
@@ -88,6 +89,7 @@ public class CswQueryFilterTransformerProvider implements QueryFilterTransformer
     return getTransformer(typeNameQNameMap.get(typeName));
   }
 
+  @Override
   public synchronized Optional<QueryFilterTransformer> getTransformer(QName qName) {
     if (qName == null) {
       return Optional.empty();
