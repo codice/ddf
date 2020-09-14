@@ -96,7 +96,21 @@ pipeline {
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                     sh '''
                         unset JAVA_TOOL_OPTIONS
-                        mvn install -B -pl $ITESTS,$ITCORE -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
+                        mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
+                    '''
+                }
+            }
+        }
+
+        stage('DDF Core Tests Only Build') {
+            options {
+                timeout(time: 3, unit: 'HOURS')
+            }
+            steps {
+                withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
+                    sh '''
+                        unset JAVA_TOOL_OPTIONS
+                        mvn install -B -pl $ITCORE -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
                     '''
                 }
             }
