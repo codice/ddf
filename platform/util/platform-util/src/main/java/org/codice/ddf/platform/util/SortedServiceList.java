@@ -58,6 +58,7 @@ public class SortedServiceList<T> implements List<T> {
       Collections.synchronizedMap(
           new TreeMap<ServiceReference, T>(
               new ServiceComparator() {
+                @Override
                 public int compare(ServiceReference ref1, ServiceReference ref2) {
                   return ref2.compareTo(ref1);
                 }
