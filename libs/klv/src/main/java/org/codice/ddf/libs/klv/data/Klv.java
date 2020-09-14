@@ -48,9 +48,9 @@ public class Klv {
    * variable with Basic Encoding Rules (BER).
    */
   public enum LengthEncoding {
-    OneByte(1),
-    TwoBytes(2),
-    FourBytes(4),
+    ONE_BYTE(1),
+    TWO_BYTES(2),
+    FOUR_BYTES(4),
     BER(5); // Max bytes a BER field could take up
 
     private int value;
@@ -71,10 +71,10 @@ public class Klv {
    * The number of bytes in the key field can be one byte, two bytes, four bytes, or sixteen bytes.
    */
   public enum KeyLength {
-    OneByte(1),
-    TwoBytes(2),
-    FourBytes(4),
-    SixteenBytes(16);
+    ONE_BYTE(1),
+    TWO_BYTES(2),
+    FOUR_BYTES(4),
+    SIXTEEN_BYTES(16);
 
     private int value;
 
@@ -171,23 +171,23 @@ public class Klv {
     final byte[] key = new byte[length];
 
     switch (this.keyLength) {
-      case OneByte:
+      case ONE_BYTE:
         key[0] = (byte) this.keyIfShort;
         break;
 
-      case TwoBytes:
+      case TWO_BYTES:
         key[0] = (byte) (this.keyIfShort >> 8);
         key[1] = (byte) this.keyIfShort;
         break;
 
-      case FourBytes:
+      case FOUR_BYTES:
         key[0] = (byte) (this.keyIfShort >> 24);
         key[1] = (byte) (this.keyIfShort >> 16);
         key[2] = (byte) (this.keyIfShort >> 8);
         key[3] = (byte) this.keyIfShort;
         break;
 
-      case SixteenBytes:
+      case SIXTEEN_BYTES:
         System.arraycopy(this.keyIfLong, 0, key, 0, 16);
         break;
     }
@@ -363,18 +363,18 @@ public class Klv {
     // Set key according to length of key
     this.keyLength = keyLength;
     switch (keyLength) {
-      case OneByte:
+      case ONE_BYTE:
         this.keyIfShort = inTheseBytes[offset] & 0xFF;
         this.keyIfLong = null;
         break;
 
-      case TwoBytes:
+      case TWO_BYTES:
         this.keyIfShort = (inTheseBytes[offset] & 0xFF) << 8;
         this.keyIfShort |= inTheseBytes[offset + 1] & 0xFF;
         this.keyIfLong = null;
         break;
 
-      case FourBytes:
+      case FOUR_BYTES:
         this.keyIfShort = (inTheseBytes[offset] & 0xFF) << 24;
         this.keyIfShort |= (inTheseBytes[offset + 1] & 0xFF) << 16;
         this.keyIfShort |= (inTheseBytes[offset + 2] & 0xFF) << 8;
@@ -382,7 +382,7 @@ public class Klv {
         this.keyIfLong = null;
         break;
 
-      case SixteenBytes:
+      case SIXTEEN_BYTES:
         this.keyIfLong = new byte[16];
         System.arraycopy(inTheseBytes, offset, this.keyIfLong, 0, 16);
         this.keyIfShort = 0;
@@ -418,7 +418,7 @@ public class Klv {
         String.format("Not enough bytes for %s length encoding.", lengthEncoding);
 
     switch (lengthEncoding) {
-      case OneByte:
+      case ONE_BYTE:
         checkEnoughBytesRemaining(remaining, 1, lengthEncodingErrorMessage);
 
         length = inTheseBytes[offset] & 0xFF;
@@ -426,7 +426,7 @@ public class Klv {
         valueOffset = offset + 1;
         break;
 
-      case TwoBytes:
+      case TWO_BYTES:
         checkEnoughBytesRemaining(remaining, 2, lengthEncodingErrorMessage);
 
         length = (inTheseBytes[offset] & 0xFF) << 8;
@@ -435,7 +435,7 @@ public class Klv {
         valueOffset = offset + 2;
         break;
 
-      case FourBytes:
+      case FOUR_BYTES:
         checkEnoughBytesRemaining(remaining, 4, lengthEncodingErrorMessage);
 
         length = (inTheseBytes[offset] & 0xFF) << 24;
