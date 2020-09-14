@@ -38,6 +38,7 @@ public class WfsUriResolver extends DefaultURIResolver {
    * @param schemaLocation system ID.
    * @param baseUri base URI for the schema.
    */
+  @Override
   public InputSource resolveEntity(String namespace, String schemaLocation, String baseUri) {
     if (StringUtils.isEmpty(gmlNamespace) || StringUtils.isEmpty(wfsNamespace)) {
       LOGGER.debug("Defined constant GML or WFS namespace has not been set.");

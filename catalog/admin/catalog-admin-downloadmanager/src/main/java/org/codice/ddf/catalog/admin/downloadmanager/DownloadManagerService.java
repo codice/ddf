@@ -69,6 +69,7 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
     }
   }
 
+  @Override
   public List<Map<String, String>> getAllDownloadsStatus() {
     List<Map<String, String>> allDownloadsStatus = new ArrayList<Map<String, String>>();
     for (String item : downloadStatusInfo.getAllDownloads()) {
@@ -77,22 +78,27 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
     return allDownloadsStatus;
   }
 
+  @Override
   public Map<String, String> getDownloadStatus(String downloadIdentifier) {
     return downloadStatusInfo.getDownloadStatus(downloadIdentifier);
   }
 
+  @Override
   public List<String> getAllDownloads() {
     return downloadStatusInfo.getAllDownloads();
   }
 
+  @Override
   public List<String> getAllDownloads(String userId) {
     return downloadStatusInfo.getAllDownloads(userId);
   }
 
+  @Override
   public void removeDownloadInfo(String downloadIdentifier) {
     downloadStatusInfo.removeDownloadInfo(downloadIdentifier);
   }
 
+  @Override
   public void cancelDownload(String userId, String downloadIdentifier) {
     downloadStatusInfo.cancelDownload(userId, downloadIdentifier);
   }

@@ -49,6 +49,7 @@ public class EntryPredicate implements Predicate {
     this.productUri = dad;
   }
 
+  @Override
   public boolean matches(Event properties) {
     LOGGER.trace("ENTERING: EntryPredicate.matches");
     boolean status = false;

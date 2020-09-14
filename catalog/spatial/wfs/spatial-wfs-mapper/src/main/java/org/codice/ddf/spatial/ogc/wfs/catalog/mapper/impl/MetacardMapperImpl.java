@@ -63,6 +63,7 @@ public class MetacardMapperImpl implements MetacardMapper {
     return metacardAttribute;
   }
 
+  @Override
   public String getFeatureType() {
     return this.featureType;
   }

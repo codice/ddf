@@ -23,10 +23,12 @@ public class EntryEvaluationCriteriaImpl implements EntryEvaluationCriteria {
     this.inputId = inputId;
   }
 
+  @Override
   public String getId() {
     return id;
   }
 
+  @Override
   public String getInputId() {
     return inputId;
   }

@@ -116,6 +116,7 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
    *
    * @see org.apache.camel.Endpoint#createProducer()
    */
+  @Override
   public Producer createProducer() {
     LOGGER.debug("INSIDE createProducer");
 
@@ -149,6 +150,7 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
    *
    * @see org.apache.camel.Endpoint#createConsumer(org.apache.camel.Processor)
    */
+  @Override
   public Consumer createConsumer(Processor processor) {
     LOGGER.debug("INSIDE createConsumer");
 
@@ -193,6 +195,7 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
    *
    * @see org.apache.camel.IsSingleton#isSingleton()
    */
+  @Override
   public boolean isSingleton() {
     return true;
   }

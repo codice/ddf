@@ -315,6 +315,7 @@ public class GsonTypeAdapters {
       }
     }
 
+    @Override
     public void write(JsonWriter out, Object value) throws IOException {
       if (value == null) {
         out.nullValue();

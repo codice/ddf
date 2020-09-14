@@ -106,6 +106,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     }
   }
 
+  @Override
   public synchronized String start(String targetUri, Integer timeout) throws Exception {
     String endpointName = GENERIC_ENDPOINT_NAME + incrementer;
     if (timeout <= 0) {
@@ -117,6 +118,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     return endpointName;
   }
 
+  @Override
   public String start(final String endpointName, final String targetUri, final Integer timeout)
       throws Exception {
     return start(endpointName, targetUri, timeout, false, null);
@@ -247,6 +249,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     LOGGER.debug("Trust Store Password not empty: {}", StringUtils.isNotBlank(trustStorePassword));
   }
 
+  @Override
   public void stop(String endpointName) throws Exception {
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Stopping proxy route at endpoint: {}", endpointName);

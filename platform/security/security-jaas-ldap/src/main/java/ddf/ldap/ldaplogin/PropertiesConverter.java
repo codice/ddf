@@ -39,11 +39,13 @@ import org.osgi.service.blueprint.container.ReifiedType;
  */
 public class PropertiesConverter implements Converter {
 
+  @Override
   public boolean canConvert(Object from, ReifiedType type) {
     return String.class.isAssignableFrom(from.getClass())
         && Properties.class.equals(type.getRawClass());
   }
 
+  @Override
   public Object convert(Object from, ReifiedType type) throws Exception {
     Properties properties = new Properties();
 

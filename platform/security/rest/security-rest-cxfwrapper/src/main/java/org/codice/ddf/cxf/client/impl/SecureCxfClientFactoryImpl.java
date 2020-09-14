@@ -325,14 +325,17 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.clientFactory = jaxrsClientFactoryBean;
   }
 
+  @Override
   public T getClient() {
     return getClientForSubject(null);
   }
 
+  @Override
   public WebClient getWebClient() {
     return getWebClientForSubject(null);
   }
 
+  @Override
   public WebClient getWebSystemClient() {
     return getWebClient(getClientForSystemSubject(null));
   }
@@ -344,6 +347,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
    * <p>The returned client should NOT be reused between requests! This method should be called for
    * each new request in order to ensure that the security token is up-to-date each time.
    */
+  @Override
   public final T getClientForSubject(Subject subject) {
     final java.lang.SecurityManager security = System.getSecurityManager();
 
@@ -395,6 +399,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
    * <p>The returned client should NOT be reused between requests! This method should be called for
    * each new request in order to ensure that the security token is up-to-date each time.
    */
+  @Override
   public final T getClientForSystemSubject(Subject subject) {
     final java.lang.SecurityManager security = System.getSecurityManager();
 
@@ -424,6 +429,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
             });
   }
 
+  @Override
   public Integer getSameUriRedirectMax() {
     return sameUriRedirectMax;
   }
@@ -459,6 +465,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
    *
    * @see #getClientForSubject(Subject subject)
    */
+  @Override
   public WebClient getWebClientForSubject(Subject subject) {
     return getWebClient(getClientForSubject(subject));
   }
@@ -679,6 +686,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     httpConduit.setClient(httpClientPolicy);
   }
 
+  @Override
   public void addOutInterceptors(Interceptor<? extends Message> inteceptor) {
     this.clientFactory.getOutInterceptors().add(inteceptor);
   }
@@ -716,6 +724,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       this.alias = alias;
     }
 
+    @Override
     public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
       if (keyManager == null) {
         return null;
@@ -739,22 +748,27 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       return null;
     }
 
+    @Override
     public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
       return keyManager.chooseServerAlias(keyType, issuers, socket);
     }
 
+    @Override
     public X509Certificate[] getCertificateChain(String alias) {
       return keyManager.getCertificateChain(alias);
     }
 
+    @Override
     public String[] getClientAliases(String keyType, Principal[] issuers) {
       return keyManager.getClientAliases(keyType, issuers);
     }
 
+    @Override
     public PrivateKey getPrivateKey(String alias) {
       return keyManager.getPrivateKey(alias);
     }
 
+    @Override
     public String[] getServerAliases(String keyType, Principal[] issuers) {
       return keyManager.getServerAliases(keyType, issuers);
     }

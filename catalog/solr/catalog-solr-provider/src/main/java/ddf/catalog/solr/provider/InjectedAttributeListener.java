@@ -76,6 +76,7 @@ public class InjectedAttributeListener implements ServiceListener {
     }
   }
 
+  @Override
   public void serviceChanged(ServiceEvent event) {
     ServiceReference serviceRef = event.getServiceReference();
     Object service = context.getService(serviceRef);

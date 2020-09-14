@@ -68,6 +68,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
     super(metacardMapper);
   }
 
+  @Override
   protected Serializable getValueForMetacardAttribute(
       AttributeFormat attributeFormat, HierarchicalStreamReader reader) {
 

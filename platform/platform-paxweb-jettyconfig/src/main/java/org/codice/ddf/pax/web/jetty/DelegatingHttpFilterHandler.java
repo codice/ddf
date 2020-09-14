@@ -101,11 +101,13 @@ public class DelegatingHttpFilterHandler extends HandlerWrapper {
     filterChain.doFilter(request, response);
   }
 
+  @Override
   protected void doStart() throws Exception {
     super.doStart();
     LOGGER.debug("Started {}", DelegatingHttpFilterHandler.class.getSimpleName());
   }
 
+  @Override
   protected void doStop() throws Exception {
     super.doStop();
     LOGGER.debug("Stopped {}", DelegatingHttpFilterHandler.class.getSimpleName());

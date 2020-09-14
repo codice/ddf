@@ -332,6 +332,7 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
    * @throws IOException if an I/O error occurs while creating the socket
    * @throws UnknownHostException if the IP address of the host cannot be determined
    */
+  @Override
   public Socket createSocket(
       final String host,
       final int port,
@@ -359,12 +360,14 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
   /**
    * @see SecureProtocolSocketFactory#createSocket(java.lang.String, int, java.net.InetAddress, int)
    */
+  @Override
   public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort)
       throws IOException, UnknownHostException {
     return getSSLContext().getSocketFactory().createSocket(host, port, clientHost, clientPort);
   }
 
   /** @see SecureProtocolSocketFactory#createSocket(java.lang.String, int) */
+  @Override
   public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
     return getSSLContext().getSocketFactory().createSocket(host, port);
   }
@@ -372,6 +375,7 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
   /**
    * @see SecureProtocolSocketFactory#createSocket(java.net.Socket, java.lang.String, int, boolean)
    */
+  @Override
   public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
       throws IOException, UnknownHostException {
     return getSSLContext().getSocketFactory().createSocket(socket, host, port, autoClose);

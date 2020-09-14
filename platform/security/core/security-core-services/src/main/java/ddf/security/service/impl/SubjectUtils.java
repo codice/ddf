@@ -83,6 +83,7 @@ public final class SubjectUtils implements SubjectOperations {
    * @return String representation of the user name if available or null if no user name could be
    *     found.
    */
+  @Override
   public String getName(org.apache.shiro.subject.Subject subject) {
     return getName(subject, null, false);
   }
@@ -94,6 +95,7 @@ public final class SubjectUtils implements SubjectOperations {
    * @return String representation of the user name if available or null if no user name could be
    *     found.
    */
+  @Override
   public String getName(Subject subject, String defaultName) {
     return getName(subject, defaultName, false);
   }
@@ -107,6 +109,7 @@ public final class SubjectUtils implements SubjectOperations {
    * @return String representation of the user name if available or defaultName if no user name
    *     could be found or incoming subject was null.
    */
+  @Override
   public String getName(Subject subject, String defaultName, boolean returnDisplayName) {
     String name = defaultName;
     if (subject != null) {
@@ -165,18 +168,22 @@ public final class SubjectUtils implements SubjectOperations {
     return null;
   }
 
+  @Override
   public String getCommonName(X500Principal principal) {
     return getExtendedCertAttribute(principal, BCStyle.CN);
   }
 
+  @Override
   public String getEmailAddress(X500Principal principal) {
     return getExtendedCertAttribute(principal, BCStyle.EmailAddress);
   }
 
+  @Override
   public String getCountry(X500Principal principal) {
     return getExtendedCertAttribute(principal, BCStyle.C);
   }
 
+  @Override
   public String filterDN(X500Principal principal, Predicate<RDN> predicate) {
     RDN[] rdns =
         Arrays.stream(new X500Name(principal.getName()).getRDNs())
@@ -192,6 +199,7 @@ public final class SubjectUtils implements SubjectOperations {
    * @param subject
    * @return email or null if not found.
    */
+  @Override
   @Nullable
   public String getEmailAddress(Subject subject) {
     List<String> values = getAttribute(subject, EMAIL_ADDRESS_CLAIM_URI);
@@ -213,6 +221,7 @@ public final class SubjectUtils implements SubjectOperations {
    * @param key
    * @return attribute values or an empty list if not found.
    */
+  @Override
   public List<String> getAttribute(@Nullable Subject subject, String key) {
     Validate.notNull(key);
 
@@ -251,6 +260,7 @@ public final class SubjectUtils implements SubjectOperations {
    * @param subject the Subject to check
    * @return Map of attributes with the collected values for each
    */
+  @Override
   public Map<String, SortedSet<String>> getSubjectAttributes(Subject subject) {
     if (subject == null) {
       return Collections.emptyMap();
@@ -279,6 +289,7 @@ public final class SubjectUtils implements SubjectOperations {
    * @return String representation of the user name if available or defaultName if no user name
    *     could be found or incoming subject was null.
    */
+  @Override
   public String getType(Subject subject) {
     if (subject == null) {
       LOGGER.debug("Incoming subject was null, cannot look up security assertion type.");
@@ -305,6 +316,7 @@ public final class SubjectUtils implements SubjectOperations {
     return assertionList.get(0).getTokenType();
   }
 
+  @Override
   public boolean isGuest(Subject subject) {
     Collection<SecurityAssertion> securityAssertions =
         subject.getPrincipals().byType(SecurityAssertion.class);
@@ -317,6 +329,7 @@ public final class SubjectUtils implements SubjectOperations {
     return new TreeSet<>(attribute.getValues());
   }
 
+  @Override
   public Comparator<SecurityAssertion> getAssertionComparator() {
     return new SecurityAssertionComparator();
   }

@@ -52,18 +52,22 @@ public class GeospatialEvaluationCriteriaImpl implements GeospatialEvaluationCri
     this.input = wktreader.read(input);
   }
 
+  @Override
   public Geometry getCriteria() {
     return criteria;
   }
 
+  @Override
   public double getDistance() {
     return distance;
   }
 
+  @Override
   public Geometry getInput() {
     return input;
   }
 
+  @Override
   public String getOperation() {
     return geoOperation;
   }

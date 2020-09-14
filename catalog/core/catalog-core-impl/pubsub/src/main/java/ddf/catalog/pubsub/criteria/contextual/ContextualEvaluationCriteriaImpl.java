@@ -75,22 +75,27 @@ public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCri
     this.index = ContextualEvaluator.buildIndex(metadata, this.textPaths);
   }
 
+  @Override
   public String getCriteria() {
     return criteria;
   }
 
+  @Override
   public Directory getIndex() {
     return index;
   }
 
+  @Override
   public boolean isFuzzy() {
     return fuzzy;
   }
 
+  @Override
   public boolean isCaseSensitiveSearch() {
     return caseSensitiveSearch;
   }
 
+  @Override
   public String[] getTextPaths() {
     String[] paths = null;
     if (textPaths != null) {
@@ -99,6 +104,7 @@ public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCri
     return paths;
   }
 
+  @Override
   public String getMetadata() {
     return metadata;
   }

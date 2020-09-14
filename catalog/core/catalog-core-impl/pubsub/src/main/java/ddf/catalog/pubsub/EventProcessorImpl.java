@@ -231,6 +231,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
    * Therefore, this method processes its events in a separate thread than the EventAdmin who called
    * it.
    */
+  @Override
   public void handleEvent(Event event) {
     String methodName = "handleEvent";
     LOGGER.trace(ENTERING, methodName);

@@ -56,6 +56,7 @@ public class HttpClientBuilder implements Supplier<org.apache.http.impl.client.H
     this.encryptionService = encryptionService;
   }
 
+  @Override
   public final org.apache.http.impl.client.HttpClientBuilder get() {
 
     final org.apache.http.impl.client.HttpClientBuilder httpClientBuilder =

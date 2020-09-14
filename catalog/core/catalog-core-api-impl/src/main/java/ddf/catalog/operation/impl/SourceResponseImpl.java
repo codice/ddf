@@ -113,6 +113,7 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
    *
    * @see ddf.catalog.operation.OperationImpl#containsPropertyName(java.lang.String)
    */
+  @Override
   public boolean containsPropertyName(String name) {
     return queryResponse.containsPropertyName(name);
   }

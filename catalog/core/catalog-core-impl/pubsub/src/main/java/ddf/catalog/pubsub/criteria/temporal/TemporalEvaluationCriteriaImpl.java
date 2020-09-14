@@ -39,14 +39,17 @@ public class TemporalEvaluationCriteriaImpl implements TemporalEvaluationCriteri
     }
   }
 
+  @Override
   public Date getEnd() {
     return DateUtils.copy(end);
   }
 
+  @Override
   public Date getInput() {
     return DateUtils.copy(input);
   }
 
+  @Override
   public Date getStart() {
     return DateUtils.copy(start);
   }

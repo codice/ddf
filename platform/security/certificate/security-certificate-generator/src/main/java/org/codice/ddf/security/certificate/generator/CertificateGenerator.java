@@ -39,6 +39,7 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
    *
    * @return the string used as the common name in the new certificate
    */
+  @Override
   public String configureDemoCertWithDefaultHostname() {
     return configureDemoCert(PkiTools.getHostName());
   }
@@ -52,6 +53,7 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
    * @param commonName string to use as the common name in the new certificate.
    * @return the string used as the common name in the new certificate
    */
+  @Override
   public String configureDemoCert(String commonName) {
     return CertificateCommand.configureDemoCert(commonName, null);
   }

@@ -50,6 +50,7 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
     this.subjectOperations = subjectOperations;
   }
 
+  @Override
   public void addDownloadInfo(
       String downloadIdentifier,
       ReliableResourceDownloader downloader,
@@ -70,10 +71,12 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
     downloadUsers.put(downloadIdentifier, user);
   }
 
+  @Override
   public List<String> getAllDownloads() {
     return getAllDownloads(null);
   }
 
+  @Override
   public List<String> getAllDownloads(String userId) {
 
     List<String> allDownloads = new ArrayList<String>();
@@ -92,6 +95,7 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
     return allDownloads;
   }
 
+  @Override
   public Map<String, String> getDownloadStatus(String downloadIdentifier) {
     Map<String, String> statusMap = new HashMap<String, String>();
     ReliableResourceDownloader downloader = downloaders.get(downloadIdentifier);
@@ -115,11 +119,13 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
     return statusMap;
   }
 
+  @Override
   public void removeDownloadInfo(String downloadIdentifier) {
     downloaders.remove(downloadIdentifier);
     downloadUsers.remove(downloadIdentifier);
   }
 
+  @Override
   public void cancelDownload(String userId, String downloadIdentifier) {
     String downloadId = userId + downloadIdentifier;
 

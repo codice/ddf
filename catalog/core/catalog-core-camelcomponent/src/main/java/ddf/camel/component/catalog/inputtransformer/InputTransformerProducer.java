@@ -62,6 +62,7 @@ public class InputTransformerProducer extends TransformerProducer {
     super(endpoint);
   }
 
+  @Override
   protected Object transform(
       Message in, String mimeType, String transformerId, MimeTypeToTransformerMapper mapper)
       throws MimeTypeParseException, CatalogTransformerException {
