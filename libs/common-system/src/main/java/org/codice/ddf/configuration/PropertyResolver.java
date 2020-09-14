@@ -13,15 +13,21 @@
  */
 package org.codice.ddf.configuration;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Properties;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class holds a string potentially containing variables of the format ${system.prop} and handles
  * resolving those variables by trying to replace them with system properties
  */
 public class PropertyResolver {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PropertyResolver.class);
 
   private String propertyString;
 
@@ -67,6 +73,27 @@ public class PropertyResolver {
       i.set(item);
     }
     return list;
+  }
+
+  /**
+   * Reads the properties from the given properties locations into a {@link Properties} object and
+   * replaces system property values if they exist
+   *
+   * @param propertiesLocation location of the properties file
+   * @return {@link Properties}
+   */
+  public static Properties resolvePropertiesFromLocation(String propertiesLocation)
+      throws IOException {
+    Properties properties = new Properties();
+
+    properties.load(new FileInputStream(propertiesLocation));
+
+    properties.forEach(
+        (key, value) ->
+            properties.setProperty(
+                (String) key, PropertyResolver.resolveProperties((String) value)));
+
+    return properties;
   }
 
   /**

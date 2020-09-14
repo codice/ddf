@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
@@ -63,9 +64,9 @@ public class AttributeQueryClaimsHandlerTest {
 
   private AttributeQueryTestClaimsHandler spyAttributeQueryClaimsHandler;
 
-  private Object signatureProperties;
+  private Properties signatureProperties;
 
-  private Object encryptionProperties;
+  private Properties encryptionProperties;
 
   private Service service;
 
@@ -131,8 +132,8 @@ public class AttributeQueryClaimsHandlerTest {
 
   @Before
   public void setUp() throws IOException {
-    signatureProperties = mock(Object.class);
-    encryptionProperties = mock(Object.class);
+    signatureProperties = mock(Properties.class);
+    encryptionProperties = mock(Properties.class);
     service = mock(Service.class);
     dispatch = (Dispatch<StreamSource>) mock(Dispatch.class);
     encryptionService = mock(EncryptionService.class);
