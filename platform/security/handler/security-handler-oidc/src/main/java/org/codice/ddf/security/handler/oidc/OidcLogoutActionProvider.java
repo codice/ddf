@@ -168,7 +168,8 @@ public class OidcLogoutActionProvider implements ActionProvider {
       return null;
     }
     Map<String, String> queryParams =
-        URLEncodedUtils.parse(refererUri, StandardCharsets.UTF_8).stream()
+        URLEncodedUtils.parse(refererUri, StandardCharsets.UTF_8)
+            .stream()
             .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
 
     String previousUrl;
