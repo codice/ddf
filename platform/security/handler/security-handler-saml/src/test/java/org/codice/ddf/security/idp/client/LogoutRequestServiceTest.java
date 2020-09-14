@@ -377,7 +377,9 @@ public class LogoutRequestServiceTest {
     logoutRequestService.setLogoutMessage(logoutMessage);
     try (final Response response = logoutRequestService.postLogoutRequest(null, null, relayState)) {
       assertThat(response.getStatus(), is(Status.INTERNAL_SERVER_ERROR.getStatusCode()));
-      assertThat(response.getEntity().toString(), containsString("System cannot decode request."));
+      assertThat(
+          response.getEntity().toString(),
+          containsString("System did not receive a SAMLRequest or a SAMLResponse to process"));
     }
   }
 
