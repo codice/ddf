@@ -15,7 +15,6 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 
 import ddf.catalog.event.impl.SubscriptionImpl;
 import ddf.catalog.operation.QueryRequest;
-import ddf.security.service.SecurityManager;
 import java.util.Set;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import org.codice.ddf.cxf.client.ClientBuilderFactory;
@@ -43,19 +42,12 @@ public class CswSubscription extends SubscriptionImpl {
       GetRecordsType request,
       QueryRequest query,
       ClientBuilderFactory clientBuilderFactory,
-      Security security,
-      SecurityManager securityManager)
+      Security security)
       throws CswException {
     this(
         request,
         query.getQuery(),
-        new SendEvent(
-            mimeTypeTransformerManager,
-            request,
-            query,
-            clientBuilderFactory,
-            security,
-            securityManager),
+        new SendEvent(mimeTypeTransformerManager, request, query, clientBuilderFactory, security),
         query.getSourceIds(),
         query.isEnterprise());
   }
@@ -65,19 +57,12 @@ public class CswSubscription extends SubscriptionImpl {
       GetRecordsType request,
       QueryRequest query,
       ClientBuilderFactory clientBuilderFactory,
-      Security security,
-      SecurityManager securityManager)
+      Security security)
       throws CswException {
     return new CswSubscription(
         request,
         Filter.INCLUDE,
-        new SendEvent(
-            mimeTypeTransformerManager,
-            request,
-            query,
-            clientBuilderFactory,
-            security,
-            securityManager),
+        new SendEvent(mimeTypeTransformerManager, request, query, clientBuilderFactory, security),
         null,
         false);
   }
