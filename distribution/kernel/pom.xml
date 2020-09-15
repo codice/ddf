@@ -248,8 +248,8 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.servicemix.specs</groupId>
-                                    <artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
-                                    <version>${servicemix.specs.version}</version>
+                                    <artifactId>org.apache.servicemix.specs.activation-api-1.2.1</artifactId>
+                                    <version>${jakarta.activation.bundle.version}</version>
                                     <outputDirectory>${setup.folder}/endorsed</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
