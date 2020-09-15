@@ -108,7 +108,15 @@ class WorkspaceInteractions extends React.Component<Props, State> {
   }
   runAllSearches = () => {
     store.clearOtherWorkspaces(this.props.workspace.id)
-    this.props.workspace.get('queries').forEach(function(query: any) {
+    wreqr.vent.trigger('router:navigate', {
+      fragment: 'workspaces/' + this.props.workspace.id,
+      options: {
+        trigger: true,
+      },
+    })
+    const queries = this.props.workspace.get('queries')
+    store.setCurrentQuery(queries.at(0))
+    queries.forEach(function(query: any) {
       query.startSearch()
     })
   }
