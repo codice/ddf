@@ -433,6 +433,11 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet-api.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.rrd4j</groupId>
                 <artifactId>rrd4j</artifactId>
                 <version>${org.rrd4j.version}</version>
