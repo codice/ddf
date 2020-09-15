@@ -86,28 +86,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-ws-policy</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxws</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
-                <exclusions>
-                    <exclusion>
-                        <groupId>${geronimo-servlet-api.group}</groupId>
-                        <artifactId>${geronimo-servlet-api.artifact}</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-client</artifactId>
-            </dependency>
-            <dependency>
                 <artifactId>karaf</artifactId>
                 <groupId>org.apache.karaf</groupId>
                 <version>${karaf.version}</version>
@@ -171,21 +149,6 @@
                 <groupId>xalan</groupId>
                 <artifactId>xalan</artifactId>
                 <version>2.7.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-core</artifactId>
-                <version>${opensaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-xmlsec-api</artifactId>
-                <version>${opensaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-soap-impl</artifactId>
-                <version>${opensaml.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

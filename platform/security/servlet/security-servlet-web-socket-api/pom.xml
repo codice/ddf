@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
+            <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
