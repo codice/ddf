@@ -130,7 +130,7 @@
         <cxf.jackson.version>2.11.2</cxf.jackson.version>
         <!-- Using jakarta.activation 1.2.1 instead of 1.2.2, as it requires Java 9.
              See https://github.com/eclipse-ee4j/jaf/issues/37 -->
-        <cxf.jakarta.activation.version>1.2.1</cxf.jakarta.activation.version>
+        <cxf.jakarta.activation.version>${jakarta.activation.version}</cxf.jakarta.activation.version>
         <cxf.james.mim4j.version>0.7.2</cxf.james.mim4j.version>
         <cxf.javassist.version>3.25.0-GA</cxf.javassist.version>
         <cxf.javax.annotation-api.version>${javax.annotation-api.version}</cxf.javax.annotation-api.version>
