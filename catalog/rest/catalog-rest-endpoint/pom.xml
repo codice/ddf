@@ -116,11 +116,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf.karaf</groupId>
-            <artifactId>apache-cxf</artifactId>
+            <groupId>ddf.features</groupId>
+            <artifactId>cxf</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <version>${cxf.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -145,12 +145,6 @@
             <classifier>feature</classifier>
             <type>xml</type>
             <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
-            <version>${javax.annotation-api.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

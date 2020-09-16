@@ -206,17 +206,12 @@ public class RestEndpointIT extends AbstractComponentTest {
 
       @Override
       protected FeatureOption getFeatureOptions() {
-        final String[] springFeatures = {
-          "spring-instrument", "spring-jms", "spring-test", "spring-web"
-        };
-
         final String[] cxfFeatures = {"cxf", "cxf-commands"};
-        final String[] utilitiesFeatures = {"action-core-impl", "common-system", "platform-util"};
-        final String[] kernelFeatures = {"apache-commons, guava"};
+        final String[] utilitiesFeatures = {"action-core-impl", "platform-util"};
+        final String[] kernelFeatures = {"kernel", "apache-commons", "guava"};
 
         return super.getFeatureOptions()
-            .addFeatures("org.apache.karaf.features", "spring", springFeatures)
-            .addFeatures("org.apache.cxf.karaf", "apache-cxf", cxfFeatures)
+            .addFeatures("ddf.features", "cxf", cxfFeatures)
             .addFeatures("ddf.features", "utilities", utilitiesFeatures)
             .addFeatures("ddf.features", "kernel", kernelFeatures)
             .addFeatureFrom("ddf.features", "test-utilities", "features", "rest-assured")
@@ -229,17 +224,22 @@ public class RestEndpointIT extends AbstractComponentTest {
 
       @Override
       public Option get() {
+        // Add activation and annotation bundles and expose them via the system bundle. This is
+        // the same thing that the DDF kernel does, but this test runs on the base Karaf distro, so
+        // we don't have those changes
         return CoreOptions.composite(
             super.get(),
             CoreOptions.bootClasspathLibraries(
                 new BootClasspathLibraryOption(
-                    CoreOptions.maven("javax.annotation", "javax.annotation-api", "1.3"))),
+                    CoreOptions.maven("jakarta.annotation", "jakarta.annotation-api", "1.3.5")),
+                new BootClasspathLibraryOption(
+                    CoreOptions.maven("com.google.code.findbugs", "jsr305", "3.0.2"))),
             KarafDistributionOption.editConfigurationFilePut(
                 "etc/custom.properties",
                 "org.osgi.framework.system.packages.extra",
                 new StringBuilder()
-                    .append("javax.annotation;version=1.0.0,")
-                    .append("javax.annotation;version=1.3.2,")
+                    .append("javax.activation;version=1.2.1,")
+                    .append("javax.annotation;version=1.3.5,")
                     .append("javax.annotation;version=3.0.2")
                     .toString()));
       }
