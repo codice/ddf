@@ -51,7 +51,17 @@ export const ItemCheckbox = ({ selectionInterface, model }: any) => {
   }, [])
 
   return (
-    <Root className={'checkbox-container'}>
+    <Root
+      className={'checkbox-container'}
+      onClick={e => {
+        e.stopPropagation()
+        if (isSelected({ selectionInterface, model })) {
+          selectionInterface.removeSelectedResult(model)
+        } else {
+          selectionInterface.addSelectedResult(model)
+        }
+      }}
+    >
       <span className={className} />
     </Root>
   )
