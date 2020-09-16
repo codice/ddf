@@ -151,6 +151,8 @@ public class DynamicSchemaResolver implements ConfigurationListener {
 
   Set<String> filteredAnyTextFieldsCache = new HashSet<>();
 
+  private boolean caseInsensitiveSort;
+
   private SchemaFields schemaFields;
 
   private Cache<String, MetacardType> metacardTypesCache =
@@ -163,6 +165,7 @@ public class DynamicSchemaResolver implements ConfigurationListener {
     ConfigurationStore.getInstance().addConfigurationListener(this);
     this.schemaFields = new SchemaFields();
     metadataMaximumBytes = getMetadataSizeLimit();
+    caseInsensitiveSort = "true".equals(System.getProperty("solr.sort.case-insensitive"));
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
     fieldsCache.add(
@@ -906,14 +909,10 @@ public class DynamicSchemaResolver implements ConfigurationListener {
 
   String getSortKey(String field) {
     if (field.endsWith(SchemaFields.GEO_SUFFIX)
-        || (field.endsWith(SchemaFields.TEXT_SUFFIX) && caseInsensitiveSort())) {
+        || (field.endsWith(SchemaFields.TEXT_SUFFIX) && caseInsensitiveSort)) {
       field = field + SchemaFields.SORT_SUFFIX;
     }
     return field;
-  }
-
-  private boolean caseInsensitiveSort() {
-    return "true".equals(System.getProperty("solr.sort.case-insensitive"));
   }
 
   Stream<String> anyTextFields() {
