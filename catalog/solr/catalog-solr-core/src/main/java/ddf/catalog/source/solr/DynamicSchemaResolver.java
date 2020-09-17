@@ -165,7 +165,7 @@ public class DynamicSchemaResolver implements ConfigurationListener {
     ConfigurationStore.getInstance().addConfigurationListener(this);
     this.schemaFields = new SchemaFields();
     metadataMaximumBytes = getMetadataSizeLimit();
-    caseInsensitiveSort = "true".equals(System.getProperty("solr.sort.case-insensitive"));
+    caseInsensitiveSort = "true".equals(System.getProperty("solr.query.sort.caseInsensitive"));
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
     fieldsCache.add(
