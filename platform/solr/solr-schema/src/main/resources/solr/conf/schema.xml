@@ -108,7 +108,7 @@
         </analyzer>
     </fieldType>
 
-    <fieldType name="lowercase" class="solr.TextField" positionIncrementGap="100">
+    <fieldType name="lowercase" class="solr.SortableTextField" sortMissingLast="true" omitNorms="true">
         <analyzer>
             <tokenizer class="solr.KeywordTokenizerFactory"/>
             <filter class="solr.LowerCaseFilterFactory" />
