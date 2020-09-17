@@ -90,7 +90,7 @@ pipeline {
 
         stage('Integration Tests Only Build') {
             options {
-                timeout(time: 3, unit: 'HOURS')
+                timeout(time: 1, unit: 'HOURS')
             }
             steps {
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
@@ -104,7 +104,7 @@ pipeline {
 
         stage('DDF Core Tests Only Build') {
             options {
-                timeout(time: 3, unit: 'HOURS')
+                timeout(time: 1, unit: 'HOURS')
             }
             steps {
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
