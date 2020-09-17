@@ -60,7 +60,7 @@
                                 <argument>up</argument>
                                 <argument>-d</argument>
                             </arguments>
-                            <workingDirectory>${project.build.outputDirectory}</workingDirectory>
+                            <workingDirectory>${project.build.outputDirectory}/solrcloud</workingDirectory>
                         </configuration>
                     </execution>
                     <execution>
@@ -75,7 +75,7 @@
                                 <argument>--tail=50</argument>
                                 <argument>-f</argument>
                             </arguments>
-                            <workingDirectory>${project.build.outputDirectory}</workingDirectory>
+                            <workingDirectory>${project.build.outputDirectory}/solrcloud</workingDirectory>
                         </configuration>
                     </execution>
                     <execution>
@@ -88,7 +88,7 @@
                             <arguments>
                                 <argument>down</argument>
                             </arguments>
-                            <workingDirectory>${project.build.outputDirectory}</workingDirectory>
+                            <workingDirectory>${project.build.outputDirectory}/solrcloud</workingDirectory>
                         </configuration>
                     </execution>
                     <execution>
@@ -101,11 +101,12 @@
                             <arguments>
                                 <argument>volume</argument>
                                 <argument>rm</argument>
-                                <argument>solrcloud_solr1_data</argument>
-                                <argument>solrcloud_solr2_data</argument>
-                                <argument>solrcloud_zoo_data</argument>
+                                <argument>solr1_data</argument>
+                                <argument>solr2_data</argument>
+                                <argument>zoo_data</argument>
+                                <argument>zoo_datalog</argument>
                             </arguments>
-                            <workingDirectory>${project.build.outputDirectory}</workingDirectory>
+                            <workingDirectory>${project.build.outputDirectory}/solrcloud</workingDirectory>
                         </configuration>
                     </execution>
                 </executions>

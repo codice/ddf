@@ -17,6 +17,7 @@ services:
       JVMFLAGS: -Djute.maxbuffer=2097152 -Dzookeeper.4lw.commands.whitelist=mntr,conf,ruok
     volumes:
       - zoo_data:/data
+      - zoo_datalog:/datalog
     networks:
       - solrcloud
 
@@ -65,5 +66,10 @@ networks:
 
 volumes:
   solr1_data:
+    name: solr1_data
   solr2_data:
+    name: solr2_data
   zoo_data:
+    name: zoo_data
+  zoo_datalog:
+    name: zoo_datalog
