@@ -106,7 +106,9 @@ class WorkspaceInteractions extends React.Component<Props, State> {
       }
     )
   }
-  runAllSearches = () => {
+  sleep = (ms: any) => new Promise(resolve => setTimeout(resolve, ms))
+
+  runAllSearches = async () => {
     store.clearOtherWorkspaces(this.props.workspace.id)
     wreqr.vent.trigger('router:navigate', {
       fragment: 'workspaces/' + this.props.workspace.id,
@@ -114,7 +116,13 @@ class WorkspaceInteractions extends React.Component<Props, State> {
         trigger: true,
       },
     })
-    const queries = this.props.workspace.get('queries')
+    const workspace = this.props.workspace
+    if (workspace.isPartial()){
+      workspace.fetchPartial()
+      while(workspace.isPartial())
+        await this.sleep(100)
+    }
+    const queries = workspace.get('queries')
     store.setCurrentQuery(queries.at(0))
     queries.forEach(function(query: any) {
       query.startSearch()
