@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import static org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor.CDM_LOGGER_NAME;
+import static org.codice.ddf.catalog.content.monitor.DurableFileAlterationListener.DEFAULT_EXPIRATION_TIME;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
@@ -457,8 +458,6 @@ public class AsyncFileAlterationObserver {
   /** Processing and logging operations which should be done periodically */
   private class ProcessingTask extends TimerTask {
 
-    private static final int DEFAULT_EXPIRATION_TIME = 300_000;
-
     private long expirationTime =
         Long.getLong(
             "org.codice.ddf.catalog.content.monitor.expirationTime", DEFAULT_EXPIRATION_TIME);
@@ -491,7 +490,11 @@ public class AsyncFileAlterationObserver {
 
           String files =
               processing.stream().map(AsyncFileEntry::getName).collect(Collectors.joining(", "));
-          LOGGER.debug("{} files being processed: {}", processing.size(), files);
+          LOGGER.debug(
+              "{} files being processed in '{}' directory: {}",
+              processing.size(),
+              rootFile.getName(),
+              files);
         }
       }
     }

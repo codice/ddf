@@ -396,7 +396,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
           routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY).constant(attributeOverrides);
         }
 
-        ThreadsDefinition td = routeDefinition.threads(numThreads).process(systemSubjectBinder);
+        ThreadsDefinition td =
+            routeDefinition.threads(numThreads, numThreads).process(systemSubjectBinder);
         if (processingMechanism.equals(IN_PLACE)) {
           td.choice()
               .when(
