@@ -117,10 +117,9 @@ class WorkspaceInteractions extends React.Component<Props, State> {
       },
     })
     const workspace = this.props.workspace
-    if (workspace.isPartial()){
+    if (workspace.isPartial()) {
       workspace.fetchPartial()
-      while(workspace.isPartial())
-        await this.sleep(100)
+      while (workspace.isPartial()) await this.sleep(100)
     }
     const queries = workspace.get('queries')
     store.setCurrentQuery(queries.at(0))
