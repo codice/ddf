@@ -82,6 +82,11 @@
                                     <type>config</type>
                                     <classifier>default-mimetype-xml</classifier>
                                 </artifact>
+                                <artifact>
+                                    <file>src/main/resources/default-mimetype-csv.config</file>
+                                    <type>config</type>
+                                    <classifier>default-mimetype-csv</classifier>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
