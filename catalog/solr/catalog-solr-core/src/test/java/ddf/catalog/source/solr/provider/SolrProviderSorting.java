@@ -37,6 +37,7 @@ import ddf.catalog.source.solr.SolrCatalogProviderImpl;
 import ddf.catalog.source.solr.SolrProviderTest;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -192,6 +193,67 @@ public class SolrProviderSorting {
     for (int i = (list.size() - 1); i >= 0; i--) {
       Result r = sourceResponse.getResults().get(i);
       assertEquals((char) (asciiE - i) + " Record ", r.getMetacard().getTitle());
+    }
+  }
+
+  @Test
+  public void testCaseInsensitiveSort() throws Exception {
+    deleteAll(provider);
+
+    List<Metacard> list = new ArrayList<>();
+
+    DateTime now = new DateTime();
+
+    List<String> titles = Arrays.asList("apple", "Apricot", "banana", "Blackberry", "Tangerine");
+
+    for (int i = 0; i < titles.size(); i++) {
+
+      MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
+
+      m.setEffectiveDate(now.minus(5L * i).toDate());
+
+      m.setTitle(titles.get(i));
+
+      list.add(m);
+    }
+
+    create(list, provider);
+
+    Filter filter;
+    QueryImpl query;
+    SourceResponse sourceResponse;
+
+    // Sort all Textual ASCENDING
+
+    filter =
+        getFilterBuilder().attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
+
+    query = new QueryImpl(filter);
+
+    query.setSortBy(
+        new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE, SortOrder.ASCENDING.name()));
+
+    sourceResponse = provider.query(new QueryRequestImpl(query));
+
+    assertEquals(list.size(), sourceResponse.getResults().size());
+
+    for (int i = 0; i < list.size(); i++) {
+      Result r = sourceResponse.getResults().get(i);
+      assertEquals(titles.get(i), r.getMetacard().getTitle());
+    }
+
+    // Sort all Textual DESCENDING
+
+    query.setSortBy(
+        new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE, SortOrder.DESCENDING.name()));
+
+    sourceResponse = provider.query(new QueryRequestImpl(query));
+
+    assertEquals(list.size(), sourceResponse.getResults().size());
+
+    for (int i = (list.size() - 1); i >= 0; i--) {
+      Result r = sourceResponse.getResults().get(i);
+      assertEquals(titles.get(titles.size() - 1 - i), r.getMetacard().getTitle());
     }
   }
 

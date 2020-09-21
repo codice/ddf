@@ -92,6 +92,7 @@ public class SolrProviderTest {
     System.setProperty("solr.cloud.zookeeper.chroot", "/solr");
     System.setProperty("solr.cloud.zookeeper", miniSolrCloud.getZkServer().getZkHost());
     System.setProperty("metadata.size.limit", Integer.toString(FIVE_MEGABYTES));
+    System.setProperty("solr.query.sort.caseInsensitive", "true");
 
     SolrCloudClientFactory solrClientFactory = new SolrCloudClientFactory();
     solrClient = solrClientFactory.newClient("catalog");
@@ -124,6 +125,7 @@ public class SolrProviderTest {
     System.clearProperty("solr.cloud.zookeeper.chroot");
     System.clearProperty("solr.cloud.zookeeper");
     System.clearProperty("metadata.size.limit");
+    System.clearProperty("solr.query.sort.caseInsensitive");
 
     if (miniSolrCloud != null) {
       miniSolrCloud.shutdown();

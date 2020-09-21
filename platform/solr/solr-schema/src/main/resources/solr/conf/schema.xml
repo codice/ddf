@@ -65,7 +65,6 @@
     <dynamicField name="*_obj" type="binary" indexed="false" stored="true" multiValued="true"/>
 
     <!-- Copy Fields -->
-    <copyField source="*_txt" dest="*_txt_sort"/>
     <copyField source="*_txt_tokenized" dest="*_txt_tokenized_has_case"/>
     <copyField source="*_geo" dest="*_geo_index"/>
 

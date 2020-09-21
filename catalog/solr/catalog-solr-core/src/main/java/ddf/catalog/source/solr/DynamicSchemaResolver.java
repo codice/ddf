@@ -313,6 +313,18 @@ public class DynamicSchemaResolver {
                 formatIndexName + SchemaFields.SORT_SUFFIX, createCenterPoint(attributeValues));
           }
 
+          if (AttributeFormat.STRING.equals(format)
+              && caseInsensitiveSort
+              && solrInputDocument.getFieldValue(formatIndexName + SchemaFields.SORT_SUFFIX)
+                  == null) {
+            solrInputDocument.addField(
+                formatIndexName + SchemaFields.SORT_SUFFIX,
+                attributeValues.stream()
+                    .map(Object::toString)
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList()));
+          }
+
           // Prevent adding a field already on document
           if (solrInputDocument.getFieldValue(formatIndexName) == null) {
             solrInputDocument.addField(formatIndexName, attributeValues);
