@@ -152,6 +152,8 @@ public class DynamicSchemaResolver {
 
   private boolean caseInsensitiveSort;
 
+  private int textSortCharacterLimit;
+
   private SchemaFields schemaFields;
 
   private Cache<String, MetacardType> metacardTypesCache =
@@ -165,7 +167,12 @@ public class DynamicSchemaResolver {
     metadataMaximumBytes = getMetadataSizeLimit();
     anyTextFields = getAnyTextFields();
     caseInsensitiveSort = "true".equals(System.getProperty("solr.query.sort.caseInsensitive"));
-
+    try {
+      textSortCharacterLimit =
+          Integer.parseInt(System.getProperty("solr.index.sort.characterLimit", "127").trim());
+    } catch (NumberFormatException nfe) {
+      textSortCharacterLimit = 127;
+    }
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
     fieldsCache.add(
@@ -322,6 +329,7 @@ public class DynamicSchemaResolver {
                 attributeValues.stream()
                     .map(Object::toString)
                     .map(String::toLowerCase)
+                    .map(value -> truncate(value, textSortCharacterLimit))
                     .collect(Collectors.toList()));
           }
 
@@ -356,6 +364,13 @@ public class DynamicSchemaResolver {
     }
 
     solrInputDocument.addField(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME, metacardTypeBytes);
+  }
+
+  private String truncate(String value, int length) {
+    if (value.length() > length) {
+      return value.substring(0, length);
+    }
+    return value;
   }
 
   /*
