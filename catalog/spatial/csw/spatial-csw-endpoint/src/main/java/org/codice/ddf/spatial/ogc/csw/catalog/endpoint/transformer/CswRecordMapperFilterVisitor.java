@@ -480,7 +480,6 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
   }
 
   @Override
-  @SuppressWarnings("squid:S2177" /* Doesn't override parent method */)
   protected Expression visit(Expression expression, Object extraData) {
     if (expression == null) {
       return null;
