@@ -23,15 +23,19 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
 import ddf.security.common.PrincipalHolder;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.cxf.common.util.StringUtils;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.pac4j.core.context.JEEContext;
@@ -121,23 +125,9 @@ public class OidcLogoutActionProvider implements ActionProvider {
 
       URIBuilder urlBuilder =
           new URIBuilder(SystemBaseUrl.EXTERNAL.constructUrl("/oidc/logout", true));
-      String referer = request.getHeader("Referer");
-      if (!StringUtils.isEmpty(referer)) {
-        String[] parts;
-        if (referer.contains("prevurl")) {
-          parts = referer.split("\\?prevurl=");
-        } else {
-          parts = referer.split("\\?service=");
-        }
-
-        if (parts.length > 1) {
-          String previousUrl = parts[1];
-
-          if (previousUrl.startsWith("/")) {
-            previousUrl = SystemBaseUrl.EXTERNAL.constructUrl(previousUrl, false);
-          }
-          urlBuilder.addParameter("prevurl", previousUrl);
-        }
+      String prevUrl = getPreviousUrl(request);
+      if (prevUrl != null) {
+        urlBuilder.addParameter("prevurl", prevUrl);
       }
 
       RedirectionAction logoutAction =
@@ -161,6 +151,40 @@ public class OidcLogoutActionProvider implements ActionProvider {
   @Override
   public String getId() {
     return ID;
+  }
+
+  private String getPreviousUrl(HttpServletRequest request) {
+    String referer = request.getHeader("Referer");
+    if (referer == null) {
+      return null;
+    }
+
+    URI refererUri;
+    try {
+      refererUri = new URI(referer);
+    } catch (URISyntaxException e) {
+      // Shouldn't happen if the Referer header is set by the browser
+      return null;
+    }
+    Map<String, String> queryParams =
+        URLEncodedUtils.parse(refererUri, StandardCharsets.UTF_8).stream()
+            .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+
+    String previousUrl;
+    if (queryParams.containsKey("prevurl")) {
+      previousUrl = queryParams.get("prevurl");
+    } else if (queryParams.containsKey("service")) {
+      previousUrl = queryParams.get("service");
+    } else {
+      return null;
+    }
+
+    if (previousUrl.startsWith("/")) {
+      // An absolute path won't include the external context. Need to add it ourselves
+      previousUrl = SystemBaseUrl.EXTERNAL.constructUrl(previousUrl, false);
+    }
+
+    return previousUrl;
   }
 
   private <T> boolean canHandle(T subjectMap) {
