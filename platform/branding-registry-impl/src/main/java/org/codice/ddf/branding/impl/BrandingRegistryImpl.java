@@ -14,19 +14,58 @@
 package org.codice.ddf.branding.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.ddf.branding.BrandingRegistry;
+import org.codice.ddf.platform.util.ServiceComparator;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BrandingRegistryImpl implements BrandingRegistry {
   private static final Logger LOGGER = LoggerFactory.getLogger(BrandingRegistryImpl.class);
 
-  private List<BrandingPlugin> brandingPlugins = Collections.emptyList();
+  private Map<ServiceReference, BrandingPlugin> brandingPlugins =
+      Collections.synchronizedMap(
+          new TreeMap<>(
+              new ServiceComparator() {
+                public int compare(ServiceReference ref1, ServiceReference ref2) {
+                  return ref2.compareTo(ref1);
+                }
+              }));
+
+  private BrandingListener brandingListener = new BrandingListener();
+
+  public void init() {
+    BundleContext context = getContext();
+    context.addServiceListener(brandingListener);
+  }
+
+  public void destroy() {
+    BundleContext context = getContext();
+    context.removeServiceListener(brandingListener);
+  }
+
+  protected BundleContext getContext() {
+    Bundle bundle = FrameworkUtil.getBundle(BrandingRegistryImpl.class);
+    if (bundle != null) {
+      return bundle.getBundleContext();
+    }
+    return null;
+  }
 
   @Override
   public String getProductName() {
@@ -65,11 +104,42 @@ public class BrandingRegistryImpl implements BrandingRegistry {
 
   @Override
   public List<BrandingPlugin> getBrandingPlugins() {
-    return brandingPlugins;
+    if (brandingPlugins.isEmpty()) {
+      BundleContext context = getContext();
+      try {
+        Collection<ServiceReference<BrandingPlugin>> serviceReferences =
+            context.getServiceReferences(BrandingPlugin.class, "");
+        for (ServiceReference<BrandingPlugin> serviceReference : serviceReferences) {
+          brandingPlugins.put(serviceReference, context.getService(serviceReference));
+        }
+      } catch (InvalidSyntaxException e) {
+        LOGGER.debug("Unable to perform initial BrandingPlugin query.", e);
+      }
+    }
+    return new ArrayList<>(brandingPlugins.values());
   }
 
-  @Override
-  public void setBrandingPlugins(List<BrandingPlugin> brandingPlugins) {
-    this.brandingPlugins = brandingPlugins;
+  public void setBrandingPlugins(List<BrandingPlugin> brandingPlugins) {}
+
+  class BrandingListener implements ServiceListener {
+
+    @Override
+    public void serviceChanged(ServiceEvent event) {
+      Bundle bundle = FrameworkUtil.getBundle(BrandingRegistryImpl.class);
+      ServiceReference<?> serviceReference = event.getServiceReference();
+      boolean assignableTo =
+          serviceReference.isAssignableTo(bundle, "org.codice.ddf.branding.BrandingPlugin");
+      Object service = getContext().getService(serviceReference);
+      if (assignableTo
+          && event.getType() == ServiceEvent.REGISTERED
+          && service instanceof BrandingPlugin) {
+        brandingPlugins.put(serviceReference, (BrandingPlugin) service);
+      }
+      if (assignableTo
+          && event.getType() == ServiceEvent.UNREGISTERING
+          && service instanceof BrandingPlugin) {
+        brandingPlugins.remove(service);
+      }
+    }
   }
 }
