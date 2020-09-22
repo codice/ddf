@@ -45,6 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -171,6 +172,7 @@ public class DynamicSchemaResolver {
       textSortCharacterLimit =
           Integer.parseInt(System.getProperty("solr.index.sort.characterLimit", "127").trim());
     } catch (NumberFormatException nfe) {
+      LOGGER.warn("Invalid sorting character limit, defaulting to 127", nfe);
       textSortCharacterLimit = 127;
     }
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
@@ -327,9 +329,10 @@ public class DynamicSchemaResolver {
             solrInputDocument.addField(
                 formatIndexName + SchemaFields.SORT_SUFFIX,
                 attributeValues.stream()
+                    .filter(Objects::nonNull)
                     .map(Object::toString)
-                    .map(String::toLowerCase)
                     .map(value -> truncate(value, textSortCharacterLimit))
+                    .map(String::toLowerCase)
                     .collect(Collectors.toList()));
           }
 
