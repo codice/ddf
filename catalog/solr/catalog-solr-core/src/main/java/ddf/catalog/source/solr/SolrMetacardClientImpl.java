@@ -63,7 +63,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -205,7 +204,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
       } else {
-        query.setParam("spellcheck", userSpellcheckIsOn);
+        if (userSpellcheckIsOn) {
+          query.setParam("spellcheck", true);
+        }
         highlighter.processPreQuery(request, query);
         solrResponse = client.query(query, METHOD.POST);
       }
@@ -669,62 +670,11 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     setSortProperty(request, query, filterDelegate);
 
-    filterAttributes(request, query);
-
     if (queryTimeAllowedMs > 0) {
       query.setTimeAllowed(queryTimeAllowedMs);
     }
 
     return query;
-  }
-
-  private void filterAttributes(QueryRequest request, SolrQuery query) {
-    if (skipFilteredAttributes(request)) {
-      return;
-    }
-
-    Set<String> excludedAttributes = (Set<String>) request.getPropertyValue(EXCLUDE_ATTRIBUTES);
-
-    Set<String> excludedFields =
-        resolver.fieldsCache.stream()
-            .filter(Objects::nonNull)
-            .filter(field -> excludedAttributes.stream().anyMatch(field::startsWith))
-            .collect(Collectors.toSet());
-
-    Set<String> wildcardFields =
-        SchemaFields.FORMAT_TO_SUFFIX_MAP.values().stream()
-            .filter(suffix -> excludedFields.stream().noneMatch(field -> field.endsWith(suffix)))
-            .map(suffix -> "*" + suffix)
-            .collect(Collectors.toSet());
-
-    Set<String> includedFields =
-        SchemaFields.FORMAT_TO_SUFFIX_MAP.values().stream()
-            .filter(suffix -> excludedFields.stream().anyMatch(field -> field.endsWith(suffix)))
-            .flatMap(
-                suffix ->
-                    resolver.fieldsCache.stream()
-                        .filter(Objects::nonNull)
-                        .filter(field -> field.endsWith(suffix))
-                        .filter(field -> excludedAttributes.stream().noneMatch(field::startsWith)))
-            .collect(Collectors.toSet());
-
-    Set<String> fields = Sets.union(includedFields, wildcardFields);
-
-    if (query.getFields() != null && query.getFields().length() > 2) {
-      fields = Sets.union(fields, Sets.newHashSet(query.getFields().substring(2).split(",")));
-    }
-
-    if (!fields.isEmpty()) {
-      query.setFields(fields.toArray(new String[fields.size()]));
-    }
-  }
-
-  private boolean skipFilteredAttributes(QueryRequest request) {
-    return !request.hasProperties()
-        || !request.containsPropertyName(EXCLUDE_ATTRIBUTES)
-        || !(request.getPropertyValue(EXCLUDE_ATTRIBUTES) instanceof Set)
-        || ((Set) request.getPropertyValue(EXCLUDE_ATTRIBUTES)).isEmpty()
-        || "true".equals(System.getProperty("solr.client.filterAttributes.disable"));
   }
 
   private boolean queryingForAllRecords(QueryRequest request) {
@@ -747,8 +697,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       SolrQuery query, String sortField, SolrQuery.ORDER order, SolrFilterDelegate delegate) {
     if (delegate.isSortedByDistance()) {
       query.addSort(DISTANCE_SORT_FUNCTION, order);
-      query.setFields(
-          "*", RELEVANCE_SORT_FIELD, DISTANCE_SORT_FIELD + ":" + DISTANCE_SORT_FUNCTION);
+      query.setFields("*", DISTANCE_SORT_FIELD + ":" + DISTANCE_SORT_FUNCTION);
       query.add(SORT_FIELD_KEY, sortField);
       query.add(POINT_KEY, delegate.getSortedDistancePoint());
     }
@@ -782,9 +731,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         order = SolrQuery.ORDER.asc;
       }
 
-      query.setFields("*", RELEVANCE_SORT_FIELD);
-
       if (Result.RELEVANCE.equals(sortProperty)) {
+        query.setFields("*", RELEVANCE_SORT_FIELD);
         query.addSort(RELEVANCE_SORT_FIELD, order);
       } else if (Result.DISTANCE.equals(sortProperty)) {
         addDistanceSort(query, resolver.getSortKey(GEOMETRY_FIELD), order, solrFilterDelegate);
