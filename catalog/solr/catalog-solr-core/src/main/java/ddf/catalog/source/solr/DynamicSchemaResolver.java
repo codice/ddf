@@ -45,6 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -150,6 +151,10 @@ public class DynamicSchemaResolver {
 
   private Set<String> anyTextFields = new HashSet<>();
 
+  private boolean caseInsensitiveSort;
+
+  private int textSortCharacterLimit;
+
   private SchemaFields schemaFields;
 
   private Cache<String, MetacardType> metacardTypesCache =
@@ -162,7 +167,14 @@ public class DynamicSchemaResolver {
     schemaFields = new SchemaFields();
     metadataMaximumBytes = getMetadataSizeLimit();
     anyTextFields = getAnyTextFields();
-
+    caseInsensitiveSort = "true".equals(System.getProperty("solr.query.sort.caseInsensitive"));
+    try {
+      textSortCharacterLimit =
+          Integer.parseInt(System.getProperty("solr.index.sort.characterLimit", "127").trim());
+    } catch (NumberFormatException nfe) {
+      LOGGER.warn("Invalid sorting character limit, defaulting to 127", nfe);
+      textSortCharacterLimit = 127;
+    }
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
     fieldsCache.add(
@@ -310,6 +322,20 @@ public class DynamicSchemaResolver {
                 formatIndexName + SchemaFields.SORT_SUFFIX, createCenterPoint(attributeValues));
           }
 
+          if (AttributeFormat.STRING.equals(format)
+              && caseInsensitiveSort
+              && solrInputDocument.getFieldValue(formatIndexName + SchemaFields.SORT_SUFFIX)
+                  == null) {
+            solrInputDocument.addField(
+                formatIndexName + SchemaFields.SORT_SUFFIX,
+                attributeValues.stream()
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .map(value -> truncate(value, textSortCharacterLimit))
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList()));
+          }
+
           // Prevent adding a field already on document
           if (solrInputDocument.getFieldValue(formatIndexName) == null) {
             solrInputDocument.addField(formatIndexName, attributeValues);
@@ -341,6 +367,13 @@ public class DynamicSchemaResolver {
     }
 
     solrInputDocument.addField(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME, metacardTypeBytes);
+  }
+
+  private String truncate(String value, int length) {
+    if (value.length() > length) {
+      return value.substring(0, length);
+    }
+    return value;
   }
 
   /*
@@ -828,7 +861,8 @@ public class DynamicSchemaResolver {
   }
 
   String getSortKey(String field) {
-    if (field.endsWith(SchemaFields.GEO_SUFFIX)) {
+    if (field.endsWith(SchemaFields.GEO_SUFFIX)
+        || (field.endsWith(SchemaFields.TEXT_SUFFIX) && caseInsensitiveSort)) {
       field = field + SchemaFields.SORT_SUFFIX;
     }
     return field;

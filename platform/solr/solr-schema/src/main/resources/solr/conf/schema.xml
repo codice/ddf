@@ -57,6 +57,7 @@
 
     <dynamicField name="*_xml" type="string" indexed="false" stored="true" multiValued="true" docValues="false"/>
     <dynamicField name="*_txt" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+    <dynamicField name="*_txt_sort" type="string" indexed="true" stored="false" multiValued="true" docValues="true"/>
     <dynamicField name="*_txt_tokenized" type="text" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_txt_tokenized_has_case" type="text_case" indexed="true" stored="false" multiValued="true"/>
 
