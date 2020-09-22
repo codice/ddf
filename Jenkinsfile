@@ -27,6 +27,7 @@ pipeline {
     environment {
         DOCS = 'distribution/docs'
         ITESTS = 'distribution/test/itests/test-itests-ddf'
+        ITCORE = 'distribution/test/itests/test-itests-ddf-core'
         LARGE_MVN_OPTS = '-Xmx4G -Xms1G -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
         DISABLE_DOWNLOAD_PROGRESS_OPTS = '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn '
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
@@ -65,11 +66,9 @@ pipeline {
                 timeout(time: 3, unit: 'HOURS')
             }
             steps {
-                // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
-                // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                     sh 'mvn install -B -DskipStatic=true -DskipTests=true $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                    sh 'mvn clean install -B -DskipITs -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                    sh 'mvn clean install -B -pl !$ITESTS,!$ITCORE -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                 }
             }
         }
@@ -83,24 +82,35 @@ pipeline {
                 timeout(time: 3, unit: 'HOURS')
             }
             steps {
-                // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
-                // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
-                    sh 'mvn clean install -B -DskipITs -pl !$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                    sh 'mvn clean install -B -pl !$ITESTS,!$ITCORE $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                 }
             }
         }
 
         stage('Integration Tests Only Build') {
             options {
-                timeout(time: 3, unit: 'HOURS')
+                timeout(time: 1, unit: 'HOURS')
             }
             steps {
-                // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                     sh '''
                         unset JAVA_TOOL_OPTIONS
                         mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
+                    '''
+                }
+            }
+        }
+
+        stage('DDF Core Tests Only Build') {
+            options {
+                timeout(time: 1, unit: 'HOURS')
+            }
+            steps {
+                withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
+                    sh '''
+                        unset JAVA_TOOL_OPTIONS
+                        mvn install -B -pl $ITCORE -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
                     '''
                 }
             }
