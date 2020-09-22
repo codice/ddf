@@ -18,8 +18,12 @@ import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -46,7 +50,7 @@ public class ConfigsetsTest {
   public void writingDefaultToDisk() {
     File defaultConf = tempLocation.toPath().resolve(Paths.get("default", "conf")).toFile();
     assertThat(defaultConf.exists(), is(true));
-    assertThat(defaultConf.listFiles().length, is(8));
+    assertThat(defaultConf.listFiles().length, is(Configsets.SOLR_CONFIG_FILES.size()));
   }
 
   @Ignore
@@ -66,5 +70,21 @@ public class ConfigsetsTest {
     assertThat(
         collectionLocation.toString(),
         endsWith(File.separator + TEST_COLLECTION_NAME + File.separator + "conf"));
+  }
+
+  @Test
+  public void voidTestPartialConfigGetsRectified() throws IOException {
+    Path rootPath = tempLocation.toPath();
+    File confDir = rootPath.resolve(Paths.get(TEST_COLLECTION_NAME, "conf")).toFile();
+    confDir.mkdirs();
+    File schema = confDir.toPath().resolve(Paths.get("schema.xml")).toFile();
+    IOUtils.write("schemastuff", new FileOutputStream(schema), Charset.defaultCharset());
+
+    Path collectionLocation = configsets.get(TEST_COLLECTION_NAME);
+    // Ensure that all required files are there even though only the schema was supplied
+    for (String file : Configsets.SOLR_CONFIG_FILES) {
+      File configFile = collectionLocation.resolve(Paths.get(file)).toFile();
+      assertThat(configFile.exists(), is(true));
+    }
   }
 }
