@@ -17,11 +17,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
+import ddf.camel.component.catalog.CatalogComponent;
 import ddf.camel.component.catalog.CatalogEndpoint;
+import ddf.camel.component.catalog.transformer.TransformerTimeoutException;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -29,8 +32,14 @@ import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import javax.activation.MimeType;
+import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,23 +59,44 @@ public class InputTransformerProducerTest {
 
   private Message message;
 
+  CatalogEndpoint catalogEndpoint;
+
+  List<Future<Object>> futures;
+
   private InputTransformerProducer inputTransformerProducer;
 
   private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
   private MimeTypeMapper mimeTypeMapper;
 
-  @Before
-  public void setup() throws Exception {
-    message = mock(Message.class);
-
-    CatalogEndpoint catalogEndpoint = mock(CatalogEndpoint.class);
+  private void setupCatalogEndpoint(boolean timeout) throws Exception {
+    catalogEndpoint = mock(CatalogEndpoint.class);
     mimeTypeMapper = mock(MimeTypeMapper.class);
     when(catalogEndpoint.getMimeTypeMapper()).thenReturn(mimeTypeMapper);
 
-    inputTransformerProducer = new InputTransformerProducer(catalogEndpoint);
+    CatalogComponent catalogComponent = mock(CatalogComponent.class);
+    when(catalogEndpoint.getComponent()).thenReturn(catalogComponent);
+    when(catalogComponent.getMimeTypeToTransformerMapper()).thenReturn(mimeTypeToTransformerMapper);
 
+    futures = new ArrayList<>();
+    Future<Object> future = mock(Future.class);
+    when(future.isDone()).thenReturn(!timeout);
+    futures.add(future);
+
+    ExecutorService executorService = mock(ExecutorService.class);
+    when(executorService.invokeAll(any(), anyLong(), any(TimeUnit.class))).thenReturn(futures);
+    when(catalogEndpoint.getExecutor()).thenReturn(executorService);
+
+    inputTransformerProducer = new InputTransformerProducer(catalogEndpoint);
+  }
+
+  @Before
+  public void setup() throws Exception {
+    message = mock(Message.class);
     mimeTypeToTransformerMapper = mock(MimeTypeToTransformerMapper.class);
+
+    setupCatalogEndpoint(false);
+
     InputTransformer inputTransformer = mock(InputTransformer.class);
     when(inputTransformer.transform(any(InputStream.class))).thenReturn(mock(Metacard.class));
     when(mimeTypeToTransformerMapper.findMatches(any(Class.class), any(MimeType.class)))
@@ -135,5 +165,31 @@ public class InputTransformerProducerTest {
     when(message.getBody(InputStream.class)).thenReturn(is);
     inputTransformerProducer.transform(message, "", "", mimeTypeToTransformerMapper);
     verify(is).close();
+  }
+
+  @Test(expected = TransformerTimeoutException.class)
+  public void testTransformTimeout() throws Exception {
+    setupCatalogEndpoint(true);
+
+    Exchange mockExchange = mock(Exchange.class);
+
+    when(mockExchange.getIn()).thenReturn(message);
+    when(mockExchange.getOut()).thenReturn(message);
+    when(mockExchange.getOut()).thenReturn(message);
+    when(mockExchange.getIn().getHeader("timeoutMilliseconds")).thenReturn(1000L);
+
+    inputTransformerProducer.process(mockExchange);
+  }
+
+  @Test
+  public void testTransformNoTimeout() throws Exception {
+    Exchange mockExchange = mock(Exchange.class);
+
+    when(mockExchange.getIn()).thenReturn(message);
+    when(mockExchange.getOut()).thenReturn(message);
+    when(mockExchange.getOut()).thenReturn(message);
+    when(mockExchange.getIn().getHeader("timeoutMilliseconds")).thenReturn(1000L);
+
+    inputTransformerProducer.process(mockExchange);
   }
 }
