@@ -3,7 +3,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -22,26 +22,5 @@
     <componentDescriptors>
         <componentDescriptor>target/dependencies/common-bin.xml</componentDescriptor>
     </componentDescriptors>
-
-    <!-- We need this because the feature service is not up when we want to provision our
-    own config admin -->
-    <dependencySets>
-        <dependencySet>
-            <outputDirectory>system/ddf/platform/osgi/platform-osgi-configadmin/${project.version}
-            </outputDirectory>
-            <includes>
-                <include>ddf.platform.osgi:platform-osgi-configadmin:jar:${project.version}
-                </include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>system/ddf/platform/osgi/platform-osgi-internal-api/${project.version}
-            </outputDirectory>
-            <includes>
-                <include>ddf.platform.osgi:platform-osgi-internal-api:jar:${project.version}
-                </include>
-            </includes>
-        </dependencySet>
-    </dependencySets>
 
 </assembly>

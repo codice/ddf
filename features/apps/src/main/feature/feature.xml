@@ -57,7 +57,6 @@
     <repository>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</repository>
-    <repository>mvn:org.codice.opendj.embedded/opendj-embedded-app/${opendj-embedded.app.version}/xml/features</repository>
 
     <feature name="ddf-boot-features" version="${project.version}"
              description="Features that will be started on container startup.">
