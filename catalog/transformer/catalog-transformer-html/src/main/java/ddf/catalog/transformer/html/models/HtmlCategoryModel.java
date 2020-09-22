@@ -49,18 +49,22 @@ public class HtmlCategoryModel implements HtmlExportCategory {
     // Called from blueprint
   }
 
+  @Override
   public void setTitle(String title) {
     this.title = title;
   }
 
+  @Override
   public String getTitle() {
     return this.title;
   }
 
+  @Override
   public void setAttributes(List<String> attributes) {
     this.attributes = attributes;
   }
 
+  @Override
   public List<String> getAttributes() {
     return this.attributes;
   }
@@ -69,10 +73,12 @@ public class HtmlCategoryModel implements HtmlExportCategory {
     this.attributeMappings = attributes;
   }
 
+  @Override
   public Map<String, HtmlValueModel> getAttributeMappings() {
     return this.attributeMappings;
   }
 
+  @Override
   public void applyAttributeMappings(Metacard metacard) {
     this.attributeMappings = new TreeMap<>();
 

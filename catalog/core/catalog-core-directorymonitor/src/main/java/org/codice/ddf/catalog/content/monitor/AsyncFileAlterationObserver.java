@@ -428,6 +428,7 @@ public class AsyncFileAlterationObserver {
   private class LogProcessing extends TimerTask {
 
     /** Log files still in processing at scheduled intervals */
+    @Override
     public void run() {
       if (LOGGER.isDebugEnabled() && !processing.isEmpty()) {
         String files =

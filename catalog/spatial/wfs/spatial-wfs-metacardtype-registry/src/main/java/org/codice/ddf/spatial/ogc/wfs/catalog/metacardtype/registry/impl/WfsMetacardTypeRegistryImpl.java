@@ -45,6 +45,7 @@ public final class WfsMetacardTypeRegistryImpl implements WfsMetacardTypeRegistr
   }
 
   /** {@inheritDoc} */
+  @Override
   public Optional<MetacardType> lookupMetacardTypeBySimpleName(String sourceId, String simpleName) {
 
     if (sourceId == null || simpleName == null) {
@@ -75,6 +76,7 @@ public final class WfsMetacardTypeRegistryImpl implements WfsMetacardTypeRegistr
   }
 
   /** {@inheritDoc} */
+  @Override
   public void registerMetacardType(
       MetacardType metacardType, String sourceId, String featureSimpleName) {
 

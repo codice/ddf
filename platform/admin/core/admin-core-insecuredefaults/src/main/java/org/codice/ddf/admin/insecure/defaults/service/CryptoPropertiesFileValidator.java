@@ -72,6 +72,7 @@ public abstract class CryptoPropertiesFileValidator extends PropertiesFileValida
     this.defaultPrivateKeyPassword = password;
   }
 
+  @Override
   public abstract List<Alert> validate();
 
   protected void validateKeystorePassword(Properties properties) {

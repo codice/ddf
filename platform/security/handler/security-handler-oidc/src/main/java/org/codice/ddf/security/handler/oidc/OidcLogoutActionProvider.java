@@ -75,6 +75,7 @@ public class OidcLogoutActionProvider implements ActionProvider {
    * @param subjectMap containing the corresponding subject
    * @return OidcLogoutActionProvider containing the logout url
    */
+  @Override
   public <T> Action getAction(T subjectMap) {
     if (!canHandle(subjectMap)) {
       return null;

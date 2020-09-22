@@ -26,10 +26,12 @@ public class XPathEvaluationCriteriaImpl implements XPathEvaluationCriteria {
     this.xpath = xpath;
   }
 
+  @Override
   public Document getDocument() {
     return document;
   }
 
+  @Override
   public String getXPath() {
     return xpath;
   }

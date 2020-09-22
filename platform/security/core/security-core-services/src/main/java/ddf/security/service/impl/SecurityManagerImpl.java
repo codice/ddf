@@ -56,6 +56,7 @@ public class SecurityManagerImpl implements SecurityManager {
     internalManager.setRealms(realms);
   }
 
+  @Override
   public Subject getSubject(Object token) throws SecurityServiceException {
     AuthenticationToken authenticationToken = null;
     if (token instanceof SessionToken) {
@@ -119,6 +120,7 @@ public class SecurityManagerImpl implements SecurityManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AllSuccessfulStrategy.class);
 
+    @Override
     public AuthenticationInfo afterAttempt(
         Realm realm,
         AuthenticationToken token,

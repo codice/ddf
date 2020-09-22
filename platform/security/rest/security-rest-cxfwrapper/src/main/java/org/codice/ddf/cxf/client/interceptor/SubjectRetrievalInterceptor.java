@@ -84,6 +84,7 @@ public class SubjectRetrievalInterceptor extends AbstractPhaseInterceptor<Messag
       super(Phase.SETUP_ENDING);
     }
 
+    @Override
     public void handleMessage(Message message) throws Fault {
       ((Map) message.getExchange().getInMessage().get(Message.PROTOCOL_HEADERS))
           .put(Subject.class.toString(), Arrays.asList(new Subject[] {message.get(Subject.class)}));

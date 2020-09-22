@@ -25,6 +25,7 @@ public class SignaturePropertiesFileValidator extends CryptoPropertiesFileValida
   private static final Logger LOGGER =
       LoggerFactory.getLogger(SignaturePropertiesFileValidator.class);
 
+  @Override
   public List<Alert> validate() {
     resetAlerts();
     Properties properties = readFile();
@@ -42,6 +43,7 @@ public class SignaturePropertiesFileValidator extends CryptoPropertiesFileValida
     return alerts;
   }
 
+  @Override
   protected void validatePrivateKeyPassword(Properties properties) {
 
     String privateKeyPassword = properties.getProperty(PRIVATE_KEY_PASSWORD_PROPERTY);

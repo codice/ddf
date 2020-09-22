@@ -21,6 +21,7 @@ import java.util.concurrent.ForkJoinWorkerThread;
  * one to create standard worker threads to avoid the issue.
  */
 public class ForkJoinPoolFactory implements ForkJoinPool.ForkJoinWorkerThreadFactory {
+  @Override
   public final ForkJoinWorkerThread newThread(ForkJoinPool pool) {
     return new StandardForkJoinWorkerThread(pool);
   }

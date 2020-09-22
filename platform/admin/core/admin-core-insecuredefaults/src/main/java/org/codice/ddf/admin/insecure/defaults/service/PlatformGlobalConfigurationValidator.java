@@ -32,6 +32,7 @@ public class PlatformGlobalConfigurationValidator implements Validator {
     alerts = new ArrayList<>();
   }
 
+  @Override
   public List<Alert> validate() {
     alerts = new ArrayList<>();
     validateHttpIsDisabled();

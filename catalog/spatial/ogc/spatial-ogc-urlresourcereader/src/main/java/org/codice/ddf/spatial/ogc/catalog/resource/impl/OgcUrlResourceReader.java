@@ -76,6 +76,7 @@ public class OgcUrlResourceReader implements ResourceReader {
         "Supported Schemes for {}: {}", OgcUrlResourceReader.class.getSimpleName(), QUALIFIER_SET);
   }
 
+  @Override
   public Set<String> getSupportedSchemes() {
     return QUALIFIER_SET;
   }
@@ -95,6 +96,7 @@ public class OgcUrlResourceReader implements ResourceReader {
    * @return A {@link ResourceResponse} containing the retrieved {@link Resource}.
    * @throws ResourceNotSupportedException
    */
+  @Override
   public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     LOGGER.debug("Calling URLResourceReader.retrieveResource()");

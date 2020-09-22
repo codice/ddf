@@ -479,7 +479,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     return new Distance(distance, linearUnit).getAs(LinearUnit.METER);
   }
 
-  @SuppressWarnings("squid:S2177" /* Doesn't override parent method */)
+  @Override
   protected Expression visit(Expression expression, Object extraData) {
     if (expression == null) {
       return null;

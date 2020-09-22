@@ -50,6 +50,7 @@ public class QueryResponseTransformerProducer extends TransformerProducer {
     super(endpoint);
   }
 
+  @Override
   protected Object transform(
       Message in, String mimeType, String transformerId, MimeTypeToTransformerMapper mapper)
       throws MimeTypeParseException, CatalogTransformerException {

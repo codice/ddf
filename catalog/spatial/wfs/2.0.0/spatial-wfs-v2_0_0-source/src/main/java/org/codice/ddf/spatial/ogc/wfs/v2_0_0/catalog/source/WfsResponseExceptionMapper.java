@@ -39,6 +39,7 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WfsResponseExceptionMapper.class);
 
+  @Override
   public WfsException fromResponse(Response response) {
 
     WfsException wfsEx = null;

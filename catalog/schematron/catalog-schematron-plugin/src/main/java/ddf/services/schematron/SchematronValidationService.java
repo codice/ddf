@@ -438,14 +438,17 @@ public class SchematronValidationService
    * Schematron schema.
    */
   private class Listener implements ErrorListener {
+    @Override
     public void warning(TransformerException e) throws TransformerException {
       LOGGER.debug("Schematron rule transformation warning", e);
     }
 
+    @Override
     public void error(TransformerException e) throws TransformerException {
       throw e;
     }
 
+    @Override
     public void fatalError(TransformerException e) throws TransformerException {
       throw e;
     }

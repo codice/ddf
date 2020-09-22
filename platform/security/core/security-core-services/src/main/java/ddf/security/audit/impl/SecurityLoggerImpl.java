@@ -161,6 +161,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param message the message string to log.
    * @param subject the user subject to log
    */
+  @Override
   public void audit(String message, Subject subject) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
@@ -173,6 +174,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    *
    * @param message the message string to log.
    */
+  @Override
   public void audit(String message) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -186,6 +188,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param subject the user subject to log
    * @param params parameters to the message.
    */
+  @Override
   public void audit(String message, Subject subject, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
@@ -199,6 +202,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param message the message to log; the format depends on the message factory.
    * @param params parameters to the message.
    */
+  @Override
   public void audit(String message, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -214,6 +218,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param paramSuppliers An array of functions, which when called, produce the desired log message
    *     parameters.
    */
+  @Override
   public void audit(String message, Subject subject, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
@@ -229,6 +234,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param paramSuppliers An array of functions, which when called, produce the desired log message
    *     parameters.
    */
+  @Override
   public void audit(String message, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -243,6 +249,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param subject the user subject to log
    * @param t the exception to log, including its stack trace.
    */
+  @Override
   public void audit(String message, Subject subject, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
@@ -257,6 +264,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param message the message object to log.
    * @param t the exception to log, including its stack trace.
    */
+  @Override
   public void audit(String message, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -269,6 +277,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param message the message string to log.
    * @param subject the user subject to log
    */
+  @Override
   public void auditWarn(String message, Subject subject) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
@@ -281,6 +290,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    *
    * @param message the message string to log.
    */
+  @Override
   public void auditWarn(String message) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -294,6 +304,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param subject the user subject to log
    * @param params parameters to the message.
    */
+  @Override
   public void auditWarn(String message, Subject subject, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
@@ -307,6 +318,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param message the message to log; the format depends on the message factory.
    * @param params parameters to the message.
    */
+  @Override
   public void auditWarn(String message, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -322,6 +334,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param paramSuppliers An array of functions, which when called, produce the desired log message
    *     parameters.
    */
+  @Override
   public void auditWarn(String message, Subject subject, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
@@ -337,6 +350,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param paramSuppliers An array of functions, which when called, produce the desired log message
    *     parameters.
    */
+  @Override
   public void auditWarn(String message, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
@@ -351,6 +365,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param subject the user subject to log
    * @param t the exception to log, including its stack trace.
    */
+  @Override
   public void auditWarn(String message, Subject subject, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(
@@ -365,6 +380,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
    * @param message the message object to log.
    * @param t the exception to log, including its stack trace.
    */
+  @Override
   public void auditWarn(String message, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
     requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);

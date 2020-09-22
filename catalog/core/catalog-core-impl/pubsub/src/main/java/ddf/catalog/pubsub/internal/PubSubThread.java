@@ -35,6 +35,7 @@ public class PubSubThread extends Thread {
     this.eventAdmin = eventAdmin;
   }
 
+  @Override
   public void run() {
     LOGGER.debug("Processing entry event in separate thread - topic = {}", topic);
 

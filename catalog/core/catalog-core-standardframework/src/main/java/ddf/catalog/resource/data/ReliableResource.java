@@ -92,6 +92,7 @@ public class ReliableResource implements Resource, Serializable {
    *
    * @return InputStream of the product, otherwise {@code null} if could not be retrieved.
    */
+  @Override
   public InputStream getInputStream() {
     try {
       return getProduct();

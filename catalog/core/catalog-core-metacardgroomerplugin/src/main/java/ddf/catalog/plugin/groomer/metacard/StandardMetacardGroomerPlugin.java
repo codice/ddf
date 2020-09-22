@@ -43,6 +43,7 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
     this.uuidGenerator = uuidGenerator;
   }
 
+  @Override
   protected void applyCreatedOperationRules(
       CreateRequest createRequest, Metacard aMetacard, Date now) {
     LOGGER.debug("Applying standard rules on CreateRequest");
@@ -76,6 +77,7 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
     return uri != null && ContentItem.CONTENT_SCHEME.equals(uri.getScheme());
   }
 
+  @Override
   protected void applyUpdateOperationRules(
       UpdateRequest updateRequest,
       Entry<Serializable, Metacard> anUpdate,
