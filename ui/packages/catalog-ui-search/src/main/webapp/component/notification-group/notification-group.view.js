@@ -40,6 +40,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(userNotifications, 'add remove update', this.handleEmpty)
   },
   onBeforeShow() {
+    userNotifications.sort()
     this.groupItems.show(
       new NotificationListView({
         filter: this.options.filter,
