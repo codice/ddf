@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
-import static java.lang.Thread.sleep;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -233,83 +232,10 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
-  public void testHangingFileExpires() throws Exception {
-    System.setProperty("org.codice.ddf.catalog.content.monitor.expirationTime", "100");
-
-    // observer onCreate method will hang for longer than the set expiration time
-    doAnswer(
-            (InvocationOnMock e) -> {
-              sleep(500);
-              return null;
-            })
-        .when(fileListener)
-        .onFileCreate(any(File.class), any(Synchronization.class));
-
-    observer = new AsyncFileAlterationObserver(monitoredDirectory, store);
-    observer.initialize();
-    observer.setListener(fileListener);
-    observer.initializePeriodicProcessing();
-
-    File[] files = initFiles(1, monitoredDirectory, "file00");
-    observer.checkAndNotify();
-
-    verify(fileListener, times(files.length))
-        .onFileCreate(any(File.class), any(Synchronization.class));
-
-    assertThat(observer.expiredFiles.size(), is(1));
-
-    // expiredFiles should not be reattempted
-    observer.checkAndNotify();
-    assertThat(observer.expiredFiles.size(), is(1));
-  }
-
-  @Test
-  public void testExpiredFileUpdated() throws Exception {
-    System.setProperty("org.codice.ddf.catalog.content.monitor.expirationTime", "100");
-
-    // observer onCreate method will hang for longer than the set expiration time
-    doAnswer(
-            (InvocationOnMock e) -> {
-              sleep(500);
-              return null;
-            })
-        .when(fileListener)
-        .onFileCreate(any(File.class), any(Synchronization.class));
-
-    observer = new AsyncFileAlterationObserver(monitoredDirectory, store);
-    observer.initialize();
-    observer.setListener(fileListener);
-    observer.initializePeriodicProcessing();
-
-    File[] files = initFiles(1, monitoredDirectory, "file00");
-    observer.checkAndNotify();
-
-    verify(fileListener, times(files.length))
-        .onFileCreate(any(File.class), any(Synchronization.class));
-
-    assertThat(observer.expiredFiles.size(), is(1));
-
-    // If working changes are made to the file, the file should be removed from expiredFiles
-    doAnswer(
-            (InvocationOnMock e) -> {
-              return null;
-            })
-        .when(fileListener)
-        .onFileCreate(any(File.class), any(Synchronization.class));
-
-    changeData(files[0]);
-    observer.checkAndNotify();
-
-    assertThat(observer.expiredFiles.size(), is(0));
-    System.clearProperty("org.codice.ddf.catalog.content.monitor.expirationTime");
-  }
-
-  @Test
   public void testCreationFailure() throws Exception {
 
     File[] files = initFiles(1, monitoredDirectory, "file00");
-    int toFail = 2;
-    timesToFail.set(toFail);
+    timesToFail.set(files.length);
 
     observer.checkAndNotify();
     observer.checkAndNotify();
@@ -317,11 +243,11 @@ public class AsyncFileAlterationObserverTest {
     observer.checkAndNotify();
     observer.checkAndNotify();
 
-    verify(fileListener, times(files.length + failures))
+    verify(fileListener, times(files.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
-    assertThat(failures, is(toFail));
+    assertThat(failures, is(files.length));
   }
 
   @Test
@@ -363,7 +289,7 @@ public class AsyncFileAlterationObserverTest {
     observer.checkAndNotify();
     init();
 
-    int toFail = 2;
+    int toFail = 1;
     timesToFail.set(toFail);
     Stream.of(files).forEach(this::changeData);
 
@@ -372,7 +298,7 @@ public class AsyncFileAlterationObserverTest {
     }
 
     verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(files.length + failures))
+    verify(fileListener, times(files.length))
         .onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
     assertThat(failures, is(toFail));
@@ -420,9 +346,9 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(files.length + failures))
+    verify(fileListener, times(files.length))
         .onFileDelete(any(File.class), any(Synchronization.class));
-    assertThat(failures, is(toFail));
+    assertThat(failures, is(files.length));
   }
 
   @Test
@@ -729,7 +655,7 @@ public class AsyncFileAlterationObserverTest {
       observer.checkAndNotify();
     }
 
-    int totalNoFiles = childFiles.length + grandchildFiles.length + files.length + failures;
+    int totalNoFiles = childFiles.length + grandchildFiles.length + files.length;
 
     observer.checkAndNotify();
 
@@ -965,7 +891,7 @@ public class AsyncFileAlterationObserverTest {
     Mockito.verify(fileListener, atLeast(0)).onFileCreate(propertyKeyCaptor.capture(), any());
     Mockito.verify(fileListener, atLeast(0)).onFileDelete(propertyKeyCaptor.capture(), any());
 
-    assertThat(propertyKeyCaptor.getAllValues().size(), is(grandchildFiles.length * 2 + failures));
+    assertThat(propertyKeyCaptor.getAllValues().size(), is(grandchildFiles.length * 2));
 
     assertThat(failures, is(toFail));
 
@@ -1012,7 +938,7 @@ public class AsyncFileAlterationObserverTest {
     //  Just in case there was a straggler who was unable to successfully finish
     observer.checkAndNotify();
 
-    verify(fileListener, times(files.length + failures))
+    verify(fileListener, times(files.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
@@ -1042,7 +968,7 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(files.length + failures))
+    verify(fileListener, times(files.length))
         .onFileDelete(any(File.class), any(Synchronization.class));
     assertThat(failures, is(files.length));
   }
@@ -1115,7 +1041,7 @@ public class AsyncFileAlterationObserverTest {
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
     assertThat(failures, is(toFail));
-    verify(fileListener, times(totalSize + failures))
+    verify(fileListener, times(totalSize))
         .onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
@@ -1139,7 +1065,7 @@ public class AsyncFileAlterationObserverTest {
 
     assertThat(failures, is(files.length));
     verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(files.length + failures))
+    verify(fileListener, times(files.length))
         .onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
     assertThat(failures, is(files.length));

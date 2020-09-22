@@ -111,6 +111,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
 
   @Override
   public void shutdown() throws Exception {
+    LOGGER.debug("Shutting down DurableFileSystemFileConsumer and listener/observer");
     super.shutdown();
     listener.destroy();
 

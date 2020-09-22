@@ -174,9 +174,5 @@ public class FrameworkProducerTest {
     when(mockExchangeDelete.getOut()).thenReturn(message);
     when(mockExchangeDelete.getIn().getHeader(OPERATION_HEADER_KEY)).thenReturn(DELETE_OPERATION);
     when(mockExchangeDelete.getIn().getHeader(TIMEOUT_HEADER_KEY)).thenReturn(1000L);
-
-    when(mockExchangeDelete.getIn().getBody(List.class)).thenReturn(null);
-    when(mockExchangeDelete.getIn().getBody(String.class)).thenReturn("metacard1");
-    frameworkProducer.process(mockExchangeDelete);
   }
 }

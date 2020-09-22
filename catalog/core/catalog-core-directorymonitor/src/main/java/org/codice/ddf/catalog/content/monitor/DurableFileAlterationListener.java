@@ -51,7 +51,7 @@ public class DurableFileAlterationListener
 
   private static final String CATALOG_DELETE = "DELETE";
 
-  private static final String CATALOG_TIMEOUT = "timeToLive";
+  private static final String TIMEOUT_HEADER_KEY = "timeoutMilliseconds";
 
   private long expirationTime =
       Long.getLong(
@@ -100,7 +100,7 @@ public class DurableFileAlterationListener
             .addHeader(OPERATION_HEADER, CATALOG_UPDATE)
             .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(file.getName()))
             .addHeader(Core.RESOURCE_URI, fileUri)
-            .addHeader(CATALOG_TIMEOUT, expirationTime)
+            .addHeader(TIMEOUT_HEADER_KEY, expirationTime)
             .addHeader("org.codice.ddf.camel.transformer.MetacardUpdateId", metacardId)
             .addSynchronization(
                 new FileToMetacardMappingSynchronization(fileUri, productToMetacardIdMap))
@@ -123,7 +123,7 @@ public class DurableFileAlterationListener
             .addHeader(OPERATION_HEADER, "CREATE")
             .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(file.getName()))
             .addHeader(Core.RESOURCE_URI, fileUri)
-            .addHeader(CATALOG_TIMEOUT, expirationTime)
+            .addHeader(TIMEOUT_HEADER_KEY, expirationTime)
             .addSynchronization(
                 new FileToMetacardMappingSynchronization(fileUri, productToMetacardIdMap))
             .addSynchronization(cb)
@@ -147,7 +147,6 @@ public class DurableFileAlterationListener
         new ExchangeHelper(file, (GenericFileEndpoint) consumer.getEndpoint())
             .setBody(Collections.singletonList(metacardId))
             .addHeader(OPERATION_HEADER, CATALOG_DELETE)
-            .addHeader(CATALOG_TIMEOUT, expirationTime)
             .addSynchronization(new DeletionSynchronization(referenceKey, productToMetacardIdMap))
             .addSynchronization(cb)
             .getExchange();

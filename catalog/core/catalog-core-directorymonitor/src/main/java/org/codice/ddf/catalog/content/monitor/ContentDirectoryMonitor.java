@@ -198,9 +198,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * <p>Only remove routes that this Content Directory Monitor created since the same CamelContext
    * is shared across all Content Directory Monitors.
    */
-  @SuppressWarnings(
-      "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
-  public void destroy(int code) {
+  public void destroy() {
+    LOGGER.debug("Shutting down CDM for {}", this.monitoredDirectory);
     CompletableFuture.runAsync(this::removeRoutes, configurationExecutor);
   }
 
@@ -208,7 +207,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     if (routeBuilder == null) {
       return;
     }
-
+    LOGGER.debug("CDM Removing routes");
     for (RouteDefinition routeDef : routeBuilder.getRouteCollection().getRoutes()) {
       try {
         String routeId = routeDef.getId();
@@ -397,7 +396,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         }
 
         ThreadsDefinition td =
-            routeDefinition.threads(numThreads, numThreads).process(systemSubjectBinder);
+            routeDefinition
+                .threads(numThreads, numThreads)
+                .maxQueueSize(numThreads * 2)
+                .process(systemSubjectBinder);
         if (processingMechanism.equals(IN_PLACE)) {
           td.choice()
               .when(
