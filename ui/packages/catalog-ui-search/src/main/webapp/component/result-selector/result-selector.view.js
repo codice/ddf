@@ -138,6 +138,7 @@ const ResultSelector = Marionette.LayoutView.extend({
       selection: {
         selectionInterface: this.options.selectionInterface,
         selectionSelector: `${CustomElements.getNamespace()}result-item`,
+        noClick: '.checkbox-container',
       },
     }
   },

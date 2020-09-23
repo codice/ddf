@@ -26,6 +26,7 @@ module.exports = Marionette.CollectionView.extend({
       selection: {
         selectionInterface: this.options.selectionInterface,
         selectionSelector: `> *`,
+        noClick: '.checkbox-container',
       },
     }
   },

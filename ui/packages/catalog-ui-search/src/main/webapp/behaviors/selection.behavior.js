@@ -42,6 +42,7 @@ Behaviors.addBehavior(
   Marionette.Behavior.extend({
     events() {
       return {
+        [`click ${this.options.noClick}`]: 'handleCheckboxClick',
         [`click ${this.options.selectionSelector}`]: 'handleClick',
         [`mousedown ${this.options.selectionSelector}`]: 'handleMouseDown',
       }
@@ -49,6 +50,7 @@ Behaviors.addBehavior(
     lastTarget: undefined,
     lastMouseDown: Date.now(),
     lastClick: Date.now(),
+    isCheckboxClick: undefined,
     onRender() {
       this.view.$el.addClass('has-selection-behavior')
     },
@@ -60,8 +62,17 @@ Behaviors.addBehavior(
       this.interpretClick(event)
       this.updateStateOnClick(event)
     },
+    handleCheckboxClick(event) {
+      this.isCheckboxClick = true
+    },
     interpretClick(event) {
-      if (event.altKey || this.isTextSelection() || this.isDoubleClick(event)) {
+      if (
+        event.altKey ||
+        this.isTextSelection() ||
+        this.isDoubleClick(event) ||
+        this.isCheckboxClick
+      ) {
+        this.isCheckboxClick = false
         return
       }
       const resultid = event.currentTarget.getAttribute('data-resultid')
