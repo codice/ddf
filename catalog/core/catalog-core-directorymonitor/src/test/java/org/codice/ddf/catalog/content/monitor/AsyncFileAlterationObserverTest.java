@@ -29,6 +29,7 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.apache.camel.spi.Synchronization;
 import org.apache.commons.io.FileUtils;
+import org.codice.junit.rules.RestoreSystemProperties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,6 +51,9 @@ import org.mockito.invocation.InvocationOnMock;
 
 @RunWith(JUnit4.class)
 public class AsyncFileAlterationObserverTest {
+
+  @Rule
+  public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
 
   private static String dummyData = "The duck may swim on the lake...";
 
@@ -1202,6 +1207,37 @@ public class AsyncFileAlterationObserverTest {
   @Test(expected = IllegalArgumentException.class)
   public void testloadNull() {
     AsyncFileAlterationObserver.load(new File("File"), null);
+  }
+
+  @Test
+  public void testCheckFailureRetry() {
+    System.setProperty(
+        "org.codice.ddf.catalog.content.monitor.failureRetryPeriod",
+        "" + TimeUnit.MINUTES.toMillis(5));
+    observer.failedFiles.put("key", new AsyncFileEntry(new File(".")));
+    observer.setLastFailureRetry(new Date().getTime() - TimeUnit.MINUTES.toMillis(6));
+    observer.checkFailureRetry();
+    assertThat(observer.failedFiles.size(), is(0));
+  }
+
+  @Test
+  public void testCheckFailureRetryNever() {
+    System.setProperty("org.codice.ddf.catalog.content.monitor.failureRetryPeriod", "-1");
+    observer.failedFiles.put("key", new AsyncFileEntry(new File(".")));
+    observer.setLastFailureRetry(new Date().getTime() - TimeUnit.MINUTES.toMillis(6));
+    observer.checkFailureRetry();
+    assertThat(observer.failedFiles.size(), is(1));
+  }
+
+  @Test
+  public void testCheckFailureRetryDefault() {
+    observer.failedFiles.put("key", new AsyncFileEntry(new File(".")));
+    observer.setLastFailureRetry(new Date().getTime() - TimeUnit.MINUTES.toMillis(60 * 11 + 55));
+    observer.checkFailureRetry();
+    assertThat(observer.failedFiles.size(), is(1));
+    observer.setLastFailureRetry(new Date().getTime() - TimeUnit.MINUTES.toMillis(60 * 12 + 5));
+    observer.checkFailureRetry();
+    assertThat(observer.failedFiles.size(), is(0));
   }
 
   private void initNestedDirectory(int child, int grand, int topLevel, int gSibling)

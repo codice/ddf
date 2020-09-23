@@ -18,12 +18,14 @@ import static org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor.CDM
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
@@ -59,7 +61,13 @@ public class AsyncFileAlterationObserver {
   private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private static final int INGEST_CHECK_TIME_DELAY = 500;
+
   private static final int INGEST_CHECK_TIME_INTERVAL = 5000;
+
+  private static final String FAILURE_RETRY_PERIOD_KEY =
+      "org.codice.ddf.catalog.content.monitor.failureRetryPeriod";
+
+  private static final long DEFAULT_FAILURE_RETRY_PERIOD = TimeUnit.HOURS.toMillis(12);
 
   private final AsyncFileEntry rootFile;
   private AsyncFileAlterationListener listener = null;
@@ -69,6 +77,8 @@ public class AsyncFileAlterationObserver {
   private final Object processingLock = new Object();
 
   private Timer timer;
+
+  private long lastFailureRetry = new Date().getTime();
 
   Map<String, AsyncFileEntry> failedFiles = new ConcurrentHashMap<>();
 
@@ -483,11 +493,30 @@ public class AsyncFileAlterationObserver {
       }
     }
   }
+
+  @VisibleForTesting
+  void checkFailureRetry() {
+    long retry = Long.getLong(FAILURE_RETRY_PERIOD_KEY, DEFAULT_FAILURE_RETRY_PERIOD);
+    if (retry > 0 && lastFailureRetry + retry < new Date().getTime()) {
+      lastFailureRetry = new Date().getTime();
+      LOGGER.info(
+          "Retrying failed ingests. Next retry will be in {} minutes",
+          TimeUnit.MILLISECONDS.toMinutes(retry));
+      failedFiles.clear();
+    }
+  }
+
+  @VisibleForTesting
+  void setLastFailureRetry(long time) {
+    lastFailureRetry = time;
+  }
+
   /** Processing and logging operations which should be done periodically */
   private class StatusTask extends TimerTask {
 
     /** Log files still in processing at scheduled intervals */
     public void run() {
+      checkFailureRetry();
       if (!processing.isEmpty()) {
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug(

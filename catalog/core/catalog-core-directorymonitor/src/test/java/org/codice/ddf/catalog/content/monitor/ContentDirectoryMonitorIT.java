@@ -184,7 +184,8 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
   public void testInPlaceMonitoring() throws Exception {
     updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.IN_PLACE);
 
-    File file = createTestFile(directoryPath);
+    File file = File.createTempFile("in-place-test", ".txt", new File(directoryPath));
+    Files.write(file.toPath(), Collections.singletonList("Hello, World"));
     long fileSize = file.length();
 
     waitForCreate();
