@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.content.plugin.checksum;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.codice.ddf.checksum.ChecksumProvider;
 import org.junit.Before;
@@ -63,7 +65,9 @@ public class ChecksumTest {
 
     when(mockChecksumProvider.calculateChecksum(inputStream)).thenReturn(SAMPLE_CHECKSUM_VALUE);
 
-    checksum = new Checksum(mockChecksumProvider);
+    checksum = new Checksum(Collections.singletonList(mockChecksumProvider));
+
+    checksum.setChecksumAlgorithm(SAMPLE_CHECKSUM_ALGORITHM);
 
     List<ContentItem> mockContentItems = new ArrayList<>();
     ContentItem mockContentItem = mock(ContentItem.class);
@@ -123,6 +127,20 @@ public class ChecksumTest {
                 .getValue();
     assertThat(checksumResult, is(SAMPLE_CHECKSUM_VALUE));
     assertThat(checksumAlgorithm, is(SAMPLE_CHECKSUM_ALGORITHM));
+  }
+
+  @Test
+  public void testProcessUpdateWithValidUnrecognizedAlgorithm() throws PluginExecutionException {
+    checksum.setChecksumAlgorithm("something-else");
+    UpdateStorageRequest request = checksum.process(mockUpdateRequest);
+
+    assertThat(
+        request.getContentItems().get(0).getMetacard().getAttribute(Metacard.CHECKSUM),
+        nullValue());
+
+    assertThat(
+        request.getContentItems().get(0).getMetacard().getAttribute(Metacard.CHECKSUM_ALGORITHM),
+        nullValue());
   }
 
   @Test(expected = IllegalArgumentException.class)

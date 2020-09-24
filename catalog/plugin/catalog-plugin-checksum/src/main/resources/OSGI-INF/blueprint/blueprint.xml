@@ -11,11 +11,19 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <!-- import service from the registry -->
+    <reference-list id="checksumProviders" interface="org.codice.ddf.checksum.ChecksumProvider"/>
 
     <!-- Create the bean-->
     <bean id="checkSum" class="org.codice.ddf.catalog.content.plugin.checksum.Checksum">
-        <argument ref="checksumProvider"/>
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.content.plugin.checksum.Checksum"
+                update-strategy="container-managed"/>
+        <argument ref="checksumProviders"/>
+        <property name="checksumAlgorithm" value="Adler32"/>
     </bean>
 
     <!-- export the bean on the service registry -->
@@ -23,8 +31,5 @@
 
     <!-- export the bean on the service registry -->
     <service ref="checkSum" interface="ddf.catalog.content.plugin.PreUpdateStoragePlugin"/>
-
-    <!-- import service from the registry -->
-    <reference id="checksumProvider" interface="org.codice.ddf.checksum.ChecksumProvider"/>
 
 </blueprint>
