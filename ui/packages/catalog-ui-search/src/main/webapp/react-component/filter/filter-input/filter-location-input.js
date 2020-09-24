@@ -104,7 +104,7 @@ class LocationInput extends React.Component {
     switch (filter.type) {
       // these cases are for when the model matches the filter model
       case 'DWITHIN':
-        const value = filter.value.value ? filter.value : filter
+        const value = filter.value && filter.value.value ? filter.value : filter
         if (CQLUtils.isPointRadiusFilter(value)) {
           wreqr.vent.trigger('search:circledisplay', this.locationModel)
         } else if (CQLUtils.isPolygonFilter(value)) {
