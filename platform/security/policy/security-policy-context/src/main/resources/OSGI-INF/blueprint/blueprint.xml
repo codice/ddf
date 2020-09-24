@@ -56,8 +56,6 @@
                 <value>/favicon.ico</value>
                 <value>/error</value>
                 <value>/webjars</value>
-                <value>/health-check</value>
-                <value>/readiness-check</value>
             </array>
         </property>
         <property name="traversalDepth">
