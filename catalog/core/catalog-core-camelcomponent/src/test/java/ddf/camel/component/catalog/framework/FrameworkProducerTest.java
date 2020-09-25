@@ -16,16 +16,23 @@ package ddf.camel.component.catalog.framework;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.camel.component.catalog.CatalogComponent;
 import ddf.camel.component.catalog.CatalogEndpoint;
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.UpdateRequest;
 import ddf.security.Subject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +61,8 @@ public class FrameworkProducerTest {
 
   FrameworkProducer frameworkProducer;
 
+  CatalogFramework catalogFramework;
+
   @Before
   public void setup() {
     SecurityUtils.setSecurityManager(mock(SecurityManager.class));
@@ -61,7 +70,7 @@ public class FrameworkProducerTest {
   }
 
   private void setupFrameworkProducer(boolean timeout) throws Exception {
-    CatalogFramework catalogFramework = mock(CatalogFramework.class);
+    catalogFramework = mock(CatalogFramework.class);
     catalogEndpoint = mock(CatalogEndpoint.class);
 
     CatalogComponent catalogComponent = mock(CatalogComponent.class);
@@ -73,7 +82,12 @@ public class FrameworkProducerTest {
     futures.add(future);
 
     ExecutorService executorService = mock(ExecutorService.class);
-    when(executorService.invokeAll(any(), anyLong(), any(TimeUnit.class))).thenReturn(futures);
+    when(executorService.invokeAll(any(), anyLong(), any(TimeUnit.class)))
+        .thenAnswer(
+            invocationOnMock -> {
+              ((Callable) ((Set) invocationOnMock.getArguments()[0]).iterator().next()).call();
+              return futures;
+            });
     when(catalogEndpoint.getExecutor()).thenReturn(executorService);
 
     frameworkProducer = new FrameworkProducer(catalogEndpoint, catalogFramework);
@@ -95,6 +109,7 @@ public class FrameworkProducerTest {
     when(mockExchange.getIn().getBody(any())).thenReturn(new MetacardImpl());
 
     frameworkProducer.process(mockExchange);
+    verify(catalogFramework).create(any(CreateRequest.class));
   }
 
   @Test(expected = IngestTimeoutException.class)
@@ -131,6 +146,7 @@ public class FrameworkProducerTest {
     when(mockExchange.getIn().getBody(any())).thenReturn(new MetacardImpl());
 
     frameworkProducer.process(mockExchange);
+    verify(catalogFramework).update(any(UpdateRequest.class));
   }
 
   @Test(expected = IngestTimeoutException.class)
@@ -155,24 +171,20 @@ public class FrameworkProducerTest {
   public void testFrameworkProducerDelete() throws Exception {
     setupFrameworkProducer(false);
 
-    Exchange mockExchangeCreate = mock(Exchange.class);
     Exchange mockExchangeDelete = mock(Exchange.class);
     Message message = mock(Message.class);
-    Metacard metacard = mock(MetacardImpl.class);
-    when(metacard.getId()).thenReturn("metacard1");
-
-    when(mockExchangeCreate.getIn()).thenReturn(message);
-    when(mockExchangeCreate.getOut()).thenReturn(message);
-    when(mockExchangeCreate.getIn().getHeader(OPERATION_HEADER_KEY)).thenReturn(CREATE_OPERATION);
-    when(mockExchangeCreate.getIn().getHeader(TIMEOUT_HEADER_KEY)).thenReturn(1000L);
-
-    when(mockExchangeCreate.getIn().getBody()).thenReturn(metacard);
-    when(mockExchangeCreate.getIn().getBody(any())).thenReturn(metacard);
-    frameworkProducer.process(mockExchangeCreate);
+    List ids = Collections.singletonList("metacardId");
+    when(message.getBody()).thenReturn(ids);
+    when(message.getBody(any())).thenReturn(ids);
 
     when(mockExchangeDelete.getIn()).thenReturn(message);
     when(mockExchangeDelete.getOut()).thenReturn(message);
     when(mockExchangeDelete.getIn().getHeader(OPERATION_HEADER_KEY)).thenReturn(DELETE_OPERATION);
     when(mockExchangeDelete.getIn().getHeader(TIMEOUT_HEADER_KEY)).thenReturn(1000L);
+    DeleteResponse response = mock(DeleteResponse.class);
+    when(response.getDeletedMetacards()).thenReturn(Collections.singletonList(new MetacardImpl()));
+    when(catalogFramework.delete(any())).thenReturn(response);
+    frameworkProducer.process(mockExchangeDelete);
+    verify(catalogFramework).delete(any(DeleteRequest.class));
   }
 }

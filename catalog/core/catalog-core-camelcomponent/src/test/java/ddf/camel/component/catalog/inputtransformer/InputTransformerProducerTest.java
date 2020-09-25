@@ -35,6 +35,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -84,7 +86,12 @@ public class InputTransformerProducerTest {
     futures.add(future);
 
     ExecutorService executorService = mock(ExecutorService.class);
-    when(executorService.invokeAll(any(), anyLong(), any(TimeUnit.class))).thenReturn(futures);
+    when(executorService.invokeAll(any(), anyLong(), any(TimeUnit.class)))
+        .thenAnswer(
+            invocationOnMock -> {
+              ((Callable) ((Set) invocationOnMock.getArguments()[0]).iterator().next()).call();
+              return futures;
+            });
     when(catalogEndpoint.getExecutor()).thenReturn(executorService);
 
     inputTransformerProducer = new InputTransformerProducer(catalogEndpoint);
@@ -191,5 +198,6 @@ public class InputTransformerProducerTest {
     when(mockExchange.getIn().getHeader("timeoutMilliseconds")).thenReturn(1000L);
 
     inputTransformerProducer.process(mockExchange);
+    verify(message).setBody(any(Metacard.class));
   }
 }
