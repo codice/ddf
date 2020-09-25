@@ -13,12 +13,14 @@
  */
 package ddf.camel.component.catalog.framework;
 
+import ddf.camel.component.catalog.CatalogEndpoint;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
@@ -27,13 +29,22 @@ import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.security.SecurityConstants;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import org.apache.camel.Endpoint;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.apache.camel.Exchange;
 import org.apache.camel.TypeConversionException;
 import org.apache.camel.support.DefaultProducer;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +110,11 @@ public class FrameworkProducer extends DefaultProducer {
 
   private static final String OPERATION_HEADER_KEY = "operation";
 
+  private static final String TIMEOUT_HEADER_KEY = "timeoutMilliseconds";
+
   private CatalogFramework catalogFramework;
+
+  private ExecutorService executor;
 
   private static final String CATALOG_RESPONSE_NULL = "Catalog response object is null";
 
@@ -109,13 +124,14 @@ public class FrameworkProducer extends DefaultProducer {
    * @param endpoint the Camel endpoint that created this consumer
    * @param catalogFramework the DDF Catalog Framework to use
    */
-  public FrameworkProducer(Endpoint endpoint, CatalogFramework catalogFramework) {
+  public FrameworkProducer(CatalogEndpoint endpoint, CatalogFramework catalogFramework) {
     super(endpoint);
     this.catalogFramework = catalogFramework;
+    this.executor = endpoint.getExecutor();
   }
 
   @Override
-  public void process(Exchange exchange) throws FrameworkProducerException {
+  public void process(Exchange exchange) throws FrameworkProducerException, InterruptedException {
     try {
       LOGGER.debug("Entering process method");
 
@@ -148,7 +164,7 @@ public class FrameworkProducer extends DefaultProducer {
       exchange.getIn().setBody(new ArrayList<Metacard>());
       LOGGER.debug("Received a non-String as the operation type");
       throw new FrameworkProducerException(cce);
-    } catch (SourceUnavailableException | IngestException e) {
+    } catch (SourceUnavailableException | IngestException | ExecutionException e) {
       LOGGER.debug("Exception cataloging metacards", e);
       throw new FrameworkProducerException(e);
     }
@@ -165,7 +181,8 @@ public class FrameworkProducer extends DefaultProducer {
    * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
    */
   private void create(final Exchange exchange)
-      throws SourceUnavailableException, IngestException, FrameworkProducerException {
+      throws SourceUnavailableException, IngestException, FrameworkProducerException,
+          InterruptedException, ExecutionException {
     CreateResponse createResponse = null;
 
     // read in data
@@ -188,7 +205,13 @@ public class FrameworkProducer extends DefaultProducer {
     }
 
     LOGGER.debug("Making CREATE call to Catalog Framework...");
-    createResponse = catalogFramework.create(createRequest);
+    Object timeoutObj = exchange.getIn().getHeader(TIMEOUT_HEADER_KEY);
+    if (timeoutObj != null) {
+      createResponse =
+          processWithTimeout((long) timeoutObj, catalogFramework::create, createRequest);
+    } else {
+      createResponse = catalogFramework.create(createRequest);
+    }
 
     if (createResponse == null) {
       LOGGER.debug("CreateResponse is null from catalog framework");
@@ -218,6 +241,32 @@ public class FrameworkProducer extends DefaultProducer {
     processCatalogResponse(createResponse, exchange);
   }
 
+  <T extends Operation, R> R processWithTimeout(
+      long timeout, CatalogFunction<T, R> catalog, T request)
+      throws InterruptedException, IngestTimeoutException, ExecutionException {
+    LOGGER.trace("Running catalog operation with timeout of {}", timeout);
+    Subject subject = SecurityUtils.getSubject();
+    if (subject instanceof ddf.security.Subject) {
+      request
+          .getProperties()
+          .put(SecurityConstants.SECURITY_SUBJECT, (ddf.security.Subject) subject);
+    }
+    try {
+      List<Future<R>> futures =
+          executor.invokeAll(
+              Collections.singleton((Callable<R>) () -> catalog.ingest(request)),
+              timeout,
+              TimeUnit.MILLISECONDS);
+      if (!futures.get(0).isDone()) {
+        LOGGER.warn("Ingest task was canceled due to timeout");
+        throw new IngestTimeoutException("The ingest request timed out 1");
+      }
+      return futures.get(0).get();
+    } catch (CancellationException e) {
+      throw new IngestTimeoutException("The ingest request timed out 2");
+    }
+  }
+
   /**
    * Updates metacard(s) in the catalog using the Catalog Framework.
    *
@@ -229,7 +278,8 @@ public class FrameworkProducer extends DefaultProducer {
    * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
    */
   private void update(final Exchange exchange)
-      throws SourceUnavailableException, IngestException, FrameworkProducerException {
+      throws SourceUnavailableException, IngestException, FrameworkProducerException,
+          ExecutionException, InterruptedException {
     UpdateResponse updateResponse = null;
 
     // read in data from exchange
@@ -258,7 +308,13 @@ public class FrameworkProducer extends DefaultProducer {
     }
 
     LOGGER.debug("Making UPDATE call to Catalog Framework...");
-    updateResponse = catalogFramework.update(updateRequest);
+    Object timeoutObj = exchange.getIn().getHeader(TIMEOUT_HEADER_KEY);
+    if (timeoutObj != null) {
+      updateResponse =
+          processWithTimeout((long) timeoutObj, catalogFramework::update, updateRequest);
+    } else {
+      updateResponse = catalogFramework.update(updateRequest);
+    }
 
     if (updateResponse == null) {
       LOGGER.debug("UpdateResponse is null from catalog framework");
@@ -533,5 +589,10 @@ public class FrameworkProducer extends DefaultProducer {
     }
 
     return metacardsToProcess;
+  }
+
+  @FunctionalInterface
+  public interface CatalogFunction<T extends Operation, R> {
+    R ingest(T t) throws IngestException, SourceUnavailableException;
   }
 }

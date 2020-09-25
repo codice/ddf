@@ -99,7 +99,7 @@ public class ContentDirectoryMonitorTest extends ExchangeTestSupport {
 
   @After
   public void destroy() throws Exception {
-    monitor.destroy(0);
+    monitor.destroy();
     camelContext.stop();
   }
 

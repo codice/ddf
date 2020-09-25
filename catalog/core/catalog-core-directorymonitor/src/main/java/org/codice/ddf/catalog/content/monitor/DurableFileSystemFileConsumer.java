@@ -65,7 +65,6 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
     }
 
     if (observer == null && fileName != null) {
-
       observer = AsyncFileAlterationObserver.load(new File(fileName), jsonSerializer);
 
       //  Backwards Compatibility
@@ -108,6 +107,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
 
   @Override
   public void shutdown() {
+    LOGGER.debug("Shutting down DurableFileSystemFileConsumer and listener/observer");
     super.shutdown();
     listener.destroy();
 

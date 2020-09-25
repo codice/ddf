@@ -115,6 +115,10 @@
             <version>${tika.thirdparty.bundle.version}</version>
             <scope>test</scope>
         </dependency>
+      <dependency>
+        <groupId>ddf.security.core</groupId>
+        <artifactId>security-core-api</artifactId>
+      </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -196,17 +200,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.68</minimum>
+                                            <minimum>0.72</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.60</minimum>
+                                            <minimum>0.65</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.53</minimum>
+                                            <minimum>0.56</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

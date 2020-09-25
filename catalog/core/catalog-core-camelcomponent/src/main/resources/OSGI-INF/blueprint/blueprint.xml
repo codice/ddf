@@ -30,11 +30,12 @@
     <!--
     Instantiate our custom Camel CatalogComponent and inject this bundle context into it.  
     -->
-    <bean id="catalogComponent" class="ddf.camel.component.catalog.CatalogComponent">
+    <bean id="catalogComponent" class="ddf.camel.component.catalog.CatalogComponent" destroy-method="destroy">
         <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="catalogFramework" ref="framework"/>
         <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+        <property name="executor" ref="executor"/>
     </bean>
 
     <!--
@@ -56,6 +57,17 @@
             <entry key="component" value="catalog"/>
         </service-properties>
     </service>
+
+    <bean id="executor" class="java.util.concurrent.Executors"
+      factory-method="newCachedThreadPool">
+        <argument ref="producerThreadFactory"/>
+    </bean>
+
+    <bean id="producerThreadFactory"
+      class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+      factory-method="newThreadFactory">
+        <argument value="camelProducerThread"/>
+    </bean>
 
     <!--
     Instantiate our custom Camel ContentComponent and inject this bundle context into it.
