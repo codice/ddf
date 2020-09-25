@@ -11,13 +11,7 @@
 |Standard
 |Support Status
 
-|http://docs.oasis-open.org/ws-sx/ws-trust/v1.4/ws-trust-1.4-spec-ed-01.html#_Toc162064951[Security Token Service (STS)] {external-link}
-|Supported
-
-|https://www.oasis-open.org/committees/download.php/21111/saml-glossary-2.0-os.html#Identity+Provider[Identity Provider (IdP)] {external-link}
-|Supported
-
-|https://www.oasis-open.org/committees/download.php/21111/saml-glossary-2.0-os.html#Service&20;Provider[Service Provider (SP)] {external-link}
+|https://www.oasis-open.org/committees/download.php/21111/saml-glossary-2.0-os.html#Service&20;Provider[SAML 2.0 Web SSO Profile] {external-link}
 |Supported
 
 |===

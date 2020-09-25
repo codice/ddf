@@ -7,12 +7,9 @@
 
 == {title}
 
-The goal of the `GuestInterceptor` is to allow non-secure clients (such as SOAP requests without security headers) to access secure service endpoints. 
+The goal of the `GuestInterceptor` is to attach a guest subject to a SOAP endpoint that is not using security headers. 
 
-All requests to secure endpoints must satisfy the WS-SecurityPolicy that is included in the WSDL.
-
-Rather than reject requests without user credentials, the guest interceptor detects the missing credentials and inserts an assertion that represents the "guest" user.
-The attributes included in this guest user assertion are configured by the administrator to represent any unknown user on the current network.
+All requests to secure SOAP endpoints must satisfy any WS-SecurityPolicy that is included in the WSDL. The endpoint should use the PEPAuthorizingInterceptor to create the subject to be used for the request.
 
 === Installing Guest Interceptor
 
@@ -31,4 +28,3 @@ Configure the Guest Interceptor from the ${admin-console}:
 . Select *Save changes*.
 
 Once these configurations have been added, the GuestInterceptor is ready for use.
-Both secure and non-secure requests will be accepted by all secure ${branding} service endpoints.

@@ -2,8 +2,8 @@
 :status: published
 :title: Security LDAP Claims Handler
 :link: _security_sts_ldap_claims_handler
-:parent: Security Token Service
-:order: 04
+:parent: Claims Handlers
+:order: 00
 
 == {title}
 

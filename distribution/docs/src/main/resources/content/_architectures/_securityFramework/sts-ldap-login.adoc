@@ -2,18 +2,18 @@
 :status: published
 :title: Security JAAS LDAP
 :link: _security_sts_ldap_login
-:parent: Security Token Service
-:order: 03
+:parent: Realms
+:order: 01
 
 == {title}
 
 The ${ddf-security} JAAS LDAP Login bundle enables authentication via an LDAP server when passed a username and password.
 
-=== Installing the Security STS LDAP Login
+=== Installing Security JAAS LDAP Login
 
 This bundle is not installed by default but can be added by installing the `security-jaas-ldap` feature.
 
-=== Configuring the Security STS LDAP Login
+=== Configuring Security JAAS LDAP Login
 
 Configure the Security JAAS LDAP from the ${admin-console}:
 

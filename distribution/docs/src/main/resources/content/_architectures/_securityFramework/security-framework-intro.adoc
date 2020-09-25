@@ -1,10 +1,11 @@
 :title: Security Framework
 :type: securityFrameworkIntro
 :status: published
+:children: Subject, Security Core, Security Encryption, Security LDAP, Security PDP, Web Service Security Architecture, Security PEP, Filtering, Expansion Service, Federated Identity, Realms
 :order: 00
 :summary: Introduction to Security Framework.
 
 == {title}
 
-The ${branding} Security Framework utilizes http://shiro.apache.org/[Apache Shiro] as the underlying security framework.
+The ${branding} Security Framework builds off of the interfaces provided by http://shiro.apache.org/[Apache Shiro] to create an underlying security framework that developers might be familiar with.
 The classes mentioned in this section will have their full package name listed, to make it easy to tell which classes come with the core Shiro framework and which are added by ${branding}.

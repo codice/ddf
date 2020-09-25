@@ -22,7 +22,6 @@ Due to the multi-threaded and stateless nature of the ${branding} framework, uti
 |Description
 
 |ddf.security.service.SecurityManagerImpl
-|This implementation of the Security Manager handles taking in both `org.apache.shiro.authc`.
-AuthenticationToken and `org.apache.cxf.ws.security.tokenstore.SecurityToken` objects.
+|Takes in an `org.apache.shiro.authc.AuthenticationToken` object and returns a Subject.
 
 |===

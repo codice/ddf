@@ -271,13 +271,6 @@ TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 |false
 |Yes
 
-|Restrict the Security Token Service to allow connections only from DNs matching these patterns
-|ws-security.subject.cert.constraints
-|String
-|Set to a comma separated list of regex patterns to define which hosts are allowed to connect to the STS
-|.*
-|Yes
-
 6+^h|XML Settings
 
 |Parse XML documents into DOM object trees

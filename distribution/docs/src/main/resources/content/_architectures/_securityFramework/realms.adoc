@@ -1,9 +1,10 @@
 :title: Realms
-:type: subSecurityFramework
+:type: securityFramework
 :status: published
-:parent: Subject
-:order: 01
-:summary: Shiro realms.
+:parent: Security Framework
+:children: Claims Handlers, Security JAAS LDAP
+:order: 11
+:summary: Security realms.
 
 == {title}
 
@@ -14,9 +15,12 @@ Realms are components that access security data such as such as users or permiss
 
 `org.apache.shiro.realm.AuthenticatingRealm`
 
-Authenticating Realms are used to authenticate an incoming Authentication Token and return https://shiro.apache.org/static/1.2.6/apidocs/org/apache/shiro/authc/AuthenticationInfo.html[Authentication Info] {external-link} on successful authentication.
-This Authentication Info is used by the Shiro framework to put together a resulting Subject.
-A Subject represents the application user and contains all available security-relevant information about that user.
+Realms are implementations of http://shiro.apache.org/[Apache Shiro]'s AuthenticatingRealm class.
+They can be used to add additional authentication mechanisms to ${branding}.
+Many realms already exist, such as a UsernamePasswordRealm, OidcRealm, SamlRealm, and others to handle common authentication and Single Sign On (SSO) protocols.
+
+Additionally, multiple realms can be used to authenticate a user.
+For example, guest permissions are implemented via a Realm and will run alongside any other realms to add guest user attributes to the current Subject being authenticated.
 
 .Implementations of Authenticating Realms in ${branding}:
 [cols="1m,2" options="header"]
@@ -31,8 +35,8 @@ A Subject represents the application user and contains all available security-re
 |org.codice.ddf.security.oidc.realm.OidcRealm
 |This realm takes in any OIDC/OAuth credentials found on the incoming Authentication Token, and if so resolves the ID_Token using those credentials. The ID_Token is then used to put together the resulting Authentication Info.
 
-|ddf.security.realm.sts.StsRealm
-|This realm delegates authentication to the Secure Token Service (STS). It creates a `RequestSecurityToken` message from the incoming Authentication Token and converts a successful STS response into Authentication Info.
+|ddf.security.realm.sts.SamlRealm
+|This realm validates SAML assertions found on the incoming Authentication Token.
 |===
 
 === Authorizing Realms
