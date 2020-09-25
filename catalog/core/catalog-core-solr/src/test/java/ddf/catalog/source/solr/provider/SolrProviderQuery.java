@@ -748,7 +748,7 @@ public class SolrProviderQuery {
 
     MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
     String soughtWord = "nitf";
-    metacard1.setContentTypeName(soughtWord);
+    metacard1.setDescription(soughtWord);
 
     list.add(metacard1);
 

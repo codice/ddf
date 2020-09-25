@@ -134,6 +134,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private final DynamicSchemaResolver resolver;
 
+  private final String solrClientFilterAttributes =
+      accessProperty("solr.client.filterAttributes", "false");
+
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
 
@@ -229,7 +232,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
       } else {
-        query.setParam("spellcheck", userSpellcheckIsOn);
+        if (userSpellcheckIsOn) {
+          query.setParam("spellcheck", true);
+        }
         solrResponse = client.query(query, METHOD.POST);
       }
 
@@ -647,7 +652,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         || !request.containsPropertyName(EXCLUDE_ATTRIBUTES)
         || !(request.getPropertyValue(EXCLUDE_ATTRIBUTES) instanceof Set)
         || ((Set) request.getPropertyValue(EXCLUDE_ATTRIBUTES)).isEmpty()
-        || "true".equals(System.getProperty("solr.client.filterAttributes.disable"));
+        || "false".equals(solrClientFilterAttributes);
   }
 
   private boolean queryingForAllRecords(QueryRequest request) {
@@ -670,8 +675,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       SolrQuery query, String sortField, SolrQuery.ORDER order, SolrFilterDelegate delegate) {
     if (delegate.isSortedByDistance()) {
       query.addSort(DISTANCE_SORT_FUNCTION, order);
-      query.setFields(
-          "*", RELEVANCE_SORT_FIELD, DISTANCE_SORT_FIELD + ":" + DISTANCE_SORT_FUNCTION);
+      query.setFields("*", DISTANCE_SORT_FIELD + ":" + DISTANCE_SORT_FUNCTION);
       query.add(SORT_FIELD_KEY, sortField);
       query.add(POINT_KEY, delegate.getSortedDistancePoint());
     }
@@ -705,9 +709,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         order = SolrQuery.ORDER.asc;
       }
 
-      query.setFields("*", RELEVANCE_SORT_FIELD);
-
       if (Result.RELEVANCE.equals(sortProperty)) {
+        query.setFields("*", RELEVANCE_SORT_FIELD);
         query.addSort(RELEVANCE_SORT_FIELD, order);
       } else if (Result.DISTANCE.equals(sortProperty)) {
         addDistanceSort(query, resolver.getSortKey(GEOMETRY_FIELD), order, solrFilterDelegate);

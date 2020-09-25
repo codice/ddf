@@ -27,7 +27,7 @@
             <ogc:Filter>
                 <ogc:And>
                     <ogc:PropertyIsEqualTo matchCase="true">
-                        <ogc:PropertyName>AnyText</ogc:PropertyName>
+                        <ogc:PropertyName>id</ogc:PropertyName>
                         <ogc:Literal>7c8da3209c994668b76102309b8f4769</ogc:Literal>
                     </ogc:PropertyIsEqualTo>
                     <ogc:Not>

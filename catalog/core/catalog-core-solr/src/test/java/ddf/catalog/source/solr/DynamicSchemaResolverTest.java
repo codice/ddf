@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.truth.Truth;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -48,6 +49,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -192,6 +194,22 @@ public class DynamicSchemaResolverTest {
     int actual = resolver.getMetadataSizeLimit();
     assertThat(actual, equalTo(DynamicSchemaResolver.FIVE_MEGABYTES));
   }
+
+  @Test
+  public void testAnyTextFieldPropertyParsing() throws Exception {
+    // Set
+    System.setProperty(
+        "solr.query.anytext.fields", "metadata ,  title  ,,  ,description, ext.extracted.text  ");
+
+    // Setup
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
+
+    // Perform Test
+    List<String> fields = resolver.anyTextFields().collect(Collectors.toList());
+    Truth.assertThat(fields)
+        .containsExactly("metadata_txt", "title_txt", "description_txt", "ext.extracted.text_txt");
+  }
+
   /**
    * Verify that when the metadata size limit is set to a non-numeric value that it is not added to
    * the metacard
