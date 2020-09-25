@@ -93,7 +93,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
   @After
   public void destroy() throws Exception {
-    monitor.destroy(0);
+    monitor.destroy();
     camelContext.stop();
   }
 
