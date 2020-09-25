@@ -600,14 +600,6 @@
                             <format>JUNIT</format>
                         </formats>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -1131,8 +1123,11 @@
                 </plugins>
             </build>
         </profile>
+        <!-- Adds all zip build artifacts to the OWASP scan. This includes the kernel, the DDF
+             distro, etc. Those may include artifacts which aren't actually dependencies of any
+             DDF modules, so won't appear in a normal scan. -->
         <profile>
-            <id>owasp</id>
+            <id>owasp-dist</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -1141,23 +1136,19 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
+                        <configuration>
+                            <scanSet>
+                                <fileSet>
+                                    <directory>target</directory>
+                                    <includes>
+                                        <include>*.zip</include>
+                                    </includes>
+                                </fileSet>
+                            </scanSet>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
-            <reporting>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-checkstyle-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.owasp</groupId>
-                        <artifactId>dependency-check-maven</artifactId>
-                    </plugin>
-                </plugins>
-            </reporting>
         </profile>
         <profile>
             <id>javadoc</id>
