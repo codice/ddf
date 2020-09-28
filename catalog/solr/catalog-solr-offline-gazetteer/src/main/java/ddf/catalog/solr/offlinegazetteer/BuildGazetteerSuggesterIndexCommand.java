@@ -20,8 +20,11 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY;
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.karaf.shell.api.action.Action;
@@ -45,35 +48,37 @@ public class BuildGazetteerSuggesterIndexCommand implements Action {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(BuildGazetteerSuggesterIndexCommand.class);
 
-  @Reference protected Session session;
+  @VisibleForTesting @Reference Session session;
 
-  @Reference private SolrClientFactory clientFactory;
+  @VisibleForTesting @Reference SolrClientFactory clientFactory;
 
+  @SuppressWarnings({"java:S2139" /* Logging and rethrowing failure exception intentionally */})
+  @Nullable
   @Override
   public Object execute() throws Exception {
-    SolrClient solrClient = clientFactory.newClient(COLLECTION_NAME);
+    try (SolrClient solrClient = clientFactory.newClient(COLLECTION_NAME)) {
+      Callable<Boolean> booleanCallable = solrClient::isAvailable;
+      boolean response =
+          Failsafe.with(
+                  new RetryPolicy()
+                      .retryWhen(false)
+                      .withMaxDuration(5, TimeUnit.SECONDS)
+                      .withBackoff(25, 1_000, TimeUnit.MILLISECONDS))
+              .get(booleanCallable);
+      if (!response) {
+        LOGGER.error("Could not contact solr to build suggester index");
+        session.getConsole().println("Could not contact solr to build suggester index, exiting.");
+        return null;
+      }
+      SolrQuery query = new SolrQuery();
+      query.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
+      query.setParam(SUGGEST_Q_KEY, "CatalogSolrGazetteerBuildSuggester");
+      query.setParam(SUGGEST_BUILD_KEY, true);
+      query.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
 
-    Boolean response =
-        Failsafe.with(
-                new RetryPolicy()
-                    .retryWhen(false)
-                    .withMaxDuration(5, TimeUnit.SECONDS)
-                    .withBackoff(25, 1_000, TimeUnit.MILLISECONDS))
-            .get(() -> solrClient.isAvailable());
-    if (response == null || !response) {
-      LOGGER.error("Could not contact solr to build suggester index");
-      session.getConsole().println("Could not contact solr to build suggester index, exiting.");
-      return null;
-    }
-    SolrQuery query = new SolrQuery();
-    query.setRequestHandler(GAZETTEER_REQUEST_HANDLER);
-    query.setParam(SUGGEST_Q_KEY, "CatalogSolrGazetteerBuildSuggester");
-    query.setParam(SUGGEST_BUILD_KEY, true);
-    query.setParam(SUGGEST_DICT_KEY, SUGGEST_DICT);
-
-    try {
       solrClient.query(query);
     } catch (SolrServerException | IOException e) {
+      // Note that this will also catch failures closing the SolrClient
       LOGGER.info("Error while trying to build suggester", e);
       session.getConsole().println("Error while trying to build suggester.");
       throw e;
