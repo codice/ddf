@@ -45,6 +45,8 @@ public class GsonTypeAdapters {
 
   public static final Type LIST_STRING = new TypeToken<List<String>>() {}.getType();
 
+  private static final String UNKNOWN_GSON_TOKEN = "unknown gson token: ";
+
   private GsonTypeAdapters() {}
 
   /** Adapter to convert read/write Dates as Longs */
@@ -76,7 +78,7 @@ public class GsonTypeAdapters {
 
     public static final String BINARY_SUFFIX = "_bin";
 
-    public static final String[] SUFFIXES =
+    private static final String[] SUFFIXES =
         new String[] {TEXT_SUFFIX, XML_SUFFIX, INT_SUFFIX, LONG_SUFFIX, DATE_SUFFIX, BINARY_SUFFIX};
 
     static final String DATE_FORMAT = "dd MMM yyyy HH:mm:ss zzz";
@@ -151,7 +153,7 @@ public class GsonTypeAdapters {
           in.nextNull();
           return null;
         default:
-          throw new IllegalStateException("unknown gson token: " + token);
+          throw new IllegalStateException(UNKNOWN_GSON_TOKEN + token);
       }
     }
 
@@ -240,7 +242,7 @@ public class GsonTypeAdapters {
           in.nextNull();
           return null;
         default:
-          throw new IllegalStateException("unknown gson token: " + token);
+          throw new IllegalStateException(UNKNOWN_GSON_TOKEN + token);
       }
     }
   }
@@ -313,7 +315,7 @@ public class GsonTypeAdapters {
           in.nextNull();
           return null;
         default:
-          throw new IllegalStateException("unknown gson token: " + token);
+          throw new IllegalStateException(UNKNOWN_GSON_TOKEN + token);
       }
     }
 
@@ -411,7 +413,7 @@ public class GsonTypeAdapters {
       out.endObject();
     }
 
-    private void write(JsonWriter out, List list) throws IOException {
+    private void write(JsonWriter out, List<?> list) throws IOException {
       out.beginArray();
 
       for (Object o : list) {

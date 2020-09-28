@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,7 @@ import javax.validation.constraints.NotNull;
  *     AsyncFileEntry#commit()} once the file is finished processing to create a new meta-snapshot.
  * @see AsyncFileEntry#initialize()
  */
-public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
+public class AsyncFileEntry implements Comparable<AsyncFileEntry>, Serializable {
 
   private final File contentFile;
   private boolean exists;
@@ -116,8 +117,10 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
       return snapExist();
     }
 
-    while (rootParent.getParent().isPresent()) {
-      rootParent = rootParent.getParent().get();
+    Optional<AsyncFileEntry> nextParent = rootParent.getParent();
+    while (nextParent.isPresent()) {
+      rootParent = nextParent.get();
+      nextParent = rootParent.getParent();
     }
 
     return rootParent.getFile().exists();
@@ -158,7 +161,7 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
    *     {@link File} False if the object is not a {@link AsyncFileEntry} or a {@link File}
    */
   @Override
-  public boolean equals(@NotNull Object o) {
+  public boolean equals(Object o) {
     if (o instanceof AsyncFileEntry) {
       return contentFile.equals(((AsyncFileEntry) o).getFile());
     }
@@ -194,10 +197,6 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
       child.setParent(toInit);
       initializeFileEntryHelper(child);
     }
-  }
-
-  private boolean hasChild(AsyncFileEntry child) {
-    return children.contains(child);
   }
 
   private long snapLastModified() {

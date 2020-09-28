@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.xml.namespace.QName;
 import org.apache.commons.lang.StringUtils;
@@ -305,7 +306,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     properties.add(elementName);
   }
 
-  private Boolean processGmlType(XmlSchemaElement xmlSchemaElement) {
+  private boolean processGmlType(XmlSchemaElement xmlSchemaElement) {
     QName qName = xmlSchemaElement.getSchemaTypeName();
     String name = xmlSchemaElement.getName();
 
@@ -389,5 +390,41 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
   public List<String> getTemporalProperties() {
     return temporalProperties;
+  }
+
+  public Set<String> getNonQueryableProperties() {
+    return Collections.unmodifiableSet(nonQueryableProperties);
+  }
+
+  public String getGmlNamespace() {
+    return gmlNamespace;
+  }
+
+  public XmlSchema getSchema() {
+    return schema;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof FeatureMetacardType)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    FeatureMetacardType that = (FeatureMetacardType) o;
+    return featureType.equals(that.getFeatureType())
+        && nonQueryableProperties.equals(that.getNonQueryableProperties())
+        && gmlNamespace.equals(that.getGmlNamespace())
+        && schema.equals(that.getSchema());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        super.hashCode(), featureType, nonQueryableProperties, gmlNamespace, schema);
   }
 }

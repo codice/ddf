@@ -35,6 +35,7 @@ import org.codice.ddf.admin.insecure.defaults.service.Alert.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("java:S2068" /* Log message about a password */)
 public class KeystoreValidator implements Validator {
 
   static final String GENERIC_INSECURE_DEFAULTS_MSG =
@@ -134,8 +135,7 @@ public class KeystoreValidator implements Validator {
   private boolean isInitialized() {
     int errors = 0;
 
-    if (keystorePath == null
-        || (keystorePath != null && StringUtils.isBlank(keystorePath.toString()))) {
+    if (keystorePath == null || StringUtils.isBlank(keystorePath.toString())) {
       alerts.add(
           new Alert(
               Level.WARN,
@@ -143,9 +143,7 @@ public class KeystoreValidator implements Validator {
       return false;
     }
 
-    if (blacklistKeystorePath == null
-        || (blacklistKeystorePath != null
-            && StringUtils.isBlank(blacklistKeystorePath.toString()))) {
+    if (blacklistKeystorePath == null || StringUtils.isBlank(blacklistKeystorePath.toString())) {
       alerts.add(
           new Alert(
               Level.WARN,
@@ -227,7 +225,7 @@ public class KeystoreValidator implements Validator {
     try {
       Enumeration<String> aliases = keystore.aliases();
       while (aliases.hasMoreElements()) {
-        String alias = (String) aliases.nextElement();
+        String alias = aliases.nextElement();
         if (keystore.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class)
             || keystore.entryInstanceOf(alias, KeyStore.SecretKeyEntry.class)) {
           if (StringUtils.isNotBlank(defaultKeyPassword)) {
@@ -280,7 +278,7 @@ public class KeystoreValidator implements Validator {
 
       Enumeration<String> aliases = blacklistKeystore.aliases();
       while (aliases.hasMoreElements()) {
-        String alias = (String) aliases.nextElement();
+        String alias = aliases.nextElement();
         Certificate certificate = blacklistKeystore.getCertificate(alias);
         blacklistedCertificates.add(certificate);
       }
@@ -304,7 +302,7 @@ public class KeystoreValidator implements Validator {
     try {
       Enumeration<String> aliases = keystore.aliases();
       while (aliases.hasMoreElements()) {
-        String alias = (String) aliases.nextElement();
+        String alias = aliases.nextElement();
         Certificate[] certificateChain = keystore.getCertificateChain(alias);
         if (certificateChain != null) {
           keystoreCertificateChains.add(certificateChain);

@@ -27,6 +27,7 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("java:S2068" /* Intentially hard-coding insecure credentials */)
 public class InsecureDefaultsCollector implements Runnable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(InsecureDefaultsCollector.class);
@@ -233,8 +234,7 @@ public class InsecureDefaultsCollector implements Runnable {
   }
 
   private String getKeystorePassword() {
-    String keystorePassword = System.getProperty(KEYSTORE_PASSWORD_SYSTEM_PROPERTY);
-    return keystorePassword;
+    return System.getProperty(KEYSTORE_PASSWORD_SYSTEM_PROPERTY);
   }
 
   private String getTruststorePath() {
