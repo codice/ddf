@@ -23,7 +23,7 @@ import org.codice.solr.client.solrj.SolrClient;
 @Command(
     scope = "offline-solr-gazetteer",
     name = "removeall",
-    description = "Deletes all items in the solr gazetteer collection")
+    description = "Sends a request to delete all items in the solr gazetteer collection")
 public class RemoveAllOfflineSolrGazetteerCommand extends AbstractSolrClientCommand {
 
   @Override
