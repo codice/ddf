@@ -1,52 +1,53 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package ddf.catalog.solr.offlinegazetteer
 
-import ddf.catalog.solr.offlinegazetteer.RemoveAllOfflineSolrGazetteerCommand
-import net.jodah.failsafe.FailsafeException
-import org.apache.karaf.shell.api.console.Session
 import org.apache.solr.client.solrj.SolrServerException
 import org.codice.solr.client.solrj.SolrClient
-import org.codice.solr.factory.SolrClientFactory
+import org.codice.solr.client.solrj.UnavailableSolrException
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class RemoveAllOfflineSolrGazetteerCommandSpec extends Specification {
-    RemoveAllOfflineSolrGazetteerCommand testedClass
-    SolrClientFactory solrClientFactory
-    SolrClient solrClient
-    Session session
 
-    void setup() {
-        solrClient = Mock(SolrClient) {
-            isAvailable() >> true
-        }
-        solrClientFactory = Mock(SolrClientFactory) {
-            newClient(_) >> solrClient
-        }
-        session = Mock(Session)
+    private final RemoveAllOfflineSolrGazetteerCommand removeAllOfflineSolrGazetteerCommand = new RemoveAllOfflineSolrGazetteerCommand()
 
-        testedClass = new RemoveAllOfflineSolrGazetteerCommand()
-        testedClass.clientFactory = solrClientFactory
-        testedClass.session = session
-        testedClass.force = true
-        session.getConsole() >> new PrintStream(new ByteArrayOutputStream(128))
-    }
+    private final SolrClient mockSolrClient = Mock()
 
-    def "execute nominal"() {
+    def 'test executeWithSolrClient'() {
         when:
-        testedClass.execute()
+        removeAllOfflineSolrGazetteerCommand.executeWithSolrClient(mockSolrClient)
 
         then:
-        1 * solrClient.deleteByQuery(*_)
+        1 * mockSolrClient.deleteByQuery("*:*")
     }
 
-    def "execute solr exception"() {
-        setup:
-        1 * solrClient.deleteByQuery(*_) >> { throw new RuntimeException("exception") }
+    @Unroll("test SolrClient query fails with #exceptionType")
+    def 'test SolrClient query fails'() {
+        given:
+        final mockException = Mock(exceptionType)
+        mockSolrClient.deleteByQuery(_) >> { throw mockException }
 
         when:
-        testedClass.execute()
+        removeAllOfflineSolrGazetteerCommand.executeWithSolrClient(mockSolrClient)
 
         then:
-        RuntimeException e = thrown()
+        Exception e = thrown()
+        e == mockException
+
+        where:
+        exceptionType << [IOException, SolrServerException, UnavailableSolrException]
     }
 
 }

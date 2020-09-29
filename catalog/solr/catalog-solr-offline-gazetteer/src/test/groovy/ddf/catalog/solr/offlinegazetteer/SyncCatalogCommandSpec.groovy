@@ -1,64 +1,94 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package ddf.catalog.solr.offlinegazetteer
 
 import ddf.catalog.CatalogFramework
 import ddf.catalog.data.Metacard
 import ddf.catalog.data.Result
+import ddf.catalog.federation.FederationException
 import ddf.catalog.filter.AttributeBuilder
 import ddf.catalog.filter.ContextualExpressionBuilder
 import ddf.catalog.filter.FilterBuilder
 import ddf.catalog.operation.QueryRequest
 import ddf.catalog.operation.QueryResponse
-import ddf.catalog.solr.offlinegazetteer.SyncCatalogCommand
 import ddf.catalog.source.SourceUnavailableException
+import ddf.catalog.source.UnsupportedQueryException
 import ddf.catalog.util.impl.CatalogQueryException
-import org.apache.karaf.shell.api.console.Session
 import org.apache.solr.client.solrj.SolrServerException
-import org.codice.ddf.security.Security
 import org.codice.solr.client.solrj.SolrClient
-import org.codice.solr.factory.SolrClientFactory
+import org.codice.solr.client.solrj.UnavailableSolrException
 import spock.lang.Specification
+import org.opengis.filter.Filter
+import spock.lang.Unroll
 
 class SyncCatalogCommandSpec extends Specification {
-    SyncCatalogCommand testedClass
-    SolrClientFactory solrClientFactory
-    SolrClient solrClient
-    Session session
-    CatalogFramework catalogFramework
-    FilterBuilder filterBuilder
-    Security security
 
-    void setup() {
-        solrClient = Mock(SolrClient) {
-            isAvailable() >> true
-        }
-        solrClientFactory = Mock(SolrClientFactory) {
-            newClient(_) >> solrClient
-        }
+    private final CatalogFramework mockCatalogFramework = Mock()
 
-        session = Mock(Session)
-        catalogFramework = Mock(CatalogFramework)
-        filterBuilder = Mock(FilterBuilder)
-        security = Mock(Security)
-
-        testedClass = new SyncCatalogCommand()
-        testedClass.clientFactory = solrClientFactory
-        testedClass.session = session
-        testedClass.catalogFramework = catalogFramework
-        testedClass.filterBuilder = filterBuilder
-        testedClass.security = security
-
-        filterBuilder.attribute(_) >> Mock(AttributeBuilder) {
-            like() >> Mock(ContextualExpressionBuilder) {
-                text(_) >> Mock(org.opengis.filter.Filter)
+    private final SyncCatalogCommand syncCatalogCommand = new SyncCatalogCommand().with {
+        catalogFramework = mockCatalogFramework
+        filterBuilder = Mock(FilterBuilder) {
+            attribute(_) >> Mock(AttributeBuilder) {
+                like() >> Mock(ContextualExpressionBuilder) {
+                    text(_) >> Mock(Filter)
+                }
             }
         }
-
-        session.getConsole() >> new PrintStream(new ByteArrayOutputStream(128))
+        return it
     }
 
-    def "executeWithSubject nominal"() {
+    private final SolrClient mockSolrClient = Mock()
+
+    def 'test executeWithSolrClient'() {
+        when:
+        syncCatalogCommand.executeWithSolrClient(mockSolrClient)
+
+        then:
+        1 * mockCatalogFramework.query(_ as QueryRequest) >> Mock(QueryResponse) {
+            getResults() >> [Mock(Result) {
+                getMetacard() >> Mock(Metacard) {
+                    getId() >> "id1"
+                }
+            }]
+            getProperties() >> ["actualResultSize": 1]
+            getHits() >> 1
+        }
+
+        and:
+        1 * mockSolrClient.add(*_)
+    }
+
+    @Unroll("test CatalogFramework query fails with #exceptionType")
+    def 'test CatalogFramework query fails'() {
+        given:
+        final mockException = Mock(exceptionType)
+        mockCatalogFramework.query(_) >> { throw mockException }
+
+        when:
+        syncCatalogCommand.executeWithSolrClient(mockSolrClient)
+
+        then:
+        final CatalogQueryException e = thrown()
+        e.getCause() == mockException
+
+        where:
+        exceptionType << [UnsupportedQueryException, SourceUnavailableException, FederationException]
+    }
+
+    def 'test test SolrClient add fails'() {
         setup:
-        1 * catalogFramework.query(_ as QueryRequest) >> {
+        mockCatalogFramework.query(_ as QueryRequest) >> {
             Mock(QueryResponse) {
                 getResults() >> [Mock(Result) {
                     getMetacard() >> Mock(Metacard) {
@@ -70,49 +100,18 @@ class SyncCatalogCommandSpec extends Specification {
             }
         }
 
+        and:
+        final mockException = Mock(exceptionType)
+        mockSolrClient.add(*_) >> { throw mockException }
 
         when:
-        testedClass.executeWithSubject()
+        syncCatalogCommand.executeWithSolrClient(mockSolrClient)
 
         then:
-        1 * solrClient.add(*_)
+        Exception e = thrown()
+        e == mockException
 
-    }
-
-    def "executeWithSubject catalog framework exception"() {
-        setup:
-        1 * catalogFramework.query(_ as QueryRequest) >>
-                { throw new SourceUnavailableException("exception") }
-
-        when:
-        testedClass.executeWithSubject()
-
-        then:
-        CatalogQueryException e = thrown()
-
-    }
-
-    def "executeWithSubject solr exception "() {
-        setup:
-        1 * catalogFramework.query(_ as QueryRequest) >> {
-            Mock(QueryResponse) {
-                getResults() >> [Mock(Result) {
-                    getMetacard() >> Mock(Metacard) {
-                        getId() >> "id1"
-                    }
-                }]
-                getProperties() >> ["actualResultSize": 1]
-                getHits() >> 1
-            }
-        }
-        solrClient.add(*_) >> { throw new SolrServerException("exception") }
-
-
-        when:
-        testedClass.executeWithSubject()
-
-        then:
-        SolrServerException e = thrown()
-
+        where:
+        exceptionType << [IOException, SolrServerException, UnavailableSolrException]
     }
 }

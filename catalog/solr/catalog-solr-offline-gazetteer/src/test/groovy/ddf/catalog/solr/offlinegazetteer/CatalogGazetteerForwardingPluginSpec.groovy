@@ -64,7 +64,7 @@ class CatalogGazetteerForwardingPluginSpec extends Specification {
                 Mock(Metacard) {
                     getTitle() >> "resource metacard mock 1"
                     getAttribute(Core.TITLE) >> new AttributeImpl(Core.TITLE,
-                                                                  "resource metacard mock 1")
+                            "resource metacard mock 1")
                     getTags() >> ["resource"]
                     getAttribute(Metacard.TAGS) >> new AttributeImpl(Metacard.TAGS, ["resource"])
                     getId() >> "id1"
@@ -73,7 +73,7 @@ class CatalogGazetteerForwardingPluginSpec extends Specification {
                 Mock(Metacard) {
                     getTitle() >> "resource metacard mock 2"
                     getAttribute(Core.TITLE) >> new AttributeImpl(Core.TITLE,
-                                                                  "resource metacard mock 2")
+                            "resource metacard mock 2")
                     getTags() >> ["resource"]
                     getAttribute(Metacard.TAGS) >> new AttributeImpl(Metacard.TAGS, ["resource"])
                     getId() >> "id2"
@@ -86,19 +86,19 @@ class CatalogGazetteerForwardingPluginSpec extends Specification {
                     getTags() >> ["gazetteer"]
                     getAttribute(Metacard.TAGS) >> new AttributeImpl(Metacard.TAGS, ["gazetteer"])
                     getAttribute(Metacard.DESCRIPTION) >> new AttributeImpl(Metacard.DESCRIPTION,
-                                                                            "mock gazetteer metacard desc")
+                            "mock gazetteer metacard desc")
                     getAttribute(GeoEntryAttributes.
                             FEATURE_CODE_ATTRIBUTE_NAME) >> new AttributeImpl(GeoEntryAttributes.
                             FEATURE_CODE_ATTRIBUTE_NAME, "PPL")
                     getTitle() >> "gazetteer metacard mock 1"
                     getAttribute(Core.TITLE) >> new AttributeImpl(Core.TITLE,
-                                                                  "gazetteer metacard mock 1")
+                            "gazetteer metacard mock 1")
                     getId() >> "id3"
                     getAttribute(Core.ID) >> new AttributeImpl(Core.ID, "id3")
                     getAttribute(Location.COUNTRY_CODE) >> new AttributeImpl(Location.COUNTRY_CODE,
-                                                                             "FRA")
+                            "FRA")
                     getAttribute(Core.LOCATION) >> new AttributeImpl(Core.LOCATION,
-                                                                     "POINT (3.999 48.36502)")
+                            "POINT (3.999 48.36502)")
                     getAttribute(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME) >> new AttributeImpl(
                             GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME,
                             2724)
@@ -109,19 +109,19 @@ class CatalogGazetteerForwardingPluginSpec extends Specification {
                     getTags() >> ["gazetteer"]
                     getAttribute(Metacard.TAGS) >> new AttributeImpl(Metacard.TAGS, ["gazetteer"])
                     getAttribute(Metacard.DESCRIPTION) >> new AttributeImpl(Metacard.DESCRIPTION,
-                                                                            "mock gazetteer metacard desc2")
+                            "mock gazetteer metacard desc2")
                     getAttribute(GeoEntryAttributes.
                             FEATURE_CODE_ATTRIBUTE_NAME) >> new AttributeImpl(Metacard.DESCRIPTION,
-                                                                              "PPL")
+                            "PPL")
                     getTitle() >> "gazetteer metacard mock 2"
                     getAttribute(Core.TITLE) >> new AttributeImpl(Metacard.DESCRIPTION,
-                                                                  "gazetteer metacard mock 2")
+                            "gazetteer metacard mock 2")
                     getId() >> "id4"
                     getAttribute(Core.ID) >> new AttributeImpl(Metacard.DESCRIPTION, "id4")
                     getAttribute(Location.COUNTRY_CODE) >> new AttributeImpl(Metacard.DESCRIPTION,
-                                                                             "USA")
+                            "USA")
                     getAttribute(Core.LOCATION) >> new AttributeImpl(Metacard.DESCRIPTION,
-                                                                     "POINT (-87.70058 34.27482)")
+                            "POINT (-87.70058 34.27482)")
                     getAttribute(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME) >> new AttributeImpl(
                             Metacard.DESCRIPTION,
                             1047)
@@ -166,10 +166,10 @@ class CatalogGazetteerForwardingPluginSpec extends Specification {
                                 getTags() >> ["gazetteer"]
                                 getAttribute(Metacard.
                                         TAGS) >> new AttributeImpl(Metacard.TAGS,
-                                                                   ["gazetteer"])
+                                        ["gazetteer"])
                                 getId() >> "id3b"
                                 getAttribute(Core.ID) >> new AttributeImpl(Core.ID,
-                                                                           "id3b")
+                                        "id3b")
                             }]
                 }
 
