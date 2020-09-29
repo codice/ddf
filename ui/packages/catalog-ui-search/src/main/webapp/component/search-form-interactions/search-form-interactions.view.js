@@ -113,18 +113,24 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
   },
   ui: {},
   initialize() {
-    this.listenTo(user.getQuerySettings(), 'change', function() {
-      this.$el.toggleClass(
-        'is-current-template',
-        user.getQuerySettings().isDefaultTemplate(this.model)
-      )
-    })
+    this.listenTo(
+      user.getQuerySettings(),
+      'change:defaultResultFormId change:template',
+      function() {
+        this.$el.toggleClass(
+          'is-current-template',
+          user.getQuerySettings().isDefaultResultForm(this.model) ||
+            user.getQuerySettings().isDefaultTemplate(this.model)
+        )
+      }
+    )
   },
   onRender() {
     this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')))
     this.$el.toggleClass(
       'is-current-template',
-      user.getQuerySettings().isDefaultTemplate(this.model)
+      user.getQuerySettings().isDefaultResultForm(this.model) ||
+        user.getQuerySettings().isDefaultTemplate(this.model)
     )
     this.$el.toggleClass(
       'is-system-template',
@@ -213,6 +219,15 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
             },
           })
           loadingview.remove()
+          if (this.model.get('type') === 'result') {
+            if (user.getQuerySettings().isDefaultResultForm(this.model)) {
+              this.handleClearDefault()
+              if (this.options.queryModel) {
+                this.options.queryModel.resetToDefaults()
+              }
+            }
+            return
+          }
           const template = user.getQuerySettings().get('template')
           if (!template) {
             user.getQuerySettings().set('type', 'text')
@@ -240,7 +255,9 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
                   template.querySettings['detail-level']) ||
                 'allFields',
             }
-            this.options.queryModel.resetToDefaults(defaults)
+            if (this.options.queryModel) {
+              this.options.queryModel.resetToDefaults(defaults)
+            }
           }
         }
       }

@@ -33,9 +33,6 @@ module.exports = Backbone.Model.extend({
     }
   },
   isTemplate(template) {
-    if (this.get('defaultResultFormId') === template.id) {
-      return true
-    }
     if (this.get('template') !== undefined) {
       return this.get('template').id === template.id
     } else {
@@ -48,5 +45,15 @@ module.exports = Backbone.Model.extend({
       this.get('template') &&
       this.get('template').default
     )
+  },
+  isDefaultResultForm(model) {
+    if (
+      model.get('type') === 'result' &&
+      this.get('defaultResultFormId') !== undefined
+    ) {
+      return this.get('defaultResultFormId') === model.id
+    } else {
+      return false
+    }
   },
 })

@@ -67,10 +67,15 @@ module.exports = Marionette.LayoutView.extend({
     ) {
       return
     }
-    const searchForm = new SearchForm(currentQuerySettings.get('template'))
+    const currentTemplate = currentQuerySettings.get('template')
+    const searchForm = new SearchForm(currentTemplate)
     const sharedAttributes = searchForm.transformToQueryStructure()
+    if (currentTemplate === undefined) {
+      sharedAttributes['detail-level'] = null
+    }
     this.model.set({
       type: currentQuerySettings.get('type'),
+      searchFormId: searchForm.id,
       ...sharedAttributes,
     })
   },
@@ -146,6 +151,7 @@ module.exports = Marionette.LayoutView.extend({
         (userDefaultTemplate['querySettings'] &&
           userDefaultTemplate['querySettings']['detail-level']) ||
         'allFields',
+      searchFormId: userDefaultTemplate['id'],
     }
   },
   showTitle() {

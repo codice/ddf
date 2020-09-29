@@ -186,7 +186,7 @@ Query.Model = PartialAssociatedModel.extend({
         type: 'text',
         isLocal: false,
         isOutdated: false,
-        'detail-level': undefined,
+        'detail-level': null,
         spellcheck: false,
         phonetics: false,
       },
