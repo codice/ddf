@@ -49,7 +49,7 @@ public abstract class AbstractSolrClientCommand extends SubjectCommands {
       String answer =
           session.readLine("Are you sure you want to continue?(y/n)", ' ').toLowerCase();
       if (!("y".equals(answer) || "yes".equals(answer))) {
-        printSuccessMessage("Aborting.");
+        console.println("Aborting.");
         return null;
       }
     }
