@@ -381,5 +381,25 @@
                 </include>
             </includes>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>
+                system/org/apache/servicemix/specs/org.apache.servicemix.specs.jaxb-api-2.3/2.3_3
+            </outputDirectory>
+            <includes>
+                <include>
+                    org.apache.servicemix.specs:org.apache.servicemix.specs.jaxb-api-2.3:jar:2.3_3
+                </include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>
+                system/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jaxb-runtime/2.3.2_2
+            </outputDirectory>
+            <includes>
+                <include>
+                    org.apache.servicemix.bundles:org.apache.servicemix.bundles.jaxb-runtime:jar:2.3.2_2
+                </include>
+            </includes>
+        </dependencySet>
     </dependencySets>
 </component>

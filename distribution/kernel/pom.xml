@@ -261,18 +261,6 @@
                                     <version>${jakarta.activation.bundle.version}</version>
                                     <outputDirectory>${setup.folder}/endorsed</outputDirectory>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.servicemix.specs</groupId>
-                                    <artifactId>org.apache.servicemix.specs.jaxb-api-2.3</artifactId>
-                                    <version>2.3_3</version>
-                                    <outputDirectory>${setup.folder}/endorsed</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.servicemix.bundles</groupId>
-                                    <artifactId>org.apache.servicemix.bundles.jaxb-runtime</artifactId>
-                                    <version>2.3.2_2</version>
-                                    <outputDirectory>${setup.folder}/endorsed</outputDirectory>
-                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -464,6 +452,16 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>${org.json.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.jaxb-api-2.3</artifactId>
+            <version>2.3_3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jaxb-runtime</artifactId>
+            <version>2.3.2_2</version>
         </dependency>
     </dependencies>
 </project>
