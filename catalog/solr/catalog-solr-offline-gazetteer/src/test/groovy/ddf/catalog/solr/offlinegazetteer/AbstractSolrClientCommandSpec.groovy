@@ -160,7 +160,7 @@ class AbstractSolrClientCommandSpec extends Specification {
         1 * mockSolrClient.close()
 
         where:
-        exceptionType << [IOException, SolrServerException, UnavailableSolrException, RuntimeException]
+        exceptionType << [IOException, SolrServerException, UnavailableSolrException, RuntimeException, InterruptedException]
     }
 
     def 'test failure to close SolrClient'() {

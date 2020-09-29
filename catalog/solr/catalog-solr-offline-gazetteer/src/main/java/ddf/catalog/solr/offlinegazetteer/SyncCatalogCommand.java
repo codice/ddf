@@ -55,7 +55,8 @@ public class SyncCatalogCommand extends AbstractSolrClientCommand {
   @Reference FilterBuilder filterBuilder;
 
   @Override
-  void executeWithSolrClient(SolrClient solrClient) throws SolrServerException, IOException {
+  void executeWithSolrClient(SolrClient solrClient)
+      throws SolrServerException, IOException, InterruptedException {
     Iterable<Result> iterable =
         ResultIterable.resultIterable(catalogFramework, getGazetteerFilter());
 
@@ -64,6 +65,13 @@ public class SyncCatalogCommand extends AbstractSolrClientCommand {
     Instant start = Instant.now();
 
     for (List<Result> results : Iterables.partition(iterable, PARTITION_SIZE)) {
+      if (Thread.interrupted()) {
+        LOGGER.info("Catalog sync interrupted early, exiting");
+        printErrorMessage("Catalog sync interrupted, exiting");
+        Thread.currentThread().interrupt();
+        throw new InterruptedException();
+      }
+
       try {
         solrClient.add(
             results.stream()

@@ -85,7 +85,8 @@ public abstract class AbstractSolrClientCommand extends SubjectCommands {
    * @throws SolrServerException if there is an error on the server
    * @throws UnavailableSolrException if the Solr server or the core is unavailable
    * @throws RuntimeException if there is another error
+   * @throws InterruptedException if interrupted while executing
    */
   abstract void executeWithSolrClient(SolrClient solrClient)
-      throws SolrServerException, IOException;
+      throws SolrServerException, IOException, InterruptedException;
 }
