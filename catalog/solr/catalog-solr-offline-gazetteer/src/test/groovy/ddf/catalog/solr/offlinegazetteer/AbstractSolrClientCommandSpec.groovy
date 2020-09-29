@@ -28,7 +28,7 @@ class AbstractSolrClientCommandSpec extends Specification {
     def 'test force with \"no\" user input'() {
         given:
         spyAbstractOfflineSolrGazetteerCommand.session = Mock(Session) {
-            readLine("Are you sure you want to continue?(y/n)", ' ') >> answer
+            readLine("Are you sure you want to continue? (y/n): ", null) >> answer
         }
 
         when:
@@ -38,7 +38,7 @@ class AbstractSolrClientCommandSpec extends Specification {
         0 * spyAbstractOfflineSolrGazetteerCommand.executeWithSolrClient(_) >> {}
 
         where:
-        answer << ["n", "no", "not no"]
+        answer << ["n", "no", "N", "No", "NO", "not no"]
     }
 
     def 'test force with \"yes\" user input'() {
@@ -51,7 +51,7 @@ class AbstractSolrClientCommandSpec extends Specification {
                 1 * newClient("gazetteer") >> mockSolrClient
             }
             session = Mock(Session) {
-                readLine("Are you sure you want to continue?(y/n)", ' ') >> answer
+                readLine("Are you sure you want to continue? (y/n): ", null) >> answer
             }
         }
 
@@ -65,7 +65,7 @@ class AbstractSolrClientCommandSpec extends Specification {
         1 * mockSolrClient.close()
 
         where:
-        answer << ["y", "yes"]
+        answer << ["y", "yes", "Y", "Yes", "YEs"]
     }
 
     def 'test executeWithSolrClient'() {

@@ -47,8 +47,8 @@ public abstract class AbstractSolrClientCommand extends SubjectCommands {
   protected Object executeWithSubject() throws Exception {
     if (!force) {
       String answer =
-          session.readLine("Are you sure you want to continue?(y/n)", ' ').toLowerCase();
-      if (!("y".equals(answer) || "yes".equals(answer))) {
+          session.readLine("Are you sure you want to continue? (y/n): ", null).toLowerCase();
+      if (!("y".equalsIgnoreCase(answer) || "yes".equalsIgnoreCase(answer))) {
         console.println("Aborting.");
         return null;
       }
