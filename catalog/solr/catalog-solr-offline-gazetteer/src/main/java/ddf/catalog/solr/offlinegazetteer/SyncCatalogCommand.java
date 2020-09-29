@@ -72,17 +72,11 @@ public class SyncCatalogCommand extends AbstractSolrClientCommand {
         throw new InterruptedException();
       }
 
-      try {
-        solrClient.add(
-            results.stream()
-                .map(Result::getMetacard)
-                .map(CatalogGazetteerForwardingPlugin::convert)
-                .collect(Collectors.toList()));
-      } catch (SolrServerException | IOException e) {
-        LOGGER.info("error during syncing while adding items to solr", e);
-        printErrorMessage(String.format("An error occured while syncing: %s", e.getMessage()));
-        throw e;
-      }
+      solrClient.add(
+          results.stream()
+              .map(Result::getMetacard)
+              .map(CatalogGazetteerForwardingPlugin::convert)
+              .collect(Collectors.toList()));
       counter += results.size();
     }
 
