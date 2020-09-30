@@ -47,6 +47,7 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
     return getActionUrl(encodedMetacardSource, encodedMetacardId);
   }
 
+  @Override
   protected Action createMetacardAction(
       String actionProviderId, String title, String description, URL url) {
     return new ActionImpl(actionProviderId, title, description, url);

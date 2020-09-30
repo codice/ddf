@@ -328,6 +328,7 @@ public class MetacardImpl implements Metacard {
     return wrappedMetacard != null ? wrappedMetacard.getSourceId() : sourceId;
   }
 
+  @Override
   public void setSourceId(String sourceId) {
     if (wrappedMetacard != null) {
       wrappedMetacard.setSourceId(sourceId);

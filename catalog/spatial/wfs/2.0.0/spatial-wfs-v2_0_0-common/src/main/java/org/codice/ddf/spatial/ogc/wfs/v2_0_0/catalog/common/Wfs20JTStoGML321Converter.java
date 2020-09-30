@@ -47,6 +47,8 @@ public class Wfs20JTStoGML321Converter {
 
   private static final ObjectFactory GML320_OBJECT_FACTORY = new ObjectFactory();
 
+  private Wfs20JTStoGML321Converter() {}
+
   public static DirectPositionType convertToDirectPositionType(
       Coordinate coordinate, String srsName) {
     DirectPositionType directPositionType = GML320_OBJECT_FACTORY.createDirectPositionType();

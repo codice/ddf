@@ -50,6 +50,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.service.SecurityManager;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -186,7 +187,10 @@ public class WfsSourceTest {
 
     ClientBuilder<Wfs> clientBuilder =
         new ClientBuilderImpl<Wfs>(
-            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+            mock(OAuthSecurity.class),
+            mock(SamlSecurity.class),
+            mock(SecurityLogger.class),
+            mock(SecurityManager.class)) {
           @Override
           public SecureCxfClientFactory<Wfs> build() {
             return mockFactory;
@@ -292,7 +296,10 @@ public class WfsSourceTest {
 
     ClientBuilder<Wfs> clientBuilder =
         new ClientBuilderImpl<Wfs>(
-            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+            mock(OAuthSecurity.class),
+            mock(SamlSecurity.class),
+            mock(SecurityLogger.class),
+            mock(SecurityManager.class)) {
           @Override
           public SecureCxfClientFactory<Wfs> build() {
             return mockFactory;

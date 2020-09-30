@@ -34,6 +34,7 @@ public class ContentEndpoint extends DefaultEndpoint {
    *
    * @see org.apache.camel.impl.DefaultEndpoint#getComponent()
    */
+  @Override
   public ContentComponent getComponent() {
     return (ContentComponent) super.getComponent();
   }

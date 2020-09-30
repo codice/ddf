@@ -13,15 +13,20 @@
  */
 package org.codice.solr.factory.impl;
 
+import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +44,6 @@ public class Configsets {
               "solr.xml",
               "solrconfig.xml",
               "stopwords.txt",
-              "stopwords_en.txt",
               "synonyms.txt"));
 
   private String configsetsPath;
@@ -47,7 +51,7 @@ public class Configsets {
   private Path defaultPath;
 
   public Configsets() {
-    this(Paths.get(System.getProperty("ddf.home", ""), "etc/solr/configsets"));
+    this(Paths.get(System.getProperty("ddf.home", ""), "etc", "solr", "configsets"));
   }
 
   public Configsets(Path configsets) {
@@ -80,11 +84,61 @@ public class Configsets {
 
   public Path get(String collection) {
     Path collectionPath = Paths.get(configsetsPath, collection, "conf");
-    if (collectionPath.toFile().exists()) {
-      return collectionPath;
-    } else {
+    if (!collectionPath.toFile().exists()) {
       LOGGER.debug("No configset for collection [{}]. Using default configset instead", collection);
       return defaultPath;
     }
+    return getRectifiedConfig(collection, collectionPath);
+  }
+
+  private Path getRectifiedConfig(String collection, Path collectionPath) {
+    // if any defaults are missing-- create a temp  and copy collectionPath + defaults
+    Set<Path> allFiles =
+        SOLR_CONFIG_FILES.stream()
+            .map(configName -> Paths.get(collectionPath.toString(), configName))
+            .collect(Collectors.toSet());
+    Set<Path> missingFiles =
+        allFiles.stream().filter(config -> !config.toFile().exists()).collect(Collectors.toSet());
+    Set<Path> existingFiles =
+        allFiles.stream().filter(config -> config.toFile().exists()).collect(Collectors.toSet());
+
+    if (missingFiles.isEmpty()) {
+      return collectionPath;
+    }
+
+    Path tempConfigDir;
+    try {
+      tempConfigDir = Files.createTempDirectory("solr-configsets");
+      tempConfigDir.toFile().deleteOnExit();
+    } catch (IOException e) {
+      LOGGER.debug(
+          "Could not create directory to utilize incomplete configset [{}]. Using default configset instead",
+          collection);
+      return defaultPath;
+    }
+
+    Set<Path> pathsToCopy =
+        ImmutableSet.<Path>builder()
+            .addAll(
+                missingFiles.stream()
+                    .map(Path::getFileName)
+                    .map(Path::toString)
+                    .map(fileName -> Paths.get(defaultPath.toString(), fileName))
+                    .collect(Collectors.toSet()))
+            .addAll(existingFiles)
+            .build();
+    for (Path filePath : pathsToCopy) {
+      try {
+        Files.copy(
+            filePath,
+            Paths.get(tempConfigDir.toString(), filePath.getFileName().toString()),
+            StandardCopyOption.REPLACE_EXISTING);
+      } catch (IOException e) {
+        LOGGER.info("Could not copy config file [{}], reverting to default.", filePath);
+        return defaultPath;
+      }
+    }
+
+    return tempConfigDir;
   }
 }

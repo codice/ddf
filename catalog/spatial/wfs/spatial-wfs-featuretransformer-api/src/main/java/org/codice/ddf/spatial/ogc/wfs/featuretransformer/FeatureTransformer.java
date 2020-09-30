@@ -35,5 +35,6 @@ public interface FeatureTransformer<T>
    * @return a java.util.Optional containing the de-serialized metacard or Optional.empty() in cases
    *     where the "featureMember" couldn't be de-serialized
    */
+  @Override
   Optional<Metacard> apply(InputStream featureMember, WfsMetadata<T> metadata);
 }

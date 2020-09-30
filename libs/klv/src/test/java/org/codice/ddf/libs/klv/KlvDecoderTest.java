@@ -174,7 +174,7 @@ public class KlvDecoderTest {
 
   private KlvContext getKLVContext(final Set<? extends KlvDataElement> dataElements) {
     final KlvContext localSetContext =
-        new KlvContext(KeyLength.OneByte, LengthEncoding.OneByte, dataElements);
+        new KlvContext(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, dataElements);
 
     final KlvLocalSet outerSet =
         new KlvLocalSet(
@@ -187,7 +187,7 @@ public class KlvDecoderTest {
 
     final Set<KlvDataElement> outerSetContext = Collections.singleton(outerSet);
 
-    return new KlvContext(KeyLength.SixteenBytes, LengthEncoding.BER, outerSetContext);
+    return new KlvContext(KeyLength.SIXTEEN_BYTES, LengthEncoding.BER, outerSetContext);
   }
 
   @Test
@@ -248,21 +248,21 @@ public class KlvDecoderTest {
   @Test
   public void testOneByteKey() throws KlvDecodingException {
     final byte[] klvBytes = {7, 3, 9, 8, 7};
-    final byte[] value = getValueBytes(KeyLength.OneByte, LengthEncoding.OneByte, klvBytes);
+    final byte[] value = getValueBytes(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvBytes);
     assertThat(value, is(new byte[] {9, 8, 7}));
   }
 
   @Test
   public void testTwoByteKey() throws KlvDecodingException {
     final byte[] klvBytes = {-14, 99, 3, -1, 0, 1};
-    final byte[] value = getValueBytes(KeyLength.TwoBytes, LengthEncoding.OneByte, klvBytes);
+    final byte[] value = getValueBytes(KeyLength.TWO_BYTES, LengthEncoding.ONE_BYTE, klvBytes);
     assertThat(value, is(new byte[] {-1, 0, 1}));
   }
 
   @Test
   public void testFourByteKey() throws KlvDecodingException {
     final byte[] klvBytes = {-14, 99, -55, 101, 3, -1, 0, 1};
-    final byte[] value = getValueBytes(KeyLength.FourBytes, LengthEncoding.OneByte, klvBytes);
+    final byte[] value = getValueBytes(KeyLength.FOUR_BYTES, LengthEncoding.ONE_BYTE, klvBytes);
     assertThat(value, is(new byte[] {-1, 0, 1}));
   }
 
@@ -271,7 +271,7 @@ public class KlvDecoderTest {
     final byte[] klvBytes = {
       -14, 99, -55, 101, 22, 0, -9, -45, -55, -1, 77, 89, 112, 17, 18, 19, 3, -1, 0, 1
     };
-    final byte[] value = getValueBytes(KeyLength.SixteenBytes, LengthEncoding.OneByte, klvBytes);
+    final byte[] value = getValueBytes(KeyLength.SIXTEEN_BYTES, LengthEncoding.ONE_BYTE, klvBytes);
     assertThat(value, is(new byte[] {-1, 0, 1}));
   }
 
@@ -281,7 +281,7 @@ public class KlvDecoderTest {
     final byte[] expectedValueBytes = new byte[256];
     Arrays.fill(expectedValueBytes, (byte) 4);
     final byte[] klvBytes = ArrayUtils.addAll(new byte[] {5, 1, 0}, expectedValueBytes);
-    final byte[] value = getValueBytes(KeyLength.OneByte, LengthEncoding.TwoBytes, klvBytes);
+    final byte[] value = getValueBytes(KeyLength.ONE_BYTE, LengthEncoding.TWO_BYTES, klvBytes);
     assertThat(value, is(expectedValueBytes));
   }
 
@@ -290,7 +290,7 @@ public class KlvDecoderTest {
     final byte[] expectedValueBytes = new byte[256];
     Arrays.fill(expectedValueBytes, (byte) -2);
     final byte[] klvBytes = ArrayUtils.addAll(new byte[] {5, 0, 0, 1, 0}, expectedValueBytes);
-    final byte[] value = getValueBytes(KeyLength.OneByte, LengthEncoding.FourBytes, klvBytes);
+    final byte[] value = getValueBytes(KeyLength.ONE_BYTE, LengthEncoding.FOUR_BYTES, klvBytes);
     assertThat(value, is(expectedValueBytes));
   }
 
@@ -300,7 +300,7 @@ public class KlvDecoderTest {
     final byte[] expectedValueBytes = new byte[length];
     Arrays.fill(expectedValueBytes, (byte) 101);
     final byte[] klvBytes = ArrayUtils.addAll(new byte[] {5, length}, expectedValueBytes);
-    final byte[] value = getValueBytes(KeyLength.OneByte, LengthEncoding.BER, klvBytes);
+    final byte[] value = getValueBytes(KeyLength.ONE_BYTE, LengthEncoding.BER, klvBytes);
     assertThat(value, is(expectedValueBytes));
   }
 
@@ -311,7 +311,7 @@ public class KlvDecoderTest {
     Arrays.fill(expectedValueBytes, (byte) -25);
     final byte[] klvBytes =
         ArrayUtils.addAll(new byte[] {5, (byte) 0b10000001, length}, expectedValueBytes);
-    final byte[] value = getValueBytes(KeyLength.OneByte, LengthEncoding.BER, klvBytes);
+    final byte[] value = getValueBytes(KeyLength.ONE_BYTE, LengthEncoding.BER, klvBytes);
     assertThat(value, is(expectedValueBytes));
   }
 
@@ -320,7 +320,7 @@ public class KlvDecoderTest {
     final byte[] klvBytes = {-8, 1, -128};
     final KlvByte klvByte = new KlvByte(new byte[] {-8}, "test");
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvByte, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvByte, klvBytes);
     final byte value = ((KlvByte) decodedKlvContext.getDataElementByName("test")).getValue();
     assertThat(value, is((byte) -128));
   }
@@ -330,7 +330,7 @@ public class KlvDecoderTest {
     final byte[] klvBytes = {-8, 1, -127};
     final KlvUnsignedByte klvUnsignedByte = new KlvUnsignedByte(new byte[] {-8}, "test");
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvUnsignedByte, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvUnsignedByte, klvBytes);
     final short value =
         ((KlvUnsignedByte) decodedKlvContext.getDataElementByName("test")).getValue();
     assertThat(value, is((short) 129));
@@ -341,7 +341,7 @@ public class KlvDecoderTest {
     final byte[] klvBytes = {-8, 2, (byte) 0xB6, 0x1f};
     final KlvShort klvShort = new KlvShort(new byte[] {-8}, "test");
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvShort, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvShort, klvBytes);
     final short value = ((KlvShort) decodedKlvContext.getDataElementByName("test")).getValue();
     assertThat(value, is((short) -18913));
   }
@@ -351,7 +351,7 @@ public class KlvDecoderTest {
     final byte[] klvBytes = {-8, 2, (byte) 0xB6, 0x1f};
     final KlvUnsignedShort klvUnsignedShort = new KlvUnsignedShort(new byte[] {-8}, "test");
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvUnsignedShort, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvUnsignedShort, klvBytes);
     final int value =
         ((KlvUnsignedShort) decodedKlvContext.getDataElementByName("test")).getValue();
     assertThat(value, is(46623));
@@ -362,7 +362,7 @@ public class KlvDecoderTest {
     final byte[] klvBytes = {-8, 4, (byte) 0xAF, 0x69, 0x1E, 0x0F};
     final KlvInt klvInt = new KlvInt(new byte[] {-8}, "test");
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvInt, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvInt, klvBytes);
     final int value = ((KlvInt) decodedKlvContext.getDataElementByName("test")).getValue();
     assertThat(value, is(-1352065521));
   }
@@ -372,7 +372,7 @@ public class KlvDecoderTest {
     final byte[] klvBytes = {-8, 4, (byte) 0xAF, 0x69, 0x1E, 0x0F};
     final KlvLong klvUnsignedInt = new KlvLong(new byte[] {-8}, "test");
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvUnsignedInt, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvUnsignedInt, klvBytes);
     final long value = ((KlvLong) decodedKlvContext.getDataElementByName("test")).getValue();
     assertThat(value, is(2942901775L));
   }
@@ -393,7 +393,7 @@ public class KlvDecoderTest {
     };
     final KlvLong klvLong = new KlvLong(new byte[] {-8}, "test");
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvLong, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvLong, klvBytes);
     final long value = ((KlvLong) decodedKlvContext.getDataElementByName("test")).getValue();
     assertThat(value, is(-2942901775L));
   }
@@ -403,7 +403,7 @@ public class KlvDecoderTest {
     final byte[] klvBytes = {-8, 4, 0x46, (byte) 0xA8, 0x7E, 0x59};
     final KlvFloat klvFloat = new KlvFloat(new byte[] {-8}, "test");
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvFloat, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvFloat, klvBytes);
     final float value = ((KlvFloat) decodedKlvContext.getDataElementByName("test")).getValue();
     assertThat(value, is(21567.174f));
   }
@@ -415,7 +415,7 @@ public class KlvDecoderTest {
     };
     final KlvDouble klvDouble = new KlvDouble(new byte[] {-8}, "test");
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvDouble, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvDouble, klvBytes);
     final double value = ((KlvDouble) decodedKlvContext.getDataElementByName("test")).getValue();
     assertThat(value, is(21567.173891));
   }
@@ -426,7 +426,7 @@ public class KlvDecoderTest {
     final KlvString klvString =
         new KlvString(new byte[] {-8}, "test", StandardCharsets.UTF_8.name());
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvString, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvString, klvBytes);
     final String value = ((KlvString) decodedKlvContext.getDataElementByName("test")).getValue();
     assertThat(value, is("KLV"));
   }
@@ -439,7 +439,7 @@ public class KlvDecoderTest {
     final KlvIntegerEncodedFloatingPoint windSpeed =
         new KlvIntegerEncodedFloatingPoint(klvUnsignedByte, 0, (1 << 8) - 1, 0, 100);
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, windSpeed, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, windSpeed, klvBytes);
     final double value =
         ((KlvIntegerEncodedFloatingPoint) decodedKlvContext.getDataElementByName("test"))
             .getValue();
@@ -454,7 +454,7 @@ public class KlvDecoderTest {
     final KlvIntegerEncodedFloatingPoint platformHeadingAngle =
         new KlvIntegerEncodedFloatingPoint(klvUnsignedShort, 0, (1 << 16) - 1, 0, 360);
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, platformHeadingAngle, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, platformHeadingAngle, klvBytes);
     final double value =
         ((KlvIntegerEncodedFloatingPoint) decodedKlvContext.getDataElementByName("test"))
             .getValue();
@@ -471,7 +471,7 @@ public class KlvDecoderTest {
         // Short.MIN_VALUE is an "out of range" indicator, so it is not included in the range.
         new KlvIntegerEncodedFloatingPoint(klvShort, Short.MIN_VALUE + 1, Short.MAX_VALUE, -50, 50);
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, platformRollAngle, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, platformRollAngle, klvBytes);
     final double value =
         ((KlvIntegerEncodedFloatingPoint) decodedKlvContext.getDataElementByName("test"))
             .getValue();
@@ -487,7 +487,7 @@ public class KlvDecoderTest {
     final KlvIntegerEncodedFloatingPoint sensorRelativeAzimuth =
         new KlvIntegerEncodedFloatingPoint(klvUnsignedInt, 0, (1L << 32) - 1, 0, 360);
     final KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, sensorRelativeAzimuth, klvBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, sensorRelativeAzimuth, klvBytes);
     final double value =
         ((KlvIntegerEncodedFloatingPoint) decodedKlvContext.getDataElementByName("test"))
             .getValue();
@@ -509,7 +509,7 @@ public class KlvDecoderTest {
             180);
     final KlvContext decodedKlvContext =
         decodeKLV(
-            KeyLength.OneByte, LengthEncoding.OneByte, sensorRelativeElevationAngle, klvBytes);
+            KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, sensorRelativeElevationAngle, klvBytes);
     final double value =
         ((KlvIntegerEncodedFloatingPoint) decodedKlvContext.getDataElementByName("test"))
             .getValue();
@@ -521,7 +521,7 @@ public class KlvDecoderTest {
     final byte[] klvBytes = {-8, 4, (byte) 0x87, (byte) 0xF8, 0x4B};
     final KlvInt klvInt = new KlvInt(new byte[] {-8}, "test");
     try {
-      decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvInt, klvBytes);
+      decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvInt, klvBytes);
       fail("Should have thrown a KlvDecodingException.");
     } catch (KlvDecodingException e) {
       assertThat(e.getCause(), instanceOf(IndexOutOfBoundsException.class));
@@ -533,7 +533,7 @@ public class KlvDecoderTest {
     KlvByte klvByte = new KlvByte(new byte[] {0}, "test", errorValue);
 
     KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvByte, new byte[] {0, 1, value});
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvByte, new byte[] {0, 1, value});
 
     return decodedKlvContext.getDataElementByName("test").isErrorIndicated();
   }
@@ -604,7 +604,7 @@ public class KlvDecoderTest {
   private boolean isErrorIndicatedDecode(KlvDataElement klvDataElement, byte[] dataBytes)
       throws KlvDecodingException {
     KlvContext decodedKlvContext =
-        decodeKLV(KeyLength.OneByte, LengthEncoding.OneByte, klvDataElement, dataBytes);
+        decodeKLV(KeyLength.ONE_BYTE, LengthEncoding.ONE_BYTE, klvDataElement, dataBytes);
 
     return decodedKlvContext.getDataElementByName("test").isErrorIndicated();
   }

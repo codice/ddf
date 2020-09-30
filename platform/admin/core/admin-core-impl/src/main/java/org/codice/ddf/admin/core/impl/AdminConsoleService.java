@@ -155,12 +155,14 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
     this.moduleList = moduleList;
   }
 
+  @Override
   public List<Service> listServices() {
     return configurationAdminImpl.listServices(
         configurationAdminImpl.getDefaultFactoryLdapFilter(),
         configurationAdminImpl.getDefaultLdapFilter());
   }
 
+  @Override
   public Service getService(String filter) {
     List<Service> services = configurationAdminImpl.listServices(filter, filter);
 
@@ -176,6 +178,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
     return service;
   }
 
+  @Override
   public List<Map<String, Object>> listModules() {
     List<ValidationDecorator> adminModules = ValidationDecorator.wrap(moduleList);
     Collections.sort(adminModules);
@@ -196,6 +199,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   }
 
   /** @see AdminConsoleServiceMBean#createFactoryConfiguration(java.lang.String) */
+  @Override
   public String createFactoryConfiguration(String factoryPid) throws IOException {
     return createFactoryConfigurationForLocation(factoryPid, null);
   }
@@ -204,6 +208,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
    * @see AdminConsoleServiceMBean#createFactoryConfigurationForLocation(java.lang.String,
    *     java.lang.String)
    */
+  @Override
   public String createFactoryConfigurationForLocation(String factoryPid, String location)
       throws IOException {
     if (StringUtils.isBlank(factoryPid)) {
@@ -220,11 +225,13 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   }
 
   /** @see AdminConsoleServiceMBean#delete(java.lang.String) */
+  @Override
   public void delete(String pid) throws IOException {
     deleteForLocation(pid, null);
   }
 
   /** @see AdminConsoleServiceMBean#deleteForLocation(java.lang.String, java.lang.String) */
+  @Override
   public void deleteForLocation(String pid, String location) throws IOException {
     if (pid == null || pid.length() < 1) {
       throw new IOException(ILLEGAL_PID_MESSAGE);
@@ -237,6 +244,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   }
 
   /** @see AdminConsoleServiceMBean#deleteConfigurations(java.lang.String) */
+  @Override
   public void deleteConfigurations(String filter) throws IOException {
     if (filter == null || filter.length() < 1) {
       throw new IOException("Argument filter cannot be null or empty");
@@ -255,6 +263,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   }
 
   /** @see AdminConsoleServiceMBean#getBundleLocation(java.lang.String) */
+  @Override
   public String getBundleLocation(String pid) throws IOException {
     if (StringUtils.isBlank(pid)) {
       throw new IOException(ILLEGAL_PID_MESSAGE);
@@ -266,6 +275,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   }
 
   /** @see AdminConsoleServiceMBean#getConfigurations(java.lang.String) */
+  @Override
   public String[][] getConfigurations(String filter) throws IOException {
     if (filter == null || filter.length() < 1) {
       throw new IOException("Argument filter cannot be null or empty");
@@ -288,11 +298,13 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   }
 
   /** @see AdminConsoleServiceMBean#getFactoryPid(java.lang.String) */
+  @Override
   public String getFactoryPid(String pid) throws IOException {
     return getFactoryPidForLocation(pid, null);
   }
 
   /** @see AdminConsoleServiceMBean#getFactoryPidForLocation(java.lang.String, java.lang.String) */
+  @Override
   public String getFactoryPidForLocation(String pid, String location) throws IOException {
     if (pid == null || pid.length() < 1) {
       throw new IOException(ILLEGAL_PID_MESSAGE);
@@ -302,11 +314,13 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   }
 
   /** @see AdminConsoleServiceMBean#getProperties(java.lang.String) */
+  @Override
   public Map<String, Object> getProperties(String pid) throws IOException {
     return getPropertiesForLocation(pid, null);
   }
 
   /** @see AdminConsoleServiceMBean#getPropertiesForLocation(java.lang.String, java.lang.String) */
+  @Override
   public Map<String, Object> getPropertiesForLocation(String pid, String location)
       throws IOException {
     if (pid == null || pid.length() < 1) {
@@ -329,6 +343,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   }
 
   /** @see AdminConsoleServiceMBean#setBundleLocation(java.lang.String, java.lang.String) */
+  @Override
   public void setBundleLocation(String pid, String location) throws IOException {
     if (pid == null || pid.length() < 1) {
       throw new IOException("Argument factoryPid cannot be null or empty");
@@ -337,6 +352,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
     config.setBundleLocation(location);
   }
 
+  @Override
   public boolean updateGuestClaimsProfile(String pid, Map<String, Object> configurationTable)
       throws IOException {
     try {
@@ -369,12 +385,13 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       return true;
 
     } catch (RuntimeException e) {
-      LOGGER.debug("An invalid guest claims profile was selected, caused by: {}", e);
+      LOGGER.debug("An invalid guest claims profile was selected", e);
       return false;
     }
   }
 
   /** @see AdminConsoleServiceMBean#update(java.lang.String, java.util.Map) */
+  @Override
   public boolean update(String pid, Map<String, Object> configurationTable) throws IOException {
     updateForLocation(pid, null, configurationTable);
     return true;
@@ -384,6 +401,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
    * @see AdminConsoleServiceMBean#updateForLocation(java.lang.String, java.lang.String,
    *     java.util.Map)
    */
+  @Override
   public void updateForLocation(
       final String pid, String location, Map<String, Object> configurationTable)
       throws IOException {
@@ -447,6 +465,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
     return configEntryValue;
   }
 
+  @Override
   public ConfigurationStatus disableConfiguration(String servicePid) throws IOException {
     if (!isPermittedToViewService(servicePid)) {
       return null;
@@ -495,6 +514,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
     }
   }
 
+  @Override
   public ConfigurationStatus enableConfiguration(String servicePid) throws IOException {
     if (StringUtils.isEmpty(servicePid)) {
       throw new IOException(

@@ -21,6 +21,8 @@ import org.bouncycastle.crypto.prng.drbg.DualECSP800DRBG;
 
 public class RandomNumberGenerator {
 
+  private RandomNumberGenerator() {}
+
   public static SecureRandom create() {
     return new SecureRandom(createSeed());
   }

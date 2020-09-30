@@ -53,6 +53,8 @@ public class GeospatialUtil {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GeospatialUtil.class);
 
+  private GeospatialUtil() {}
+
   /**
    * Parses Latitude in the DMS format of DD:MM:SS.S N/S
    *

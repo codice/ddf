@@ -22,6 +22,7 @@ import org.osgi.service.event.Event;
 public class TruePredicate implements Predicate {
 
   /** This method always returns true. */
+  @Override
   public boolean matches(Event properties) {
     return true;
   }

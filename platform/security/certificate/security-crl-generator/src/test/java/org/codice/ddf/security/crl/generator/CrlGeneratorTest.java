@@ -20,6 +20,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import ddf.security.audit.SecurityLogger;
+import ddf.security.service.SecurityManager;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -211,7 +212,10 @@ public class CrlGeneratorTest {
     ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
     ClientBuilder<WebClient> clientBuilder =
         new ClientBuilderImpl<WebClient>(
-            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+            mock(OAuthSecurity.class),
+            mock(SamlSecurity.class),
+            mock(SecurityLogger.class),
+            mock(SecurityManager.class)) {
           @Override
           public SecureCxfClientFactory<WebClient> build() {
             return secureCxfClientFactory;

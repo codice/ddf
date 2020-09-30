@@ -118,7 +118,7 @@ public class AuthorizationFilter implements SecurityFilter {
       response.sendError(HttpServletResponse.SC_FORBIDDEN);
       response.flushBuffer();
     } catch (IOException ioe) {
-      LOGGER.debug("Failed to send auth response: {}", ioe);
+      LOGGER.debug("Failed to send auth response", ioe);
     }
   }
 

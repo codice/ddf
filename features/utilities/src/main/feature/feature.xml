@@ -100,6 +100,9 @@
         <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-xml.config">
             mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-xml
         </configfile>
+        <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-csv.config">
+            mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-csv
+        </configfile>
     </feature>
 
     <feature name="mime-tika-resolver" version="${project.version}"

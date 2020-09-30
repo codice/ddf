@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 public class ContentTypeEvaluator {
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentTypeEvaluator.class);
 
+  private ContentTypeEvaluator() {}
+
   public static boolean evaluate(ContentTypeEvaluationCriteriaImpl ctec) {
     String methodName = "evaluate";
     LOGGER.debug("ENTERING: {}", methodName);

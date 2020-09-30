@@ -25,9 +25,8 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.catalog.data.types.Validation;
+import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.source.solr.json.MetacardTypeMapperFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -46,6 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -84,7 +84,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.2.0
  */
-public class DynamicSchemaResolver implements ConfigurationListener {
+public class DynamicSchemaResolver {
 
   private static final String SCORE_FIELD_NAME = "score";
 
@@ -105,6 +105,8 @@ public class DynamicSchemaResolver implements ConfigurationListener {
   static final int FIVE_MEGABYTES = 5 * 1024 * 1024;
 
   private static final String METADATA_SIZE_LIMIT = "metadata.size.limit";
+
+  private static final String SOLR_ANYTEXT_FIELDS = "solr.query.anytext.fields";
 
   private static final String SOLR_CLOUD_VERSION_FIELD = "_version_";
 
@@ -147,9 +149,11 @@ public class DynamicSchemaResolver implements ConfigurationListener {
 
   Set<String> fieldsCache = new HashSet<>();
 
-  Set<String> anyTextFieldsCache = new HashSet<>();
+  private Set<String> anyTextFields = new HashSet<>();
 
-  Set<String> filteredAnyTextFieldsCache = new HashSet<>();
+  private boolean caseInsensitiveSort;
+
+  private int textSortCharacterLimit;
 
   private SchemaFields schemaFields;
 
@@ -160,26 +164,26 @@ public class DynamicSchemaResolver implements ConfigurationListener {
       CacheBuilder.newBuilder().maximumSize(4096).initialCapacity(64).build();
 
   public DynamicSchemaResolver(List<String> additionalFields) {
-    ConfigurationStore.getInstance().addConfigurationListener(this);
-    this.schemaFields = new SchemaFields();
+    schemaFields = new SchemaFields();
     metadataMaximumBytes = getMetadataSizeLimit();
+    anyTextFields = getAnyTextFields();
+    caseInsensitiveSort = "true".equals(System.getProperty("solr.query.sort.caseInsensitive"));
+    try {
+      textSortCharacterLimit =
+          Integer.parseInt(System.getProperty("solr.index.sort.characterLimit", "127").trim());
+    } catch (NumberFormatException nfe) {
+      LOGGER.warn("Invalid sorting character limit, defaulting to 127", nfe);
+      textSortCharacterLimit = 127;
+    }
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
     fieldsCache.add(
         Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED + SchemaFields.HAS_CASE);
-    fieldsCache.add(Metacard.TAGS + SchemaFields.TEXT_SUFFIX);
-
-    anyTextFieldsCache.add(Metacard.METADATA + SchemaFields.TEXT_SUFFIX);
-
-    fieldsCache.add(Validation.VALIDATION_ERRORS + SchemaFields.TEXT_SUFFIX);
-    fieldsCache.add(Validation.VALIDATION_WARNINGS + SchemaFields.TEXT_SUFFIX);
 
     fieldsCache.add(SchemaFields.METACARD_TYPE_FIELD_NAME);
     fieldsCache.add(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 
     addAdditionalFields(this, additionalFields);
-
-    filterAnyTextFieldCache();
   }
 
   public DynamicSchemaResolver() {
@@ -200,13 +204,6 @@ public class DynamicSchemaResolver implements ConfigurationListener {
   @SuppressWarnings("WeakerAccess" /* access needed by blueprint */)
   public void addMetacardType(MetacardType metacardType) {
     metacardType.getAttributeDescriptors().forEach(this::addToFieldsCache);
-
-    metacardType.getAttributeDescriptors().stream()
-        .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))
-        .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
-        .forEach(fieldName -> anyTextFieldsCache.add(fieldName));
-
-    filterAnyTextFieldCache();
   }
 
   /**
@@ -253,12 +250,7 @@ public class DynamicSchemaResolver implements ConfigurationListener {
     for (Entry<String, ?> e : fields) {
       String key = e.getKey();
       fieldsCache.add(key);
-      if (key.endsWith(SchemaFields.TEXT_SUFFIX)) {
-        anyTextFieldsCache.add(key);
-      }
     }
-
-    filterAnyTextFieldCache();
   }
 
   /** Adds the fields of the Metacard into the {@link SolrInputDocument} */
@@ -330,6 +322,20 @@ public class DynamicSchemaResolver implements ConfigurationListener {
                 formatIndexName + SchemaFields.SORT_SUFFIX, createCenterPoint(attributeValues));
           }
 
+          if (AttributeFormat.STRING.equals(format)
+              && caseInsensitiveSort
+              && solrInputDocument.getFieldValue(formatIndexName + SchemaFields.SORT_SUFFIX)
+                  == null) {
+            solrInputDocument.addField(
+                formatIndexName + SchemaFields.SORT_SUFFIX,
+                attributeValues.stream()
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .map(value -> truncate(value, textSortCharacterLimit))
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList()));
+          }
+
           // Prevent adding a field already on document
           if (solrInputDocument.getFieldValue(formatIndexName) == null) {
             solrInputDocument.addField(formatIndexName, attributeValues);
@@ -361,6 +367,13 @@ public class DynamicSchemaResolver implements ConfigurationListener {
     }
 
     solrInputDocument.addField(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME, metacardTypeBytes);
+  }
+
+  private String truncate(String value, int length) {
+    if (value.length() > length) {
+      return value.substring(0, length);
+    }
+    return value;
   }
 
   /*
@@ -710,8 +723,6 @@ public class DynamicSchemaResolver implements ConfigurationListener {
               + SchemaFields.HAS_CASE);
       fieldsCache.add(
           descriptor.getName() + schemaFields.getFieldSuffix(format) + SchemaFields.PHONETICS);
-      anyTextFieldsCache.add(descriptor.getName() + schemaFields.getFieldSuffix(format));
-      filterAnyTextFieldCache();
     }
 
     if (format.equals(AttributeFormat.XML)) {
@@ -726,55 +737,6 @@ public class DynamicSchemaResolver implements ConfigurationListener {
               + schemaFields.getFieldSuffix(format)
               + getSpecialIndexSuffix(format));
     }
-  }
-
-  @Override
-  public void configurationUpdated() {
-    filterAnyTextFieldCache();
-  }
-
-  private void filterAnyTextFieldCache() {
-    Set<String> filteredList = new HashSet<>();
-
-    ConfigurationStore config = ConfigurationStore.getInstance();
-    List<String> anyTextFieldWhitelist = config.getAnyTextFieldWhitelist();
-    List<String> anyTextFieldBlacklist = config.getAnyTextFieldBlacklist();
-    if (!anyTextFieldBlacklist.isEmpty()) {
-      filteredList.addAll(anyTextFieldsCache);
-      for (String blacklistField : anyTextFieldBlacklist) {
-        String blacklist;
-        if (!blacklistField.endsWith(SchemaFields.TEXT_SUFFIX)) {
-          blacklist = blacklistField + SchemaFields.TEXT_SUFFIX;
-        } else {
-          blacklist = blacklistField;
-        }
-        filteredList.removeAll(
-            anyTextFieldsCache.stream()
-                .filter(field -> field.matches(blacklist))
-                .collect(Collectors.toList()));
-      }
-    }
-
-    if (!anyTextFieldWhitelist.isEmpty()) {
-      for (String whitelistField : anyTextFieldWhitelist) {
-        String whitelist;
-        if (!whitelistField.endsWith(SchemaFields.TEXT_SUFFIX)) {
-          whitelist = whitelistField + SchemaFields.TEXT_SUFFIX;
-        } else {
-          whitelist = whitelistField;
-        }
-        filteredList.addAll(
-            anyTextFieldsCache.stream()
-                .filter(field -> field.matches(whitelist))
-                .collect(Collectors.toList()));
-      }
-    }
-
-    if (anyTextFieldBlacklist.isEmpty() && anyTextFieldWhitelist.isEmpty()) {
-      filteredList.addAll(anyTextFieldsCache);
-    }
-
-    filteredAnyTextFieldsCache = filteredList;
   }
 
   private byte[] serialize(MetacardType anywhereMType) throws MetacardCreationException {
@@ -899,14 +861,38 @@ public class DynamicSchemaResolver implements ConfigurationListener {
   }
 
   String getSortKey(String field) {
-    if (field.endsWith(SchemaFields.GEO_SUFFIX)) {
+    if (field.endsWith(SchemaFields.GEO_SUFFIX)
+        || (field.endsWith(SchemaFields.TEXT_SUFFIX) && caseInsensitiveSort)) {
       field = field + SchemaFields.SORT_SUFFIX;
     }
     return field;
   }
 
   Stream<String> anyTextFields() {
-    return filteredAnyTextFieldsCache.stream();
+    return anyTextFields.stream();
+  }
+
+  private Set<String> getAnyTextFields() {
+    String property =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(SOLR_ANYTEXT_FIELDS, ""));
+
+    List<String> fields;
+    if (property.isEmpty()) {
+      fields =
+          Arrays.asList(
+              Metacard.METADATA, Metacard.TITLE, Metacard.DESCRIPTION, Extracted.EXTRACTED_TEXT);
+    } else {
+      fields =
+          Arrays.stream(property.split(","))
+              .map(String::trim)
+              .filter(field -> !field.isEmpty())
+              .collect(Collectors.toList());
+    }
+
+    return fields.stream()
+        .map(field -> field + SchemaFields.TEXT_SUFFIX)
+        .collect(Collectors.toSet());
   }
 
   /**

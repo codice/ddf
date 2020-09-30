@@ -30,14 +30,17 @@ public class AttachmentInfoImpl implements AttachmentInfo {
     this.contentType = contentType;
   }
 
+  @Override
   public InputStream getStream() {
     return stream;
   }
 
+  @Override
   public String getFilename() {
     return filename;
   }
 
+  @Override
   public String getContentType() {
     return contentType;
   }

@@ -30,6 +30,7 @@ public class FirstElementServiceSelectionStrategy<T> implements ServiceSelection
    *     instance.
    * @return the first element of serviceSet.
    */
+  @Override
   public ServiceReference<T> selectService(SortedSet<ServiceReference<T>> serviceSet) {
     return serviceSet.first();
   }

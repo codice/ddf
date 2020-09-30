@@ -39,6 +39,8 @@ public class MetacardToKml {
   private static final ThreadLocal<WKTReader> WKT_READER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTReader::new);
 
+  private MetacardToKml() {}
+
   /**
    * Convert wkt string into JTS Geometry and then from JTS to KML Geo.
    *

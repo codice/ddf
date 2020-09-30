@@ -63,7 +63,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -84,6 +84,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
+import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codice.solr.client.solrj.SolrClient;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -150,6 +151,11 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private final int commitNrtCommitWithinMs =
       Math.max(NumberUtils.toInt(accessProperty(SOLR_COMMIT_NRT_COMMITWITHINMS, "1000")), 0);
 
+  private static final String SOLR_QUERY_TIMEALLOWEDMS = "solr.query.timeAllowed";
+
+  private final int queryTimeAllowedMs =
+      Math.max(NumberUtils.toInt(accessProperty(SOLR_QUERY_TIMEALLOWEDMS, "0")), 0);
+
   protected ResultHighlighter highlighter;
 
   public SolrMetacardClientImpl(
@@ -198,7 +204,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
       } else {
-        query.setParam("spellcheck", userSpellcheckIsOn);
+        if (userSpellcheckIsOn) {
+          query.setParam("spellcheck", true);
+        }
         highlighter.processPreQuery(request, query);
         solrResponse = client.query(query, METHOD.POST);
       }
@@ -208,6 +216,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       }
 
       handleSuggestionResponse(solrResponse, responseProps);
+
+      handlePartialResults(solrResponse, responseProps);
 
       SolrDocumentList docs = solrResponse.getResults();
       docs =
@@ -306,6 +316,41 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
               .collect(Collectors.toList());
 
       responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);
+    }
+  }
+
+  private void handlePartialResults(
+      QueryResponse solrResponse, Map<String, Serializable> responseProps) {
+    boolean partialResults =
+        Optional.of(solrResponse)
+            .map(QueryResponse::getResponseHeader)
+            .map(header -> header.get("partialResults"))
+            .filter(Boolean.class::isInstance)
+            .map(Boolean.class::cast)
+            .orElse(false);
+
+    if (!partialResults) {
+      return;
+    }
+
+    responseProps.put("partial-results", true);
+
+    if (LOGGER.isDebugEnabled()) {
+      String q =
+          Optional.of(solrResponse)
+              .map(QueryResponse::getResponseHeader)
+              .map(header -> header.get("params"))
+              .filter(SimpleOrderedMap.class::isInstance)
+              .map(SimpleOrderedMap.class::cast)
+              .map(params -> params.get("q"))
+              .map(String::valueOf)
+              .orElse("unknown");
+
+      LOGGER.debug(
+          "Found {} partial results for query [{}] that took {}ms.",
+          solrResponse.getResults().getNumFound(),
+          q,
+          solrResponse.getQTime());
     }
   }
 
@@ -598,10 +643,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   protected SolrQuery postAdapt(
       QueryRequest request, SolrFilterDelegate filterDelegate, SolrQuery query)
       throws UnsupportedQueryException {
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("Prepared Query: {}", query.getQuery());
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Prepared Query: {}", query.getQuery());
       if (query.getFilterQueries() != null && query.getFilterQueries().length > 0) {
-        LOGGER.debug("Filter Queries: {}", Arrays.toString(query.getFilterQueries()));
+        LOGGER.trace("Filter Queries: {}", Arrays.toString(query.getFilterQueries()));
       }
     }
 
@@ -625,58 +670,11 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     setSortProperty(request, query, filterDelegate);
 
-    filterAttributes(request, query);
+    if (queryTimeAllowedMs > 0) {
+      query.setTimeAllowed(queryTimeAllowedMs);
+    }
 
     return query;
-  }
-
-  private void filterAttributes(QueryRequest request, SolrQuery query) {
-    if (skipFilteredAttributes(request)) {
-      return;
-    }
-
-    Set<String> excludedAttributes = (Set<String>) request.getPropertyValue(EXCLUDE_ATTRIBUTES);
-
-    Set<String> excludedFields =
-        resolver.fieldsCache.stream()
-            .filter(Objects::nonNull)
-            .filter(field -> excludedAttributes.stream().anyMatch(field::startsWith))
-            .collect(Collectors.toSet());
-
-    Set<String> wildcardFields =
-        SchemaFields.FORMAT_TO_SUFFIX_MAP.values().stream()
-            .filter(suffix -> excludedFields.stream().noneMatch(field -> field.endsWith(suffix)))
-            .map(suffix -> "*" + suffix)
-            .collect(Collectors.toSet());
-
-    Set<String> includedFields =
-        SchemaFields.FORMAT_TO_SUFFIX_MAP.values().stream()
-            .filter(suffix -> excludedFields.stream().anyMatch(field -> field.endsWith(suffix)))
-            .flatMap(
-                suffix ->
-                    resolver.fieldsCache.stream()
-                        .filter(Objects::nonNull)
-                        .filter(field -> field.endsWith(suffix))
-                        .filter(field -> excludedAttributes.stream().noneMatch(field::startsWith)))
-            .collect(Collectors.toSet());
-
-    Set<String> fields = Sets.union(includedFields, wildcardFields);
-
-    if (query.getFields() != null && query.getFields().length() > 2) {
-      fields = Sets.union(fields, Sets.newHashSet(query.getFields().substring(2).split(",")));
-    }
-
-    if (!fields.isEmpty()) {
-      query.setFields(fields.toArray(new String[fields.size()]));
-    }
-  }
-
-  private boolean skipFilteredAttributes(QueryRequest request) {
-    return !request.hasProperties()
-        || !request.containsPropertyName(EXCLUDE_ATTRIBUTES)
-        || !(request.getPropertyValue(EXCLUDE_ATTRIBUTES) instanceof Set)
-        || ((Set) request.getPropertyValue(EXCLUDE_ATTRIBUTES)).isEmpty()
-        || "true".equals(System.getProperty("solr.client.filterAttributes.disable"));
   }
 
   private boolean queryingForAllRecords(QueryRequest request) {
@@ -699,8 +697,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       SolrQuery query, String sortField, SolrQuery.ORDER order, SolrFilterDelegate delegate) {
     if (delegate.isSortedByDistance()) {
       query.addSort(DISTANCE_SORT_FUNCTION, order);
-      query.setFields(
-          "*", RELEVANCE_SORT_FIELD, DISTANCE_SORT_FIELD + ":" + DISTANCE_SORT_FUNCTION);
+      query.setFields("*", DISTANCE_SORT_FIELD + ":" + DISTANCE_SORT_FUNCTION);
       query.add(SORT_FIELD_KEY, sortField);
       query.add(POINT_KEY, delegate.getSortedDistancePoint());
     }
@@ -734,9 +731,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         order = SolrQuery.ORDER.asc;
       }
 
-      query.setFields("*", RELEVANCE_SORT_FIELD);
-
       if (Result.RELEVANCE.equals(sortProperty)) {
+        query.setFields("*", RELEVANCE_SORT_FIELD);
         query.addSort(RELEVANCE_SORT_FIELD, order);
       } else if (Result.DISTANCE.equals(sortProperty)) {
         addDistanceSort(query, resolver.getSortKey(GEOMETRY_FIELD), order, solrFilterDelegate);

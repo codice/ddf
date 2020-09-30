@@ -157,6 +157,7 @@ public class RESTEndpoint implements RESTService {
    * @param uriInfo
    * @return
    */
+  @Override
   @GET
   @Path("/{id}")
   public Response getDocument(
@@ -175,6 +176,7 @@ public class RESTEndpoint implements RESTService {
    * @param httpRequest
    * @return
    */
+  @Override
   @GET
   @Path(SOURCES_PATH)
   public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
@@ -199,6 +201,7 @@ public class RESTEndpoint implements RESTService {
    * @param uriInfo
    * @return
    */
+  @Override
   @GET
   @Path("/sources/{sourceid}/{id}")
   public Response getDocument(
@@ -286,6 +289,7 @@ public class RESTEndpoint implements RESTService {
    * @param message
    * @return
    */
+  @Override
   @PUT
   @Path("/{id}")
   @Consumes({"text/*", "application/*"})
@@ -305,6 +309,7 @@ public class RESTEndpoint implements RESTService {
    * @param message
    * @return
    */
+  @Override
   @PUT
   @Path("/{id}")
   @Consumes("multipart/*")
@@ -326,6 +331,7 @@ public class RESTEndpoint implements RESTService {
     }
   }
 
+  @Override
   @POST
   @Consumes({"text/*", "application/*"})
   public Response addDocument(
@@ -343,6 +349,7 @@ public class RESTEndpoint implements RESTService {
    * @param message
    * @return
    */
+  @Override
   @POST
   @Consumes("multipart/*")
   public Response addDocument(
@@ -374,6 +381,7 @@ public class RESTEndpoint implements RESTService {
    * @param id
    * @return
    */
+  @Override
   @DELETE
   @Path("/{id}")
   public Response deleteDocument(

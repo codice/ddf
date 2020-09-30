@@ -15,17 +15,9 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <bean id="brandingRegistry" class="org.codice.ddf.branding.impl.BrandingRegistryImpl">
-        <property name="brandingPlugins" ref="brandingPlugins"/>
+    <bean id="brandingRegistry" class="org.codice.ddf.branding.impl.BrandingRegistryImpl" init-method="init" destroy-method="destroy">
     </bean>
 
     <service ref="brandingRegistry" interface="org.codice.ddf.branding.BrandingRegistry"/>
-
-    <bean id="brandingPlugins" class="org.codice.ddf.platform.util.SortedServiceList">
-    </bean>
-    <reference-list id="branding" interface="org.codice.ddf.branding.BrandingPlugin">
-        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
-                            ref="brandingPlugins"/>
-    </reference-list>
 
 </blueprint>

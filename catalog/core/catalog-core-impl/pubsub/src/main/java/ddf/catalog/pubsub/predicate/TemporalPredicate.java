@@ -67,6 +67,7 @@ public class TemporalPredicate implements Predicate {
     return !startXML.isEmpty() && !endXML.isEmpty();
   }
 
+  @Override
   public boolean matches(Event properties) {
     LOGGER.debug("ENTERING: matches");
 

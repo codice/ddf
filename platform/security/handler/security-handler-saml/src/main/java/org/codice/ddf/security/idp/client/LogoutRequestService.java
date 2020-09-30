@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -122,9 +123,9 @@ public class LogoutRequestService {
 
   private final RelayStates<String> relayStates;
 
-  private SimpleSign simpleSign;
+  private final SimpleSign simpleSign;
 
-  private IdpMetadata idpMetadata;
+  private final IdpMetadata idpMetadata;
 
   private HttpSessionInvalidator httpSessionInvalidator;
 
@@ -132,7 +133,7 @@ public class LogoutRequestService {
 
   @Context private HttpServletRequest request;
 
-  private LogoutMessage logoutMessage;
+  @Nullable private LogoutMessage logoutMessage;
 
   private String submitForm;
 
@@ -144,7 +145,7 @@ public class LogoutRequestService {
 
   private long logOutPageTimeOut = 3600000;
 
-  private SamlSecurity samlSecurity;
+  @Nullable private SamlSecurity samlSecurity;
 
   private SubjectOperations subjectOperations;
 
@@ -177,7 +178,7 @@ public class LogoutRequestService {
     if (nameIdTimeArray.length == 2) {
       try {
         String name = nameIdTimeArray[0];
-        Long time = Long.parseLong(nameIdTimeArray[1]);
+        long time = Long.parseLong(nameIdTimeArray[1]);
         if (System.currentTimeMillis() - time > logOutPageTimeOut) {
           String msg =
               String.format(
@@ -203,7 +204,8 @@ public class LogoutRequestService {
 
         logout();
         if (logoutMessage == null) {
-          throw new RuntimeException("Logout message not available yet.");
+          LOGGER.info("Logout message not available yet");
+          return buildLogoutResponse(UNABLE_TO_CREATE_LOGOUT_REQUEST);
         }
         LogoutWrapper<LogoutRequest> logoutRequest =
             logoutMessage.buildLogoutRequest(name, getEntityId(), sessionIndexes);
@@ -327,10 +329,11 @@ public class LogoutRequestService {
       return Response.serverError().build();
     }
     LogoutRequest logoutRequest = (LogoutRequest) xmlObject;
-    // Pre-build response with success status
     if (logoutMessage == null) {
-      throw new RuntimeException("Logout message not available yet.");
+      LOGGER.info("Logout message not available yet");
+      return Response.serverError().build();
     }
+    // Pre-build response with success status
     LogoutWrapper<LogoutResponse> logoutResponse =
         logoutMessage.buildLogoutResponse(
             logoutRequest.getIssuer().getValue(), StatusCode.SUCCESS, logoutRequest.getID());
@@ -384,8 +387,8 @@ public class LogoutRequestService {
   @POST
   @Produces(MediaType.APPLICATION_FORM_URLENCODED)
   public Response postLogoutRequest(
-      @FormParam(SAML_REQUEST) String encodedSamlRequest,
-      @FormParam(SAML_RESPONSE) String encodedSamlResponse,
+      @FormParam(SAML_REQUEST) @Nullable String encodedSamlRequest,
+      @FormParam(SAML_RESPONSE) @Nullable String encodedSamlResponse,
       @FormParam(RELAY_STATE) String relayState) {
 
     if (samlSecurity == null || logoutMessage == null) {
@@ -421,33 +424,35 @@ public class LogoutRequestService {
         LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_REQUEST, e);
         return buildLogoutResponse(UNABLE_TO_VALIDATE_LOGOUT_REQUEST);
       }
-    } else {
-      try {
-        LogoutWrapper<LogoutResponse> logoutResponse =
-            logoutMessage.extractSamlLogoutResponse(samlSecurity.base64Decode(encodedSamlResponse));
-        if (logoutResponse == null) {
-          LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
-          return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
-        }
-        new SamlValidator.Builder(simpleSign)
-            .buildAndValidate(
-                request.getRequestURL().toString(),
-                SamlProtocol.Binding.HTTP_POST,
-                logoutResponse.getMessage());
-      } catch (ValidationException e) {
-        LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE, e);
-        return buildLogoutResponse(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE);
-      } catch (LogoutSecurityException | XMLStreamException e) {
-        LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE, e);
+    }
+
+    if (encodedSamlResponse == null) {
+      return Response.serverError()
+          .entity("System did not receive a SAMLRequest or a SAMLResponse to process")
+          .build();
+    }
+
+    try {
+      LogoutWrapper<LogoutResponse> logoutResponse =
+          logoutMessage.extractSamlLogoutResponse(samlSecurity.base64Decode(encodedSamlResponse));
+      if (logoutResponse == null) {
+        LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
         return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
       }
-      String nameId = "You";
-      String decodedValue;
-      if (relayState != null && (decodedValue = relayStates.decode(relayState)) != null) {
-        nameId = decodedValue;
-      }
-      return buildLogoutResponse(nameId + " logged out successfully.");
+      new SamlValidator.Builder(simpleSign)
+          .buildAndValidate(
+              request.getRequestURL().toString(),
+              SamlProtocol.Binding.HTTP_POST,
+              logoutResponse.getMessage());
+    } catch (ValidationException e) {
+      LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE, e);
+      return buildLogoutResponse(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE);
+    } catch (LogoutSecurityException | XMLStreamException e) {
+      LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE, e);
+      return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
     }
+
+    return buildSuccessfulLogoutResponse(relayState, relayStates);
   }
 
   @GET
@@ -459,7 +464,7 @@ public class LogoutRequestService {
       @QueryParam(SIGNATURE) String signature) {
 
     if (samlSecurity == null || logoutMessage == null) {
-      Response.serverError().entity("System cannot decode request.").build();
+      return Response.serverError().entity("System cannot decode request.").build();
     }
 
     if (deflatedSamlRequest != null) {
@@ -491,39 +496,33 @@ public class LogoutRequestService {
         LOGGER.info(UNABLE_TO_PARSE_LOGOUT_REQUEST, e);
         return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
       }
-    } else {
-      try {
+    }
 
-        LogoutWrapper<LogoutResponse> logoutResponse =
-            logoutMessage.extractSamlLogoutResponse(
-                samlSecurity.inflateBase64(deflatedSamlResponse));
-        if (logoutResponse == null) {
-          LOGGER.debug(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
-          return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
-        }
-        buildAndValidateSaml(
-            deflatedSamlResponse,
-            relayState,
-            signatureAlgorithm,
-            signature,
-            logoutResponse.getMessage());
-        String nameId = "You";
-        String decodedValue;
-        if (relayState != null && (decodedValue = relayStates.decode(relayState)) != null) {
-          nameId = decodedValue;
-        }
-        return buildLogoutResponse(nameId + " logged out successfully.");
-      } catch (IOException e) {
-        LOGGER.info(UNABLE_TO_DECODE_AND_INFLATE_LOGOUT_RESPONSE, e);
-        return buildLogoutResponse(UNABLE_TO_DECODE_AND_INFLATE_LOGOUT_RESPONSE);
-      } catch (ValidationException e) {
-        LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE, e);
-        return buildLogoutResponse(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE);
-      } catch (LogoutSecurityException | XMLStreamException e) {
-        LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE, e);
+    try {
+      LogoutWrapper<LogoutResponse> logoutResponse =
+          logoutMessage.extractSamlLogoutResponse(samlSecurity.inflateBase64(deflatedSamlResponse));
+      if (logoutResponse == null) {
+        LOGGER.debug(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
         return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
       }
+      buildAndValidateSaml(
+          deflatedSamlResponse,
+          relayState,
+          signatureAlgorithm,
+          signature,
+          logoutResponse.getMessage());
+    } catch (IOException e) {
+      LOGGER.info(UNABLE_TO_DECODE_AND_INFLATE_LOGOUT_RESPONSE, e);
+      return buildLogoutResponse(UNABLE_TO_DECODE_AND_INFLATE_LOGOUT_RESPONSE);
+    } catch (ValidationException e) {
+      LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE, e);
+      return buildLogoutResponse(UNABLE_TO_VALIDATE_LOGOUT_RESPONSE);
+    } catch (LogoutSecurityException | XMLStreamException e) {
+      LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE, e);
+      return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
     }
+
+    return buildSuccessfulLogoutResponse(relayState, relayStates);
   }
 
   protected void buildAndValidateSaml(
@@ -576,16 +575,14 @@ public class LogoutRequestService {
 
   private void logSecurityAuditRole() {
     Element idpSecToken = getIdpSecurityToken();
-    if (idpSecToken != null) {
-      if (shouldAuditSubject(idpSecToken)) {
-        securityLogger.audit(
-            "Subject with admin privileges has logged out: {}",
-            new SecurityAssertionSaml(idpSecToken).getPrincipal().getName());
-      }
+    if (idpSecToken != null && shouldAuditSubject(idpSecToken)) {
+      securityLogger.audit(
+          "Subject with admin privileges has logged out: {}",
+          new SecurityAssertionSaml(idpSecToken).getPrincipal().getName());
     }
   }
 
-  private boolean shouldAuditSubject(Element idpSecToken) {
+  private static boolean shouldAuditSubject(Element idpSecToken) {
     return Arrays.stream(System.getProperty(SECURITY_AUDIT_ROLES).split(","))
         .anyMatch(
             role ->
@@ -698,7 +695,19 @@ public class LogoutRequestService {
     return Response.ok(HtmlResponseTemplate.getRedirectPage(location.toString())).build();
   }
 
-  private Response buildLogoutResponse(String message) {
+  private static Response buildSuccessfulLogoutResponse(
+      final String relayState, final RelayStates<String> relayStates) {
+    String nameId = "You";
+    if (relayState != null) {
+      final String decodedValue = relayStates.decode(relayState);
+      if (decodedValue != null) {
+        nameId = decodedValue;
+      }
+    }
+    return buildLogoutResponse(nameId + " logged out successfully.");
+  }
+
+  private static Response buildLogoutResponse(String message) {
     UriBuilder uriBuilder = UriBuilder.fromUri(SystemBaseUrl.EXTERNAL.getBaseUrl());
     uriBuilder.path("logout/logout-response.html");
     uriBuilder.queryParam("msg", message);

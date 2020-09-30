@@ -1095,6 +1095,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     cswSourceConfiguration.setCswUrl(cswUrl);
   }
 
+  @Override
   public String getAuthenticationType() {
     return cswSourceConfiguration.getAuthenticationType();
   }
@@ -1115,6 +1116,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     cswSourceConfiguration.setPassword(updatedPassword);
   }
 
+  @Override
   public String getOauthDiscoveryUrl() {
     return cswSourceConfiguration.getOauthDiscoveryUrl();
   }
@@ -1123,6 +1125,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     cswSourceConfiguration.setOauthDiscoveryUrl(oauthDiscoveryUrl);
   }
 
+  @Override
   public String getOauthClientId() {
     return cswSourceConfiguration.getOauthClientId();
   }
@@ -1131,6 +1134,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     cswSourceConfiguration.setOauthClientId(oauthClientId);
   }
 
+  @Override
   public String getOauthClientSecret() {
     return cswSourceConfiguration.getOauthClientSecret();
   }
@@ -1139,6 +1143,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     cswSourceConfiguration.setOauthClientSecret(oauthClientSecret);
   }
 
+  @Override
   public String getOauthFlow() {
     return cswSourceConfiguration.getOauthFlow();
   }
@@ -1731,10 +1736,7 @@ public abstract class AbstractCswSource extends MaskableImpl
           detailLevels.add(ElementSetType.fromValue(esn.toLowerCase()));
         } catch (IllegalArgumentException iae) {
           LOGGER.debug(
-              "{}: \"{}\" is not a ElementSetType, Error: {}",
-              cswSourceConfiguration.getId(),
-              esn,
-              iae);
+              "{}: \"{}\" is not a ElementSetType", cswSourceConfiguration.getId(), esn, iae);
         }
       }
     }
@@ -1749,7 +1751,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     try {
       query(queryReq);
     } catch (UnsupportedQueryException e) {
-      LOGGER.info("{}: Failed to read Content-Types from CSW Server, Error: {}", getId(), e);
+      LOGGER.info("{}: Failed to read Content-Types from CSW Server", getId(), e);
     }
   }
 

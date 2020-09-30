@@ -22,6 +22,4 @@ public class SystemProperties {
   public static final String HTTPS_PORT_PROPERTY = "org.codice.ddf.system.httpsPort";
 
   public static final String HTTP_PORT_PROPERTY = "org.codice.ddf.system.httpPort";
-
-  public static final String FTP_PORT_PROPERTY = "org.codice.ddf.catalog.ftp.port";
 }

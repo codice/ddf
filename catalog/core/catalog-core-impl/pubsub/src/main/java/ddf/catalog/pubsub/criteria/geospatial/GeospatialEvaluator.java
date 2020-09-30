@@ -42,6 +42,8 @@ public class GeospatialEvaluator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GeospatialEvaluator.class);
 
+  private GeospatialEvaluator() {}
+
   // If both criteria and input are GeometryCollections, each element of input must lie entirely
   // within one component
   // of criteria.

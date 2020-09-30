@@ -84,6 +84,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     }
   }
 
+  @Override
   public void onDirectoryChange(File changedDir) {
     try {
       securityLogger.audit("Directory {} changed.", changedDir.getCanonicalPath());
@@ -94,6 +95,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     reloadPolicies();
   }
 
+  @Override
   public void onDirectoryCreate(File createdDir) {
     try {
       securityLogger.audit("Directory {} was created.", createdDir.getCanonicalPath());
@@ -102,6 +104,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     }
   }
 
+  @Override
   public void onDirectoryDelete(File deletedDir) {
     try {
       securityLogger.audit("Directory {} was deleted.", deletedDir.getCanonicalPath());
@@ -110,6 +113,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     }
   }
 
+  @Override
   public void onFileChange(File changedFile) {
     try {
       securityLogger.audit(
@@ -125,6 +129,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     reloadPolicies();
   }
 
+  @Override
   public void onFileCreate(File createdFile) {
     try {
       securityLogger.audit(
@@ -140,6 +145,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     reloadPolicies();
   }
 
+  @Override
   public void onFileDelete(File deleteFile) {
     try {
       securityLogger.audit("File {} was deleted.", deleteFile.getCanonicalPath());
@@ -150,6 +156,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     reloadPolicies();
   }
 
+  @Override
   public void onStart(FileAlterationObserver observer) {
     try {
       String directoryPath = observer.getDirectory().getCanonicalPath();
@@ -164,6 +171,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     }
   }
 
+  @Override
   public void onStop(FileAlterationObserver observer) {
     try {
       LOGGER.trace("Done checking directory {}", observer.getDirectory().getCanonicalPath());

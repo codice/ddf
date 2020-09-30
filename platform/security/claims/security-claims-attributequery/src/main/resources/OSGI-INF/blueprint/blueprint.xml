@@ -46,8 +46,8 @@
         <property name="simpleSign" ref="simpleSign"/>
         <property name="issuer" value=""/>
         <property name="destination" value=""/>
-        <property name="signatureProperties" ref="signatureProperties"/>
-        <property name="encryptionProperties" ref="encryptionProperties"/>
+        <property name="signaturePropertiesLocation" value="${ddf.etc}/ws-security/server/signature.properties"/>
+        <property name="encryptionPropertiesLocation" value="${ddf.etc}/ws-security/server/encryption.properties"/>
         <property name="supportedClaims">
             <list>
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier</value>
@@ -58,14 +58,6 @@
             </list>
         </property>
         <property name="securityLogger" ref="securityLogger"/>
-    </bean>
-
-    <bean id="encryptionProperties" class="org.codice.ddf.security.claims.attributequery.common.PropertiesWrapper">
-        <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
-    </bean>
-
-    <bean id="signatureProperties" class="org.codice.ddf.security.claims.attributequery.common.PropertiesWrapper">
-        <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
     </bean>
 
     <service ref="attributeQueryHandler" interface="ddf.security.claims.ClaimsHandler"/>

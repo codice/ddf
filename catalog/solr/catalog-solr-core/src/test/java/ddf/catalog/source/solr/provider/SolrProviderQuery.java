@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -57,14 +56,12 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.solr.SolrCatalogProviderImpl;
-import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import ddf.catalog.source.solr.SolrProviderTest;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -748,7 +745,7 @@ public class SolrProviderQuery {
 
     MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
     String soughtWord = "nitf";
-    metacard1.setContentTypeName(soughtWord);
+    metacard1.setDescription(soughtWord);
 
     list.add(metacard1);
 
@@ -764,37 +761,6 @@ public class SolrProviderQuery {
 
     queryAndVerifyCount(
         1, getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text(soughtWord), provider);
-  }
-
-  @Test
-  public void testQueryExcludedAttributes() throws Exception {
-
-    deleteAll(provider);
-
-    List<Metacard> list = new ArrayList<>();
-
-    MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-    String soughtWord = "nitf";
-    metacard1.setTitle(soughtWord);
-    list.add(metacard1);
-
-    MockMetacard metacard2 = new MockMetacard(Library.getTampaRecord());
-    list.add(metacard2);
-
-    MockMetacard metacard3 = new MockMetacard(Library.getShowLowRecord());
-    list.add(metacard3);
-
-    create(list, provider);
-
-    QueryImpl query =
-        new QueryImpl(getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text(soughtWord));
-    Map<String, Serializable> properties = new HashMap<>();
-    properties.put(
-        SolrMetacardClientImpl.EXCLUDE_ATTRIBUTES,
-        com.google.common.collect.Sets.newHashSet(Metacard.TITLE));
-    SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query, properties));
-    assertEquals(1, sourceResponse.getResults().size());
-    assertThat(sourceResponse.getResults().get(0).getMetacard().getTitle(), is(nullValue()));
   }
 
   /** Testing Tokenization of the search phrase. */

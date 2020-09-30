@@ -30,6 +30,7 @@ public interface Describable extends org.codice.ddf.platform.services.common.Des
    *
    * @return the version of the item being described (example: 1.0)
    */
+  @Override
   public String getVersion();
 
   /**
@@ -40,6 +41,7 @@ public interface Describable extends org.codice.ddf.platform.services.common.Des
    *
    * @return ID of the item
    */
+  @Override
   public String getId();
 
   /**
@@ -47,6 +49,7 @@ public interface Describable extends org.codice.ddf.platform.services.common.Des
    *
    * @return title of the item (example: Dummy Catalog Provider)
    */
+  @Override
   public String getTitle();
 
   /**
@@ -54,6 +57,7 @@ public interface Describable extends org.codice.ddf.platform.services.common.Des
    *
    * @return description of the item (example: Provider that returns back static results)
    */
+  @Override
   public String getDescription();
 
   /**
@@ -61,5 +65,6 @@ public interface Describable extends org.codice.ddf.platform.services.common.Des
    *
    * @return organizational name or acronym (example: USAF)
    */
+  @Override
   public String getOrganization();
 }

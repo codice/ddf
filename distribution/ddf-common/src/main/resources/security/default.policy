@@ -221,7 +221,7 @@ grant codeBase "file:/catalog-opensearch-source/catalog-opensearch-endpoint" {
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
-grant codeBase "file:/catalog-rest-impl/catalog-transformer-resource/ftp/org.apache.tika.core/org.codice.thirdparty.tika-bundle/tika-input-transformer/video-input-transformer" {
+grant codeBase "file:/catalog-rest-impl/catalog-transformer-resource/org.apache.tika.core/org.codice.thirdparty.tika-bundle/tika-input-transformer/video-input-transformer" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "<<ALL FILES>>", "execute";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";

@@ -53,6 +53,7 @@ public class CatalogComponentResolver implements ComponentResolver {
    * @see org.apache.camel.spi.ComponentResolver#resolveComponent(java.lang.String,
    * org.apache.camel.CamelContext)
    */
+  @Override
   public Component resolveComponent(String name, CamelContext context) {
     LOGGER.debug("INSIDE: resolveComponent");
 

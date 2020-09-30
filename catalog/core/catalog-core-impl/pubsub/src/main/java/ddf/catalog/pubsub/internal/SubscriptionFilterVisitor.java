@@ -78,6 +78,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     notNull(right, "right");
 
     return new Predicate() {
+      @Override
       public boolean matches(Event properties) {
         return left.matches(properties) && right.matches(properties);
       }
@@ -95,6 +96,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     notNull(right, "right");
 
     return new Predicate() {
+      @Override
       public boolean matches(Event properties) {
         return left.matches(properties) || right.matches(properties);
       }
@@ -111,6 +113,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     notNull(predicate, "predicate");
 
     return new Predicate() {
+      @Override
       public boolean matches(Event properties) {
         return !predicate.matches(properties);
       }

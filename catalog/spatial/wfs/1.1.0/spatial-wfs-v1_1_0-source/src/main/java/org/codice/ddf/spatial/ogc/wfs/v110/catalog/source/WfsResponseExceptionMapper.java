@@ -37,6 +37,7 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsParseException;
 
 public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsException> {
 
+  @Override
   public WfsException fromResponse(Response response) {
 
     WfsException wfsEx = null;

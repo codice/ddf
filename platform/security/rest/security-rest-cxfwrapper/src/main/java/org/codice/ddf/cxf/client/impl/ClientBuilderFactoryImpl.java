@@ -14,6 +14,7 @@
 package org.codice.ddf.cxf.client.impl;
 
 import ddf.security.audit.SecurityLogger;
+import ddf.security.service.SecurityManager;
 import org.codice.ddf.cxf.client.ClientBuilder;
 import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.oauth.OAuthSecurity;
@@ -27,9 +28,11 @@ public class ClientBuilderFactoryImpl implements ClientBuilderFactory {
 
   private SecurityLogger securityLogger;
 
+  private SecurityManager securityManager;
+
   @Override
   public <T> ClientBuilder<T> getClientBuilder() {
-    return new ClientBuilderImpl<>(oauthSecurity, samlSecurity, securityLogger);
+    return new ClientBuilderImpl<>(oauthSecurity, samlSecurity, securityLogger, securityManager);
   }
 
   public void setOauthSecurity(OAuthSecurity oauthSecurity) {
@@ -42,5 +45,9 @@ public class ClientBuilderFactoryImpl implements ClientBuilderFactory {
 
   public void setSecurityLogger(SecurityLogger securityLogger) {
     this.securityLogger = securityLogger;
+  }
+
+  public void setSecurityManager(SecurityManager securityManager) {
+    this.securityManager = securityManager;
   }
 }

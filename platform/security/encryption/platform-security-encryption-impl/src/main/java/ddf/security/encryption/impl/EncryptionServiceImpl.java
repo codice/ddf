@@ -45,6 +45,7 @@ public class EncryptionServiceImpl implements EncryptionService {
    *
    * @param plainTextValue The value to encrypt.
    */
+  @Override
   public synchronized String encrypt(String plainTextValue) {
     try {
       return crypter.encrypt(plainTextValue);
@@ -59,6 +60,7 @@ public class EncryptionServiceImpl implements EncryptionService {
    *
    * @param encryptedValue The value to decrypt.
    */
+  @Override
   public synchronized String decrypt(String encryptedValue) {
     try {
       return crypter.decrypt(encryptedValue);

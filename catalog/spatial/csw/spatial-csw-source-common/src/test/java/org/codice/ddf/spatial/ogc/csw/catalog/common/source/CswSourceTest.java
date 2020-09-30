@@ -60,6 +60,7 @@ import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.permission.Permissions;
 import ddf.security.permission.impl.PermissionsImpl;
+import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -1455,7 +1456,10 @@ public class CswSourceTest extends TestCswSourceBase {
     ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
     ClientBuilder<Csw> clientBuilder =
         new ClientBuilderImpl<Csw>(
-            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+            mock(OAuthSecurity.class),
+            mock(SamlSecurity.class),
+            mock(SecurityLogger.class),
+            mock(SecurityManager.class)) {
           @Override
           public SecureCxfClientFactory<Csw> build() {
             return mockFactory;

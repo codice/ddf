@@ -35,6 +35,7 @@ public class XPathPredicate implements Predicate {
     return xpath;
   }
 
+  @Override
   public boolean matches(Event properties) {
     XPathEvaluationCriteria xec =
         new XPathEvaluationCriteriaImpl(

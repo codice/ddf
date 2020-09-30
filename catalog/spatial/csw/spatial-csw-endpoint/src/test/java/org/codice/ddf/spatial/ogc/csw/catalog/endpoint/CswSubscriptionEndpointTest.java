@@ -189,7 +189,10 @@ public class CswSubscriptionEndpointTest {
     clientBuilderFactory = mock(ClientBuilderFactory.class);
     ClientBuilder<WebClient> clientBuilder =
         new ClientBuilderImpl<WebClient>(
-            mock(OAuthSecurity.class), mock(SamlSecurity.class), mock(SecurityLogger.class)) {
+            mock(OAuthSecurity.class),
+            mock(SamlSecurity.class),
+            mock(SecurityLogger.class),
+            mock(SecurityManager.class)) {
           @Override
           public SecureCxfClientFactory<WebClient> build() {
             return mockFactory;
@@ -206,8 +209,7 @@ public class CswSubscriptionEndpointTest {
             defaultRequest.get202RecordsType(),
             query,
             clientBuilderFactory,
-            security,
-            securityManager);
+            security);
 
     when(osgiFilter.toString()).thenReturn(FILTER_STR);
     doReturn(serviceRegistration)
@@ -237,8 +239,7 @@ public class CswSubscriptionEndpointTest {
             queryFactory,
             mockContext,
             clientBuilderFactory,
-            security,
-            securityManager);
+            security);
   }
 
   @Test
@@ -487,8 +488,7 @@ public class CswSubscriptionEndpointTest {
         CswQueryFactory queryFactory,
         BundleContext context,
         ClientBuilderFactory clientBuilderFactory,
-        Security security,
-        SecurityManager securityManager) {
+        Security security) {
       super(
           eventProcessor,
           mimeTypeTransformerManager,
@@ -497,8 +497,7 @@ public class CswSubscriptionEndpointTest {
           validator,
           queryFactory,
           clientBuilderFactory,
-          security,
-          securityManager);
+          security);
       this.bundleContext = context;
     }
 

@@ -40,14 +40,17 @@ public class GeotoolsFilterBuilder implements FilterBuilder {
   // return null;
   // }
 
+  @Override
   public And allOf(Filter... filters) {
     return allOf(Arrays.asList(filters));
   }
 
+  @Override
   public Or anyOf(Filter... filters) {
     return anyOf(Arrays.asList(filters));
   }
 
+  @Override
   public AttributeBuilder attribute(String string) {
     return new GeotoolsAttributeBuilder(string);
   }

@@ -30,22 +30,27 @@ public abstract class Decorator implements AdminModule, Comparable<AdminModule> 
     this.module = module;
   }
 
+  @Override
   public String getName() {
     return module.getName();
   }
 
+  @Override
   public String getId() {
     return module.getId();
   }
 
+  @Override
   public URI getJSLocation() {
     return module.getJSLocation();
   }
 
+  @Override
   public URI getCSSLocation() {
     return module.getCSSLocation();
   }
 
+  @Override
   public URI getIframeLocation() {
     return module.getIframeLocation();
   }
@@ -56,6 +61,7 @@ public abstract class Decorator implements AdminModule, Comparable<AdminModule> 
    * @param o
    * @return
    */
+  @Override
   public int compareTo(AdminModule o) {
     return getName().compareTo(o.getName());
   }

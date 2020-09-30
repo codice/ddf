@@ -75,22 +75,27 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
   }
 
   // Logical operators
+  @Override
   public T and(List<T> operands) {
     return logicalOperation(operands, LogicalPropertyOperation.AND);
   }
 
+  @Override
   public T or(List<T> operands) {
     return logicalOperation(operands, LogicalPropertyOperation.OR);
   }
 
+  @Override
   public T not(T operand) {
     return logicalOperation(operand, LogicalPropertyOperation.NOT);
   }
 
+  @Override
   public T include() {
     return logicalOperation(null, LogicalPropertyOperation.INCLUDE);
   }
 
+  @Override
   public T exclude() {
     return logicalOperation(null, LogicalPropertyOperation.EXCLUDE);
   }
@@ -99,16 +104,19 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
 
   // PropertyIsEqualTo
 
+  @Override
   public T propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
     return propertyIsEqualTo(
         propertyName, literal, String.class, ComparisonPropertyOperation.IS_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsEqualTo(String propertyName, Date literal) {
     return propertyIsEqualTo(
         propertyName, literal, Date.class, ComparisonPropertyOperation.IS_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsEqualTo(String propertyName, Date startDate, Date endDate) {
     return propertyIsEqualTo(
         propertyName,
@@ -117,22 +125,27 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         ComparisonPropertyOperation.IS_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsEqualTo(String propertyName, int literal) {
     return propertyIsEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsEqualTo(String propertyName, short literal) {
     return propertyIsEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsEqualTo(String propertyName, long literal) {
     return propertyIsEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsEqualTo(String propertyName, float literal) {
     return propertyIsEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsEqualTo(String propertyName, double literal) {
     return propertyIsEqualTo(propertyName, (Number) literal);
   }
@@ -142,16 +155,19 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         propertyName, literal, Number.class, ComparisonPropertyOperation.IS_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsEqualTo(String propertyName, boolean literal) {
     return propertyIsEqualTo(
         propertyName, literal, Boolean.class, ComparisonPropertyOperation.IS_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsEqualTo(String propertyName, byte[] literal) {
     return propertyIsEqualTo(
         propertyName, literal, byte[].class, ComparisonPropertyOperation.IS_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsEqualTo(String propertyName, Object literal) {
 
     return propertyIsEqualTo(
@@ -168,16 +184,19 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
 
   // PropertyIsNotEqualTo
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
     return propertyIsNotEqualTo(
         propertyName, literal, String.class, ComparisonPropertyOperation.IS_NOT_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, Date literal) {
     return propertyIsNotEqualTo(
         propertyName, literal, Date.class, ComparisonPropertyOperation.IS_NOT_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, Date startDate, Date endDate) {
     return propertyIsNotEqualTo(
         propertyName,
@@ -186,22 +205,27 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         ComparisonPropertyOperation.IS_NOT_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, int literal) {
     return propertyIsNotEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, short literal) {
     return propertyIsNotEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, long literal) {
     return propertyIsNotEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, float literal) {
     return propertyIsNotEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, double literal) {
     return propertyIsNotEqualTo(propertyName, (Number) literal);
   }
@@ -211,16 +235,19 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         propertyName, literal, Number.class, ComparisonPropertyOperation.IS_NOT_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, boolean literal) {
     return propertyIsNotEqualTo(
         propertyName, literal, Boolean.class, ComparisonPropertyOperation.IS_NOT_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, byte[] literal) {
     return propertyIsNotEqualTo(
         propertyName, literal, byte[].class, ComparisonPropertyOperation.IS_NOT_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsNotEqualTo(String propertyName, Object literal) {
     return propertyIsNotEqualTo(
         propertyName, literal, Object.class, ComparisonPropertyOperation.IS_NOT_EQUAL_TO);
@@ -236,32 +263,39 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
 
   // PropertyIsGreaterThan
 
+  @Override
   public T propertyIsGreaterThan(String propertyName, String literal) {
     return propertyIsGreaterThan(
         propertyName, literal, String.class, ComparisonPropertyOperation.IS_GREATER);
   }
 
+  @Override
   public T propertyIsGreaterThan(String propertyName, Date literal) {
     return propertyIsGreaterThan(
         propertyName, literal, Date.class, ComparisonPropertyOperation.IS_GREATER);
   }
 
+  @Override
   public T propertyIsGreaterThan(String propertyName, int literal) {
     return propertyIsGreaterThan(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsGreaterThan(String propertyName, short literal) {
     return propertyIsGreaterThan(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsGreaterThan(String propertyName, long literal) {
     return propertyIsGreaterThan(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsGreaterThan(String propertyName, float literal) {
     return propertyIsGreaterThan(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsGreaterThan(String propertyName, double literal) {
     return propertyIsGreaterThan(propertyName, (Number) literal);
   }
@@ -271,6 +305,7 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         propertyName, literal, Number.class, ComparisonPropertyOperation.IS_GREATER);
   }
 
+  @Override
   public T propertyIsGreaterThan(String propertyName, Object literal) {
     return propertyIsGreaterThan(
         propertyName, literal, Object.class, ComparisonPropertyOperation.IS_GREATER);
@@ -286,32 +321,39 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
 
   // PropertyIsGreaterThanOrEqualTo
 
+  @Override
   public T propertyIsGreaterThanOrEqualTo(String propertyName, String literal) {
     return propertyIsGreaterThanOrEqualTo(
         propertyName, literal, String.class, ComparisonPropertyOperation.IS_GREATER_OR_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsGreaterThanOrEqualTo(String propertyName, Date literal) {
     return propertyIsGreaterThanOrEqualTo(
         propertyName, literal, Date.class, ComparisonPropertyOperation.IS_GREATER_OR_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsGreaterThanOrEqualTo(String propertyName, int literal) {
     return propertyIsGreaterThanOrEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsGreaterThanOrEqualTo(String propertyName, short literal) {
     return propertyIsGreaterThanOrEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsGreaterThanOrEqualTo(String propertyName, long literal) {
     return propertyIsGreaterThanOrEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsGreaterThanOrEqualTo(String propertyName, float literal) {
     return propertyIsGreaterThanOrEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsGreaterThanOrEqualTo(String propertyName, double literal) {
     return propertyIsGreaterThanOrEqualTo(propertyName, (Number) literal);
   }
@@ -321,6 +363,7 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         propertyName, literal, Number.class, ComparisonPropertyOperation.IS_GREATER_OR_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsGreaterThanOrEqualTo(String propertyName, Object literal) {
     return propertyIsGreaterThanOrEqualTo(
         propertyName, literal, Object.class, ComparisonPropertyOperation.IS_GREATER_OR_EQUAL_TO);
@@ -336,32 +379,39 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
 
   // PropertyIsLessThan
 
+  @Override
   public T propertyIsLessThan(String propertyName, String literal) {
     return propertyIsLessThan(
         propertyName, literal, String.class, ComparisonPropertyOperation.IS_LESS_THAN);
   }
 
+  @Override
   public T propertyIsLessThan(String propertyName, Date literal) {
     return propertyIsLessThan(
         propertyName, literal, Date.class, ComparisonPropertyOperation.IS_LESS_THAN);
   }
 
+  @Override
   public T propertyIsLessThan(String propertyName, int literal) {
     return propertyIsLessThan(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsLessThan(String propertyName, short literal) {
     return propertyIsLessThan(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsLessThan(String propertyName, long literal) {
     return propertyIsLessThan(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsLessThan(String propertyName, float literal) {
     return propertyIsLessThan(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsLessThan(String propertyName, double literal) {
     return propertyIsLessThan(propertyName, (Number) literal);
   }
@@ -371,6 +421,7 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         propertyName, literal, Number.class, ComparisonPropertyOperation.IS_LESS_THAN);
   }
 
+  @Override
   public T propertyIsLessThan(String propertyName, Object literal) {
     return propertyIsLessThan(
         propertyName, literal, Object.class, ComparisonPropertyOperation.IS_LESS_THAN);
@@ -386,32 +437,39 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
 
   // PropertyIsLessThanOrEqualTo
 
+  @Override
   public T propertyIsLessThanOrEqualTo(String propertyName, String literal) {
     return propertyIsLessThanOrEqualTo(
         propertyName, literal, String.class, ComparisonPropertyOperation.IS_LESS_OR_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsLessThanOrEqualTo(String propertyName, Date literal) {
     return propertyIsLessThanOrEqualTo(
         propertyName, literal, Date.class, ComparisonPropertyOperation.IS_LESS_OR_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsLessThanOrEqualTo(String propertyName, int literal) {
     return propertyIsLessThanOrEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsLessThanOrEqualTo(String propertyName, short literal) {
     return propertyIsLessThanOrEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsLessThanOrEqualTo(String propertyName, long literal) {
     return propertyIsLessThanOrEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsLessThanOrEqualTo(String propertyName, float literal) {
     return propertyIsLessThanOrEqualTo(propertyName, (Number) literal);
   }
 
+  @Override
   public T propertyIsLessThanOrEqualTo(String propertyName, double literal) {
     return propertyIsLessThanOrEqualTo(propertyName, (Number) literal);
   }
@@ -421,6 +479,7 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         propertyName, literal, Number.class, ComparisonPropertyOperation.IS_LESS_OR_EQUAL_TO);
   }
 
+  @Override
   public T propertyIsLessThanOrEqualTo(String propertyName, Object literal) {
     return propertyIsLessThanOrEqualTo(
         propertyName, literal, Object.class, ComparisonPropertyOperation.IS_LESS_OR_EQUAL_TO);
@@ -436,6 +495,7 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
 
   // PropertyIsBetween
 
+  @Override
   public T propertyIsBetween(String propertyName, String lowerBoundary, String upperBoundary) {
     return propertyIsBetween(
         propertyName,
@@ -445,6 +505,7 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         ComparisonPropertyOperation.IS_BETWEEN);
   }
 
+  @Override
   public T propertyIsBetween(String propertyName, Date lowerBoundary, Date upperBoundary) {
     return comparisonOperation(
         propertyName,
@@ -453,22 +514,27 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         ComparisonPropertyOperation.IS_BETWEEN);
   }
 
+  @Override
   public T propertyIsBetween(String propertyName, int lowerBoundary, int upperBoundary) {
     return propertyIsBetween(propertyName, (Number) lowerBoundary, (Number) upperBoundary);
   }
 
+  @Override
   public T propertyIsBetween(String propertyName, short lowerBoundary, short upperBoundary) {
     return propertyIsBetween(propertyName, (Number) lowerBoundary, (Number) upperBoundary);
   }
 
+  @Override
   public T propertyIsBetween(String propertyName, long lowerBoundary, long upperBoundary) {
     return propertyIsBetween(propertyName, (Number) lowerBoundary, (Number) upperBoundary);
   }
 
+  @Override
   public T propertyIsBetween(String propertyName, float lowerBoundary, float upperBoundary) {
     return propertyIsBetween(propertyName, (Number) lowerBoundary, (Number) upperBoundary);
   }
 
+  @Override
   public T propertyIsBetween(String propertyName, double lowerBoundary, double upperBoundary) {
     return propertyIsBetween(propertyName, (Number) lowerBoundary, (Number) upperBoundary);
   }
@@ -482,6 +548,7 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         ComparisonPropertyOperation.IS_BETWEEN);
   }
 
+  @Override
   public T propertyIsBetween(String propertyName, Object lowerBoundary, Object upperBoundary) {
     return propertyIsBetween(
         propertyName,
@@ -500,86 +567,105 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
     return comparisonOperation(propertyName, lowerBoundary, literalClass, operation);
   }
 
+  @Override
   public T propertyIsNull(String propertyName) {
     return comparisonOperation(propertyName, null, null, ComparisonPropertyOperation.IS_NULL);
   }
 
+  @Override
   public T propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
     return comparisonOperation(
         propertyName, pattern, String.class, ComparisonPropertyOperation.IS_LIKE);
   }
 
+  @Override
   public T propertyIsFuzzy(String propertyName, String literal) {
     return comparisonOperation(
         propertyName, literal, String.class, ComparisonPropertyOperation.IS_FUZZY);
   }
 
   // XPath operators
+  @Override
   public T xpathExists(String xpath) {
     return xpathOperation(xpath, null, null, XPathPropertyOperation.XPATH_EXISTS);
   }
 
+  @Override
   public T xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
     return xpathOperation(xpath, pattern, String.class, XPathPropertyOperation.XPATH_IS_LIKE);
   }
 
+  @Override
   public T xpathIsFuzzy(String xpath, String literal) {
     return xpathOperation(xpath, literal, String.class, XPathPropertyOperation.XPATH_IS_FUZZY);
   }
 
   // Spatial operators
 
+  @Override
   public T nearestNeighbor(String propertyName, String wkt) {
     return spatialOperation(
         propertyName, wkt, String.class, SpatialPropertyOperation.NEAREST_NEIGHBOR);
   }
 
+  @Override
   public T beyond(String propertyName, String wkt, double distance) {
     return spatialOperation(propertyName, wkt, String.class, SpatialPropertyOperation.BEYOND);
   }
 
+  @Override
   public T contains(String propertyName, String wkt) {
     return spatialOperation(propertyName, wkt, String.class, SpatialPropertyOperation.CONTAINS);
   }
 
+  @Override
   public T crosses(String propertyName, String wkt) {
     return spatialOperation(propertyName, wkt, String.class, SpatialPropertyOperation.CROSSES);
   }
 
+  @Override
   public T disjoint(String propertyName, String wkt) {
     return spatialOperation(propertyName, wkt, String.class, SpatialPropertyOperation.DISJOINT);
   }
 
+  @Override
   public T dwithin(String propertyName, String wkt, double distance) {
     return spatialOperation(propertyName, wkt, String.class, SpatialPropertyOperation.DWITHIN);
   }
 
+  @Override
   public T intersects(String propertyName, String wkt) {
     return spatialOperation(propertyName, wkt, String.class, SpatialPropertyOperation.INTERSECTS);
   }
 
+  @Override
   public T overlaps(String propertyName, String wkt) {
     return spatialOperation(propertyName, wkt, String.class, SpatialPropertyOperation.OVERLAPS);
   }
 
+  @Override
   public T touches(String propertyName, String wkt) {
     return spatialOperation(propertyName, wkt, String.class, SpatialPropertyOperation.TOUCHES);
   }
 
+  @Override
   public T within(String propertyName, String wkt) {
     return spatialOperation(propertyName, wkt, String.class, SpatialPropertyOperation.WITHIN);
   }
 
   // Temporal operators
 
+  @Override
   public T after(String propertyName, Date date) {
     return temporalOperation(propertyName, date, Date.class, TemporalPropertyOperation.AFTER);
   }
 
+  @Override
   public T before(String propertyName, Date date) {
     return temporalOperation(propertyName, date, Date.class, TemporalPropertyOperation.BEFORE);
   }
 
+  @Override
   public T during(String propertyName, Date startDate, Date endDate) {
 
     return temporalOperation(
@@ -589,10 +675,12 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
         TemporalPropertyOperation.DURING);
   }
 
+  @Override
   public T begins(String propertyName, Date startDate, Date endDate) {
     return temporalOperation(propertyName, startDate, Date.class, TemporalPropertyOperation.BEGINS);
   }
 
+  @Override
   public T relative(String propertyName, long duration) {
     return temporalOperation(
         propertyName, duration, long.class, TemporalPropertyOperation.RELATIVE);

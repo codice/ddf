@@ -21,6 +21,9 @@ import java.net.SocketException;
 import java.util.Enumeration;
 
 public class InetAddressUtil {
+
+  private InetAddressUtil() {}
+
   /**
    * Retrieves the first non-loopback IP address, (i.e., filters out 127.0.0.1 addresses) for
    * machine your are running on.

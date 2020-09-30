@@ -16,11 +16,6 @@
 
     <OCD name="Solr Federated Result Cache"
          id="org.codice.ddf.catalog.solr.cache.impl.SolrCache">
-        <AD name="AnyText Expansion Field Whitelist" id="anyTextFieldWhitelist" cardinality="100" required="false" type="String"
-            description="List of Solr fields that an anyText query expands to include (e.g. title, description, ext.extracted.*). NOTE: If a blacklist is also provided, this list becomes a blacklist exception list instead of a pure whitelist."/>
-
-        <AD name="AnyText Expansion Field Blacklist" id="anyTextFieldBlacklist" cardinality="100" required="false" type="String"
-            description="List of Solr fields that an anyText query will NOT include (e.g. id, checksum, security.*)"/>
 
         <AD name="Expiration Interval" id="expirationIntervalInMinutes" type="Long" default="10"
             description="Interval that Solr Cache checks for expired documents to remove."/>

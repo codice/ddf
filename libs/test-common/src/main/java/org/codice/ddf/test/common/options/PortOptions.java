@@ -37,8 +37,6 @@ public class PortOptions extends BasicOptions {
 
   private static final String HTTP_PORT_KEY = "httpPort";
 
-  private static final String FTP_PORT_KEY = "ftpPort";
-
   private static final String RMI_REG_PORT_KEY = "rmiRegistryPort";
 
   private static final String RMI_SERVER_PORT_KEY = "rmiServerPort";
@@ -49,13 +47,7 @@ public class PortOptions extends BasicOptions {
 
   public static Option defaultPortsOptions() {
     return new DefaultCompositeOption(
-        httpsPort(),
-        httpPort(),
-        ftpPort(),
-        rmiRegistryPort(),
-        rmiServerPort(),
-        sshPort(),
-        solrPort());
+        httpsPort(), httpPort(), rmiRegistryPort(), rmiServerPort(), sshPort(), solrPort());
   }
 
   public static Option httpsPort() {
@@ -70,13 +62,6 @@ public class PortOptions extends BasicOptions {
     recordConfiguration(HTTP_PORT_KEY, port);
     return KarafDistributionOption.editConfigurationFilePut(
         SystemProperties.SYSTEM_PROPERTIES_FILE_PATH, SystemProperties.HTTP_PORT_PROPERTY, port);
-  }
-
-  public static Option ftpPort() {
-    String port = getPortFinder().getPortAsString(FTP_PORT_KEY);
-    recordConfiguration(FTP_PORT_KEY, port);
-    return KarafDistributionOption.editConfigurationFilePut(
-        SystemProperties.SYSTEM_PROPERTIES_FILE_PATH, SystemProperties.FTP_PORT_PROPERTY, port);
   }
 
   public static Option rmiRegistryPort() {

@@ -23,6 +23,7 @@ import ddf.security.liberty.paos.impl.RequestUnmarshaller;
 import ddf.security.liberty.paos.impl.ResponseBuilder;
 import ddf.security.liberty.paos.impl.ResponseMarshaller;
 import ddf.security.liberty.paos.impl.ResponseUnmarshaller;
+import ddf.security.service.SecurityManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -75,6 +76,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.interceptor.SubjectRetrievalInterceptor;
 import org.codice.ddf.cxf.oauth.OAuthOutInterceptor;
 import org.codice.ddf.cxf.oauth.OAuthSecurity;
 import org.codice.ddf.cxf.paos.PaosInInterceptor;
@@ -101,6 +103,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
   public static final String PASSWORD_FLOW = "password";
 
   private JAXRSClientFactoryBean clientFactory;
+
+  private SecurityManager securityManager;
 
   private final boolean disableCnCheck;
 
@@ -145,6 +149,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
   private boolean useOauth;
 
   private boolean useSamlEcp;
+
+  private boolean useSubjectRetrievalInterceptor;
 
   private String discoveryUrl;
 
@@ -206,6 +212,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       boolean allowRedirects,
       boolean useOauth,
       boolean useSamlEcp,
+      boolean useSubjectRetrievalInterceptor,
       PropertyResolver propertyResolver,
       Integer connectionTimeout,
       Integer receiveTimeout,
@@ -221,7 +228,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Map<String, String> additionalOauthParameters,
       OAuthSecurity oauthSecurity,
       SamlSecurity samlSecurity,
-      SecurityLogger securityLogger) {
+      SecurityLogger securityLogger,
+      SecurityManager securityManager) {
     this.interfaceClass = interfaceClass;
     this.disableCnCheck = disableCnCheck;
     this.allowRedirects = allowRedirects;
@@ -261,9 +269,11 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.connectionTimeout = connectionTimeout;
     this.useOauth = useOauth;
     this.useSamlEcp = useSamlEcp;
+    this.useSubjectRetrievalInterceptor = useSubjectRetrievalInterceptor;
     this.oauthSecurity = oauthSecurity;
     this.samlSecurity = samlSecurity;
     this.securityLogger = securityLogger;
+    this.securityManager = securityManager;
 
     if (this.endpointUrl == null || interfaceClass == null) {
       throw new IllegalArgumentException(
@@ -291,6 +301,11 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
             .add(new PaosInInterceptor(Phase.RECEIVE, samlSecurity));
         jaxrsClientFactoryBean.getOutInterceptors().add(new PaosOutInterceptor(Phase.POST_LOGICAL));
       }
+      if (useSubjectRetrievalInterceptor) {
+        jaxrsClientFactoryBean
+            .getOutInterceptors()
+            .add(new SubjectRetrievalInterceptor(securityManager));
+      }
     }
 
     if (CollectionUtils.isNotEmpty(providers)) {
@@ -310,14 +325,17 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.clientFactory = jaxrsClientFactoryBean;
   }
 
+  @Override
   public T getClient() {
     return getClientForSubject(null);
   }
 
+  @Override
   public WebClient getWebClient() {
     return getWebClientForSubject(null);
   }
 
+  @Override
   public WebClient getWebSystemClient() {
     return getWebClient(getClientForSystemSubject(null));
   }
@@ -329,6 +347,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
    * <p>The returned client should NOT be reused between requests! This method should be called for
    * each new request in order to ensure that the security token is up-to-date each time.
    */
+  @Override
   public final T getClientForSubject(Subject subject) {
     final java.lang.SecurityManager security = System.getSecurityManager();
 
@@ -380,6 +399,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
    * <p>The returned client should NOT be reused between requests! This method should be called for
    * each new request in order to ensure that the security token is up-to-date each time.
    */
+  @Override
   public final T getClientForSystemSubject(Subject subject) {
     final java.lang.SecurityManager security = System.getSecurityManager();
 
@@ -409,6 +429,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
             });
   }
 
+  @Override
   public Integer getSameUriRedirectMax() {
     return sameUriRedirectMax;
   }
@@ -444,6 +465,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
    *
    * @see #getClientForSubject(Subject subject)
    */
+  @Override
   public WebClient getWebClientForSubject(Subject subject) {
     return getWebClient(getClientForSubject(subject));
   }
@@ -664,6 +686,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     httpConduit.setClient(httpClientPolicy);
   }
 
+  @Override
   public void addOutInterceptors(Interceptor<? extends Message> inteceptor) {
     this.clientFactory.getOutInterceptors().add(inteceptor);
   }
@@ -701,6 +724,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       this.alias = alias;
     }
 
+    @Override
     public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
       if (keyManager == null) {
         return null;
@@ -724,22 +748,27 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       return null;
     }
 
+    @Override
     public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
       return keyManager.chooseServerAlias(keyType, issuers, socket);
     }
 
+    @Override
     public X509Certificate[] getCertificateChain(String alias) {
       return keyManager.getCertificateChain(alias);
     }
 
+    @Override
     public String[] getClientAliases(String keyType, Principal[] issuers) {
       return keyManager.getClientAliases(keyType, issuers);
     }
 
+    @Override
     public PrivateKey getPrivateKey(String alias) {
       return keyManager.getPrivateKey(alias);
     }
 
+    @Override
     public String[] getServerAliases(String keyType, Principal[] issuers) {
       return keyManager.getServerAliases(keyType, issuers);
     }

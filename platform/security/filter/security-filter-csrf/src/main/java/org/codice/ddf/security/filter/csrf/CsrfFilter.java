@@ -342,7 +342,7 @@ public class CsrfFilter implements SecurityFilter {
       httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
       httpResponse.flushBuffer();
     } catch (IOException ioe) {
-      LOGGER.debug("Failed to send auth response: {}", ioe);
+      LOGGER.debug("Failed to send auth response", ioe);
     }
   }
 

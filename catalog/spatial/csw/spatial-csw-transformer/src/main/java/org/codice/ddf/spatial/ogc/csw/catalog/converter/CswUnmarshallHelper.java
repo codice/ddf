@@ -60,6 +60,8 @@ public class CswUnmarshallHelper {
   private static final List<String> CSW_OVERLAPPING_ATTRIBUTE_NAMES =
       Arrays.asList(Core.TITLE, Core.CREATED, Core.MODIFIED);
 
+  private CswUnmarshallHelper() {}
+
   public static Date convertToDate(String value) {
     // Dates are strings and expected to be in ISO8601 format, YYYY-MM-DD'T'hh:mm:ss.sss,
     // per annotations in the CSW Record schema. At least the date portion must be present;
@@ -67,7 +69,7 @@ public class CswUnmarshallHelper {
     try {
       return ISODateTimeFormat.dateOptionalTimeParser().parseDateTime(value).toDate();
     } catch (IllegalArgumentException e) {
-      LOGGER.debug("Failed to convert to date {} from ISO Format: {}", value, e);
+      LOGGER.debug("Failed to convert to date {} from ISO Format", value, e);
     }
 
     // failed to convert iso format, attempt to convert from xsd:date or xsd:datetime format
@@ -78,14 +80,14 @@ public class CswUnmarshallHelper {
           .toGregorianCalendar()
           .getTime();
     } catch (IllegalArgumentException e) {
-      LOGGER.debug("Unable to convert date {} from XSD format {} ", value, e);
+      LOGGER.debug("Unable to convert date {} from XSD format", value, e);
     }
 
     // try from java date serialization for the default locale
     try {
       return DateFormat.getDateInstance().parse(value);
     } catch (ParseException e) {
-      LOGGER.debug("Unable to convert date {} from default locale format {} ", value, e);
+      LOGGER.debug("Unable to convert date {} from default locale format", value, e);
     }
 
     // default to current date
