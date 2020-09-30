@@ -120,7 +120,8 @@
         <cxf.geronimo.jms.version>${geronimo-jms-spec-version}</cxf.geronimo.jms.version>
         <cxf.geronimo.json.version>1.4</cxf.geronimo.json.version>
         <cxf.geronimo.jta.version>1.1.1</cxf.geronimo.jta.version>
-        <cxf.guava.version>29.0-jre</cxf.guava.version>
+        <!-- CXF Guava version must match DDF Guava version to avoid OSGi uses contraint violations -->
+        <cxf.guava.version>${guava.version}</cxf.guava.version>
         <cxf.hazelcast.version>3.12.7</cxf.hazelcast.version>
         <cxf.hibernate.validator.version>6.1.4.Final</cxf.hibernate.validator.version>
         <cxf.httpcomponents.asyncclient.version>4.1.4</cxf.httpcomponents.asyncclient.version>
