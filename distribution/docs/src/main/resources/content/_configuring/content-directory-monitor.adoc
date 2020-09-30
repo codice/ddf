@@ -153,6 +153,16 @@ CDM will expire files whose processing times exceed a specified threshold. By de
 The expiration time can be configured by setting *org.codice.ddf.catalog.content.monitor.expirationTime* in "etc/custom.system.properties"
 ====
 
+.File Size Limit
+CDM will not ingest files beyond a certain size. By default, the maximum file size is 1 GB.
+[TIP]
+====
+The size limit can be adjusted by setting the following in *etc/custom.system.properties*
+`org.codice.ddf.catalog.content.monitor.maxFileSizeBytes=[maximum]`
+
+Set the maximum file size as a number of bytes.
+====
+
 .Logging
 CDM will send logs detailing the processing of files in the directory to `cdm.log`.
 
