@@ -120,7 +120,7 @@
         <cxf.geronimo.jms.version>${geronimo-jms-spec-version}</cxf.geronimo.jms.version>
         <cxf.geronimo.json.version>1.4</cxf.geronimo.json.version>
         <cxf.geronimo.jta.version>1.1.1</cxf.geronimo.jta.version>
-        <!-- CXF Guava version must match DDF Guava version to avoid OSGi uses contraint violations -->
+        <!-- CXF Guava version must match DDF Guava version to avoid OSGi uses constraint violations -->
         <cxf.guava.version>${guava.version}</cxf.guava.version>
         <cxf.hazelcast.version>3.12.7</cxf.hazelcast.version>
         <cxf.hibernate.validator.version>6.1.4.Final</cxf.hibernate.validator.version>
@@ -174,7 +174,7 @@
         <cxf.istack.bundle.version>3.0.7</cxf.istack.bundle.version>
         <cxf.jakarta.mail.version>1.6.5</cxf.jakarta.mail.version>
         <cxf.jasypt.bundle.version>1.9.3_1</cxf.jasypt.bundle.version>
-        <cxf.jaxb.bundle.version>${jaxb.version}_1</cxf.jaxb.bundle.version>
+        <cxf.jaxb.bundle.version>2.3.2_1</cxf.jaxb.bundle.version>
         <cxf.jdom.bundle.version>${jdom.bundle.version}</cxf.jdom.bundle.version>
         <cxf.oauth.bundle.version>20100527_1</cxf.oauth.bundle.version>
         <cxf.reflections.bundle.version>0.9.11_2</cxf.reflections.bundle.version>
@@ -185,7 +185,6 @@
         <cxf.servicemix.jaxrs.specs.version>2.9.1</cxf.servicemix.jaxrs.specs.version>
         <cxf.servicemix.jodatime.version>2.3_1</cxf.servicemix.jodatime.version>
         <cxf.servicemix.jsoup.version>1.5.2_2</cxf.servicemix.jsoup.version>
-        <cxf.servicemix.specs.jaxb.version>2.3_3</cxf.servicemix.specs.jaxb.version>
         <cxf.servicemix.specs.version>2.9.0</cxf.servicemix.specs.version>
         <cxf.wsdl4j.bundle.version>1.6.3_1</cxf.wsdl4j.bundle.version>
         <cxf.xalan.bundle.version>${xalan.bundle.version}</cxf.xalan.bundle.version>
