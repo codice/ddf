@@ -13,78 +13,21 @@
  */
 package ddf.catalog.solr.offlinegazetteer;
 
-import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME;
-
-import java.util.concurrent.TimeUnit;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
-import org.apache.karaf.shell.api.action.Action;
+import java.io.IOException;
 import org.apache.karaf.shell.api.action.Command;
-import org.apache.karaf.shell.api.action.Option;
-import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.apache.karaf.shell.api.console.Session;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.SolrClientFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
     scope = "offline-solr-gazetteer",
     name = "removeall",
-    description = "Deletes all items in the solr gazetteer collection")
-public class RemoveAllOfflineSolrGazetteerCommand implements Action {
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger(RemoveAllOfflineSolrGazetteerCommand.class);
-
-  @Reference protected Session session;
-
-  @Reference private SolrClientFactory clientFactory;
-
-  @Option(
-      name = "--force",
-      aliases = {"-f"},
-      description = "Force the removal without a confirmation message.")
-  boolean force = false;
+    description = "Sends a request to delete all items in the solr gazetteer collection")
+public class RemoveAllOfflineSolrGazetteerCommand extends AbstractSolrClientCommand {
 
   @Override
-  public Object execute() throws Exception {
-    if (!force) {
-      String answer =
-          session
-              .readLine(
-                  "Are you sure you want to remove all gazetteer entries inside of the solr gazetteer collection?(y/n)",
-                  ' ')
-              .toLowerCase();
-      if (!("y".equals(answer) || "yes".equals(answer))) {
-        session.getConsole().println("Aborting.");
-        return null;
-      }
-    }
-
-    SolrClient solrClient = clientFactory.newClient(COLLECTION_NAME);
-
-    Boolean response =
-        Failsafe.with(
-                new RetryPolicy()
-                    .retryWhen(false)
-                    .withMaxDuration(5, TimeUnit.SECONDS)
-                    .withBackoff(25, 1_000, TimeUnit.MILLISECONDS))
-            .get(() -> solrClient.isAvailable());
-    if (response == null || !response) {
-      LOGGER.error("Could not contact solr to remove all");
-      session.getConsole().println("Could not contact solr to remove all, exiting.");
-      return null;
-    }
-    try {
-      solrClient.deleteByQuery("*:*");
-    } catch (Exception e) {
-      LOGGER.info("Error while executing", e);
-      session.getConsole().println("Error while submitting remove all, exiting.");
-      throw e;
-    }
-    session.getConsole().println("Removeall submitted successfully.");
-    return null;
+  void executeWithSolrClient(SolrClient solrClient) throws SolrServerException, IOException {
+    solrClient.deleteByQuery("*:*");
   }
 }

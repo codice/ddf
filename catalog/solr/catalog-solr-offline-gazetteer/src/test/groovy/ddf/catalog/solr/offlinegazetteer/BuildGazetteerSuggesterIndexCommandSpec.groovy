@@ -19,28 +19,33 @@ import org.codice.solr.client.solrj.UnavailableSolrException
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class RemoveAllOfflineSolrGazetteerCommandSpec extends Specification {
+class BuildGazetteerSuggesterIndexCommandSpec extends Specification {
 
-    private final RemoveAllOfflineSolrGazetteerCommand removeAllOfflineSolrGazetteerCommand = new RemoveAllOfflineSolrGazetteerCommand()
+    private final BuildGazetteerSuggesterIndexCommand buildGazetteerSuggesterIndexCommand = new BuildGazetteerSuggesterIndexCommand()
 
     private final SolrClient mockSolrClient = Mock()
 
     def 'test executeWithSolrClient'() {
         when:
-        removeAllOfflineSolrGazetteerCommand.executeWithSolrClient(mockSolrClient)
+        buildGazetteerSuggesterIndexCommand.executeWithSolrClient(mockSolrClient)
 
         then:
-        1 * mockSolrClient.deleteByQuery("*:*")
+        1 * mockSolrClient.query({
+            it.getRequestHandler() == "/gazetteer"
+            it.getParams("suggest.q") == ["CatalogSolrGazetteerBuildSuggester"]
+            it.getParams("suggest.build") == ["true"]
+            it.getParams("suggest.dictionary") == ["gazetteerSuggest"]
+        })
     }
 
     @Unroll("test SolrClient query fails with #exceptionType")
     def 'test SolrClient query fails'() {
         given:
         final mockException = Mock(exceptionType)
-        mockSolrClient.deleteByQuery(_) >> { throw mockException }
+        mockSolrClient.query(_) >> { throw mockException }
 
         when:
-        removeAllOfflineSolrGazetteerCommand.executeWithSolrClient(mockSolrClient)
+        buildGazetteerSuggesterIndexCommand.executeWithSolrClient(mockSolrClient)
 
         then:
         Exception e = thrown()
@@ -49,5 +54,4 @@ class RemoveAllOfflineSolrGazetteerCommandSpec extends Specification {
         where:
         exceptionType << [IOException, SolrServerException, UnavailableSolrException]
     }
-
 }
