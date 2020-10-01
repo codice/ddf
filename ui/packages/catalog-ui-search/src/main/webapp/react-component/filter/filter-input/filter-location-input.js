@@ -79,6 +79,11 @@ class LocationInput extends React.Component {
     this.props.listenTo(this.locationModel, 'change:mode', () => {
       this.clearLocation()
     })
+    this.props.listenTo(this.locationModel, 'change:polygon', () => {
+      if (this.locationModel.get('mode') !== 'poly') {
+        wreqr.vent.trigger('search:polydisplay', this.locationModel)
+      }
+    })
   }
   componentWillUnmount() {
     this.locationModel.off('change', this.setModelState)
@@ -104,9 +109,10 @@ class LocationInput extends React.Component {
     switch (filter.type) {
       // these cases are for when the model matches the filter model
       case 'DWITHIN':
-        if (CQLUtils.isPointRadiusFilter(filter.value)) {
+        const value = filter.value && filter.value.value ? filter.value : filter
+        if (CQLUtils.isPointRadiusFilter(value)) {
           wreqr.vent.trigger('search:circledisplay', this.locationModel)
-        } else if (CQLUtils.isPolygonFilter(filter.value)) {
+        } else if (CQLUtils.isPolygonFilter(value)) {
           wreqr.vent.trigger('search:polydisplay', this.locationModel)
         } else {
           wreqr.vent.trigger('search:linedisplay', this.locationModel)
@@ -116,7 +122,14 @@ class LocationInput extends React.Component {
         if (CQLUtils.isLineFilter(filter)) {
           wreqr.vent.trigger('search:linedisplay', this.locationModel)
         } else {
-          wreqr.vent.trigger('search:polydisplay', this.locationModel)
+          if (
+            filter.geojson &&
+            filter.geojson.properties.type === 'BoundingBox'
+          ) {
+            wreqr.vent.trigger('search:bboxdisplay', this.locationModel)
+          } else {
+            wreqr.vent.trigger('search:polydisplay', this.locationModel)
+          }
         }
         break
       // these cases are for when the model matches the location model
