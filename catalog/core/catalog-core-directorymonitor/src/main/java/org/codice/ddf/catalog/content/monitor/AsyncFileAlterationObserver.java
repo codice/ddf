@@ -234,13 +234,11 @@ public class AsyncFileAlterationObserver {
     } else {
       // Directories are always committed and added to the parent IF they
       // don't already exist
-
+      commitCreate(entry, true);
       File[] children = listFiles(entry.getFile());
       for (File child : children) {
         doCreate(new AsyncFileEntry(entry, child), listenerCopy);
       }
-
-      commitCreate(entry, true);
     }
   }
 

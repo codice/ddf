@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static org.apache.camel.LoggingLevel.DEBUG;
+
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
 import java.io.Serializable;
@@ -30,8 +32,10 @@ import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.Predicate;
 import org.apache.camel.Processor;
 import org.apache.camel.ServiceStatus;
+import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.FromDefinition;
 import org.apache.camel.model.RouteDefinition;
@@ -66,6 +70,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   private static final int MIN_THREAD_SIZE = 1;
 
   private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
+
+  private static final long MAX_FILE_SIZE = 1_073_741_824;
 
   private static final Security SECURITY = Security.getInstance();
 
@@ -401,12 +407,23 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 .maxQueueSize(numThreads * 2)
                 .process(systemSubjectBinder);
         if (processingMechanism.equals(IN_PLACE)) {
+          String maxSize =
+              System.getProperty(
+                  "org.codice.ddf.catalog.content.monitor.maxFileSizeBytes",
+                  String.valueOf(MAX_FILE_SIZE));
+          Predicate sizeLimit = simple("${file:size} < " + maxSize);
+          Predicate createOrUpdateOperation =
+              simple("${in.headers.operation} == 'CREATE' || ${in.headers.operation} == 'UPDATE'");
+
           td.choice()
-              .when(
-                  simple(
-                      "${in.headers.operation} == 'CREATE' || ${in.headers.operation} == 'UPDATE'"))
+              .when(PredicateBuilder.and(sizeLimit, createOrUpdateOperation))
               .to("catalog:inputtransformer")
               .process(new InPlaceMetacardProcessor(attributeRegistry))
+              .otherwise()
+              .log(
+                  DEBUG,
+                  CDM_LOGGER,
+                  "Ignoring file ${file:name} with size ${file:size} because it is too big")
               .end()
               .to("catalog:framework");
         } else {
