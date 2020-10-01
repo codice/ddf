@@ -72,24 +72,10 @@
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-common</artifactId>
-            <exclusions>
-                <!-- FIXME: There's no cxf-api artifact anymore -->
-                <exclusion>
-                    <artifactId>cxf-api</artifactId>
-                    <groupId>org.apache.cxf</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-v2_0_0-common</artifactId>
-            <exclusions>
-                <!-- FIXME: There's no cxf-api artifact anymore -->
-                <exclusion>
-                    <artifactId>cxf-api</artifactId>
-                    <groupId>org.apache.cxf</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>

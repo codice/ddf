@@ -20,6 +20,7 @@ import java.security.Principal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -122,6 +123,7 @@ public final class SecurityAssertionStore {
    * @param message
    * @return the TokenStore, or null if it could not be retrieved
    */
+  @Nullable
   public static TokenStore getTokenStore(Message message) {
     try {
       return TokenStoreUtils.getTokenStore(message);
