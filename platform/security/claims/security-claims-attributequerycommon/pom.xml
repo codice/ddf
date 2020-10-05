@@ -105,7 +105,6 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.65</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>
