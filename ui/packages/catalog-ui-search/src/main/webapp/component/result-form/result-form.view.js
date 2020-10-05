@@ -68,7 +68,7 @@ module.exports = Marionette.LayoutView.extend({
         model: new Property({
           readOnly: this.model.get('readOnly'),
           enumFiltering: true,
-          showValidationIssues: true,
+          showValidationIssues: false,
           enumMulti: true,
           enum: allowedValues,
           values: this.model.get('descriptors'),
@@ -138,7 +138,7 @@ module.exports = Marionette.LayoutView.extend({
         }
         this.showWarningSymbol(
           $titleValidationElement,
-          'Name field cannot be blank'
+          'Title field cannot be blank'
         )
       }
       if (attributesEmpty) {
