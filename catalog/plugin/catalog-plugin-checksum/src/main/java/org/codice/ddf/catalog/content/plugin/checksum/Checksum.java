@@ -104,7 +104,8 @@ public class Checksum implements PreCreateStoragePlugin, PreUpdateStoragePlugin 
 
   public void setChecksumAlgorithm(String checksumAlgorithm) {
     this.checksumProvider =
-        checksumProviders.stream()
+        checksumProviders
+            .stream()
             .filter(provider -> provider.getChecksumAlgorithm().equals(checksumAlgorithm))
             .findFirst()
             .orElse(null);
