@@ -27,11 +27,11 @@
                     <gml:Polygon srsName="EPSG:4326">
                         <gml:exterior>
                             <gml:LinearRing>
-                                <ns2:pos>13.349320 56.621763 </ns2:pos>
-                                <ns2:pos>13.348194 55.620606 </ns2:pos>
-                                <ns2:pos>12.349760 55.619622 </ns2:pos>
-                                <ns2:pos>12.351134 55.620302 </ns2:pos>
-                                <ns2:pos>13.349320 56.621763 </ns2:pos>
+                                <gml:pos>13.349320 56.621763 </gml:pos>
+                                <gml:pos>13.348194 55.620606 </gml:pos>
+                                <gml:pos>12.349760 55.619622 </gml:pos>
+                                <gml:pos>12.351134 55.620302 </gml:pos>
+                                <gml:pos>13.349320 56.621763 </gml:pos>
                             </gml:LinearRing>
                         </gml:exterior>
                     </gml:Polygon>

@@ -26,8 +26,8 @@
                     <ogc:PropertyName>ows:BoundingBox</ogc:PropertyName>
                     ​
                     <gml:LineString srsName="EPSG:4326">
-                        <ns2:pos>25 31</ns2:pos>
-                        <ns2:pos>27 32 </ns2:pos>
+                        <gml:pos>25 31</gml:pos>
+                        <gml:pos>27 32 </gml:pos>
                     </gml:LineString>
                     ​
                 </ogc:Contains>
