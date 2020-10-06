@@ -502,7 +502,7 @@ const View = Marionette.LayoutView.extend({
         case 'INTERSECTS':
           if (CQLUtils.isPolygonFilter(filter.value)) {
             this.handleFilterAsPolygon(filter.value, color, filter.distance)
-          } else if (CQLUtils.isLineFilter) {
+          } else if (CQLUtils.isLineFilter(filter.value)) {
             this.handleFilterAsLine(filter, color)
           }
           break
