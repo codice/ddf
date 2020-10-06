@@ -255,10 +255,11 @@
                                     <version>${servicemix.specs.version}</version>
                                     <outputDirectory>${setup.folder}/endorsed</outputDirectory>
                                 </artifactItem>
+                                <!-- Can't use servicemix bundle because of https://issues.apache.org/jira/browse/SM-4352 -->
                                 <artifactItem>
-                                    <groupId>org.apache.servicemix.specs</groupId>
-                                    <artifactId>org.apache.servicemix.specs.activation-api-1.2.1</artifactId>
-                                    <version>${jakarta.activation.bundle.version}</version>
+                                    <groupId>jakarta.activation</groupId>
+                                    <artifactId>jakarta.activation-api</artifactId>
+                                    <version>${jakarta.activation.version}</version>
                                     <outputDirectory>${setup.folder}/endorsed</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
