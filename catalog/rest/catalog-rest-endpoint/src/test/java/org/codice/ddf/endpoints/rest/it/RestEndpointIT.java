@@ -235,9 +235,7 @@ public class RestEndpointIT extends AbstractComponentTest {
                 super.get(),
                 CoreOptions.bootClasspathLibraries(
                     new BootClasspathLibraryOption(
-                        CoreOptions.maven(
-                                "org.apache.servicemix.specs",
-                                "org.apache.servicemix.specs.activation-api-1.2.1")
+                        CoreOptions.maven("jakarta.activation", "jakarta.activation-api")
                             .versionAsInProject()),
                     new BootClasspathLibraryOption(
                         CoreOptions.maven("jakarta.annotation", "jakarta.annotation-api")
