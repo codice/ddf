@@ -92,10 +92,12 @@ function generateAnyGeoFilter(property, model) {
         value:
           'LINESTRING' +
           sanitizeForCql(JSON.stringify(lineToCQLLine(model.line))),
-        distance: DistanceUtils.getDistanceInMeters(
-          model.lineWidth,
-          model.lineUnits
-        ),
+        ...(model.lineWidth && {
+          distance: DistanceUtils.getDistanceInMeters(
+            model.lineWidth,
+            model.lineUnits
+          ),
+        }),
       }
     case 'POLYGON':
       if (!Array.isArray(model.polygon)) {
