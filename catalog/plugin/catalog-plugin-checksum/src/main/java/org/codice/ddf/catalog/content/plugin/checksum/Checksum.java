@@ -27,12 +27,19 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.checksum.ChecksumProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Checksum implements PreCreateStoragePlugin, PreUpdateStoragePlugin {
-  private final ChecksumProvider checksumProvider;
 
-  public Checksum(ChecksumProvider checksumProvider) {
-    this.checksumProvider = checksumProvider;
+  private static final Logger LOGGER = LoggerFactory.getLogger(Checksum.class);
+
+  private final List<ChecksumProvider> checksumProviders;
+
+  private ChecksumProvider checksumProvider;
+
+  public Checksum(List<ChecksumProvider> checksumProviders) {
+    this.checksumProviders = checksumProviders;
   }
 
   @Override
@@ -56,6 +63,12 @@ public class Checksum implements PreCreateStoragePlugin, PreUpdateStoragePlugin 
   }
 
   private void runChecksum(List<ContentItem> contentItems) throws PluginExecutionException {
+    if (checksumProvider == null) {
+      LOGGER.debug(
+          "Checksum provider was null, double check configuration is a valid checksum algorithm.");
+      return;
+    }
+
     for (ContentItem contentItem : contentItems) {
       if (StringUtils.isNotEmpty(contentItem.getQualifier())) {
         // We are dealing with a derived resource, and this Metacard's checksum should reflect the
@@ -87,5 +100,13 @@ public class Checksum implements PreCreateStoragePlugin, PreUpdateStoragePlugin 
       Metacard metacard, final String checksumAlgorithm, final String checksumValue) {
     metacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM_ALGORITHM, checksumAlgorithm));
     metacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM, checksumValue));
+  }
+
+  public void setChecksumAlgorithm(String checksumAlgorithm) {
+    this.checksumProvider =
+        checksumProviders.stream()
+            .filter(provider -> provider.getChecksumAlgorithm().equals(checksumAlgorithm))
+            .findFirst()
+            .orElse(null);
   }
 }

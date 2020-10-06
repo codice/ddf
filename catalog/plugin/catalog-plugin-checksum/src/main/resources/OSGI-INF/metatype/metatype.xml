@@ -11,15 +11,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
--->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="adler32ChecksumProvider" class="org.codice.ddf.checksum.impl.Adler32ChecksumProvider" />
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <bean id="sha256ChecksumProvider" class="org.codice.ddf.checksum.impl.Sha256ChecksumProvider" />
+    <OCD name="Checksum Plugin"
+         id="org.codice.ddf.catalog.content.plugin.checksum.Checksum">
 
-    <service ref="adler32ChecksumProvider" interface="org.codice.ddf.checksum.ChecksumProvider"/>
+        <AD description="Checksum Algorithm to be used on Metacards.  Currently SHA-256 and Adler32 are supported."
+            name="Checksum Algorithm" id="checksumAlgorithm"
+            type="String"
+            default="Adler32"/>
 
-    <service ref="sha256ChecksumProvider" interface="org.codice.ddf.checksum.ChecksumProvider"/>
+    </OCD>
 
-</blueprint>
+    <Designate pid="org.codice.ddf.catalog.content.plugin.checksum.Checksum">
+        <Object ocdref="org.codice.ddf.catalog.content.plugin.checksum.Checksum"/>
+    </Designate>
+
+</metatype:MetaData>
