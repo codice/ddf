@@ -27,5 +27,6 @@
     <modules>
         <module>ddf-docker</module>
         <module>solr-docker</module>
+        <module>solrcloud</module>
     </modules>
 </project>
