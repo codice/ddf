@@ -28,6 +28,7 @@ const List = require('../../js/model/List.js')
 var DropdownView = require('../dropdown/popout/dropdown.popout.view.js')
 const ListFilterView = require('../result-filter/list/result-filter.list.view.js')
 const properties = require('../../js/properties.js')
+const CQLUtils = require('../../js/CQLUtils.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-editor'),
@@ -133,7 +134,9 @@ module.exports = Marionette.LayoutView.extend({
     this.listCQL.show(
       DropdownView.createSimpleDropdown({
         componentToShow: ListFilterView,
-        defaultSelection: this.model.get('list.cql'),
+        defaultSelection: this.model.get('list.filters')
+          ? this.model.get('list.filters')
+          : '',
         leftIcon: 'fa fa-pencil',
         label: 'Edit Filter',
       })
@@ -183,6 +186,7 @@ module.exports = Marionette.LayoutView.extend({
   saveCQL() {
     const shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0]
     let cql = ''
+    let filters
     if (this.listTemplateId !== 'custom') {
       cql = properties.listTemplates.filter(
         template => template.id === this.listTemplateId
@@ -190,7 +194,20 @@ module.exports = Marionette.LayoutView.extend({
     } else if (shouldLimit === true) {
       cql = this.listCQL.currentView.model.getValue()
     }
+
+    if (typeof cql !== 'string') {
+      if (!cql.filters || cql.filters.length > 0) {
+        filters = cql
+        cql = CQLUtils.transformFilterToCQL(filters)
+      } else {
+        cql = ''
+      }
+    } else if (cql !== '') {
+      filters = CQLUtils.transformCQLToFilter(cql)
+    }
+
     this.model.set('list.cql', cql)
+    this.model.set('list.filters', filters)
   },
   save() {
     this.saveTitle()

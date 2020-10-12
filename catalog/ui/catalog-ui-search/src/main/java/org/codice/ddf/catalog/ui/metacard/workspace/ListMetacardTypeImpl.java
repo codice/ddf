@@ -34,6 +34,8 @@ public class ListMetacardTypeImpl extends MetacardTypeImpl {
 
   public static final String LIST_BOOKMARKS = "list.bookmarks";
 
+  public static final String LIST_FILTERS = "list.filters";
+
   private static final Set<AttributeDescriptor> LIST_DESCRIPTORS;
 
   static {
@@ -68,6 +70,15 @@ public class ListMetacardTypeImpl extends MetacardTypeImpl {
             true /* stored */,
             false /* tokenized */,
             true /* multivalued */,
+            BasicTypes.STRING_TYPE));
+
+    LIST_DESCRIPTORS.add(
+        new AttributeDescriptorImpl(
+            LIST_FILTERS,
+            false /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            false /* multivalued */,
             BasicTypes.STRING_TYPE));
   }
 
