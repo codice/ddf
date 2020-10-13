@@ -63,7 +63,7 @@
         <httpclient4-version>4.5.12</httpclient4-version>
         <httpcore4-version>4.4.13</httpcore4-version>
         <jackson2-version>${jackson.version}</jackson2-version>
-        <jakarta-mail-version>1.6.5</jakarta-mail-version> <!-- TODO: Upgrade DDF to Jakarta Mail -->
+        <jakarta-mail-version>${jakarta.mail.version}</jakarta-mail-version>
         <javax-servlet-api-version>3.1.0</javax-servlet-api-version>
         <jodatime2-bundle-version>${joda-time.version}</jodatime2-bundle-version>
         <junit-bundle-version>4.11_1</junit-bundle-version>
@@ -158,7 +158,7 @@
         <cxf.dom4j.bundle.version>${dom4j.bundle.version}</cxf.dom4j.bundle.version>
         <cxf.fastinfoset.bundle.version>1.2.18_1</cxf.fastinfoset.bundle.version>
         <cxf.istack.bundle.version>3.0.7</cxf.istack.bundle.version>
-        <cxf.jakarta.mail.version>1.6.5</cxf.jakarta.mail.version>
+        <cxf.jakarta.mail.version>${jakarta.mail.version}</cxf.jakarta.mail.version>
         <cxf.jasypt.bundle.version>1.9.3_1</cxf.jasypt.bundle.version>
         <cxf.jaxb.bundle.version>2.3.2_1</cxf.jaxb.bundle.version>
         <cxf.jdom.bundle.version>${jdom.bundle.version}</cxf.jdom.bundle.version>

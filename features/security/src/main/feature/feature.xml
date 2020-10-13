@@ -50,7 +50,7 @@
 
         <!-- Miscellaneous -->
         <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
-        <bundle>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
+        <bundle>mvn:com.sun.mail/jakarta.mail/${jakarta.mail.version}</bundle>
         <!--
             net.minidev/accessors-smart/1.2 uses asm v5.x. Need this resolved before we can upgrade:
             https://bitbucket.org/connect2id/nimbus-jose-jwt/issues/239/switch-to-other-json-library
