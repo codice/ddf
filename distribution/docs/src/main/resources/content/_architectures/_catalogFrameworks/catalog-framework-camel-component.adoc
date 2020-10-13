@@ -77,7 +77,7 @@ This example demonstrates:
 <route>
  <from uri="file:data/sampleData?noop=true“/>
     <bean ref="sampleDataToMetacardConverter" method="covertToMetacard"/>\
-   <setHeader headerName="operation">
+   <setHeader name="operation">
   <constant>CREATE</constant>
  </setHeader>
     <to uri="catalog:framework"/>
