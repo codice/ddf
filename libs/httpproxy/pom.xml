@@ -33,13 +33,6 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <artifactId>camel-parent</artifactId>
-                <groupId>org.apache.camel</groupId>
-                <version>${camel.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${org.slf4j.version}</version>
