@@ -155,7 +155,7 @@ public class ResultIterable implements Iterable<Result> {
   private static class ResultIterator implements Iterator<Result> {
 
     private final QueryFunction queryFunction;
-    private final Set<String> foundIds = new HashSet<>(2048);
+    private final Set<String> foundIds = new HashSet<>();
     private int currentIndex;
     private QueryImpl queryCopy;
     private QueryRequestImpl queryRequestCopy;
