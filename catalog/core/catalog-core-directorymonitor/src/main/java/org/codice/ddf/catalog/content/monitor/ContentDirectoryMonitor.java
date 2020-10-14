@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +37,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.FromDefinition;
+import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.ThreadsDefinition;
 import org.apache.commons.collections.CollectionUtils;
@@ -117,7 +119,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       int delayBetweenRetries,
       Executor configurationExecutor,
       Security security) {
-    this.camelContext = camelContext;
+    this.camelContext = Objects.requireNonNull(camelContext, "CamelContext cannot be null");
     this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;
@@ -216,10 +218,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       try {
         String routeId = routeDef.getId();
         LOGGER.trace("Stopping route with ID = {} and path {}", routeId, monitoredDirectory);
-        camelContext.stopRoute(routeId);
+        camelContext.getRouteController().stopRoute(routeId);
         boolean status = camelContext.removeRoute(routeId);
         LOGGER.trace("Status of removing route {} is {}", routeId, status);
-        camelContext.removeRouteDefinition(routeDef);
+        camelContext.adapt(ModelCamelContext.class).removeRouteDefinition(routeDef);
       } catch (Exception e) {
         LOGGER.debug("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
       }
@@ -418,21 +420,16 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private void dumpCamelContext(String msg) {
     LOGGER.debug("\n\n***************  START: {}  *****************", msg);
-    List<RouteDefinition> routeDefinitions = camelContext.getRouteDefinitions();
+    List<RouteDefinition> routeDefinitions =
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions();
     if (routeDefinitions != null) {
       LOGGER.debug("Number of routes = {}", routeDefinitions.size());
       for (RouteDefinition routeDef : routeDefinitions) {
         String routeId = routeDef.getId();
         LOGGER.debug("route ID = {}", routeId);
-        List<FromDefinition> routeInputs = routeDef.getInputs();
-        if (routeInputs.isEmpty()) {
-          LOGGER.debug("routeInputs are EMPTY");
-        } else {
-          for (FromDefinition fromDef : routeInputs) {
-            LOGGER.debug("route input's URI = {}", fromDef.getUri());
-          }
-        }
-        ServiceStatus routeStatus = camelContext.getRouteStatus(routeId);
+        FromDefinition routeInput = routeDef.getInput();
+        LOGGER.debug("route input URI = {}", routeInput);
+        ServiceStatus routeStatus = camelContext.getRouteController().getRouteStatus(routeId);
         if (routeStatus != null) {
           LOGGER.debug("Route ID {} is started = {}", routeId, routeStatus.isStarted());
         } else {

@@ -32,10 +32,11 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
+import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.builder.NoErrorHandlerBuilder;
 import org.apache.camel.component.bean.ProxyHelper;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.SimpleRegistry;
+import org.apache.camel.support.DefaultRegistry;
 import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformationService;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer;
@@ -57,13 +58,15 @@ public class FeatureTransformationServiceTest {
   @Before
   public void setup() throws Exception {
     setupTransformers();
-    SimpleRegistry registry = new SimpleRegistry();
-    registry.put("wfsTransformerProcessor", new WfsTransformerProcessor(transformerList));
+    DefaultRegistry registry = new DefaultRegistry();
+    registry.bind("wfsTransformerProcessor", new WfsTransformerProcessor(transformerList));
 
     this.camelContext = new DefaultCamelContext(registry);
     camelContext.setTracing(true);
     camelContext.addRoutes(new WfsRouteBuilder());
-    camelContext.setErrorHandlerBuilder(new NoErrorHandlerBuilder());
+    camelContext
+        .adapt(ExtendedCamelContext.class)
+        .setErrorHandlerFactory(new NoErrorHandlerBuilder());
 
     Endpoint endpoint = camelContext.getEndpoint(WfsRouteBuilder.FEATURECOLLECTION_ENDPOINT_URL);
     featureTransformationService =

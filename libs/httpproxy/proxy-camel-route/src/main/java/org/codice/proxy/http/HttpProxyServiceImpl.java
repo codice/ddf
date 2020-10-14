@@ -255,7 +255,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
       LOGGER.debug("Stopping proxy route at endpoint: {}", endpointName);
       LOGGER.debug("Route list before = {}", Arrays.toString(camelContext.getRoutes().toArray()));
     }
-    camelContext.stopRoute(endpointName);
+    camelContext.getRouteController().stopRoute(endpointName);
     camelContext.removeRoute(endpointName);
     endpointIds.remove(endpointName);
     if (LOGGER.isDebugEnabled()) {

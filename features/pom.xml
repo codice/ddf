@@ -100,7 +100,7 @@
         <cxf.commons-lang3.version>${commons-lang3.version}</cxf.commons-lang3.version>
         <cxf.commons-text.version>1.9</cxf.commons-text.version>
         <cxf.dropwizard3.version>3.2.6</cxf.dropwizard3.version>
-        <cxf.dropwizard4.version>4.1.12.1</cxf.dropwizard4.version>
+        <cxf.dropwizard4.version>${dropwizard.version}</cxf.dropwizard4.version>
         <cxf.ehcache3.version>3.8.1</cxf.ehcache3.version>
         <cxf.geronimo.j2ee.management.version>1.0.1</cxf.geronimo.j2ee.management.version>
         <cxf.geronimo.jms.version>${geronimo-jms-spec-version}</cxf.geronimo.jms.version>

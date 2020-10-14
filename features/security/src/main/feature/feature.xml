@@ -159,7 +159,7 @@
 
         <!-- JavaX -->
         <bundle>mvn:javax.el/javax.el-api/3.0.0</bundle>
-        <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
+        <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api.version}</bundle>
 
         <!-- Apache -->
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>

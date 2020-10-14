@@ -21,7 +21,7 @@ import java.io.IOException;
 import javax.activation.MimeTypeParseException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.apache.camel.impl.DefaultProducer;
+import org.apache.camel.support.DefaultProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
