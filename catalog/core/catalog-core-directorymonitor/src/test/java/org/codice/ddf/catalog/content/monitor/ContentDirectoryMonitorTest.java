@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.mock;
 
 import ddf.catalog.Constants;
@@ -34,6 +35,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mock.MockComponent;
 import org.apache.camel.model.FromDefinition;
+import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -123,11 +125,11 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.DELETE);
     assertThat(
         "The content directory monitor should not have any route definitions",
-        camelContext.getRouteDefinitions(),
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions(),
         empty());
     assertThat(
         "The camel context should not have any route definitions",
-        camelContext.getRouteDefinitions(),
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions(),
         empty());
   }
 
@@ -150,9 +152,10 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     submitConfigOptions(monitor, monitoredDirectoryPath, processingMechanism);
     assertThat(
         "The content directory monitor should only have one route definition",
-        camelContext.getRouteDefinitions(),
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions(),
         hasSize(1));
-    RouteDefinition routeDefinition = camelContext.getRouteDefinitions().get(0);
+    RouteDefinition routeDefinition =
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().get(0);
     verifyRoute(routeDefinition, monitoredDirectoryPath, processingMechanism);
   }
 
@@ -238,7 +241,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         ATTRIBUTE_OVERRIDES,
         1,
         1000);
-    RouteDefinition routeDefinition = camelContext.getRouteDefinitions().get(0);
+    RouteDefinition routeDefinition =
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().get(0);
     assertThat(
         routeDefinition.toString(),
         containsString(
@@ -286,11 +290,11 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     submitConfigOptions(monitor, "", ContentDirectoryMonitor.MOVE);
     assertThat(
         "Camel context should not have any route definitions",
-        camelContext.getRouteDefinitions(),
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions(),
         empty());
     assertThat(
         "Content directory monitor should not have any route definitions",
-        camelContext.getRouteDefinitions(),
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions(),
         empty());
   }
 
@@ -342,9 +346,9 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
   private void verifyRoute(
       RouteDefinition routeDefinition, String monitoredDirectory, String processingMechanism) {
-    List<FromDefinition> fromDefinitions = routeDefinition.getInputs();
-    assertThat(fromDefinitions.size(), is(1));
-    String uri = fromDefinitions.get(0).getUri();
+    FromDefinition fromDefinition = routeDefinition.getInput();
+    assertThat(fromDefinition, isNotNull());
+    String uri = fromDefinition.getUri();
 
     String expectedUri =
         "file:"

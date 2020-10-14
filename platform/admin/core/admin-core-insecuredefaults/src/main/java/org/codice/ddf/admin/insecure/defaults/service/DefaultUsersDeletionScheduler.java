@@ -59,7 +59,8 @@ public class DefaultUsersDeletionScheduler {
     if (cron == null) {
       return false;
     }
-    if (context != null && context.getRouteStatus(ROUTE_ID) != ServiceStatus.Started) {
+    if (context != null
+        && context.getRouteController().getRouteStatus(ROUTE_ID) != ServiceStatus.Started) {
       try {
         RouteBuilder builder =
             new RouteBuilder() {
@@ -187,9 +188,9 @@ public class DefaultUsersDeletionScheduler {
   public void deleteScheduledDeletions() {
     try {
       if (context.getRoute(ROUTE_ID) != null
-          && context.getRouteStatus(ROUTE_ID).isStarted()
-          && context.getRouteStatus(ROUTE_ID).isStoppable()) {
-        context.stopRoute(ROUTE_ID);
+          && context.getRouteController().getRouteStatus(ROUTE_ID).isStarted()
+          && context.getRouteController().getRouteStatus(ROUTE_ID).isStoppable()) {
+        context.getRouteController().stopRoute(ROUTE_ID);
         Files.deleteIfExists(getTempTimestampFilePath());
         LOGGER.debug("The deletion of default users has been stopped successfully.");
       }

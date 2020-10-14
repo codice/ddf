@@ -27,7 +27,9 @@ import org.apache.camel.component.file.GenericFileConsumer;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperationFailedException;
 import org.apache.camel.component.file.GenericFileOperations;
+import org.apache.camel.component.file.GenericFileProcessStrategy;
 import org.apache.camel.component.file.GenericFileProducer;
+import org.apache.camel.component.file.strategy.FileProcessStrategyFactory;
 import org.apache.camel.component.file.strategy.GenericFileNoOpProcessStrategy;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
@@ -52,7 +54,7 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
   private String remaining;
 
   @UriPath(name = "directoryName")
-  @Metadata(required = "true")
+  @Metadata(required = true)
   private File file;
 
   DurableFileEndpoint(
@@ -113,6 +115,12 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
   }
 
   @Override
+  protected GenericFileProcessStrategy<File> createGenericFileStrategy() {
+    return (new FileProcessStrategyFactory())
+        .createGenericFileProcessStrategy(this.getCamelContext(), this.getParamsAsMap());
+  }
+
+  @Override
   protected String createEndpointUri() {
     return file.toURI().toString();
   }
@@ -129,6 +137,12 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
 
   private static class EventfulFileWrapperGenericFileOperations
       implements GenericFileOperations<File> {
+
+    @Override
+    public GenericFile<File> newGenericFile() {
+      return new GenericFile<>();
+    }
+
     @Override
     public void setEndpoint(GenericFileEndpoint<File> endpoint) {
       // do nothing

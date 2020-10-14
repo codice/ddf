@@ -44,10 +44,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core-osgi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
             <artifactId>camel-http-common</artifactId>
             <exclusions>
                 <exclusion>
@@ -90,8 +86,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             proxy-camel-route,
-                            proxy-camel-servlet,
-                            camel-core-osgi
+                            proxy-camel-servlet
                         </Embed-Dependency>
                         <Export-Package />
                     </instructions>
