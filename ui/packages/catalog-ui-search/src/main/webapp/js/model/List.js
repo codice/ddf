@@ -36,6 +36,9 @@ const iconMap = {
   tasks: 'fa fa-tasks',
 }
 
+// This is a list of model attributes that are deprecated, and will be removed in future
+const IGNORED_DEPRECATED_ATTRIBUTES = ['list.cql']
+
 function getRelevantIcon(iconName) {
   return iconMap[iconName]
 }
@@ -82,8 +85,7 @@ module.exports = Backbone.AssociatedModel.extend(
       return {
         id: Common.generateUUID(),
         title: 'Untitled List',
-        'list.cql': '',
-        'list.filters': undefined,
+        'list.filters': undefined, //list.cql is being deprecated in favor of list.filters
         'list.icon': 'folder',
         'list.bookmarks': [],
         query: undefined,
@@ -112,32 +114,36 @@ module.exports = Backbone.AssociatedModel.extend(
     },
     set(data, ...args) {
       if (typeof data === 'object') {
-        if (data['list.cql']) {
+        // for backwards compatability
+        if (data['list.cql'] && !data['list.filters']) {
           try {
             const filterTree = CQLUtils.transformCQLToFilter(data['list.cql'])
-            if (!data['list.filters']) {
-              data['list.filters'] = simplifyListFilter(filterTree)
-            }
+            data['list.filters'] = simplifyListFilter(filterTree)
           } catch (e) {
             console.log('Invalid cql: ' + data['list.cql'])
-            data['list.cql'] = ''
-            data['list.filters'] = undefined
           }
-        }
-
-        if (data['list.filters'] && typeof data['list.filters'] === 'string') {
-          // for backwards compatability
+          data['list.cql'] = undefined
+        } else if (
+          data['list.filters'] &&
+          typeof data['list.filters'] === 'string'
+        ) {
           try {
             data['list.filters'] = JSON.parse(data['list.filters'])
           } catch (e) {
-            const filterTree = CQLUtils.transformCQLToFilter(data['list.cql'])
-            data['list.filters'] = simplifyListFilter(filterTree)
+            data['list.filters'] = undefined
           }
         }
       } else if (data === 'list.filters' && args.length == 1) {
         args = [simplifyListFilter(args[0])]
       }
-      return Backbone.AssociatedModel.prototype.set.call(this, data, ...args)
+      if (!IGNORED_DEPRECATED_ATTRIBUTES.includes(data)) {
+        return Backbone.AssociatedModel.prototype.set.call(this, data, ...args)
+      }
+    },
+    get(attr) {
+      if (!IGNORED_DEPRECATED_ATTRIBUTES.includes(attr)) {
+        return Backbone.AssociatedModel.prototype.get.call(this, attr)
+      }
     },
     toJSON(...args) {
       const json = Backbone.AssociatedModel.prototype.toJSON.call(this, ...args)

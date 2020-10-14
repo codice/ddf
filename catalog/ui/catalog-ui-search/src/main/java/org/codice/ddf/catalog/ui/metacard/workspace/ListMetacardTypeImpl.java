@@ -49,7 +49,7 @@ public class ListMetacardTypeImpl extends MetacardTypeImpl {
         new AttributeDescriptorImpl(
             LIST_CQL,
             false /* indexed */,
-            true /* stored */,
+            false /* stored */,
             false /* tokenized */,
             false /* multivalued */,
             BasicTypes.STRING_TYPE));
