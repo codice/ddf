@@ -23,6 +23,12 @@ public interface MetacardType extends Serializable {
   String DEFAULT_METACARD_TYPE_NAME = "ddf.metacard";
 
   /**
+   * The name for the value returned by {@link #getName()} to be used when serializing the metacard
+   * type name.
+   */
+  String METACARD_TYPE = "metacard-type";
+
+  /**
    * Gets the name of this {@code MetacardType}. A MetacardType name must be unique. Two separate
    * MetacardType objects that do not have the same set of AttributeDescriptors should not have the
    * same name.

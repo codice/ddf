@@ -19,6 +19,9 @@ import static ddf.catalog.transformer.csv.common.CsvTransformer.writeMetacardsTo
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.Serializable;
@@ -61,8 +64,23 @@ public class CsvMetacardTransformer implements MetacardTransformer {
             : allAttributes.stream()
                 .filter(attr -> attributes.contains(attr.getName()))
                 .collect(Collectors.toList());
+
+    if (shouldInjectMetacardType(attributes)) {
+      injectMetacardType(descriptors);
+    }
+
     Appendable appendable =
         writeMetacardsToCsv(Collections.singletonList(metacard), descriptors, aliases);
     return createResponse(appendable);
+  }
+
+  private void injectMetacardType(List<AttributeDescriptor> descriptors) {
+    descriptors.add(
+        new AttributeDescriptorImpl(
+            MetacardType.METACARD_TYPE, false, false, false, false, BasicTypes.STRING_TYPE));
+  }
+
+  private boolean shouldInjectMetacardType(List<String> attributes) {
+    return CollectionUtils.isEmpty(attributes) || attributes.contains(MetacardType.METACARD_TYPE);
   }
 }

@@ -23,6 +23,8 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +38,11 @@ import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
 public class MetacardIteratorTest {
+
+  private static final String SOURCE = "SOURCE";
+
+  private static final String METACARDTYPE = "METACARD_TYPE";
+
   private static final Object[][] ATTRIBUTE_DATA = {
     {"attribute1", "value1"}, {"attribute2", new Integer(101)}, {"attribute3", new Double(3.14159)}
   };
@@ -91,6 +98,36 @@ public class MetacardIteratorTest {
     assertThat(iterator.next(), is("value1\nvalue2\nvalue3"));
   }
 
+  @Test
+  public void testSourceId() {
+    ATTRIBUTE_DESCRIPTOR_LIST.clear();
+    METACARD_DATA_MAP.clear();
+
+    ATTRIBUTE_DESCRIPTOR_LIST.add(buildAttributeDescriptor(Core.SOURCE_ID, false));
+
+    Metacard metacard = buildMetacard();
+    when(metacard.getSourceId()).thenReturn(SOURCE);
+    Iterator<Serializable> iterator = new MetacardIterator(metacard, ATTRIBUTE_DESCRIPTOR_LIST);
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(SOURCE));
+  }
+
+  @Test
+  public void testMetacardType() {
+    ATTRIBUTE_DESCRIPTOR_LIST.clear();
+    METACARD_DATA_MAP.clear();
+
+    ATTRIBUTE_DESCRIPTOR_LIST.add(buildAttributeDescriptor(MetacardType.METACARD_TYPE, false));
+
+    Metacard metacard = buildMetacard();
+    MetacardType metacardType = mock(MetacardType.class);
+    when(metacardType.getName()).thenReturn(METACARDTYPE);
+    when(metacard.getMetacardType()).thenReturn(metacardType);
+    Iterator<Serializable> iterator = new MetacardIterator(metacard, ATTRIBUTE_DESCRIPTOR_LIST);
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(METACARDTYPE));
+  }
+
   @Test(expected = NoSuchElementException.class)
   public void testHasNext() {
     Metacard metacard = buildMetacard();
@@ -135,6 +172,12 @@ public class MetacardIteratorTest {
     when(attribute.getName()).thenReturn(name);
     when(attribute.getValue()).thenReturn(values.get(0));
     when(attribute.getValues()).thenReturn(values);
+    return attribute;
+  }
+
+  private Attribute buildEmptyAttribute(String name) {
+    Attribute attribute = mock(Attribute.class);
+    when(attribute.getName()).thenReturn(name);
     return attribute;
   }
 }
