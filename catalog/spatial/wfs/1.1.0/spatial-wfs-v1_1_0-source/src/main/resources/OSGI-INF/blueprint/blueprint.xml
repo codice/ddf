@@ -79,6 +79,7 @@
             <property name="metacardTypeEnhancers" ref="metacardTypeEnhancers"/>
             <property name="metacardMappers" ref="metacardMappers"/>
             <property name="srsName" value="EPSG:4326"/>
+            <property name="disableSorting" value="true"/>
 
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>

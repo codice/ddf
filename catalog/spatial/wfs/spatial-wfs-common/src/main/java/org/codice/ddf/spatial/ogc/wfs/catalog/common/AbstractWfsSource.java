@@ -13,13 +13,23 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.util.impl.MaskableImpl;
+import java.util.List;
+import java.util.function.Predicate;
+import javax.xml.namespace.QName;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractWfsSource extends MaskableImpl
     implements FederatedSource, ConnectedSource, ConfiguredService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWfsSource.class);
 
   protected static final String CERT_ALIAS_KEY = "certAlias";
 
@@ -57,5 +67,78 @@ public abstract class AbstractWfsSource extends MaskableImpl
 
   public void setSslProtocol(String sslProtocol) {
     this.sslProtocol = sslProtocol;
+  }
+
+  /**
+   * If a MetacardMapper cannot be found or there is no mapping for the incomingPropertyName, return
+   * null. This will cause a query to be constructed without an AbstractSortingClause.
+   */
+  protected String mapSortByPropertyName(
+      QName featureType, String incomingPropertyName, List<MetacardMapper> metacardMapperList) {
+    if (featureType == null || incomingPropertyName == null || metacardMapperList == null) {
+      return null;
+    }
+    metacardMapperList.forEach(
+        m -> {
+          LOGGER.debug(
+              "Sorting: Mapper: featureType {}, mapped property for {} : {}",
+              m.getFeatureType(),
+              incomingPropertyName,
+              m.getFeatureProperty(incomingPropertyName));
+        });
+    LOGGER.debug(
+        "Mapping sort proeprty: featureType {}, incomingPropertyName {}",
+        featureType,
+        incomingPropertyName);
+    MetacardMapper metacardToFeaturePropertyMapper =
+        lookupMetacardAttributeToFeaturePropertyMapper(featureType, metacardMapperList);
+    String mappedPropertyName = null;
+
+    if (metacardToFeaturePropertyMapper != null) {
+
+      if (org.apache.commons.lang.StringUtils.equals(Result.TEMPORAL, incomingPropertyName)
+          || org.apache.commons.lang.StringUtils.equals(Metacard.EFFECTIVE, incomingPropertyName)) {
+        mappedPropertyName =
+            org.apache.commons.lang.StringUtils.isNotBlank(
+                    metacardToFeaturePropertyMapper.getSortByTemporalFeatureProperty())
+                ? metacardToFeaturePropertyMapper.getSortByTemporalFeatureProperty()
+                : null;
+      } else if (org.apache.commons.lang.StringUtils.equals(
+          Result.RELEVANCE, incomingPropertyName)) {
+        mappedPropertyName =
+            org.apache.commons.lang.StringUtils.isNotBlank(
+                    metacardToFeaturePropertyMapper.getSortByRelevanceFeatureProperty())
+                ? metacardToFeaturePropertyMapper.getSortByRelevanceFeatureProperty()
+                : null;
+      } else if (org.apache.commons.lang.StringUtils.equals(
+          Result.DISTANCE, incomingPropertyName)) {
+        mappedPropertyName =
+            org.apache.commons.lang.StringUtils.isNotBlank(
+                    metacardToFeaturePropertyMapper.getSortByDistanceFeatureProperty())
+                ? metacardToFeaturePropertyMapper.getSortByDistanceFeatureProperty()
+                : null;
+      } else {
+        mappedPropertyName =
+            metacardToFeaturePropertyMapper.getFeatureProperty(incomingPropertyName);
+      }
+    }
+
+    LOGGER.debug("mapped sort proeprty from {} to {}", incomingPropertyName, mappedPropertyName);
+    return mappedPropertyName;
+  }
+
+  protected MetacardMapper lookupMetacardAttributeToFeaturePropertyMapper(
+      QName featureType, List<MetacardMapper> metacardMapperList) {
+
+    final Predicate<MetacardMapper> matchesFeatureType =
+        mapper -> mapper.getFeatureType().equals(featureType.toString());
+    return metacardMapperList.stream()
+        .filter(matchesFeatureType)
+        .findAny()
+        .orElseGet(
+            () -> {
+              LOGGER.debug("Could not find a MetacardMapper for featureType {}.", featureType);
+              return null;
+            });
   }
 }

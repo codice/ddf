@@ -70,6 +70,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import net.opengis.filter.v_1_1_0.FilterType;
+import net.opengis.filter.v_1_1_0.PropertyNameType;
+import net.opengis.filter.v_1_1_0.SortByType;
+import net.opengis.filter.v_1_1_0.SortOrderType;
+import net.opengis.filter.v_1_1_0.SortPropertyType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorType;
 import net.opengis.wfs.v_1_1_0.FeatureTypeType;
 import net.opengis.wfs.v_1_1_0.GetFeatureType;
@@ -106,6 +110,8 @@ import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.GetCapabilitiesRequest
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.reader.XmlSchemaMessageBodyReaderWfs11;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -248,6 +254,9 @@ public class WfsSource extends AbstractWfsSource {
 
   private static final String FEATURE_MEMBER_ELEMENT = "featureMember";
 
+  private static final String DISABLE_SORTING = "disableSorting";
+  private boolean disableSorting;
+
   static {
     try (InputStream properties =
         WfsSource.class.getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
@@ -327,6 +336,7 @@ public class WfsSource extends AbstractWfsSource {
     setWildcardChar((Character) configuration.get(WILDCARD_CHAR_KEY));
     setSingleChar((Character) configuration.get(SINGLE_CHAR_KEY));
     setEscapeChar((Character) configuration.get(ESCAPE_CHAR_KEY));
+    setDisableSorting((Boolean) configuration.get(DISABLE_SORTING));
 
     createClientFactory();
     configureWfsFeatures();
@@ -666,7 +676,9 @@ public class WfsSource extends AbstractWfsSource {
     if (origPageSize <= 0 || origPageSize > WFS_MAX_FEATURES_RETURNED) {
       origPageSize = WFS_MAX_FEATURES_RETURNED;
     }
-    QueryImpl modifiedQuery = new QueryImpl(query);
+
+    QueryImpl modifiedQuery =
+        new QueryImpl(query, 1, Constants.DEFAULT_PAGE_SIZE, query.getSortBy(), false, 300000L);
 
     int pageNumber = query.getStartIndex() / origPageSize + 1;
 
@@ -763,6 +775,30 @@ public class WfsSource extends AbstractWfsSource {
           if (areAnyFiltersSet(filter)) {
             wfsQuery.setFilter(filter);
           }
+          if (!this.disableSorting) {
+            if (query.getSortBy() != null) {
+              SortByType sortByType = buildSortBy(filterDelegateEntry.getKey(), query.getSortBy());
+              if (sortByType != null
+                  && sortByType.getSortProperty() != null
+                  && sortByType.getSortProperty().size() > 0) {
+                LOGGER.debug(
+                    "Sorting using sort property [{}] and sort order [{}].",
+                    sortByType.getSortProperty().get(0).getPropertyName(),
+                    sortByType.getSortProperty().get(0).getSortOrder());
+                wfsQuery.setSortBy(sortByType);
+              } else {
+                throw new UnsupportedQueryException(
+                    "Source "
+                        + this.getId()
+                        + " does not support specified sort property "
+                        + query.getSortBy().getPropertyName().getPropertyName()
+                        + " with sort order "
+                        + query.getSortBy().getSortOrder());
+              }
+            }
+          } else {
+            LOGGER.debug("Sorting is disabled.");
+          }
           queries.add(wfsQuery);
         } else {
           LOGGER.debug(
@@ -783,6 +819,43 @@ public class WfsSource extends AbstractWfsSource {
       throw new UnsupportedQueryException(
           "Unable to build query. No filters could be created from query criteria.");
     }
+  }
+
+  private SortByType buildSortBy(QName featureType, SortBy incomingSortBy) {
+    net.opengis.filter.v_1_1_0.ObjectFactory filterObjectFactory =
+        new net.opengis.filter.v_1_1_0.ObjectFactory();
+
+    String propertyName =
+        mapSortByPropertyName(
+            featureType, incomingSortBy.getPropertyName().getPropertyName(), metacardMappers);
+
+    if (propertyName != null) {
+
+      SortOrder sortOrder = incomingSortBy.getSortOrder();
+
+      SortPropertyType sortPropertyType = filterObjectFactory.createSortPropertyType();
+      PropertyNameType propertyNameType = filterObjectFactory.createPropertyNameType();
+      List<Serializable> props = Arrays.asList(propertyName);
+      propertyNameType.setContent(props);
+      sortPropertyType.setPropertyName(propertyNameType);
+
+      if (SortOrder.ASCENDING.equals(sortOrder)) {
+        sortPropertyType.setSortOrder(SortOrderType.ASC);
+      } else if (SortOrder.DESCENDING.equals(sortOrder)) {
+        sortPropertyType.setSortOrder(SortOrderType.DESC);
+      } else {
+        LOGGER.debug(
+            "Unable to build query. Unknown sort order of [{}].",
+            sortOrder == null ? null : sortOrder.identifier());
+        return null;
+      }
+
+      SortByType sortByType = filterObjectFactory.createSortByType();
+      sortByType.getSortProperty().add(sortPropertyType);
+
+      return sortByType;
+    }
+    return null;
   }
 
   private boolean areAnyFiltersSet(FilterType filter) {
@@ -1041,18 +1114,18 @@ public class WfsSource extends AbstractWfsSource {
 
   private void logMessage(GetFeatureType getFeature) {
     if (LOGGER.isDebugEnabled()) {
-      try {
-        StringWriter writer = new StringWriter();
-        JAXBContext contextObj = JAXBContext.newInstance(GetFeatureType.class);
+    try {
+      StringWriter writer = new StringWriter();
+      JAXBContext contextObj = JAXBContext.newInstance(GetFeatureType.class);
 
-        Marshaller marshallerObj = contextObj.createMarshaller();
-        marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+      Marshaller marshallerObj = contextObj.createMarshaller();
+      marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        marshallerObj.marshal(new ObjectFactory().createGetFeature(getFeature), writer);
-        LOGGER.debug("WfsSource {}: {}", getId(), writer);
-      } catch (JAXBException e) {
-        LOGGER.debug("An error occurred debugging the GetFeature request", e);
-      }
+      marshallerObj.marshal(new ObjectFactory().createGetFeature(getFeature), writer);
+      LOGGER.debug("WfsSource {}: {}", getId(), writer);
+    } catch (JAXBException e) {
+      LOGGER.debug("An error occurred debugging the GetFeature request", e);
+    }
     }
   }
 
@@ -1103,6 +1176,10 @@ public class WfsSource extends AbstractWfsSource {
 
   public void setEscapeChar(final Character escapeChar) {
     this.escapeChar = escapeChar;
+  }
+
+  public void setDisableSorting(final Boolean disableSorting) {
+    this.disableSorting = disableSorting;
   }
 
   @Override
