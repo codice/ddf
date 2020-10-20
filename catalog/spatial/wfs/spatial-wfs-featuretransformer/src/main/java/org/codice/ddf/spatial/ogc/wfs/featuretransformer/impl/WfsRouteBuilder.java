@@ -35,8 +35,8 @@ public final class WfsRouteBuilder extends RouteBuilder {
   public void configure() {
     from(FEATURECOLLECTION_ENDPOINT_URL)
         .id("TransformFeatureCollectionRoute")
-        .setHeader("metadata", simple("${body.getArgs()[1]}"))
-        .setHeader("xml", simple("${body.getArgs()[0]}"))
+        .setHeader("metadata", simple("${body[1]}"))
+        .setHeader("xml", simple("${body[0]}"))
         .setBody(simple("${header.metadata.featureMemberNodeNames}"))
         .streamCaching()
         .split(body(), new MetacardListAggregationStrategy())

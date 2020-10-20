@@ -19,6 +19,7 @@ import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.codice.ddf.admin.insecure.defaults.service.DefaultUsersDeletionScheduler.getTempTimestampFilePath;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
@@ -35,6 +36,7 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.spi.RouteController;
 import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.jaas.modules.BackingEngineFactory;
 import org.apache.karaf.jaas.modules.properties.PropertiesBackingEngineFactory;
@@ -58,6 +60,7 @@ public class DefaultUsersDeletionSchedulerTest {
   public void setup() throws IOException {
     temporaryFolder.create();
     context = mock(DefaultCamelContext.class);
+    when(context.getRouteController()).thenReturn(mock(RouteController.class));
     scheduler = new DefaultUsersDeletionScheduler(context);
     File testFile = temporaryFolder.newFile("users.properties");
     path = Paths.get(testFile.getPath());
