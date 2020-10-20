@@ -26,13 +26,16 @@ class MaskedTextField extends React.Component {
     // Sometimes the event variable is defined, other times it's undefined.
     // We must capture the event in a variable when it's defined
     // in order to leverage it in checks below even when it's undefined.
-    if (event) {
-      this.prevEvent = event
+    if (window.event) {
+      this.prevEvent = window.event
+    } else if (this.prevEvent === undefined) {
+      return value
     }
     if (
       value === undefined ||
       !value.includes('.') ||
-      (((event && event.type === 'input') || this.prevEvent.type === 'input') &&
+      (((window.event && window.event.type === 'input') ||
+        this.prevEvent.type === 'input') &&
         this.prevEvent.target.id === this.props.label)
     ) {
       return value
