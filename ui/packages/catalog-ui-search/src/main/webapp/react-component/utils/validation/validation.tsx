@@ -110,6 +110,8 @@ export function validateGeo(key: string, value: any) {
       return validateLinePolygon(key, value)
     case 'bbox':
       return validateBoundingBox(key, value)
+    case 'locationOption':
+      return validateLocationOption(value)
     default:
   }
 }
@@ -691,6 +693,16 @@ const getCorrectedDmsLonInput = (input: any) => {
   } else {
     return input
   }
+}
+
+function validateLocationOption(value: string) {
+  if (value === '' || value === undefined) {
+    return {
+      error: true,
+      message: "Please select a Location Option"
+    }
+  }
+  return initialErrorState
 }
 
 function getDefaultingErrorMessage(

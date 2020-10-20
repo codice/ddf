@@ -27,6 +27,7 @@ const PointRadius = require('./point-radius')
 const BoundingBox = require('./bounding-box')
 const Keyword = require('./keyword')
 const plugin = require('plugins/location')
+import { ErrorComponent } from '../utils/validation'
 
 const inputs = plugin({
   line: {
@@ -79,12 +80,21 @@ const Root = styled.div`
   height: ${props => (props.isOpen ? 'auto' : props.theme.minimumButtonSize)};
 `
 
+const ErrorWrapper = styled.div`
+margin-top: ${props => props.theme.minimumSpacing};
+`
+
 const Component = CustomElements.registerReact('location')
 const LocationInput = props => {
   const { mode, setState } = props
   const input = inputs[mode] || {}
   const { Component: Input = null } = input
+  const locOptionError = {
+    error: input.label === undefined,
+    message: "Please select a Location"
+  }
   return (
+    <React.Fragment>
     <Root isOpen={input.label !== undefined}>
       <Component>
         <Dropdown label={input.label || 'Select Location Option'}>
@@ -104,6 +114,10 @@ const LocationInput = props => {
         </Form>
       </Component>
     </Root>
+    <ErrorWrapper>
+      <ErrorComponent errorState={locOptionError} />
+    </ErrorWrapper>
+    </React.Fragment>
   )
 }
 
