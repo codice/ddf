@@ -66,7 +66,7 @@ public class DefaultUsersDeletionScheduler {
             new RouteBuilder() {
               @Override
               public void configure() throws Exception {
-                fromF("quartz2://scheduler/deletionTimer?cron=%s", cron)
+                fromF("quartz://scheduler/deletionTimer?cron=%s", cron)
                     .routeId(ROUTE_ID)
                     .bean(DefaultUsersDeletionScheduler.class, "removeDefaultUsers");
               }

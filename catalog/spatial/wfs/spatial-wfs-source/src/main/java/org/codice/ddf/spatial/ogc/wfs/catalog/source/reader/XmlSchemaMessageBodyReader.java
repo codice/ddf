@@ -15,19 +15,26 @@ package org.codice.ddf.spatial.ogc.wfs.catalog.source.reader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 import javax.xml.XMLConstants;
-import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.language.xpath.XPathBuilder;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaException;
+import org.apache.ws.commons.schema.utils.NamespaceMap;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,16 +47,24 @@ public class XmlSchemaMessageBodyReader implements MessageBodyReader<XmlSchema> 
 
   private static final String XSD_PREFIX = "xsd";
 
-  private static final String COUNT_XPATH = "count(/" + XSD_PREFIX + ":schema)";
-
-  private static final XPathBuilder COUNT_XPATH_BUILDER =
-      new XPathBuilder(COUNT_XPATH)
-          .namespace(XSD_PREFIX, XMLConstants.W3C_XML_SCHEMA_NS_URI)
-          .numberResult();
+  private static final XPathExpression IS_SCHEMA_XPATH;
 
   protected WfsUriResolver wfsUriResolver = new WfsUriResolver();
 
-  private DefaultCamelContext camelContext = new DefaultCamelContext();
+  static {
+    XPathExpression expression = null;
+    try {
+      XPathFactory xPathFactory = XPathFactory.newInstance();
+      NamespaceMap namespaceMap = new NamespaceMap();
+      namespaceMap.add(XSD_PREFIX, XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      XPath xpath = xPathFactory.newXPath();
+      xpath.setNamespaceContext(namespaceMap);
+      expression = xpath.compile("boolean(/" + XSD_PREFIX + ":schema)");
+    } catch (XPathExpressionException e) {
+      throw new ExceptionInInitializerError(e);
+    }
+    IS_SCHEMA_XPATH = expression;
+  }
 
   @Override
   public boolean isReadable(
@@ -66,20 +81,33 @@ public class XmlSchemaMessageBodyReader implements MessageBodyReader<XmlSchema> 
       MultivaluedMap<String, String> headers,
       InputStream inStream)
       throws IOException, WebApplicationException {
-    // Determine if this is an XMLSchema
-    String input = IOUtils.toString(inStream);
+
+    String input = IOUtils.toString(inStream, StandardCharsets.UTF_8);
     inStream.reset();
-    String count = COUNT_XPATH_BUILDER.evaluate(camelContext, input);
-    // See if there exactly one instance of "xsd:schema" in this doc
-    if (Integer.parseInt(count) == 1) {
-      XmlSchema schema = null;
+
+    if (isValid(new InputSource(inStream))) {
       XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
       schemaCollection.init();
       schemaCollection.setSchemaResolver(wfsUriResolver);
-      schema = schemaCollection.read(new InputSource(inStream));
-      return schema;
+      return schemaCollection.read(new StringReader(input));
+    } else {
+      LOGGER.debug("Did not receive valid XML Schema, instead got: \n{}", input);
+      return null;
     }
-    LOGGER.debug("Did not receive valid XML Schema, instead got: \n{}", input);
-    return null;
+  }
+
+  /**
+   * Checks that the given InputSource represents a valid schema. Schemas may contain external links
+   * and resolving them is slow, so instead of doing full validation against the XML schema schema,
+   * we just check for the "xsd:schema" element at the root.
+   *
+   * @param inputSource the schema to validate
+   */
+  private boolean isValid(InputSource inputSource) {
+    try {
+      return (boolean) IS_SCHEMA_XPATH.evaluate(inputSource, XPathConstants.BOOLEAN);
+    } catch (XPathExpressionException e) {
+      throw new XmlSchemaException("Unable to validate schema", e);
+    }
   }
 }

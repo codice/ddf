@@ -53,7 +53,6 @@
         <commons-codec-version>${commons-codec.version}</commons-codec-version>
         <commons-io-version>${commons-io.version}</commons-io-version>
         <commons-pool-version>${commons-pool.version}</commons-pool-version>
-        <cxf-version-range>[3.3,4.0)</cxf-version-range>
         <freemarker-version>2.3.30</freemarker-version>
         <geronimo-jms-spec-version>1.1.1</geronimo-jms-spec-version>
         <geronimo-jms2-spec-version>${geronimo-jms_2_spec.version}</geronimo-jms2-spec-version>

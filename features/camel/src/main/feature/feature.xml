@@ -61,7 +61,7 @@
   </feature>
   <feature name='camel-core' version='${camel.version}' start-level='50'>
     <!--feature version='${servicemix-specs-version}'>xml-specs-api</feature-->
-    <feature version="${project.version}">cxf-specs</feature>
+    <feature version="${cxf.version}">cxf-specs</feature>
     <bundle dependency='true'>mvn:com.github.ben-manes.caffeine/caffeine/${caffeine-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-api/${camel.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-management-api/${camel.version}</bundle>
@@ -506,7 +506,7 @@
     <feature version='${camel.version}'>camel-core</feature>
     <feature version='${spring-version-range}'>spring</feature>
     <feature version='${spring-version-range}'>spring-jms</feature>
-    <feature version='${karaf.version}'>transaction</feature>
+    <feature>transaction</feature>
     <!--bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta-spec-version}</bundle-->
     <bundle dependency='true'>mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms2-spec-version}</bundle>

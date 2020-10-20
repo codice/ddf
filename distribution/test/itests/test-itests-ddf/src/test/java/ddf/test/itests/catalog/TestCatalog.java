@@ -88,7 +88,6 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.camel.CamelContext;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor;
@@ -2517,7 +2516,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     if (!file.createNewFile()) {
       fail("Unable to create " + fileName + " file.");
     }
-    FileUtils.write(file, SAMPLE_DATA);
+    Files.write(file.toPath(), SAMPLE_DATA.getBytes());
     String fileLocation = file.toURI().toURL().toString();
     LOGGER.debug("File Location: {}", fileLocation);
     return ingest(getSimpleXml(fileLocation), "text/xml");
@@ -2528,7 +2527,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     if (!file.createNewFile()) {
       fail("Unable to create " + fileName + " file.");
     }
-    FileUtils.writeByteArrayToFile(file, IOUtils.toByteArray(data));
+    Files.write(file.toPath(), IOUtils.toByteArray(data));
     return file;
   }
 
