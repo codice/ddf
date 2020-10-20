@@ -113,7 +113,7 @@
 
         <jknack.handlebars.version>2.0.0</jknack.handlebars.version>
         <picocontainer.version>1.3_1</picocontainer.version>
-        <dom4j.bundle.version>1.6.1_5</dom4j.bundle.version>
+        <dom4j.bundle.version>2.1.3_1</dom4j.bundle.version>
 
         <!--Test properties-->
         <byte-buddy.version>1.6.14</byte-buddy.version>
@@ -153,7 +153,7 @@
         <asm.version>8.0.1</asm.version>
         <awaitility.version>3.1.5</awaitility.version>
         <aws-java-sdk-bundle.version>1.11.344_1</aws-java-sdk-bundle.version>
-        <bouncy.version>1.61</bouncy.version>
+        <bouncy.version>1.66</bouncy.version>
         <c3p0.version>0.9.5.4</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
@@ -172,7 +172,7 @@
         <commons-exec.version>1.3</commons-exec.version>
         <commons-io.version>2.6</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.9</commons-lang3.version>
+        <commons-lang3.version>3.11</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-net.version>3.5</commons-net.version>
@@ -181,7 +181,7 @@
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.1.8</countryconverter.version>
-        <cxf.version>3.2.12</cxf.version>
+        <cxf.version>3.4.0</cxf.version>
         <ddf-admin-ui.version>2.25.0</ddf-admin-ui.version>
         <decanter.version>1.3.0</decanter.version>
         <dropwizard.version>3.2.6</dropwizard.version>
@@ -200,18 +200,17 @@
         <google-http-client.version>1.22.0</google-http-client.version>
         <gml-v_3_1_1-schema.version>1.1.0</gml-v_3_1_1-schema.version>
         <gson.version>2.8.5</gson.version>
-        <guava.version-number>25.1</guava.version-number>
-        <guava.platform>jre</guava.platform>
-        <guava.version>${guava.version-number}-${guava.platform}</guava.version>
+        <guava.version>25.1-jre</guava.version>
         <hawtbuff.version>1.11</hawtbuff.version>
         <httpclient.version>4.5.12</httpclient.version>
-        <httpcore.version>4.4.10</httpcore.version>
+        <httpcore.version>4.4.13</httpcore.version>
         <httpmime.version>${httpclient.version}</httpmime.version>
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
         <jackson.version>2.11.0</jackson.version>
+        <jakarta.activation.version>1.2.1</jakarta.activation.version>
         <jasypt.version>1.9.3</jasypt.version>
-        <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
+        <javax.annotation-api.version>1.3.5</javax.annotation-api.version>
         <javax.cache.version>1.1.1</javax.cache.version>
         <javax.cache.bundle.version>1.1.0_1</javax.cache.bundle.version>
         <javax.inject.version>1</javax.inject.version>
@@ -219,7 +218,7 @@
         <javax.ws.rs.version>2.1</javax.ws.rs.version>
         <javax-el.version>3.0.0</javax-el.version>
         <javax-mail.version>1.6.2</javax-mail.version>
-        <jaxb.version>2.2.11</jaxb.version>
+        <jaxb.version>2.3.2</jaxb.version>
         <jvnet.jaxb2.version>0.10.0</jvnet.jaxb2.version>
         <jboss-logging.version>3.3.1.Final</jboss-logging.version>
         <jcodec.version>0.2.0_1</jcodec.version>
@@ -235,7 +234,8 @@
         <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.3</json-smart.version>
         <jsoup.version>1.11.3</jsoup.version>
-        <jsr305.version>3.0.2_1</jsr305.version>
+        <jsr305.version>3.0.2</jsr305.version>
+        <jsr305.bundle.version>${jsr305.version}_1</jsr305.bundle.version>
         <jsr339-api.bundle.version>2.6.0</jsr339-api.bundle.version>
         <jts.bundle.version>1.16.0_2</jts.bundle.version>
         <jts.spatial4j.version>1.16.0</jts.spatial4j.version>
@@ -261,7 +261,8 @@
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
         <opengis.bundle.version>${opengis.version}_3</opengis.bundle.version>
         <opengis.version>20.1</opengis.version>
-        <opensaml.osgi.version>3.3.0_2</opensaml.osgi.version>
+        <opensaml.version>3.4.5</opensaml.version>
+        <opensaml.osgi.version>3.4.5_2</opensaml.osgi.version>
         <nimbus.version>8.14.1</nimbus.version>
         <nimbus.oidc.version>8.3</nimbus.oidc.version>
         <nimbus.content-type.version>2.0</nimbus.content-type.version>
@@ -290,7 +291,9 @@
         <hazelcast.version>3.12.3</hazelcast.version>
         <saxon.version>9.6.0-4</saxon.version>
         <servicemix.bundles.poi.version>${poi.version}_1</servicemix.bundles.poi.version>
+        <servicemix.bundles.jaxb.version>${jaxb.version}_2</servicemix.bundles.jaxb.version>
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
+        <servicemix.specs.jaxb.version>2.3_3</servicemix.specs.jaxb.version>
         <servicemix.specs.version>2.9.0</servicemix.specs.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <smtp.client.version>1.7.1</smtp.client.version>
@@ -310,17 +313,17 @@
         <tika.version>1.24.1</tika.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
-        <woodstox.core.version>5.3.0</woodstox.core.version>
-        <woodstox.stax2-api.version>4.2</woodstox.stax2-api.version>
-        <wss4j.neethi.version>3.1.0</wss4j.neethi.version>
-        <wss4j.version>2.2.3</wss4j.version>
+        <woodstox.core.version>6.2.1</woodstox.core.version>
+        <woodstox.stax2-api.version>4.2.1</woodstox.stax2-api.version>
+        <wss4j.neethi.version>3.1.1</wss4j.neethi.version>
+        <wss4j.version>2.3.0</wss4j.version>
         <xalan.bundle.version>2.7.2_3</xalan.bundle.version>
         <xalan.version>2.7.2</xalan.version>
         <xerces.version>2.12.0</xerces.version>
         <xerces.bundle.version>2.12.0_1</xerces.bundle.version>
         <xml-apis.version>1.4.01</xml-apis.version>
         <xmlbeans.version>3.1.0</xmlbeans.version>
-        <xmlsec.version>2.1.4</xmlsec.version>
+        <xmlsec.version>2.2.0</xmlsec.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
         <xstream.version>1.4.11.1</xstream.version>
         <micrometer.version>1.5.1</micrometer.version>
@@ -337,7 +340,6 @@
         <fabric8.docker.plugin.version>0.27.1</fabric8.docker.plugin.version>
         <tink.version>1.4.0</tink.version>
         <org.json.version>20170516</org.json.version>
-        <ehcache.version>2.10.6</ehcache.version>
 
         <!--temporary solr download url> -->
         <solr.download.url>https://archive.apache.org/dist</solr.download.url>
@@ -358,11 +360,86 @@
     </scm>
     <dependencyManagement>
         <dependencies>
+            <!-- BEGIN: BOMs -->
             <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-bom</artifactId>
+                <version>${cxf.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <!-- Not declared in cxf-bom. Remove if that changes -->
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
+                <version>${cxf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>jakarta.servlet</groupId>
+                        <artifactId>jakarta.servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <!-- Not declared in cxf-bom. Remove if that changes -->
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-security-xml</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <!-- TODO: Use the OpenSAML BOM instead of declaring these individually. Can't do that
+                       right now because the BOM manages a bunch of other thirdparty dependencies,
+                       but check if that's changed when updating the OpenSAML version. See
+                       https://mvnrepository.com/artifact/org.opensaml/opensaml-bom -->
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-core</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xmlsec-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xmlsec-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-soap-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-bom</artifactId>
+                <version>${jaxb.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <!-- END: BOMs -->
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
                 <version>${jsr305.version}</version>
-                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.rrd4j</groupId>
@@ -393,18 +470,6 @@
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
                 <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>${ehcache.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-bom</artifactId>
-                <version>${jackson.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>org.codice.thirdparty</groupId>

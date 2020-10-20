@@ -170,8 +170,6 @@
         </bundle>
         <bundle>mvn:org.apache.santuario/xmlsec/${xmlsec.version}</bundle>
         <bundle start-level="30">mvn:org.apache.neethi/neethi/${wss4j.neethi.version}</bundle>
-        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-json-basic/${cxf.version}</bundle>
-        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-jose/${cxf.version}</bundle>
 
         <!-- Pax -->
         <config name="org.ops4j.pax.web" append="true">
@@ -292,10 +290,7 @@
              description="SAML features and bundles.">
         <feature>security-core-services</feature>
 
-        <!--  TODO (https://github.com/codice/ddf/issues/5327)
-                Remove wrapped OpenSAML after security refactor is complete  -->
-        <!--  <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${opensaml.osgi.version}-->
-        <!--  </bundle>-->
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${opensaml.osgi.version}</bundle>
         <bundle>mvn:ddf.lib.bundles/libs-bundles-opensaml/${project.version}</bundle>
 
         <bundle>mvn:ddf.security/security-saml-util/${project.version}</bundle>

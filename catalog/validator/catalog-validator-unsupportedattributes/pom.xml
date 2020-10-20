@@ -70,8 +70,7 @@
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Embed-Dependency>
-              catalog-core-api-impl,
-              platform-util,
+              catalog-core-api-impl
             </Embed-Dependency>
 0          </instructions>
         </configuration>

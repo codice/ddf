@@ -24,16 +24,6 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-ws-security</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>asm</groupId>
-                    <artifactId>asm</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
         </dependency>
@@ -74,7 +64,6 @@
         <dependency>
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-xmlsec-impl</artifactId>
-            <version>${opensaml.version}</version>
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
@@ -83,11 +72,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-ws-policy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
+            <artifactId>cxf-rt-bindings-soap</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -210,11 +195,6 @@
                 <artifactId>wss4j-ws-security-dom</artifactId>
                 <version>${wss4j.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-xmlsec-impl</artifactId>
-                <version>${opensaml.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -250,8 +230,6 @@
                             !org.mockito*,
                             !org.hamcrest*,
                             !org.junit*,
-                            org.opensaml.xmlsec.signature.support.provider,
-                            org.opensaml.*;version="${opensaml.version}",
                             *
                         </Import-Package>
                     </instructions>

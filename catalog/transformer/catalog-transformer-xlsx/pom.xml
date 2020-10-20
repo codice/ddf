@@ -64,15 +64,6 @@
             <artifactId>catalog-core-api-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>security-rest-clientapi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -83,9 +74,7 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            catalog-core-api-impl,
-                            platform-util,
-                            security-rest-clientapi
+                            catalog-core-api-impl
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                     </instructions>
