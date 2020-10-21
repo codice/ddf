@@ -81,7 +81,7 @@ const Root = styled.div`
 `
 
 const ErrorWrapper = styled.div`
-margin-top: ${props => props.theme.minimumSpacing};
+  margin-top: ${props => props.theme.minimumSpacing};
 `
 
 const Component = CustomElements.registerReact('location')
@@ -91,32 +91,35 @@ const LocationInput = props => {
   const { Component: Input = null } = input
   const locOptionError = {
     error: input.label === undefined,
-    message: "Please select a Location"
+    message: 'Please select a Location',
   }
   return (
     <React.Fragment>
-    <Root isOpen={input.label !== undefined}>
-      <Component>
-        <Dropdown label={input.label || 'Select Location Option'}>
-          <Menu value={mode} onChange={value => setState({ ['mode']: value })}>
-            {Object.keys(inputs).map(key => (
-              <MenuItem key={key} value={key}>
-                {inputs[key].label}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Dropdown>
-        <Form>
-          {Input !== null ? <Input {...props} /> : null}
-          {drawTypes.includes(mode) ? (
-            <DrawButton onDraw={props.onDraw} />
-          ) : null}
-        </Form>
-      </Component>
-    </Root>
-    <ErrorWrapper>
-      <ErrorComponent errorState={locOptionError} />
-    </ErrorWrapper>
+      <Root isOpen={input.label !== undefined}>
+        <Component>
+          <Dropdown label={input.label || 'Select Location Option'}>
+            <Menu
+              value={mode}
+              onChange={value => setState({ ['mode']: value })}
+            >
+              {Object.keys(inputs).map(key => (
+                <MenuItem key={key} value={key}>
+                  {inputs[key].label}
+                </MenuItem>
+              ))}
+            </Menu>
+          </Dropdown>
+          <Form>
+            {Input !== null ? <Input {...props} /> : null}
+            {drawTypes.includes(mode) ? (
+              <DrawButton onDraw={props.onDraw} />
+            ) : null}
+          </Form>
+        </Component>
+      </Root>
+      <ErrorWrapper>
+        <ErrorComponent errorState={locOptionError} />
+      </ErrorWrapper>
     </React.Fragment>
   )
 }
