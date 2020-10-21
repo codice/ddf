@@ -241,7 +241,6 @@
 
     <feature name="catalog-plugin-oauth" version="${project.version}"
              description="Catalog OAuth Plugin">
-        <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-oauth/${project.version}</bundle>
     </feature>
 
