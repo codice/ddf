@@ -41,6 +41,7 @@ import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 import javax.inject.Inject;
@@ -58,6 +59,7 @@ import org.codice.ddf.test.common.configurators.BundleOptionBuilder.BundleOption
 import org.codice.ddf.test.common.configurators.DdfComponentOptions;
 import org.codice.ddf.test.common.configurators.FeatureOptionBuilder.FeatureOption;
 import org.codice.ddf.test.common.configurators.PortFinder;
+import org.codice.ddf.test.common.options.TestResourcesOptions;
 import org.codice.ddf.test.common.rules.ServiceRegistrationRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -70,6 +72,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.BootClasspathLibraryOption;
+import org.ops4j.pax.exam.options.ModifiableCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.Bundle;
@@ -206,17 +209,12 @@ public class RestEndpointIT extends AbstractComponentTest {
 
       @Override
       protected FeatureOption getFeatureOptions() {
-        final String[] springFeatures = {
-          "spring-instrument", "spring-jms", "spring-test", "spring-web"
-        };
-
         final String[] cxfFeatures = {"cxf", "cxf-commands"};
-        final String[] utilitiesFeatures = {"action-core-impl", "common-system", "platform-util"};
-        final String[] kernelFeatures = {"apache-commons, guava"};
+        final String[] utilitiesFeatures = {"action-core-impl", "platform-util"};
+        final String[] kernelFeatures = {"kernel", "apache-commons", "guava"};
 
         return super.getFeatureOptions()
-            .addFeatures("org.apache.karaf.features", "spring", springFeatures)
-            .addFeatures("org.apache.cxf.karaf", "apache-cxf", cxfFeatures)
+            .addFeatures("ddf.features", "cxf", cxfFeatures)
             .addFeatures("ddf.features", "utilities", utilitiesFeatures)
             .addFeatures("ddf.features", "kernel", kernelFeatures)
             .addFeatureFrom("ddf.features", "test-utilities", "features", "rest-assured")
@@ -229,19 +227,38 @@ public class RestEndpointIT extends AbstractComponentTest {
 
       @Override
       public Option get() {
-        return CoreOptions.composite(
-            super.get(),
-            CoreOptions.bootClasspathLibraries(
-                new BootClasspathLibraryOption(
-                    CoreOptions.maven("javax.annotation", "javax.annotation-api", "1.3"))),
+        // Add activation and annotation bundles and expose them via the system bundle. This is
+        // the same thing that the DDF kernel does, but this test runs on the base Karaf distro, so
+        // we don't have those changes
+        ModifiableCompositeOption options =
+            CoreOptions.composite(
+                super.get(),
+                CoreOptions.bootClasspathLibraries(
+                    new BootClasspathLibraryOption(
+                        CoreOptions.maven("jakarta.activation", "jakarta.activation-api")
+                            .versionAsInProject()),
+                    new BootClasspathLibraryOption(
+                        CoreOptions.maven("jakarta.annotation", "jakarta.annotation-api")
+                            .versionAsInProject()),
+                    new BootClasspathLibraryOption(
+                        CoreOptions.maven("com.google.code.findbugs", "jsr305")
+                            .versionAsInProject())));
+        options.add(
             KarafDistributionOption.editConfigurationFilePut(
                 "etc/custom.properties",
-                "org.osgi.framework.system.packages.extra",
-                new StringBuilder()
-                    .append("javax.annotation;version=1.0.0,")
-                    .append("javax.annotation;version=1.3.2,")
-                    .append("javax.annotation;version=3.0.2")
-                    .toString()));
+                new File(TestResourcesOptions.getTestResource("/custom.properties"))));
+        // Add JAXB bundles. They must be installed before Karaf's org.apache.karaf.features.core
+        // bundle (which gets installed via startup.properties), hence the low start level.
+        options.add(
+            CoreOptions.mavenBundle(
+                    "org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.3")
+                .versionAsInProject()
+                .startLevel(13),
+            CoreOptions.mavenBundle(
+                    "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.jaxb-runtime")
+                .versionAsInProject()
+                .startLevel(14));
+        return options;
       }
     };
   }

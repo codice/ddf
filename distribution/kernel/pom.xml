@@ -146,12 +146,21 @@
                                     <destFileName>pro-grade-${pro-grade.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>javax.annotation</groupId>
-                                    <artifactId>javax.annotation-api</artifactId>
+                                    <groupId>jakarta.annotation</groupId>
+                                    <artifactId>jakarta.annotation-api</artifactId>
                                     <version>${javax.annotation-api.version}</version>
                                     <outputDirectory>${setup.folder}/ext</outputDirectory>
                                     <destFileName>
-                                        javax.annotation-api-${javax.annotation-api.version}.jar
+                                        jakarta.annotation-api-${javax.annotation-api.version}.jar
+                                    </destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.google.code.findbugs</groupId>
+                                    <artifactId>jsr305</artifactId>
+                                    <version>${jsr305.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>
+                                        jsr305-${jsr305.version}.jar
                                     </destFileName>
                                 </artifactItem>
                                 <!-- Crypter dependencies -->
@@ -246,10 +255,11 @@
                                     <version>${servicemix.specs.version}</version>
                                     <outputDirectory>${setup.folder}/endorsed</outputDirectory>
                                 </artifactItem>
+                                <!-- Can't use servicemix bundle because of https://issues.apache.org/jira/browse/SM-4352 -->
                                 <artifactItem>
-                                    <groupId>org.apache.servicemix.specs</groupId>
-                                    <artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
-                                    <version>${servicemix.specs.version}</version>
+                                    <groupId>jakarta.activation</groupId>
+                                    <artifactId>jakarta.activation-api</artifactId>
+                                    <version>${jakarta.activation.version}</version>
                                     <outputDirectory>${setup.folder}/endorsed</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
@@ -443,6 +453,16 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>${org.json.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.jaxb-api-2.3</artifactId>
+            <version>${servicemix.specs.jaxb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jaxb-runtime</artifactId>
+            <version>${servicemix.bundles.jaxb.version}</version>
         </dependency>
     </dependencies>
 </project>

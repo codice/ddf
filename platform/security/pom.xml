@@ -23,9 +23,6 @@
     <artifactId>platform-security</artifactId>
     <name>DDF Platform Security</name>
     <packaging>pom</packaging>
-    <properties>
-        <opensaml.version>3.3.0</opensaml.version>
-    </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -37,11 +34,6 @@
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>${validation.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.platform</groupId>
@@ -87,32 +79,6 @@
                 <groupId>ddf.security.core</groupId>
                 <artifactId>security-core-services</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-ws-policy</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
-                <version>${cxf.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>${geronimo-servlet-api.group}</groupId>
-                        <artifactId>${geronimo-servlet-api.artifact}</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-client</artifactId>
-                <version>${cxf.version}</version>
             </dependency>
             <dependency>
                 <artifactId>karaf</artifactId>
@@ -178,21 +144,6 @@
                 <groupId>xalan</groupId>
                 <artifactId>xalan</artifactId>
                 <version>2.7.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-core</artifactId>
-                <version>${opensaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-xmlsec-api</artifactId>
-                <version>${opensaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-soap-impl</artifactId>
-                <version>${opensaml.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

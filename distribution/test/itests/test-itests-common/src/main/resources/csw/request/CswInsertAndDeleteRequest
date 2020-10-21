@@ -6,9 +6,9 @@
     xmlns:ogc="http://www.opengis.net/ogc">
     <csw:Delete typeName="csw:Record" handle="something">
       <csw:Constraint version="2.0.0">
-        <ogc:CqlText>
+        <csw:CqlText>
           title = 'Aliquam fermentum purus quis arcu'
-        </ogc:CqlText>
+        </csw:CqlText>
       </csw:Constraint>
     </csw:Delete>
     <csw:Insert typeName="csw:Record">

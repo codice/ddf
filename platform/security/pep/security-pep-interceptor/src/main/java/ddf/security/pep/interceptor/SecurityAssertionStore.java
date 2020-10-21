@@ -20,10 +20,12 @@ import java.security.Principal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.tokenstore.TokenStore;
+import org.apache.cxf.ws.security.tokenstore.TokenStoreException;
 import org.apache.cxf.ws.security.tokenstore.TokenStoreUtils;
 import org.apache.wss4j.common.principal.SAMLTokenPrincipal;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
@@ -116,12 +118,17 @@ public final class SecurityAssertionStore {
   }
 
   /**
-   * Return the TokenStore associated with this message.
+   * Return the TokenStore associated with this message
    *
    * @param message
-   * @return TokenStore
+   * @return the TokenStore, or null if it could not be retrieved
    */
+  @Nullable
   public static TokenStore getTokenStore(Message message) {
-    return TokenStoreUtils.getTokenStore(message);
+    try {
+      return TokenStoreUtils.getTokenStore(message);
+    } catch (TokenStoreException e) {
+      return null;
+    }
   }
 }
