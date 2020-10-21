@@ -130,9 +130,10 @@ public class OidcHandler implements AuthenticationHandler {
     }
 
     // if the request has credentials, process it
-    if (credentials.getCode() != null
-        || credentials.getAccessToken() != null
-        || credentials.getIdToken() != null) {
+    if (credentials != null
+        && (credentials.getCode() != null
+            || credentials.getAccessToken() != null
+            || credentials.getIdToken() != null)) {
       LOGGER.info(
           "Oidc credentials found/retrieved. Saving to session and continuing filter chain.");
 

@@ -22,6 +22,7 @@ import ddf.camel.component.catalog.queryresponsetransformer.QueryResponseTransfo
 import ddf.camel.component.catalog.queryresponsetransformer.QueryResponseTransformerProducer;
 import ddf.catalog.CatalogFramework;
 import ddf.mime.MimeTypeMapper;
+import java.util.Objects;
 import org.apache.camel.Consumer;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.MultipleConsumersSupport;
@@ -50,15 +51,15 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
 
   private static final String FRAMEWORK = "framework";
 
-  private String transformerId;
+  private final String transformerId;
 
-  private String contextPath;
+  private final String contextPath;
 
-  private String mimeType;
+  private final String mimeType;
 
-  private CatalogFramework catalogFramework;
+  private final CatalogFramework catalogFramework;
 
-  private MimeTypeMapper mimeTypeMapper;
+  private final MimeTypeMapper mimeTypeMapper;
 
   /**
    * Constructs a CatalogEndpoint for the specified custom <code>catalog</code> component.
@@ -190,6 +191,10 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
     return mimeTypeMapper;
   }
 
+  public String getContextPath() {
+    return contextPath;
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -203,5 +208,27 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
   @Override
   public boolean isMultipleConsumersSupported() {
     return true;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof CatalogEndpoint)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    CatalogEndpoint that = (CatalogEndpoint) o;
+    return transformerId.equals(that.getTransformerId())
+        && contextPath.equals(that.getContextPath())
+        && mimeType.equals(that.getMimeType());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), transformerId, contextPath, mimeType);
   }
 }

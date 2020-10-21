@@ -74,9 +74,9 @@ public class RangeValidator implements AttributeValidator {
     Preconditions.checkArgument(max != null, "The maximum cannot be null.");
     Preconditions.checkArgument(epsilon != null, "The epsilon cannot be null.");
     Preconditions.checkArgument(
-        min.compareTo(max) == -1, "The maximum must be greater than the minimum.");
+        min.compareTo(max) < 0, "The maximum must be greater than the minimum.");
     Preconditions.checkArgument(
-        epsilon.compareTo(BigDecimal.ZERO) == 1, "The epsilon must be greater than 0.");
+        epsilon.compareTo(BigDecimal.ZERO) > 0, "The epsilon must be greater than 0.");
 
     this.min = min.subtract(epsilon);
     this.max = max.add(epsilon);
