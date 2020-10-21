@@ -328,14 +328,4 @@
             mvn:ddf.security.jaas/security-jaas-ldap/${project.version}/config/default-ldaplogin
         </configfile>
     </feature>
-
-    <feature name="platform-http-proxy" version="${project.version}"
-             description="HTTP to HTTPS proxy.">
-        <feature>security-core-services</feature>
-        <feature>camel-jetty9</feature>
-        <feature>camel-blueprint</feature>
-        <feature>camel-http</feature>
-
-        <bundle>mvn:ddf.platform/platform-http-proxy/${project.version}</bundle>
-    </feature>
 </features>

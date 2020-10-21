@@ -237,7 +237,6 @@
         <module>platform-commands</module>
         <module>security-filter-api</module>
         <module>error</module>
-        <module>platform-http-proxy</module>
         <module>admin</module>
         <module>landing-page</module>
         <module>country-converter</module>

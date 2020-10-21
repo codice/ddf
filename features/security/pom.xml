@@ -59,16 +59,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.1.0_1</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-http-proxy</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.interceptor</groupId>
             <artifactId>security-interceptor-logger</artifactId>
             <version>${project.version}</version>

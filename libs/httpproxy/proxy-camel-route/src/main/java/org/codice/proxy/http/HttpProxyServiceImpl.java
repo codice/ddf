@@ -13,8 +13,6 @@
  */
 package org.codice.proxy.http;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,10 +21,7 @@ import java.util.Set;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.servlet.ServletComponent;
-import org.apache.commons.httpclient.contrib.ssl.AuthSSLProtocolSocketFactory;
-import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,12 +39,6 @@ public class HttpProxyServiceImpl implements HttpProxyService {
   private static final String SERVLET_COMPONENT = "servlet";
 
   public static final String GENERIC_ENDPOINT_NAME = "endpoint";
-
-  public static final String TRUSTSTORE_VALUE_DEFAULT =
-      new AbsolutePathResolver("etc/keystores/serverTruststore.jks").getPath();
-
-  @SuppressWarnings("squid:S2068" /* Default password only */)
-  public static final String TRUSTSTORE_PASSWORD_VALUE = "changeit";
 
   public static final String HTTP_PROXY_KEY = "http.";
 
@@ -75,10 +64,6 @@ public class HttpProxyServiceImpl implements HttpProxyService {
   private static final String SERVLET = "servlet";
 
   int incrementer = 0;
-
-  private String trustStore = null;
-
-  private String trustStorePassword = null;
 
   private CamelContext camelContext = null;
 
@@ -135,30 +120,6 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     // Enable proxy settings for the external target
     enableProxySettings();
-
-    // Fetch location of trust store and trust store password
-    fetchTrustStoreLocation();
-
-    // Create SSL connection Camel protocol for https
-    Protocol authhttps = null;
-    File certStore = new File(trustStore);
-    try {
-      authhttps =
-          new Protocol(
-              "https",
-              new AuthSSLProtocolSocketFactory(
-                  certStore.toURI().toURL(),
-                  trustStorePassword,
-                  certStore.toURI().toURL(),
-                  trustStorePassword),
-              443);
-    } catch (MalformedURLException e) {
-      LOGGER.debug(e.getMessage());
-    }
-
-    if (authhttps != null) {
-      Protocol.registerProtocol("https", authhttps);
-    }
 
     final String matchPrefix = (matchOnPrefix) ? "?matchOnUriPrefix=true" : "";
 
@@ -238,15 +199,6 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         camelContext.getGlobalOptions().put(sysProxyConfig, prop);
       }
     }
-  }
-
-  private void fetchTrustStoreLocation() {
-
-    trustStore = System.getProperty("javax.net.ssl.trustStore", TRUSTSTORE_VALUE_DEFAULT);
-    trustStorePassword =
-        System.getProperty("javax.net.ssl.trustStorePassword", TRUSTSTORE_PASSWORD_VALUE);
-    LOGGER.debug("Trust Store: {}", trustStore);
-    LOGGER.debug("Trust Store Password not empty: {}", StringUtils.isNotBlank(trustStorePassword));
   }
 
   @Override

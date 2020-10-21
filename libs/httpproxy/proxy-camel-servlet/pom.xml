@@ -25,11 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-http</artifactId>
+            <artifactId>camel-http-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -54,6 +50,10 @@
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -67,10 +67,6 @@
                             .
                         </Bundle-ClassPath>
                         <Import-Package>
-                            org.apache.camel.component.http,
-                            org.apache.camel.component.servlet,
-                            javax.servlet,
-                            javax.servlet.http,
                             *
                         </Import-Package>
                         <Embed-Dependency>camel-servlet</Embed-Dependency>
