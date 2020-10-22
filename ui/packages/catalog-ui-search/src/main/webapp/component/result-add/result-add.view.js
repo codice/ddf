@@ -83,13 +83,15 @@ module.exports = Marionette.LayoutView.extend({
     let listJSON = store
       .getCurrentWorkspace()
       .get('lists')
-      .models.map(listModel => listModel.toJSON('keepObjs'))
+      .toJSON()
+
     listJSON = listJSON.map(list => {
       list.matchesFilter = true
       if (list['list.filters']) {
-        list.matchesFilter = this.model.every(result => {
-          return result.matchesFilters(list['list.filters'])
-        })
+        const listFilters = JSON.parse(list['list.filters'])
+        list.matchesFilter = this.model.every(result =>
+          result.matchesFilters(listFilters)
+        )
       }
       list.alreadyContains = false
       if (

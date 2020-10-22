@@ -36,9 +36,6 @@ const iconMap = {
   tasks: 'fa fa-tasks',
 }
 
-// This is a list of model attributes that are deprecated, and will be removed in future
-const IGNORED_DEPRECATED_ATTRIBUTES = ['list.cql']
-
 function getRelevantIcon(iconName) {
   return iconMap[iconName]
 }
@@ -79,13 +76,34 @@ function simplifyListFilter(listFilters) {
   }
 }
 
+function parseList(data) {
+  // for backwards compatability
+  if (data['list.cql']) {
+    try {
+      if (!data['list.filters']) {
+        const filterTree = CQLUtils.transformCQLToFilter(data['list.cql'])
+        data['list.filters'] = simplifyListFilter(filterTree)
+      }
+    } catch (e) {
+      console.log('Invalid cql: ' + data['list.cql'])
+    }
+    delete data['list.cql']
+  } else if (data['list.filters'] && typeof data['list.filters'] === 'string') {
+    try {
+      data['list.filters'] = JSON.parse(data['list.filters'])
+    } catch (e) {
+      data['list.filters'] = undefined
+    }
+  }
+}
+
 module.exports = Backbone.AssociatedModel.extend(
   {
     defaults() {
       return {
         id: Common.generateUUID(),
         title: 'Untitled List',
-        'list.filters': undefined, //list.cql is being deprecated in favor of list.filters
+        'list.filters': undefined, // 'list.cql' is being deprecated in favor of 'list.filters'
         'list.icon': 'folder',
         'list.bookmarks': [],
         query: undefined,
@@ -114,41 +132,21 @@ module.exports = Backbone.AssociatedModel.extend(
     },
     set(data, ...args) {
       if (typeof data === 'object') {
-        // for backwards compatability
-        if (data['list.cql'] && !data['list.filters']) {
-          try {
-            const filterTree = CQLUtils.transformCQLToFilter(data['list.cql'])
-            data['list.filters'] = simplifyListFilter(filterTree)
-          } catch (e) {
-            console.log('Invalid cql: ' + data['list.cql'])
-          }
-          data['list.cql'] = undefined
-        } else if (
-          data['list.filters'] &&
-          typeof data['list.filters'] === 'string'
-        ) {
-          try {
-            data['list.filters'] = JSON.parse(data['list.filters'])
-          } catch (e) {
-            data['list.filters'] = undefined
-          }
+        parseList(data)
+      } else if (typeof data === 'string') {
+        if (data === 'list.cql') {
+          throw new Error(
+            '"list.cql" is deprecated, please use "list.filter" instead'
+          )
+        } else if (data === 'list.filters' && args.length == 1) {
+          args = [simplifyListFilter(args[0])]
         }
-      } else if (data === 'list.filters' && args.length == 1) {
-        args = [simplifyListFilter(args[0])]
       }
-      if (!IGNORED_DEPRECATED_ATTRIBUTES.includes(data)) {
-        return Backbone.AssociatedModel.prototype.set.call(this, data, ...args)
-      }
-    },
-    get(attr) {
-      if (!IGNORED_DEPRECATED_ATTRIBUTES.includes(attr)) {
-        return Backbone.AssociatedModel.prototype.get.call(this, attr)
-      }
+      return Backbone.AssociatedModel.prototype.set.call(this, data, ...args)
     },
     toJSON(...args) {
       const json = Backbone.AssociatedModel.prototype.toJSON.call(this, ...args)
-      const keepObjs = args.length > 0 ? args.includes('keepObjs') : false
-      if (!keepObjs && typeof json['list.filters'] === 'object') {
+      if (typeof json['list.filters'] === 'object') {
         json['list.filters'] = JSON.stringify(json['list.filters'])
       }
       return json

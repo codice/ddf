@@ -28,6 +28,11 @@ public class ListMetacardTypeImpl extends MetacardTypeImpl {
 
   public static final String LIST_METACARD_TYPE_NAME = "metacard.list";
 
+  /**
+   * READ-ONLY list.cql is being deprecated in favor of list.filters. list.filters can hold more
+   * pertinent information, such as, bbox and keyword info etc. and list.cql is a subset of
+   * list.filters. list.cql is now Read Only.
+   */
   public static final String LIST_CQL = "list.cql";
 
   public static final String LIST_ICON = "list.icon";
