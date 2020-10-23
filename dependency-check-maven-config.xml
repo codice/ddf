@@ -53,26 +53,6 @@
 
     <suppress>
         <notes>
-            org.springframework.osgi:spring-osgi-core:1.2.1 pulls in Spring 2.5.6.SEC01
-            dependencies, which have a bunch of CVEs. It's only used in itests, though, so
-            suppressing for now.
-
-            TODO: Look into migrating to org.apache.servicemix.bundles.spring-core, as Spring
-            stopped supporting releases as OSGi bundles a long time ago.
-        </notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/org\.springframework\..*@2.5.6.SEC01$</packageUrl>
-        <cve>CVE-2011-2730</cve>
-        <cve>CVE-2013-4152</cve>
-        <cve>CVE-2013-7315</cve>
-        <cve>CVE-2014-0054</cve>
-        <cve>CVE-2016-9878</cve>
-        <cve>CVE-2018-1270</cve>
-        <cve>CVE-2018-1271</cve>
-        <cve>CVE-2018-1272</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
             A CVE against slf4j for the class "EventData", which is not used in DDF or pax-logging.
         </notes>
         <packageUrl regex="true">^pkg:maven/org\.slf4j/slf4j\-ext@.*$</packageUrl>
@@ -92,15 +72,6 @@
         <packageUrl regex="true">^pkg:maven/org\.codice\.countrycode/converter@.*$</packageUrl>
         <cve>CVE-2015-6420</cve>
         <cve>CVE-2017-15708</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
-            Ignore vulnerabilities in AsciiDoc and JRuby. They are used only when building the
-            documentation, not at runtime.
-        </notes>
-        <cpe>cpe:/a:asciidoctor:asciidoctor</cpe>
-        <cpe>cpe:/a:jruby:jruby</cpe>
     </suppress>
 
     <suppress>
