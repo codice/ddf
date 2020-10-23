@@ -33,6 +33,7 @@ const moment = require('moment-timezone')
 const Theme = require('./Theme.js')
 const ThemeUtils = require('../ThemeUtils.js')
 const QuerySettings = require('./QuerySettings.js')
+const cql = require('../../js/cql.js')
 require('backbone-associations')
 
 import plugin from 'plugins/user'
@@ -204,6 +205,13 @@ User.Preferences = Backbone.AssociatedModel.extend({
     this.listenTo(this, 'change:goldenLayoutMetacard', this.savePreferences)
     this.listenTo(this, 'change:goldenLayoutAlert', this.savePreferences)
     this.listenTo(this, 'change:mapHome', this.savePreferences)
+  },
+  get(attr) {
+    const value = Backbone.AssociatedModel.prototype.get.call(this, attr)
+    if (attr === 'resultFilter' && value && value.type === 'NOT') {
+      return cql.simplify(value)
+    }
+    return value
   },
   handleRemove() {
     this.savePreferences()

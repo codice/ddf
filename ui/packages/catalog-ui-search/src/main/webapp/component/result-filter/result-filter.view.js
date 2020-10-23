@@ -82,6 +82,10 @@ module.exports = Marionette.LayoutView.extend({
   },
   saveFilter() {
     const filter = this.getFilter()
+    if (filter.filters && filter.filters.length < 1) {
+      this.removeFilter()
+      return
+    }
     const errorMessages = getFilterErrors(filter.filters)
     if (errorMessages.length !== 0) {
       showErrorMessages(errorMessages)
