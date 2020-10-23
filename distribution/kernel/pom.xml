@@ -87,11 +87,8 @@
                             <goal>features-add-to-repository</goal>
                         </goals>
                         <configuration>
-                            <addTransitiveFeatures>false</addTransitiveFeatures>
                             <descriptors>
-                                <descriptor>
-                                    mvn:ddf.features/kernel/${project.version}/xml/features
-                                </descriptor>
+                                <descriptor>mvn:ddf.features/kernel/${project.version}/xml/features</descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
                         </configuration>

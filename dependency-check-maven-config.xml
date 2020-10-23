@@ -126,4 +126,57 @@
         <cve>CVE-2016-6814</cve>
     </suppress>
 
+    <suppress>
+        <notes>
+            Ignore all vulnerabilities reported against DDF artifacts. These are false positives.
+            Note: CVEs with a score of exactly 10.0 will need to be suppressed separately.
+        </notes>
+        <gav regex="true">ddf.*:.*</gav>
+        <cvssBelow>10</cvssBelow>
+        <cve>CVE-2006-6460</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
+            Ignore all vulnerabilities reported against DDF artifacts. These are false positives.
+            Note: CVEs with a score of exactly 10.0 will need to be suppressed separately.
+        </notes>
+        <gav regex="true">org\.codice\.ddf.*:.*</gav>
+        <cvssBelow>10</cvssBelow>
+        <cve>CVE-2006-6460</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
+            javax.websocket/javax.websocket-api is not the same dependency as
+            java-websocket_project:java-websocket. We use the former, the CVE is for the latter.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/javax\.websocket/javax\.websocket\-api@.*$</packageUrl>
+        <cpe>cpe:/a:java-websocket_project:java-websocket</cpe>
+    </suppress>
+
+    <suppress>
+        <notes>
+            The CVE is for hazelcast, but is being reported against hazelcast-client-protocol,
+            which is a different project.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-client\-protocol@.*$</packageUrl>
+        <cve>CVE-2016-10750</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
+            These CVEs are for Karaf but are being reported against Karaf Decanter
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.karaf\.decanter.*/org\.apache\.karaf\.decanter.*@.*$</packageUrl>
+        <cve>CVE-2014-0219</cve>
+        <cve>CVE-2016-8750</cve>
+        <cve>CVE-2018-11786</cve>
+        <cve>CVE-2018-11787</cve>
+        <cve>CVE-2018-11788</cve>
+        <cve>CVE-2019-0191</cve>
+        <cve>CVE-2019-0226</cve>
+        <cve>CVE-2020-11980</cve>
+    </suppress>
+
 </suppressions>

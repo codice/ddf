@@ -23,25 +23,4 @@
         <componentDescriptor>target/dependencies/common-bin.xml</componentDescriptor>
     </componentDescriptors>
 
-    <!-- We need this because the feature service is not up when we want to provision our
-    own config admin -->
-    <dependencySets>
-        <dependencySet>
-            <outputDirectory>system/ddf/platform/osgi/platform-osgi-configadmin/${project.version}
-            </outputDirectory>
-            <includes>
-                <include>ddf.platform.osgi:platform-osgi-configadmin:jar:${project.version}
-                </include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>system/ddf/platform/osgi/platform-osgi-internal-api/${project.version}
-            </outputDirectory>
-            <includes>
-                <include>ddf.platform.osgi:platform-osgi-internal-api:jar:${project.version}
-                </include>
-            </includes>
-        </dependencySet>
-    </dependencySets>
-
 </assembly>
