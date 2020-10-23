@@ -202,7 +202,7 @@ function getGeometryErrors(filter: any): Set<string> {
   const geometry = filter.geojson && filter.geojson.geometry
   const errors = new Set<string>()
   if (!geometry) {
-    if (filter.property === 'anyGeo') {
+    if (isGeoSearch(filter.type)) {
       errors.add('Location Option must be selected')
     }
     return errors
@@ -706,6 +706,10 @@ function getDefaultingErrorMessage(
 
 function getEmptyErrorMessage(label: string) {
   return `${label.replace(/^\w/, c => c.toUpperCase())} cannot be empty`
+}
+
+const isGeoSearch = (property: string) => {
+  return ['INTERSECTS', 'DWITHIN'].includes(property)
 }
 
 const Invalid = styled.div`
