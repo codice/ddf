@@ -347,12 +347,12 @@ public class VideoThumbnailPluginTest {
     URL ffmpegBinaryUrl;
 
     if (SystemUtils.IS_OS_LINUX) {
-      ffmpegResourcePath = "linux/ffmpeg-4.2.2";
+      ffmpegResourcePath = "linux/ffmpeg-4.3.1";
     } else if (SystemUtils.IS_OS_MAC) {
-      ffmpegResourcePath = "osx/ffmpeg-4.2.2";
+      ffmpegResourcePath = "osx/ffmpeg-4.3.1";
       //      Skip unit tests on Windows. See DDF-3503.
       //    } else if (SystemUtils.IS_OS_WINDOWS) {
-      //      ffmpegResourcePath = "windows/ffmpeg-4.2.2.exe";
+      //      ffmpegResourcePath = "windows/ffmpeg-4.3.1.exe";
     } else {
       fail(
           "Platform is not Linux, Mac, or Windows. No FFmpeg binaries are provided for this platform.");
