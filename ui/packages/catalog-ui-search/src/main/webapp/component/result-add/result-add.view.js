@@ -84,11 +84,13 @@ module.exports = Marionette.LayoutView.extend({
       .getCurrentWorkspace()
       .get('lists')
       .toJSON()
+
     listJSON = listJSON.map(list => {
       list.matchesFilter = true
-      if (list['list.cql'] !== '') {
+      if (list['list.filters']) {
+        const listFilters = JSON.parse(list['list.filters'])
         list.matchesFilter = this.model.every(result =>
-          result.matchesCql(list['list.cql'])
+          result.matchesFilters(listFilters)
         )
       }
       list.alreadyContains = false

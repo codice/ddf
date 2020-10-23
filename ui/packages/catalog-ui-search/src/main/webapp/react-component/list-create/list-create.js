@@ -43,6 +43,7 @@ const AddButton = props => {
       style={{ width: '100%' }}
     >
       <span className="fa fa-plus" />
+      <span> </span>
       <span>{children}</span>
     </Button>
   )
@@ -75,9 +76,10 @@ class ListCreate extends React.Component {
 
   createListWithBookmarks = () => {
     this.state.listEditor.save()
+    const listFilters = this.state.listEditor.model.get('list.filters')
     if (
       this.props.model.every(result => {
-        return result.matchesCql(this.state.listEditor.model.get('list.cql'))
+        return listFilters ? result.matchesFilters(listFilters) : true
       })
     ) {
       this.state.listEditor.model.addBookmarks(

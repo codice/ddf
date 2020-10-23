@@ -17,6 +17,7 @@ const Query = require('./Query')
 const cql = require('../cql.js')
 const Common = require('../Common.js')
 const _ = require('lodash')
+const CQLUtils = require('../CQLUtils.js')
 require('backbone-associations')
 
 const iconMap = {
@@ -53,13 +54,56 @@ function generateCql(bookmarks) {
   })
 }
 
+function simplifyListFilter(listFilters) {
+  if (!listFilters) {
+    return listFilters
+  }
+  let filtersArray = listFilters.filters || [listFilters]
+  filtersArray = filtersArray
+    .filter(filter => !filter.filters) //Only supports one filter group type, no nested filter groups
+    .map(filter => {
+      return {
+        ...filter,
+        value:
+          filter.value && filter.value.value
+            ? filter.value.value
+            : filter.value,
+      }
+    })
+  return {
+    type: listFilters.filters ? listFilters.type : 'AND',
+    filters: filtersArray,
+  }
+}
+
+function parseList(data) {
+  // for backwards compatability
+  if (data['list.cql']) {
+    try {
+      if (!data['list.filters']) {
+        const filterTree = CQLUtils.transformCQLToFilter(data['list.cql'])
+        data['list.filters'] = simplifyListFilter(filterTree)
+      }
+    } catch (e) {
+      console.log('Invalid cql: ' + data['list.cql'])
+    }
+    delete data['list.cql']
+  } else if (data['list.filters'] && typeof data['list.filters'] === 'string') {
+    try {
+      data['list.filters'] = JSON.parse(data['list.filters'])
+    } catch (e) {
+      data['list.filters'] = undefined
+    }
+  }
+}
+
 module.exports = Backbone.AssociatedModel.extend(
   {
     defaults() {
       return {
         id: Common.generateUUID(),
         title: 'Untitled List',
-        'list.cql': '',
+        'list.filters': undefined, // 'list.cql' is being deprecated in favor of 'list.filters'
         'list.icon': 'folder',
         'list.bookmarks': [],
         query: undefined,
@@ -85,6 +129,27 @@ module.exports = Backbone.AssociatedModel.extend(
         'update:list.bookmarks change:list.bookmarks',
         this.updateQuery
       )
+    },
+    set(data, ...args) {
+      if (typeof data === 'object') {
+        parseList(data)
+      } else if (typeof data === 'string') {
+        if (data === 'list.cql') {
+          throw new Error(
+            '"list.cql" is deprecated, please use "list.filter" instead'
+          )
+        } else if (data === 'list.filters' && args.length == 1) {
+          args = [simplifyListFilter(args[0])]
+        }
+      }
+      return Backbone.AssociatedModel.prototype.set.call(this, data, ...args)
+    },
+    toJSON(...args) {
+      const json = Backbone.AssociatedModel.prototype.toJSON.call(this, ...args)
+      if (typeof json['list.filters'] === 'object') {
+        json['list.filters'] = JSON.stringify(json['list.filters'])
+      }
+      return json
     },
     removeBookmarks(bookmarks) {
       if (!Array.isArray(bookmarks)) {

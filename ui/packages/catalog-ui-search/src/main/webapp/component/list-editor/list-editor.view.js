@@ -28,6 +28,7 @@ const List = require('../../js/model/List.js')
 var DropdownView = require('../dropdown/popout/dropdown.popout.view.js')
 const ListFilterView = require('../result-filter/list/result-filter.list.view.js')
 const properties = require('../../js/properties.js')
+const CQLUtils = require('../../js/CQLUtils.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-editor'),
@@ -39,8 +40,8 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     listTitle: '.list-title',
     listTemplate: '.list-template',
-    listCQLSwitch: '.list-limiting-switch',
-    listCQL: '.list-limiting',
+    listFiltersSwitch: '.list-limiting-switch',
+    listFilters: '.list-limiting',
     listIcon: '.list-icon',
   },
   listTemplateId: 'custom',
@@ -50,8 +51,8 @@ module.exports = Marionette.LayoutView.extend({
   onBeforeShow() {
     this.showListTitle()
     this.showListTemplate()
-    this.showCQLSwitch()
-    this.showCQL()
+    this.showFiltersSwitch()
+    this.showFilters()
     this.showIcon()
     this.edit()
   },
@@ -101,11 +102,11 @@ module.exports = Marionette.LayoutView.extend({
       })
     }
   },
-  showCQLSwitch() {
-    this.listCQLSwitch.show(
+  showFiltersSwitch() {
+    this.listFiltersSwitch.show(
       PropertyView.getPropertyView({
         label: 'Limit based on filter',
-        value: [this.model.get('list.cql') !== ''],
+        value: [this.model.get('list.filters') ? true : false],
         radio: [
           {
             label: 'Yes',
@@ -119,21 +120,23 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
     this.listenTo(
-      this.listCQLSwitch.currentView.model,
+      this.listFiltersSwitch.currentView.model,
       'change:value',
-      this.handleCQLSwitch
+      this.handleFiltersSwitch
     )
-    this.handleCQLSwitch()
+    this.handleFiltersSwitch()
   },
-  handleCQLSwitch() {
-    const shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0]
+  handleFiltersSwitch() {
+    const shouldLimit = this.listFiltersSwitch.currentView.model.getValue()[0]
     this.$el.toggleClass('is-limited', shouldLimit)
   },
-  showCQL() {
-    this.listCQL.show(
+  showFilters() {
+    this.listFilters.show(
       DropdownView.createSimpleDropdown({
         componentToShow: ListFilterView,
-        defaultSelection: this.model.get('list.cql'),
+        defaultSelection: this.model.get('list.filters')
+          ? this.model.get('list.filters')
+          : '',
         leftIcon: 'fa fa-pencil',
         label: 'Edit Filter',
       })
@@ -180,22 +183,27 @@ module.exports = Marionette.LayoutView.extend({
   saveTitle() {
     this.model.set('title', this.listTitle.currentView.model.getValue()[0])
   },
-  saveCQL() {
-    const shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0]
-    let cql = ''
+  saveFilters() {
+    const shouldLimit = this.listFiltersSwitch.currentView.model.getValue()[0]
+    let filters
     if (this.listTemplateId !== 'custom') {
-      cql = properties.listTemplates.filter(
+      const cql = properties.listTemplates.filter(
         template => template.id === this.listTemplateId
       )[0]['list.cql']
+      if (cql) {
+        filters = CQLUtils.transformCQLToFilter(cql)
+      }
     } else if (shouldLimit === true) {
-      cql = this.listCQL.currentView.model.getValue()
+      filters = this.listFilters.currentView.model.getValue()
     }
-    this.model.set('list.cql', cql)
+    if (filters) {
+      this.model.set('list.filters', filters)
+    }
   },
   save() {
     this.saveTitle()
     this.saveIcon()
-    this.saveCQL()
+    this.saveFilters()
     this.cancel()
   },
   serializeData() {

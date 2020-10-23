@@ -28,11 +28,18 @@ public class ListMetacardTypeImpl extends MetacardTypeImpl {
 
   public static final String LIST_METACARD_TYPE_NAME = "metacard.list";
 
+  /**
+   * READ-ONLY list.cql is being deprecated in favor of list.filters. list.filters can hold more
+   * pertinent information, such as, bbox and keyword info etc. and list.cql is a subset of
+   * list.filters. list.cql is now Read Only.
+   */
   public static final String LIST_CQL = "list.cql";
 
   public static final String LIST_ICON = "list.icon";
 
   public static final String LIST_BOOKMARKS = "list.bookmarks";
+
+  public static final String LIST_FILTERS = "list.filters";
 
   private static final Set<AttributeDescriptor> LIST_DESCRIPTORS;
 
@@ -47,7 +54,7 @@ public class ListMetacardTypeImpl extends MetacardTypeImpl {
         new AttributeDescriptorImpl(
             LIST_CQL,
             false /* indexed */,
-            true /* stored */,
+            false /* stored */,
             false /* tokenized */,
             false /* multivalued */,
             BasicTypes.STRING_TYPE));
@@ -68,6 +75,15 @@ public class ListMetacardTypeImpl extends MetacardTypeImpl {
             true /* stored */,
             false /* tokenized */,
             true /* multivalued */,
+            BasicTypes.STRING_TYPE));
+
+    LIST_DESCRIPTORS.add(
+        new AttributeDescriptorImpl(
+            LIST_FILTERS,
+            false /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            false /* multivalued */,
             BasicTypes.STRING_TYPE));
   }
 
