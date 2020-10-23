@@ -65,38 +65,22 @@
                 <exclude>karaf-manual*.pdf</exclude>
 
                 <!-- Skipping customized libraries. -->
-                <exclude>
-                    **/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2/org.apache.aries.blueprint.core-1.8.2.jar
-                </exclude>
-                <exclude>
-                    **/org/eclipse/platform/org.eclipse.osgi/3.12.50/org.eclipse.osgi-3.12.50.jar
-                </exclude>
+                <exclude>**/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2/*</exclude>
+                <exclude>**/org/eclipse/platform/org.eclipse.osgi/3.12.100/*</exclude>
 
                 <!-- Excluding jars we don't need that have OWASP vulnerabilities -->
+                <!--
+                Pax Web includes these for Undertow support, but we don't use Undertow.
+                Vulnerabilities: CVE-2019-10184, CVE-2019-10212, CVE-2019-14888, CVE-2019-3888,
+                CVE-2020-10687, CVE-2020-10705, CVE-2020-10719, CVE-2020-1745, and CVE-2020-1757.
+                -->
+                <exclude>**/io/undertow/**/*</exclude>
 
                 <!--
-                3.2.2 is binary compatibles and we want to exclude 3.2.1 since it has
-                vulnerabilities.
+                Pax Web includes commons-discovery for JSF support, which we don't use.
+                Vulnerabilities: CVE-2008-0732, CVE-2011-5034
                 -->
-                <exclude>
-                    **/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar
-                </exclude>
-                <!--
-                Excluding all Netty 4.0.33-Final jars which are not used and introduce vulnerability
-                CVE-2016-4970.
-                -->
-                <exclude>**/netty/**/4.0.33.Final/*</exclude>
-                <exclude>**/netty/**/4.0.33.Final</exclude>
-                <!--
-                Excluding all Fabric8 Kubernetes jars since they are not needed or enabled and
-                introduce vulnerability CVE-2016-1906.
-                -->
-                <exclude>**/io/fabric8/kubernetes*/**/*</exclude>
-                <!--
-                Excluding pax-transx-tm-narayana which embeds netty-all-4.0.30.Final.jar
-                and introduces vulnerability CVE-2016-4970.
-                -->
-                <exclude>**/org/ops4j/pax/transx/pax-transx-tm-narayana/**/*</exclude>
+                <exclude>**/org/apache/geronimo/bundles/commons-discovery/**/*</exclude>
             </excludes>
         </fileSet>
 
