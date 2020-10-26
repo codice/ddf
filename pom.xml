@@ -191,7 +191,6 @@
         <felix.metatype.version>1.2.2</felix.metatype.version>
         <felix.framework.version>5.6.12</felix.framework.version>
         <felix.scr.version>2.0.14</felix.scr.version>
-        <geronimo-jms_2_spec.version>1.0-alpha-2</geronimo-jms_2_spec.version>
         <geronimo-servlet-api.artifact>geronimo-servlet_3.0_spec</geronimo-servlet-api.artifact>
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>
         <google-http-client.version>1.22.0</google-http-client.version>
@@ -278,8 +277,6 @@
         <poi.version>4.1.2</poi.version>
         <xlsx.transformer.poi.version>4.1.2</xlsx.transformer.poi.version>
         <protobuf.version>3.12.4</protobuf.version>
-        <proton.version>0.33.5</proton.version>
-        <qpid-jms.version>0.52.0</qpid-jms.version>
         <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
