@@ -27,6 +27,9 @@
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType" />
         </argument>
+        <argument>
+            <reference-list interface="ddf.catalog.validation.AttributeValidator" />
+        </argument>
     </bean>
 
 </blueprint>
