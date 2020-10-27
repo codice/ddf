@@ -110,6 +110,7 @@ module.exports = Marionette.LayoutView.extend({
         return
       }
     }
+    this.originalTitle = this.model.get('title')
     this.map.show(
       new MapView({
         showResultFilter: false,
@@ -143,6 +144,7 @@ module.exports = Marionette.LayoutView.extend({
           }
         },
         onCancel: () => {
+          this.resetTitle()
           this.navigateToForms()
         },
       })
@@ -204,6 +206,9 @@ module.exports = Marionette.LayoutView.extend({
     }
     this.model.set(json)
     json.id ? this.model.save({}, options) : collection.create(json, options)
+  },
+  resetTitle() {
+    this.model.set({ title: this.originalTitle })
   },
   navigateToForms() {
     const fragment = `forms`
