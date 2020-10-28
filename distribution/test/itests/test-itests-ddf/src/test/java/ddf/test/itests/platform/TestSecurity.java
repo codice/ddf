@@ -72,7 +72,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
-import org.codice.ddf.itests.common.opensearch.OpenSearchFeature;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
@@ -651,19 +650,30 @@ public class TestSecurity extends AbstractIntegrationTest {
           .log()
           .ifValidationFails()
           .assertThat()
-          .statusCode(equalTo(500));
+          .statusCode(equalTo(200))
+          .assertThat()
+          .body(
+              not(
+                  hasXPath(
+                      "//metacard/string[@name='"
+                          + Metacard.TITLE
+                          + "']/value[text()='myTitle']")));
 
       String unavailableOpenSourceId = "unavailableOpenSearchSource";
-
+      openSearchProperties =
+          getOpenSearchSourceProperties(
+              unavailableOpenSourceId, OPENSEARCH_PATH.getUrl(), getServiceManager());
+      openSearchProperties.put("authenticationType", "basic");
+      openSearchProperties.put("username", "bad");
+      openSearchProperties.put("password", "auth");
       unavailableOpenSearchPid =
-          OpenSearchFeature.createManagedService(
-                  getServiceManager(), unavailableOpenSourceId, "bad", "auth")
+          getServiceManager()
+              .createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties)
               .getPid();
       getCatalogBundle().waitForFederatedSource(unavailableOpenSourceId);
 
       String unavailableOpenSearchQuery =
           SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
-
       given()
           .auth()
           .basic("admin", "admin")
