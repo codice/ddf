@@ -5,7 +5,11 @@ import ddf.catalog.data.DefaultAttributeValueRegistry
 import ddf.catalog.data.InjectableAttribute
 import ddf.catalog.data.MetacardType
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
-import ddf.catalog.data.impl.*
+import ddf.catalog.data.impl.AttributeDescriptorImpl
+import ddf.catalog.data.impl.AttributeRegistryImpl
+import ddf.catalog.data.impl.BasicTypes
+import ddf.catalog.data.impl.MetacardImpl
+import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.CoreAttributes
 import ddf.catalog.validation.AttributeValidator
 import ddf.catalog.validation.AttributeValidatorRegistry
@@ -532,8 +536,11 @@ class DefinitionParserSpec extends Specification {
         when:
         definitionParser.install(file)
 
-        then:
-        thrown(Exception)
+        then: "the number of attribute validators registered is zero"
+        attributeValidatorRegistry.getValidators("title").size() == 0
+
+        and: "no call to AttributeValidatorRegistry::registerValidators() had been made"
+        0 * attributeValidatorRegistry.registerValidators(_)
     }
 
     String valid = '''
