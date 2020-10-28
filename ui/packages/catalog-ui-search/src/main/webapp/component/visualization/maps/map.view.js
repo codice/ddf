@@ -461,10 +461,10 @@ const View = Marionette.LayoutView.extend({
       .get('preferences')
       .get('resultFilter')
     if (resultFilter && this.showResultFilter) {
+      //Ensure no alteration occurs to 'resultFilter'
+      const filter = { ...resultFilter }
       this.handleFilter(
-        CQLUtils.transformCQLToFilter(
-          CQLUtils.transformFilterToCQL(resultFilter)
-        ),
+        CQLUtils.transformCQLToFilter(CQLUtils.transformFilterToCQL(filter)),
         '#c89600'
       )
     }
