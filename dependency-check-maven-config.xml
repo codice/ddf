@@ -152,6 +152,23 @@
 
     <suppress>
         <notes>
+            Zookeeper is the only thing still using Log4J, and it has suppressions for both the
+            following CVEs.
+
+            CVE-2019-17571  https://issues.apache.org/jira/browse/ZOOKEEPER-3677 (Zookeeper not affected)
+            CVE-2020-9488   https://issues.apache.org/jira/browse/ZOOKEEPER-3817 (DDF not affected,
+                            doesn't configure Zookeeper with an SMTPAppender)
+
+            Once Zookeeper migrates to Log4J2, we can remove this suppression. See
+            https://issues.apache.org/jira/browse/ZOOKEEPER-2342
+        </notes>
+        <packageUrl regex="true">^pkg:maven/log4j/log4j@.*$</packageUrl>
+        <cve>CVE-2019-17571</cve>
+        <cve>CVE-2020-9488</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
             httpd vulnerabilities do not apply to CXF
         </notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-transports\-http\-netty\-server@.*$</packageUrl>

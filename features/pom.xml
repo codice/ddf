@@ -90,7 +90,7 @@
         <cxf.geronimo.jta.version>1.1.1</cxf.geronimo.jta.version>
         <!-- CXF Guava version must match DDF Guava version to avoid OSGi uses constraint violations -->
         <cxf.guava.version>${guava.version}</cxf.guava.version>
-        <cxf.hazelcast.version>3.12.7</cxf.hazelcast.version>
+        <cxf.hazelcast.version>${hazelcast.version}</cxf.hazelcast.version>
         <cxf.hibernate.validator.version>6.1.4.Final</cxf.hibernate.validator.version>
         <cxf.httpcomponents.asyncclient.version>4.1.4</cxf.httpcomponents.asyncclient.version>
         <cxf.httpcomponents.client.version>4.5.12</cxf.httpcomponents.client.version>
