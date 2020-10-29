@@ -23,7 +23,7 @@
       All feature definitions come from 3rd party feature file:
       <repository>mvn:org.apache.camel.karaf/apache-camel/3.4.4/xml/features</repository>
 
-      All version properties for these Camel features are defined in the platform-app pom.
+      All version properties for these Camel features are defined in the features pom.
 
       DDF Changes made:
       - replaced ${project.version} with ${camel.version}

@@ -66,9 +66,6 @@
                         <Bundle-ClassPath>
                             .
                         </Bundle-ClassPath>
-                        <Import-Package>
-                            *
-                        </Import-Package>
                         <Embed-Dependency>camel-servlet</Embed-Dependency>
                         <Export-Package>
                             org.apache.camel.component.servlet
