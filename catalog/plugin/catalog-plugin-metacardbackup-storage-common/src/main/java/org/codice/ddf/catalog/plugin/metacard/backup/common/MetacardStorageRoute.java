@@ -62,7 +62,7 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardStorageRoute.class);
 
   public MetacardStorageRoute(CamelContext camelContext) {
-    super(Objects.requireNonNull(camelContext, "CamelContext cannot be null"));
+    super(Objects.requireNonNull(camelContext, "camelContext cannot be null"));
   }
 
   public void start() {

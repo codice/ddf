@@ -119,7 +119,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       int delayBetweenRetries,
       Executor configurationExecutor,
       Security security) {
-    this.camelContext = Objects.requireNonNull(camelContext, "CamelContext cannot be null");
+    this.camelContext = Objects.requireNonNull(camelContext, "camelContext cannot be null");
     this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;

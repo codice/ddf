@@ -40,7 +40,7 @@
 
     <properties>
         <!-- START versions for camel features
-        Copied from org.apache.camel:camel-parent:pom:${camel.version}
+        Copied from org.apache.camel:camel-parent:pom:3.4.4
 
         DDF changes made
         - Removed properties that are not used
