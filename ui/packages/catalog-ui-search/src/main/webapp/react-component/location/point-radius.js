@@ -237,9 +237,16 @@ const PointRadiusUsngMgrs = props => {
           type="number"
           value={String(radius)}
           onChange={value => {
-            setRadiusError(validateGeo('radius', value))
             setState({ ['radius']: value })
           }}
+          onBlur={e =>
+            setRadiusError(
+              validateGeo('radius', {
+                value: e.target.value,
+                units: radiusUnits,
+              })
+            )
+          }
         />
       </Units>
       <ErrorComponent errorState={radiusError} />
