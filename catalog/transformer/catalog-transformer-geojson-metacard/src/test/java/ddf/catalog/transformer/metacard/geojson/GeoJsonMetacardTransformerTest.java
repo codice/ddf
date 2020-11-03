@@ -592,7 +592,7 @@ public class GeoJsonMetacardTransformerTest {
     assertThat(toString(properties.get(Metacard.RESOURCE_URI)), is("http://example.com"));
     assertThat(toString(properties.get(SOURCE_ID_PROPERTY)), is(DEFAULT_SOURCE_ID));
     assertThat(
-        toString(properties.get(GeoJsonMetacardTransformer.METACARD_TYPE_PROPERTY_KEY)),
+        toString(properties.get(MetacardType.METACARD_TYPE)),
         is(MetacardImpl.BASIC_METACARD.getName()));
   }
 
