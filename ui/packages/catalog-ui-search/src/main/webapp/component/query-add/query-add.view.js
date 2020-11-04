@@ -142,6 +142,10 @@ module.exports = Marionette.LayoutView.extend({
         (userDefaultTemplate['querySettings'] &&
           userDefaultTemplate['querySettings'].src) ||
         '',
+      facets:
+        (userDefaultTemplate['querySettings'] &&
+          userDefaultTemplate['querySettings'].facets) ||
+        [],
       federation:
         (userDefaultTemplate['querySettings'] &&
           userDefaultTemplate['querySettings'].federation) ||
