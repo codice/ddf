@@ -137,9 +137,9 @@ public class HttpProxyServiceImpl implements HttpProxyService {
                   .removeHeader("Cookie")
                   .to(
                       targetUri
-                          + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
+                          + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.socketTimeout="
                           + timeout
-                          + "&httpClient.connectionManagerTimeout="
+                          + "&httpClient.connectionRequestTimeout="
                           + timeout)
                   .routeId(endpointName);
             }
@@ -154,9 +154,9 @@ public class HttpProxyServiceImpl implements HttpProxyService {
                   .removeHeader("Cookie")
                   .to(
                       targetUri
-                          + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
+                          + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.socketTimeout="
                           + timeout
-                          + "&httpClient.connectionManagerTimeout="
+                          + "&httpClient.connectionRequestTimeout="
                           + timeout)
                   .routeId(endpointName)
                   .bean(bean);

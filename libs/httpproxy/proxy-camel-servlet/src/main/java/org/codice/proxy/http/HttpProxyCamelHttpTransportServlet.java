@@ -85,16 +85,18 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
     super.init(config);
 
     String ignore = config.getInitParameter("ignoreDuplicateServletName");
-    Boolean bool = ObjectConverter.toBoolean(ignore);
-    if (bool != null) {
-      ignoreDuplicateServletName = bool;
-    } else {
-      // always log so people can see it easier
-      String msg =
-          "Invalid parameter value for init-parameter ignoreDuplicateServletName with value: "
-              + LogSanitizer.sanitize(ignore);
-      LOGGER.debug(msg);
-      throw new ServletException(msg);
+    if (ignore != null) {
+      Boolean bool = ObjectConverter.toBoolean(ignore);
+      if (bool != null) {
+        ignoreDuplicateServletName = bool;
+      } else {
+        // always log so people can see it easier
+        String msg =
+            "Invalid parameter value for init-parameter ignoreDuplicateServletName with value: "
+                + LogSanitizer.sanitize(ignore);
+        LOGGER.debug(msg);
+        throw new ServletException(msg);
+      }
     }
 
     String name = config.getServletName();
