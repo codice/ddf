@@ -20,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -127,33 +129,7 @@ public class DefaultUsersDeletionScheduler {
   }
 
   public static boolean removeDefaultUsers() {
-    try {
-      Bundle bundle = FrameworkUtil.getBundle(DefaultUsersDeletionScheduler.class);
-      if (bundle != null) {
-        BundleContext bundleContext = bundle.getBundleContext();
-        Collection<ServiceReference<BackingEngineFactory>> implementers =
-            bundleContext.getServiceReferences(BackingEngineFactory.class, null);
-        for (ServiceReference<BackingEngineFactory> impl : implementers) {
-
-          BackingEngineFactory backingEngineFactory = bundleContext.getService(impl);
-          BackingEngine backingEngine =
-              backingEngineFactory.build(
-                  ImmutableMap.of("users", getUsersPropertiesFilePath().toString()));
-
-          if (!backingEngine.listUsers().isEmpty()) {
-            backingEngine.listUsers().forEach(user -> backingEngine.deleteUser(user.getName()));
-          }
-        }
-      }
-
-      LOGGER.debug("Default users have been deleted successfully.");
-
-      Files.deleteIfExists(getTempTimestampFilePath());
-      return true;
-    } catch (Exception e) {
-      LOGGER.debug("Unable to remove default users.", e);
-      return false;
-    }
+    return AccessController.doPrivileged(new RemoveDefaultUsersPrivilegedAction());
   }
 
   private String cronCalculator(Instant firstInstall) {
@@ -226,5 +202,39 @@ public class DefaultUsersDeletionScheduler {
 
   public static void setTempTimestampFilePath(Path tempTimestampFilePath) {
     DefaultUsersDeletionScheduler.tempTimestampFilePath = tempTimestampFilePath;
+  }
+
+  private static class RemoveDefaultUsersPrivilegedAction implements PrivilegedAction<Boolean> {
+
+    @Override
+    public Boolean run() {
+      try {
+        Bundle bundle = FrameworkUtil.getBundle(DefaultUsersDeletionScheduler.class);
+        if (bundle != null) {
+          BundleContext bundleContext = bundle.getBundleContext();
+          Collection<ServiceReference<BackingEngineFactory>> implementers =
+              bundleContext.getServiceReferences(BackingEngineFactory.class, null);
+          for (ServiceReference<BackingEngineFactory> impl : implementers) {
+
+            BackingEngineFactory backingEngineFactory = bundleContext.getService(impl);
+            BackingEngine backingEngine =
+                backingEngineFactory.build(
+                    ImmutableMap.of("users", getUsersPropertiesFilePath().toString()));
+
+            if (!backingEngine.listUsers().isEmpty()) {
+              backingEngine.listUsers().forEach(user -> backingEngine.deleteUser(user.getName()));
+            }
+          }
+        }
+
+        LOGGER.debug("Default users have been deleted successfully.");
+
+        Files.deleteIfExists(getTempTimestampFilePath());
+        return true;
+      } catch (Exception e) {
+        LOGGER.debug("Unable to remove default users.", e);
+        return false;
+      }
+    }
   }
 }
