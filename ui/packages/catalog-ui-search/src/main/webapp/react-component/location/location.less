@@ -35,6 +35,15 @@
         opacity: @minimumOpacity;
       }
 
+      > .read-only {
+        background: transparent;
+        cursor: default;
+      }
+
+      > input.read-only {
+        border-bottom: 2px solid;
+      }
+
       > span {
         min-width: 9.375rem;
         font-size: @minimumFontSize;
@@ -48,6 +57,17 @@
       > label {
         font-size: @minimumFontSize;
       }
+    }
+
+    .read-only-group,
+    .read-only {
+      border: none;
+      outline: none;
+      box-shadow: none;
+    }
+
+    .read-only-group {
+      margin-bottom: @minimumSpacing;
     }
 
     min-height: 1px;

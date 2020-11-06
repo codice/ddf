@@ -26,7 +26,10 @@ module.exports = ResultFilter.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   saveFilter() {
-    this.model.set('value', this.getFilter())
-    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+    const filter = this.getFilter()
+    if (this.isValidFilter(filter)) {
+      this.model.set('value', filter)
+      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+    }
   },
 })

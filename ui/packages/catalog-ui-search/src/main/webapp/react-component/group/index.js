@@ -15,7 +15,10 @@
 const React = require('react')
 
 const Group = props => (
-  <div className="input-group" {...props}>
+  <div
+    className={`input-group ${props.readOnly ? 'read-only-group' : ''}`}
+    {...props}
+  >
     {props.children}
   </div>
 )

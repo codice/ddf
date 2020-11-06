@@ -48,16 +48,27 @@ const Input = styled.input`
 `
 
 const TextField = props => {
-  const { label, addon, value, type = 'text', onChange, ...rest } = props
+  const {
+    label,
+    addon,
+    readOnly,
+    value,
+    type = 'text',
+    onChange,
+    ...rest
+  } = props
+  const isReadOnly = readOnly != undefined ? readOnly : false
   return (
-    <Group>
+    <Group readOnly={isReadOnly}>
       {label !== undefined ? (
-        <span className="input-group-addon">
+        <span className={`input-group-addon ${isReadOnly ? 'read-only' : ''}`}>
           {label}
           &nbsp;
         </span>
       ) : null}
       <Input
+        className={`${isReadOnly ? 'read-only' : ''}`}
+        readOnly={isReadOnly}
         value={value !== undefined ? value : ''}
         type={type}
         onChange={e => {
@@ -66,7 +77,9 @@ const TextField = props => {
         {...rest}
       />
       {addon !== undefined ? (
-        <label className="input-group-addon">{addon}</label>
+        <label className={`input-group-addon ${isReadOnly ? 'read-only' : ''}`}>
+          {addon}
+        </label>
       ) : null}
     </Group>
   )
