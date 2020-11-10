@@ -53,18 +53,6 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.camel.karaf</groupId>
-            <artifactId>camel-test-blueprint</artifactId>
-            <version>${camel.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-commons</artifactId>
-            <version>${asm.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <build>
         <resources>

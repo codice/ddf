@@ -33,22 +33,33 @@ public final class WfsRouteBuilder extends RouteBuilder {
 
   @Override
   public void configure() {
+    /*
+     * This route is designed to be called via a Camel proxy using the FeatureTransformationService
+     * interface. Arguments are bound to the message body as an array, i.e.
+     *
+     * method: apply(InputStream featureCollection, WfsMetadata metadata)
+     * message body: new Object[] { featureCollection, metadata }
+     */
     from(FEATURECOLLECTION_ENDPOINT_URL)
         .id("TransformFeatureCollectionRoute")
-        .setHeader("metadata", simple("${body[1]}"))
-        .setHeader("xml", simple("${body[0]}"))
-        .setBody(simple("${header.metadata.featureMemberNodeNames}"))
         .streamCaching()
+        .setHeader("metadata", simple("${body[1]}"))
+        // Stream caching doesn't work when the input stream is located in a header. Copying the
+        // stream to the body first is a workaround. It causes the stream to be cached, then we can
+        // copy that cache to the header so we can access it later.
+        .setBody(simple("${body[0]}"))
+        .setHeader("xml", body())
+        .setHeader(
+            "numberOfFeatures",
+            XPathBuilder.xpath("/wfs:FeatureCollection/@numberOfFeatures", Long.class)
+                .namespace("wfs", "http://www.opengis.net/wfs"))
+        .setBody(simple("${header.metadata.featureMemberNodeNames}"))
         .split(body(), new MetacardListAggregationStrategy())
         .setHeader("featureMemberNodeName", simple("${body}"))
         .bean(
             "wfsTransformerProcessor",
             "setActiveFeatureMemberNodeName(${header.metadata}, ${header.featureMemberNodeName})")
         .setBody(header("xml"))
-        .setHeader(
-            "numberOfFeatures",
-            XPathBuilder.xpath("/wfs:FeatureCollection/@numberOfFeatures", Long.class)
-                .namespace("wfs", "http://www.opengis.net/wfs"))
         .split(
             body().tokenizeXML("${header.featureMemberNodeName}", "FeatureCollection"),
             new MetacardAggregationStrategy())
