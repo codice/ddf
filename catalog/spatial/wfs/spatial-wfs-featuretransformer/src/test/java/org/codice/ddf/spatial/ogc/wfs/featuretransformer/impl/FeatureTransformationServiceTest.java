@@ -27,6 +27,7 @@ import ddf.catalog.data.Metacard;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -153,6 +154,36 @@ public class FeatureTransformationServiceTest {
 
       assertThat(wfsFeatureCollection.getNumberOfFeatures(), is(10L));
       assertThat(wfsFeatureCollection.getFeatureMembers(), hasSize(10));
+    }
+  }
+
+  @Test
+  public void testMultipleFeatureMemberNodeNames() throws Exception {
+    try (final InputStream inputStream = getClass().getResourceAsStream("/Tasmania.xml")) {
+      final WfsMetadata wfsMetadata = mock(WfsMetadata.class);
+      when(wfsMetadata.getFeatureMemberNodeNames())
+          .thenReturn(
+              Arrays.asList(
+                  "tasmania_water_bodies",
+                  "streams",
+                  "roads",
+                  "poi",
+                  "giant_polygon",
+                  "archsites",
+                  "bugsites",
+                  "tasmania_state_boundaries",
+                  "tiger_roads",
+                  "states",
+                  "tasmania_cities",
+                  "restricted",
+                  "poly_landmarks",
+                  "tasmania_roads"));
+
+      final WfsFeatureCollection wfsFeatureCollection =
+          featureTransformationService.apply(inputStream, wfsMetadata);
+
+      assertThat(wfsFeatureCollection.getNumberOfFeatures(), is(2L));
+      assertThat(wfsFeatureCollection.getFeatureMembers(), hasSize(2));
     }
   }
 
