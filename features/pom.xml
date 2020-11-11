@@ -39,60 +39,28 @@
     </modules>
 
     <properties>
-        <!--START versions for camel features in platform-app features
-        Copied from apache-camel-2.19.4-src/parent/pom.xml
+        <!-- START versions for camel features
+        Copied from org.apache.camel:camel-parent:pom:3.4.0
 
         DDF changes made
-        - Duplicated some properties in the root pom so that they may be used elsewhere in DDF
         - Removed properties that are not used
-        - Replaced the value of "geronimo-jms2-spec-version" with "${geronimo-jms_2_spec.version}" to keep it in line with the rest of the project
-        - Added netty41 version and removed netty40 version
-        - make camel and artemis qpid-proton-j-bundle-version and qpid-jms-client-version match
-        - Updated jackson to 2.9.10 and jackson databind to 2.9.10.1 -->
-        <aws-java-sdk-bundle-version>${aws-java-sdk-bundle.version}</aws-java-sdk-bundle-version>
-        <commons-codec-version>${commons-codec.version}</commons-codec-version>
-        <commons-httpclient-bundle-version>3.1_7</commons-httpclient-bundle-version>
-        <commons-pool-version>${commons-pool.version}</commons-pool-version>
-        <commons-io-version>${commons-io.version}</commons-io-version>
-        <cxf-version-range>[3.1,4.0)</cxf-version-range>
+        - For certain dependencies used elsewhere in DDF, substitute the version from the root pom
+          so the versions match throughout the system.
+        -->
+        <aws-java-sdk-bundle-version>1.11.714_1</aws-java-sdk-bundle-version>
         <c3p0-bundle-version>${c3p0.version}_1</c3p0-bundle-version>
-        <freemarker-version>2.3.28</freemarker-version>
-        <geronimo-jms-spec-version>1.1.1</geronimo-jms-spec-version>
-        <geronimo-jms2-spec-version>${geronimo-jms_2_spec.version}</geronimo-jms2-spec-version>
-        <geronimo-jta-spec-version>1.1.1</geronimo-jta-spec-version>
-        <camel.guava.version>19.0</camel.guava.version>
-        <cxf.jackson.version>${jackson.version}</cxf.jackson.version>
+        <caffeine-version>2.8.4</caffeine-version>
+        <commons-codec-version>${commons-codec.version}</commons-codec-version>
         <hikaricp-version>2.4.13</hikaricp-version>
-        <httpcore4-version>4.4.10</httpcore4-version>
-        <httpclient4-version>4.5.6</httpclient4-version>
-        <jackson2-version>${cxf.jackson.version}</jackson2-version>
-        <javax-mail-version>1.6.1</javax-mail-version>
-        <javax.servlet-api-version>3.1.0</javax.servlet-api-version>
-        <junit-bundle-version>4.11_2</junit-bundle-version>
-        <metrics-version>${dropwizard.version}</metrics-version>
-        <netty-version>${netty.version}</netty-version>
-        <qpid-proton-j-version>${proton.version}</qpid-proton-j-version>
-        <mchange-commons-java-version>0.2.11</mchange-commons-java-version>
-        <netty41-version>4.1.16.Final</netty41-version>
-        <protobuf-version>${protobuf.version}</protobuf-version>
-        <qpid-proton-j-bundle-version>${proton.version}</qpid-proton-j-bundle-version>
-        <qpid-jms-client-version>${qpid-jms.version}</qpid-jms-client-version>
-        <quartz2-version>${quartz.version}</quartz2-version>
+        <httpclient4-version>4.5.12</httpclient4-version>
+        <httpcore4-version>4.4.13</httpcore4-version>
+        <jackson2-version>${jackson.version}</jackson2-version>
+        <jakarta-mail-version>${jakarta.mail.version}</jakarta-mail-version>
+        <javax-servlet-api-version>3.1.0</javax-servlet-api-version>
+        <jodatime2-bundle-version>${joda-time.version}</jodatime2-bundle-version>
+        <quartz-version>${quartz.version}</quartz-version>
         <servicemix-specs-version>2.9.0</servicemix-specs-version>
-        <spring-version-range>[4.3,6)</spring-version-range>
-        <!--END versions for camel features in platform-app-->
-
-        <!--START versions for enterprise features in platform-app features
-        Copied from karaf-4.1.2-src/pom.xml
-
-        DDF changes made
-        - Removed properties that are not used-->
-        <felix.coordinator.version>1.0.2</felix.coordinator.version>
-        <aries.transaction.manager.version>1.3.3</aries.transaction.manager.version>
-        <aries.transaction.blueprint.version>1.1.1</aries.transaction.blueprint.version>
-        <aries.transaction.blueprint.version2>2.1.0</aries.transaction.blueprint.version2>
-        <aries.util.version>1.1.3</aries.util.version>
-        <!-- END enterprise properties -->
+        <!-- END versions for camel features -->
 
         <!-- START versions for CXF features
 
@@ -114,10 +82,10 @@
         <cxf.commons-lang3.version>${commons-lang3.version}</cxf.commons-lang3.version>
         <cxf.commons-text.version>1.9</cxf.commons-text.version>
         <cxf.dropwizard3.version>3.2.6</cxf.dropwizard3.version>
-        <cxf.dropwizard4.version>4.1.12.1</cxf.dropwizard4.version>
+        <cxf.dropwizard4.version>${dropwizard.version}</cxf.dropwizard4.version>
         <cxf.ehcache3.version>3.8.1</cxf.ehcache3.version>
         <cxf.geronimo.j2ee.management.version>1.0.1</cxf.geronimo.j2ee.management.version>
-        <cxf.geronimo.jms.version>${geronimo-jms-spec-version}</cxf.geronimo.jms.version>
+        <cxf.geronimo.jms.version>1.1.1</cxf.geronimo.jms.version>
         <cxf.geronimo.json.version>1.4</cxf.geronimo.json.version>
         <cxf.geronimo.jta.version>1.1.1</cxf.geronimo.jta.version>
         <!-- CXF Guava version must match DDF Guava version to avoid OSGi uses constraint violations -->
@@ -172,7 +140,7 @@
         <cxf.dom4j.bundle.version>${dom4j.bundle.version}</cxf.dom4j.bundle.version>
         <cxf.fastinfoset.bundle.version>1.2.18_1</cxf.fastinfoset.bundle.version>
         <cxf.istack.bundle.version>3.0.7</cxf.istack.bundle.version>
-        <cxf.jakarta.mail.version>1.6.5</cxf.jakarta.mail.version>
+        <cxf.jakarta.mail.version>${jakarta.mail.version}</cxf.jakarta.mail.version>
         <cxf.jasypt.bundle.version>1.9.3_1</cxf.jasypt.bundle.version>
         <cxf.jaxb.bundle.version>2.3.2_1</cxf.jaxb.bundle.version>
         <cxf.jdom.bundle.version>${jdom.bundle.version}</cxf.jdom.bundle.version>
@@ -203,7 +171,6 @@
       not on the bundlized version. -->
         <javax.inject.bundle.version>${javax.inject.version}_3</javax.inject.bundle.version>
 
-        <pax.url.version>2.5.2</pax.url.version>
     </properties>
 
     <build>

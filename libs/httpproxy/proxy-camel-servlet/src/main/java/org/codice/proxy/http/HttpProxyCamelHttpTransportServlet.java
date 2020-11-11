@@ -43,15 +43,16 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Route;
-import org.apache.camel.component.servlet.DefaultHttpRegistry;
-import org.apache.camel.component.servlet.HttpRegistry;
 import org.apache.camel.component.servlet.ServletEndpoint;
 import org.apache.camel.converter.ObjectConverter;
 import org.apache.camel.http.common.CamelServlet;
+import org.apache.camel.http.common.DefaultHttpRegistry;
 import org.apache.camel.http.common.HttpConsumer;
 import org.apache.camel.http.common.HttpHelper;
 import org.apache.camel.http.common.HttpMessage;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.http.common.HttpRegistry;
+import org.apache.camel.http.common.HttpRegistryProvider;
+import org.apache.camel.support.DefaultExchange;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
@@ -84,16 +85,18 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
     super.init(config);
 
     String ignore = config.getInitParameter("ignoreDuplicateServletName");
-    Boolean bool = ObjectConverter.toBoolean(ignore);
-    if (bool != null) {
-      ignoreDuplicateServletName = bool;
-    } else {
-      // always log so people can see it easier
-      String msg =
-          "Invalid parameter value for init-parameter ignoreDuplicateServletName with value: "
-              + LogSanitizer.sanitize(ignore);
-      LOGGER.debug(msg);
-      throw new ServletException(msg);
+    if (ignore != null) {
+      Boolean bool = ObjectConverter.toBoolean(ignore);
+      if (bool != null) {
+        ignoreDuplicateServletName = bool;
+      } else {
+        // always log so people can see it easier
+        String msg =
+            "Invalid parameter value for init-parameter ignoreDuplicateServletName with value: "
+                + LogSanitizer.sanitize(ignore);
+        LOGGER.debug(msg);
+        throw new ServletException(msg);
+      }
     }
 
     String name = config.getServletName();
@@ -101,7 +104,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
 
     if (httpRegistry == null) {
       httpRegistry = DefaultHttpRegistry.getHttpRegistry(name);
-      CamelServlet existing = httpRegistry.getCamelServlet(name);
+      HttpRegistryProvider existing = httpRegistry.getCamelServlet(name);
       if (existing != null) {
         String msg =
             "Duplicate ServetName detected: "

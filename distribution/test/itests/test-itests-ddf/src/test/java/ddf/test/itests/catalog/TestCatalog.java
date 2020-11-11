@@ -86,8 +86,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.camel.CamelContext;
+import org.apache.camel.model.ModelCamelContext;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor;
@@ -573,14 +573,14 @@ public class TestCatalog extends AbstractIntegrationTest {
     await("Camel route definitions were not found")
         .atMost(30, TimeUnit.SECONDS)
         .pollDelay(5, TimeUnit.SECONDS)
-        .until(camelContext::getRouteDefinitions, hasSize(2));
+        .until(camelContext.adapt(ModelCamelContext.class)::getRouteDefinitions, hasSize(2));
 
-    camelContext.startAllRoutes();
+    camelContext.getRouteController().startAllRoutes();
 
     await("Camel routes are started")
         .atMost(30, TimeUnit.SECONDS)
         .pollDelay(5, TimeUnit.SECONDS)
-        .until(camelContext::isStartingRoutes, is(false));
+        .until(camelContext.getRouteController()::isStartingRoutes, is(false));
 
     Response response = ingestCswRecord();
     ValidatableResponse validatableResponse = response.then();
@@ -2516,7 +2516,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     if (!file.createNewFile()) {
       fail("Unable to create " + fileName + " file.");
     }
-    FileUtils.write(file, SAMPLE_DATA);
+    Files.write(file.toPath(), SAMPLE_DATA.getBytes());
     String fileLocation = file.toURI().toURL().toString();
     LOGGER.debug("File Location: {}", fileLocation);
     return ingest(getSimpleXml(fileLocation), "text/xml");
@@ -2527,7 +2527,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     if (!file.createNewFile()) {
       fail("Unable to create " + fileName + " file.");
     }
-    FileUtils.writeByteArrayToFile(file, IOUtils.toByteArray(data));
+    Files.write(file.toPath(), IOUtils.toByteArray(data));
     return file;
   }
 

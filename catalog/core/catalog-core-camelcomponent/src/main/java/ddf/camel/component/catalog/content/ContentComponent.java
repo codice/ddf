@@ -17,7 +17,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.mime.MimeTypeMapper;
 import java.util.Map;
 import org.apache.camel.Endpoint;
-import org.apache.camel.impl.DefaultComponent;
+import org.apache.camel.support.DefaultComponent;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -28,7 +28,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.impl.DefaultConsumer;
+import org.apache.camel.support.DefaultConsumer;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;

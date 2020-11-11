@@ -241,7 +241,6 @@
 
     <feature name="catalog-plugin-oauth" version="${project.version}"
              description="Catalog OAuth Plugin">
-        <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-oauth/${project.version}</bundle>
     </feature>
 
@@ -306,7 +305,6 @@
         <feature>apache-commons</feature>
         <feature>catalog-transformer-bootflag</feature>
         <bundle>mvn:com.hazelcast/hazelcast/${hazelcast.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/catalog-core-camelcontext/${project.version}</bundle>
         <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>

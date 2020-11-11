@@ -62,7 +62,7 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
     init();
   }
 
-  private void init() {
+  public void init() {
     if (productToMetacardIdMap == null) {
       productToMetacardIdMap =
           new FileSystemPersistenceProvider(getClass().getSimpleName() + "-processed");
@@ -99,9 +99,13 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
   }
 
   @Override
-  public void shutdown() throws Exception {
+  public void shutdown() {
     super.shutdown();
-    sardine.shutdown();
+    try {
+      sardine.shutdown();
+    } catch (IOException e) {
+      fail(e);
+    }
   }
 
   private class EntryAlterationListenerImpl implements EntryAlterationListener {

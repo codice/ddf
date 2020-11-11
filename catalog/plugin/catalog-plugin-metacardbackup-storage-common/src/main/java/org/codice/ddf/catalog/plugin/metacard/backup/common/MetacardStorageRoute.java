@@ -19,10 +19,12 @@ import ddf.catalog.data.types.Core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.RoutesDefinition;
 import org.apache.commons.lang3.BooleanUtils;
@@ -60,7 +62,7 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardStorageRoute.class);
 
   public MetacardStorageRoute(CamelContext camelContext) {
-    super(camelContext);
+    super(Objects.requireNonNull(camelContext, "camelContext cannot be null"));
   }
 
   public void start() {
@@ -75,10 +77,10 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
   public void stop(int code) {
     try {
       List<RouteDefinition> routesToRemove = new ArrayList<>();
-      CamelContext context = getContext();
+      ModelCamelContext context = getContext().adapt(ModelCamelContext.class);
       for (RouteDefinition routeDefinition : context.getRouteDefinitions()) {
         if (getRouteIds().contains(routeDefinition.getId())) {
-          context.stopRoute(routeDefinition.getId());
+          context.getRouteController().stopRoute(routeDefinition.getId());
           routesToRemove.add(routeDefinition);
           setRouteCollection(new RoutesDefinition());
         }

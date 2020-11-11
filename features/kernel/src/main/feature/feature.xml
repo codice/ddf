@@ -83,6 +83,7 @@
     </feature>
 
     <feature name="guava" version="${project.version}">
+        <bundle dependency="true">mvn:com.google.guava/failureaccess/1.0.1</bundle>
         <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 

@@ -39,11 +39,6 @@
                 <version>${commons-collections.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons-io.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>${commons-lang.version}</version>
@@ -242,7 +237,6 @@
         <module>platform-commands</module>
         <module>security-filter-api</module>
         <module>error</module>
-        <module>platform-http-proxy</module>
         <module>admin</module>
         <module>landing-page</module>
         <module>country-converter</module>

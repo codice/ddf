@@ -13,19 +13,19 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
 
-import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import net.jodah.failsafe.Failsafe;
@@ -33,10 +33,15 @@ import net.jodah.failsafe.RetryPolicy;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mock.MockComponent;
+import org.apache.camel.model.ChoiceDefinition;
 import org.apache.camel.model.FromDefinition;
+import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.camel.model.SetHeaderDefinition;
+import org.apache.camel.model.ThreadsDefinition;
+import org.apache.camel.model.ToDefinition;
+import org.apache.camel.test.junit4.ExchangeTestSupport;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.security.impl.Security;
 import org.codice.junit.rules.RestoreSystemProperties;
@@ -49,7 +54,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class ContentDirectoryMonitorTest extends CamelTestSupport {
+public class ContentDirectoryMonitorTest extends ExchangeTestSupport {
   private static final String PROTOCOL = "file://";
 
   private static final String DUMMY_DATA = "Dummy data in a text file. ";
@@ -123,11 +128,11 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.DELETE);
     assertThat(
         "The content directory monitor should not have any route definitions",
-        camelContext.getRouteDefinitions(),
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions(),
         empty());
     assertThat(
         "The camel context should not have any route definitions",
-        camelContext.getRouteDefinitions(),
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions(),
         empty());
   }
 
@@ -150,9 +155,10 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     submitConfigOptions(monitor, monitoredDirectoryPath, processingMechanism);
     assertThat(
         "The content directory monitor should only have one route definition",
-        camelContext.getRouteDefinitions(),
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions(),
         hasSize(1));
-    RouteDefinition routeDefinition = camelContext.getRouteDefinitions().get(0);
+    RouteDefinition routeDefinition =
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().get(0);
     verifyRoute(routeDefinition, monitoredDirectoryPath, processingMechanism);
   }
 
@@ -238,13 +244,14 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         ATTRIBUTE_OVERRIDES,
         1,
         1000);
-    RouteDefinition routeDefinition = camelContext.getRouteDefinitions().get(0);
+    RouteDefinition routeDefinition =
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().get(0);
+
+    ProcessorDefinition<?> firstProcessor = routeDefinition.getOutputs().get(0);
+    assertThat(firstProcessor, is(instanceOf(SetHeaderDefinition.class)));
     assertThat(
-        routeDefinition.toString(),
-        containsString(
-            "SetHeader["
-                + Constants.ATTRIBUTE_OVERRIDES_KEY
-                + ", {{test2=[(some,parameter,with,commas)], test1=[someParameter1, someParameter0]}}"));
+        ((SetHeaderDefinition) firstProcessor).getExpression().evaluate(exchange, String.class),
+        is("{test2=[(some,parameter,with,commas)], test1=[someParameter1, someParameter0]}"));
   }
 
   @Test
@@ -286,11 +293,11 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     submitConfigOptions(monitor, "", ContentDirectoryMonitor.MOVE);
     assertThat(
         "Camel context should not have any route definitions",
-        camelContext.getRouteDefinitions(),
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions(),
         empty());
     assertThat(
         "Content directory monitor should not have any route definitions",
-        camelContext.getRouteDefinitions(),
+        camelContext.adapt(ModelCamelContext.class).getRouteDefinitions(),
         empty());
   }
 
@@ -342,9 +349,9 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
   private void verifyRoute(
       RouteDefinition routeDefinition, String monitoredDirectory, String processingMechanism) {
-    List<FromDefinition> fromDefinitions = routeDefinition.getInputs();
-    assertThat(fromDefinitions.size(), is(1));
-    String uri = fromDefinitions.get(0).getUri();
+    FromDefinition fromDefinition = routeDefinition.getInput();
+    assertThat(fromDefinition, is(notNullValue()));
+    String uri = fromDefinition.getUri();
 
     String expectedUri =
         "file:"
@@ -359,8 +366,14 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     }
 
     assertThat(uri, equalTo(expectedUri));
-    List<ProcessorDefinition<?>> processorDefinitions = routeDefinition.getOutputs();
-    assertThat(processorDefinitions.size(), is(1));
+
+    Iterator<ProcessorDefinition<?>> processors = routeDefinition.getOutputs().iterator();
+    assertThat(processors.next(), is(instanceOf(ThreadsDefinition.class)));
+    assertThat(processors.next(), is(instanceOf(ProcessorDefinition.class)));
+    if (ContentDirectoryMonitor.IN_PLACE.equals(processingMechanism)) {
+      assertThat(processors.next(), is(instanceOf(ChoiceDefinition.class)));
+    }
+    assertThat(processors.next(), is(instanceOf(ToDefinition.class)));
   }
 
   private void submitConfigOptions(
