@@ -100,7 +100,7 @@ pipeline {
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                     sh '''
                         unset JAVA_TOOL_OPTIONS
-                        mvn install -B -pl $ITESTS,!$ITCORE -amd -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
+                        mvn install -B -pl $ITESTS -amd -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
                     '''
                 }
             }
