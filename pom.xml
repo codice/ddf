@@ -240,7 +240,6 @@
         <jwnl.version>1.3.3</jwnl.version>
         <karaf.version>4.2.9</karaf.version>
         <la4j.version>0.6.0</la4j.version>
-        <log4j.version>1.2.17</log4j.version>
         <apache-log4j.version>2.11.2</apache-log4j.version>
         <logback.classic.version>1.2.3</logback.classic.version>
         <logback.version>1.2.3</logback.version>
@@ -285,7 +284,7 @@
         <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
-        <hazelcast.version>3.12.3</hazelcast.version>
+        <hazelcast.version>3.12.10</hazelcast.version>
         <saxon.version>9.6.0-4</saxon.version>
         <servicemix.bundles.poi.version>${poi.version}_1</servicemix.bundles.poi.version>
         <servicemix.bundles.jaxb.version>${jaxb.version}_2</servicemix.bundles.jaxb.version>
@@ -425,6 +424,13 @@
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-bom</artifactId>
                 <version>${camel.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-bom</artifactId>
+                <version>${jetty.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
