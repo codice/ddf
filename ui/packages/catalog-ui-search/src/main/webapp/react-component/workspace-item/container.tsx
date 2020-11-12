@@ -62,6 +62,7 @@ class WorkspacesItemContainer extends React.Component<Props, State> {
         trigger: true,
       },
     })
+    wreqr.vent.trigger('resetSearch')
   }
   render() {
     return (
