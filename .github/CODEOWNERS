@@ -85,8 +85,6 @@ platform/error/		                    @stustison
 
 platform/parser/                        @coyotesqrl
 
-platform/platform-http-proxy/	        @stustison
-
 platform/platform-paxweb-jettyconfig/	@stustison
 
 platform/security/		                @codice/security @stustison

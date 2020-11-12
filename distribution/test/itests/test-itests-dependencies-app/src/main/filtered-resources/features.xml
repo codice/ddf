@@ -35,7 +35,6 @@
         <bundle>wrap:mvn:ddf.lib/gson-support/${project.version}</bundle>
 
         <bundle>mvn:ddf.thirdparty/restito/${project.version}</bundle>
-        <feature>camel-sjms2</feature>
     </feature>
 
     <feature name="third-party-dependencies" version="${project.version}">

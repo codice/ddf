@@ -22,7 +22,7 @@ import java.util.Map.Entry;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.apache.camel.impl.DefaultConsumer;
+import org.apache.camel.support.DefaultConsumer;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;

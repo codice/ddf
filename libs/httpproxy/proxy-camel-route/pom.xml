@@ -25,61 +25,11 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-http-common</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>${geronimo-servlet-api.group}</groupId>
-                    <artifactId>${geronimo-servlet-api.artifact}</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-http</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>${geronimo-servlet-api.group}</groupId>
-                    <artifactId>${geronimo-servlet-api.artifact}</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-http4</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
             <artifactId>camel-servlet</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core-osgi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>common-system</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -90,16 +40,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import-Package>
-                            org.apache.camel.component.http,
-                            org.apache.camel.component.servlet,
-                            org.apache.camel.core.osgi,
-                            javax.annotation;version="[1.2,2)",
-                            *
-                        </Import-Package>
                         <Export-Package>
-                            org.apache.camel.component.servlet,
-                            org.apache.camel.core.osgi,
                             org.codice.proxy.http
                         </Export-Package>
                     </instructions>

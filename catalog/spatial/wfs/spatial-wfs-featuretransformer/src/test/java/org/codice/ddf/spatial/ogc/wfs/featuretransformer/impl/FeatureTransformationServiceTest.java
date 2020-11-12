@@ -27,15 +27,17 @@ import ddf.catalog.data.Metacard;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
+import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.builder.NoErrorHandlerBuilder;
 import org.apache.camel.component.bean.ProxyHelper;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.SimpleRegistry;
+import org.apache.camel.support.DefaultRegistry;
 import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformationService;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer;
@@ -57,13 +59,15 @@ public class FeatureTransformationServiceTest {
   @Before
   public void setup() throws Exception {
     setupTransformers();
-    SimpleRegistry registry = new SimpleRegistry();
-    registry.put("wfsTransformerProcessor", new WfsTransformerProcessor(transformerList));
+    DefaultRegistry registry = new DefaultRegistry();
+    registry.bind("wfsTransformerProcessor", new WfsTransformerProcessor(transformerList));
 
     this.camelContext = new DefaultCamelContext(registry);
     camelContext.setTracing(true);
     camelContext.addRoutes(new WfsRouteBuilder());
-    camelContext.setErrorHandlerBuilder(new NoErrorHandlerBuilder());
+    camelContext
+        .adapt(ExtendedCamelContext.class)
+        .setErrorHandlerFactory(new NoErrorHandlerBuilder());
 
     Endpoint endpoint = camelContext.getEndpoint(WfsRouteBuilder.FEATURECOLLECTION_ENDPOINT_URL);
     featureTransformationService =
@@ -150,6 +154,36 @@ public class FeatureTransformationServiceTest {
 
       assertThat(wfsFeatureCollection.getNumberOfFeatures(), is(10L));
       assertThat(wfsFeatureCollection.getFeatureMembers(), hasSize(10));
+    }
+  }
+
+  @Test
+  public void testMultipleFeatureMemberNodeNames() throws Exception {
+    try (final InputStream inputStream = getClass().getResourceAsStream("/Tasmania.xml")) {
+      final WfsMetadata wfsMetadata = mock(WfsMetadata.class);
+      when(wfsMetadata.getFeatureMemberNodeNames())
+          .thenReturn(
+              Arrays.asList(
+                  "tasmania_water_bodies",
+                  "streams",
+                  "roads",
+                  "poi",
+                  "giant_polygon",
+                  "archsites",
+                  "bugsites",
+                  "tasmania_state_boundaries",
+                  "tiger_roads",
+                  "states",
+                  "tasmania_cities",
+                  "restricted",
+                  "poly_landmarks",
+                  "tasmania_roads"));
+
+      final WfsFeatureCollection wfsFeatureCollection =
+          featureTransformationService.apply(inputStream, wfsMetadata);
+
+      assertThat(wfsFeatureCollection.getNumberOfFeatures(), is(2L));
+      assertThat(wfsFeatureCollection.getFeatureMembers(), hasSize(2));
     }
   }
 

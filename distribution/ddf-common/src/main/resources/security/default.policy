@@ -75,7 +75,7 @@ grant codeBase "file:/org.apache.felix.configadmin" {
     permission java.lang.RuntimePermission "getClassLoader";
 }
 
-grant codeBase "file:/org.apache.karaf.features.core/org.apache.karaf.features.command" {
+grant codeBase "file:/org.apache.karaf.features.core/org.apache.karaf.features.command/org.apache.karaf.config.core" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}examples", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}examples${/}-", "read,write";
@@ -95,7 +95,7 @@ grant codeBase "file:/org.eclipse.osgi" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.decanter.sla.checker.cfg", "read,write";
 }
 
-grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorage/org.apache.servicemix.bundles.xstream/platform-http-proxy/spatial-csw-transformer/catalog-core-camelcontext/org.ops4j.pax.web.pax-web-jsp/org.apache.aries.transaction.blueprint/org.apache.aries.proxy/org.apache.camel.camel-blueprint" {
+grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorage/org.apache.servicemix.bundles.xstream/spatial-csw-transformer/org.ops4j.pax.web.pax-web-jsp/org.apache.aries.transaction.blueprint/org.apache.aries.proxy/org.apache.camel.karaf.camel-blueprint" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.cxf.osgi.cfg", "read";
@@ -107,14 +107,14 @@ grant codeBase "file:/registry-federation-admin-impl/registry-publication-action
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
 }
 
-grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-source-configuration-handler/registry-api-impl/org.apache.camel.camel-blueprint/registry-publication-update-handler/org.eclipse.jetty.websocket.server" {
+grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-source-configuration-handler/registry-api-impl/org.apache.camel.karaf.camel-blueprint/registry-publication-update-handler/org.eclipse.jetty.websocket.server" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
 }
 
-grant codeBase "file:/org.apache.servicemix.bundles.commons-httpclient/org.apache.camel.camel-http/spatial-wfs-v2_0_0-source/spatial-wfs-v2_0_0-connectedsource/spatial-wfs-v1_1_0-source/org.apache.ws.xmlschema.core/security-rest-cxfwrapper/catalog-core-urlresourcereader/org.codice.thirdparty.commons-httpclient" {
+grant codeBase "file:/org.apache.camel.camel-http/spatial-wfs-v2_0_0-source/spatial-wfs-v2_0_0-connectedsource/spatial-wfs-v1_1_0-source/org.apache.ws.xmlschema.core/security-rest-cxfwrapper/catalog-core-urlresourcereader/org.codice.thirdparty.commons-httpclient" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
 
@@ -122,7 +122,7 @@ grant codeBase "file:/org.apache.servicemix.bundles.wsdl4j/spatial-commands/spat
     permission java.io.FilePermission "<<ALL FILES>>", "read";
 }
 
-grant codeBase "file:/org.eclipse.jetty.http/security-realm-saml/security-core-services/org.apache.felix.configadmin/service-atom-transformer/spatial-commands/spatial-geocoding-feature/org.apache.karaf.shell.core/registry-federation-admin-service-impl/catalog-core-commands/spatial-geocoding-offline-catalog/spatial-geocoding-offline-index/spatial-geocoding-geocoder/spatial-geocoding-plugin/spatial-wfs-v2_0_0-source/spatial-wfs-v2_0_0-connectedsource/spatial-wfs-v1_1_0-source/spatial-wfs-featuretransformer/spatial-wfs-featuretransformer-xstream/resourcemanagement-usage-ui/catalog-rest-endpoint/catalog-core-camelcomponent/org.eclipse.jetty.websocket.server/catalog-rest-service/branding-registry-impl" {
+grant codeBase "file:/org.eclipse.jetty.http/security-realm-saml/security-core-services/org.apache.felix.configadmin/service-atom-transformer/spatial-commands/spatial-geocoding-feature/org.apache.karaf.shell.core/registry-federation-admin-service-impl/catalog-core-commands/spatial-geocoding-offline-catalog/spatial-geocoding-offline-index/spatial-geocoding-geocoder/spatial-geocoding-plugin/spatial-wfs-v2_0_0-source/spatial-wfs-v2_0_0-connectedsource/spatial-wfs-v1_1_0-source/spatial-wfs-featuretransformer/spatial-wfs-featuretransformer-xstream/resourcemanagement-usage-ui/catalog-rest-endpoint/catalog-core-camelcomponent/org.eclipse.jetty.websocket.server/catalog-rest-service/branding-registry-impl/org.apache.camel.camel-support/org.apache.camel.camel-bean/org.apache.camel.camel-base/org.apache.camel.camel-direct/org.apache.camel.camel-api/catalog-core-directorymonitor" {
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
@@ -208,7 +208,7 @@ grant codebase "file:/org.apache.karaf.log.core" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.xml", "read,write";
 }
 
-grant codeBase "file:/woodstox-core/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication/org.apache.cxf.cxf-rt-bindings-soap" {
+grant codeBase "file:/woodstox-core/catalog-core-downloadaction/platform-scheduler/catalog-validator-metacardduplication/org.apache.cxf.cxf-rt-bindings-soap" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -294,7 +294,7 @@ grant codeBase "file:/admin-core-impl/catalog-admin-poller-service/admin-core-jo
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
 }
 
-grant codeBase "file:/security-policy-context/platform-util" {
+grant codeBase "file:/security-policy-context/platform-util/org.apache.commons.commons-io" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}web-context-policy-config.properties", "read";
 }
 
@@ -614,4 +614,9 @@ grant codeBase "file:/security-servlet-session-expiry/security-pki-realm" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverTruststore.jks", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverKeystore.jks", "read";
+}
+
+grant codeBase "file:/org.apache.commons.commons-io" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions${/}-", "read";
 }

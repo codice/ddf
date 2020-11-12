@@ -16,285 +16,434 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
-    <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
-    <repository>mvn:org.apache.karaf.features/enterprise/${karaf.version}/xml/features</repository>
+  <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
 
-    <!--START Camel Features-->
-    <!-- DO NOT EDIT
-        All feature definitions come from 3rd party feature file:
-        <repository>mvn:org.apache.camel.karaf/apache-camel/2.24.2/xml/features</repository>
+  <!--START Camel Features-->
+  <!-- DO NOT EDIT
+      All feature definitions come from 3rd party feature file:
+      <repository>mvn:org.apache.camel.karaf/apache-camel/3.4.0/xml/features</repository>
 
-        All version properties for these Camel features are defined in the platform-app pom.
+      All version properties for these Camel features are defined in the features pom.
 
-        DDF Changes made:
-        - removed resolver="(obr)" from every feature
-        - added  to every feature
-        - replaced ${project.version} with ${camel.version}
-        - commented out xml-specs-api feature and replaced xml-specs-api with cxf-specs in camel-core feature
-        - added camel as feature prerequisite in camel-http to keep things ordered
-        - added cxf as feature prerequisite in camel to keep things ordered
-        - removed features that are not needed
-        - updated versions of qpid and proton versions and added netty bundles in camel-amqp
-        - replaced bundles in camel-jms
-        - replaced cxf-http-provider with cxf-http-jetty
-        - the versions for proton-j and qpid-jms-client used in camel-amqp need to be kept in sync with the versions used in artemis-amqp
-        - updated proton, qpid-jms, and netty versions to stay in sync with Camel 2.24.2 dependencies
+      DDF Changes made:
+      - replaced ${project.version} with ${camel.version}
+      - commented out xml-specs-api feature and replaced xml-specs-api with cxf-specs in camel-core feature
+      - removed features that are not needed
 
-    DO NOT EDIT
-    -->
-    <!--We don't want this pulling in additional XML libraries on top of the ones already installed by CXF-->
-    <!--
-    <feature name="xml-specs-api" version="${servicemix-specs-version}" start-level="10">
-        <bundle >mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${servicemix-specs-version}</bundle>
-        <bundle >mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
-        <bundle >mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/${servicemix-specs-version}</bundle>
-        <bundle>mvn:org.codehaus.woodstox/stax2-api/${stax2-api-bundle-version}</bundle>
-        <bundle>mvn:org.codehaus.woodstox/woodstox-core-asl/${woodstox-version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/${jaxb-bundle-version}</bundle>
-    </feature>
-    -->
+  DO NOT EDIT
+  -->
 
-    <feature name="camel" version="${camel.version}" start-level="50">
-        <feature>cxf</feature>
-        <feature version="${camel.version}">camel-core</feature>
-        <feature version="${camel.version}">camel-blueprint</feature>
-        <!-- we no longer install camel-spring by default as spring-dm is deprecated -->
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
+  <!--We don't want this pulling in additional XML libraries on top of the ones already installed by CXF-->
+  <!--
+  <feature name='xml-specs-api' version='${servicemix-specs-version}' start-level='10'>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxws-api-2.2/${servicemix-specs-version}</bundle>
+    <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxrs-api-2.1/${servicemix-specs-version}</bundle>
+    <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.3/${servicemix-jaxb-version}</bundle>
+    <bundle>mvn:org.codehaus.woodstox/stax2-api/${stax2-api-bundle-version}</bundle>
+    <bundle>mvn:org.codehaus.woodstox/woodstox-core-asl/${woodstox-version}</bundle>
+    <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-runtime/${jaxb-bundle-version}</bundle>
+  </feature>
+  -->
 
-    <feature name="camel-core" version="${camel.version}" start-level="50">
-        <!--start cxf-specs here instead-->
-        <!--<feature version="${servicemix-specs-version}">xml-specs-api</feature>-->
-        <feature version="${cxf.version}">cxf-specs</feature>
-        <bundle>mvn:org.apache.camel/camel-core/${camel.version}</bundle>
-        <conditional>
-            <condition>shell</condition>
-            <bundle>mvn:org.apache.camel/camel-commands-core/${camel.version}</bundle>
-            <bundle>mvn:org.apache.camel.karaf/camel-karaf-commands/${camel.version}</bundle>
-            <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-        </conditional>
-        <!-- allow camel to access its own mbeans for karaf commands and other needs -->
-        <config name="jmx.acl.org.apache.camel">
-            * = *
-        </config>
-    </feature>
+  <feature name='camel' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <feature version='${camel.version}'>camel-blueprint</feature>
+    <!-- we no longer install camel-spring by default -->
+  </feature>
+  <feature name='camel-core' version='${camel.version}' start-level='50'>
+    <!--feature version='${servicemix-specs-version}'>xml-specs-api</feature-->
+    <feature version="${cxf.version}">cxf-specs</feature>
+    <bundle dependency='true'>mvn:com.github.ben-manes.caffeine/caffeine/${caffeine-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-api/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-management-api/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-util/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-util-json/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-support/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-base/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-management/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-core-engine/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-core-languages/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel.karaf/camel-core-osgi/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-core-catalog/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-cloud/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-cluster/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-health/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-xml-jaxp/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-xml-jaxb/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-caffeine-lrucache/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-tooling-model/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-main/${camel.version}</bundle>
+    <!-- core components -->
+    <bundle>mvn:org.apache.camel/camel-bean/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-browse/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-controlbus/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-dataformat/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-dataset/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-direct/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-directvm/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-file/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-language/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-log/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-mock/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-ref/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-rest/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-saga/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-scheduler/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-seda/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-stub/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-timer/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-validator/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-vm/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-xpath/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-xslt/${camel.version}</bundle>
+    <conditional>
+      <condition>shell</condition>
+      <bundle>mvn:org.apache.camel.karaf/camel-commands-core/${camel.version}</bundle>
+      <bundle>mvn:org.apache.camel.karaf/camel-karaf-commands/${camel.version}</bundle>
+    </conditional>
+    <!-- allow camel to access its own mbeans for karaf commands and other needs -->
+    <config name="jmx.acl.org.apache.camel">
+      * = *
+    </config>
+  </feature>
+  <feature name='camel-blueprint' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle>mvn:org.apache.camel/camel-core-xml/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel.karaf/camel-blueprint/${camel.version}</bundle>
+    <feature>aries-blueprint</feature>
+  </feature>
 
-    <feature name="camel-catalog" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-catalog/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-blueprint" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-blueprint/${camel.version}</bundle>
-        <feature>aries-blueprint</feature>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-spring" version="${camel.version}" start-level="50">
-        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta-spec-version}</bundle>
-        <feature version="${spring-version-range}">spring</feature>
-        <feature version="${spring-version-range}">spring-tx</feature>
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-spring/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-amqp" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-jms</feature>
-        <bundle dependency="true">mvn:org.apache.qpid/qpid-jms-client/${qpid-jms-client-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.qpid/proton-j/${qpid-proton-j-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-common/${netty-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-buffer/${netty-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-resolver/${netty-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-transport/${netty-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-handler/${netty-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-codec/${netty-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-transport-native-epoll/${netty-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-transport-native-kqueue/${netty-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-codec-http/${netty-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-transport-native-unix-common/${netty-version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-amqp/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-  <feature name="camel-aws" version="${camel.version}" start-level="50">
-    <feature version="${camel.version}">camel-core</feature>
-        <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
-        <bundle dependency="true">mvn:joda-time/joda-time/${joda-time.version}</bundle>
-        <bundle dependency="true">mvn:com.sun.mail/javax.mail/${javax-mail-version}</bundle>
-        <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
-
-        <bundle>mvn:org.apache.camel/camel-aws/${camel.version}</bundle>
-      <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-context" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-context/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-cxf" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-blueprint</feature>
-        <feature version="${camel.version}">camel-spring</feature>
-        <feature version="${cxf-version-range}">cxf-core</feature>
-        <feature version="${cxf-version-range}">cxf-jaxrs</feature>
-        <feature version="${cxf-version-range}">cxf-jaxws</feature>
-        <!--<feature version="${cxf-version-range}">cxf-http-provider</feature>-->
-        <feature version="${cxf-version-range}">cxf-http-jetty</feature>
-        <feature version="${cxf-version-range}">cxf-databinding-jaxb</feature>
-        <feature version="${cxf-version-range}">cxf-bindings-soap</feature>
-        <feature version="${cxf-version-range}">cxf-features-logging</feature>
-        <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-cxf-transport/${camel.version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-cxf/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-eventadmin" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <feature>eventadmin</feature>
-        <bundle>mvn:org.apache.camel/camel-eventadmin/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-freemarker" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle dependency="true">mvn:org.freemarker/freemarker/${freemarker-version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-freemarker/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-http" version="${camel.version}" start-level="50">
-        <feature>camel</feature>
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-httpclient/${commons-httpclient-bundle-version}</bundle>
-        <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
-        <bundle dependency="true">mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-http/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-jackson" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-jackson/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-jaxb" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-jaxb/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-jetty9" version="${camel.version}" start-level="50">
-        <feature>jetty</feature>
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-jetty-common/${camel.version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-jetty9/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-    <!--
-        In order to get camel-jms to work with upgraded versions of camel-amqp replaced:
-        <bundle >mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta-spec-version}</bundle>
-        with:
-        <feature>transaction</feature>
-    -->
-    <feature name="camel-jms" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <feature version="${spring-version-range}">spring</feature>
-        <feature version="${spring-version-range}">spring-jms</feature>
-        <!-- Use version 1.2 of javax transaction, DDF update to the camel feature file -->
-        <feature>transaction</feature>
-        <!-- Use version 2.0 of javax jms, DDF update to the camel feature file -->
-        <bundle dependency="true">mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms2-spec-version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-jms/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-    <feature name="camel-metrics" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-core/${metrics-version}</bundle>
-        <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-json/${metrics-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-metrics/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-    <feature name="camel-protobuf" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle dependency="true">mvn:com.google.protobuf/protobuf-java/${protobuf-version}</bundle>
-        <bundle dependency="true">mvn:com.google.protobuf/protobuf-java-util/${protobuf-version}</bundle>
-        <bundle dependency="true">mvn:commons-io/commons-io/${commons-io-version}</bundle>
-        <bundle dependency="true">mvn:com.google.guava/guava/${camel.guava.version}</bundle>
-        <bundle dependency="true">mvn:com.google.code.gson/gson/${gson.version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-protobuf/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-  <feature name="camel-quartz2" version="${camel.version}" start-level="50">
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.c3p0/${c3p0-bundle-version}</bundle>
-        <bundle dependency="true">mvn:com.zaxxer/HikariCP-java7/${hikaricp-version}</bundle>
-        <bundle dependency="true">wrap:mvn:org.quartz-scheduler/quartz/${quartz2-version}$overwrite=merge&amp;DynamicImport-Package=org.apache.camel.component.quartz2</bundle>
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-quartz2/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-sjms" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <!-- JTA is not currently supported by SJMS but is a required dependency of the Geronimo JMS Bundle -->
-
-        <!-- Use version 1.2 of javax transaction, DDF update to the camel feature file -->
-        <feature>transaction</feature>
-        <!-- Use version 2.0 of javax jms, DDF update to the camel feature file -->
-        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms-spec-version}</bundle>
-        <bundle dependency="true">mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-sjms/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-sjms2" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <!-- JTA is not currently supported by SJMS but is a required dependency of the Geronimo JMS Bundle -->
-        <!-- Use version 1.2 of javax transaction, DDF update to the camel feature file -->
-        <feature>transaction</feature>
-        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms2-spec-version}</bundle>
-        <bundle dependency="true">mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.camel/camel-sjms/${camel.version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-sjms2/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-stax" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-stax/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-
-    <feature name="camel-test" version="${camel.version}" start-level="50">
-        <feature version="${camel.version}">camel-core</feature>
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/${junit-bundle-version}</bundle>
-        <bundle>mvn:org.apache.camel/camel-test/${camel.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-    </feature>
-    <!-- END Camel Features -->
+  <!-- the following features are sorted A..Z -->
+  <feature name='camel-aws' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-aws-cw</feature>
+    <feature version='${camel.version}'>camel-aws-s3</feature>
+    <feature version='${camel.version}'>camel-aws-ddb</feature>
+    <feature version='${camel.version}'>camel-aws-ec2</feature>
+    <feature version='${camel.version}'>camel-aws-ecs</feature>
+    <feature version='${camel.version}'>camel-aws-eks</feature>
+    <feature version='${camel.version}'>camel-aws-iam</feature>
+    <feature version='${camel.version}'>camel-aws-kinesis</feature>
+    <feature version='${camel.version}'>camel-aws-kms</feature>
+    <feature version='${camel.version}'>camel-aws-lambda</feature>
+    <feature version='${camel.version}'>camel-aws-mq</feature>
+    <feature version='${camel.version}'>camel-aws-msk</feature>
+    <feature version='${camel.version}'>camel-aws-sdb</feature>
+    <feature version='${camel.version}'>camel-aws-ses</feature>
+    <feature version='${camel.version}'>camel-aws-sns</feature>
+    <feature version='${camel.version}'>camel-aws-sqs</feature>
+    <feature version='${camel.version}'>camel-aws-swf</feature>
+    <feature version='${camel.version}'>camel-aws-translate</feature>
+  </feature>
+  <feature name='camel-aws-s3' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-s3/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-cw' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-cw/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-ddb' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-ddb/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-ec2' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-ec2/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-ecs' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-ecs/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-eks' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-eks/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-iam' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-iam/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-kinesis' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-kinesis/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-kms' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-kms/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-lambda' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-lambda/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-mq' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-mq/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-msk' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-msk/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-sdb' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-sdb/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-ses' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-ses/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-sns' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-sns/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-sqs' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-sqs/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-swf' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-swf/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-aws-translate' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.sun.mail/jakarta.mail/${jakarta-mail-version}</bundle>
+    <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-aws-translate/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-http' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
+    <bundle dependency='true'>mvn:javax.servlet/javax.servlet-api/${javax-servlet-api-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-attachments/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-http-base/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-http/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-jackson' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-jackson/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-jaxb' version='${camel.version}' start-level='50'>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle>mvn:org.apache.camel/camel-jaxb/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-jetty' version='${camel.version}' start-level='50'>
+    <feature>jetty</feature>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle>mvn:org.apache.camel/camel-attachments/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-http-base/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-jetty-common/${camel.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-jetty/${camel.version}</bundle>
+  </feature>
+  <feature name='camel-quartz' version='${camel.version}' start-level='50'>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.c3p0/${c3p0-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:com.zaxxer/HikariCP-java7/${hikaricp-version}</bundle>
+    <bundle dependency='true'>wrap:mvn:org.quartz-scheduler/quartz/${quartz-version}$overwrite=merge&amp;DynamicImport-Package=org.apache.camel.component.quartz</bundle>
+    <feature version='${camel.version}'>camel-core</feature>
+    <bundle>mvn:org.apache.camel/camel-quartz/${camel.version}</bundle>
+  </feature>
+  <!-- END Camel Features -->
 
 </features>

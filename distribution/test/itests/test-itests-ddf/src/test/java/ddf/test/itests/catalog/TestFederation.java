@@ -47,7 +47,6 @@ import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 
@@ -2072,15 +2071,15 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   private String ingestXmlWithProduct(String fileName) throws IOException {
-    File file = new File(fileName);
-    if (file.exists()) {
-      file.delete();
+    Path path = Paths.get(fileName);
+    if (Files.exists(path)) {
+      Files.delete(path);
     }
-    if (!file.createNewFile()) {
-      fail("Unable to create " + fileName + " file.");
-    }
-    FileUtils.write(file, SAMPLE_DATA);
-    String fileLocation = file.toURI().toURL().toString();
+
+    Files.createFile(path);
+    Files.write(path, SAMPLE_DATA.getBytes());
+
+    String fileLocation = path.toUri().toURL().toString();
     LOGGER.debug("File Location: {}", fileLocation);
     return ingest(getSimpleXml(fileLocation), "text/xml");
   }
