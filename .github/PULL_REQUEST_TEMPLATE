@@ -23,27 +23,29 @@
 <!--
 If you don't know who to ask, you can request reviews in https://groups.google.com/forum/#!forum/ddf-developers .
 (please choose ONLY two committers from below)
-@adimka
 @ahoffer
 @andrewkfiedler
+@andrewzimmer
 @AzGoalie
-@bdeining
 @bdthomson
 @blen-desta
 @brendan-hofmann
-@brjeter
+@brianfelix
+@cassandrabailey293
 @clockard
 @coyotesqrl
-@djblue
 @emmberk
 @figliold
 @garrettfreibott
 @glenhein 
 @gordocanchola 
+@hayleynorton
 @jlcsmith
+@josephthweatt
 @jrnorth
 @lambeaux
-@lessarderic
+@lamhuy
+@leo-sakh
 @mcalcote
 @millerw8
 @mojogitoverhere
@@ -52,12 +54,13 @@ If you don't know who to ask, you can request reviews in https://groups.google.c
 @pklinef
 @ricklarsen - Documentation
 @ryeats
+@rymach
 @rzwiefel
 @shaundmorris
+@smithjosh
 @stustison
-@tbatie
-@troymohl
 @vinamartin
+@zta6
 -->
 
 #### How should this be tested?
