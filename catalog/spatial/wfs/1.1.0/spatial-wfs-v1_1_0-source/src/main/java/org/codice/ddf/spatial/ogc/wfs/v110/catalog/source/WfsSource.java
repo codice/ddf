@@ -775,26 +775,24 @@ public class WfsSource extends AbstractWfsSource {
           if (areAnyFiltersSet(filter)) {
             wfsQuery.setFilter(filter);
           }
-          if (!this.disableSorting) {
-            if (query.getSortBy() != null) {
-              SortByType sortByType = buildSortBy(filterDelegateEntry.getKey(), query.getSortBy());
-              if (sortByType != null
-                  && sortByType.getSortProperty() != null
-                  && sortByType.getSortProperty().size() > 0) {
-                LOGGER.debug(
-                    "Sorting using sort property [{}] and sort order [{}].",
-                    sortByType.getSortProperty().get(0).getPropertyName(),
-                    sortByType.getSortProperty().get(0).getSortOrder());
-                wfsQuery.setSortBy(sortByType);
-              } else {
-                throw new UnsupportedQueryException(
-                    "Source "
-                        + this.getId()
-                        + " does not support specified sort property "
-                        + query.getSortBy().getPropertyName().getPropertyName()
-                        + " with sort order "
-                        + query.getSortBy().getSortOrder());
-              }
+          if (!this.disableSorting && query.getSortBy() != null) {
+            SortByType sortByType = buildSortBy(filterDelegateEntry.getKey(), query.getSortBy());
+            if (sortByType != null
+                && sortByType.getSortProperty() != null
+                && sortByType.getSortProperty().size() > 0) {
+              LOGGER.debug(
+                  "Sorting using sort property [{}] and sort order [{}].",
+                  sortByType.getSortProperty().get(0).getPropertyName(),
+                  sortByType.getSortProperty().get(0).getSortOrder());
+              wfsQuery.setSortBy(sortByType);
+            } else {
+              throw new UnsupportedQueryException(
+                  "Source "
+                      + this.getId()
+                      + " does not support specified sort property "
+                      + query.getSortBy().getPropertyName().getPropertyName()
+                      + " with sort order "
+                      + query.getSortBy().getSortOrder());
             }
           } else {
             LOGGER.debug("Sorting is disabled.");
@@ -1114,18 +1112,18 @@ public class WfsSource extends AbstractWfsSource {
 
   private void logMessage(GetFeatureType getFeature) {
     if (LOGGER.isDebugEnabled()) {
-    try {
-      StringWriter writer = new StringWriter();
-      JAXBContext contextObj = JAXBContext.newInstance(GetFeatureType.class);
+      try {
+        StringWriter writer = new StringWriter();
+        JAXBContext contextObj = JAXBContext.newInstance(GetFeatureType.class);
 
-      Marshaller marshallerObj = contextObj.createMarshaller();
-      marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        Marshaller marshallerObj = contextObj.createMarshaller();
+        marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-      marshallerObj.marshal(new ObjectFactory().createGetFeature(getFeature), writer);
-      LOGGER.debug("WfsSource {}: {}", getId(), writer);
-    } catch (JAXBException e) {
-      LOGGER.debug("An error occurred debugging the GetFeature request", e);
-    }
+        marshallerObj.marshal(new ObjectFactory().createGetFeature(getFeature), writer);
+        LOGGER.debug("WfsSource {}: {}", getId(), writer);
+      } catch (JAXBException e) {
+        LOGGER.debug("An error occurred debugging the GetFeature request", e);
+      }
     }
   }
 

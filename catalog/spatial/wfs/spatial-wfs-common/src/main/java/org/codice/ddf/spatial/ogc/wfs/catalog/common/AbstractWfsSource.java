@@ -22,6 +22,7 @@ import ddf.catalog.util.impl.MaskableImpl;
 import java.util.List;
 import java.util.function.Predicate;
 import javax.xml.namespace.QName;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,52 +79,47 @@ public abstract class AbstractWfsSource extends MaskableImpl
     if (featureType == null || incomingPropertyName == null || metacardMapperList == null) {
       return null;
     }
-    metacardMapperList.forEach(
-        m -> {
-          LOGGER.debug(
-              "Sorting: Mapper: featureType {}, mapped property for {} : {}",
-              m.getFeatureType(),
-              incomingPropertyName,
-              m.getFeatureProperty(incomingPropertyName));
-        });
-    LOGGER.debug(
-        "Mapping sort proeprty: featureType {}, incomingPropertyName {}",
-        featureType,
-        incomingPropertyName);
+    if (LOGGER.isDebugEnabled()) {
+      metacardMapperList.forEach(
+          m -> {
+            LOGGER.debug(
+                "Sorting: Mapper: featureType {}, mapped property for {} : {}",
+                m.getFeatureType(),
+                incomingPropertyName,
+                m.getFeatureProperty(incomingPropertyName));
+          });
+      LOGGER.debug(
+          "Mapping sort property: featureType {}, incomingPropertyName {}",
+          featureType,
+          incomingPropertyName);
+    }
     MetacardMapper metacardToFeaturePropertyMapper =
         lookupMetacardAttributeToFeaturePropertyMapper(featureType, metacardMapperList);
     String mappedPropertyName = null;
 
     if (metacardToFeaturePropertyMapper != null) {
 
-      if (org.apache.commons.lang.StringUtils.equals(Result.TEMPORAL, incomingPropertyName)
-          || org.apache.commons.lang.StringUtils.equals(Metacard.EFFECTIVE, incomingPropertyName)) {
+      if (StringUtils.equals(Result.TEMPORAL, incomingPropertyName)
+          || StringUtils.equals(Metacard.EFFECTIVE, incomingPropertyName)) {
         mappedPropertyName =
-            org.apache.commons.lang.StringUtils.isNotBlank(
-                    metacardToFeaturePropertyMapper.getSortByTemporalFeatureProperty())
-                ? metacardToFeaturePropertyMapper.getSortByTemporalFeatureProperty()
-                : null;
-      } else if (org.apache.commons.lang.StringUtils.equals(
-          Result.RELEVANCE, incomingPropertyName)) {
+            StringUtils.defaultIfBlank(
+                metacardToFeaturePropertyMapper.getSortByTemporalFeatureProperty(), null);
+      } else if (StringUtils.equals(Result.RELEVANCE, incomingPropertyName)) {
         mappedPropertyName =
-            org.apache.commons.lang.StringUtils.isNotBlank(
-                    metacardToFeaturePropertyMapper.getSortByRelevanceFeatureProperty())
-                ? metacardToFeaturePropertyMapper.getSortByRelevanceFeatureProperty()
-                : null;
+            StringUtils.defaultIfBlank(
+                metacardToFeaturePropertyMapper.getSortByRelevanceFeatureProperty(), null);
       } else if (org.apache.commons.lang.StringUtils.equals(
           Result.DISTANCE, incomingPropertyName)) {
         mappedPropertyName =
-            org.apache.commons.lang.StringUtils.isNotBlank(
-                    metacardToFeaturePropertyMapper.getSortByDistanceFeatureProperty())
-                ? metacardToFeaturePropertyMapper.getSortByDistanceFeatureProperty()
-                : null;
+            StringUtils.defaultIfBlank(
+                metacardToFeaturePropertyMapper.getSortByDistanceFeatureProperty(), null);
       } else {
         mappedPropertyName =
             metacardToFeaturePropertyMapper.getFeatureProperty(incomingPropertyName);
       }
     }
 
-    LOGGER.debug("mapped sort proeprty from {} to {}", incomingPropertyName, mappedPropertyName);
+    LOGGER.debug("mapped sort property from {} to {}", incomingPropertyName, mappedPropertyName);
     return mappedPropertyName;
   }
 

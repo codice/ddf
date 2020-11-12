@@ -239,9 +239,9 @@ public class WfsSourceTest {
 
   private static final String LITERAL = "literal";
 
-  private static final String MOCK_TEMPORAL_SORT_PROEPRTY = "myTemporalSortProperty";
-  private static final String MOCK_RELEVANCE_SORT_PROEPRTY = "myRelevanceSortProperty";
-  private static final String MOCK_DISTANCE_SORT_PROEPRTY = "myDistanceSortProperty";
+  private static final String MOCK_TEMPORAL_SORT_PROPERTY = "myTemporalSortProperty";
+  private static final String MOCK_RELEVANCE_SORT_PROPERTY = "myRelevanceSortProperty";
+  private static final String MOCK_DISTANCE_SORT_PROPERTY = "myDistanceSortProperty";
 
   private static final String WFS_ID = "WFS_ID";
 
@@ -1427,7 +1427,7 @@ public class WfsSourceTest {
     final QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     setupMapper(
-        MOCK_TEMPORAL_SORT_PROEPRTY, MOCK_RELEVANCE_SORT_PROEPRTY, MOCK_DISTANCE_SORT_PROEPRTY);
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
     source.setMetacardMappers(metacardMappers);
     propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING));
 
@@ -1436,7 +1436,7 @@ public class WfsSourceTest {
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
     for (final GetFeatureType getFeatureType : captor.getAllValues()) {
-      assertFeature(getFeatureType, true, MOCK_TEMPORAL_SORT_PROEPRTY, "ASC");
+      assertFeature(getFeatureType, true, MOCK_TEMPORAL_SORT_PROPERTY, "ASC");
     }
   }
 
@@ -1447,7 +1447,7 @@ public class WfsSourceTest {
     final QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     setupMapper(
-        MOCK_TEMPORAL_SORT_PROEPRTY, MOCK_RELEVANCE_SORT_PROEPRTY, MOCK_DISTANCE_SORT_PROEPRTY);
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
     source.setMetacardMappers(metacardMappers);
     propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING));
 
@@ -1456,7 +1456,7 @@ public class WfsSourceTest {
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
     for (final GetFeatureType getFeatureType : captor.getAllValues()) {
-      assertFeature(getFeatureType, true, MOCK_TEMPORAL_SORT_PROEPRTY, "DESC");
+      assertFeature(getFeatureType, true, MOCK_TEMPORAL_SORT_PROPERTY, "DESC");
     }
   }
 
@@ -1467,7 +1467,7 @@ public class WfsSourceTest {
     final QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     setupMapper(
-        MOCK_TEMPORAL_SORT_PROEPRTY, MOCK_RELEVANCE_SORT_PROEPRTY, MOCK_DISTANCE_SORT_PROEPRTY);
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
     source.setMetacardMappers(metacardMappers);
     source.setDisableSorting(true);
     propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING));
@@ -1477,7 +1477,7 @@ public class WfsSourceTest {
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
     for (final GetFeatureType getFeatureType : captor.getAllValues()) {
-      assertFeature(getFeatureType, false, MOCK_TEMPORAL_SORT_PROEPRTY, "ASC");
+      assertFeature(getFeatureType, false, MOCK_TEMPORAL_SORT_PROPERTY, "ASC");
     }
   }
 
@@ -1496,7 +1496,6 @@ public class WfsSourceTest {
     source.setDisableSorting(false);
     propertyIsLikeQuery.setSortBy(new SortByImpl("title", SortOrder.ASCENDING));
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
   }
 
@@ -1512,11 +1511,10 @@ public class WfsSourceTest {
     final QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     setupMapper(
-        MOCK_TEMPORAL_SORT_PROEPRTY, MOCK_RELEVANCE_SORT_PROEPRTY, MOCK_DISTANCE_SORT_PROEPRTY);
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
     source.setMetacardMappers(metacardMappers);
     propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, (String) null));
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
   }
 
@@ -1532,11 +1530,10 @@ public class WfsSourceTest {
     final QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     setupMapper(
-        MOCK_TEMPORAL_SORT_PROEPRTY, MOCK_RELEVANCE_SORT_PROEPRTY, MOCK_DISTANCE_SORT_PROEPRTY);
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
     source.setMetacardMappers(metacardMappers);
     propertyIsLikeQuery.setSortBy(new SortByImpl(null, "ASC"));
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
   }
 
@@ -1552,11 +1549,10 @@ public class WfsSourceTest {
     final QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     setupMapper(
-        MOCK_TEMPORAL_SORT_PROEPRTY, MOCK_RELEVANCE_SORT_PROEPRTY, MOCK_DISTANCE_SORT_PROEPRTY);
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
     source.setMetacardMappers(metacardMappers);
     propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, "foo"));
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
   }
 
