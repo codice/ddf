@@ -39,6 +39,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.Query;
@@ -109,10 +110,13 @@ import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.GetCapabilitiesRequest
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 
 public class WfsSourceTest {
@@ -235,6 +239,12 @@ public class WfsSourceTest {
 
   private static final String LITERAL = "literal";
 
+  private static final String MOCK_TEMPORAL_SORT_PROPERTY = "myTemporalSortProperty";
+  private static final String MOCK_RELEVANCE_SORT_PROPERTY = "myRelevanceSortProperty";
+  private static final String MOCK_DISTANCE_SORT_PROPERTY = "myDistanceSortProperty";
+
+  private static final String WFS_ID = "WFS_ID";
+
   private static final Comparator<QueryType> QUERY_TYPE_COMPARATOR =
       (queryType1, queryType2) -> {
         String typeName1 = queryType1.getTypeName().get(0).getLocalPart();
@@ -267,6 +277,8 @@ public class WfsSourceTest {
   private ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
 
   private List<MetacardMapper> metacardMappers = new ArrayList<>();
+
+  @Rule public ExpectedException expectedEx = ExpectedException.none();
 
   @BeforeClass
   public static void setupClass() {
@@ -360,6 +372,7 @@ public class WfsSourceTest {
         .scheduleWithFixedDelay(any(), anyInt(), anyInt(), any());
 
     source = new WfsSource(clientBuilderFactory, encryptionService, mockScheduler);
+    source.setId(WFS_ID);
     source.setFilterAdapter(new GeotoolsFilterAdapterImpl());
     source.setContext(mockContext);
     source.setWfsMetacardTypeRegistry(mockWfsMetacardTypeRegistry);
@@ -1190,6 +1203,7 @@ public class WfsSourceTest {
             .put("connectionTimeout", connectionTimeout)
             .put("receiveTimeout", receiveTimeout)
             .put("pollInterval", 1)
+            .put("disableSorting", false)
             .build();
     source.refresh(configuration);
 
@@ -1224,6 +1238,7 @@ public class WfsSourceTest {
             .put("connectionTimeout", connectionTimeout)
             .put("receiveTimeout", receiveTimeout)
             .put("pollInterval", 1)
+            .put("disableSorting", false)
             .build();
     source.refresh(configuration);
 
@@ -1251,6 +1266,7 @@ public class WfsSourceTest {
             .put("connectionTimeout", connectionTimeout)
             .put("receiveTimeout", receiveTimeout)
             .put("pollInterval", 1)
+            .put("disableSorting", false)
             .build();
     source.refresh(configuration);
 
@@ -1272,6 +1288,7 @@ public class WfsSourceTest {
             .put("allowRedirects", false)
             .put("disableCnCheck", false)
             .put("pollInterval", 1)
+            .put("disableSorting", false)
             .build();
     source.refresh(configuration);
 
@@ -1313,6 +1330,7 @@ public class WfsSourceTest {
             .put("allowRedirects", false)
             .put("disableCnCheck", false)
             .put("pollInterval", 1)
+            .put("disableSorting", false)
             .build();
     source.refresh(configuration);
 
@@ -1369,6 +1387,206 @@ public class WfsSourceTest {
           query.getFilter().getComparisonOps().getValue(),
           is(instanceOf(PropertyIsLikeType.class)));
     }
+  }
+
+  @Test
+  public void testSortingNoSortBy() throws Exception {
+    // Setup
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
+    final QueryImpl propertyIsLikeQuery =
+        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
+    propertyIsLikeQuery.setPageSize(1);
+
+    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    verify(mockWfs, times(2)).getFeature(captor.capture());
+
+    final GetFeatureType getResults = captor.getAllValues().get(1);
+    assertThat(getResults.getResultType(), is(ResultTypeType.RESULTS));
+    for (final GetFeatureType getFeatureType : captor.getAllValues()) {
+      assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
+      final QueryType queryType = getFeatureType.getQuery().get(0);
+      assertThat(queryType.isSetSortBy(), is(false));
+    }
+  }
+
+  /**
+   * WFS 1.1.0 Sorting uses the following format: Valid sort orders are "ASC" and "DESC". Ref:
+   * http://schemas.opengis.net/filter/1.1.0/sort.xsd <wfs:Query typeName="QName QName">
+   * <wfs:PropertyName>QName</wfs:PropertyName> <ogc:Filter> <ogc:Equals> <ogc:PropertyName/>
+   * <gml:Point>... </gml:Point> </ogc:Equals> </ogc:Filter> <ogc:SortBy> <ogc:SortProperty>
+   * <ogc:PropertyName>property</ogc:PropertyName> <ogc:SortOrder>ASC</ogc:SortOrder>
+   * </ogc:SortProperty> </ogc:SortBy> </wfs:Query>
+   */
+  @Test
+  public void testSortingSortOrderAscending() throws Exception {
+    // Setup
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
+    final QueryImpl propertyIsLikeQuery =
+        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
+    setupMapper(
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
+    source.setMetacardMappers(metacardMappers);
+    propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING));
+
+    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    verify(mockWfs, times(2)).getFeature(captor.capture());
+
+    for (final GetFeatureType getFeatureType : captor.getAllValues()) {
+      assertFeature(getFeatureType, true, MOCK_TEMPORAL_SORT_PROPERTY, "ASC");
+    }
+  }
+
+  @Test
+  public void testSortingSortOrderDescending() throws Exception {
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
+    final QueryImpl propertyIsLikeQuery =
+        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
+    setupMapper(
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
+    source.setMetacardMappers(metacardMappers);
+    propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING));
+
+    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    verify(mockWfs, times(2)).getFeature(captor.capture());
+
+    for (final GetFeatureType getFeatureType : captor.getAllValues()) {
+      assertFeature(getFeatureType, true, MOCK_TEMPORAL_SORT_PROPERTY, "DESC");
+    }
+  }
+
+  @Test
+  public void testSortingDisabled() throws Exception {
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
+    final QueryImpl propertyIsLikeQuery =
+        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
+    setupMapper(
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
+    source.setMetacardMappers(metacardMappers);
+    source.setDisableSorting(true);
+    propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING));
+
+    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    verify(mockWfs, times(2)).getFeature(captor.capture());
+
+    for (final GetFeatureType getFeatureType : captor.getAllValues()) {
+      assertFeature(getFeatureType, false, MOCK_TEMPORAL_SORT_PROPERTY, "ASC");
+    }
+  }
+
+  @Test
+  public void testSortingNoSortMapping() throws Exception {
+    // if sorting is enabled but there is no sort mapping, throw an UnsupportedQueryException
+    expectedEx.expect(UnsupportedQueryException.class);
+    expectedEx.expectMessage("Source WFS_ID does not support specified sort property title");
+
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
+    final QueryImpl propertyIsLikeQuery =
+        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
+    setupMapper(null, null, null);
+    source.setMetacardMappers(metacardMappers);
+    source.setDisableSorting(false);
+    propertyIsLikeQuery.setSortBy(new SortByImpl("title", SortOrder.ASCENDING));
+
+    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+  }
+
+  @Test
+  public void testSortingNoSortOrder() throws Exception {
+    // if sort order is missing, throw UnsupportedQueryException
+    expectedEx.expect(UnsupportedQueryException.class);
+    expectedEx.expectMessage(
+        "Source WFS_ID does not support specified sort property TEMPORAL with sort order null");
+
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
+    final QueryImpl propertyIsLikeQuery =
+        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
+    setupMapper(
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
+    source.setMetacardMappers(metacardMappers);
+    propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, (String) null));
+
+    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+  }
+
+  @Test
+  public void testSortingNoSortProperty() throws Exception {
+    // if sort property is missing, throw UnsupportedQueryException
+    expectedEx.expect(UnsupportedQueryException.class);
+    expectedEx.expectMessage(
+        "Source WFS_ID does not support specified sort property null with sort order SortOrder[ASCENDING]");
+
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
+    final QueryImpl propertyIsLikeQuery =
+        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
+    setupMapper(
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
+    source.setMetacardMappers(metacardMappers);
+    propertyIsLikeQuery.setSortBy(new SortByImpl(null, "ASC"));
+
+    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+  }
+
+  @Test
+  public void testSortingBadSortOrder() throws Exception {
+    // if sort order is invalid throw UnsupportedQueryException
+    expectedEx.expect(UnsupportedQueryException.class);
+    expectedEx.expectMessage(
+        "Source WFS_ID does not support specified sort property TEMPORAL with sort order SortOrder[foo]");
+
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
+    final QueryImpl propertyIsLikeQuery =
+        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
+    setupMapper(
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
+    source.setMetacardMappers(metacardMappers);
+    propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, "foo"));
+
+    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+  }
+
+  private void assertFeature(
+      GetFeatureType getFeatureType,
+      boolean sortingEnabled,
+      String sortProperty,
+      String sortOrder) {
+    assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
+    final QueryType queryType = getFeatureType.getQuery().get(0);
+    if (sortingEnabled) {
+      assertThat(queryType.isSetSortBy(), is(true));
+      assertThat(queryType.getSortBy().getSortProperty().size(), is(1));
+      assertThat(
+          queryType.getSortBy().getSortProperty().get(0).getPropertyName().getContent().size(),
+          is(1));
+      assertThat(
+          queryType.getSortBy().getSortProperty().get(0).getPropertyName().getContent().get(0),
+          is(sortProperty));
+      assertThat(
+          queryType.getSortBy().getSortProperty().get(0).getSortOrder().value(), is(sortOrder));
+    } else {
+      assertThat(queryType.isSetSortBy(), is(false));
+    }
+  }
+
+  private void setupMapper(
+      String temporalSortProperty, String relevanceSortProperty, String distanceSortProperty) {
+    final MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+    metacardMapper.setSortByTemporalFeatureProperty(temporalSortProperty);
+    metacardMapper.setSortByDistanceFeatureProperty(relevanceSortProperty);
+    metacardMapper.setSortByRelevanceFeatureProperty(distanceSortProperty);
+    metacardMapper.setFeatureType("SampleFeature0");
+    metacardMappers.add(metacardMapper);
   }
 
   private SourceResponse executeQuery(int startIndex, int pageSize)

@@ -56,7 +56,6 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -535,8 +534,15 @@ public class WfsSource extends AbstractWfsSource {
           lookupFeatureConverter(ftSimpleName, featureMetacardType);
 
           MetacardMapper metacardAttributeToFeaturePropertyMapper =
-              lookupMetacardAttributeToFeaturePropertyMapper(featureMetacardType.getFeatureType());
+              lookupMetacardAttributeToFeaturePropertyMapper(
+                  featureMetacardType.getFeatureType(), metacardToFeatureMappers);
 
+          if (metacardAttributeToFeaturePropertyMapper == null) {
+            LOGGER.debug(
+                "Unable to find a metacard mapper for featureType {} - using a default implementation",
+                featureMetacardType.getFeatureType());
+            metacardAttributeToFeaturePropertyMapper = new MetacardMapperImpl();
+          }
           this.featureTypeFilters.put(
               featureMetacardType.getFeatureType(),
               new WfsFilterDelegate(
@@ -618,7 +624,8 @@ public class WfsSource extends AbstractWfsSource {
       // Since we have no specific converter, we will check to see if we have a mapper to do
       // feature property to metacard attribute mappings.
       MetacardMapper featurePropertyToMetacardAttributeMapper =
-          lookupMetacardAttributeToFeaturePropertyMapper(ftMetacard.getFeatureType());
+          lookupMetacardAttributeToFeaturePropertyMapper(
+              ftMetacard.getFeatureType(), metacardToFeatureMappers);
 
       featureConverter = new GenericFeatureConverterWfs20(featurePropertyToMetacardAttributeMapper);
       LOGGER.debug(
@@ -639,21 +646,6 @@ public class WfsSource extends AbstractWfsSource {
         featureConverter.getClass().getSimpleName(),
         ftSimpleName);
     getFeatureCollectionReader().registerConverter(featureConverter);
-  }
-
-  private MetacardMapper lookupMetacardAttributeToFeaturePropertyMapper(QName featureType) {
-    final Predicate<MetacardMapper> matchesFeatureType =
-        mapper -> mapper.getFeatureType().equals(featureType.toString());
-    return metacardToFeatureMappers.stream()
-        .filter(matchesFeatureType)
-        .findAny()
-        .orElseGet(
-            () -> {
-              LOGGER.debug(
-                  "Could not find a MetacardMapper for featureType {}. Returning a default implementation.",
-                  featureType);
-              return new MetacardMapperImpl();
-            });
   }
 
   private MetacardTypeRegistration createFeatureMetacardTypeRegistration(
@@ -886,7 +878,10 @@ public class WfsSource extends AbstractWfsSource {
         new net.opengis.filter.v_2_0_0.ObjectFactory();
 
     String propertyName =
-        mapSortByPropertyName(featureType, incomingSortBy.getPropertyName().getPropertyName());
+        mapSortByPropertyName(
+            featureType,
+            incomingSortBy.getPropertyName().getPropertyName(),
+            metacardToFeatureMappers);
 
     if (propertyName != null) {
 
@@ -911,39 +906,6 @@ public class WfsSource extends AbstractWfsSource {
     } else {
       return null;
     }
-  }
-
-  /**
-   * If a MetacardMapper cannot be found or there is no mapping for the incomingPropertyName, return
-   * null. This will cause a query to be constructed without an AbstractSortingClause.
-   */
-  private String mapSortByPropertyName(QName featureType, String incomingPropertyName) {
-    MetacardMapper metacardToFeaturePropertyMapper =
-        lookupMetacardAttributeToFeaturePropertyMapper(featureType);
-    String mappedPropertyName;
-
-    if (StringUtils.equals(Result.TEMPORAL, incomingPropertyName)
-        || StringUtils.equals(Metacard.EFFECTIVE, incomingPropertyName)) {
-      mappedPropertyName =
-          StringUtils.isNotBlank(metacardToFeaturePropertyMapper.getSortByTemporalFeatureProperty())
-              ? metacardToFeaturePropertyMapper.getSortByTemporalFeatureProperty()
-              : null;
-    } else if (StringUtils.equals(Result.RELEVANCE, incomingPropertyName)) {
-      mappedPropertyName =
-          StringUtils.isNotBlank(
-                  metacardToFeaturePropertyMapper.getSortByRelevanceFeatureProperty())
-              ? metacardToFeaturePropertyMapper.getSortByRelevanceFeatureProperty()
-              : null;
-    } else if (StringUtils.equals(Result.DISTANCE, incomingPropertyName)) {
-      mappedPropertyName =
-          StringUtils.isNotBlank(metacardToFeaturePropertyMapper.getSortByDistanceFeatureProperty())
-              ? metacardToFeaturePropertyMapper.getSortByDistanceFeatureProperty()
-              : null;
-    } else {
-      mappedPropertyName = null;
-    }
-
-    return mappedPropertyName;
   }
 
   private boolean areAnyFiltersSet(FilterType filter) {
