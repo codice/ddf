@@ -764,9 +764,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private boolean isValidInputParameters(String propertyName, Object literal) {
-    return !(literal == null
-        || StringUtils.isEmpty(propertyName)
-        || StringUtils.isEmpty(literal.toString()));
+    return !(literal == null || StringUtils.isEmpty(propertyName));
   }
 
   private boolean isValidInputParameters(String propertyName, String literal, double distance) {

@@ -67,7 +67,7 @@
             <Option label="Crosses" value="Crosses"/>
             <Option label="Disjoint" value="Disjoint"/>
             <Option label="DWithin" value="DWithin"/>
-            <Option label="Intersect" value="Intersect"/>
+            <Option label="Intersects" value="Intersects"/>
             <Option label="Equals" value="Equals"/>
             <Option label="Overlaps" value="Overlaps"/>
             <Option label="Touches" value="Touches"/>
@@ -88,6 +88,9 @@
           name="Single-Character Wildcard Character" id="singleChar" required="false" type="Char" default="?"/>
         <AD description="Escape character to use in PropertyIsLike filters."
           name="Escape Character" id="escapeChar" required="false" type="Char" default="\\"/>
+        <AD description="When selected, the system will not specify sort criteria with the query.  This should only be used if the remote source is unable to handle sorting."
+            name="Disable Sorting" id="disableSorting" required="true"
+            type="Boolean" default="true"/>
     </OCD>
 
     <Designate pid="Wfs_v110_Federated_Source" factoryPid="Wfs_v110_Federated_Source">
