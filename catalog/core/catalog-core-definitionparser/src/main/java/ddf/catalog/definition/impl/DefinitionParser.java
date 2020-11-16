@@ -676,7 +676,7 @@ public class DefinitionParser {
         return bundleContext.getService(ref[0]);
       }
     } catch (InvalidSyntaxException e) {
-      LOGGER.warn(String.format("Invalid filter: %s", filter));
+      LOGGER.warn("Invalid filter: {}", filter);
     }
     return null;
   }
