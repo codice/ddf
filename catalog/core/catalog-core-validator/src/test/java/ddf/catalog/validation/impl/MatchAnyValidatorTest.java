@@ -13,6 +13,11 @@
  */
 package ddf.catalog.validation.impl;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Core;
@@ -22,18 +27,12 @@ import ddf.catalog.validation.impl.validator.MatchAnyValidator;
 import ddf.catalog.validation.impl.validator.PatternValidator;
 import ddf.catalog.validation.impl.validator.SizeValidator;
 import ddf.catalog.validation.report.AttributeValidationReport;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import org.junit.Before;
+import org.junit.Test;
 
 public class MatchAnyValidatorTest {
 
