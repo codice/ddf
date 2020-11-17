@@ -24,6 +24,7 @@ const DropdownModel = require('../dropdown/dropdown.js')
 const ResultSortDropdownView = require('../dropdown/result-sort/dropdown.result-sort.view.js')
 const user = require('../singletons/user-instance.js')
 const ResultStatusView = require('../result-status/result-status.view.js')
+const QueryResultCollection = require('../../js/model/QueryResult.collection')
 require('../../behaviors/selection.behavior.js')
 import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 import ResultItemCollection from '../result-item/result-item.collection'
@@ -60,10 +61,20 @@ const ResultSelector = Marionette.LayoutView.extend({
       .get('preferences')
       .get('resultFilter')
     resultFilter = mixinBlackListCQL(resultFilter)
-    const filteredResults = this.model
-      .get('result')
-      .get('results')
-      .generateFilteredVersion(resultFilter)
+    let results
+    let showingResultsForFields
+    let didYouMeanFields
+    if (this.model.get('result')) {
+      results = this.model.get('result').get('results')
+      showingResultsForFields = this.model
+        .get('result')
+        .get('showingResultsForFields')
+      didYouMeanFields = this.model.get('result').get('didYouMeanFields')
+    } else {
+      results = new QueryResultCollection()
+    }
+
+    const filteredResults = results.generateFilteredVersion(resultFilter)
     const collapsedResults = filteredResults.collapseDuplicates()
     collapsedResults.updateSorting(
       user
@@ -110,10 +121,8 @@ const ResultSelector = Marionette.LayoutView.extend({
           key={Math.random()}
           results={collapsedResults}
           selectionInterface={this.options.selectionInterface}
-          showingResultsForFields={this.model
-            .get('result')
-            .get('showingResultsForFields')}
-          didYouMeanFields={this.model.get('result').get('didYouMeanFields')}
+          showingResultsForFields={showingResultsForFields}
+          didYouMeanFields={didYouMeanFields}
           model={this.model}
         />
         <MarionetteRegionContainer
@@ -164,20 +173,33 @@ const ResultSelector = Marionette.LayoutView.extend({
     this.startListeningToStatus()
   },
   mergeNewResults() {
-    this.model.get('result').mergeNewResults()
+    if (this.model.get('result')) {
+      this.model.get('result').mergeNewResults()
+    }
   },
   ignoreNewResults() {
     this.$el.toggleClass('ignore-new', true)
   },
   handleMerged() {
     this.$el.toggleClass('ignore-new', false)
-    this.$el.toggleClass('has-unmerged', this.model.get('result').isUnmerged())
+    this.$el.toggleClass(
+      'has-unmerged',
+      this.model.get('result') ? this.model.get('result').isUnmerged() : false
+    )
   },
   startListeningToMerged() {
     this.listenTo(this.model.get('result'), 'change:merged', this.handleMerged)
+    this.listenTo(this.model, 'change:result', ()=>{
+      if (!this.model.get('result')) {
+        this.render()
+      }
+    })
   },
   handleStatus() {
-    this.$el.toggleClass('is-searching', this.model.get('result').isSearching())
+    this.$el.toggleClass(
+      'is-searching',
+      this.model.get('result') ? this.model.get('result').isSearching() : false
+    )
   },
   startListeningToStatus() {
     this.listenTo(
@@ -233,8 +255,9 @@ const ResultSelector = Marionette.LayoutView.extend({
     this.showResultSortDropdown()
     this.handleMerged()
     this.handleStatus()
-    let resultCountOnly =
-      this.model.get('result').get('resultCountOnly') === true
+    let resultCountOnly = this.model.get('result')
+      ? this.model.get('result').get('resultCountOnly') === true
+      : false
     this.regionManager.forEach(region => {
       region.currentView.$el.toggleClass('is-hidden', resultCountOnly)
     })
