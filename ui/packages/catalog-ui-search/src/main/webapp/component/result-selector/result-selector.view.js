@@ -189,7 +189,7 @@ const ResultSelector = Marionette.LayoutView.extend({
   },
   startListeningToMerged() {
     this.listenTo(this.model.get('result'), 'change:merged', this.handleMerged)
-    this.listenTo(this.model, 'change:result', ()=>{
+    this.listenTo(this.model, 'change:result', () => {
       if (!this.model.get('result')) {
         this.render()
       }
