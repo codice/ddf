@@ -913,7 +913,7 @@ class DefinitionParserSpec extends Specification {
     "validators": {
         "title": [
             {
-                "validator": "nonexistentAttributeValidator::AttributeValidator"
+                "validator": "nonexistentAttributeValidator"
             }
         ]
     }
@@ -925,7 +925,7 @@ class DefinitionParserSpec extends Specification {
     "validators": {
         "title": [
             {
-                "validator": "mockAttributeValidator::AttributeValidator"
+                "validator": "mockAttributeValidator"
             }
         ]
     }
