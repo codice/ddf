@@ -28,6 +28,7 @@ import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
+import javax.mail.Provider;
 import javax.mail.Session;
 import javax.mail.Transport;
 import org.apache.commons.lang.StringUtils;
@@ -126,14 +127,34 @@ public class SmtpClientImpl implements SmtpClient {
     properties.setProperty(SMTP_HOST_PROPERTY, hostName);
     properties.setProperty(SMTP_PORT_PROPERTY, portNumber.toString());
 
-    if (StringUtils.isNotBlank(userName)) {
-      properties.put(SMTP_AUTH_PROPERTY, TRUE);
-      properties.put(SMTP_START_TLS_ENABLE_PROPERTY, TRUE);
+    // Jakarta Mail uses java.util.ServiceLoader.load() to look for service implementations, in
+    // this case of the javax.mail.Provider interface. ServiceLoader relies on the Thread Context
+    // Classloader which is not necessarily the correct behavior in an OSGi context and may result
+    // in services not being found.
+    //
+    // To fix this, we set the current thread classloader to the classloader of the bundle
+    // containing those services (making sure to restore the original classloader before returning)
+    // so that ServiceLoader will always find them.
+    //
+    // TODO: Look into SPI Fly. Might be a better solution
+    // http://aries.apache.org/modules/spi-fly.html
+    ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
 
-      return Session.getInstance(properties, createAuthenticator());
-    } else {
-      properties.setProperty(SMTP_AUTH_PROPERTY, FALSE);
-      return Session.getInstance(properties);
+    try {
+      Thread.currentThread().setContextClassLoader(Provider.class.getClassLoader());
+
+      if (StringUtils.isNotBlank(userName)) {
+        properties.put(SMTP_AUTH_PROPERTY, TRUE);
+        properties.put(SMTP_START_TLS_ENABLE_PROPERTY, TRUE);
+
+        return Session.getInstance(properties, createAuthenticator());
+      } else {
+        properties.setProperty(SMTP_AUTH_PROPERTY, FALSE);
+
+        return Session.getInstance(properties);
+      }
+    } finally {
+      Thread.currentThread().setContextClassLoader(originalContextClassLoader);
     }
   }
 
