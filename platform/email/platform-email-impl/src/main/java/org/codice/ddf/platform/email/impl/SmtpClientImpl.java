@@ -138,23 +138,24 @@ public class SmtpClientImpl implements SmtpClient {
     //
     // TODO: Look into SPI Fly. Might be a better solution
     // http://aries.apache.org/modules/spi-fly.html
+
     ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(Provider.class.getClassLoader());
 
-    Session session;
-    if (StringUtils.isNotBlank(userName)) {
-      properties.put(SMTP_AUTH_PROPERTY, TRUE);
-      properties.put(SMTP_START_TLS_ENABLE_PROPERTY, TRUE);
+    try {
+      if (StringUtils.isNotBlank(userName)) {
+        properties.put(SMTP_AUTH_PROPERTY, TRUE);
+        properties.put(SMTP_START_TLS_ENABLE_PROPERTY, TRUE);
 
-      session = Session.getInstance(properties, createAuthenticator());
-    } else {
-      properties.setProperty(SMTP_AUTH_PROPERTY, FALSE);
+        return Session.getInstance(properties, createAuthenticator());
+      } else {
+        properties.setProperty(SMTP_AUTH_PROPERTY, FALSE);
 
-      session = Session.getInstance(properties);
+        return Session.getInstance(properties);
+      }
+    } finally {
+      Thread.currentThread().setContextClassLoader(originalContextClassLoader);
     }
-
-    Thread.currentThread().setContextClassLoader(originalContextClassLoader);
-    return session;
   }
 
   @Override
