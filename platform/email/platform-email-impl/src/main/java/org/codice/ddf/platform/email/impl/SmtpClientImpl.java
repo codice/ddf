@@ -136,7 +136,8 @@ public class SmtpClientImpl implements SmtpClient {
     // containing those services (making sure to restore the original classloader before returning)
     // so that ServiceLoader will always find them.
     //
-    // TODO: Look into SPI Fly. Might be a better solution http://aries.apache.org/modules/spi-fly.html
+    // TODO: Look into SPI Fly. Might be a better solution
+    // http://aries.apache.org/modules/spi-fly.html
     ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(Provider.class.getClassLoader());
 
