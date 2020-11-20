@@ -138,11 +138,11 @@ public class SmtpClientImpl implements SmtpClient {
     //
     // TODO: Look into SPI Fly. Might be a better solution
     // http://aries.apache.org/modules/spi-fly.html
-
     ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
-    Thread.currentThread().setContextClassLoader(Provider.class.getClassLoader());
 
     try {
+      Thread.currentThread().setContextClassLoader(Provider.class.getClassLoader());
+
       if (StringUtils.isNotBlank(userName)) {
         properties.put(SMTP_AUTH_PROPERTY, TRUE);
         properties.put(SMTP_START_TLS_ENABLE_PROPERTY, TRUE);
