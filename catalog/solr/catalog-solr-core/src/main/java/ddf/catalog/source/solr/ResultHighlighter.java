@@ -17,9 +17,11 @@ import static ddf.catalog.Constants.QUERY_HIGHLIGHT_KEY;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIRST_CHAR_OF_SUFFIX;
 
 import com.google.common.collect.Sets;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.Highlight;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResultAttributeHighlight;
@@ -27,6 +29,9 @@ import ddf.catalog.operation.ResultHighlight;
 import ddf.catalog.operation.impl.HighlightImpl;
 import ddf.catalog.operation.impl.ResultAttributeHighlightImpl;
 import ddf.catalog.operation.impl.ResultHighlightImpl;
+import ddf.catalog.source.UnsupportedQueryException;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,7 +61,9 @@ public class ResultHighlighter {
 
   public static final String SOLR_HIGHLIGHT_BLACKLIST = "solr.highlight.blacklist";
 
-  public static final String SOLR_HIGHLIGHT_SNIPPETS = "solr.highlight.snippets";
+  public static final String SOLR_HIGHLIGHT_CONFIG = "solr.highlight.config.file";
+
+  public static final String SOLR_HIGHLIGHT_EXPAND_ANYTEXT = "solr.highlight.anytext.expand";
 
   public static final String SOLR_HIGHLIGHT_KEY = "hl";
 
@@ -77,12 +85,46 @@ public class ResultHighlighter {
   private final Set<String> highlightBlacklist =
       Sets.newHashSet(System.getProperty(SOLR_HIGHLIGHT_BLACKLIST, "").split("\\s*,\\s*"));
 
+  private boolean systemHighlightingEnabled;
+
+  private boolean expandOnAnyText;
+
+  private Properties highlighterProperties;
+
   private DynamicSchemaResolver resolver;
+
+  private FilterAdapter filterAdapter;
 
   private String mappedMetacardIdField;
 
-  public ResultHighlighter(DynamicSchemaResolver resolver) {
+  public ResultHighlighter(DynamicSchemaResolver resolver, FilterAdapter filterAdapter) {
     this.resolver = resolver;
+    this.filterAdapter = filterAdapter;
+
+    systemHighlightingEnabled =
+        BooleanUtils.toBoolean(System.getProperty(HIGHLIGHT_ENABLE_PROPERTY, "false"));
+
+    expandOnAnyText =
+        BooleanUtils.toBoolean(System.getProperty(SOLR_HIGHLIGHT_EXPAND_ANYTEXT, "false"));
+
+    loadHighlighterConfiguration();
+  }
+
+  private void loadHighlighterConfiguration() {
+    String configFile =
+        System.getProperty(SOLR_HIGHLIGHT_CONFIG, "etc/solr-highlighter.properties");
+    highlighterProperties = new Properties();
+    highlighterProperties.setProperty("hl.fl", "*");
+    highlighterProperties.setProperty("hl.method", "unified");
+    highlighterProperties.setProperty("hl.preserveMulti", "true");
+    highlighterProperties.setProperty("hl.snippets", "20");
+    if (configFile != null) {
+      try (FileInputStream fis = new FileInputStream(configFile)) {
+        highlighterProperties.load(fis);
+      } catch (IOException e) {
+        LOGGER.warn("Unable to load highlighter configuration, using defaults", e);
+      }
+    }
   }
 
   public void setMappedMetacardIdField(String mappedMetacardIdField) {
@@ -91,7 +133,15 @@ public class ResultHighlighter {
 
   public void processPreQuery(QueryRequest request, SolrQuery query) {
     if (userHighlightIsOn(request)) {
-      enableHighlighter(query);
+      boolean isAnyText = false;
+      try {
+        isAnyText =
+            filterAdapter.adapt(request.getQuery(), new PropertyExistsDelegate(Metacard.ANY_TEXT));
+      } catch (UnsupportedQueryException e) {
+        LOGGER.debug(
+            "Unable to determine if query is an anyText query, defaulting highlighter to searched fields only");
+      }
+      enableHighlighter(query, isAnyText);
     }
   }
 
@@ -110,20 +160,15 @@ public class ResultHighlighter {
   }
 
   protected boolean isSystemHighlightingEnabled() {
-    return BooleanUtils.toBoolean(System.getProperty(HIGHLIGHT_ENABLE_PROPERTY, "false"));
+    return systemHighlightingEnabled;
   }
 
-  private String getSnippetSetting() {
-    return System.getProperty(SOLR_HIGHLIGHT_SNIPPETS, "20");
-  }
-
-  protected void enableHighlighter(SolrQuery query) {
+  protected void enableHighlighter(SolrQuery query, boolean isAnyText) {
     query.setParam(SOLR_HIGHLIGHT_KEY, true);
-    query.setParam("hl.fl", "*");
-    query.setParam("hl.requireFieldMatch", true);
-    query.setParam("hl.method", "unified");
-    query.setParam("hl.preserveMulti", true);
-    query.setParam("hl.snippets", getSnippetSetting());
+    query.setParam("hl.requireFieldMatch", !(isAnyText && expandOnAnyText));
+
+    highlighterProperties.entrySet().stream()
+        .forEach(entry -> query.setParam(entry.getKey().toString(), entry.getValue().toString()));
   }
 
   protected void extractHighlighting(

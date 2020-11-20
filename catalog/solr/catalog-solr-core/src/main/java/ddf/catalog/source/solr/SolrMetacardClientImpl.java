@@ -167,7 +167,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     filterDelegateFactory = solrFilterDelegateFactory;
     filterAdapter = catalogFilterAdapter;
     resolver = dynamicSchemaResolver;
-    highlighter = new ResultHighlighter(resolver);
+    highlighter = new ResultHighlighter(resolver, filterAdapter);
   }
 
   public SolrClient getClient() {
