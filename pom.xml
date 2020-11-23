@@ -52,9 +52,9 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <!--  default URL properties -->
-        <ddf.scm.connection.url />
-        <snapshots.repository.url />
-        <reports.repository.url />
+        <ddf.scm.connection.url/>
+        <snapshots.repository.url/>
+        <reports.repository.url/>
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.16</ddf.support.version>
         <!-- Must MANUALLY update this if the codice-maven project's version changes -->
@@ -76,7 +76,7 @@
         <!--default url substitutions: preface with a \ to disable automatic hyperlinking-->
         <public_url>http://{FQDN}:{PORT}</public_url>
         <secure_url>https://{FQDN}:{PORT}</secure_url>
-        <home_directory>&lt;DDF_HOME&gt;</home_directory>
+        <home_directory>&lt;DDF_HOME></home_directory>
         <!--Needed for documentation formatting
             '@' is an escape character for maven filtering. Use this property if '@'
             appears on the same line as other filtered properties-->
@@ -280,7 +280,7 @@
         <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
-        <hazelcast.version>3.12.3</hazelcast.version>
+        <hazelcast.version>4.1</hazelcast.version>
         <saxon.version>9.6.0-4</saxon.version>
         <servicemix.bundles.poi.version>${poi.version}_1</servicemix.bundles.poi.version>
         <servicemix.bundles.jaxb.version>${jaxb.version}_2</servicemix.bundles.jaxb.version>
@@ -325,7 +325,7 @@
         <zstd-jni.version>1.4.5-4</zstd-jni.version>
 
         <!-- Command line argument properties for the maven-surefire-plugin -->
-        <surefire.argline.append />
+        <surefire.argline.append/>
         <surefire.argline>${jacoco.argline} ${surefire.argline.append} -Xmx1024m -Djava.awt.headless=true -noverify</surefire.argline>
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
 
@@ -784,7 +784,7 @@
                             </goals>
                             <configuration>
                                 <rules>
-                                    <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule" />
+                                    <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule"/>
                                 </rules>
                             </configuration>
                         </execution>
@@ -818,8 +818,8 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule" />
-                                <banDuplicatePomDependencyVersions />
+                                <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule"/>
+                                <banDuplicatePomDependencyVersions/>
                             </rules>
                         </configuration>
                     </execution>
