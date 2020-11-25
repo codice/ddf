@@ -13,10 +13,6 @@
  */
 package ddf.catalog.definition.impl;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.codice.gsonsupport.GsonTypeAdapters.LIST_STRING;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -62,6 +58,23 @@ import ddf.catalog.validation.impl.validator.RangeValidator;
 import ddf.catalog.validation.impl.validator.RelationshipValidator;
 import ddf.catalog.validation.impl.validator.RequiredAttributesMetacardValidator;
 import ddf.catalog.validation.impl.validator.SizeValidator;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.DictionaryMap;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -73,6 +86,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -92,22 +106,10 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
-import org.apache.commons.io.monitor.FileAlterationMonitor;
-import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.DictionaryMap;
-import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.codice.gsonsupport.GsonTypeAdapters.LIST_STRING;
 
 public class DefinitionParser {
 
@@ -664,11 +666,19 @@ public class DefinitionParser {
 
   private Object getService(String clazz, String filter) {
     BundleContext bundleContext = getBundleContext();
-    ServiceReference<?>[] ref;
+    ServiceReference<?>[] refs;
     try {
-      ref = bundleContext.getServiceReferences(clazz, filter);
-      if (ref != null && ref.length == 1) {
-        return bundleContext.getService(ref[0]);
+      refs = bundleContext.getServiceReferences(clazz, filter);
+      if (refs != null) {
+        if (refs.length > 1) {
+          LOGGER.warn(
+              "More than one service references are found with class: {}, and filter: {}\n"
+                  + "Ignoring rest of service references except for the first of the below list:",
+              clazz,
+              filter);
+          Arrays.stream(refs).forEachOrdered(ref -> LOGGER.warn(ref.toString()));
+        }
+        return bundleContext.getService(refs[0]);
       }
     } catch (InvalidSyntaxException e) {
       LOGGER.warn("Invalid filter: {}", filter);
