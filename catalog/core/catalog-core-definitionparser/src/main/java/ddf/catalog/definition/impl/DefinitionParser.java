@@ -644,34 +644,27 @@ public class DefinitionParser {
       case "custom":
         {
           List<Outer.Validator> collection = ((Outer.ValidatorCollection) validator).validators;
-          collection.forEach((Outer.Validator validatorType) -> findAndRegisterAttributeValidator(wrapper, String.format("(id=%s)", validatorType)));
+          collection.forEach(
+              item -> {
+                AttributeValidator av =
+                    (AttributeValidator)
+                        this.getService(
+                            AttributeValidator.class.getName(),
+                            (String.format("(id=%s)", item.validator)));
+                if (av != null) {
+                  wrapper.attributeValidator(av);
+                }
+              });
           break;
         }
       default:
-        {
-          String[] validators = validator.validator.split("::");
-          if (validators.length != 2) {
-            throw new IllegalStateException(
-                "Validator should be in format of 'validatorId::validatorType', not '"
-                    + validator.validator
-                    + "'");
-          }
-
-          String serviceId = validators[0];
-          String filter = String.format("(id=%s)", serviceId);
-          findAndRegisterAttributeValidator(wrapper, filter);
-          break;
-        }
+        throw new IllegalStateException("Validator does not exist. (" + validator.validator + ")");
     }
     return wrapper;
   }
 
-  private void findAndRegisterAttributeValidator(ValidatorWrapper wrapper, String filter) {
-    AttributeValidator av =
-        (AttributeValidator) this.getService(AttributeValidator.class.getName(), filter);
-    if (av != null) {
-      wrapper.attributeValidator(av);
-    }
+  private AttributeValidator findAttributeValidator(String filter) {
+    return (AttributeValidator) this.getService(AttributeValidator.class.getName(), filter);
   }
 
   private Object getService(String clazz, String filter) {

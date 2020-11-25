@@ -514,7 +514,7 @@ class DefinitionParserSpec extends Specification {
 
     def "test registering a valid validator "() {
         setup:
-        file.withPrintWriter {it.write(validExternalAttributeValidator) }
+        file.withPrintWriter {it.write(validCustomAttributeValidator) }
         ISO3CountryCodeValidator validator = new ISO3CountryCodeValidator(false)
         ServiceReference<?>[] serviceReferences = [validator] as ServiceReference<AttributeValidator>[]
 
@@ -536,7 +536,7 @@ class DefinitionParserSpec extends Specification {
         when:
         definitionParser.install(file)
 
-        then: "the number of attribute validators registered is zero"
+        then: "the number of attribute validators registered is one"
         attributeValidatorRegistry.getValidators("title").size() == 0
 
         and: "no call to AttributeValidatorRegistry::registerValidators() had been made"
@@ -913,19 +913,34 @@ class DefinitionParserSpec extends Specification {
     "validators": {
         "title": [
             {
-                "validator": "nonexistentAttributeValidator"
+                "validator": "custom",
+                "validators": [
+                    {
+                        "validator": "nonexistentAttributeValidator"
+                    }
+                ]
             }
         ]
     }
 }
 '''
 
-    String validExternalAttributeValidator = '''
+    String validCustomAttributeValidator = '''
 {
     "validators": {
         "title": [
             {
-                "validator": "mockAttributeValidator"
+                "validator": "match_any",
+                "validators": [
+                    {
+                        "validator": "custom",
+                        "validators": [
+                            {
+                                "validator": "mockAttributeValidator"
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     }
