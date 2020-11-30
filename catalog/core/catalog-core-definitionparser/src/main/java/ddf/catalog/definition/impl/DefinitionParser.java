@@ -650,7 +650,7 @@ public class DefinitionParser {
                     (AttributeValidator)
                         this.getService(
                             AttributeValidator.class.getName(),
-                            (String.format("(id=%s)", item.validator)));
+                            String.format("(id=%s)", item.validator));
                 if (av != null) {
                   wrapper.attributeValidator(av);
                 }
