@@ -73,6 +73,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -103,6 +104,8 @@ import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,6 +159,8 @@ public class DefinitionParser {
 
   private final List<MetacardType> metacardTypes;
 
+  private final List<AttributeValidator> attributeValidators;
+
   private final List<MetacardType> coreTypes =
       ImmutableList.of(
           new AssociationsAttributes(),
@@ -175,12 +180,14 @@ public class DefinitionParser {
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,
-      List<MetacardType> metacardTypes) {
+      List<MetacardType> metacardTypes,
+      List<AttributeValidator> attributeValidators) {
     this(
         attributeRegistry,
         attributeValidatorRegistry,
         defaultAttributeValueRegistry,
         metacardTypes,
+        attributeValidators,
         FrameworkUtil::getBundle);
 
     FileAlterationObserver fileAlterationObserver =
@@ -217,11 +224,13 @@ public class DefinitionParser {
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,
       List<MetacardType> metacardTypes,
+      List<AttributeValidator> attributeValidators,
       Function<Class, Bundle> bundleLookup) {
     this.attributeRegistry = attributeRegistry;
     this.attributeValidatorRegistry = attributeValidatorRegistry;
     this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
     this.metacardTypes = metacardTypes;
+    this.attributeValidators = attributeValidators;
     this.bundleLookup = bundleLookup;
   }
 
@@ -632,10 +641,48 @@ public class DefinitionParser {
           wrapper.reportingMetacardValidator(relationshipValidator);
           break;
         }
+      case "custom":
+        {
+          List<Outer.Validator> collection = ((Outer.ValidatorCollection) validator).validators;
+          collection.forEach(
+              item -> {
+                AttributeValidator av =
+                    (AttributeValidator)
+                        this.getService(
+                            AttributeValidator.class.getName(),
+                            String.format("(id=%s)", item.validator));
+                if (av != null) {
+                  wrapper.attributeValidator(av);
+                }
+              });
+          break;
+        }
       default:
         throw new IllegalStateException("Validator does not exist. (" + validator.validator + ")");
     }
     return wrapper;
+  }
+
+  private Object getService(String clazz, String filter) {
+    BundleContext bundleContext = getBundleContext();
+    ServiceReference<?>[] refs;
+    try {
+      refs = bundleContext.getServiceReferences(clazz, filter);
+      if (refs != null) {
+        if (refs.length > 1) {
+          LOGGER.warn(
+              "More than one service references are found with class: {}, and filter: {}\n"
+                  + "Ignoring rest of service references except for the first of the below list:",
+              clazz,
+              filter);
+          Arrays.stream(refs).forEachOrdered(ref -> LOGGER.warn(ref.toString()));
+        }
+        return bundleContext.getService(refs[0]);
+      }
+    } catch (InvalidSyntaxException e) {
+      LOGGER.warn("Invalid filter: {}", filter);
+    }
+    return null;
   }
 
   /** TODO DDF-3578 once MetacardValidator is eliminated, this pattern can be cleaned up */

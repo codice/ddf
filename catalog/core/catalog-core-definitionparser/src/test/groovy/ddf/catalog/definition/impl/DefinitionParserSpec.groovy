@@ -11,14 +11,17 @@ import ddf.catalog.data.impl.BasicTypes
 import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.CoreAttributes
+import ddf.catalog.validation.AttributeValidator
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
 import ddf.catalog.validation.ReportingMetacardValidator
 import ddf.catalog.validation.impl.AttributeValidatorRegistryImpl
+import ddf.catalog.validation.impl.validator.ISO3CountryCodeValidator
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
+import org.osgi.framework.ServiceReference
 import org.osgi.framework.ServiceRegistration
 import spock.lang.Specification
 
@@ -63,6 +66,7 @@ class DefinitionParserSpec extends Specification {
                 attributeValidatorRegistry,
                 defaultAttributeValueRegistry,
                 alreadyRegisteredTypes,
+                null,
                 { clazz -> mockBundle })
 
         mockBundle.getBundleContext() >> mockBundleContext
@@ -508,6 +512,36 @@ class DefinitionParserSpec extends Specification {
         1 * mockBundleContext.registerService(_, _ as ReportingMetacardValidator, _)
     }
 
+    def "test registering a valid validator "() {
+        setup:
+        file.withPrintWriter {it.write(validCustomAttributeValidator) }
+        ISO3CountryCodeValidator validator = new ISO3CountryCodeValidator(false)
+        ServiceReference<?>[] serviceReferences = [validator] as ServiceReference<AttributeValidator>[]
+
+        when: "definitions file gets installed"
+        definitionParser.install(file)
+
+        then: "mock bundle context returns following service and service reference"
+        mockBundleContext.getServiceReferences(AttributeValidator.class.getName(), "(id=mockAttributeValidator)") >> serviceReferences
+        mockBundleContext.getService(serviceReferences[0] as ServiceReference<Object>) >> validator
+
+        and: "the number of validators registered is one"
+        attributeValidatorRegistry.getValidators("title").size() == 1
+    }
+
+    def "test registering for nonexistent validator fails "() {
+        setup:
+        file.withPrintWriter { it.write(nonexistentAttributeValidator) }
+
+        when:
+        definitionParser.install(file)
+
+        then: "the number of attribute validators registered is one"
+        attributeValidatorRegistry.getValidators("title").size() == 0
+
+        and: "no call to AttributeValidatorRegistry::registerValidators() had been made"
+        0 * attributeValidatorRegistry.registerValidators(_)
+    }
 
     String valid = '''
 {
@@ -872,5 +906,45 @@ class DefinitionParserSpec extends Specification {
         }
     }
 }
+'''
+
+    String nonexistentAttributeValidator = '''
+{
+    "validators": {
+        "title": [
+            {
+                "validator": "custom",
+                "validators": [
+                    {
+                        "validator": "nonexistentAttributeValidator"
+                    }
+                ]
+            }
+        ]
+    }
+}
+'''
+
+    String validCustomAttributeValidator = '''
+{
+    "validators": {
+        "title": [
+            {
+                "validator": "match_any",
+                "validators": [
+                    {
+                        "validator": "custom",
+                        "validators": [
+                            {
+                                "validator": "mockAttributeValidator"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+
 '''
 }
