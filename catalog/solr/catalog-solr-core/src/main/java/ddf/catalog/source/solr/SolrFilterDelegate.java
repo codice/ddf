@@ -204,7 +204,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
   @Override
   public SolrQuery not(SolrQuery operand) {
-    return new SolrQuery(" NOT " + operand.getQuery());
+    return new SolrQuery("(*:* NOT " + operand.getQuery() + ")");
   }
 
   @Override
