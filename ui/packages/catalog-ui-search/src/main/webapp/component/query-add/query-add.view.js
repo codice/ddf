@@ -58,6 +58,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'resetToDefaults change:type', this.reshow)
     this.listenTo(this.model, 'change:filterTree', this.reshow)
     this.listenTo(this.model, 'closeDropdown', this.closeDropdown)
+    this.listenTo(wreqr.vent, 'resetSearch', this.cancel)
     this.listenForSave()
   },
   updateCurrentQuery(currentQuerySettings) {
