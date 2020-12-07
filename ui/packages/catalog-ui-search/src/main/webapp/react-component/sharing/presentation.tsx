@@ -20,6 +20,7 @@ import Enum from '../input-wrappers/enum/enum'
 import { Category, Item } from '.'
 import styled from 'styled-components'
 import { Access } from '../utils/security'
+import ExtensionPoints from '../../extension-points'
 
 const Root = styled.div`
   position: relative;
@@ -81,6 +82,13 @@ const HalfWidthButton = styled.button`
   width: 50%;
 `
 
+const getReadOnlyLabel = (item: string) => {
+  const sharingAlias = ExtensionPoints.sharingAliases.find(
+    sharingAlias => sharingAlias.id === item
+  )
+  return sharingAlias === undefined ? item : sharingAlias.alias
+}
+
 type Props = {
   items: Item[]
   add: () => void
@@ -131,7 +139,9 @@ const render = (props: Props) => {
                       onChange={value => handleChangeInput(i, value)}
                     />
                   ) : (
-                    <ReadOnlyLabel> {item.value} </ReadOnlyLabel>
+                    <ReadOnlyLabel>
+                      {getReadOnlyLabel(item.value)}
+                    </ReadOnlyLabel>
                   )}
                 </IconAndName>
                 <AccessEnum
