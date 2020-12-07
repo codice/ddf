@@ -12,11 +12,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-type shaingAliasType = {
+type sharingAliasType = {
   id: string
   alias: string
 }
 
-const shaingAliases: shaingAliasType[] = []
+const sharingAliases: sharingAliasType[] = []
 
-export default shaingAliases
+export default sharingAliases
