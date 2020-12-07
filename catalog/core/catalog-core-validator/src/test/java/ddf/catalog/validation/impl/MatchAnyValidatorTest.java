@@ -62,6 +62,8 @@ public class MatchAnyValidatorTest {
 
   private MatchAnyValidator matchAnyValidator;
 
+  private MatchAnyValidator matchAnyValidator2;
+
   private PatternValidator patternValidator;
 
   private EnumerationValidator enumerationValidator;
@@ -164,5 +166,23 @@ public class MatchAnyValidatorTest {
 
     attributeValidationReportOptional = matchAnyValidator.validate(VALID_ATTRIBUTE_3);
     assertThat(attributeValidationReportOptional.isPresent(), is(false));
+  }
+
+  @Test
+  public void testNotEquals() {
+    matchAnyValidator =
+        new MatchAnyValidator(Arrays.asList(enumerationValidator, patternValidator));
+    matchAnyValidator2 =
+        new MatchAnyValidator(Arrays.asList(enumerationValidator2, patternValidator));
+    assertThat(matchAnyValidator.equals(matchAnyValidator2), is(false));
+  }
+
+  @Test
+  public void testEquals() {
+    matchAnyValidator =
+        new MatchAnyValidator(Arrays.asList(enumerationValidator, patternValidator));
+    matchAnyValidator2 =
+        new MatchAnyValidator(Arrays.asList(patternValidator, enumerationValidator));
+    assertThat(matchAnyValidator.equals(matchAnyValidator2), is(true));
   }
 }
