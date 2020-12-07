@@ -196,9 +196,7 @@ module.exports = Marionette.LayoutView.extend({
     } else if (shouldLimit === true) {
       filters = this.listFilters.currentView.model.getValue()
     }
-    if (filters) {
-      this.model.set('list.filters', filters)
-    }
+    this.model.set('list.filters', filters ? filters : undefined)
   },
   save() {
     this.saveTitle()

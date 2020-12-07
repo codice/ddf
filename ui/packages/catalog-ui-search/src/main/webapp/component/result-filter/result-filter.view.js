@@ -80,26 +80,33 @@ module.exports = Marionette.LayoutView.extend({
       .savePreferences()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  saveFilter() {
-    const filter = this.getFilter()
+  isValidFilter(filter) {
+    let isValid = true
     if (filter.filters && filter.filters.length < 1) {
       this.removeFilter()
-      return
+      isValid = false
+    } else {
+      const errorMessages = getFilterErrors(filter.filters)
+      if (errorMessages.length !== 0) {
+        showErrorMessages(errorMessages)
+        isValid = false
+      }
     }
-    const errorMessages = getFilterErrors(filter.filters)
-    if (errorMessages.length !== 0) {
-      showErrorMessages(errorMessages)
-      return
+    return isValid
+  },
+  saveFilter() {
+    const filter = this.getFilter()
+    if (this.isValidFilter(filter)) {
+      user
+        .get('user')
+        .get('preferences')
+        .set('resultFilter', filter)
+      user
+        .get('user')
+        .get('preferences')
+        .savePreferences()
+      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     }
-    user
-      .get('user')
-      .get('preferences')
-      .set('resultFilter', filter)
-    user
-      .get('user')
-      .get('preferences')
-      .savePreferences()
-    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   handleFilter() {
     const resultFilter = this.getResultFilter()

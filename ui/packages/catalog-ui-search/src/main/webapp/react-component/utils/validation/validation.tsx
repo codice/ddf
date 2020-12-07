@@ -208,8 +208,17 @@ function getGeometryErrors(filter: any): Set<string> {
     return errors
   }
   const properties = filter.geojson.properties
+  let type = properties.type
+  if (type === 'Keyword') {
+    if (properties.keywordValue) {
+      type = 'Polygon'
+    } else {
+      errors.add('Keyword must be selected')
+      return errors
+    }
+  }
   const buffer = properties.buffer
-  switch (properties.type) {
+  switch (type) {
     case 'Polygon':
       if (
         !Array.isArray(geometry.coordinates[0]) ||
@@ -218,15 +227,24 @@ function getGeometryErrors(filter: any): Set<string> {
         errors.add(
           'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
         )
-      } else if (geometry.coordinates[0].length < 4) {
+      } else if (
+        geometry.coordinates[0].length < 4 ||
+        geometry.type === 'MultiPolygon'
+      ) {
         // check for MultiPolygon
-        geometry.coordinates[0].forEach((shape: number[]) => {
-          if (shape.length < 4) {
-            errors.add(
-              'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
-            )
-          }
-        })
+        for (
+          let idx = 0;
+          idx < geometry.coordinates.length && errors.size < 1;
+          idx++
+        ) {
+          geometry.coordinates[idx].forEach((shape: number[]) => {
+            if (shape.length < 4) {
+              errors.add(
+                'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
+              )
+            }
+          })
+        }
       }
       const polyBufferValidation = validateRadiusLineBuffer('bufferWidth', {
         value: buffer.width,

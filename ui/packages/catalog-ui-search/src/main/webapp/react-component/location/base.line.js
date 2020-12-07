@@ -100,6 +100,7 @@ const BaseLine = props => {
     widthKey,
     mode,
     polyType,
+    readOnly,
   } = props
   const [currentValue, setCurrentValue] = useState(
     JSON.stringify(props[geometryKey])
@@ -128,6 +129,7 @@ const BaseLine = props => {
         <TextField
           label={label}
           value={currentValue}
+          readOnly={readOnly}
           onChange={value => {
             value = convertWktString(value.trim())
             if (geometryKey.includes('poly')) {

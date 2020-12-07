@@ -31,21 +31,6 @@ const getDurationFromRelativeValue = value => {
   return value.substring(9, value.length - 1)
 }
 
-const polygonStringToCoordinates = polygonString => {
-  try {
-    return polygonString
-      .substring('POLYGON(('.length, polygonString.length - '))'.length)
-      .split(',')
-      .map(stringPair => {
-        const pair = stringPair.split(' ')
-        return [Number(pair[0]), Number(pair[1])]
-      })
-  } catch (error) {
-    console.error(error)
-    return []
-  }
-}
-
 const createBufferedPolygon = (coordinates, distance) =>
   Turf.buffer(Turf.lineString(coordinates), Math.max(distance, 1), 'meters')
 
@@ -188,15 +173,22 @@ function matchesPOLYGON(value, filter) {
 }
 
 const matchesBufferedPOLYGON = (value, filter) => {
-  const bufferedPolygon = createBufferedPolygon(
-    polygonStringToCoordinates(filter.value),
-    filter.distance
-  )
-  const teraformedPolygon = new Terraformer.Polygon({
-    type: 'Polygon',
-    coordinates: bufferedPolygon.geometry.coordinates,
-  })
-  return intersects(teraformedPolygon, value)
+  let intersected = false
+  const polygonToCheck = TerraformerWKTParser.parse(filter.value)
+  if (polygonToCheck && polygonToCheck.coordinates) {
+    polygonToCheck.coordinates.forEach(coordinate => {
+      const bufferedPolygon = createBufferedPolygon(
+        polygonToCheck.type === 'Polygon' ? coordinate : coordinate[0],
+        filter.distance
+      )
+      const teraformedPolygon = new Terraformer.Polygon({
+        type: 'Polygon',
+        coordinates: bufferedPolygon.geometry.coordinates,
+      })
+      intersected = intersected || intersects(teraformedPolygon, value)
+    })
+  }
+  return intersected
 }
 
 function matchesCIRCLE(value, filter) {

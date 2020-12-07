@@ -30,6 +30,7 @@ const wreqr = require('../../js/wreqr.js')
 const user = require('../singletons/user-instance.js')
 const cql = require('../../js/cql.js')
 const announcement = require('../announcement/index.jsx')
+import { showErrorMessages } from '../../react-component/utils/validation'
 
 const formTitle = properties.i18n['form.title']
   ? properties.i18n['form.title'].toLowerCase()
@@ -129,9 +130,14 @@ module.exports = Marionette.LayoutView.extend({
         isSearchFormEditor: true,
         onSave: () => {
           if (this.model.get('title').trim() !== '') {
-            this.updateQuerySettings(collection, id)
-            this.saveTemplateToBackend(collection, id)
-            this.navigateToForms()
+            const errorMessages = this.editor.currentView.getErrorMessages()
+            if (errorMessages.length !== 0) {
+              showErrorMessages(errorMessages)
+            } else {
+              this.updateQuerySettings(collection, id)
+              this.saveTemplateToBackend(collection, id)
+              this.navigateToForms()
+            }
           } else {
             announcement.announce(
               {
