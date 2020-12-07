@@ -176,7 +176,7 @@ module.exports = Marionette.LayoutView.extend({
     if (store.getCurrentQueries().get(this.model) === undefined) {
       store.getCurrentQueries().add(this.model)
     }
-    this.model.cqlSanitizePlugin(store.getCurrentQueries())
+    this.model.cqlSanitizePlugin()
     this.cancel()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     this.originalType = this.model.get('type')

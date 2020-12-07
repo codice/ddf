@@ -316,8 +316,8 @@ Query.Model = PartialAssociatedModel.extend({
       })
     })
   },
-  async cqlSanitizePlugin(data) {
-    return data
+  cqlSanitizePlugin() {
+    return
   },
   async preQueryPlugin(data) {
     return data
