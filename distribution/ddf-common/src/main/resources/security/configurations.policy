@@ -56,7 +56,7 @@ priority "grant";
 //   to be monitored must ALSO be added to the URL Resource Reader section of this file.
 //
 // DO NOT MODIFY THE NEXT LINE. It specifies which  modules are granted permission.
-grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/org.apache.camel.camel-blueprint/catalog-core-camelcomponent/catalog-core-urlresourcereader/com.google.guava/catalog-core-standardframework/org.apache.tika.core" {
+grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/org.apache.camel.camel-blueprint/catalog-core-camelcomponent/catalog-core-urlresourcereader/com.google.guava/catalog-core-standardframework/org.apache.tika.core/platform-util/org.apache.camel.camel-api/org.apache.camel.camel-base/org.apache.camel.camel-file/org.apache.camel.camel-support/org.apache.camel.camel-util/org.apache.camel.karaf.camel-core-osgi" {
 
 
     // EXAMPLE. The two lines that begin with "permission" enable the Content Directory

@@ -18,6 +18,14 @@ import ddf.camel.component.catalog.CatalogEndpoint;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import javax.activation.MimeTypeParseException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -38,6 +46,10 @@ public abstract class TransformerProducer extends DefaultProducer {
 
   private CatalogEndpoint endpoint;
 
+  private ExecutorService executor;
+
+  private static final String TIMEOUT_HEADER_KEY = "timeoutMilliseconds";
+
   /**
    * Constructs the {@link org.apache.camel.Producer} for the custom Camel CatalogComponent. This
    * producer would map to a Camel <to> route node with a URI like <code>catalog:inputtransformer
@@ -48,6 +60,7 @@ public abstract class TransformerProducer extends DefaultProducer {
   public TransformerProducer(CatalogEndpoint endpoint) {
     super(endpoint);
     this.endpoint = endpoint;
+    this.executor = endpoint.getExecutor();
 
     LOGGER.debug(
         "\"INSIDE InputTransformerProducer constructor for {}", endpoint.getTransformerId());
@@ -60,7 +73,8 @@ public abstract class TransformerProducer extends DefaultProducer {
    */
   @Override
   public void process(Exchange exchange)
-      throws CatalogTransformerException, MimeTypeParseException, IOException {
+      throws CatalogTransformerException, MimeTypeParseException, IOException, InterruptedException,
+          ExecutionException {
     LOGGER.trace("ENTERING: process");
     LOGGER.debug("exchange pattern = {}", exchange.getPattern());
 
@@ -99,8 +113,28 @@ public abstract class TransformerProducer extends DefaultProducer {
     Object metacard;
     if (mapper != null) {
       LOGGER.debug("Got a MimeTypeToTransformerMapper service");
-
-      metacard = transform(in, mimeType, transformerId, mapper);
+      Object timeoutObj = exchange.getIn().getHeader(TIMEOUT_HEADER_KEY);
+      final String type = mimeType;
+      final String transformId = transformerId;
+      if (timeoutObj != null) {
+        try {
+          List<Future<Object>> futures =
+              executor.invokeAll(
+                  Collections.singleton(
+                      (Callable<Object>) () -> transform(in, type, transformId, mapper)),
+                  (long) timeoutObj,
+                  TimeUnit.MILLISECONDS);
+          if (!futures.get(0).isDone()) {
+            LOGGER.warn("Ingest task was canceled due to timeout");
+            throw new TransformerTimeoutException("The ingest request timed out 1");
+          }
+          metacard = futures.get(0).get();
+        } catch (CancellationException e) {
+          throw new TransformerTimeoutException("The ingest request timed out 2");
+        }
+      } else {
+        metacard = transform(in, mimeType, transformerId, mapper);
+      }
     } else {
       LOGGER.debug("Did not find a MimeTypeToTransformerMapper service");
       throw new CatalogTransformerException("Did not find a MimeTypeToTransformerMapper service");
