@@ -18,6 +18,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import org.apache.camel.Endpoint;
 import org.apache.camel.support.DefaultComponent;
 import org.osgi.framework.BundleContext;
@@ -49,6 +50,8 @@ public class CatalogComponent extends DefaultComponent {
 
   private MimeTypeMapper mimeTypeMapper;
 
+  private ExecutorService executor;
+
   public CatalogComponent() {
     super();
     LOGGER.debug("INSIDE CatalogComponent constructor");
@@ -74,9 +77,10 @@ public class CatalogComponent extends DefaultComponent {
 
     LOGGER.debug("transformerId = {}", transformerId);
 
-    Endpoint endpoint =
+    CatalogEndpoint endpoint =
         new CatalogEndpoint(
             uri, this, transformerId, mimeType, remaining, catalogFramework, mimeTypeMapper);
+    endpoint.setExecutor(executor);
     try {
       setProperties(endpoint, parameters);
     } catch (Exception e) {
@@ -137,5 +141,13 @@ public class CatalogComponent extends DefaultComponent {
 
   public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
     this.mimeTypeMapper = mimeTypeMapper;
+  }
+
+  public void setExecutor(ExecutorService executor) {
+    this.executor = executor;
+  }
+
+  public void destroy() {
+    executor.shutdownNow();
   }
 }

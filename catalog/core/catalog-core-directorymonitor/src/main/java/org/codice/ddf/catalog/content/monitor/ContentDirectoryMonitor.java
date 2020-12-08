@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+import static org.apache.camel.LoggingLevel.DEBUG;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
@@ -33,8 +34,10 @@ import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.Predicate;
 import org.apache.camel.Processor;
 import org.apache.camel.ServiceStatus;
+import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.FromDefinition;
 import org.apache.camel.model.ModelCamelContext;
@@ -70,6 +73,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
 
   private Security security;
+
+  private static final long MAX_FILE_SIZE = 1_073_741_824;
 
   private final int maxRetries;
 
@@ -203,9 +208,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * <p>Only remove routes that this Content Directory Monitor created since the same CamelContext
    * is shared across all Content Directory Monitors.
    */
-  @SuppressWarnings(
-      "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
-  public void destroy(int code) {
+  public void destroy() {
+    LOGGER.debug("Shutting down CDM for {}", this.monitoredDirectory);
     CompletableFuture.runAsync(this::removeRoutes, configurationExecutor);
   }
 
@@ -213,7 +217,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     if (routeBuilder == null) {
       return;
     }
-
+    LOGGER.debug("CDM Removing routes");
     for (RouteDefinition routeDef : routeBuilder.getRouteCollection().getRoutes()) {
       try {
         String routeId = routeDef.getId();
@@ -401,14 +405,29 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
           routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY).constant(attributeOverrides);
         }
 
-        ThreadsDefinition td = routeDefinition.threads(numThreads).process(systemSubjectBinder);
+        ThreadsDefinition td =
+            routeDefinition
+                .threads(numThreads, numThreads)
+                .maxQueueSize(numThreads * 2)
+                .process(systemSubjectBinder);
         if (processingMechanism.equals(IN_PLACE)) {
+          String maxSize =
+              System.getProperty(
+                  "org.codice.ddf.catalog.content.monitor.maxFileSizeBytes",
+                  String.valueOf(MAX_FILE_SIZE));
+          Predicate sizeLimit = simple("${file:size} < " + maxSize);
+          Predicate createOrUpdateOperation =
+              simple("${in.headers.operation} == 'CREATE' || ${in.headers.operation} == 'UPDATE'");
+
           td.choice()
-              .when(
-                  simple(
-                      "${in.headers.operation} == 'CREATE' || ${in.headers.operation} == 'UPDATE'"))
+              .when(PredicateBuilder.and(sizeLimit, createOrUpdateOperation))
               .to("catalog:inputtransformer")
               .process(new InPlaceMetacardProcessor(attributeRegistry))
+              .otherwise()
+              .log(
+                  DEBUG,
+                  CDM_LOGGER,
+                  "Ignoring file ${file:name} with size ${file:size} because it is too big")
               .end()
               .to("catalog:framework");
         } else {
