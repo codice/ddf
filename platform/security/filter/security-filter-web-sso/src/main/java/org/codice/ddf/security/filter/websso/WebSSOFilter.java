@@ -127,7 +127,13 @@ public class WebSSOFilter implements SecurityFilter {
 
       // now handle the request and set the authentication token
       LOGGER.debug("Handling request for {}.", path);
-      handleRequest(httpRequest, httpResponse, filterChain, getHandlerList(path));
+
+      try {
+        handleRequest(httpRequest, httpResponse, filterChain, getHandlerList(path));
+      } catch (AuthenticationFailureException e) {
+        securityLogger.audit("Authentication failed. Details: {}", e.getRootCause().getMessage());
+        throw e;
+      }
     }
   }
 
@@ -200,6 +206,7 @@ public class WebSSOFilter implements SecurityFilter {
         httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
         httpResponse.flushBuffer();
       }
+
       throw new AuthenticationFailureException(e);
     }
   }

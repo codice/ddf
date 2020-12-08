@@ -15,7 +15,6 @@ package org.codice.ddf.security.filter.login;
 
 import static ddf.security.SecurityConstants.AUTHENTICATION_TOKEN_KEY;
 
-import com.google.common.hash.Hashing;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -25,7 +24,6 @@ import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedExceptionAction;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -56,8 +54,6 @@ import org.slf4j.LoggerFactory;
 public class LoginFilter implements SecurityFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoginFilter.class);
-
-  private SecurityLogger securityLogger;
 
   private static final ThreadLocal<DocumentBuilder> BUILDER =
       new ThreadLocal<DocumentBuilder>() {
@@ -145,11 +141,6 @@ public class LoginFilter implements SecurityFilter {
       return;
     }
 
-    // attach subject to the http session
-    if (contextPolicyManager.getSessionAccess()) {
-      addToSession(httpRequest, subject);
-    }
-
     // subject is now resolved, perform request as that subject
     httpRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, subject);
     LOGGER.debug(
@@ -160,6 +151,11 @@ public class LoginFilter implements SecurityFilter {
             : httpRequest.getServletPath());
     subject.execute(
         () -> {
+          // attach subject to the http session
+          if (contextPolicyManager.getSessionAccess()) {
+            addToSession(httpRequest, subject);
+          }
+
           PrivilegedExceptionAction<Void> action =
               () -> {
                 chain.doFilter(request, response);
@@ -168,7 +164,7 @@ public class LoginFilter implements SecurityFilter {
           Collection<SecurityAssertion> securityAssertions =
               subject.getPrincipals().byType(SecurityAssertion.class);
           if (!securityAssertions.isEmpty()) {
-            HashSet emptySet = new HashSet();
+            HashSet<?> emptySet = new HashSet<>();
             javax.security.auth.Subject javaSubject =
                 new javax.security.auth.Subject(
                     true,
@@ -198,7 +194,6 @@ public class LoginFilter implements SecurityFilter {
     if (sessionFactory == null) {
       throw new SessionException("Unable to store user's session.");
     }
-    boolean nullSession = httpRequest.getSession(false) == null;
     PrincipalCollection principals = subject.getPrincipals();
     HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
     PrincipalHolder principalHolder =
@@ -206,13 +201,6 @@ public class LoginFilter implements SecurityFilter {
     PrincipalCollection oldPrincipals = principalHolder.getPrincipals();
     if (!principals.equals(oldPrincipals)) {
       principalHolder.setPrincipals(principals);
-    }
-
-    if (nullSession) {
-      securityLogger.audit(
-          "Added token for user [{}] to session [{}]",
-          principals.getPrimaryPrincipal(),
-          Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString());
     }
   }
 
@@ -226,10 +214,6 @@ public class LoginFilter implements SecurityFilter {
 
   public void setContextPolicyManager(ContextPolicyManager contextPolicyManager) {
     this.contextPolicyManager = contextPolicyManager;
-  }
-
-  public void setSecurityLogger(SecurityLogger securityLogger) {
-    this.securityLogger = securityLogger;
   }
 
   @Override

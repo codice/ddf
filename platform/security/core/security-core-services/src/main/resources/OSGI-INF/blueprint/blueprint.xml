@@ -58,6 +58,7 @@
     <bean id="securityManagerImpl" class="ddf.security.service.impl.SecurityManagerImpl">
         <cm:managed-properties persistent-id="ddf.security.service.SecurityManager"
                                update-strategy="container-managed"/>
+        <argument ref="securityLogger"/>
         <property name="realms" ref="realmList"/>
     </bean>
 
