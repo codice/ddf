@@ -64,8 +64,6 @@ public class LogoutServletTest {
     Subject subject = mock(Subject.class);
     when(subject.hasRole(anyString())).thenReturn(false);
     ThreadContext.bind(subject);
-
-    System.setProperty("security.audit.roles", "none");
   }
 
   @Test
@@ -102,8 +100,6 @@ public class LogoutServletTest {
 
   @Test
   public void testNullSystemProperty() throws Exception {
-    System.clearProperty("security.audit.roles");
-
     // Used for detecting basic auth
     when(request.getHeaders(anyString())).thenReturn(new LogoutServletEnumeration());
 

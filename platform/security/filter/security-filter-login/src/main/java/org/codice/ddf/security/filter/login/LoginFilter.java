@@ -18,7 +18,6 @@ import static ddf.security.SecurityConstants.AUTHENTICATION_TOKEN_KEY;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;

@@ -212,43 +212,49 @@ public class WebSSOFilter implements SecurityFilter {
   }
 
   private HandlerResult checkForPreviousResultOnSession(HttpServletRequest httpRequest, String ip) {
-    HandlerResult result = null;
-    HttpSession session = httpRequest.getSession(false);
+
     String requestedSessionId = httpRequest.getRequestedSessionId();
-    if (requestedSessionId != null && !httpRequest.isRequestedSessionIdValid()) {
-      securityLogger.audit(
-          "Incoming HTTP Request contained possible unknown session ID [{}] for this server.",
-          Hashing.sha256().hashString(requestedSessionId, StandardCharsets.UTF_8).toString());
+    if (requestedSessionId == null) {
+      LOGGER.trace("No HTTP Session - returning with no results");
+      return null;
     }
-    if (session == null && requestedSessionId != null) {
+
+    HttpSession session = httpRequest.getSession(false);
+    if (session == null) {
+      // No session exists but the request contains a session id. This is expected when a user logs
+      // in to one context (e.g. /app1) then browses to a new context (e.g. /app2) where a session
+      // has not yet been created for them.
       if (sessionFactory == null) {
         throw new SessionException("Unable to verify user's session.");
       }
       session = sessionFactory.getOrCreateSession(httpRequest);
     }
-    if (session != null) {
-      PrincipalHolder principalHolder =
-          (PrincipalHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
-      if (principalHolder != null && principalHolder.getPrincipals() != null) {
-        Collection<SecurityAssertion> assertions =
-            principalHolder.getPrincipals().byType(SecurityAssertion.class);
-        SessionToken sessionToken = null;
-        if (!assertions.isEmpty()) {
-          sessionToken = new SessionToken(principalHolder.getPrincipals(), session.getId(), ip);
-        }
-        if (sessionToken != null) {
-          result = new HandlerResultImpl();
-          result.setToken(sessionToken);
-          result.setStatus(HandlerResult.Status.COMPLETED);
-        } else {
-          principalHolder.remove();
-        }
+
+    // See if principals exist for the requested session id
+    HandlerResult result = null;
+    PrincipalHolder principalHolder =
+        (PrincipalHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
+    if (principalHolder != null && principalHolder.getPrincipals() != null) {
+      Collection<SecurityAssertion> assertions =
+          principalHolder.getPrincipals().byType(SecurityAssertion.class);
+      SessionToken sessionToken = null;
+      if (!assertions.isEmpty()) {
+        sessionToken = new SessionToken(principalHolder.getPrincipals(), session.getId(), ip);
+      }
+      if (sessionToken != null) {
+        result = new HandlerResultImpl();
+        result.setToken(sessionToken);
+        result.setStatus(HandlerResult.Status.COMPLETED);
       } else {
-        LOGGER.trace("No principals located in session - returning with no results");
+        principalHolder.remove();
       }
     } else {
-      LOGGER.trace("No HTTP Session - returning with no results");
+      securityLogger.audit(
+          "Request contained invalid or expired session id [{}]", Hashing
+              .sha256().hashString(requestedSessionId, StandardCharsets.UTF_8).toString());
+      LOGGER.trace("Request contained invalid or expired session - returning with no results");
     }
+
     return result;
   }
 

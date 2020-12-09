@@ -18,7 +18,6 @@ import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -26,8 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.token.storage.api.TokenStorage;
 import org.slf4j.Logger;
@@ -80,16 +77,7 @@ public class LocalLogoutServlet extends HttpServlet {
       PrincipalHolder principalHolder =
           (PrincipalHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
       if (principalHolder != null) {
-        Subject subject = ThreadContext.getSubject();
-
-        if (subject != null) {
-          boolean hasSecurityAuditRole =
-              Arrays.stream(System.getProperty("security.audit.roles", "").split(","))
-                  .anyMatch(subject::hasRole);
-          if (hasSecurityAuditRole) {
-            securityLogger.audit("Subject with admin privileges has logged out", subject);
-          }
-        }
+        securityLogger.audit("Logging out");
         principalHolder.remove();
       }
       removeTokens(session.getId());

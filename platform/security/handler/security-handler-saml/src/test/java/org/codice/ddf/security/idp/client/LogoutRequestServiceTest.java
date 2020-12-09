@@ -151,7 +151,6 @@ public class LogoutRequestServiceTest {
     when(idpMetadata.getSigningCertificate()).thenReturn("signingCertificate");
     when(idpMetadata.getSingleLogoutBinding()).thenReturn(SamlProtocol.REDIRECT_BINDING);
     when(idpMetadata.getSingleLogoutLocation()).thenReturn(redirectLogoutUrl);
-    System.setProperty("security.audit.roles", "none");
   }
 
   private void initializeLogoutRequestService() {
