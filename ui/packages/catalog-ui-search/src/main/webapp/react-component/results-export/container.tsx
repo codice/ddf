@@ -16,10 +16,11 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import fetch from '../utils/fetch'
 import ResultsExportComponent from './presentation'
-import { exportResult, exportResultSet } from '../utils/export'
+import { exportResult } from '../utils/export'
 import { getResultSetCql } from '../utils/cql'
 import saveFile from '../utils/save-file'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
+const properties = require('../../js/properties.js')
 
 const contentDisposition = require('content-disposition')
 
@@ -121,6 +122,7 @@ class ResultsExport extends React.Component<Props, State> {
   }
 
   async onDownloadClick() {
+    debugger
     const uriEncodedTransformerId = this.getSelectedExportFormatId()
 
     if (uriEncodedTransformerId === undefined) {
@@ -142,7 +144,7 @@ class ResultsExport extends React.Component<Props, State> {
     ]
 
     if (this.props.isZipped) {
-      response = await exportResultSet('zipCompression', {
+      response = await exportResult('zipCompression', {
         searches,
         count,
         args: {
@@ -150,19 +152,36 @@ class ResultsExport extends React.Component<Props, State> {
         },
       })
     } else if (this.props.results.length > 1) {
-      response = await exportResultSet(uriEncodedTransformerId, {
+      response = await exportResult(uriEncodedTransformerId, {
         searches,
         count,
       })
     } else {
       const result = this.props.results[0]
+      // const search = [
+      //   {
+      //     srcs: [searches[0].srcs[0].replace("%20", " ").replace("%20", " ")],
+      //     cql: cql.replace("(", "").replace(")", ""),
+      //     count,
+      //   },
+      // ]
+      response = await exportResult(uriEncodedTransformerId, {
+        searches,
+        count,
+        sorts: [{attribute: "modified", direction: "descending"}],
+        args: {
+          columnOrder: result.attributes,
+          columnAliasMap: properties.attributeAliases
+        }
+      })
 
-      response = await exportResult(
-        result.source,
-        result.id,
-        uriEncodedTransformerId,
-        result.attributes.toString()
-      )
+
+      // response = await exportResult(
+      //   result.source,
+      //   result.id,
+      //   uriEncodedTransformerId,
+      //   result.attributes.toString()
+      // )
     }
 
     if (response.status === 200) {
