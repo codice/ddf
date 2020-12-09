@@ -602,6 +602,28 @@ public class SolrProviderQuery {
   }
 
   @Test
+  public void contextualLogicalNotWithNonMatchingOrPositiveCase()
+      throws UnsupportedQueryException, IngestException {
+    createContextualMetacards();
+
+    SolrFilterBuilder builder = getFilterBuilder();
+    Filter filter =
+        builder.anyOf(
+            builder.not(
+                builder
+                    .attribute(Metacard.METADATA)
+                    .is()
+                    .like()
+                    .text(Library.FLAGSTAFF_QUERY_PHRASE)),
+            builder.attribute(Metacard.METADATA).is().like().text("Pennsylvania"));
+
+    SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+    assertEquals(
+        "Did not find NOT Flagstaff OR Pennsylvania", ONE_HIT, sourceResponse.getResults().size());
+  }
+
+  @Test
   public void contextualLogicalNestedOrAndPositiveCase()
       throws UnsupportedQueryException, IngestException {
     createContextualMetacards();
