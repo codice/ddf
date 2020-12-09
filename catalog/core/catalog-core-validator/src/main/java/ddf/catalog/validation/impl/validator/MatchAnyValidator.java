@@ -21,6 +21,7 @@ import ddf.catalog.validation.report.AttributeValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,7 @@ public class MatchAnyValidator implements AttributeValidator {
   public MatchAnyValidator(List<AttributeValidator> validators) {
     // validators has to be initialized
     if (validators == null) {
-      this.validators = null;
+      this.validators = Collections.<AttributeValidator>emptyList();
     } else {
       this.validators =
           validators
