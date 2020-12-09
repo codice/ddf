@@ -34,11 +34,16 @@ public class MatchAnyValidator implements AttributeValidator {
   private final List<AttributeValidator> validators;
 
   public MatchAnyValidator(List<AttributeValidator> validators) {
-    this.validators =
-        validators
-            .stream()
-            .sorted(Comparator.comparingInt(Object::hashCode))
-            .collect(Collectors.toList());
+    // validators has to be initialized
+    if (validators == null) {
+      this.validators = null;
+    } else {
+      this.validators =
+          validators
+              .stream()
+              .sorted(Comparator.comparingInt(Object::hashCode))
+              .collect(Collectors.toList());
+    }
   }
 
   @Override
