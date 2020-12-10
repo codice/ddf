@@ -30,6 +30,7 @@
 //
 package org.codice.ddf.security.session;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.hash.Hashing;
 import ddf.security.audit.SecurityLogger;
 import java.nio.charset.StandardCharsets;
@@ -83,11 +84,16 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
     return (bundle != null) ? bundle.getBundleContext() : null;
   }
 
-  public AttributeSharingHashSessionIdManager(Server server) {
+  @VisibleForTesting
+  public AttributeSharingHashSessionIdManager(Server server, BundleContext context) {
     super(server);
-    bundleContext = Objects.requireNonNull(getContext(), "bundleContext cannot be null");
+    bundleContext = Objects.requireNonNull(context, "bundleContext cannot be null");
     securityLogger = new ServiceTracker<>(bundleContext, SecurityLogger.class.getName(), null);
     registerSessionManager();
+  }
+
+  public AttributeSharingHashSessionIdManager(Server server) {
+    this(server, getContext());
   }
 
   public AttributeSharingHashSessionIdManager(Server server, Random random) {

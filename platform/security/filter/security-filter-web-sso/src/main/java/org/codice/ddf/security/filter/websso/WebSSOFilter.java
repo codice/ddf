@@ -131,7 +131,11 @@ public class WebSSOFilter implements SecurityFilter {
       try {
         handleRequest(httpRequest, httpResponse, filterChain, getHandlerList(path));
       } catch (AuthenticationFailureException e) {
-        securityLogger.audit("Authentication failed. Details: {}", e.getRootCause().getMessage());
+        String message = (e.getRootCause() != null)
+            ? e.getRootCause().getMessage()
+            : e.getMessage();
+        securityLogger.audit(
+            "Authentication failed. Error message: '{}'", message);
         throw e;
       }
     }
@@ -250,8 +254,8 @@ public class WebSSOFilter implements SecurityFilter {
       }
     } else {
       securityLogger.audit(
-          "Request contained invalid or expired session id [{}]", Hashing
-              .sha256().hashString(requestedSessionId, StandardCharsets.UTF_8).toString());
+          "Request contained invalid or expired session id [{}]",
+          Hashing.sha256().hashString(requestedSessionId, StandardCharsets.UTF_8).toString());
       LOGGER.trace("Request contained invalid or expired session - returning with no results");
     }
 
