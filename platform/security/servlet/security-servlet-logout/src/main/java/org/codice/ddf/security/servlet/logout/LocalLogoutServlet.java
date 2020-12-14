@@ -14,10 +14,13 @@
 package org.codice.ddf.security.servlet.logout;
 
 import ddf.security.SecurityConstants;
+import ddf.security.assertion.SecurityAssertion;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Comparator;
+import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.token.storage.api.TokenStorage;
 import org.slf4j.Logger;
@@ -76,13 +80,26 @@ public class LocalLogoutServlet extends HttpServlet {
     if (session != null) {
       PrincipalHolder principalHolder =
           (PrincipalHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
-      if (principalHolder != null) {
-        securityLogger.audit("Logging out");
+      if (principalHolder != null && principalHolder.getPrincipals() != null) {
+        securityLogger.audit(
+            "Subject {} logged out", getSubjectName(principalHolder.getPrincipals()));
         principalHolder.remove();
       }
       removeTokens(session.getId());
       session.invalidate();
       deleteJSessionId(response);
+    }
+  }
+
+  private String getSubjectName(PrincipalCollection principalCollection) {
+    Optional<SecurityAssertion> assertion =
+        principalCollection.byType(SecurityAssertion.class).stream()
+            .min(Comparator.comparingInt(SecurityAssertion::getWeight));
+
+    if (assertion.isPresent()) {
+      return assertion.get().getPrincipal().getName();
+    } else {
+      return "UNKNOWN";
     }
   }
 

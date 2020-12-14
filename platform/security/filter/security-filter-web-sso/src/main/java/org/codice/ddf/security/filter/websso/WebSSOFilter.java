@@ -131,11 +131,9 @@ public class WebSSOFilter implements SecurityFilter {
       try {
         handleRequest(httpRequest, httpResponse, filterChain, getHandlerList(path));
       } catch (AuthenticationFailureException e) {
-        String message = (e.getRootCause() != null)
-            ? e.getRootCause().getMessage()
-            : e.getMessage();
-        securityLogger.audit(
-            "Authentication failed. Error message: '{}'", message);
+        String message =
+            (e.getRootCause() != null) ? e.getRootCause().getMessage() : e.getMessage();
+        securityLogger.audit("Authentication failed. Error message: '{}'", message);
         throw e;
       }
     }
