@@ -47,12 +47,11 @@
                 <value>${org.codice.ddf.system.rootContext}/platform/config/ui</value>
                 <value>${org.codice.ddf.system.rootContext}/internal/session</value>
                 <value>${org.codice.ddf.system.rootContext}/admin/fonts</value>
+                <value>${org.codice.ddf.system.rootContext}/logout</value>
+                <value>/logout</value>
                 <value>/favicon.ico</value>
                 <value>/error</value>
                 <value>/webjars</value>
-                <value>/logout/logout-response.html</value>
-                <value>/logout/css</value>
-                <value>/logout/js</value>
             </array>
         </property>
         <property name="traversalDepth">
