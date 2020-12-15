@@ -16,7 +16,7 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import fetch from '../utils/fetch'
 import ResultsExportComponent from './presentation'
-import { exportResult } from '../utils/export'
+import { exportResult, exportResultSet } from '../utils/export'
 import { getResultSetCql } from '../utils/cql'
 import saveFile from '../utils/save-file'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
@@ -122,7 +122,6 @@ class ResultsExport extends React.Component<Props, State> {
   }
 
   async onDownloadClick() {
-    debugger
     const uriEncodedTransformerId = this.getSelectedExportFormatId()
 
     if (uriEncodedTransformerId === undefined) {
@@ -135,6 +134,7 @@ class ResultsExport extends React.Component<Props, State> {
       this.props.results.map((result: Result) => result.id)
     )
     const srcs = Array.from(this.getResultSources())
+    const result = this.props.results[0]
     const searches = [
       {
         srcs,
@@ -144,44 +144,41 @@ class ResultsExport extends React.Component<Props, State> {
     ]
 
     if (this.props.isZipped) {
-      response = await exportResult('zipCompression', {
+      response = await exportResultSet('zipCompression', {
         searches,
         count,
         args: {
           transformerId: uriEncodedTransformerId,
         },
       })
+      // User-friendly csv headers
+    } else if (uriEncodedTransformerId === 'csv') {
+      let attributes = new Array()
+      this.props.results.forEach(result => {
+        attributes = attributes.concat(result.attributes)
+      })
+      attributes = Array.from(new Set(attributes))
+      response = await exportResultSet(uriEncodedTransformerId, {
+        searches,
+        count,
+        sorts: [{ attribute: 'modified', direction: 'descending' }],
+        args: {
+          columnOrder: attributes,
+          columnAliasMap: properties.attributeAliases,
+        },
+      })
     } else if (this.props.results.length > 1) {
-      response = await exportResult(uriEncodedTransformerId, {
+      response = await exportResultSet(uriEncodedTransformerId, {
         searches,
         count,
       })
     } else {
-      const result = this.props.results[0]
-      // const search = [
-      //   {
-      //     srcs: [searches[0].srcs[0].replace("%20", " ").replace("%20", " ")],
-      //     cql: cql.replace("(", "").replace(")", ""),
-      //     count,
-      //   },
-      // ]
-      response = await exportResult(uriEncodedTransformerId, {
-        searches,
-        count,
-        sorts: [{attribute: "modified", direction: "descending"}],
-        args: {
-          columnOrder: result.attributes,
-          columnAliasMap: properties.attributeAliases
-        }
-      })
-
-
-      // response = await exportResult(
-      //   result.source,
-      //   result.id,
-      //   uriEncodedTransformerId,
-      //   result.attributes.toString()
-      // )
+      response = await exportResult(
+        result.source,
+        result.id,
+        uriEncodedTransformerId,
+        result.attributes.toString()
+      )
     }
 
     if (response.status === 200) {

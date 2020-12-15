@@ -22,7 +22,7 @@ import {
 const user = require('../../component/singletons/user-instance.js')
 const Sources = require('../../component/singletons/sources-instance.js')
 import {
-  exportResult,
+  exportResultSet,
   ExportCountInfo,
   DownloadInfo,
 } from '../../react-component/utils/export'
@@ -231,7 +231,7 @@ export const onDownloadClick = async (downloadInfo: DownloadInfo) => {
   const exportFormat = encodeURIComponent(downloadInfo.exportFormat)
   try {
     const body = getDownloadBody(downloadInfo)
-    const response = await exportResult(exportFormat, body)
+    const response = await exportResultSet(exportFormat, body)
     onDownloadSuccess(response)
   } catch (error) {
     console.error(error)

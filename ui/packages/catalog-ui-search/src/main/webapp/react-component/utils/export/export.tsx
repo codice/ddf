@@ -34,13 +34,6 @@ export type ExportBody = {
   args?: Object
 }
 
-// export type ExportBody2 = {
-//   search: ResultSet
-//   count: number
-//   sorts?: Object[]
-//   args?: Object
-// }
-
 export interface ExportCountInfo {
   exportSize: string
   selectionInterface: any
@@ -78,7 +71,6 @@ const getResultSourceId = (result: any) => {
 }
 
 export const getExportResult = (result: any) => {
-  console.log(result)
   return {
     id: getResultId(result),
     source: getResultSourceId(result),
@@ -93,26 +85,18 @@ export const getExportOptions = async (type: Transformer) => {
   return await response.json()
 }
 
-// export const exportResult = async (
-//   source: string,
-//   id: string,
-//   transformer: string,
-//   attributes: string
-// ) => {
-//   const body = 
-//   return await fetch(`./internal/cql/transform/${transformer}`, {
-//     method: 'POST',
-//     body: JSON.stringify(body),
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//   })
-//   // return await fetch(
-//   //   `/services/catalog/sources/${source}/${id}?transform=${transformer}&columnOrder=${attributes}`
-//   // )
-// }
-
 export const exportResult = async (
+  source: string,
+  id: string,
+  transformer: string,
+  attributes: string
+) => {
+  return await fetch(
+    `/services/catalog/sources/${source}/${id}?transform=${transformer}&columnOrder=${attributes}`
+  )
+}
+
+export const exportResultSet = async (
   transformer: string,
   body: ExportBody
 ) => {

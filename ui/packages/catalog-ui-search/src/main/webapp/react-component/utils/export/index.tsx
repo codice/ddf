@@ -15,6 +15,7 @@
 export {
   getExportOptions,
   exportResult,
+  exportResultSet,
   ExportBody,
   Transformer,
   ResultSet,
