@@ -20,6 +20,8 @@ import com.thoughtworks.xstream.security.NoTypePermission;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.namespace.QName;
@@ -50,7 +52,9 @@ public class XStreamWfs11FeatureTransformer implements FeatureTransformer<Featur
 
   @Override
   public Optional<Metacard> apply(InputStream document, WfsMetadata<FeatureTypeType> metadata) {
-    XStream xStream = new XStream(new WstxDriver());
+    final WstxDriver driver = new WstxDriver();
+    XStream xStream =
+        AccessController.doPrivileged((PrivilegedAction<XStream>) () -> new XStream(driver));
     xStream.addPermission(NoTypePermission.NONE);
     xStream.allowTypeHierarchy(Metacard.class);
     xStream.setClassLoader(this.getClass().getClassLoader());
