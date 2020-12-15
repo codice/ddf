@@ -99,8 +99,18 @@ public class MetacardToKml {
     de.micromata.opengis.kml.v_2_2_0.Polygon kmlPoly = KmlFactory.createPolygon();
     List<Coordinate> kmlCoords =
         kmlPoly.createAndSetOuterBoundaryIs().createAndSetLinearRing().createAndSetCoordinates();
-    for (org.locationtech.jts.geom.Coordinate coord : jtsPoly.getCoordinates()) {
+
+    for (org.locationtech.jts.geom.Coordinate coord : jtsPoly.getExteriorRing().getCoordinates()) {
       kmlCoords.add(new Coordinate(coord.x, coord.y));
+    }
+    for (int n = 0; n < jtsPoly.getNumInteriorRing(); n++) {
+      kmlCoords =
+          kmlPoly.createAndAddInnerBoundaryIs().createAndSetLinearRing().createAndSetCoordinates();
+      org.locationtech.jts.geom.Coordinate[] childCoordinates =
+          jtsPoly.getInteriorRingN(n).getCoordinates();
+      for (org.locationtech.jts.geom.Coordinate coord : childCoordinates) {
+        kmlCoords.add(new Coordinate(coord.x, coord.y));
+      }
     }
     return kmlPoly;
   }
