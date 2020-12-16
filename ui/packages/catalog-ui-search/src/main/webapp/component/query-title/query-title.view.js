@@ -85,7 +85,6 @@ module.exports = Marionette.LayoutView.extend({
   handleTitleUpdate() {
     this.$el.find('input').val(this.model.get('title'))
     this.updateButtonTitle()
-    this.$el.find('.button-title').html(this.getSearchTitle() + zeroWidthSpace)
   },
   updateQueryName(e) {
     this.updateButtonTitle()
