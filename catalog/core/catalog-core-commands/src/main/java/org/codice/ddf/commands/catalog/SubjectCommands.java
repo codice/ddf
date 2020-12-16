@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.console.Session;
@@ -38,12 +39,7 @@ public abstract class SubjectCommands extends CommandSupport {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SubjectCommands.class);
 
-  @Option(
-      name = "--user",
-      required = false,
-      aliases = {"-u"},
-      multiValued = false,
-      description = "Run command as a different user.")
+  @Option(name = "--user", aliases = "-u", description = "Run command as a different user.")
   protected String user = null;
 
   @Reference protected Session session;
@@ -68,46 +64,59 @@ public abstract class SubjectCommands extends CommandSupport {
    * the user doesn't have the permission to run the command.
    *
    * @return value returned by {@link #executeWithSubject()}, or {@code null} if the command failed
-   * @throws InvocationTargetException thrown if an exception occurred while executing the command
-   * @throws Exception if any other unexpected exception occurred
    */
   @Override
-  public Object execute() throws Exception {
-
-    try {
-      if (isNotBlank(user)) {
-        return runWithUserName();
-      } else {
-        return security.runWithSubjectOrElevate(
-            () ->
-                AccessController.doPrivileged(
-                    (PrivilegedExceptionAction<Object>) this::executeWithSubject));
-      }
-    } catch (SecurityServiceException e) {
-      printErrorMessage(e.getMessage());
-    } catch (InvocationTargetException e) {
-      printErrorMessage(e.getCause().getMessage());
+  public Object execute() {
+    if (isNotBlank(user)) {
+      return runWithUsername();
+    } else {
+      return runWithoutUsername();
     }
-    return null;
   }
 
-  private Object runWithUserName() throws InvocationTargetException {
+  @Nullable
+  private Object runWithUsername() {
+    final String password;
     try {
-      String password = session.readLine("Password for " + user + ": ", '*');
-      Subject subject = security.getSubject(user, password, "127.0.0.1");
-
-      if (subject == null) {
-        printErrorMessage("Invalid username/password");
-        return null;
-      }
-
-      return subject.execute(this::executeWithSubject);
-    } catch (ExecutionException e) {
-      LOGGER.info("Failed to run command: {}", e.getCause().getMessage(), e.getCause());
-      throw new InvocationTargetException(e.getCause());
+      password = session.readLine("Password for " + user + ": ", '*');
     } catch (IOException e) {
       LOGGER.info("Failed to run command", e);
       printErrorMessage("Failed to read password");
+      return null;
+    }
+
+    final Subject subject = security.getSubject(user, password, "127.0.0.1");
+    if (subject == null) {
+      printErrorMessage("Invalid username/password");
+      return null;
+    }
+
+    try {
+      return subject.execute(this::executeWithSubject);
+    } catch (ExecutionException e) {
+      final Throwable failure = e.getCause();
+      final String message = failure.getMessage();
+      LOGGER.info("Failed to run command: {}", message, failure);
+      printErrorMessage(message);
+      return null;
+    }
+  }
+
+  /**
+   * {@link InvocationTargetException} wraps the {@link java.security.PrivilegedActionException}
+   * that wraps the checked {@link Exception} thrown by {@link PrivilegedExceptionAction#run()}
+   */
+  @Nullable
+  private Object runWithoutUsername() {
+    try {
+      return security.runWithSubjectOrElevate(
+          () ->
+              AccessController.doPrivileged(
+                  (PrivilegedExceptionAction<Object>) this::executeWithSubject));
+    } catch (SecurityServiceException e) {
+      printErrorMessage(e.getMessage());
+    } catch (InvocationTargetException e) {
+      printErrorMessage(e.getCause().getCause().getMessage());
     }
 
     return null;
