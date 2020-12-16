@@ -70,9 +70,7 @@ class ResultsExport extends React.Component<Props, State> {
   }
 
   getTransformerType = () => {
-    return this.props.isZipped 
-      ? 'metacard'
-      : 'query'
+    return this.props.isZipped ? 'metacard' : 'query'
   }
 
   componentDidMount() {
