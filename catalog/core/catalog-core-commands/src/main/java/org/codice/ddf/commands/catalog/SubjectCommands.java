@@ -19,6 +19,7 @@ import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
+import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import javax.annotation.Nullable;
 import org.apache.karaf.shell.api.action.Option;
@@ -103,8 +104,10 @@ public abstract class SubjectCommands extends CommandSupport {
   }
 
   /**
-   * {@link InvocationTargetException} wraps the {@link java.security.PrivilegedActionException}
-   * that wraps the checked {@link Exception} thrown by {@link PrivilegedExceptionAction#run()}
+   * The {@link InvocationTargetException} wraps the {@link java.security.PrivilegedActionException}
+   * that wraps the checked {@link Exception} thrown by {@link PrivilegedExceptionAction#run()}. The
+   * {@link InvocationTargetException} wraps any unchecked {@link Exception} thrown by {@link
+   * PrivilegedExceptionAction#run()}.
    */
   @Nullable
   private Object runWithoutUsername() {
@@ -116,7 +119,12 @@ public abstract class SubjectCommands extends CommandSupport {
     } catch (SecurityServiceException e) {
       printErrorMessage(e.getMessage());
     } catch (InvocationTargetException e) {
-      printErrorMessage(e.getCause().getCause().getMessage());
+      final Throwable cause = e.getCause();
+      if (cause instanceof PrivilegedActionException) {
+        printErrorMessage(cause.getCause().getMessage());
+      } else {
+        printErrorMessage(cause.getMessage());
+      }
     }
 
     return null;

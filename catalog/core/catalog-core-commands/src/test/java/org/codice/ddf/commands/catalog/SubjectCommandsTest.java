@@ -16,6 +16,7 @@ package org.codice.ddf.commands.catalog;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -26,7 +27,6 @@ import ddf.security.Subject;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.security.PrivilegedActionException;
 import java.util.concurrent.Callable;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.shiro.subject.ExecutionException;
@@ -115,7 +115,7 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
   }
 
   @Test
-  public void doExecuteWhenSubjectExecuteThrowsExecutionException() throws Exception {
+  public void doExecuteWithUsernameWhenSubjectExecuteThrowsExecutionException() throws Exception {
     SubjectCommands subjectCommands =
         new SubjectCommandsUnderTest() {
           @Override
@@ -144,7 +144,7 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
   }
 
   @Test
-  public void doExecuteWhenRunWithSubjectOrElevateThrowsSecurityServiceException()
+  public void doExecuteWithoutUsernameWhenRunWithSubjectOrElevateThrowsSecurityServiceException()
       throws Exception {
     SubjectCommands subjectCommands = new SubjectCommandsUnderTest();
     when(security.runWithSubjectOrElevate(any(Callable.class)))
@@ -156,12 +156,12 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
   }
 
   @Test
-  public void doExecuteWhenRunWithSubjectOrElevateThrowsInvocationTargetException()
+  public void doExecuteWithoutUsernameWhenExecuteWithSubjectThrowsRuntimeException()
       throws Exception {
     SubjectCommands subjectCommands =
         new SubjectCommandsUnderTest() {
           @Override
-          protected Object executeWithSubject() throws Exception {
+          protected Object executeWithSubject() {
             throw new IllegalStateException(ERROR);
           }
         };
@@ -170,8 +170,36 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
             invocation -> {
               try {
                 return invocation.<Callable>getArgument(0).call();
+              } catch (RuntimeException e) {
+                throw new InvocationTargetException(e);
+              }
+            });
+
+    subjectCommands.execute();
+
+    assertThat(consoleOutput.getOutput(), containsString(ERROR));
+  }
+
+  @Test
+  public void doExecuteWithoutUsernameWhenExecuteWithSubjectThrowsCheckedException()
+      throws Exception {
+    SubjectCommands subjectCommands =
+        new SubjectCommandsUnderTest() {
+          @Override
+          protected Object executeWithSubject() throws IOException {
+            throw new IOException(ERROR);
+          }
+        };
+    when(security.runWithSubjectOrElevate(any(Callable.class)))
+        .thenAnswer(
+            invocation -> {
+              try {
+                return invocation.<Callable>getArgument(0).call();
+              } catch (RuntimeException e) {
+                fail("Expected checked Exception");
+                throw new InvocationTargetException(e);
               } catch (Exception e) {
-                throw new InvocationTargetException(new PrivilegedActionException(e));
+                throw new InvocationTargetException(e);
               }
             });
 
