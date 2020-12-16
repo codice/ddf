@@ -22,7 +22,6 @@ import { getExportResults } from '../utils/export/export'
 const lightboxInstance = require('../../component/lightbox/lightbox.view.instance.js')
 
 const onExport = (props: Props) => {
-  debugger
   props.onClose()
   lightboxInstance.model.updateTitle('Export Results')
   lightboxInstance.model.open()

@@ -16,7 +16,7 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import fetch from '../utils/fetch'
 import ResultsExportComponent from './presentation'
-import { exportResult, exportResultSet } from '../utils/export'
+import { exportResultSet } from '../utils/export'
 import { getResultSetCql } from '../utils/cql'
 import saveFile from '../utils/save-file'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
@@ -70,9 +70,9 @@ class ResultsExport extends React.Component<Props, State> {
   }
 
   getTransformerType = () => {
-    return !this.props.isZipped && this.props.results.length > 1
-      ? 'query'
-      : 'metacard'
+    return this.props.isZipped 
+      ? 'metacard'
+      : 'query'
   }
 
   componentDidMount() {
@@ -123,7 +123,6 @@ class ResultsExport extends React.Component<Props, State> {
 
   async onDownloadClick() {
     const uriEncodedTransformerId = this.getSelectedExportFormatId()
-
     if (uriEncodedTransformerId === undefined) {
       return
     }
@@ -134,7 +133,6 @@ class ResultsExport extends React.Component<Props, State> {
       this.props.results.map((result: Result) => result.id)
     )
     const srcs = Array.from(this.getResultSources())
-    const result = this.props.results[0]
     const searches = [
       {
         srcs,
@@ -151,8 +149,7 @@ class ResultsExport extends React.Component<Props, State> {
           transformerId: uriEncodedTransformerId,
         },
       })
-      // User-friendly csv headers
-    } else if (uriEncodedTransformerId === 'csv') {
+    } else {
       let attributes = new Array()
       this.props.results.forEach(result => {
         attributes = attributes.concat(result.attributes)
@@ -167,18 +164,6 @@ class ResultsExport extends React.Component<Props, State> {
           columnAliasMap: properties.attributeAliases,
         },
       })
-    } else if (this.props.results.length > 1) {
-      response = await exportResultSet(uriEncodedTransformerId, {
-        searches,
-        count,
-      })
-    } else {
-      response = await exportResult(
-        result.source,
-        result.id,
-        uriEncodedTransformerId,
-        result.attributes.toString()
-      )
     }
 
     if (response.status === 200) {
