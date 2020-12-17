@@ -41,6 +41,11 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${jakarta.xml.bind.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.jaxb</groupId>
             <artifactId>platform-parser-test-domain</artifactId>
             <version>${ddf.jaxb.version}</version>

@@ -11,7 +11,7 @@ include::config.adoc[]
 :reference-prefix: reference.adoc#_
 :using-prefix: using.adoc#_
 
-<#include "build/developing.ftl">
+<#include "developing-build.ftl">
 
 ifdef::backend-html5[]
 

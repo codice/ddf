@@ -124,7 +124,7 @@ public class GeoNamesCatalogIndexerTest {
         .thenReturn(Collections.singletonList(new ResultImpl(new MetacardImpl())));
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(queryResponse);
 
-    progressCallback = progress -> progress++;
+    progressCallback = progress -> {};
     geoNamesCatalogIndexer =
         new GeoNamesCatalogIndexer(
             catalogFramework,

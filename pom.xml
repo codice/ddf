@@ -49,8 +49,8 @@
         <version>1.0.11</version>
     </parent>
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <!--  default URL properties -->
         <ddf.scm.connection.url />
         <snapshots.repository.url />
@@ -116,14 +116,14 @@
         <dom4j.bundle.version>2.1.3_1</dom4j.bundle.version>
 
         <!--Test properties-->
-        <byte-buddy.version>1.6.14</byte-buddy.version>
+        <byte-buddy.version>1.10.18</byte-buddy.version>
         <hamcrest-all.servicemix.version>1.3_1</hamcrest-all.servicemix.version>
         <hamcrest-all.version>1.3</hamcrest-all.version>
         <hamcrest-junit.version>2.0.0.0</hamcrest-junit.version>
         <hamcrest-optional.version>1.0</hamcrest-optional.version>
         <jsonassert.version>1.5.0</jsonassert.version>
-        <junit.version>4.12</junit.version>
-        <mockito.version>2.8.47</mockito.version>
+        <junit.version>4.13.1</junit.version>
+        <mockito.version>2.28.2</mockito.version>
         <pax.exam.version>4.13.2.CODICE</pax.exam.version>
         <pax.logging.version>1.11.6</pax.logging.version>
         <pax.url.version>2.6.2</pax.url.version>
@@ -139,11 +139,11 @@
         <project.report.output.directory>project-info</project.report.output.directory>
 
         <!--Documentation properties-->
-        <asciidoctor.maven.plugin.version>1.5.6</asciidoctor.maven.plugin.version>
-        <asciidoctorj.diagram.version>1.5.4.1</asciidoctorj.diagram.version>
-        <asciidoctorj.pdf.version>1.5.0-alpha.16</asciidoctorj.pdf.version>
-        <asciidoctorj.version>1.6.2</asciidoctorj.version>
-        <jruby.version>9.2.11.1</jruby.version>
+        <asciidoctor.maven.plugin.version>2.1.0</asciidoctor.maven.plugin.version>
+        <asciidoctorj.diagram.version>2.0.5</asciidoctorj.diagram.version>
+        <asciidoctorj.pdf.version>1.5.3</asciidoctorj.pdf.version>
+        <asciidoctorj.version>2.4.2</asciidoctorj.version>
+        <jruby.version>9.2.13.0</jruby.version>
         <openlayers.version>4.6.5</openlayers.version>
 
         <abdera.osgi.version>1.1.3_2</abdera.osgi.version>
@@ -152,7 +152,7 @@
         <apache.shiro.version>1.6.0</apache.shiro.version>
         <asm.version>8.0.1</asm.version>
         <awaitility.version>3.1.5</awaitility.version>
-        <bouncy.version>1.66</bouncy.version>
+        <bouncy.version>1.67</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
@@ -204,7 +204,8 @@
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
         <jackson.version>2.11.0</jackson.version>
-        <jakarta.activation.version>1.2.1</jakarta.activation.version>
+        <jakarta.xml.bind.version>2.3.3</jakarta.xml.bind.version>
+        <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.mail.version>1.6.5</jakarta.mail.version>
         <jasypt.version>1.9.3</jasypt.version>
         <javax.annotation-api.version>1.3.5</javax.annotation-api.version>
@@ -670,28 +671,25 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.1</version>
                     <configuration>
-                        <compilerId>javac-with-errorprone</compilerId>
-                        <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>11</source>
+                        <target>11</target>
                         <maxmem>512M</maxmem>
                         <fork>${compiler.fork}</fork>
                         <encoding>${project.build.sourceEncoding}</encoding>
+                        <compilerArgs>
+                            <arg>-XDcompilePolicy=simple</arg>
+                            <arg>-Xplugin:ErrorProne</arg>
+                            <arg>--add-exports</arg>
+                            <arg>java.base/sun.security.x509=ALL-UNNAMED</arg>
+                        </compilerArgs>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>com.google.errorprone</groupId>
+                                <artifactId>error_prone_core</artifactId>
+                                <version>2.4.0</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.codehaus.plexus</groupId>
-                            <artifactId>plexus-compiler-javac-errorprone</artifactId>
-                            <version>2.8.2</version>
-                        </dependency>
-                        <!-- override plexus-compiler-javac-errorprone's dependency on
-                             Error Prone with the latest version -->
-                        <dependency>
-                            <groupId>com.google.errorprone</groupId>
-                            <artifactId>error_prone_core</artifactId>
-                            <version>2.1.2</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

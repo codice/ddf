@@ -16,8 +16,8 @@ package ddf.catalog.source.solr;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-import com.sun.tools.javac.util.List;
 import ddf.catalog.data.Metacard;
+import org.apache.curator.shaded.com.google.common.collect.Lists;
 import org.junit.Test;
 
 public class RealTimeGetDelegateTest {
@@ -31,16 +31,16 @@ public class RealTimeGetDelegateTest {
 
   @Test
   public void and() {
-    assertTrue(delegate.and(List.of(true, true)));
-    assertTrue(delegate.and(List.of(true, false)));
-    assertFalse(delegate.and(List.of(false, false)));
+    assertTrue(delegate.and(Lists.newArrayList(true, true)));
+    assertTrue(delegate.and(Lists.newArrayList(true, false)));
+    assertFalse(delegate.and(Lists.newArrayList(false, false)));
   }
 
   @Test
   public void or() {
-    assertTrue(delegate.or(List.of(true, true)));
-    assertFalse(delegate.or(List.of(true, false)));
-    assertFalse(delegate.or(List.of(false, false)));
+    assertTrue(delegate.or(Lists.newArrayList(true, true)));
+    assertFalse(delegate.or(Lists.newArrayList(true, false)));
+    assertFalse(delegate.or(Lists.newArrayList(false, false)));
   }
 
   @Test

@@ -100,5 +100,10 @@
             <artifactId>gml-v_3_2_1-schema</artifactId>
             <version>1.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${jakarta.xml.bind.version}</version>
+        </dependency>
     </dependencies>
 </project>

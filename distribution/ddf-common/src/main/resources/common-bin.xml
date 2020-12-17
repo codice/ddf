@@ -185,6 +185,11 @@
         </fileSet>
 
         <fileSet>
+            <directory>${setup.folder}/jdk9plus</directory>
+            <outputDirectory>/lib/jdk9plus</outputDirectory>
+        </fileSet>
+
+        <fileSet>
             <directory>${setup.folder}/boot</directory>
             <outputDirectory>/lib/boot</outputDirectory>
         </fileSet>

@@ -11,7 +11,7 @@ include::config.adoc[]
 :reference-prefix: reference.adoc#_
 :using-prefix: _
 
-<#include "build/using.ftl">
+<#include "using-build.ftl">
 
 ifdef::backend-pdf[]
 
