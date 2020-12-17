@@ -20,6 +20,7 @@
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
+    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
 
     <!--
         cm:managed-properties inline in the bean didn't persist configuration across restarts.
@@ -93,6 +94,7 @@
     </service>
 
     <bean id="oidcCallbackEndpoint" class="org.codice.ddf.security.handler.oidc.OidcCallbackEndpoint">
+        <argument ref="securityLogger"/>
         <property name="redirectUri" value="/logout/logout-response.html"/>
     </bean>
 

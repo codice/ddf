@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
@@ -151,7 +152,6 @@ public class LogoutRequestServiceTest {
     when(idpMetadata.getSigningCertificate()).thenReturn("signingCertificate");
     when(idpMetadata.getSingleLogoutBinding()).thenReturn(SamlProtocol.REDIRECT_BINDING);
     when(idpMetadata.getSingleLogoutLocation()).thenReturn(redirectLogoutUrl);
-    System.setProperty("security.audit.roles", "none");
   }
 
   private void initializeLogoutRequestService() {
@@ -161,6 +161,7 @@ public class LogoutRequestServiceTest {
     logoutRequestService.setRequest(request);
     logoutRequestService.setSessionFactory(sessionFactory);
     logoutRequestService.setSamlSecurity(new SamlSecurity());
+    logoutRequestService.setSecurityLogger(mock(SecurityLogger.class));
     logoutRequestService.init();
   }
 

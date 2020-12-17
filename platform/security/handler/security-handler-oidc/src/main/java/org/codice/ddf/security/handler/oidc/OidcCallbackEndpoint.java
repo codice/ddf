@@ -14,7 +14,9 @@
 package org.codice.ddf.security.handler.oidc;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.audit.SecurityLogger;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
@@ -34,7 +36,14 @@ import org.slf4j.LoggerFactory;
 public class OidcCallbackEndpoint {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OidcCallbackEndpoint.class);
+
+  private final SecurityLogger securityLogger;
+
   private String redirectUri;
+
+  public OidcCallbackEndpoint(SecurityLogger securityLogger) {
+    this.securityLogger = Objects.requireNonNull(securityLogger, "securityLogger cannot be null");
+  }
 
   @GET
   @Path("/logout")
@@ -56,6 +65,7 @@ public class OidcCallbackEndpoint {
 
     JEEContext jeeContext = new JEEContext(request, response, sessionStore);
 
+    this.securityLogger.audit("Logging out");
     sessionStore.destroySession(jeeContext);
 
     String localLogout = SystemBaseUrl.EXTERNAL.constructUrl("/logout/local");

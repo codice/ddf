@@ -30,6 +30,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.security.token.storage.api.TokenStorage;
@@ -64,13 +65,12 @@ public class LogoutServletTest {
     Subject subject = mock(Subject.class);
     when(subject.hasRole(anyString())).thenReturn(false);
     ThreadContext.bind(subject);
-
-    System.setProperty("security.audit.roles", "none");
   }
 
   @Test
   public void testLocalLogout() throws Exception {
     PrincipalHolder principalHolderMock = mock(PrincipalHolder.class);
+    when(principalHolderMock.getPrincipals()).thenReturn(mock(PrincipalCollection.class));
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(principalHolderMock);
 
@@ -78,6 +78,7 @@ public class LogoutServletTest {
 
     verify(httpSession).invalidate();
     verify(response).sendRedirect("https://localhost:8993/logout?mustCloseBrowser=true");
+    verify(principalHolderMock).remove();
   }
 
   @Test()
@@ -102,8 +103,6 @@ public class LogoutServletTest {
 
   @Test
   public void testNullSystemProperty() throws Exception {
-    System.clearProperty("security.audit.roles");
-
     // Used for detecting basic auth
     when(request.getHeaders(anyString())).thenReturn(new LogoutServletEnumeration());
 

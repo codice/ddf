@@ -15,6 +15,7 @@ package ddf.security.service.impl;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.impl.SubjectImpl;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -41,8 +42,12 @@ public class SecurityManagerImpl implements SecurityManager {
 
   private DefaultSecurityManager internalManager;
 
+  private SecurityLogger securityLogger;
+
   /** Creates a new security manager with the collection of given realms. */
-  public SecurityManagerImpl() {
+  public SecurityManagerImpl(SecurityLogger securityLogger) {
+    this.securityLogger = securityLogger;
+
     // create the new security manager
     internalManager = new DefaultSecurityManager();
     ((ModularRealmAuthenticator) internalManager.getAuthenticator())
@@ -72,7 +77,9 @@ public class SecurityManagerImpl implements SecurityManager {
     }
 
     if (authenticationToken != null) {
-      return getSubject(authenticationToken);
+      Subject subject = getSubject(authenticationToken);
+      securityLogger.audit("Logged in", subject);
+      return subject;
     } else {
       throw new SecurityServiceException(
           "Incoming token object NOT supported by security manager implementation. Currently supported types are AuthenticationToken and SecurityToken");
