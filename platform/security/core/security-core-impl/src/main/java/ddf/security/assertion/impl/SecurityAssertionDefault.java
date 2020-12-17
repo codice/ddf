@@ -130,4 +130,9 @@ public class SecurityAssertionDefault implements SecurityAssertion {
 
     return true;
   }
+
+  @Override
+  public String toString() {
+    return userPrincipal.getName();
+  }
 }

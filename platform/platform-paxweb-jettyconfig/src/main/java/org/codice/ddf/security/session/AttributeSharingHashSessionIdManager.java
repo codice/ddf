@@ -30,11 +30,16 @@
 //
 package org.codice.ddf.security.session;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.hash.Hashing;
+import ddf.security.audit.SecurityLogger;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -50,6 +55,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,66 +74,45 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
   private static final Logger LOGGER =
       LoggerFactory.getLogger(AttributeSharingHashSessionIdManager.class);
 
-  static class SharingSessionInvalidator implements HttpSessionInvalidator {
-
-    private final AttributeSharingHashSessionIdManager idManager;
-
-    SharingSessionInvalidator(AttributeSharingHashSessionIdManager idManager) {
-      this.idManager = idManager;
-    }
-
-    @Override
-    public void invalidateSession(
-        String subjectName, Function<Map<String, Object>, String> sessionSubjectExtractor) {
-
-      final Optional<String> sessionIdOptional =
-          idManager.dataStores.stream()
-              .map(AttributeSharingSessionDataStore::getSessionDataMap)
-              .map(Map::entrySet)
-              .flatMap(Collection::stream)
-              .filter(
-                  e ->
-                      subjectName.equals(
-                          sessionSubjectExtractor.apply(e.getValue().getAllAttributes())))
-              .map(Map.Entry::getKey)
-              .findFirst();
-
-      sessionIdOptional.ifPresent(idManager::invalidateSession);
-    }
-  }
+  private final BundleContext bundleContext;
+  private final ServiceTracker<SecurityLogger, SecurityLogger> securityLogger;
 
   private List<AttributeSharingSessionDataStore> dataStores = new CopyOnWriteArrayList<>();
 
-  private void registerSessionManager() {
+  private static BundleContext getContext() {
     Bundle bundle = FrameworkUtil.getBundle(AttributeSharingHashSessionIdManager.class);
-    if (bundle == null) {
-      LOGGER.error("Error initializing Session Manager");
-      return;
-    }
-    final BundleContext bundleContext = bundle.getBundleContext();
-    if (bundleContext == null) {
-      LOGGER.error("Error initializing Session Manager");
-      return;
-    }
+    return (bundle != null) ? bundle.getBundleContext() : null;
+  }
 
-    final SharingSessionInvalidator sm = new SharingSessionInvalidator(this);
-    final Dictionary<String, Object> props = new DictionaryMap<>();
-    props.put(Constants.SERVICE_PID, sm.getClass().getName());
-    props.put(Constants.SERVICE_DESCRIPTION, "Sharing Session Invalidator");
-    props.put(Constants.SERVICE_VENDOR, "Codice Foundation");
-    props.put(Constants.SERVICE_RANKING, Integer.MIN_VALUE);
-
-    bundleContext.registerService(HttpSessionInvalidator.class.getName(), sm, props);
+  @VisibleForTesting
+  public AttributeSharingHashSessionIdManager(Server server, BundleContext context) {
+    super(server);
+    bundleContext = Objects.requireNonNull(context, "bundleContext cannot be null");
+    securityLogger = new ServiceTracker<>(bundleContext, SecurityLogger.class.getName(), null);
+    registerSessionManager();
   }
 
   public AttributeSharingHashSessionIdManager(Server server) {
-    super(server);
-    registerSessionManager();
+    this(server, getContext());
   }
 
   public AttributeSharingHashSessionIdManager(Server server, Random random) {
     super(server, random);
+    bundleContext = Objects.requireNonNull(getContext(), "bundleContext cannot be null");
+    securityLogger = new ServiceTracker<>(bundleContext, SecurityLogger.class.getName(), null);
     registerSessionManager();
+  }
+
+  @Override
+  protected void doStart() throws Exception {
+    super.doStart();
+    securityLogger.open();
+  }
+
+  @Override
+  protected void doStop() throws Exception {
+    securityLogger.close();
+    super.doStop();
   }
 
   /** @see org.eclipse.jetty.server.SessionIdManager#invalidateAll(String) */
@@ -135,6 +120,11 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
   public void invalidateAll(String id) {
     deleteId(id);
     super.invalidateAll(id);
+    securityLogger
+        .getService()
+        .audit(
+            "Session {} destroyed",
+            Hashing.sha256().hashString(id, StandardCharsets.UTF_8).toString());
   }
 
   private void deleteId(String id) {
@@ -148,6 +138,11 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
   public void expireAll(String id) {
     deleteId(id);
     super.expireAll(id);
+    securityLogger
+        .getService()
+        .audit(
+            "Session {} expired",
+            Hashing.sha256().hashString(id, StandardCharsets.UTF_8).toString());
   }
 
   /**
@@ -200,5 +195,44 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
       }
     }
     return null;
+  }
+
+  private void registerSessionManager() {
+    final SharingSessionInvalidator sm = new SharingSessionInvalidator(this);
+    final Dictionary<String, Object> props = new DictionaryMap<>();
+    props.put(Constants.SERVICE_PID, sm.getClass().getName());
+    props.put(Constants.SERVICE_DESCRIPTION, "Sharing Session Invalidator");
+    props.put(Constants.SERVICE_VENDOR, "Codice Foundation");
+    props.put(Constants.SERVICE_RANKING, Integer.MIN_VALUE);
+
+    bundleContext.registerService(HttpSessionInvalidator.class.getName(), sm, props);
+  }
+
+  static class SharingSessionInvalidator implements HttpSessionInvalidator {
+
+    private final AttributeSharingHashSessionIdManager idManager;
+
+    SharingSessionInvalidator(AttributeSharingHashSessionIdManager idManager) {
+      this.idManager = idManager;
+    }
+
+    @Override
+    public void invalidateSession(
+        String subjectName, Function<Map<String, Object>, String> sessionSubjectExtractor) {
+
+      final Optional<String> sessionIdOptional =
+          idManager.dataStores.stream()
+              .map(AttributeSharingSessionDataStore::getSessionDataMap)
+              .map(Map::entrySet)
+              .flatMap(Collection::stream)
+              .filter(
+                  e ->
+                      subjectName.equals(
+                          sessionSubjectExtractor.apply(e.getValue().getAllAttributes())))
+              .map(Map.Entry::getKey)
+              .findFirst();
+
+      sessionIdOptional.ifPresent(idManager::invalidateSession);
+    }
   }
 }

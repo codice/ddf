@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.service.SecurityServiceException;
 import java.util.Arrays;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -43,7 +44,7 @@ public class SecurityManagerImplTest {
   @Test
   public void testBadToken() throws SecurityServiceException {
     thrown.expect(SecurityServiceException.class);
-    SecurityManagerImpl manager = new SecurityManagerImpl();
+    SecurityManagerImpl manager = new SecurityManagerImpl(mock(SecurityLogger.class));
     manager.getSubject(REALM_NAME);
   }
 
@@ -61,7 +62,7 @@ public class SecurityManagerImplTest {
     AuthenticationInfo info = mock(AuthenticationInfo.class);
     Realm realm = mock(Realm.class);
     when(realm.getAuthenticationInfo(token)).thenReturn(info);
-    SecurityManagerImpl manager = new SecurityManagerImpl();
+    SecurityManagerImpl manager = new SecurityManagerImpl(mock(SecurityLogger.class));
     manager.getSubject(token);
   }
 
@@ -89,7 +90,7 @@ public class SecurityManagerImplTest {
     when(realm.supports(authToken)).thenReturn(Boolean.TRUE);
     when(realm.getName()).thenReturn(REALM_NAME);
 
-    SecurityManagerImpl manager = new SecurityManagerImpl();
+    SecurityManagerImpl manager = new SecurityManagerImpl(mock(SecurityLogger.class));
     manager.setRealms(Arrays.asList(new Realm[] {realm}));
     Subject subject = manager.getSubject(authToken);
     assertNotNull(subject);

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.security.audit.SecurityLogger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -48,7 +49,7 @@ public class OidcCallbackEndpointTest {
 
   @BeforeClass
   public static void setupClass() {
-    callbackEndpoint = new OidcCallbackEndpointWithMockClient();
+    callbackEndpoint = new OidcCallbackEndpointWithMockClient(mock(SecurityLogger.class));
     callbackEndpoint.setRedirectUri("/logout");
   }
 
@@ -87,6 +88,10 @@ public class OidcCallbackEndpointTest {
 
   static class OidcCallbackEndpointWithMockClient extends OidcCallbackEndpoint {
     WebClient webClient = mock(WebClient.class);
+
+    public OidcCallbackEndpointWithMockClient(SecurityLogger securityLogger) {
+      super(securityLogger);
+    }
 
     @Override
     WebClient getWebClient(String logoutUrlString) {

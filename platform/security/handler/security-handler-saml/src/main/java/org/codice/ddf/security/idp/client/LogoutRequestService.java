@@ -41,7 +41,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +66,6 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -109,7 +107,6 @@ public class LogoutRequestService {
       "Unable to validate logout request";
   public static final String UNABLE_TO_VALIDATE_LOGOUT_RESPONSE =
       "Unable to validate logout response";
-  public static final String SECURITY_AUDIT_ROLES = "security.audit.roles";
   private static final Logger LOGGER = LoggerFactory.getLogger(LogoutRequestService.class);
   private static final String SAML_REQUEST = "SAMLRequest";
   private static final String SAML_RESPONSE = "SAMLResponse";
@@ -575,20 +572,11 @@ public class LogoutRequestService {
 
   private void logSecurityAuditRole() {
     Element idpSecToken = getIdpSecurityToken();
-    if (idpSecToken != null && shouldAuditSubject(idpSecToken)) {
+    if (idpSecToken != null) {
       securityLogger.audit(
-          "Subject with admin privileges has logged out: {}",
+          "Subject logged out: {}",
           new SecurityAssertionSaml(idpSecToken).getPrincipal().getName());
     }
-  }
-
-  private static boolean shouldAuditSubject(Element idpSecToken) {
-    return Arrays.stream(System.getProperty(SECURITY_AUDIT_ROLES).split(","))
-        .anyMatch(
-            role ->
-                new SecurityAssertionSaml(idpSecToken)
-                    .getPrincipals()
-                    .contains(new RolePrincipal(role)));
   }
 
   private PrincipalHolder getPrincipalHolder() {
