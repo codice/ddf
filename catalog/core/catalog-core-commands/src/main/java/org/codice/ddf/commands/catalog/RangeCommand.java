@@ -29,6 +29,8 @@ import java.util.List;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.apache.karaf.shell.support.table.Row;
+import org.apache.karaf.shell.support.table.ShellTable;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
@@ -90,11 +92,6 @@ public class RangeCommand extends CatalogCommands {
 
   @Override
   protected Object executeWithSubject() throws Exception {
-    String formatString = "%1$-7s %2$-33s %3$-26s %4$-" + MAX_LENGTH + "s%n";
-
-    console.printf(formatString, "", "", "", "");
-    printHeaderMessage(String.format(formatString, NUMBER, ID, attributeName, TITLE));
-
     Filter filter;
 
     Date wayInTheFuture = new DateTime().plusYears(5000).toDate();
@@ -140,6 +137,13 @@ public class RangeCommand extends CatalogCommands {
 
     List<Result> results = response.getResults();
 
+    final ShellTable table = new ShellTable();
+    table.column(NUMBER);
+    table.column(ID);
+    table.column(attributeName);
+    table.column(TITLE).maxSize(MAX_LENGTH);
+    table.emptyTableText("No results");
+
     int i = 1;
     for (Result result : results) {
       Attribute attribute = result.getMetacard().getAttribute(attributeName);
@@ -147,16 +151,14 @@ public class RangeCommand extends CatalogCommands {
         String returnedDate = new DateTime(attribute.getValue()).toString(DATETIME_FORMATTER);
         String title = result.getMetacard().getTitle();
 
-        console.printf(
-            formatString,
-            i,
-            result.getMetacard().getId(),
-            returnedDate,
-            title.substring(0, Math.min(title.length(), MAX_LENGTH)));
+        final Row row = table.addRow();
+        row.addContent(i, result.getMetacard().getId(), returnedDate, title);
       }
 
       i++;
     }
+
+    table.print(console, true);
 
     return null;
   }
