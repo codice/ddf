@@ -16,6 +16,7 @@ package org.codice.ddf.commands.catalog;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,11 +31,9 @@ import java.util.concurrent.Callable;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.security.Security;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,16 +53,11 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
 
   @Mock private Security security;
 
-  private SubjectCommandsUnderTest subjectCommands;
-
-  @Before
-  public void setup() {
-    subjectCommands = new SubjectCommandsUnderTest();
-  }
-
   @Test
   public void execute() throws Exception {
-    when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::executeCommand);
+    SubjectCommands subjectCommands = new SubjectCommandsUnderTest();
+    when(security.runWithSubjectOrElevate(any(Callable.class)))
+        .thenAnswer(invocationOnMock -> subjectCommands.executeWithSubject());
 
     Object result = subjectCommands.execute();
 
@@ -72,11 +66,20 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
 
   @Test
   public void doExecuteWithUserName() throws Exception {
+    SubjectCommands subjectCommands = new SubjectCommandsUnderTest();
     subjectCommands.user = USERNAME;
 
     when(session.readLine(anyString(), eq('*'))).thenReturn(PASSWORD);
     when(security.getSubject(USERNAME, PASSWORD, "127.0.0.1")).thenReturn(subject);
-    when(subject.execute(any(Callable.class))).thenAnswer(this::executeCommand);
+    when(subject.execute(any(Callable.class)))
+        .thenAnswer(
+            invocation -> {
+              try {
+                return invocation.<Callable>getArgument(0).call();
+              } catch (Exception e) {
+                throw new ExecutionException(e);
+              }
+            });
 
     Object result = subjectCommands.execute();
 
@@ -87,6 +90,7 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
 
   @Test
   public void doExecuteWithInvalidUserName() throws Exception {
+    SubjectCommands subjectCommands = new SubjectCommandsUnderTest();
     subjectCommands.user = USERNAME;
 
     when(session.readLine(anyString(), eq('*'))).thenReturn(PASSWORD);
@@ -100,6 +104,7 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
 
   @Test
   public void doExecuteWithUserNameFailsToReadPassword() throws Exception {
+    SubjectCommands subjectCommands = new SubjectCommandsUnderTest();
     subjectCommands.user = USERNAME;
 
     when(session.readLine(anyString(), eq('*'))).thenThrow(new IOException());
@@ -110,13 +115,27 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
   }
 
   @Test
-  public void doExecuteWhenSubjectExecuteThrowsExecutionException() throws Exception {
+  public void doExecuteWithUsernameWhenSubjectExecuteThrowsExecutionException() throws Exception {
+    SubjectCommands subjectCommands =
+        new SubjectCommandsUnderTest() {
+          @Override
+          protected Object executeWithSubject() throws Exception {
+            throw new IllegalStateException(ERROR);
+          }
+        };
     subjectCommands.user = USERNAME;
 
     when(session.readLine(anyString(), eq('*'))).thenReturn(PASSWORD);
     when(security.getSubject(USERNAME, PASSWORD, "127.0.0.1")).thenReturn(subject);
     when(subject.execute(any(Callable.class)))
-        .thenThrow(new ExecutionException(new IllegalStateException(ERROR)));
+        .thenAnswer(
+            invocation -> {
+              try {
+                return invocation.<Callable>getArgument(0).call();
+              } catch (Exception e) {
+                throw new ExecutionException(e);
+              }
+            });
 
     subjectCommands.execute();
 
@@ -125,8 +144,9 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
   }
 
   @Test
-  public void doExecuteWhenRunWithSubjectOrElevateThrowsSecurityServiceException()
+  public void doExecuteWithoutUsernameWhenRunWithSubjectOrElevateThrowsSecurityServiceException()
       throws Exception {
+    SubjectCommands subjectCommands = new SubjectCommandsUnderTest();
     when(security.runWithSubjectOrElevate(any(Callable.class)))
         .thenThrow(new SecurityServiceException(ERROR));
 
@@ -136,25 +156,63 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
   }
 
   @Test
-  public void doExecuteWhenRunWithSubjectOrElevateThrowsInvocationTargetException()
+  public void doExecuteWithoutUsernameWhenExecuteWithSubjectThrowsRuntimeException()
       throws Exception {
+    SubjectCommands subjectCommands =
+        new SubjectCommandsUnderTest() {
+          @Override
+          protected Object executeWithSubject() {
+            throw new IllegalStateException(ERROR);
+          }
+        };
     when(security.runWithSubjectOrElevate(any(Callable.class)))
-        .thenThrow(new InvocationTargetException(new IllegalStateException(ERROR)));
+        .thenAnswer(
+            invocation -> {
+              try {
+                return invocation.<Callable>getArgument(0).call();
+              } catch (RuntimeException e) {
+                throw new InvocationTargetException(e);
+              }
+            });
 
     subjectCommands.execute();
 
     assertThat(consoleOutput.getOutput(), containsString(ERROR));
   }
 
-  private Object executeCommand(InvocationOnMock invocationOnMock) throws Exception {
-    return subjectCommands.executeWithSubject();
+  @Test
+  public void doExecuteWithoutUsernameWhenExecuteWithSubjectThrowsCheckedException()
+      throws Exception {
+    SubjectCommands subjectCommands =
+        new SubjectCommandsUnderTest() {
+          @Override
+          protected Object executeWithSubject() throws IOException {
+            throw new IOException(ERROR);
+          }
+        };
+    when(security.runWithSubjectOrElevate(any(Callable.class)))
+        .thenAnswer(
+            invocation -> {
+              try {
+                return invocation.<Callable>getArgument(0).call();
+              } catch (RuntimeException e) {
+                fail("Expected checked Exception");
+                throw new InvocationTargetException(e);
+              } catch (Exception e) {
+                throw new InvocationTargetException(e);
+              }
+            });
+
+    subjectCommands.execute();
+
+    assertThat(consoleOutput.getOutput(), containsString(ERROR));
   }
 
   private class SubjectCommandsUnderTest extends SubjectCommands {
 
     SubjectCommandsUnderTest() {
-      this.session = SubjectCommandsTest.this.session;
-      this.security = SubjectCommandsTest.this.security;
+      session = SubjectCommandsTest.this.session;
+      security = SubjectCommandsTest.this.security;
     }
 
     @Override
