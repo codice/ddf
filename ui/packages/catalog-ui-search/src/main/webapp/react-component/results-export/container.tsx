@@ -69,9 +69,7 @@ class ResultsExport extends React.Component<Props, State> {
     }
   }
 
-  getTransformerType = () => {
-    return this.props.isZipped ? 'metacard' : 'query'
-  }
+  getTransformerType = () => (this.props.isZipped ? 'metacard' : 'query')
 
   componentDidMount() {
     this.fetchExportOptions()
@@ -148,11 +146,13 @@ class ResultsExport extends React.Component<Props, State> {
         },
       })
     } else {
-      let attributes = new Array()
-      this.props.results.forEach(result => {
-        attributes = attributes.concat(result.attributes)
-      })
-      attributes = Array.from(new Set(attributes))
+      const attributes = Array.from(
+        new Set(
+          this.props.results
+            .map(result => result.attributes)
+            .reduce((result, arr) => result.concat(arr))
+        )
+      )
       response = await exportResultSet(uriEncodedTransformerId, {
         searches,
         count,
