@@ -26,7 +26,7 @@ pipeline {
     }
     environment {
         DOCS = 'distribution/docs'
-        ITESTS = 'distribution/test/itests/test-itests-ddf'
+        ITESTS = 'distribution/test/itests'
         LARGE_MVN_OPTS = '-Xmx4G -Xms1G -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
         DISABLE_DOWNLOAD_PROGRESS_OPTS = '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn '
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
@@ -69,14 +69,14 @@ pipeline {
                 // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                     sh 'mvn install -B -DskipStatic=true -DskipTests=true $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                    sh 'mvn clean install -B -DskipITs -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                    sh 'mvn clean install -B -P !itests -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                 }
             }
         }
 
         stage('Full Build Except Itests') {
             when {
-                expression { env.CHANGE_ID == null } 
+                expression { env.CHANGE_ID == null }
             }
             options {
                 // This timeout was reduced from 3 hours after this stage was modified to no longer run the itests. In the future, we may want to reduce it further if there is confidence that the build will finish faster.
@@ -86,7 +86,7 @@ pipeline {
                 // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                 // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
-                    sh 'mvn clean install -B -DskipITs -pl !$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                    sh 'mvn clean install -B -P !itests $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                 }
             }
         }
@@ -100,7 +100,7 @@ pipeline {
                 withMaven(maven: 'maven-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                     sh '''
                         unset JAVA_TOOL_OPTIONS
-                        mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
+                        mvn install -B -pl $ITESTS -amd -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
                     '''
                 }
             }
@@ -124,9 +124,9 @@ pipeline {
                     script {
                         // If this build is not a pull request, run owasp scan on the distribution. Otherwise run incremental scan
                         if (env.CHANGE_ID == null) {
-                            sh 'mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories dependency-check:check dependency-check:aggregate -q -B -Powasp-dist -DskipTests=true -DskipStatic=true -pl !$DOCS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                            sh 'mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories dependency-check:aggregate -q -B -pl !$DOCS -P !itests,owasp-dist $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                         } else {
-                            sh 'mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories dependency-check:check -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                            sh 'mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories dependency-check:aggregate -q -B -pl !$DOCS -P !itests $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                         }
                     }
                 }
@@ -171,7 +171,7 @@ pipeline {
                     // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                     withMaven(maven: 'maven-latest', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                         script {
-                            sh 'mvn -q -B -DskipITs -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN  -Dsonar.organization=codice -Dsonar.projectKey=ddf -Dsonar.exclusions=${COVERAGE_EXCLUSIONS} -pl !$DOCS,!$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                            sh 'mvn -q -B -DskipITs -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN  -Dsonar.organization=codice -Dsonar.projectKey=ddf -Dsonar.exclusions=${COVERAGE_EXCLUSIONS} -pl !$DOCS -P !itests $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                         }
                     }
                 }

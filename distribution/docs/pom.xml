@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -33,16 +33,19 @@
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctorj</artifactId>
             <version>${asciidoctorj.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctorj-diagram</artifactId>
             <version>${asciidoctorj.diagram.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jruby</groupId>
             <artifactId>jruby-complete</artifactId>
             <version>${jruby.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -53,6 +56,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <profiles>
@@ -119,19 +123,6 @@
     </profiles>
     <build>
         <plugins>
-            <!-- Disable vulnerability checks since this project only contains documentation -->
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <executions>
-                    <execution>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.5</version>
@@ -154,7 +145,7 @@
                                         <include>**/*.ftl</include>
                                         <include>jbake.properties</include>
                                     </includes>
-                                </resource>                                            
+                                </resource>
                                 <resource>
                                     <directory>src/main/resources</directory>
                                     <filtering>false</filtering>
