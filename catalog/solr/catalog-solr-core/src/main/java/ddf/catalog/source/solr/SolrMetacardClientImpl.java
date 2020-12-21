@@ -129,6 +129,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final String ERR_UNSUPPORTED_QUERY_MSG = "Could not complete solr query.";
 
+  public static final String SKIP_REALTIME_GET = "skipRealtimeGet";
+
+  private static final String RESOURCE_ATTRIBUTE = "resource";
+
   private final SolrClient client;
 
   private final SolrFilterDelegateFactory filterDelegateFactory;
@@ -230,6 +234,34 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     }
 
     return new SourceResponseImpl(request, responseProps, results, totalHits);
+  }
+
+  private boolean isFaceted(QueryRequest request) {
+    Serializable textFacetPropRaw = request.getPropertyValue(EXPERIMENTAL_FACET_PROPERTIES_KEY);
+    return textFacetPropRaw instanceof TermFacetProperties;
+  }
+
+  private boolean shouldDoRealTimeGet(QueryRequest request) throws UnsupportedQueryException {
+
+    if ((boolean) request.getProperties().getOrDefault(SKIP_REALTIME_GET, false)) {
+      return false;
+    }
+
+    if (isFaceted(request)) {
+      // real time get makes use of the update log
+      // and as a result does not support faceting
+      return false;
+    }
+
+    Query query = request.getQuery();
+    if (query.getStartIndex() > 1) {
+      // solr doesn't support paging of real time get requests so if a paging request is received
+      // here, it is safe to assume that we should not be doing a real time get to solr
+      return false;
+    }
+
+    return (boolean) request.getProperties().getOrDefault(DO_REALTIME_GET, false)
+        || BooleanUtils.toBoolean(filterAdapter.adapt(query, new RealTimeGetDelegate()));
   }
 
   private List<SolrDocument> getSolrDocs(Set<String> ids) throws UnsupportedQueryException {
