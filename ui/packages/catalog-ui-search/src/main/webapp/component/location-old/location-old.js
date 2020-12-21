@@ -177,7 +177,8 @@ module.exports = Backbone.AssociatedModel.extend({
       this.setBboxDmsFromMap()
     } else if (this.get('locationType') === 'dd') {
       this.setBboxLatLonFromMap()
-    } else if (this.get('prevLocationType') === 'utmUps') {
+    }
+    if (this.get('prevLocationType') === 'utmUps') {
       this.set('prevLocationType', '')
       this.set('locationType', 'utmUps')
     }
