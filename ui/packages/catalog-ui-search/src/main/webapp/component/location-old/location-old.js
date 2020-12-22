@@ -21,6 +21,7 @@ const store = require('../../js/store.js')
 const Common = require('../../js/Common.js')
 const dmsUtils = require('../location-new/utils/dms-utils.js')
 const DistanceUtils = require('../../js/DistanceUtils.js')
+import { validateGeo } from '../../react-component/utils/validation'
 
 const converter = new usngs.Converter()
 const utmUpsLocationType = 'utmUps'
@@ -174,9 +175,10 @@ module.exports = Backbone.AssociatedModel.extend({
   drawingOff() {
     if (this.get('locationType') === 'dms') {
       this.setBboxDmsFromMap()
+    } else if (this.get('locationType') === 'dd') {
+      this.setBboxLatLonFromMap()
     }
-    const prevLocationType = this.get('prevLocationType')
-    if (prevLocationType === 'utmUps') {
+    if (this.get('prevLocationType') === 'utmUps') {
       this.set('prevLocationType', '')
       this.set('locationType', 'utmUps')
     }
@@ -744,6 +746,47 @@ module.exports = Backbone.AssociatedModel.extend({
       },
       { silent: true }
     )
+  },
+
+  setBboxLatLonFromMap() {
+    let east = this.get('east') % 360
+    let west = this.get('west') % 360
+    if (east < -180) {
+      east += 360
+    } else if (east > 180) {
+      east -= 360
+    }
+    if (west > 180) {
+      west -= 360
+    } else if (west < -180) {
+      west += 360
+    }
+    if (
+      validateGeo(
+        'polygon',
+        JSON.stringify([
+          [west, this.get('north')],
+          [east, this.get('north')],
+          [west, this.get('south')],
+          [east, this.get('south')],
+          [west, this.get('north')],
+        ])
+      ).error
+    ) {
+      this.set({
+        mapNorth: undefined,
+        mapSouth: undefined,
+        mapEast: undefined,
+        mapWest: undefined,
+        north: undefined,
+        south: undefined,
+        east: undefined,
+        west: undefined,
+      })
+    } else {
+      this.set('east', east)
+      this.set('west', west)
+    }
   },
 
   setRadiusDmsFromMap() {

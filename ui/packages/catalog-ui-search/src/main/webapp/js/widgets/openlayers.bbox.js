@@ -21,9 +21,7 @@ const properties = require('../properties.js')
 const wreqr = require('../wreqr.js')
 const NotificationView = require('./notification.view')
 const DrawingController = require('./drawing.controller')
-const olUtils = require('../OpenLayersGeometryUtils')
 const DistanceUtils = require('../DistanceUtils.js')
-import { validateGeo } from '../../react-component/utils/validation'
 
 const Draw = {}
 
@@ -86,29 +84,12 @@ Draw.BboxView = Marionette.View.extend({
       return
     }
 
-    if (
-      validateGeo(
-        'polygon',
-        JSON.stringify([
-          [west, north],
-          [east, north],
-          [west, south],
-          [east, south],
-          [west, north],
-        ])
-      ).error
-    ) {
-      return
-    }
-
-    // If we are crossing the date line, we must go outside [-180, 180]
-    // for openlayers to draw correctly. This means we can't draw boxes
-    // that encompass more than half the world. This actually matches
-    // how the backend searches anyway.
-    if (east - west < -180) {
+    // If done drawing and east < west, adjust
+    // east value by 360 because this indicates
+    // that the box crosses the antimeridian
+    // (180 degrees longitude)
+    if (!model.get('drawing') && east < west) {
       east += 360
-    } else if (east - west > 180) {
-      west += 360
     }
 
     const northWest = ol.proj.transform(
@@ -207,9 +188,7 @@ Draw.BboxView = Marionette.View.extend({
   },
 
   handleRegionStop() {
-    const geometry = olUtils.wrapCoordinatesFromGeometry(
-      this.primitive.getGeometry()
-    )
+    const geometry = this.primitive.getGeometry()
     this.setModelFromGeometry(geometry)
     this.updateGeometry(this.model)
     this.listenTo(
