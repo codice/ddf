@@ -28,7 +28,7 @@ export default hot(module)((props: Props) => {
   const {
     value,
     label,
-    placeholder = 'Pan to a region, country, or city',
+    placeholder = 'Pan to a city, country, or coordinate',
     url = './internal/geofeature/suggestions',
     minimumInputLength = 2,
     onChange,
