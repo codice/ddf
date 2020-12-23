@@ -11,17 +11,14 @@ import ddf.catalog.data.impl.BasicTypes
 import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.CoreAttributes
-import ddf.catalog.validation.AttributeValidator
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
 import ddf.catalog.validation.ReportingMetacardValidator
 import ddf.catalog.validation.impl.AttributeValidatorRegistryImpl
-import ddf.catalog.validation.impl.validator.ISO3CountryCodeValidator
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
-import org.osgi.framework.ServiceReference
 import org.osgi.framework.ServiceRegistration
 import spock.lang.Specification
 
@@ -66,7 +63,6 @@ class DefinitionParserSpec extends Specification {
                 attributeValidatorRegistry,
                 defaultAttributeValueRegistry,
                 alreadyRegisteredTypes,
-                null,
                 { clazz -> mockBundle })
 
         mockBundle.getBundleContext() >> mockBundleContext
@@ -393,38 +389,38 @@ class DefinitionParserSpec extends Specification {
         }, { it.get("name") == type2Name })
     }
 
-  def "test metacard extensions with pre-existing types and ones declared in same file"() {
-    setup:
-    file.withPrintWriter { it.write(extendsTypes) }
-    def type1name = "type1"
-    def type2name = "type2"
+    def "test metacard extensions with pre-existing types and ones declared in same file"() {
+        setup:
+        file.withPrintWriter { it.write(extendsTypes) }
+        def type1name = "type1"
+        def type2name = "type2"
 
-    def coreAttributes = new CoreAttributes().attributeDescriptors.collect({ ad -> ad.name })
-    def type1Attributes = ["attribute1", "attribute2"]
-    def type2Attributes = ["attribute3"]
+        def coreAttributes = new CoreAttributes().attributeDescriptors.collect({ ad -> ad.name })
+        def type1Attributes = ["attribute1", "attribute2"]
+        def type2Attributes = ["attribute3"]
 
-    when:
-    definitionParser.install(file)
+        when:
+        definitionParser.install(file)
 
-    then: "type 1 contains the two defined attributes plus core attributes which are a part of 'already-registered-type'"
-    1 * mockBundleContext.registerService(
-        MetacardType.class,
-        { MetacardType it ->
-          it.attributeDescriptors.collect({ ad -> ad.name }).
-              containsAll(coreAttributes.plus(type1Attributes))
-        },
-        { it.name == type1name })
+        then: "type 1 contains the two defined attributes plus core attributes which are a part of 'already-registered-type'"
+        1 * mockBundleContext.registerService(
+                MetacardType.class,
+                { MetacardType it ->
+                    it.attributeDescriptors.collect({ ad -> ad.name }).
+                            containsAll(coreAttributes.plus(type1Attributes))
+                },
+                { it.name == type1name })
 
-    then: "type 2 contains all of type1 attributes + attribute3"
-    1 * mockBundleContext.registerService(
-        MetacardType.class,
-        { MetacardType it ->
-          it.attributeDescriptors
-              .collect({ ad -> ad.name })
-              .containsAll(coreAttributes.plus(type1Attributes).plus(type2Attributes))
-        },
-        { it.name == type2name })
-  }
+        then: "type 2 contains all of type1 attributes + attribute3"
+        1 * mockBundleContext.registerService(
+                MetacardType.class,
+                { MetacardType it ->
+                    it.attributeDescriptors
+                            .collect({ ad -> ad.name })
+                            .containsAll(coreAttributes.plus(type1Attributes).plus(type2Attributes))
+                },
+                { it.name == type2name })
+    }
 
     def "test metacardTypes without listing attributes and attributes without required listed still work"() {
         setup:
@@ -510,37 +506,6 @@ class DefinitionParserSpec extends Specification {
         then:
         1 * mockBundleContext.registerService(_, _ as MetacardValidator, _)
         1 * mockBundleContext.registerService(_, _ as ReportingMetacardValidator, _)
-    }
-
-    def "test registering a valid validator "() {
-        setup:
-        file.withPrintWriter {it.write(validCustomAttributeValidator) }
-        ISO3CountryCodeValidator validator = new ISO3CountryCodeValidator(false)
-        ServiceReference<?>[] serviceReferences = [validator] as ServiceReference<AttributeValidator>[]
-
-        when: "definitions file gets installed"
-        definitionParser.install(file)
-
-        then: "mock bundle context returns following service and service reference"
-        mockBundleContext.getServiceReferences(AttributeValidator.class.getName(), "(id=mockAttributeValidator)") >> serviceReferences
-        mockBundleContext.getService(serviceReferences[0] as ServiceReference<Object>) >> validator
-
-        and: "the number of validators registered is one"
-        attributeValidatorRegistry.getValidators("title").size() == 1
-    }
-
-    def "test registering for nonexistent validator fails "() {
-        setup:
-        file.withPrintWriter { it.write(nonexistentAttributeValidator) }
-
-        when:
-        definitionParser.install(file)
-
-        then: "the number of attribute validators registered is one"
-        attributeValidatorRegistry.getValidators("title").size() == 0
-
-        and: "no call to AttributeValidatorRegistry::registerValidators() had been made"
-        0 * attributeValidatorRegistry.registerValidators(_)
     }
 
     String valid = '''
@@ -906,45 +871,5 @@ class DefinitionParserSpec extends Specification {
         }
     }
 }
-'''
-
-    String nonexistentAttributeValidator = '''
-{
-    "validators": {
-        "title": [
-            {
-                "validator": "custom",
-                "validators": [
-                    {
-                        "validator": "nonexistentAttributeValidator"
-                    }
-                ]
-            }
-        ]
-    }
-}
-'''
-
-    String validCustomAttributeValidator = '''
-{
-    "validators": {
-        "title": [
-            {
-                "validator": "match_any",
-                "validators": [
-                    {
-                        "validator": "custom",
-                        "validators": [
-                            {
-                                "validator": "mockAttributeValidator"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
-}
-
 '''
 }
