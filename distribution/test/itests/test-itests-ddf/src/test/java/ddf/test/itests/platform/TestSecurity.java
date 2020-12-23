@@ -566,7 +566,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
     configureRestForBasic(SERVICE_ROOT.getUrl());
 
-    // Positive tests
+    // Create sources
     Map<String, Object> openSearchProperties =
         getOpenSearchSourceProperties(
             OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
@@ -589,13 +589,46 @@ public class TestSecurity extends AbstractIntegrationTest {
               .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties)
               .getPid();
 
+      String unavailableOpenSourceId = "unavailableOpenSearchSource";
+      openSearchProperties =
+          getOpenSearchSourceProperties(
+              unavailableOpenSourceId, OPENSEARCH_PATH.getUrl(), getServiceManager());
+      openSearchProperties.put("authenticationType", "basic");
+      openSearchProperties.put("username", "bad");
+      openSearchProperties.put("password", "auth");
+      unavailableOpenSearchPid =
+          getServiceManager()
+              .createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties)
+              .getPid();
+
+      String unavailableCswSourceId = "Unavailable Csw";
+      cswProperties =
+          getCswSourceProperties(unavailableCswSourceId, CSW_PATH.getUrl(), getServiceManager());
+      cswProperties.put("authenticationType", "basic");
+      cswProperties.put("username", "bad");
+      cswProperties.put("password", "auth");
+      unavailableCswPid =
+          getServiceManager()
+              .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties)
+              .getPid();
+
+      // Wait for sources. Note: we wait for the "unavailable" OpenSearch source because it
+      // actually shows up as available when using bad credentials. It was changed intentionally to
+      // work that way a while ago, but couldn't find anyone who remembered why. The unavailable
+      // CSW source behaves as expected and shows as unavailable when using bad credentials, so we
+      // can't wait for it. This creates a race condition because we technically have no guarantee
+      // the source was created before the tests are run, but waiting on the other sources to come
+      // up should give it plenty of time to be ready when we go to test it.
       getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
       getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
+      getCatalogBundle().waitForFederatedSource(unavailableOpenSourceId);
 
+      waitForSecurityHandlers(SERVICE_ROOT.getUrl());
+      getSecurityPolicy().waitForBasicAuthReady(SERVICE_ROOT.getUrl());
+
+      // Positive tests
       String openSearchQuery =
           SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
-      waitForSecurityHandlers(openSearchQuery);
-      getSecurityPolicy().waitForBasicAuthReady(openSearchQuery);
       given()
           .auth()
           .basic("admin", "admin")
@@ -628,24 +661,13 @@ public class TestSecurity extends AbstractIntegrationTest {
                   "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
       // Negative tests
-      String unavailableCswSourceId = "Unavailable Csw";
-      cswProperties =
-          getCswSourceProperties(unavailableCswSourceId, CSW_PATH.getUrl(), getServiceManager());
-      cswProperties.put("authenticationType", "basic");
-      cswProperties.put("username", "bad");
-      cswProperties.put("password", "auth");
-      unavailableCswPid =
-          getServiceManager()
-              .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties)
-              .getPid();
-
-      String cswQueryUnavail =
-          SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableCswSourceId;
+      String unavailableOpenSearchQuery =
+          SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
       given()
           .auth()
           .basic("admin", "admin")
           .when()
-          .get(cswQueryUnavail)
+          .get(unavailableOpenSearchQuery)
           .then()
           .log()
           .ifValidationFails()
@@ -659,26 +681,13 @@ public class TestSecurity extends AbstractIntegrationTest {
                           + Metacard.TITLE
                           + "']/value[text()='myTitle']")));
 
-      String unavailableOpenSourceId = "unavailableOpenSearchSource";
-      openSearchProperties =
-          getOpenSearchSourceProperties(
-              unavailableOpenSourceId, OPENSEARCH_PATH.getUrl(), getServiceManager());
-      openSearchProperties.put("authenticationType", "basic");
-      openSearchProperties.put("username", "bad");
-      openSearchProperties.put("password", "auth");
-      unavailableOpenSearchPid =
-          getServiceManager()
-              .createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties)
-              .getPid();
-      getCatalogBundle().waitForFederatedSource(unavailableOpenSourceId);
-
-      String unavailableOpenSearchQuery =
-          SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
+      String cswQueryUnavail =
+          SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableCswSourceId;
       given()
           .auth()
           .basic("admin", "admin")
           .when()
-          .get(unavailableOpenSearchQuery)
+          .get(cswQueryUnavail)
           .then()
           .log()
           .ifValidationFails()
