@@ -18,11 +18,15 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.dumbster.smtp.SimpleSmtpServer;
 import com.dumbster.smtp.SmtpMessage;
 import ddf.security.audit.SecurityLogger;
+import ddf.security.encryption.EncryptionService;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -80,7 +84,7 @@ public class SmtpClientImplITCaseTest {
 
     SimpleSmtpServer server = SimpleSmtpServer.start(port);
 
-    SmtpClientImpl emailService = new SmtpClientImpl();
+    SmtpClientImpl emailService = new SmtpClientImpl(null);
     emailService.setSecurityLogger(mock(SecurityLogger.class));
 
     emailService.setHostName(HOSTNAME);
@@ -136,7 +140,7 @@ public class SmtpClientImplITCaseTest {
 
     SimpleSmtpServer server = SimpleSmtpServer.start(port);
 
-    SmtpClientImpl emailService = new SmtpClientImpl();
+    SmtpClientImpl emailService = new SmtpClientImpl(null);
     emailService.setSecurityLogger(mock(SecurityLogger.class));
 
     emailService.setHostName(HOSTNAME);
@@ -197,18 +201,20 @@ public class SmtpClientImplITCaseTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWithNullHostname() {
-    SmtpClientImpl emailService = new SmtpClientImpl();
+    SmtpClientImpl emailService = new SmtpClientImpl(null);
     emailService.createSession();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void throwsIllegalArgumentExceptionWhenPortNumberIsLessThanOne() {
-    new SmtpClientImpl().setPortNumber(0);
+    new SmtpClientImpl(null).setPortNumber(0);
   }
 
   private void validateUsernamePassword(String username, String password)
       throws UnknownHostException {
-    SmtpClientImpl emailService = new SmtpClientImpl();
+    EncryptionService mockEncryptionService = mock(EncryptionService.class);
+    when(mockEncryptionService.decryptValue(anyString())).then(returnsFirstArg());
+    SmtpClientImpl emailService = new SmtpClientImpl(mockEncryptionService);
 
     emailService.setHostName("host.com");
     emailService.setPortNumber(25);

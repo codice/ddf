@@ -18,6 +18,7 @@ import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
 import ddf.security.audit.SecurityLogger;
+import ddf.security.encryption.EncryptionService;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -70,6 +71,8 @@ public class SmtpClientImpl implements SmtpClient {
       Executors.newFixedThreadPool(
           1, StandardThreadFactoryBuilder.newThreadFactory("smtpClientImplThread"));
 
+  private final EncryptionService encryptionService;
+
   private String hostName;
 
   private Integer portNumber;
@@ -79,6 +82,10 @@ public class SmtpClientImpl implements SmtpClient {
   private String password;
 
   private SecurityLogger securityLogger;
+
+  public SmtpClientImpl(EncryptionService encryptionService) {
+    this.encryptionService = encryptionService;
+  }
 
   /**
    * Set the username for the email server.
@@ -95,7 +102,7 @@ public class SmtpClientImpl implements SmtpClient {
    * @param password the password for the email server
    */
   public void setPassword(@Nullable String password) {
-    this.password = password;
+    this.password = encryptionService.decryptValue(password);
   }
 
   /** @param hostName must be non-empty */
