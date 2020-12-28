@@ -27,6 +27,7 @@ import de.micromata.opengis.kml.v_2_2_0.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
 import de.micromata.opengis.kml.v_2_2_0.MultiGeometry;
 import de.micromata.opengis.kml.v_2_2_0.Point;
+import de.micromata.opengis.kml.v_2_2_0.Polygon;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,6 +82,73 @@ public class MetacardToKmlTest {
     assertThat(kmlPoint.getCoordinates(), hasSize(1));
     assertThat(kmlPoint.getCoordinates().get(0).getLongitude(), is(1.0));
     assertThat(kmlPoint.getCoordinates().get(0).getLatitude(), is(2.0));
+  }
+
+  @Test
+  public void getKmlGeoFromJtsGeoLineString() throws CatalogTransformerException {
+    final com.vividsolutions.jts.geom.Geometry jtsGeoFromWkt =
+        MetacardToKml.getJtsGeoFromWkt(
+            "LINESTRING (-138.957229 48.595168,-121.188711 54.41378,-107.922043 50.230924)");
+
+    final Geometry kmlGeo = MetacardToKml.getKmlGeoFromJtsGeo(jtsGeoFromWkt);
+
+    assertTrue(kmlGeo instanceof LineString);
+
+    final LineString kmlLineString = (LineString) kmlGeo;
+
+    assertThat(kmlLineString.getCoordinates(), hasSize(3));
+    assertThat(kmlLineString.getCoordinates().get(0).getLongitude(), is(-138.957229));
+    assertThat(kmlLineString.getCoordinates().get(0).getLatitude(), is(48.595168));
+  }
+
+  @Test
+  public void getKmlGeoFromJtsGeoMultiPolygonWithHoles() throws CatalogTransformerException {
+    final com.vividsolutions.jts.geom.Geometry jtsGeoFromWkt =
+        MetacardToKml.getJtsGeoFromWkt(
+            "MULTIPOLYGON (((-153.0063 57.1158, -154.0051 56.7347, -154.5164 56.9927, -154.671 57.4612, -153.2287 57.969, -152.5648 57.9014, -152.1411 57.5911, -153.0063 57.1158), (-155.5421 19.0835, -155.6882 18.9162, -155.9366 19.0594, -156.0735 19.7029, -155.8501 19.9773, -155.8611 20.2672, -155.2245 19.993, -154.8074 19.5087, -155.5421 19.0835), (-156.0793 20.644, -156.4144 20.5724, -156.7106 20.9268, -156.2571 20.9175, -155.9957 20.764, -156.0793 20.644)))");
+
+    assertThat(jtsGeoFromWkt.getGeometryType(), is("MultiPolygon"));
+
+    final Geometry kmlGeo = MetacardToKml.getKmlGeoFromJtsGeo(jtsGeoFromWkt);
+
+    assertTrue(kmlGeo instanceof MultiGeometry);
+
+    final MultiGeometry kmlMultiGeo = (MultiGeometry) kmlGeo;
+
+    assertThat(kmlMultiGeo.getGeometry(), hasSize(1));
+    assertTrue(kmlMultiGeo.getGeometry().get(0) instanceof Polygon);
+    final Polygon kmlGeoPolygon = (Polygon) kmlMultiGeo.getGeometry().get(0);
+    assertTrue(kmlGeoPolygon.getOuterBoundaryIs() != null);
+    assertThat(kmlGeoPolygon.getOuterBoundaryIs().getLinearRing().getCoordinates(), hasSize(8));
+    assertThat(
+        kmlGeoPolygon.getOuterBoundaryIs().getLinearRing().getCoordinates().get(0).toString(),
+        is("-153.0063,57.1158"));
+    assertThat(kmlGeoPolygon.getInnerBoundaryIs(), hasSize(2));
+  }
+
+  @Test
+  public void getKmlGeoFromJtsGeoMultiPolygonWithNoHoles() throws CatalogTransformerException {
+    final com.vividsolutions.jts.geom.Geometry jtsGeoFromWkt =
+        MetacardToKml.getJtsGeoFromWkt(
+            "MULTIPOLYGON (((-153.0063 57.1158, -154.0051 56.7347, -154.5164 56.9927, -154.671 57.4612, -153.2287 57.969, -152.5648 57.9014, -152.1411 57.5911, -153.0063 57.1158)), ((-155.5421 19.0835, -155.6882 18.9162, -155.9366 19.0594, -156.0735 19.7029, -155.8501 19.9773, -155.8611 20.2672, -155.2245 19.993, -154.8074 19.5087, -155.5421 19.0835)))");
+
+    assertThat(jtsGeoFromWkt.getGeometryType(), is("MultiPolygon"));
+
+    final Geometry kmlGeo = MetacardToKml.getKmlGeoFromJtsGeo(jtsGeoFromWkt);
+
+    assertTrue(kmlGeo instanceof MultiGeometry);
+
+    final MultiGeometry kmlMultiGeo = (MultiGeometry) kmlGeo;
+
+    assertThat(kmlMultiGeo.getGeometry(), hasSize(2));
+    assertTrue(kmlMultiGeo.getGeometry().get(0) instanceof Polygon);
+    final Polygon kmlGeoPolygon = (Polygon) kmlMultiGeo.getGeometry().get(0);
+    assertTrue(kmlGeoPolygon.getOuterBoundaryIs() != null);
+    assertThat(kmlGeoPolygon.getOuterBoundaryIs().getLinearRing().getCoordinates(), hasSize(8));
+    assertThat(
+        kmlGeoPolygon.getOuterBoundaryIs().getLinearRing().getCoordinates().get(0).toString(),
+        is("-153.0063,57.1158"));
+    assertThat(kmlGeoPolygon.getInnerBoundaryIs(), hasSize(0));
   }
 
   @Test(expected = CatalogTransformerException.class)
