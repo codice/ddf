@@ -16,10 +16,11 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import fetch from '../utils/fetch'
 import ResultsExportComponent from './presentation'
-import { exportResult, exportResultSet } from '../utils/export'
+import { exportResultSet } from '../utils/export'
 import { getResultSetCql } from '../utils/cql'
 import saveFile from '../utils/save-file'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
+const properties = require('../../js/properties.js')
 
 const contentDisposition = require('content-disposition')
 
@@ -68,11 +69,7 @@ class ResultsExport extends React.Component<Props, State> {
     }
   }
 
-  getTransformerType = () => {
-    return !this.props.isZipped && this.props.results.length > 1
-      ? 'query'
-      : 'metacard'
-  }
+  getTransformerType = () => (this.props.isZipped ? 'metacard' : 'query')
 
   componentDidMount() {
     this.fetchExportOptions()
@@ -122,7 +119,6 @@ class ResultsExport extends React.Component<Props, State> {
 
   async onDownloadClick() {
     const uriEncodedTransformerId = this.getSelectedExportFormatId()
-
     if (uriEncodedTransformerId === undefined) {
       return
     }
@@ -149,20 +145,23 @@ class ResultsExport extends React.Component<Props, State> {
           transformerId: uriEncodedTransformerId,
         },
       })
-    } else if (this.props.results.length > 1) {
+    } else {
+      const attributes = Array.from(
+        new Set(
+          this.props.results
+            .map(result => result.attributes)
+            .reduce((result, arr) => result.concat(arr))
+        )
+      )
       response = await exportResultSet(uriEncodedTransformerId, {
         searches,
         count,
+        sorts: [{ attribute: 'modified', direction: 'descending' }],
+        args: {
+          columnOrder: attributes,
+          columnAliasMap: properties.attributeAliases,
+        },
       })
-    } else {
-      const result = this.props.results[0]
-
-      response = await exportResult(
-        result.source,
-        result.id,
-        uriEncodedTransformerId,
-        result.attributes.toString()
-      )
     }
 
     if (response.status === 200) {

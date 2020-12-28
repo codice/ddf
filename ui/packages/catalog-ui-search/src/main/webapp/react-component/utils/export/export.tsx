@@ -58,7 +58,7 @@ const getResultId = (result: any) => {
     .get('properties')
     .get('id')
 
-  return encodeURIComponent(id)
+  return id
 }
 
 const getResultSourceId = (result: any) => {
@@ -67,7 +67,7 @@ const getResultSourceId = (result: any) => {
     .get('properties')
     .get('source-id')
 
-  return encodeURIComponent(sourceId)
+  return sourceId
 }
 
 export const getExportResult = (result: any) => {
@@ -83,17 +83,6 @@ export const getExportResult = (result: any) => {
 export const getExportOptions = async (type: Transformer) => {
   const response = await fetch(`./internal/transformers/${type}`)
   return await response.json()
-}
-
-export const exportResult = async (
-  source: string,
-  id: string,
-  transformer: string,
-  attributes: string
-) => {
-  return await fetch(
-    `/services/catalog/sources/${source}/${id}?transform=${transformer}&columnOrder=${attributes}`
-  )
 }
 
 export const exportResultSet = async (
