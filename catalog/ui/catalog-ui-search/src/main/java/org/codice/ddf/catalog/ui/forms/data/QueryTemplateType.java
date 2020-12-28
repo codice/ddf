@@ -52,7 +52,7 @@ public class QueryTemplateType extends MetacardTypeImpl {
               true /* stored */,
               false /* tokenized */,
               false /* multivalued */,
-              BasicTypes.XML_TYPE));
+              BasicTypes.STRING_TYPE));
   // @formatter:on
 
   public QueryTemplateType() {

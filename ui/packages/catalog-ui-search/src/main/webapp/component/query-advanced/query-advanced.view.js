@@ -210,10 +210,13 @@ module.exports = Marionette.LayoutView.extend({
   setDefaultTitle() {
     this.model.set('title', this.model.get('cql'))
   },
+  getFilters() {
+    return this.queryAdvanced.currentView.getFilters()
+  },
   serializeTemplateParameters() {
     this.queryAdvanced.currentView.sortCollection()
     return {
-      filterTree: this.queryAdvanced.currentView.getFilters(),
+      filterTree: this.getFilters(),
       filterSettings: this.querySettings.currentView.toJSON(),
     }
   },

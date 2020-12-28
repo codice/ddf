@@ -14,6 +14,8 @@
 package org.codice.ddf.catalog.ui.forms;
 
 import static java.lang.String.format;
+import static org.codice.ddf.catalog.ui.forms.TemplateTransformer.FILTER_TEMPLATE;
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -24,6 +26,8 @@ import static org.mockito.Mockito.when;
 import static spark.Spark.stop;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Header;
 import ddf.catalog.CatalogFramework;
@@ -73,10 +77,12 @@ import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
 import org.codice.ddf.catalog.ui.forms.filter.FilterWriter;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.gsonsupport.GsonTypeAdapters;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -175,6 +181,13 @@ public class SearchFormsSymbolsIT {
 
   private final String formResponseJson;
 
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(GsonTypeAdapters.LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new GsonTypeAdapters.DateLongFormatTypeAdapter())
+          .create();
+
   // Ctor necessary for parameterization
   public SearchFormsSymbolsIT(String symbolUnderTest) {
     this.requestCaptor = ArgumentCaptor.forClass(CreateRequest.class);
@@ -218,6 +231,8 @@ public class SearchFormsSymbolsIT {
     reset(MOCK_FRAMEWORK, MOCK_SUBJECT, MOCK_CONFIG);
   }
 
+  // Deprecated, no longer saving filter as xml
+  @Ignore
   @Test
   public void testJsonToXml() throws IngestException, SourceUnavailableException {
     // Prepare
@@ -241,7 +256,7 @@ public class SearchFormsSymbolsIT {
             .post(localhostFormsUrl)
             .statusCode();
     assertThat(statusCode, is(200));
-    assertThat(getCapturedXml(), is(formFilterXml));
+    assertThat(getCapturedFilter(), is(formFilterXml));
   }
 
   @Test
@@ -266,7 +281,60 @@ public class SearchFormsSymbolsIT {
     assertThat(json, is(formResponseJson));
   }
 
-  private String getCapturedXml() {
+  @Test
+  public void testJsonObjToJsonString() throws IngestException, SourceUnavailableException {
+    // Prepare
+    MetacardImpl metacardWithIdAndCreatedDate = new MetacardImpl();
+    metacardWithIdAndCreatedDate.setId(CANNED_ID);
+    metacardWithIdAndCreatedDate.setCreatedDate(new Date());
+
+    doReturn(
+            new CreateResponseImpl(
+                new CreateRequestImpl(Collections.emptyList()),
+                Collections.emptyMap(),
+                Collections.singletonList(metacardWithIdAndCreatedDate)))
+        .when(MOCK_FRAMEWORK)
+        .create(requestCaptor.capture());
+
+    Map<String, Object> filterJson = GSON.fromJson(formRequestJson, MAP_STRING_TO_OBJECT_TYPE);
+    String filterString = GSON.toJson(filterJson.get(FILTER_TEMPLATE));
+    // Execute
+    int statusCode =
+        RestAssured.given()
+            .header(CONTENT_IS_JSON)
+            .content(filterJson)
+            .post(localhostFormsUrl)
+            .statusCode();
+    assertThat(statusCode, is(200));
+    assertThat(getCapturedFilter(), is(filterString));
+  }
+
+  @Test
+  public void testJsonStringToJsonObj()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    Map<String, Object> filterJson = GSON.fromJson(formRequestJson, MAP_STRING_TO_OBJECT_TYPE);
+    String filterString = GSON.toJson(filterJson.get(FILTER_TEMPLATE));
+
+    // Prepare
+    QueryTemplateMetacard queryTemplateMetacard =
+        new QueryTemplateMetacard(CANNED_TITLE, CANNED_DESCRIPTION, CANNED_ID);
+    queryTemplateMetacard.setFormsFilter(filterString);
+    queryTemplateMetacard.setCreatedDate(Date.from(Instant.parse(CANNED_ISO_DATE)));
+    queryTemplateMetacard.setModifiedDate(Date.from(Instant.parse(CANNED_ISO_DATE)));
+
+    QueryResponseImpl response =
+        new QueryResponseImpl(new QueryRequestImpl(new QueryImpl(Filter.INCLUDE)));
+    response.addResult(new ResultImpl(queryTemplateMetacard), true);
+
+    doReturn(response).when(MOCK_FRAMEWORK).query(any());
+
+    // Execute
+    String json =
+        RestAssured.given().header(CONTENT_IS_JSON).get(localhostFormsUrl).body().asString();
+    assertThat(json, is(formResponseJson));
+  }
+
+  private String getCapturedFilter() {
     Metacard searchForm = requestCaptor.getValue().getMetacards().get(0);
     return ((QueryTemplateMetacard) searchForm).getFormsFilter();
   }

@@ -134,9 +134,22 @@ module.exports = Marionette.LayoutView.extend({
             if (errorMessages.length !== 0) {
               showErrorMessages(errorMessages)
             } else {
-              this.updateQuerySettings(collection, id)
-              this.saveTemplateToBackend(collection, id)
-              this.navigateToForms()
+              const filterTree = this.editor.currentView.getFilters()
+              if (filterTree.filters && filterTree.filters.length > 0) {
+                console.log(this.editor.currentView.getFilters())
+                this.updateQuerySettings(collection, id)
+                this.saveTemplateToBackend(collection, id)
+                this.navigateToForms()
+              } else {
+                announcement.announce(
+                  {
+                    title: 'Some fields need your attention',
+                    message: `Search ${formTitle} filter(s) cannot be empty.`,
+                    type: 'error',
+                  },
+                  2500
+                )
+              }
             }
           } else {
             announcement.announce(

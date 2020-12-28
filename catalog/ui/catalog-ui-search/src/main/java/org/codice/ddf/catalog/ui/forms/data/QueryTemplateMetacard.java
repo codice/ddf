@@ -46,9 +46,9 @@ import org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil;
  *       templates it should be present and it should be unique
  *   <li>{@link Core#DESCRIPTION} - additional information about a template, should be present but
  *       not necessarily unique
- *   <li>{@link QueryTemplateType#QUERY_TEMPLATE_FILTER} - contains validated Filter XML 2.0 that
- *       represents the query structure to execute, with filter functions denoting information that
- *       is needed before execution can occur.
+ *   <li>{@link QueryTemplateType#QUERY_TEMPLATE_FILTER} - contains validated Filter GSON string or
+ *       XML 2.0 that represents the query structure to execute, with filter functions denoting
+ *       information that is needed before execution can occur.
  * </ul>
  *
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
@@ -89,8 +89,8 @@ public class QueryTemplateMetacard extends MetacardImpl {
     return null;
   }
 
-  public void setFormsFilter(String filterXml) {
-    setAttribute(QUERY_TEMPLATE_FILTER, filterXml);
+  public void setFormsFilter(String filter) {
+    setAttribute(QUERY_TEMPLATE_FILTER, filter);
   }
 
   public Map<String, Object> getQuerySettings() {

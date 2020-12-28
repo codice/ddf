@@ -13,7 +13,13 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
+
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonParseException;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.SecurityAttributes;
@@ -23,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -32,18 +39,16 @@ import net.opengis.filter.v_2_0.FilterType;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
-import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
 import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
 import org.codice.ddf.catalog.ui.forms.filter.FilterReader;
 import org.codice.ddf.catalog.ui.forms.filter.FilterWriter;
 import org.codice.ddf.catalog.ui.forms.filter.TransformVisitor;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableJsonElementImpl;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
-import org.codice.ddf.catalog.ui.forms.model.FilterNodeMapImpl;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FieldFilter;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate;
+import org.codice.gsonsupport.GsonTypeAdapters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,11 +74,19 @@ public class TemplateTransformer {
     return toFormTemplate(metacard) == null;
   }
 
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(GsonTypeAdapters.LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new GsonTypeAdapters.DateLongFormatTypeAdapter())
+          .create();
+  public static final String FILTER_TEMPLATE = "filterTemplate";
+
   /** Convert the JSON representation of a FormTemplate to a QueryTemplateMetacard. */
   @Nullable
   public Metacard toQueryTemplateMetacard(Map<String, Object> formTemplate) {
     try {
-      Map<String, Object> filterJson = (Map) formTemplate.get("filterTemplate");
+      Map<String, Object> filterJson = (Map) formTemplate.get(FILTER_TEMPLATE);
       if (filterJson == null) {
         return null;
       }
@@ -86,32 +99,22 @@ public class TemplateTransformer {
       String description = (String) formTemplate.get("description");
       String id = (String) formTemplate.get("id");
 
-      TransformVisitor<JAXBElement> visitor = new TransformVisitor<>(new XmlModelBuilder(registry));
-      VisitableJsonElementImpl.create(new FilterNodeMapImpl(filterJson)).accept(visitor);
-      JAXBElement filter = visitor.getResult();
-      if (!filter.getDeclaredType().equals(FilterType.class)) {
-        LOGGER.error(
-            "Error occurred during filter processing, root type should be a {} but was {}",
-            FilterType.class.getName(),
-            filter.getDeclaredType().getName());
-        return null;
-      }
+      String convertedGeoJson = GSON.toJson(filterJson);
 
       QueryTemplateMetacard metacard =
           (id == null)
               ? new QueryTemplateMetacard(title, description)
               : new QueryTemplateMetacard(title, description, id);
 
-      String filterXml = writer.marshal(filter);
-      metacard.setFormsFilter(filterXml);
+      metacard.setFormsFilter(convertedGeoJson);
       Map<String, Object> querySettings = (Map<String, Object>) formTemplate.get("querySettings");
       if (querySettings != null) {
         metacard.setQuerySettings(querySettings);
       }
 
       return metacard;
-    } catch (JAXBException e) {
-      LOGGER.error("XML generation failed for query template metacard's filter", e);
+    } catch (JsonIOException e) {
+      LOGGER.error("json string generation failed for query template metacard's filter", e);
     } catch (FilterProcessingException e) {
       LOGGER.error("Could not use filter JSON for template - {}", e.getMessage());
     }
@@ -141,16 +144,30 @@ public class TemplateTransformer {
             wrapped.getId());
         return null;
       }
-      JAXBElement<FilterType> root =
-          reader.unmarshalFilter(
-              new ByteArrayInputStream(formsFilter.getBytes(StandardCharsets.UTF_8)));
-      VisitableXmlElementImpl.create(root).accept(visitor);
-      return new FormTemplate(
-          wrapped,
-          visitor.getResult(),
-          securityAttributes,
-          metacardOwner,
-          wrapped.getQuerySettings());
+
+      Map<String, Object> convertedJson = null;
+      try {
+        convertedJson = GSON.fromJson(formsFilter, MAP_STRING_TO_OBJECT_TYPE);
+      } catch (JsonParseException e) {
+        LOGGER.debug("forms filter is xml -> {}", formsFilter, e);
+      }
+      if (convertedJson != null) {
+        return new FormTemplate<Map<String, Object>>(
+            wrapped, convertedJson, securityAttributes, metacardOwner, wrapped.getQuerySettings());
+      } else {
+        // For backward compatibility
+        JAXBElement<FilterType> root =
+            reader.unmarshalFilter(
+                new ByteArrayInputStream(formsFilter.getBytes(StandardCharsets.UTF_8)));
+        VisitableXmlElementImpl.create(root).accept(visitor);
+        return new FormTemplate<FilterNode>(
+            wrapped,
+            visitor.getResult(),
+            securityAttributes,
+            metacardOwner,
+            wrapped.getQuerySettings());
+      }
+
     } catch (JAXBException e) {
       LOGGER.error(
           "XML parsing failed for query template metacard's filter, with metacard id "

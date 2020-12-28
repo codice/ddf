@@ -30,9 +30,9 @@ import org.codice.ddf.catalog.ui.forms.api.FilterNode;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
-public class FormTemplate extends CommonTemplate {
+public class FormTemplate<T> extends CommonTemplate {
   @SerializedName("filterTemplate")
-  private FilterNode root;
+  private T root;
 
   private String creator;
 
@@ -40,7 +40,7 @@ public class FormTemplate extends CommonTemplate {
 
   public FormTemplate(
       Metacard metacard,
-      FilterNode root,
+      T root,
       Map<String, List<Serializable>> securityAttributes,
       String creator,
       Map<String, Object> querySettings) {
@@ -50,7 +50,7 @@ public class FormTemplate extends CommonTemplate {
     this.querySettings = querySettings;
   }
 
-  public FilterNode getRoot() {
+  public T getRoot() {
     return root;
   }
 }
