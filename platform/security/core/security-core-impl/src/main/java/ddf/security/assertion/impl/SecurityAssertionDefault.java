@@ -133,6 +133,9 @@ public class SecurityAssertionDefault implements SecurityAssertion {
 
   @Override
   public String toString() {
+    if (userPrincipal == null) {
+      return "UNKNOWN";
+    }
     return userPrincipal.getName();
   }
 }
