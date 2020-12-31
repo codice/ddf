@@ -92,12 +92,13 @@ function generateAnyGeoFilter(property, model) {
         value:
           'LINESTRING' +
           sanitizeForCql(JSON.stringify(lineToCQLLine(model.line))),
-        ...(model.lineWidth && {
-          distance: DistanceUtils.getDistanceInMeters(
-            model.lineWidth,
-            model.lineUnits
-          ),
-        }),
+        ...(model.lineWidth &&
+          model.lineWidth !== '0' && {
+            distance: DistanceUtils.getDistanceInMeters(
+              model.lineWidth,
+              model.lineUnits
+            ),
+          }),
       }
     case 'POLYGON':
       if (!Array.isArray(model.polygon)) {
@@ -109,12 +110,13 @@ function generateAnyGeoFilter(property, model) {
         value: `POLYGON${sanitizeForCql(
           JSON.stringify(polygonToCQLPolygon(model.polygon))
         )}`,
-        ...(model.polygonBufferWidth && {
-          distance: DistanceUtils.getDistanceInMeters(
-            model.polygonBufferWidth,
-            model.polygonBufferUnits
-          ),
-        }),
+        ...(model.polygonBufferWidth &&
+          model.polygonBufferWidth !== '0' && {
+            distance: DistanceUtils.getDistanceInMeters(
+              model.polygonBufferWidth,
+              model.polygonBufferUnits
+            ),
+          }),
       }
     case 'MULTIPOLYGON':
       if (!Array.isArray(model.polygon)) {
