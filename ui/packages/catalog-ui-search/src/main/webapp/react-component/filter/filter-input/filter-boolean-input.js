@@ -29,7 +29,9 @@ const Root = styled.button`
 `
 
 const BooleanInput = props => {
-  const [value, setValue] = useState(props.value === true)
+  const [value, setValue] = useState(
+    props.value === true || props.value === 'true'
+  )
 
   useEffect(
     () => {
