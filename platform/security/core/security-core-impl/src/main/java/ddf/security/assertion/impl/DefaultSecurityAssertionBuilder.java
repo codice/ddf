@@ -18,6 +18,7 @@ import ddf.security.assertion.AuthenticationStatement;
 import ddf.security.assertion.SecurityAssertion;
 import java.security.Principal;
 import java.util.Date;
+import java.util.Objects;
 
 public class DefaultSecurityAssertionBuilder {
 
@@ -85,6 +86,7 @@ public class DefaultSecurityAssertionBuilder {
   }
 
   public SecurityAssertion build() {
+    Objects.requireNonNull(securityAssertion.userPrincipal, "userPrincipal cannot be null");
     return securityAssertion;
   }
 }
