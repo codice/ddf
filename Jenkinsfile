@@ -166,7 +166,10 @@ pipeline {
                 }
             }
         }
-
+         /*
+          SonarCloud requires JDK 11 for sonar analysis. ACDebugger required Java 8 currently and so we need to skip the distribution/ddf module
+          to prevent the build failure when running the sonar analysis. This is fine since Sonar analysis primarily looks at Java code.
+        */
         stage ('SonarCloud') {
             when {
                 // Sonar Cloud only supports a single branch in the free/OSS tier
@@ -181,7 +184,7 @@ pipeline {
                     // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                     withMaven(maven: 'maven-latest', jdk: 'jdk11', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                         script {
-                            sh 'mvn -q -B -DskipITs -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN  -Dsonar.organization=codice -Dsonar.projectKey=ddf -Dsonar.exclusions=${COVERAGE_EXCLUSIONS} -pl !$DOCS -P !itests $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                            sh 'mvn -q -B -DskipITs -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN  -Dsonar.organization=codice -Dsonar.projectKey=ddf -Dsonar.exclusions=${COVERAGE_EXCLUSIONS} -pl !distribution/alliance,!$DOCS -P !itests $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                         }
                     }
                 }
