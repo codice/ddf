@@ -69,14 +69,12 @@ class ResultsExport extends React.Component<Props, State> {
     }
   }
 
-  getTransformerType = () => (this.props.isZipped ? 'metacard' : 'query')
-
   componentDidMount() {
     this.fetchExportOptions()
   }
 
   fetchExportOptions = () => {
-    fetch(`./internal/transformers/${this.getTransformerType()}`)
+    fetch(`./internal/transformers/query`)
       .then(response => response.json())
       .then((exportFormats: ExportFormat[]) => {
         return exportFormats.sort(
@@ -137,32 +135,62 @@ class ResultsExport extends React.Component<Props, State> {
       },
     ]
 
-    if (this.props.isZipped) {
-      response = await exportResultSet('zipCompression', {
-        searches,
-        count,
-        args: {
-          transformerId: uriEncodedTransformerId,
-        },
-      })
-    } else {
-      const attributes = Array.from(
-        new Set(
-          this.props.results
-            .map(result => result.attributes)
-            .reduce((result, arr) => result.concat(arr))
-        )
+    const attributes = Array.from(
+      new Set(
+        this.props.results
+          .map(result => result.attributes)
+          .reduce((result, arr) => result.concat(arr))
       )
-      response = await exportResultSet(uriEncodedTransformerId, {
-        searches,
-        count,
-        sorts: [{ attribute: 'modified', direction: 'descending' }],
-        args: {
-          columnOrder: attributes,
-          columnAliasMap: properties.attributeAliases,
-        },
-      })
+    )
+    let argBody: any
+    let transformer: string
+    if (this.props.isZipped) {
+      transformer = 'zipCompression'
+      argBody = {
+        columnOrder: attributes,
+        columnAliasMap: properties.attributeAliases,
+        transformerId: uriEncodedTransformerId,
+      }
+    } else {
+      transformer = uriEncodedTransformerId
+      argBody = {
+        columnOrder: attributes,
+        columnAliasMap: properties.attributeAliases,
+      }
     }
+    response = await exportResultSet(transformer, {
+      searches,
+      count,
+      sorts: [{ attribute: 'modified', direction: 'descending' }],
+      args: argBody,
+    })
+
+    // if (this.props.isZipped) {
+    //   response = await exportResultSet('zipCompression', {
+    //     searches,
+    //     count,
+    //     args: {
+    //       transformerId: uriEncodedTransformerId,
+    //     },
+    //   })
+    // } else {
+    //   const attributes = Array.from(
+    //     new Set(
+    //       this.props.results
+    //         .map(result => result.attributes)
+    //         .reduce((result, arr) => result.concat(arr))
+    //     )
+    //   )
+    // response = await exportResultSet(uriEncodedTransformerId, {
+    //   searches,
+    //   count,
+    //   sorts: [{ attribute: 'modified', direction: 'descending' }],
+    //   args: {
+    //     columnOrder: attributes,
+    //     columnAliasMap: properties.attributeAliases,
+    //   },
+    // })
+    // }
 
     if (response.status === 200) {
       const filename = contentDisposition.parse(
