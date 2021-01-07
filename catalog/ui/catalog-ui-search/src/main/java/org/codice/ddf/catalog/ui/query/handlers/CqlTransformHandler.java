@@ -283,7 +283,8 @@ public class CqlTransformHandler implements Route {
             ? (List) queryResponseTransformer.getProperty("mime-type")
             : Collections.emptyList();
 
-    if (mimeTypeServiceProperty.contains("text/csv")) {
+    if (mimeTypeServiceProperty.contains("text/csv")
+        || arguments.get("transformerId").equals("csv")) {
       arguments = csvTransformArgumentsAdapter(arguments);
     } else if (schema != null && schema.toString().equals(CswConstants.CSW_NAMESPACE_URI)) {
       arguments = cswTransformArgumentsAdapter();
@@ -460,6 +461,7 @@ public class CqlTransformHandler implements Route {
         .put("hiddenFields", (Serializable) hiddenFieldsSet)
         .put("columnOrder", (Serializable) columnOrderList)
         .put("aliases", (Serializable) aliasMap)
+        .put("transformerId", arguments.get("transformerId"))
         .build();
   }
 }
