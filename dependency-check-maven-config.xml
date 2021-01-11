@@ -150,4 +150,40 @@
         <cve>CVE-2020-11980</cve>
     </suppress>
 
+    <suppress>
+        <notes>
+            httpd vulnerabilities do not apply to CXF
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-transports\-http\-netty\-server@.*$</packageUrl>
+        <cpe>cpe:/a:apache:http_server</cpe>
+    </suppress>
+
+    <suppress>
+        <notes>
+            Karaf vulnerabilities do not apply to CXF (the "org.apache.cxf.karaf" group is used by
+            CXF artifacts providing Karaf-specific functionality)
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf\.karaf/.*</packageUrl>
+        <cpe>cpe:/a:apache:karaf</cpe>
+    </suppress>
+
+    <suppress>
+        <notes>
+            Karaf vulnerabilities do not apply to Camel (the "org.apache.camel.karaf" group is used
+            by Camel artifacts providing Karaf-specific functionality)
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.camel\.karaf/.*</packageUrl>
+        <cpe>cpe:/a:apache:karaf</cpe>
+    </suppress>
+
+    <suppress>
+        <notes>
+            Maintainers of the OAuth2 SDK confirmed these are false positives:
+            https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/issues/320/owasp-dependency-check-reports-false
+        </notes>
+        <packageUrl regex="true">^pkg:maven/com\.nimbusds/oauth2\-oidc\-sdk@.*$</packageUrl>
+        <cve>CVE-2007-1651</cve>
+        <cve>CVE-2007-1652</cve>
+    </suppress>
+
 </suppressions>
