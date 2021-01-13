@@ -42,17 +42,13 @@
         </property>
         <property name="whiteListContexts">
             <array value-type="java.lang.String">
-                <value>${org.codice.ddf.system.rootContext}/SecurityTokenService</value>
-                <value>${org.codice.ddf.system.rootContext}/internal/metrics</value>
                 <value>/proxy</value>
                 <value>${org.codice.ddf.system.rootContext}/saml</value>
-                <value>${org.codice.ddf.system.rootContext}/idp</value>
-                <value>/idp</value>
                 <value>${org.codice.ddf.system.rootContext}/platform/config/ui</value>
-                <value>${org.codice.ddf.system.rootContext}/logout</value>
-                <value>/logout</value>
                 <value>${org.codice.ddf.system.rootContext}/internal/session</value>
                 <value>${org.codice.ddf.system.rootContext}/admin/fonts</value>
+                <value>${org.codice.ddf.system.rootContext}/logout</value>
+                <value>/logout</value>
                 <value>/favicon.ico</value>
                 <value>/error</value>
                 <value>/webjars</value>

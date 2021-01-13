@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
 import java.io.IOException;
 import java.util.Collections;
@@ -186,6 +187,7 @@ public class WebSSOFilterTest {
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
     when(requestMock.getSession(any(Boolean.class))).thenReturn(sessionMock);
     when(requestMock.getRequestURI()).thenReturn(MOCK_CONTEXT);
+    when(requestMock.getRequestedSessionId()).thenReturn("JSESSIONID");
 
     HttpServletResponse responseMock = mock(HttpServletResponse.class);
 
@@ -254,6 +256,7 @@ public class WebSSOFilterTest {
 
     filter.setContextPolicyManager(policyManager);
     filter.setHandlerList(Collections.singletonList(handler1));
+    filter.setSecurityLogger(mock(SecurityLogger.class));
 
     SecurityFilterChain filterChain = mock(SecurityFilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);

@@ -22,6 +22,7 @@
     <name>DDF :: Security :: Filter :: Web-SSO</name>
     <artifactId>security-filter-web-sso</artifactId>
     <packaging>bundle</packaging>
+
     <dependencies>
         <dependency>
             <groupId>ddf.security.handler</groupId>
