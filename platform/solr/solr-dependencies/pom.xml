@@ -214,6 +214,17 @@
                             javax.xml.transform.stream,
                             javax.xml.xpath,
 
+                            <!--jetty-->
+                            org.eclipse.jetty.client;resolution:=optional,
+                            org.eclipse.jetty.client.api;resolution:=optional,
+                            org.eclipse.jetty.client.http;resolution:=optional,
+                            org.eclipse.jetty.client.util;resolution:=optional,
+                            org.eclipse.jetty.http;resolution:=optional,
+                            org.eclipse.jetty.http2.client;resolution:=optional,
+                            org.eclipse.jetty.http2.client.http;resolution:=optional,
+                            org.eclipse.jetty.util;resolution:=optional,
+                            org.eclipse.jetty.util.ssl;resolution:=optional,
+
                             <!--
                                 There are ddf dependencies using both this solr-dependencies and httpclient/httpcore.
                                 These packages are imported so that only one instance of the classes are being shared at runtime to avoid a class collision.
