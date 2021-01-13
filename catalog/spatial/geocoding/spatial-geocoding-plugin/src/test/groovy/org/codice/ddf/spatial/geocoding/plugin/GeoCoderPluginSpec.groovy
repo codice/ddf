@@ -24,6 +24,8 @@ import ddf.catalog.operation.UpdateRequest
 import ddf.catalog.plugin.PluginExecutionException
 import ddf.catalog.util.impl.ServiceSelector
 import org.codice.ddf.spatial.geocoder.GeoCoder
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.util.AbstractMap.SimpleEntry
@@ -31,6 +33,7 @@ import java.util.Map.Entry
 
 import static org.mockito.Matchers.anyString
 
+@RunWith(JUnitPlatform.class)
 class GeoCoderPluginSpec extends Specification {
 
     private static Optional<String> countryCode = Optional.of('NO')

@@ -16,10 +16,9 @@ package org.codice.solr.factory.impl
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.apache.solr.common.util.NamedList
-import org.codice.junit.DeFinalize
-import org.codice.junit.DeFinalizer
-import org.codice.spock.Supplemental
+import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Timeout
 import spock.lang.Unroll
@@ -27,10 +26,8 @@ import spock.util.environment.RestoreSystemProperties
 
 import static java.util.concurrent.TimeUnit.SECONDS
 
-@RestoreSystemProperties
-@Supplemental
-@RunWith(DeFinalizer)
-@DeFinalize(HttpSolrClientFactory)
+@Ignore
+@RunWith(JUnitPlatform.class)
 class HttpSolrClientFactorySpec extends Specification {
   static final String CORE = "test_core"
   static final String DATA_DIR = "data_dir"

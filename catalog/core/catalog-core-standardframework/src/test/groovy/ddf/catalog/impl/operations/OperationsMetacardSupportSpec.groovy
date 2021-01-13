@@ -26,11 +26,14 @@ import ddf.catalog.transform.InputTransformer
 import ddf.mime.MimeTypeMapper
 import ddf.mime.MimeTypeToTransformerMapper
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.nio.file.Files
 import java.nio.file.Path
 
+@RunWith(JUnitPlatform.class)
 class OperationsMetacardSupportSpec extends Specification {
     private OperationsMetacardSupport opsMetacard
     private FrameworkProperties frameworkProperties

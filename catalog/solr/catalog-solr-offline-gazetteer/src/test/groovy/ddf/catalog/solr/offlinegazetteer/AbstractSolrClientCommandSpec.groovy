@@ -18,12 +18,15 @@ import org.apache.solr.client.solrj.SolrServerException
 import org.codice.solr.client.solrj.SolrClient
 import org.codice.solr.client.solrj.UnavailableSolrException
 import org.codice.solr.factory.SolrClientFactory
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 
+@RunWith(JUnitPlatform.class)
 class AbstractSolrClientCommandSpec extends Specification {
 
-    private final AbstractSolrClientCommand spyAbstractOfflineSolrGazetteerCommand = Spy(AbstractSolrClientCommand)
+    private AbstractSolrClientCommand spyAbstractOfflineSolrGazetteerCommand = Spy(AbstractSolrClientCommand)
 
     def 'test force with \"no\" user input'() {
         given:
@@ -46,7 +49,7 @@ class AbstractSolrClientCommandSpec extends Specification {
         final SolrClient mockSolrClient = Mock() {
             isAvailable() >> true
         }
-        with(spyAbstractOfflineSolrGazetteerCommand) {
+        spyAbstractOfflineSolrGazetteerCommand.with {
             clientFactory = Mock(SolrClientFactory) {
                 1 * newClient("gazetteer") >> mockSolrClient
             }

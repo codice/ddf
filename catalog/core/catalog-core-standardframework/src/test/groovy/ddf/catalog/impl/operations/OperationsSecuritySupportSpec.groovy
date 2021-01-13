@@ -17,8 +17,11 @@ import ddf.catalog.operation.Operation
 import ddf.security.SecurityConstants
 import ddf.security.Subject
 import org.apache.shiro.util.ThreadContext
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class OperationsSecuritySupportSpec extends Specification {
     private OperationsSecuritySupport opsSecurity
 

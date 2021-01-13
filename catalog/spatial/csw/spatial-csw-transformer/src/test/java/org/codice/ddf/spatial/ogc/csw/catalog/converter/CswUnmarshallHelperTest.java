@@ -96,7 +96,9 @@ public class CswUnmarshallHelperTest {
       Matcher m = matcherMap.get(attributeFormat);
       String value = valueMap.get(attributeFormat);
       ser = CswUnmarshallHelper.convertStringValueToMetacardValue(attributeFormat, value);
-      assertThat(ser, m);
+      if (ser != null) {
+        assertThat(ser.getClass(), m);
+      }
     }
   }
 
@@ -106,10 +108,7 @@ public class CswUnmarshallHelperTest {
     valueMap.put(AttributeType.AttributeFormat.GEOMETRY, TEST_BOUNDING_BOX);
 
     matcherMap.put(AttributeType.AttributeFormat.BINARY, notNullValue());
-    matcherMap.put(
-        AttributeType.AttributeFormat.GEOMETRY,
-        is(
-            "POLYGON ((44.792 -6.171, 44.792 -2.228, 51.126 -2.228, 51.126 -6.171, 44.792 -6.171))"));
+    matcherMap.put(AttributeType.AttributeFormat.GEOMETRY, is(String.class));
 
     AttributeType.AttributeFormat[] attributeFormats = AttributeType.AttributeFormat.values();
 
@@ -121,7 +120,15 @@ public class CswUnmarshallHelperTest {
               attributeFormat, reader, CswAxisOrder.LAT_LON);
 
       Matcher m = matcherMap.get(attributeFormat);
-      assertThat(ser, m);
+      if (ser != null) {
+        assertThat(ser.getClass(), m);
+      }
+      if (attributeFormat.equals(AttributeType.AttributeFormat.GEOMETRY)) {
+        assertThat(
+            ser,
+            is(
+                "POLYGON ((44.792 -6.171, 44.792 -2.228, 51.126 -2.228, 51.126 -6.171, 44.792 -6.171))"));
+      }
     }
   }
 

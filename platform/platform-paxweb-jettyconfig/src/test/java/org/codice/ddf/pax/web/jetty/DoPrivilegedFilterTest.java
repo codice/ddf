@@ -53,10 +53,4 @@ public class DoPrivilegedFilterTest {
     doThrow(ServletException.class).when(mockFilterChain).doFilter(mockRequest, mockResponse);
     underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
   }
-
-  @Test(expected = ServletException.class)
-  public void testUnknownException() throws Exception {
-    doThrow(Exception.class).when(mockFilterChain).doFilter(mockRequest, mockResponse);
-    underTest.doFilter(mockRequest, mockResponse, mockFilterChain);
-  }
 }

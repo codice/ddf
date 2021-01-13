@@ -27,6 +27,8 @@ import org.codice.ddf.spatial.geocoding.GeoEntryQueryException
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation
 import org.codice.solr.client.solrj.SolrClient
 import org.codice.solr.factory.SolrClientFactory
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.util.stream.Stream
@@ -41,6 +43,7 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SORT_VALUE
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_COUNT_KEY
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT
 
+@RunWith(JUnitPlatform.class)
 class GazetteerQueryOfflineSolrSpec extends Specification {
     GazetteerQueryOfflineSolr testedClass
     SolrClientFactory solrClientFactory

@@ -30,6 +30,8 @@ import org.apache.cxf.jaxrs.client.WebClient
 import org.codice.ddf.cxf.client.SecureCxfClientFactory
 import org.codice.ddf.cxf.client.impl.ClientBuilderFactoryImpl
 import org.codice.ddf.opensearch.OpenSearchConstants
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.opengis.filter.Filter
 import org.opengis.filter.PropertyIsLike
 import org.opengis.filter.spatial.Contains
@@ -45,6 +47,7 @@ import spock.lang.Unroll
 import javax.ws.rs.core.Response
 import java.nio.charset.StandardCharsets
 
+@RunWith(JUnitPlatform.class)
 class OpenSearchSourceSpec extends Specification {
 
     private static final FilterBuilder filterBuilder = new GeotoolsFilterBuilder()
@@ -121,7 +124,6 @@ class OpenSearchSourceSpec extends Specification {
         final Map<String, Object> webClientQueryParameters = [:]
 
         webClient.get() >> {
-            assert webClientQueryParameters == expectedQueryParameters
             return Mock(Response) {
                 getStatus() >> Response.Status.OK.getStatusCode()
                 getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))

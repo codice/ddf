@@ -13,8 +13,11 @@
  */
 package org.codice.ddf.catalog.sourcepoller
 
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class PollerExceptionSpec extends Specification {
 
     def 'test invalid causes'() {

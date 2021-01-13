@@ -18,10 +18,13 @@ import ddf.catalog.source.CatalogStore
 import ddf.catalog.source.ConnectedSource
 import ddf.catalog.source.FederatedSource
 import ddf.catalog.source.Source
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.containsInAnyOrder
 
+@RunWith(JUnitPlatform.class)
 class SourceRegistrySpec extends Specification {
 
     def 'test set sources with null'(Closure setSources) {

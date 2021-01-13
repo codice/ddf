@@ -81,6 +81,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>junit-extensions</artifactId>
+            <version>0.9</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

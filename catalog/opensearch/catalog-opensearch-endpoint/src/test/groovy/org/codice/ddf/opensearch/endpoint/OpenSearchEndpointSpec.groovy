@@ -19,6 +19,8 @@ import ddf.catalog.filter.AttributeBuilder
 import ddf.catalog.filter.ContextualExpressionBuilder
 import ddf.catalog.filter.ExpressionBuilder
 import ddf.catalog.filter.FilterBuilder
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.opengis.filter.sort.SortOrder
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -27,6 +29,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.MultivaluedMap
 import javax.ws.rs.core.UriInfo
 
+@RunWith(JUnitPlatform.class)
 class OpenSearchEndpointSpec extends Specification {
 
     private static final String DEFAULT_SORT_FIELD = Result.RELEVANCE
@@ -36,7 +39,6 @@ class OpenSearchEndpointSpec extends Specification {
     @Unroll
     def 'test parsing sort parameter "#sort"'() {
         given:
-        final sortBy
         final catalogFramework = Mock(CatalogFramework)
         final endpoint = new OpenSearchEndpoint(catalogFramework, Mock(FilterBuilder) {
             attribute(_) >> Mock(AttributeBuilder) {
@@ -81,10 +83,10 @@ class OpenSearchEndpointSpec extends Specification {
 
         then:
         1 * catalogFramework.transform({
-            sortBy = it.getRequest().getQuery().getSortBy()
+            def sortBy = it.getRequest().getQuery().getSortBy()
+            sortBy.getPropertyName().getPropertyName() == expectedSortField
+            sortBy.getSortOrder() == expectedSortOrder
         }, _, _)
-        sortBy.getPropertyName().getPropertyName() == expectedSortField
-        sortBy.getSortOrder() == expectedSortOrder
 
         where:
         sort                                             || expectedSortField  | expectedSortOrder

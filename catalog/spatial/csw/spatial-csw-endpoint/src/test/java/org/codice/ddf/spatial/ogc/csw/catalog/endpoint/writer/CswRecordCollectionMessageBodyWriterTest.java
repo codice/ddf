@@ -98,7 +98,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     assertThat(arguments.get(CswConstants.RESULT_TYPE_PARAMETER), is(ResultType.HITS));
     assertThat(arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
     assertThat(arguments.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.BRIEF));
-    assertThat(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0], is(example));
+    assertThat(((Object[]) arguments.get(CswConstants.ELEMENT_NAMES))[0], is(example));
   }
 
   @Test
@@ -138,7 +138,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     assertThat(arguments.get(CswConstants.RESULT_TYPE_PARAMETER), is(ResultType.VALIDATE));
     assertThat(arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
     assertThat(arguments.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.BRIEF));
-    assertThat(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0], is(example));
+    assertThat(((Object[]) arguments.get(CswConstants.ELEMENT_NAMES))[0], is(example));
   }
 
   @Test

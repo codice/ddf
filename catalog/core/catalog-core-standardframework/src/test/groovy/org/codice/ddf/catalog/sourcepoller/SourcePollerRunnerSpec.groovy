@@ -14,11 +14,14 @@
 package org.codice.ddf.catalog.sourcepoller
 
 import ddf.catalog.source.Source
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
 
 import java.util.concurrent.ScheduledExecutorService
 
+@RunWith(JUnitPlatform.class)
 class SourcePollerRunnerSpec extends Specification {
 
     def 'test null SourceRegistry'() {

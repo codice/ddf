@@ -123,7 +123,8 @@
         <hamcrest-optional.version>1.0</hamcrest-optional.version>
         <jsonassert.version>1.5.0</jsonassert.version>
         <junit.version>4.13.1</junit.version>
-        <mockito.version>2.28.2</mockito.version>
+        <spock.version>2.0-M4-groovy-3.0</spock.version>
+        <mockito.version>3.6.28</mockito.version>
         <pax.exam.version>4.13.2.CODICE</pax.exam.version>
         <pax.logging.version>1.11.6</pax.logging.version>
         <pax.url.version>2.6.2</pax.url.version>
@@ -131,7 +132,7 @@
         <pax.web.jsp.version>7.2.18</pax.web.jsp.version>
         <restito.version>0.8.2</restito.version>
         <xmlunit.version>1.4</xmlunit.version>
-        <xmlunit-matchers.version>2.5.1</xmlunit-matchers.version>
+        <xmlunit-matchers.version>2.8.2</xmlunit-matchers.version>
         <auth0.jwt.version>3.8.1</auth0.jwt.version>
 
         <!--Project properties-->
@@ -204,7 +205,7 @@
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
         <jackson.version>2.11.0</jackson.version>
-        <jakarta.xml.bind.version>2.3.3</jakarta.xml.bind.version>
+        <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.mail.version>1.6.5</jakarta.mail.version>
         <jasypt.version>1.9.3</jasypt.version>
@@ -244,12 +245,12 @@
         <logback.version>1.2.3</logback.version>
         <lucene.version>7.7.2</lucene.version>
         <mariadb.version>2.4.1</mariadb.version>
-        <maven.failsafe.version>3.0.0-M4</maven.failsafe.version>
-        <maven.surefire.version>3.0.0-M4</maven.surefire.version>
+        <maven.failsafe.version>3.0.0-M5</maven.failsafe.version>
+        <maven.surefire.version>3.0.0-M5</maven.surefire.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
         <netty.version>4.1.46.Final</netty.version>
-        <objenesis.version>2.6</objenesis.version>
+        <objenesis.version>3.1</objenesis.version>
         <ogc-tools-gml-jts.version>1.1.90</ogc-tools-gml-jts.version>
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
         <opengis.bundle.version>${opengis.version}_3</opengis.bundle.version>
@@ -864,12 +865,12 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.12.0</version>
                 <executions>
                     <execution>
                         <goals>
                             <goal>compile</goal>
-                            <goal>testCompile</goal>
+                            <goal>compileTests</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -1208,12 +1209,54 @@
      -->
     <dependencies>
         <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>spock-all</artifactId>
-            <version>${codice-test.version}</version>
-            <type>pom</type>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.27.0-GA</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asm.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>3.3.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opentest4j</groupId>
+            <artifactId>opentest4j</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>3.0.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spockframework</groupId>
+            <artifactId>spock-junit4</artifactId>
+            <version>2.0-M4-groovy-3.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-runner</artifactId>
+            <version>1.7.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spockframework</groupId>
+            <artifactId>spock-core</artifactId>
+            <version>${spock.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
@@ -1263,18 +1306,6 @@
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
             <version>${xmlunit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>junit-extensions</artifactId>
-            <version>${codice-test.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>spock-extensions</artifactId>
-            <version>${codice-test.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -1,7 +1,10 @@
-package org.codice.ddf.landing;
+package org.codice.ddf.landing
 
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith;
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class LandingPageSpec extends Specification {
 
     def "test valid links"() {

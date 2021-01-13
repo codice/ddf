@@ -16,8 +16,11 @@ package ddf.catalog.resourceretriever
 import ddf.catalog.operation.ResourceResponse
 import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.source.RemoteSource
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class RemoteResourceRetrieverSpec extends Specification {
     private URI uri
     private Map<String, Serializable> props

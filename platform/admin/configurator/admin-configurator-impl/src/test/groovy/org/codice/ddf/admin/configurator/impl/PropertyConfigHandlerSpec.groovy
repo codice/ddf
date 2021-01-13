@@ -15,10 +15,13 @@ package org.codice.ddf.admin.configurator.impl
 
 import org.codice.ddf.admin.configurator.ConfiguratorException
 import org.junit.Rule
+import org.junit.platform.runner.JUnitPlatform
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
 import spock.lang.Shared
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class PropertyConfigHandlerSpec extends Specification {
     @Rule
     TemporaryFolder tempFolder

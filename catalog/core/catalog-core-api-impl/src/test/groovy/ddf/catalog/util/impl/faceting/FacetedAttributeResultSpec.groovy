@@ -15,8 +15,11 @@
 package ddf.catalog.operation.faceting
 
 import ddf.catalog.operation.impl.FacetAttributeResultImpl
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class FacetedAttributeResultSpec extends Specification {
     static testSameLenValues = ["keyboards", "cutting boards", "school boards", "skateboards"]
     static testShorterValues = ["apples", "oranges"]

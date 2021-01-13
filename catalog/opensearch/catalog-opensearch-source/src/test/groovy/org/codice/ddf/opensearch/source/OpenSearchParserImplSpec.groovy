@@ -14,8 +14,11 @@
 package org.codice.ddf.opensearch.source
 
 import org.apache.cxf.jaxrs.client.WebClient
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class OpenSearchParserImplSpec extends Specification {
 
     private OpenSearchParser openSearchParser = new OpenSearchParserImpl()

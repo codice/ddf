@@ -20,11 +20,14 @@ import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.MediaAttributes
 import ddf.catalog.transform.MetacardTransformer
 import groovy.json.JsonSlurper
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.text.SimpleDateFormat
 import java.time.Instant
 
+@RunWith(JUnitPlatform.class)
 class PropertyJsonMetacardTransformerSpec extends Specification {
 
     MetacardTransformer jsonTransformer = new PropertyJsonMetacardTransformer();

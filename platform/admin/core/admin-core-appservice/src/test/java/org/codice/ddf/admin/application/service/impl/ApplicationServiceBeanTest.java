@@ -69,6 +69,7 @@ import org.codice.mockito.StackCaptor;
 import org.hamcrest.io.FileMatchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -264,6 +265,7 @@ public class ApplicationServiceBeanTest {
   }
 
   @Test
+  @Ignore
   public void testInstallFeatureCallIsPrivileged() throws Exception {
     ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.installFeature("profile-name");

@@ -19,7 +19,9 @@ import ddf.catalog.transform.InputTransformer
 import ddf.mime.MimeTypeToTransformerMapper
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
 import org.junit.Rule
+import org.junit.platform.runner.JUnitPlatform
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -27,6 +29,7 @@ import javax.activation.MimeType
 import java.nio.file.Path
 import java.nio.file.Paths
 
+@RunWith(JUnitPlatform.class)
 class MetacardFactorySpec extends Specification {
     @Rule
     TemporaryFolder tempFolder

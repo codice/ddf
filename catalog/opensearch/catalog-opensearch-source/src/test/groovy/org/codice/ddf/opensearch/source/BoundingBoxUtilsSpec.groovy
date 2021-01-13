@@ -13,9 +13,12 @@
  */
 package org.codice.ddf.opensearch.source
 
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 
+@RunWith(JUnitPlatform.class)
 class BoundingBoxUtilsSpec extends Specification {
 
     @Unroll

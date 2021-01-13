@@ -33,6 +33,12 @@
         </dependency>
         <!-- Test dependencies -->
         <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${jakarta.xml.bind.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-geocoding-api</artifactId>
             <version>${project.version}</version>

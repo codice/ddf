@@ -24,10 +24,13 @@ import ddf.catalog.source.Source
 import ddf.catalog.source.SourceUnavailableException
 import org.codice.ddf.catalog.sourcepoller.SourcePoller
 import org.codice.ddf.catalog.sourcepoller.SourceStatus
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
 
+@RunWith(JUnitPlatform.class)
 class SourceOperationsSpec extends Specification {
     private static final String SOURCE_ID = "test_source"
 

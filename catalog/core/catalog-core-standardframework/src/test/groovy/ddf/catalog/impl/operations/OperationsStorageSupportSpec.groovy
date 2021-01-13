@@ -20,10 +20,13 @@ import ddf.catalog.content.operation.StorageRequest
 import ddf.catalog.history.Historian
 import ddf.catalog.source.IngestException
 import ddf.catalog.source.SourceUnavailableException
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.nio.file.Path
 
+@RunWith(JUnitPlatform.class)
 class OperationsStorageSupportSpec extends Specification {
     private Historian historian
     private SourceOperations sourceOperations

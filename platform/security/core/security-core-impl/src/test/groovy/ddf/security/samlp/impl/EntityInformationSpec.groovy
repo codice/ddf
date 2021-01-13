@@ -2,6 +2,8 @@ package ddf.security.samlp.impl
 
 
 import org.apache.wss4j.common.saml.OpenSAMLUtil
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.opensaml.saml.saml2.core.AuthnRequest
 import org.opensaml.saml.saml2.metadata.EntityDescriptor
 import spock.lang.Specification
@@ -10,6 +12,7 @@ import java.lang.reflect.Field
 
 import static SamlProtocol.Binding
 
+@RunWith(JUnitPlatform.class)
 class EntityInformationSpec extends Specification {
     static final Set<Binding> DEFAULT_BINDINGS =
             [Binding.HTTP_REDIRECT, Binding.HTTP_POST] as Set

@@ -14,6 +14,8 @@
 package org.codice.ddf.catalog.sourcepoller
 
 import com.google.common.collect.ImmutableMap
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
 
@@ -21,6 +23,7 @@ import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
+@RunWith(JUnitPlatform.class)
 class PollerRunnerSpec extends Specification {
 
     def 'test invalid constructor parameters'() {

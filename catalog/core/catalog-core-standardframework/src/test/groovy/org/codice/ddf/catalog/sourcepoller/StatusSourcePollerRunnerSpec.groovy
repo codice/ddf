@@ -14,13 +14,16 @@
 package org.codice.ddf.catalog.sourcepoller
 
 import ddf.catalog.source.Source
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.util.concurrent.ScheduledExecutorService
 
+@RunWith(JUnitPlatform.class)
 class StatusSourcePollerRunnerSpec extends Specification {
 
-    private final StatusSourcePollerRunner statusSourcePollerRunner = new StatusSourcePollerRunner(Mock(Poller), 1, Mock(ScheduledExecutorService), Mock(SourceRegistry))
+    private StatusSourcePollerRunner statusSourcePollerRunner = new StatusSourcePollerRunner(Mock(Poller), 1, Mock(ScheduledExecutorService), Mock(SourceRegistry))
 
     def setup() {
         statusSourcePollerRunner.init()

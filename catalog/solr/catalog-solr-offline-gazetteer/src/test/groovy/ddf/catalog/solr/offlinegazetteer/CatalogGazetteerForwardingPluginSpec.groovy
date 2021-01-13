@@ -13,7 +13,6 @@
  */
 package ddf.catalog.solr.offlinegazetteer
 
-
 import ddf.catalog.Constants
 import ddf.catalog.data.Metacard
 import ddf.catalog.data.impl.AttributeImpl
@@ -31,6 +30,8 @@ import org.apache.solr.common.params.SolrParams
 import org.codice.ddf.spatial.geocoding.GeoEntryAttributes
 import org.codice.solr.client.solrj.SolrClient
 import org.codice.solr.factory.SolrClientFactory
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME
@@ -38,6 +39,7 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_BUILD
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_DICT_KEY
 
+@RunWith(JUnitPlatform.class)
 class CatalogGazetteerForwardingPluginSpec extends Specification {
     CatalogGazetteerForwardingPlugin testedPlugin
 
@@ -46,11 +48,6 @@ class CatalogGazetteerForwardingPluginSpec extends Specification {
 
     static List<Metacard> resourceMetacards
     static List<Metacard> gazetteerMetacards
-    static Metacard fullGazetteerMetacard
-
-    void setupSpec() {
-
-    }
 
     void setup() {
         solrClient = Mock(SolrClient)
@@ -82,7 +79,7 @@ class CatalogGazetteerForwardingPluginSpec extends Specification {
 
 
         gazetteerMetacards = [
-                fullGazetteerMetacard = Mock(Metacard) {
+                Mock(Metacard) {
                     getTags() >> ["gazetteer"]
                     getAttribute(Metacard.TAGS) >> new AttributeImpl(Metacard.TAGS, ["gazetteer"])
                     getAttribute(Metacard.DESCRIPTION) >> new AttributeImpl(Metacard.DESCRIPTION,
@@ -179,10 +176,13 @@ class CatalogGazetteerForwardingPluginSpec extends Specification {
         then:
         1 * solrClient.add(_, _) >>
                 { String collection, Collection<SolrInputDocument> docs ->
-                    assert docs.size() == 1
+                    verifyAll (docs) {
+                        size() == 1
+                    }
                     docs.first().with {
-                        assert keySet().size() == 1
-
+                        verifyAll (it) {
+                            keySet().size() == 1
+                        }
                     }
                 }
     }
@@ -305,8 +305,10 @@ class CatalogGazetteerForwardingPluginSpec extends Specification {
         1 * solrClient.query(*_) >> {
             args ->
                 args.first().with { SolrParams it ->
-                    assert it.get(SUGGEST_BUILD_KEY) == "true"
-                    assert it.get(SUGGEST_DICT_KEY) == SUGGEST_DICT
+                    verifyAll(it) {
+                        get(SUGGEST_BUILD_KEY) == "true"
+                        get(SUGGEST_DICT_KEY) == SUGGEST_DICT
+                    }
                 }
 
         }

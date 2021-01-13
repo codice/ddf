@@ -13,13 +13,12 @@
  */
 package ddf.catalog.transformer.output.rtf;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -77,9 +76,9 @@ public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfigur
     String referenceRtf = getReferenceMetacardRtfFile();
 
     assertThat(
-        "Produced RTF document must match reference",
-        rtfResult,
-        equalToIgnoringWhiteSpace(referenceRtf));
+        "Produced RTF document must be same length",
+        rtfResult.length(),
+        equalTo(referenceRtf.length()));
   }
 
   @Test
@@ -104,9 +103,9 @@ public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfigur
     String referenceRtfWithEmptyThumbnail = getReferenceMetacardRtfWithEmptyThumbnailFile();
 
     assertThat(
-        "Produced RTF document must match reference",
-        rtfResult,
-        equalToIgnoringWhiteSpace(referenceRtfWithEmptyThumbnail));
+        "Produced RTF document must be same length",
+        rtfResult.length(),
+        equalTo(referenceRtfWithEmptyThumbnail.length()));
   }
 
   @Test(expected = CatalogTransformerException.class)
@@ -143,9 +142,9 @@ public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfigur
     String referenceRtf = getReferenceSourceResponseRtfFile();
 
     assertThat(
-        "Produced RTF document must match reference",
-        rtfResult,
-        equalToIgnoringWhiteSpace(referenceRtf));
+        "Produced RTF document must be same length",
+        rtfResult.length(),
+        equalTo(referenceRtf.length()));
   }
 
   private RtfQueryResponseAndMetacardTransformer createTransformer() throws MimeTypeParseException {

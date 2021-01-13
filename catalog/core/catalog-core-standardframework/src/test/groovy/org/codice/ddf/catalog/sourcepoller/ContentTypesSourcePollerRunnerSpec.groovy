@@ -16,15 +16,18 @@ package org.codice.ddf.catalog.sourcepoller
 import ddf.catalog.data.ContentType
 import ddf.catalog.source.Source
 import org.hamcrest.Matchers
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.util.concurrent.ScheduledExecutorService
 
 import static org.hamcrest.Matchers.empty
 
+@RunWith(JUnitPlatform.class)
 class ContentTypesSourcePollerRunnerSpec extends Specification {
 
-    private final ContentTypesSourcePollerRunner contentTypesSourcePollerRunner = new ContentTypesSourcePollerRunner(Mock(Poller), 1, Mock(ScheduledExecutorService), Mock(SourceRegistry))
+    private ContentTypesSourcePollerRunner contentTypesSourcePollerRunner = new ContentTypesSourcePollerRunner(Mock(Poller), 1, Mock(ScheduledExecutorService), Mock(SourceRegistry))
 
     def setup() {
         contentTypesSourcePollerRunner.init()

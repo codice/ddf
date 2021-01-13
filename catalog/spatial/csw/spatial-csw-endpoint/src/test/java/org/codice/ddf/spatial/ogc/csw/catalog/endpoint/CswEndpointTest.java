@@ -1799,19 +1799,10 @@ public class CswEndpointTest {
     QueryConstraintType queryConstraintType = new QueryConstraintType();
     queryConstraintType.setCqlText("title = \"foo\"");
     doReturn(queryConstraintType).when(deleteType).getConstraint();
-
-    List<DeleteResponse> delBatch = getDelBatch(queryResponseBatch);
+    when(deleteResponse.getDeletedMetacards()).thenReturn(populateMetacardList(1));
 
     when(catalogFramework.delete(any(DeleteRequest.class)))
-        .thenAnswer(
-            (Answer<DeleteResponse>)
-                invocation -> {
-                  DeleteRequest request = (DeleteRequest) invocation.getArguments()[0];
-                  long numResults = request.getAttributeValues().size();
-                  when(deleteResponse.getDeletedMetacards())
-                      .thenReturn(populateMetacardList((int) numResults));
-                  return deleteResponse;
-                });
+        .thenAnswer((Answer<DeleteResponse>) invocation -> deleteResponse);
 
     DeleteAction deleteAction =
         new DeleteActionImpl(deleteType, DefaultCswRecordMap.getPrefixToUriMapping());

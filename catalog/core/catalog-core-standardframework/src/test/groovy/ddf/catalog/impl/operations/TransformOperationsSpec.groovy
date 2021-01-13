@@ -19,11 +19,14 @@ import ddf.catalog.impl.FrameworkProperties
 import ddf.catalog.operation.SourceResponse
 import ddf.catalog.transform.MetacardTransformer
 import ddf.catalog.transform.QueryResponseTransformer
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.osgi.framework.BundleContext
 import org.osgi.framework.InvalidSyntaxException
 import org.osgi.framework.ServiceReference
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class TransformOperationsSpec extends Specification {
     private BundleContext bundleContext
     private FrameworkProperties frameworkProperties

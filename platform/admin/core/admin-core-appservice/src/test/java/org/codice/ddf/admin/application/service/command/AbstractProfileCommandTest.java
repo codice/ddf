@@ -15,6 +15,7 @@ package org.codice.ddf.admin.application.service.command;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -49,7 +50,12 @@ public class AbstractProfileCommandTest {
 
   @Test(expected = ApplicationServiceException.class)
   public void testApplicationServiceFailure() throws Exception {
-    doThrow(ApplicationServiceException.class).when(applicationService).getApplication(anyString());
+    doAnswer(
+            invocation -> {
+              throw new ApplicationServiceException();
+            })
+        .when(applicationService)
+        .getApplication(anyString());
     abstractProfileCommand.execute();
   }
 

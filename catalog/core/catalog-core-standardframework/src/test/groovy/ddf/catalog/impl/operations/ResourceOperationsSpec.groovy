@@ -34,11 +34,14 @@ import ddf.catalog.resource.download.ReliableResourceDownloadManager
 import ddf.catalog.resource.download.ReliableResourceDownloaderConfig
 import ddf.catalog.resourceretriever.ResourceRetriever
 import ddf.catalog.source.FederatedSource
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.concurrent.ExecutorService
 
+@RunWith(JUnitPlatform.class)
 class ResourceOperationsSpec extends Specification {
     private FrameworkProperties frameworkProperties
     private QueryOperations queryOperations

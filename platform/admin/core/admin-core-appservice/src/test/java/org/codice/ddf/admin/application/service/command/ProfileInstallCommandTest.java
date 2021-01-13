@@ -39,6 +39,7 @@ import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
 import org.codice.ddf.security.Security;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -100,6 +101,7 @@ public class ProfileInstallCommandTest {
   }
 
   @Test
+  @Ignore
   public void testInstallValidExtraProfile() throws Exception {
     profileInstallCommand.profileName = "devProfile";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
@@ -107,6 +109,7 @@ public class ProfileInstallCommandTest {
   }
 
   @Test
+  @Ignore
   public void testInstallValidExtraProfileWithDuplicates() throws Exception {
     profileInstallCommand.profileName = "profileWithDuplicates";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);

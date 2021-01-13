@@ -16,14 +16,17 @@ package ddf.catalog.solr.offlinegazetteer
 import org.apache.solr.client.solrj.SolrServerException
 import org.codice.solr.client.solrj.SolrClient
 import org.codice.solr.client.solrj.UnavailableSolrException
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 
+@RunWith(JUnitPlatform.class)
 class BuildGazetteerSuggesterIndexCommandSpec extends Specification {
 
-    private final BuildGazetteerSuggesterIndexCommand buildGazetteerSuggesterIndexCommand = new BuildGazetteerSuggesterIndexCommand()
+    private BuildGazetteerSuggesterIndexCommand buildGazetteerSuggesterIndexCommand = new BuildGazetteerSuggesterIndexCommand()
 
-    private final SolrClient mockSolrClient = Mock()
+    private SolrClient mockSolrClient = Mock()
 
     def 'test executeWithSolrClient'() {
         when:
@@ -41,7 +44,7 @@ class BuildGazetteerSuggesterIndexCommandSpec extends Specification {
     @Unroll("test SolrClient query fails with #exceptionType")
     def 'test SolrClient query fails'() {
         given:
-        final mockException = Mock(exceptionType)
+        def mockException = Mock(exceptionType)
         mockSolrClient.query(_) >> { throw mockException }
 
         when:

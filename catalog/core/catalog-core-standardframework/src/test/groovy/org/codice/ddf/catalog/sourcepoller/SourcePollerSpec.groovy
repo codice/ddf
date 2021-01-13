@@ -14,10 +14,13 @@
 package org.codice.ddf.catalog.sourcepoller
 
 import ddf.catalog.source.Source
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.util.concurrent.ExecutorService
 
+@RunWith(JUnitPlatform.class)
 class SourcePollerSpec extends Specification {
 
     def 'test getCachedValueForSource'() {
