@@ -37,6 +37,6 @@ Standards marked *Experimental* are functional and have been tested, but are sub
 
 |Atlassian Confluence®
 |
-|<<{managing-prefix}federated_source_for_atlassian_confluence_r,Atlassian Confluence® Federated Source>>
+|<<{managing-prefix}federated_source_for_atlassian_confluence,Atlassian Confluence® Federated Source>>
 |Supported
 |===

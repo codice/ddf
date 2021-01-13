@@ -183,7 +183,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/images
+                            <outputDirectory>${project.build.directory}/doc-contents/images
                             </outputDirectory>
                             <resources>
                                 <resource>

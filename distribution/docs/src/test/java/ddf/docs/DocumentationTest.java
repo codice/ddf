@@ -35,7 +35,7 @@ import org.junit.Test;
 
 public class DocumentationTest {
 
-  private static final String UNRESOLVED_DIRECTORY_MSG = "Unresolved directive";
+  private static final String UNRESOLVED_DIRECTORY_MSG = "unresolved directive";
 
   private static final String FREEMARKER_MSG = "freemarker template error";
 
@@ -54,23 +54,37 @@ public class DocumentationTest {
   private static final String EMPTY_STRING = "";
 
   @Test
-  public void testDocumentationIncludes() throws IOException, URISyntaxException {
+  public void testUnresolvedDirectives() throws IOException, URISyntaxException {
+    assertFilesDoNotContain("Unresolved directives", UNRESOLVED_DIRECTORY_MSG);
+  }
+
+  @Test
+  public void testFreeMarkerReferences() throws IOException, URISyntaxException {
+    assertFilesDoNotContain("Broken FreeMarker references", FREEMARKER_MSG);
+  }
+
+  @Test
+  public void testBrokenImages() throws IOException, URISyntaxException {
+    assertFilesDoNotContain("Broken images", BASE64_MISSING);
+  }
+
+  private void assertFilesDoNotContain(String message, String containsPattern)
+      throws IOException, URISyntaxException {
     Stream<Path> docs = Files.list(getPath()).filter(f -> f.toString().endsWith(HTML_DIRECTORY));
 
-    assertThat(
-        "Unresolved directive, FreeMarker reference or broken image found.",
-        docs.noneMatch(
-            f -> {
-              try (Stream<String> lines = Files.lines(f)) {
-                return lines.anyMatch(
-                    s ->
-                        s.contains(UNRESOLVED_DIRECTORY_MSG)
-                            || s.toLowerCase().contains(FREEMARKER_MSG)
-                            || s.contains(BASE64_MISSING));
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
-            }));
+    List<String> matches =
+        docs.filter(
+                f -> {
+                  try (Stream<String> lines = Files.lines(f)) {
+                    return lines.anyMatch(s -> s.toLowerCase().contains(containsPattern));
+                  } catch (IOException e) {
+                    throw new RuntimeException(e);
+                  }
+                })
+            .map(path -> StringUtils.substringAfterLast(path.toString(), File.separator))
+            .collect(Collectors.toList());
+
+    assertThat(message + ": " + matches.toString(), matches.isEmpty());
   }
 
   @Test
