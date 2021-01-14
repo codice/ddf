@@ -33,7 +33,6 @@ const cql = require('../../js/cql.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 const terraformer = require('terraformer-wkt-parser')
 const TurfCircle = require('@turf/circle')
-const _ = require('underscore')
 const announcement = require('../announcement/index.jsx')
 import { showErrorMessages } from '../../react-component/utils/validation'
 
@@ -139,18 +138,15 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   wktToCoords(wktList) {
-    const parsedGeoCoords = _.flatten(
-      wktList.map(wkt => {
-        if (wkt.value.startsWith('POINT') && parseFloat(wkt.distance) !== 0) {
-          const center = terraformer.parse(wkt.value).coordinates
-          return new TurfCircle(center, parseFloat(wkt.distance), 64, 'meters')
-            .geometry.coordinates[0]
-        }
-        return terraformer.parse(wkt.value).coordinates
-      }),
-      true
-    )
-    return this.createCoordinatePairs(this.flatten(parsedGeoCoords))
+    const parsedGeoCoords = wktList.map(wkt => {
+      if (wkt.value.startsWith('POINT') && parseFloat(wkt.distance) !== 0) {
+        const center = terraformer.parse(wkt.value).coordinates
+        return new TurfCircle(center, parseFloat(wkt.distance), 64, 'meters')
+          .geometry.coordinates[0]
+      }
+      return terraformer.parse(wkt.value).coordinates
+    })
+    return this.createCoordinatePairs(this.flatten(parsedGeoCoords.flat()))
   },
   flatten(arr) {
     return arr.reduce((flat, toFlatten) => {
@@ -160,7 +156,7 @@ module.exports = Marionette.LayoutView.extend({
     }, [])
   },
   createCoordinatePairs(arr) {
-    return arr.reduce(function(result, value, index, array) {
+    return arr.reduce((result, value, index, array) => {
       if (index % 2 === 0) {
         result.push(array.slice(index, index + 2))
       }
