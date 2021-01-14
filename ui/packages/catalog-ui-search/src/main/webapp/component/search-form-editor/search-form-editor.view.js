@@ -123,6 +123,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   showQueryForm(collection, id) {
+    wreqr.vent.trigger('resetSearch')
     this.editor.show(
       new QueryAdvanced({
         model: this.model,

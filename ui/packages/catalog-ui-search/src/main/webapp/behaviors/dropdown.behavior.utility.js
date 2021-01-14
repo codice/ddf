@@ -23,10 +23,7 @@ const store = require('../js/store.js')
 
 module.exports = {
   drawing(event) {
-    return (
-      event.target.constructor === HTMLCanvasElement &&
-      store.get('content').get('drawing')
-    )
+    return store.get('content').get('drawing')
   },
   hasRightRoom(left, element) {
     return left + element.clientWidth < window.innerWidth
