@@ -143,6 +143,10 @@ grant codeBase "file:/solr-factory-impl/solr-dependencies" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverKeystore.jks", "read";
 }
 
+grant codeBase "file:/catalog-solr-provider/catalog-solr-cache" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}solr-highlighter.properties", "read";
+}
+
 grant codeBase "file:/security-handler-oidc" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverTruststore.jks", "read";
 }
