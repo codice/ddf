@@ -109,15 +109,15 @@ class ResultsExport extends React.Component<Props, State> {
     )
 
     if (format !== undefined) {
-      return encodeURIComponent(format.id)
+      return format.id
     }
 
     return undefined
   }
 
   async onDownloadClick() {
-    const uriEncodedTransformerId = this.getSelectedExportFormatId()
-    if (uriEncodedTransformerId === undefined) {
+    const transformerId = this.getSelectedExportFormatId()
+    if (transformerId === undefined) {
       return
     }
 
@@ -149,10 +149,10 @@ class ResultsExport extends React.Component<Props, State> {
       argBody = {
         columnOrder: attributes,
         columnAliasMap: properties.attributeAliases,
-        transformerId: uriEncodedTransformerId,
+        transformerId: transformerId,
       }
     } else {
-      transformer = uriEncodedTransformerId
+      transformer = transformerId
       argBody = {
         columnOrder: attributes,
         columnAliasMap: properties.attributeAliases,
@@ -164,33 +164,6 @@ class ResultsExport extends React.Component<Props, State> {
       sorts: [{ attribute: 'modified', direction: 'descending' }],
       args: argBody,
     })
-
-    // if (this.props.isZipped) {
-    //   response = await exportResultSet('zipCompression', {
-    //     searches,
-    //     count,
-    //     args: {
-    //       transformerId: uriEncodedTransformerId,
-    //     },
-    //   })
-    // } else {
-    //   const attributes = Array.from(
-    //     new Set(
-    //       this.props.results
-    //         .map(result => result.attributes)
-    //         .reduce((result, arr) => result.concat(arr))
-    //     )
-    //   )
-    // response = await exportResultSet(uriEncodedTransformerId, {
-    //   searches,
-    //   count,
-    //   sorts: [{ attribute: 'modified', direction: 'descending' }],
-    //   args: {
-    //     columnOrder: attributes,
-    //     columnAliasMap: properties.attributeAliases,
-    //   },
-    // })
-    // }
 
     if (response.status === 200) {
       const filename = contentDisposition.parse(
