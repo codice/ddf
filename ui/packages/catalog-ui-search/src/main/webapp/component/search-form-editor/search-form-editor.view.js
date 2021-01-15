@@ -121,18 +121,20 @@ module.exports = Marionette.LayoutView.extend({
         showResultFilter: false,
         selectionInterface: new SelectionInterface(),
         onMapLoaded: olMap => {
+          const filterTemplate = this.model.get('filterTemplate')
           this.showQueryForm(collection, id)
-          if (this.model.get('filterTemplate')) {
-            const geoFilters = (
-              this.model.get('filterTemplate').filters || [
-                this.model.get('filterTemplate'),
-              ]
-            ).filter(filter => CQLUtils.isGeoFilter(filter.type))
-            const coords = this.wktToCoords(geoFilters)
-            Common.queueExecution(() => {
-              this.map.currentView.map.zoomToExtent(coords)
-            })
+          if (!filterTemplate) {
+            return
           }
+          const geoFilters = (
+            filterTemplate.filters || [
+              filterTemplate,
+            ]
+          ).filter(filter => CQLUtils.isGeoFilter(filter.type))
+          const coords = this.wktToCoords(geoFilters)
+          Common.queueExecution(() => {
+            this.map.currentView.map.zoomToExtent(coords)
+          })
         },
       })
     )
