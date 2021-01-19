@@ -113,7 +113,7 @@ class Keyword extends React.Component {
           value={value}
           onChange={option => this.onChange(option)}
           minimumInputLength={2}
-          placeholder="Pan to a region, country, or city"
+          placeholder="Pan to a city, country, or coordinate"
           suggester={suggester}
         />
         {loading ? (

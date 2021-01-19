@@ -154,7 +154,7 @@ class BasePropertyWrapper extends React.Component<Props, State> {
       showRequiredWarning = false,
       transformValue = true,
       param,
-      placeholder = 'Pan to a region, country, or city',
+      placeholder = 'Pan to a city, country, or coordinate',
       url = './internal/geofeature/suggestions',
       minimumInputLength = 2,
       min = 1,
