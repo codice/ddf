@@ -127,9 +127,7 @@ module.exports = Marionette.LayoutView.extend({
             return
           }
           const geoFilters = (
-            filterTemplate.filters || [
-              filterTemplate,
-            ]
+            filterTemplate.filters || [filterTemplate]
           ).filter(filter => CQLUtils.isGeoFilter(filter.type))
           const coords = this.wktToCoords(geoFilters)
           Common.queueExecution(() => {
