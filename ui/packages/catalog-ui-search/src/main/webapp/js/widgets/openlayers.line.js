@@ -49,7 +49,7 @@ function translateFromOpenlayersCoordinates(coords) {
 function translateToOpenlayersCoordinates(coords) {
   const coordinates = []
   _.each(coords, item => {
-    if (item[0].constructor === Array) {
+    if (Array.isArray(item[0])) {
       coordinates.push(translateToOpenlayersCoordinates(item))
     } else {
       coordinates.push(
@@ -134,11 +134,15 @@ Draw.LineView = Marionette.View.extend({
       // Handles case where model changes to empty vars and we don't want to draw anymore
       return
     }
-    const lineWidth =
+    let lineWidth =
       DistanceUtils.getDistanceInMeters(
         this.model.get('lineWidth'),
         this.model.get('lineUnits')
       ) || 1
+
+    if (lineWidth < 0) {
+      lineWidth = 1
+    }
 
     rectangle.A = this.adjustPoints(rectangle.A)
     const turfLine = Turf.lineString(

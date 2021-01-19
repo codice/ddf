@@ -489,8 +489,8 @@ const View = Marionette.LayoutView.extend({
             pointText = pointText.substring(0, pointText.length - 1)
             const latLon = pointText.split(' ')
             locationModel = new LocationModel({
-              lat: latLon[1],
-              lon: latLon[0],
+              lat: Number(latLon[1]),
+              lon: Number(latLon[0]),
               radius: filter.distance,
               color,
             })
