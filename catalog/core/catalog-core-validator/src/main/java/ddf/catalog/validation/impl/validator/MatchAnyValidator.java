@@ -21,16 +21,28 @@ import ddf.catalog.validation.report.AttributeValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class MatchAnyValidator implements AttributeValidator {
   private final List<AttributeValidator> validators;
 
   public MatchAnyValidator(List<AttributeValidator> validators) {
-    this.validators = validators;
+    if (validators == null) {
+      this.validators = Collections.<AttributeValidator>emptyList();
+    } else {
+      this.validators =
+          validators.stream()
+              .sorted(Comparator.comparingInt(Object::hashCode))
+              .collect(Collectors.toList());
+    }
   }
 
   @Override
@@ -93,5 +105,25 @@ public class MatchAnyValidator implements AttributeValidator {
       }
     }
     return Optional.of(result);
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(23, 37).append(validators).toHashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+
+    MatchAnyValidator that = (MatchAnyValidator) obj;
+
+    return new EqualsBuilder().append(validators, that.validators).isEquals();
   }
 }
