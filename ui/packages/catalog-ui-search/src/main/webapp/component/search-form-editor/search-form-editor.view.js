@@ -36,6 +36,8 @@ const TurfCircle = require('@turf/circle')
 const announcement = require('../announcement/index.jsx')
 import { showErrorMessages } from '../../react-component/utils/validation'
 
+const CIRCLE_PRECISION_STEPS = 64
+
 const formTitle = properties.i18n['form.title']
   ? properties.i18n['form.title'].toLowerCase()
   : 'form'
@@ -141,7 +143,7 @@ module.exports = Marionette.LayoutView.extend({
     const parsedGeoCoords = wktList.map(wkt => {
       if (wkt.value.startsWith('POINT') && parseFloat(wkt.distance) !== 0) {
         const center = terraformer.parse(wkt.value).coordinates
-        return new TurfCircle(center, parseFloat(wkt.distance), 64, 'meters')
+        return new TurfCircle(center, parseFloat(wkt.distance), CIRCLE_PRECISION_STEPS, 'meters')
           .geometry.coordinates[0]
       }
       return terraformer.parse(wkt.value).coordinates
