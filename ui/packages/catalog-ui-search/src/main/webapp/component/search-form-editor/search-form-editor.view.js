@@ -143,8 +143,12 @@ module.exports = Marionette.LayoutView.extend({
     const parsedGeoCoords = wktList.map(wkt => {
       if (wkt.value.startsWith('POINT') && parseFloat(wkt.distance) !== 0) {
         const center = terraformer.parse(wkt.value).coordinates
-        return new TurfCircle(center, parseFloat(wkt.distance), CIRCLE_PRECISION_STEPS, 'meters')
-          .geometry.coordinates[0]
+        return new TurfCircle(
+          center,
+          parseFloat(wkt.distance),
+          CIRCLE_PRECISION_STEPS,
+          'meters'
+        ).geometry.coordinates[0]
       }
       return terraformer.parse(wkt.value).coordinates
     })
