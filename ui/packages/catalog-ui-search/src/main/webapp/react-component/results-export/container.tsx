@@ -69,12 +69,14 @@ class ResultsExport extends React.Component<Props, State> {
     }
   }
 
+  getTransformerType = () => (this.props.isZipped ? 'metacard' : 'query')
+
   componentDidMount() {
     this.fetchExportOptions()
   }
 
   fetchExportOptions = () => {
-    fetch(`./internal/transformers/query`)
+    fetch(`./internal/transformers/${this.getTransformerType()}`)
       .then(response => response.json())
       .then((exportFormats: ExportFormat[]) => {
         return exportFormats.sort(
