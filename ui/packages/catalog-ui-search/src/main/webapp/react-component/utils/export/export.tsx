@@ -89,11 +89,14 @@ export const exportResultSet = async (
   transformer: string,
   body: ExportBody
 ) => {
-  return await fetch(`./internal/cql/transform/${encodeURIComponent(transformer)}`, {
-    method: 'POST',
-    body: JSON.stringify(body),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+  return await fetch(
+    `./internal/cql/transform/${encodeURIComponent(transformer)}`,
+    {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
 }
