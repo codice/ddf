@@ -17,6 +17,7 @@ import styled from 'styled-components'
 import { ChangeBackground } from '../../react-component/styles/mixins/change-background'
 
 const Marionette = require('marionette')
+const Common = require('../../js/Common.js')
 const MapView = require('../visualization/maps/openlayers/openlayers.view.js')
 const properties = require('../../js/properties.js')
 const Router = require('../router/router.js')
@@ -29,8 +30,13 @@ const QueryTitle = require('../query-title/query-title.view.js')
 const wreqr = require('../../js/wreqr.js')
 const user = require('../singletons/user-instance.js')
 const cql = require('../../js/cql.js')
+const CQLUtils = require('../../js/CQLUtils.js')
+const terraformer = require('terraformer-wkt-parser')
+const TurfCircle = require('@turf/circle')
 const announcement = require('../announcement/index.jsx')
 import { showErrorMessages } from '../../react-component/utils/validation'
+
+const CIRCLE_PRECISION_STEPS = 64
 
 const formTitle = properties.i18n['form.title']
   ? properties.i18n['form.title'].toLowerCase()
@@ -117,10 +123,51 @@ module.exports = Marionette.LayoutView.extend({
         showResultFilter: false,
         selectionInterface: new SelectionInterface(),
         onMapLoaded: olMap => {
+          const filterTemplate = this.model.get('filterTemplate')
           this.showQueryForm(collection, id)
+          if (!filterTemplate) {
+            return
+          }
+          const geoFilters = (
+            filterTemplate.filters || [filterTemplate]
+          ).filter(filter => CQLUtils.isGeoFilter(filter.type))
+          const coords = this.wktToCoords(geoFilters)
+          Common.queueExecution(() => {
+            this.map.currentView.map.zoomToExtent(coords)
+          })
         },
       })
     )
+  },
+  wktToCoords(wktList) {
+    const parsedGeoCoords = wktList.map(wkt => {
+      if (wkt.value.startsWith('POINT') && parseFloat(wkt.distance) !== 0) {
+        const center = terraformer.parse(wkt.value).coordinates
+        return new TurfCircle(
+          center,
+          parseFloat(wkt.distance),
+          CIRCLE_PRECISION_STEPS,
+          'meters'
+        ).geometry.coordinates[0]
+      }
+      return terraformer.parse(wkt.value).coordinates
+    })
+    return this.createCoordinatePairs(this.flatten(parsedGeoCoords.flat()))
+  },
+  flatten(arr) {
+    return arr.reduce((flat, toFlatten) => {
+      return flat.concat(
+        Array.isArray(toFlatten) ? this.flatten(toFlatten) : toFlatten
+      )
+    }, [])
+  },
+  createCoordinatePairs(arr) {
+    return arr.reduce((result, value, index, array) => {
+      if (index % 2 === 0) {
+        result.push(array.slice(index, index + 2))
+      }
+      return result
+    }, [])
   },
   showQueryForm(collection, id) {
     wreqr.vent.trigger('resetSearch')
