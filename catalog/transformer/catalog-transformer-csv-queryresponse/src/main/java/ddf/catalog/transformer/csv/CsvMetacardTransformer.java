@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -66,12 +67,13 @@ public class CsvMetacardTransformer implements MetacardTransformer {
 
   private List<String> getColumnOrder(Map<String, Serializable> arguments) {
     if (arguments.get("columnOrder") instanceof String) {
-      String attributeString =
-          arguments.get("columnOrder") != null ? (String) arguments.get("columnOrder") : "";
-      return Arrays.asList((attributeString).split(","));
-    } else if (arguments.get("columnOrder") instanceof List) {
-      return (List<String>) arguments.get("columnOrder");
+      String[] attributes =
+          Optional.of(arguments.get("columnOrder")).map(String.class::cast).orElse("").split(",");
+      return Arrays.asList(attributes);
     }
-    return new ArrayList<>();
+    return Optional.of(arguments.get("columnOrder"))
+        .filter(value -> value instanceof List)
+        .map(value -> (List<String>) value)
+        .orElse(new ArrayList<>());
   }
 }
