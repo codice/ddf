@@ -46,6 +46,12 @@
         <bundle originalUri="mvn:org.apache.aries.proxy/org.apache.aries.proxy/1.1.3"
                 replacement="mvn:org.apache.aries.proxy/org.apache.aries.proxy/1.1.4"
                 mode="maven"/>
+        <bundle originalUri="mvn:org.ops4j.pax.logging/pax-logging-api/1.10.2"
+                replacement="mvn:org.ops4j.pax.logging/pax-logging-api/${pax.logging.version}"
+                mode="maven"/>
+        <bundle originalUri="mvn:org.ops4j.pax.logging/pax-logging-log4j2/1.10.2"
+                replacement="mvn:org.ops4j.pax.logging/pax-logging-log4j2/${pax.logging.version}"
+                mode="maven"/>
     </bundleReplacements>
 
     <!-- A list of feature replacements that allows changing external feature definitions -->
