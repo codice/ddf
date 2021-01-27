@@ -495,5 +495,15 @@
             <artifactId>json</artifactId>
             <version>${org.json.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+            <version>1.11.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-log4j2</artifactId>
+            <version>1.11.6</version>
+        </dependency>
     </dependencies>
 </project>
