@@ -353,6 +353,35 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                        <id>Karaf Features</id>
+                        <configuration>
+                            <file>
+                                ${project.basedir}/target/dependencies/apache-karaf-4.2.6/system/org/apache/karaf/features/framework/4.2.6/framework-4.2.6-features.xml
+                            </file>
+                            <replacements>
+                                <replacement>
+                                    <token>mvn:org.ops4j.pax.logging/pax-logging-api/1.10.2</token>
+                                    <value>mvn:org.ops4j.pax.logging/pax-logging-api/1.11.6</value>
+                                </replacement>
+                                <replacement>
+                                    <token>mvn:org.ops4j.pax.logging/pax-logging-log4j2/1.10.2</token>
+                                    <value>mvn:org.ops4j.pax.logging/pax-logging-log4j2/1.11.6</value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
