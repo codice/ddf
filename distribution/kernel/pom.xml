@@ -199,6 +199,28 @@
                                 </artifactItem>
                                 <!-- End crypter dependencies -->
                                 <artifactItem>
+                                    <groupId>org.ops4j.pax.logging</groupId>
+                                    <artifactId>pax-logging-api</artifactId>
+                                    <version>1.11.6</version>
+                                    <outputDirectory>
+                                        ${setup.folder}/system/org/ops4j/pax/logging/pax-logging-api/1.11.6
+                                    </outputDirectory>
+                                    <destFileName>
+                                        pax-logging-api-1.11.6.jar
+                                    </destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.ops4j.pax.logging</groupId>
+                                    <artifactId>pax-logging-log4j2</artifactId>
+                                    <version>1.11.6</version>
+                                    <outputDirectory>
+                                        ${setup.folder}/system/org/ops4j/pax/logging/pax-logging-log4j2/1.11.6
+                                    </outputDirectory>
+                                    <destFileName>
+                                        pax-logging-log4j2-1.11.6.jar
+                                    </destFileName>
+                                </artifactItem>
+                                <artifactItem>
                                     <groupId>ddf.platform.osgi</groupId>
                                     <artifactId>platform-osgi-condpermadmin</artifactId>
                                     <version>${project.version}</version>
