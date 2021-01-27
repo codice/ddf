@@ -308,6 +308,22 @@
       own config admin -->
     <dependencySets>
         <dependencySet>
+            <outputDirectory>system/org/ops4j/pax/logging/pax-logging-log4j2/1.11.6
+            </outputDirectory>
+            <includes>
+                <include>org.ops4j.pax.logging:pax-logging-log4j2:jar:1.11.6
+                </include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>system/org/ops4j/pax/logging/pax-logging-api/1.11.6
+            </outputDirectory>
+            <includes>
+                <include>org.ops4j.pax.logging:pax-logging-api:jar:1.11.6
+                </include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
             <outputDirectory>system/ddf/platform/osgi/platform-osgi-configadmin/${project.version}
             </outputDirectory>
             <includes>
