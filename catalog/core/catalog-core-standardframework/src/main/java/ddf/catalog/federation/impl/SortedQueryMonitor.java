@@ -31,6 +31,7 @@ import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.util.impl.CaseInsensitiveIfStringComparator;
 import ddf.catalog.util.impl.CollectionResultComparator;
 import ddf.catalog.util.impl.DistanceResultComparator;
 import ddf.catalog.util.impl.RelevanceResultComparator;
@@ -127,12 +128,13 @@ class SortedQueryMonitor implements Runnable {
         } else if (Result.RELEVANCE.equals(sortType)) {
           comparator = new RelevanceResultComparator(sortOrder);
         } else {
-          comparator =
+          Comparator<Result> fallback =
               Comparator.comparing(
                   r -> getAttributeValue((Result) r, sortType),
                   ((sortOrder == SortOrder.ASCENDING)
                       ? Comparator.nullsLast(Comparator.<Comparable>naturalOrder())
                       : Comparator.nullsLast(Comparator.<Comparable>reverseOrder())));
+          comparator = new CaseInsensitiveIfStringComparator(sortOrder, sortType, fallback);
         }
         resultComparator.addComparator(comparator);
       }
