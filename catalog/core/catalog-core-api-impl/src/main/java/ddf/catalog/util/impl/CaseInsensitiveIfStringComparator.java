@@ -40,19 +40,10 @@ public class CaseInsensitiveIfStringComparator implements Comparator<Result> {
     Attribute b = contentB.getMetacard().getAttribute(sortType);
 
     if (!sortType.isEmpty()) {
-      if (a == null && b == null) {
-        return 0;
-      }
-      if (a == null && b.getValue() instanceof String) {
-        // push null values to the end regardless of sort order
-        return -1;
-      } else if (b == null && a.getValue() instanceof String) {
-        // push null values to the end regardless of sort order
-        return 1;
-      } else if (a != null
-          && b != null
-          && a.getValue() instanceof String
-          && b.getValue() instanceof String) {
+      if (a == null || b == null) {
+        // preserve null ordering
+        return fallback.compare(contentA, contentB);
+      } else if (a.getValue() instanceof String && b.getValue() instanceof String) {
         return (sortOrder == SortOrder.ASCENDING)
             ? String.CASE_INSENSITIVE_ORDER.compare(
                 a.getValue().toString(), b.getValue().toString())
