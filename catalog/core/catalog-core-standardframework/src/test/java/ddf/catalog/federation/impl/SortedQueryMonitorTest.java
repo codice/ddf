@@ -292,6 +292,32 @@ public class SortedQueryMonitorTest {
   }
 
   @Test
+  public void testCaseInsensitiveAscendingSortNoNulls() throws Exception {
+    testSorting(new String[] {"C", "b", "a"}, new String[] {"a", "b", "C"}, SortOrder.ASCENDING);
+  }
+
+  @Test
+  public void testCaseInsensitiveDescendingSortNoNulls() throws Exception {
+    testSorting(new String[] {"a", "b", "C"}, new String[] {"C", "b", "a"}, SortOrder.DESCENDING);
+  }
+
+  @Test
+  public void testCaseInsensitiveAscendingSortWithNulls() throws Exception {
+    testSorting(
+        new String[] {null, "C", "b", "a", null},
+        new String[] {"a", "b", "C", null, null},
+        SortOrder.ASCENDING);
+  }
+
+  @Test
+  public void testCaseInsensitiveDescendingSortWithNulls() throws Exception {
+    testSorting(
+        new String[] {null, "a", "b", "C"},
+        new String[] {"C", "b", "a", null},
+        SortOrder.DESCENDING);
+  }
+
+  @Test
   public void testSortAscendingNullFirst() throws Exception {
     testSorting(new String[] {null, "a"}, new String[] {"a", null}, SortOrder.ASCENDING);
   }
