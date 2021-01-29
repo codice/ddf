@@ -31,12 +31,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CsvMetacardTransformer implements MetacardTransformer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CsvMetacardTransformer.class);
+  public static final String COLUMN_ORDER = "columnOrder";
 
   @Override
   public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
@@ -66,12 +68,11 @@ public class CsvMetacardTransformer implements MetacardTransformer {
   }
 
   private List<String> getColumnOrder(Map<String, Serializable> arguments) {
-    if (arguments.get("columnOrder") instanceof String) {
-      String[] attributes =
-          Optional.of(arguments.get("columnOrder")).map(String.class::cast).orElse("").split(",");
-      return Arrays.asList(attributes);
+    if (arguments.get(COLUMN_ORDER) instanceof String
+        && StringUtils.isNotBlank((String) arguments.get(COLUMN_ORDER))) {
+      return Arrays.asList(((String) arguments.get(COLUMN_ORDER)).split(","));
     }
-    return Optional.of(arguments.get("columnOrder"))
+    return Optional.ofNullable(arguments.get(COLUMN_ORDER))
         .filter(value -> value instanceof List)
         .map(value -> (List<String>) value)
         .orElse(new ArrayList<>());
