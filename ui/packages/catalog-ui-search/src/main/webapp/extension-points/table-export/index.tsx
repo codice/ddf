@@ -21,4 +21,5 @@ export {
   getDownloadBody,
   getStartIndex,
   getSrcCount,
+  limitToVisible,
 } from './table-export'

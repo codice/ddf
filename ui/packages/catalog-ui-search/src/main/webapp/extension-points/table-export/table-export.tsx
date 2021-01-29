@@ -31,6 +31,7 @@ const _ = require('underscore')
 const announcement = require('../../component/announcement/index.jsx')
 const properties = require('../../js/properties.js')
 const contentDisposition = require('content-disposition')
+import { getResultSetCql } from '../../react-component/utils/cql'
 
 type ExportResponse = {
   displayName: string
@@ -100,6 +101,21 @@ function getHiddenResults(exportSize: string): string[] {
         .get('resultBlacklist')
         .map((result: any) => result.get('id'))
     : []
+}
+export function limitToVisible(
+  selectionInterface: any,
+  exportSize: string
+): string {
+  let combCql = selectionInterface.getCurrentQuery().get('cql')
+  if (exportSize === 'visible') {
+    const visibleCql = getResultSetCql(
+      selectionInterface
+        .getActiveSearchResults()
+        .map((result: any) => result.get('metacard').id)
+    )
+    combCql = `(${[combCql, visibleCql].join(' AND ')})`
+  }
+  return combCql
 }
 function getSearches(
   exportSize: string,
@@ -206,7 +222,7 @@ export const getDownloadBody = (downloadInfo: DownloadInfo) => {
     getExportCount({ exportSize, selectionInterface, customExportCount }),
     properties.exportResultLimit
   )
-  const cql = selectionInterface.getCurrentQuery().get('cql')
+  const cql = limitToVisible(selectionInterface, exportSize)
   const srcs = getSrcs(selectionInterface)
   const sorts = getSorts(selectionInterface)
   const hiddenResults = getHiddenResults(exportSize)
@@ -245,10 +261,22 @@ export const onDownloadSuccess = async (response: Response) => {
       response.headers.get('content-disposition')
     ).parameters.filename
     saveFile(filename, 'data:' + contentType, data)
+    const warning = response.headers.get('warning')
+    if (warning) {
+      announcement.announce(
+        {
+          title: 'Warning',
+          message: warning.split('\\n'),
+          type: 'warn',
+        },
+        15000
+      )
+    }
   } else {
+    const data = await response.json()
     announcement.announce({
       title: 'Error',
-      message: 'Could not export results.',
+      message: ['Could not export result(s).', (data && data.message) || ''],
       type: 'error',
     })
   }
@@ -257,23 +285,27 @@ export const onDownloadSuccess = async (response: Response) => {
 const TableExports = (props: Props) => {
   const [formats, setFormats] = useState([])
 
-  useEffect(() => {
-    const fetchFormats = async () => {
-      const exportFormats = await getExportOptions(Transformer.Query)
-      const sortedExportFormats = exportFormats.sort(
-        (format1: ExportResponse, format2: ExportResponse) => {
-          return format1.displayName.localeCompare(format2.displayName)
-        }
-      )
-      setFormats(
-        sortedExportFormats.map((exportFormat: ExportResponse) => ({
-          label: exportFormat.displayName,
-          value: exportFormat.id,
-        }))
-      )
-    }
-    fetchFormats()
-  }, [])
+  useEffect(
+    () => {
+      const fetchFormats = async () => {
+        setFormats([])
+        const exportFormats = await getExportOptions(Transformer.Query)
+        const sortedExportFormats = exportFormats.sort(
+          (format1: ExportResponse, format2: ExportResponse) => {
+            return format1.displayName.localeCompare(format2.displayName)
+          }
+        )
+        setFormats(
+          sortedExportFormats.map((exportFormat: ExportResponse) => ({
+            label: exportFormat.displayName,
+            value: exportFormat.id,
+          }))
+        )
+      }
+      fetchFormats()
+    },
+    [props.filteredAttributes]
+  )
 
   return (
     <TableExport

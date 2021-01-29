@@ -65,7 +65,7 @@ public class TransformerDescriptorApplication implements SparkApplication {
           String id = req.params(":id");
           String type = req.params(":type").toLowerCase(Locale.US);
 
-          Map<String, String> descriptor;
+          Map<String, Object> descriptor;
 
           res.type("application/json");
 

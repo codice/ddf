@@ -13,11 +13,13 @@
  */
 package org.codice.ddf.catalog.ui.transformer;
 
+import static org.codice.ddf.catalog.ui.transformer.TransformerDescriptors.REQUIRED_ATTR;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -25,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +40,7 @@ public class TransformerDescriptorsTest {
   private TransformerDescriptors descriptors =
       new TransformerDescriptors(
           ImmutableList.of(
-              createMockServiceReference("foo", "bar"),
+              createMockServiceReference("foo", "bar", Arrays.asList("location")),
               createMockServiceReference("hello", null),
               createMockServiceReference("world", null)),
           ImmutableList.of(
@@ -54,9 +57,9 @@ public class TransformerDescriptorsTest {
 
   @Test
   public void testGetDefaultQueryResponseTransformerBlacklist() {
-    List<Map<String, String>> queryResponseTransformerDescriptors =
+    List<Map<String, Object>> queryResponseTransformerDescriptors =
         descriptors.getQueryResponseTransformers();
-    Map<String, String> descriptor = queryResponseTransformerDescriptors.get(0);
+    Map<String, Object> descriptor = queryResponseTransformerDescriptors.get(0);
 
     assertThat(queryResponseTransformerDescriptors, hasSize(1));
     assertThat(descriptor, allOf(hasEntry("id", "bar"), hasEntry("displayName", "foo")));
@@ -66,17 +69,20 @@ public class TransformerDescriptorsTest {
   public void testGetMetacardTransformerDescriptors() {
     descriptors.setBlackListedMetacardTransformerIds(Collections.singleton("world"));
 
-    List<Map<String, String>> transformerDescriptors = descriptors.getMetacardTransformers();
-    Map<String, String> descriptor = transformerDescriptors.get(0);
+    List<Map<String, Object>> transformerDescriptors = descriptors.getMetacardTransformers();
+    Map<String, Object> descriptor = transformerDescriptors.get(0);
 
     assertThat(transformerDescriptors, hasSize(2));
     assertThat(descriptor, allOf(hasEntry("id", "foo"), hasEntry("displayName", "bar")));
+    List<String> requiredAttr = (List<String>) descriptor.get(REQUIRED_ATTR);
+    assertThat(requiredAttr, notNullValue());
+    assertThat(requiredAttr.contains("location"), is(true));
   }
 
   @Test
   public void testGetQueryResponseTransformerDescriptors() {
-    List<Map<String, String>> transformerDescriptors = descriptors.getQueryResponseTransformers();
-    Map<String, String> descriptor = transformerDescriptors.get(0);
+    List<Map<String, Object>> transformerDescriptors = descriptors.getQueryResponseTransformers();
+    Map<String, Object> descriptor = transformerDescriptors.get(0);
 
     assertThat(transformerDescriptors, hasSize(1));
     assertThat(descriptor, allOf(hasEntry("id", "bar"), hasEntry("displayName", "foo")));
@@ -84,21 +90,21 @@ public class TransformerDescriptorsTest {
 
   @Test
   public void testGetMetacardTransformerDescriptorNotFound() {
-    Map<String, String> descriptor = descriptors.getMetacardTransformer("bar");
+    Map<String, Object> descriptor = descriptors.getMetacardTransformer("bar");
 
     assertThat(descriptor, is(nullValue()));
   }
 
   @Test
   public void testGetQueryResponseTransformerDescriptorNotFound() {
-    Map<String, String> descriptor = descriptors.getQueryResponseTransformer("foo");
+    Map<String, Object> descriptor = descriptors.getQueryResponseTransformer("foo");
 
     assertThat(descriptor, is(nullValue()));
   }
 
   @Test
   public void testGetTransformerDescriptorNullDisplayName() {
-    Map<String, String> descriptor = descriptors.getMetacardTransformer("hello");
+    Map<String, Object> descriptor = descriptors.getMetacardTransformer("hello");
 
     assertThat(descriptor, allOf(hasEntry("id", "hello"), hasEntry("displayName", "hello")));
   }
@@ -107,14 +113,14 @@ public class TransformerDescriptorsTest {
   public void testGetBlacklistedTransformerDescriptor() {
     descriptors.setBlackListedMetacardTransformerIds(Collections.singleton("world"));
 
-    Map<String, String> descriptor = descriptors.getMetacardTransformer("world");
+    Map<String, Object> descriptor = descriptors.getMetacardTransformer("world");
 
     assertThat(descriptor, is(nullValue()));
   }
 
   @Test
   public void testGetBlacklistedQueryResponseTransformerDescriptor() {
-    Map<String, String> descriptor = descriptors.getQueryResponseTransformer("zipCompression");
+    Map<String, Object> descriptor = descriptors.getQueryResponseTransformer("zipCompression");
 
     assertThat(descriptor, is(nullValue()));
   }
@@ -123,7 +129,7 @@ public class TransformerDescriptorsTest {
   public void testGetBlacklistedQueryResponseTransformer() {
     descriptors.setBlackListedQueryResponseTransformerIds(ImmutableSet.of("bar"));
 
-    Map<String, String> descriptor = descriptors.getQueryResponseTransformer("bar");
+    Map<String, Object> descriptor = descriptors.getQueryResponseTransformer("bar");
 
     assertThat(descriptor, is(nullValue()));
   }
@@ -135,6 +141,13 @@ public class TransformerDescriptorsTest {
     descriptors.setBlackListedMetacardTransformerIds(blacklist);
 
     assertThat(descriptors.getBlackListedMetacardTransformerIds(), contains("hello", "world"));
+  }
+
+  private ServiceReference createMockServiceReference(
+      String id, String displayName, List<String> requiredAttributes) {
+    ServiceReference serviceReference = createMockServiceReference(id, displayName);
+    when(serviceReference.getProperty(REQUIRED_ATTR)).thenReturn(requiredAttributes);
+    return serviceReference;
   }
 
   private ServiceReference createMockServiceReference(String id, String displayName) {
