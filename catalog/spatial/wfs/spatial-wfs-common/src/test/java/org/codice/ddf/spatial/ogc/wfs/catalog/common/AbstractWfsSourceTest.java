@@ -44,9 +44,9 @@ import org.junit.Test;
 public class AbstractWfsSourceTest {
   private AbstractWfsSource wfsSource;
   private static final String FEATURE_NAME = "SampleFeature";
-  private static final String TEMPORAL_SORT_PROEPRTY = "myTemporalSortProperty";
-  private static final String RELEVANCE_SORT_PROEPRTY = "myRelevanceSortProperty";
-  private static final String DISTANCE_SORT_PROEPRTY = "myDistanceSortProperty";
+  private static final String TEMPORAL_SORT_PROPERTY = "myTemporalSortProperty";
+  private static final String RELEVANCE_SORT_PROPERTY = "myRelevanceSortProperty";
+  private static final String DISTANCE_SORT_PROPERTY = "myDistanceSortProperty";
   private List<MetacardMapper> mappers;
 
   @Before
@@ -57,9 +57,9 @@ public class AbstractWfsSourceTest {
     QName featureName = new QName("http://example.com", FEATURE_NAME, "Prefix");
 
     doReturn(featureName.toString()).when(mockMapper).getFeatureType();
-    doReturn(DISTANCE_SORT_PROEPRTY).when(mockMapper).getSortByDistanceFeatureProperty();
-    doReturn(TEMPORAL_SORT_PROEPRTY).when(mockMapper).getSortByTemporalFeatureProperty();
-    doReturn(RELEVANCE_SORT_PROEPRTY).when(mockMapper).getSortByRelevanceFeatureProperty();
+    doReturn(DISTANCE_SORT_PROPERTY).when(mockMapper).getSortByDistanceFeatureProperty();
+    doReturn(TEMPORAL_SORT_PROPERTY).when(mockMapper).getSortByTemporalFeatureProperty();
+    doReturn(RELEVANCE_SORT_PROPERTY).when(mockMapper).getSortByRelevanceFeatureProperty();
     mappers.add(mockMapper);
   }
 
@@ -72,9 +72,9 @@ public class AbstractWfsSourceTest {
         wfsSource.mapSortByPropertyName(featureName, Result.RELEVANCE, mappers);
     String mappedDistanceProperty =
         wfsSource.mapSortByPropertyName(featureName, Result.DISTANCE, mappers);
-    assertThat(mappedTemporalProperty, is(TEMPORAL_SORT_PROEPRTY));
-    assertThat(mappedRelevanceProperty, is(RELEVANCE_SORT_PROEPRTY));
-    assertThat(mappedDistanceProperty, is(DISTANCE_SORT_PROEPRTY));
+    assertThat(mappedTemporalProperty, is(TEMPORAL_SORT_PROPERTY));
+    assertThat(mappedRelevanceProperty, is(RELEVANCE_SORT_PROPERTY));
+    assertThat(mappedDistanceProperty, is(DISTANCE_SORT_PROPERTY));
   }
 
   @Test
@@ -103,7 +103,7 @@ public class AbstractWfsSourceTest {
     QName featureName = new QName("http://example.com", FEATURE_NAME, "Prefix");
     String mappedTemporalProperty =
         wfsSource.mapSortByPropertyName(featureName, Metacard.EFFECTIVE, mappers);
-    assertThat(mappedTemporalProperty, is(TEMPORAL_SORT_PROEPRTY));
+    assertThat(mappedTemporalProperty, is(TEMPORAL_SORT_PROPERTY));
   }
 
   private class TestWfsSource extends AbstractWfsSource {

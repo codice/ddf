@@ -1583,8 +1583,8 @@ public class WfsSourceTest {
       String temporalSortProperty, String relevanceSortProperty, String distanceSortProperty) {
     final MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
     metacardMapper.setSortByTemporalFeatureProperty(temporalSortProperty);
-    metacardMapper.setSortByDistanceFeatureProperty(relevanceSortProperty);
-    metacardMapper.setSortByRelevanceFeatureProperty(distanceSortProperty);
+    metacardMapper.setSortByDistanceFeatureProperty(distanceSortProperty);
+    metacardMapper.setSortByRelevanceFeatureProperty(relevanceSortProperty);
     metacardMapper.setFeatureType("SampleFeature0");
     metacardMappers.add(metacardMapper);
   }
