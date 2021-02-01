@@ -316,41 +316,58 @@ public class CqlTransformHandler implements Route {
 
     String warning = null;
     if (resultsNotToExport.size() > 0) {
-      List<String> requiredAttr =
-          (List<String>) queryResponseTransformer.getProperty(REQUIRED_ATTR);
-      String idName = Metacard.ID;
-      if (arguments.get("columnAliasMap") != null) {
-        requiredAttr = new ArrayList<>();
-        Map<String, Serializable> columnAliasMap =
-            (Map<String, Serializable>) arguments.get("columnAliasMap");
-        idName = columnAliasMap.get(idName) == null ? idName : (String) columnAliasMap.get(idName);
-        for (String attribute :
-            (List<String>) queryResponseTransformer.getProperty(REQUIRED_ATTR)) {
-          if (StringUtils.isNotBlank((String) columnAliasMap.get(attribute))) {
-            requiredAttr.add((String) columnAliasMap.get(attribute));
-          } else {
-            requiredAttr.add(attribute);
-          }
-        }
-      }
+      List<String> requiredAttrList = new ArrayList<>();
+      String idName = mapAliasAttributes(queryResponseTransformer, requiredAttrList, arguments);
       if (results.size() == 0) {
-        LOGGER.debug("0 Results to export due to missing required field(s): {}", requiredAttr);
+        LOGGER.debug("0 Results to export due to missing required field(s): {}", requiredAttrList);
         response.status(HttpStatus.BAD_REQUEST_400);
         return ImmutableMap.of(
-            "message", String.format("Result(s) missing required field(s): %s", requiredAttr));
+            "message", String.format("Result(s) missing required field(s): %s", requiredAttrList));
       }
       warning =
-          String.format("Following not exported, missing required field(s): %s", requiredAttr);
-      int count = 0;
-      for (String resultId : resultsNotToExport) {
-        warning += String.format("\\n%s) %s: %s", ++count, idName, resultId);
-      }
+          getWarningMessage(
+              String.format(
+                  "Following not exported, missing required field(s): %s", requiredAttrList),
+              idName,
+              resultsNotToExport);
     }
 
     attachFileToResponse(
         request, response, queryResponseTransformer, combinedResponse, arguments, warning);
 
     return "";
+  }
+
+  private String getWarningMessage(
+      String warningMsg, String idName, List<String> resultsNotToExport) {
+    int count = 0;
+    for (String resultId : resultsNotToExport) {
+      warningMsg += String.format("\\n%s) %s: %s", ++count, idName, resultId);
+    }
+    return warningMsg;
+  }
+
+  private String mapAliasAttributes(
+      ServiceReference<QueryResponseTransformer> queryResponseTransformer,
+      List<String> requiredAttrList,
+      Map<String, Serializable> arguments) {
+    String idName = Metacard.ID;
+    if (arguments.get("columnAliasMap") != null) {
+      Map<String, Serializable> columnAliasMap =
+          (Map<String, Serializable>) arguments.get("columnAliasMap");
+      idName = columnAliasMap.get(idName) == null ? idName : (String) columnAliasMap.get(idName);
+      for (String attribute : (List<String>) queryResponseTransformer.getProperty(REQUIRED_ATTR)) {
+        if (StringUtils.isNotBlank((String) columnAliasMap.get(attribute))) {
+          requiredAttrList.add((String) columnAliasMap.get(attribute));
+        } else {
+          requiredAttrList.add(attribute);
+        }
+      }
+    }
+    if (requiredAttrList.isEmpty()) {
+      requiredAttrList.addAll((List<String>) queryResponseTransformer.getProperty(REQUIRED_ATTR));
+    }
+    return idName;
   }
 
   public List<ServiceReference> getQueryResponseTransformers() {
