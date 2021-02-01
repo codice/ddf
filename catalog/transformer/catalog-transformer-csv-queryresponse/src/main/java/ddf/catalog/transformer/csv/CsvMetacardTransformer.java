@@ -68,13 +68,11 @@ public class CsvMetacardTransformer implements MetacardTransformer {
   }
 
   private List<String> getColumnOrder(Map<String, Serializable> arguments) {
-    if (arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY) instanceof String
-        && StringUtils.isNotBlank(
-            (String) arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY))) {
-      return Arrays.asList(
-          ((String) arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY)).split(","));
+    Object columnOrder = arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY);
+    if (columnOrder instanceof String && StringUtils.isNotBlank((String) columnOrder)) {
+      return Arrays.asList(((String) columnOrder).split(","));
     }
-    return Optional.ofNullable(arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY))
+    return Optional.ofNullable(columnOrder)
         .filter(value -> value instanceof List)
         .map(value -> (List<String>) value)
         .orElse(new ArrayList<>());
