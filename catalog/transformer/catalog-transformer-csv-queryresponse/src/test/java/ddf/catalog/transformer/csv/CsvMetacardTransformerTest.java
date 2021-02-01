@@ -14,7 +14,6 @@
 
 package ddf.catalog.transformer.csv;
 
-import static ddf.catalog.transformer.csv.CsvMetacardTransformer.COLUMN_ORDER;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -68,7 +67,7 @@ public class CsvMetacardTransformerTest {
   public void setUp() {
     this.transformer = new CsvMetacardTransformer();
     this.arguments = new HashMap<>();
-    arguments.put(COLUMN_ORDER, "stringAtt,intAtt,doubleAtt");
+    arguments.put(CsvQueryResponseTransformer.COLUMN_ORDER_KEY, "stringAtt,intAtt,doubleAtt");
     normalMC = buildMetacard();
   }
 

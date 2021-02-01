@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 public class CsvMetacardTransformer implements MetacardTransformer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CsvMetacardTransformer.class);
-  public static final String COLUMN_ORDER = "columnOrder";
 
   @Override
   public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
@@ -50,7 +49,8 @@ public class CsvMetacardTransformer implements MetacardTransformer {
     }
 
     Map<String, String> aliases =
-        (Map<String, String>) arguments.getOrDefault("aliases", new HashMap<>());
+        (Map<String, String>)
+            arguments.getOrDefault(CsvQueryResponseTransformer.COLUMN_ALIAS_KEY, new HashMap<>());
     List<String> attributes = getColumnOrder(arguments);
 
     List<AttributeDescriptor> allAttributes =
@@ -68,11 +68,13 @@ public class CsvMetacardTransformer implements MetacardTransformer {
   }
 
   private List<String> getColumnOrder(Map<String, Serializable> arguments) {
-    if (arguments.get(COLUMN_ORDER) instanceof String
-        && StringUtils.isNotBlank((String) arguments.get(COLUMN_ORDER))) {
-      return Arrays.asList(((String) arguments.get(COLUMN_ORDER)).split(","));
+    if (arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY) instanceof String
+        && StringUtils.isNotBlank(
+            (String) arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY))) {
+      return Arrays.asList(
+          ((String) arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY)).split(","));
     }
-    return Optional.ofNullable(arguments.get(COLUMN_ORDER))
+    return Optional.ofNullable(arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY))
         .filter(value -> value instanceof List)
         .map(value -> (List<String>) value)
         .orElse(new ArrayList<>());
