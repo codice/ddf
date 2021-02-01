@@ -13,7 +13,6 @@
  */
 package ddf.test.itests.platform;
 
-import static com.jayway.restassured.RestAssured.given;
 import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
 import static com.xebialabs.restito.semantics.Action.bytesContent;
 import static com.xebialabs.restito.semantics.Action.contentType;
@@ -22,6 +21,7 @@ import static com.xebialabs.restito.semantics.Condition.get;
 import static com.xebialabs.restito.semantics.Condition.parameter;
 import static com.xebialabs.restito.semantics.Condition.post;
 import static com.xebialabs.restito.semantics.Condition.withHeader;
+import static io.restassured.RestAssured.given;
 import static javax.ws.rs.HttpMethod.GET;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.HttpHeaders.HOST;
@@ -50,13 +50,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.jayway.restassured.response.Response;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.util.Base64URL;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.server.StubServer;
+import io.restassured.response.Response;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;

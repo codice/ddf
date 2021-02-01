@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.endpoints.rest.it;
 
-import static com.jayway.restassured.RestAssured.when;
+import static io.restassured.RestAssured.when;
 import static org.awaitility.Awaitility.with;
 import static org.awaitility.Duration.FIVE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Duration.TEN_SECONDS;
@@ -25,10 +25,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HttpHeaders;
-import com.jayway.restassured.RestAssured;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.BinaryContent;
@@ -40,6 +40,7 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
+import io.restassured.RestAssured;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.Arrays;
@@ -62,6 +63,7 @@ import org.codice.ddf.test.common.configurators.PortFinder;
 import org.codice.ddf.test.common.options.TestResourcesOptions;
 import org.codice.ddf.test.common.rules.ServiceRegistrationRule;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,6 +83,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class RestEndpointIT extends AbstractComponentTest {
@@ -250,11 +253,10 @@ public class RestEndpointIT extends AbstractComponentTest {
         // Add JAXB bundles. They must be installed before Karaf's org.apache.karaf.features.core
         // bundle (which gets installed via startup.properties), hence the low start level.
         options.add(
-            CoreOptions.mavenBundle(
-                    "org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.3")
+            mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.3")
                 .versionAsInProject()
                 .startLevel(13),
-            CoreOptions.mavenBundle(
+            mavenBundle(
                     "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.jaxb-runtime")
                 .versionAsInProject()
                 .startLevel(14));

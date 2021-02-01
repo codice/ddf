@@ -13,8 +13,8 @@
  */
 package ddf.test.itests.catalog;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
@@ -22,9 +22,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 
-import com.jayway.restassured.path.json.JsonPath;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
+import io.restassured.path.json.JsonPath;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;

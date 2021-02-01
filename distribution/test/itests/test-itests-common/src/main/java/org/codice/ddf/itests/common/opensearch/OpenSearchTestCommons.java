@@ -13,10 +13,10 @@
  */
 package org.codice.ddf.itests.common.opensearch;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 
-import com.jayway.restassured.response.ValidatableResponse;
+import io.restassured.response.ValidatableResponse;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

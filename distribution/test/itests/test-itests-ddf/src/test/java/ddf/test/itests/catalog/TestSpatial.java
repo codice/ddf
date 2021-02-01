@@ -13,14 +13,14 @@
  */
 package ddf.test.itests.catalog;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
 import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
 import static com.xebialabs.restito.semantics.Condition.get;
 import static com.xebialabs.restito.semantics.Condition.parameter;
 import static com.xebialabs.restito.semantics.Condition.post;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 import static ddf.catalog.Constants.DEFAULT_PAGE_SIZE;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestCswRecord;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
@@ -32,12 +32,12 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.path.xml.XmlPath;
-import com.jayway.restassured.specification.RequestSpecification;
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Condition;
 import com.xebialabs.restito.server.StubServer;
 import ddf.catalog.data.types.Location;
+import io.restassured.path.xml.XmlPath;
+import io.restassured.specification.RequestSpecification;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;

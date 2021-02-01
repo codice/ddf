@@ -23,6 +23,7 @@
 
     <artifactId>gson-support</artifactId>
     <name>DDF :: GSON-Support</name>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
@@ -46,6 +47,24 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>
+                            ${project.groupId}.${project.artifactId}
+                        </Bundle-SymbolicName>
+                        <Bundle-Name>${project.name}</Bundle-Name>
+                        <Import-Package>
+                            *;resolution:=optional
+                        </Import-Package>
+                        <Export-Package>
+                            org.codice.gsonsupport.*
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

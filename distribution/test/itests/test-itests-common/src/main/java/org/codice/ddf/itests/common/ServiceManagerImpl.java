@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.itests.common;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
 import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -22,7 +22,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.jayway.restassured.response.Response;
+import io.restassured.response.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

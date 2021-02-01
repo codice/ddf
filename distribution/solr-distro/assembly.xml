@@ -28,12 +28,6 @@
             </includes>
             <outputDirectory>/server/solr-webapp/webapp/WEB-INF/lib</outputDirectory>
         </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.codice.pro-grade:pro-grade</include>
-            </includes>
-            <outputDirectory>/security</outputDirectory>
-        </dependencySet>
     </dependencySets>
     <fileSets>
         <!-- The order of the <fileSet> elements is important. The assembly plugin will not

@@ -196,6 +196,7 @@
                         </Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Import-Package>
+                            org.junit.*,
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>

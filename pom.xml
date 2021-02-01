@@ -125,12 +125,14 @@
         <junit.version>4.13.1</junit.version>
         <spock.version>2.0-M4-groovy-3.0</spock.version>
         <mockito.version>3.6.28</mockito.version>
-        <pax.exam.version>4.13.2.CODICE</pax.exam.version>
+        <pax.exam.version>4.13.4</pax.exam.version>
         <pax.logging.version>1.11.6</pax.logging.version>
         <pax.url.version>2.6.2</pax.url.version>
         <pax.web.version>7.2.16</pax.web.version>
         <pax.web.jsp.version>7.2.18</pax.web.jsp.version>
         <restito.version>0.8.2</restito.version>
+        <restassured.version>4.3.3</restassured.version>
+        <groovy.version>3.0.7</groovy.version>
         <xmlunit.version>1.4</xmlunit.version>
         <xmlunit-matchers.version>2.8.2</xmlunit-matchers.version>
         <auth0.jwt.version>3.8.1</auth0.jwt.version>
@@ -216,6 +218,7 @@
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <javax.ws.rs.version>2.1</javax.ws.rs.version>
         <javax-el.version>3.0.0</javax-el.version>
+        <soap-api.version>1.4.2</soap-api.version>
         <jaxb.version>2.3.2</jaxb.version>
         <jvnet.jaxb2.version>0.10.0</jvnet.jaxb2.version>
         <jboss-logging.version>3.3.1.Final</jboss-logging.version>
@@ -245,8 +248,8 @@
         <logback.version>1.2.3</logback.version>
         <lucene.version>7.7.2</lucene.version>
         <mariadb.version>2.4.1</mariadb.version>
-        <maven.failsafe.version>3.0.0-M5</maven.failsafe.version>
-        <maven.surefire.version>3.0.0-M5</maven.surefire.version>
+        <maven.failsafe.version>2.22.2</maven.failsafe.version>
+        <maven.surefire.version>2.22.2</maven.surefire.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
         <netty.version>4.1.46.Final</netty.version>
@@ -636,6 +639,13 @@
                             </org.ops4j.pax.logging.DefaultServiceLog.level>
                         </systemPropertyVariables>
                     </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.surefire</groupId>
+                            <artifactId>surefire-junit47</artifactId>
+                            <version>${maven.surefire.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -653,17 +663,25 @@
                             </configuration>
                         </execution>
                     </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.surefire</groupId>
+                            <artifactId>surefire-junit47</artifactId>
+                            <version>${maven.surefire.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>4.2.1</version>
+                    <version>5.1.1</version>
                     <extensions>true</extensions>
                     <configuration>
                         <!-- Disabled OBR to increase build speed -->
                         <obrRepository>NONE</obrRepository>
                         <instructions>
                             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                            <_noee>true</_noee>
                         </instructions>
                     </configuration>
                 </plugin>
@@ -738,7 +756,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.6.0</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -1234,8 +1252,9 @@
         </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-            <version>3.0.7</version>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+            <type>pom</type>
             <scope>test</scope>
         </dependency>
         <dependency>
