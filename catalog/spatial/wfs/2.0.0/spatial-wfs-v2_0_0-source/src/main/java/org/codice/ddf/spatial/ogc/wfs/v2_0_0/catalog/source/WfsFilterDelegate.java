@@ -1172,9 +1172,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private boolean isValidInputParameters(String propertyName, Object literal) {
-    if (literal == null
-        || StringUtils.isEmpty(propertyName)
-        || StringUtils.isEmpty(literal.toString())) {
+    if (literal == null || StringUtils.isEmpty(propertyName)) {
       return false;
     }
     return true;

@@ -319,6 +319,15 @@ public class WfsFilterDelegateTest {
           + "</PropertyIsLike>"
           + "</Filter>";
 
+  private final String propertyIsLikeXmlEmpty =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+          + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
+          + "<PropertyIsLike matchCase=\"true\" escapeChar=\"!\" singleChar=\"?\" wildCard=\"*\">"
+          + "<PropertyName>mockProperty</PropertyName>"
+          + "<Literal></Literal>"
+          + "</PropertyIsLike>"
+          + "</Filter>";
+
   private final String propertyIsLikeXmlLiteralMatchCaseFalse =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
           + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
@@ -1838,6 +1847,13 @@ public class WfsFilterDelegateTest {
     final LineStringType lineStringType =
         (LineStringType) binarySpatialOpType.getGeometry().getValue();
     assertThat(lineStringType.getCoordinates().getValue(), is("30.0,10.0 10.0,30.0 50.0,40.0"));
+  }
+
+  @Test
+  public void testStringPropertyIsLikeEmpty() throws JAXBException, SAXException, IOException {
+    WfsFilterDelegate delegate = createTextualDelegate();
+    FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, "", true);
+    assertXMLEqual(propertyIsLikeXmlEmpty, marshal(filter));
   }
 
   private JAXBElement<FilterType> getFilterTypeJaxbElement(FilterType filterType) {
