@@ -178,13 +178,20 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     response
         .then()
         .body(
-            hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("1")),
-            hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
-            hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
             hasXPath(
-                "//TransactionResponse/InsertResult/BriefRecord/title",
+                "//*[local-name()='TransactionResponse']/*[local-name()='TransactionSummary']/*[local-name()='totalInserted']",
+                is("1")),
+            hasXPath(
+                "//*[local-name()='TransactionResponse']/*[local-name()='TransactionSummary']/*[local-name()='totalUpdated']",
+                is("0")),
+            hasXPath(
+                "//*[local-name()='TransactionResponse']/*[local-name()='TransactionSummary']/*[local-name()='totalDeleted']",
+                is("0")),
+            hasXPath(
+                "//*[local-name()='TransactionResponse']/*[local-name()='InsertResult']/*[local-name()='BriefRecord']/*[local-name()='title']",
                 is("Aliquam fermentum purus quis arcu")),
-            hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
+            hasXPath(
+                "//*[local-name()='TransactionResponse']/*[local-name()='InsertResult']/*[local-name()='BriefRecord']/*[local-name()='BoundingBox']"));
   }
 
   @Test
@@ -198,9 +205,15 @@ public class DdfCoreIT extends AbstractIntegrationTest {
         .post(CSW_PATH.getUrl())
         .then()
         .body(
-            hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("2")),
-            hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
-            hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
+            hasXPath(
+                "//*[local-name()='TransactionResponse']/*[local-name()='TransactionSummary']/*[local-name()='totalDeleted']",
+                is("2")),
+            hasXPath(
+                "//*[local-name()='TransactionResponse']/*[local-name()='TransactionSummary']/*[local-name()='totalInserted']",
+                is("0")),
+            hasXPath(
+                "//*[local-name()='TransactionResponse']/*[local-name()='TransactionSummary']/*[local-name()='totalUpdated']",
+                is("0")));
   }
 
   @Test
@@ -214,9 +227,15 @@ public class DdfCoreIT extends AbstractIntegrationTest {
         .post(CSW_PATH.getUrl())
         .then()
         .body(
-            hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
-            hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
-            hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("2")));
+            hasXPath(
+                "//*[local-name()='TransactionResponse']/*[local-name()='TransactionSummary']/*[local-name()='totalDeleted']",
+                is("0")),
+            hasXPath(
+                "//*[local-name()='TransactionResponse']/*[local-name()='TransactionSummary']/*[local-name()='totalInserted']",
+                is("0")),
+            hasXPath(
+                "//*[local-name()='TransactionResponse']/*[local-name()='TransactionSummary']/*[local-name()='totalUpdated']",
+                is("2")));
 
     String firstId = getMetacardIdFromCswInsertResponse(firstResponse);
     String secondId = getMetacardIdFromCswInsertResponse(secondResponse);
@@ -230,12 +249,18 @@ public class DdfCoreIT extends AbstractIntegrationTest {
         .assertThat()
         // Check that the updated attributes were changed.
         .body(
-            hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-25")),
-            hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
-            hasXPath("//metacard/string[@name='media.format']/value", is("")),
+            hasXPath(
+                "//*[local-name()='metacard']/*[local-name()='dateTime'][@name='modified']/*[local-name()='value']",
+                startsWith("2015-08-25")),
+            hasXPath(
+                "//*[local-name()='metacard']/*[local-name()='string'][@name='title']/*[local-name()='value']",
+                is("Updated Title")),
+            hasXPath(
+                "//*[local-name()='metacard']/*[local-name()='string'][@name='media.format']/*[local-name()='value']",
+                is("")),
             // Check that an attribute that was not updated was not changed.
             hasXPath(
-                "//metacard/string[@name='topic.category']/value",
+                "//*[local-name()='metacard']/*[local-name()='string'][@name='topic.category']/*[local-name()='value']",
                 is("Hydrography--Dictionaries")));
 
     String secondUrl = REST_PATH.getUrl() + secondId;
@@ -247,12 +272,18 @@ public class DdfCoreIT extends AbstractIntegrationTest {
         .assertThat()
         // Check that the updated attributes were changed.
         .body(
-            hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-25")),
-            hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
-            hasXPath("//metacard/string[@name='media.format']/value", is("")),
+            hasXPath(
+                "//*[local-name()='metacard']/*[local-name()='dateTime'][@name='modified']/*[local-name()='value']",
+                startsWith("2015-08-25")),
+            hasXPath(
+                "//*[local-name()='metacard']/*[local-name()='string'][@name='title']/*[local-name()='value']",
+                is("Updated Title")),
+            hasXPath(
+                "//*[local-name()='metacard']/*[local-name()='string'][@name='media.format']/*[local-name()='value']",
+                is("")),
             // Check that an attribute that was not updated was not changed.
             hasXPath(
-                "//metacard/string[@name='topic.category']/value",
+                "//*[local-name()='metacard']/*[local-name()='string'][@name='topic.category']/*[local-name()='value']",
                 is("Hydrography--Dictionaries")));
   }
 
@@ -336,16 +367,16 @@ public class DdfCoreIT extends AbstractIntegrationTest {
             "src=" + OPENSEARCH_SOURCE_ID)
         .assertThat()
         .body(
-            Matchers.hasXPath(
-                "/metacards/metacard/string[@name='"
+            hasXPath(
+                "/*[local-name()='metacards']/*[local-name()='metacard']/*[local-name()='string'][@name='"
                     + Metacard.TITLE
-                    + "']/value[text()='"
+                    + "']/*[local-name()='value'][text()='"
                     + RECORD_TITLE_1
                     + "']"),
-            Matchers.hasXPath(
-                "/metacards/metacard/string[@name='"
+            hasXPath(
+                "/*[local-name()='metacards']/*[local-name()='metacard']/*[local-name()='string'][@name='"
                     + Metacard.TITLE
-                    + "']/value[text()='"
+                    + "']/*[local-name()='value'][text()='"
                     + RECORD_TITLE_2
                     + "']"));
   }
@@ -367,10 +398,12 @@ public class DdfCoreIT extends AbstractIntegrationTest {
         .then()
         .assertThat()
         .body(
-            Matchers.hasXPath(
-                "/GetRecordsResponse/SearchResults/Record/identifier", Matchers.is(geojsonId)),
-            Matchers.hasXPath(
-                "/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", Matchers.is("1")));
+            hasXPath(
+                "/*[local-name()='GetRecordsResponse']/*[local-name()='SearchResults']/*[local-name()='Record']/*[local-name()='identifier']",
+                Matchers.is(geojsonId)),
+            hasXPath(
+                "/*[local-name()='GetRecordsResponse']/*[local-name()='SearchResults']/@numberOfRecordsReturned",
+                Matchers.is("1")));
   }
 
   private Response ingestCswRecord() {

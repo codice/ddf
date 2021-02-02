@@ -31,16 +31,9 @@
         <bundle>mvn:ddf.lib/test-common/${project.version}</bundle>
     </feature>
 
-    <feature name="hamcrest-all" version="${project.version}"
-             description="Hamcrest bundles for asserting test cases.">
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/1.3_1
-        </bundle>
-    </feature>
-
     <feature name="awaitility" version="${project.version}"
              description="Hamcrest bundles for asserting test cases.">
-        <feature>hamcrest-all</feature>
-        <bundle>mvn:org.awaitility/awaitility/3.1.0</bundle>
+        <bundle>mvn:org.awaitility/awaitility/${awaitility.version}</bundle>
     </feature>
 
     <feature name="tinybundles" version="${project.version}" description="Dynamically creates bundles" >
@@ -57,28 +50,16 @@
     <feature name="rest-assured" version="${project.version}">
         <feature prerequisite="true">wrap</feature>
 
-        <bundle>
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/${hamcrest-all.servicemix.version}
-        </bundle>
-
-        <bundle>mvn:org.apache.aries.spifly/org.apache.aries.spifly.dynamic.bundle/1.2.1</bundle>
-        <bundle>mvn:org.hamcrest/hamcrest/2.2</bundle>
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
-        <bundle>mvn:org.codehaus.groovy/groovy-json/${groovy.version}</bundle>
-        <bundle>mvn:org.codehaus.groovy/groovy-xml/${groovy.version}</bundle>
-        <bundle>mvn:org.codehaus.groovy/groovy/${groovy.version}</bundle>
-        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
-        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
-
         <bundle>wrap:mvn:org.ccil.cowan.tagsoup/tagsoup/1.2.1</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
         <bundle>wrap:mvn:org.apache.httpcomponents/httpmime/${httpmime.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
         <bundle>wrap:mvn:jakarta.xml.bind/jakarta.xml.bind-api/${jakarta.xml.bind.version}</bundle>
         <bundle>wrap:mvn:javax.activation/activation/1.1.1</bundle>
+        <bundle>mvn:org.codehaus.groovy/groovy-all/2.4.21</bundle>
 
-        <bundle>mvn:io.rest-assured/json-path/${restassured.version}</bundle>
-        <bundle>mvn:io.rest-assured/xml-path/${restassured.version}</bundle>
         <bundle>mvn:io.rest-assured/rest-assured/${restassured.version}</bundle>
-        <bundle>mvn:io.rest-assured/rest-assured-common/${restassured.version}</bundle>
     </feature>
 
     <feature name="tink-test-dependencies" version="${project.version}"

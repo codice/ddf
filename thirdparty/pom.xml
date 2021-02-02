@@ -26,7 +26,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <restassured.version>4.3.3</restassured.version>
+        <restassured.version>3.3.0</restassured.version>
     </properties>
 
     <modules>

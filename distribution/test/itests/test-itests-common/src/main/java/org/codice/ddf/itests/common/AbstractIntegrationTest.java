@@ -23,6 +23,7 @@ import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
@@ -689,6 +690,8 @@ public abstract class AbstractIntegrationTest {
         vmOption("--add-opens"),
         vmOption("java.base/java.util=ALL-UNNAMED"),
         vmOption("--add-opens"),
+        vmOption("java.base/jdk.internal.reflect=ALL-UNNAMED"),
+        vmOption("--add-opens"),
         vmOption("java.naming/javax.naming.spi=ALL-UNNAMED"),
         vmOption("--add-opens"),
         vmOption("java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED"),
@@ -710,6 +713,8 @@ public abstract class AbstractIntegrationTest {
   protected Option[] configureStartScript() {
     // add test dependencies to the test-dependencies-app instead of here
     return options(
+        mavenBundle(
+            "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
         junitBundles(),
         features(
             maven()
@@ -973,7 +978,9 @@ public abstract class AbstractIntegrationTest {
               .basic("admin", "admin")
               .post(CSW_PATH.getUrl())
               .then();
-      response.body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsMatched=\"0\"]"));
+      response.body(
+          hasXPath(
+              "/*[local-name()='GetRecordsResponse']/*[local-name()='SearchResults'][@numberOfRecordsMatched=\"0\"]"));
       return true;
     } catch (AssertionError e) {
       return false;
