@@ -48,11 +48,8 @@ public class CsvMetacardTransformer implements MetacardTransformer {
 
     Map<String, String> aliases =
         (Map<String, String>) arguments.getOrDefault("aliases", new HashMap<>());
-    String attributeString =
-        arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY) != null
-            ? (String) arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY)
-            : "";
-    List<String> attributes = Arrays.asList((attributeString).split(","));
+    List<String> attributes = getColumnOrder(arguments);
+
     List<AttributeDescriptor> allAttributes =
         new ArrayList<AttributeDescriptor>(metacard.getMetacardType().getAttributeDescriptors());
     List<AttributeDescriptor> descriptors =
@@ -64,5 +61,16 @@ public class CsvMetacardTransformer implements MetacardTransformer {
     Appendable appendable =
         writeMetacardsToCsv(Collections.singletonList(metacard), descriptors, aliases);
     return createResponse(appendable);
+  }
+
+  private List<String> getColumnOrder(Map<String, Serializable> arguments) {
+    if (arguments.get("columnOrder") instanceof String) {
+      String attributeString =
+          arguments.get("columnOrder") != null ? (String) arguments.get("columnOrder") : "";
+      return Arrays.asList((attributeString).split(","));
+    } else if (arguments.get("columnOrder") instanceof List) {
+      return (List<String>) arguments.get("columnOrder");
+    }
+    return new ArrayList<>();
   }
 }
