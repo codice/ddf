@@ -277,7 +277,10 @@ module.exports = Marionette.LayoutView.extend(
     },
     listenForOutsideClick() {
       $('body').on('mousedown.' + this.cid, event => {
-        if (!DropdownBehaviorUtility.drawing(event)) {
+        if (
+          !DropdownBehaviorUtility.drawing(event) &&
+          !DropdownBehaviorUtility.announcments(event)
+        ) {
           if (!DropdownBehaviorUtility.withinAnyDropdown(event.target)) {
             this.close()
           }
