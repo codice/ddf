@@ -1527,6 +1527,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                   "application/vnd.openxmlformats-officedocument.presentationml.presentation")
               .expect()
               .statusCode(201)
+              .when()
               .post(REST_PATH.getUrl())
               .getHeader("id");
     }

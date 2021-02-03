@@ -60,7 +60,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
 import io.restassured.http.ContentType;
-import io.restassured.internal.http.Method;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.response.ValidatableResponse;
 import java.io.File;
@@ -99,6 +98,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
+import org.glassfish.grizzly.http.Method;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
@@ -2024,7 +2024,7 @@ public class TestFederation extends AbstractIntegrationTest {
     if (CollectionUtils.isNotEmpty(calls)) {
       for (Call call : calls) {
 
-        if (call.getMethod().matchesMethod(Method.POST.name())
+        if (call.getMethod().matchesMethod(Method.POST.getMethodString())
             && StringUtils.isNotEmpty(call.getPostBody())) {
           LOGGER.debug("Event received '{}'", call.getPostBody());
 
