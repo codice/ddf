@@ -40,6 +40,9 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExa
 import com.google.common.collect.ImmutableMap;
 import ddf.security.audit.impl.SecurityLoggerImpl;
 import ddf.security.service.impl.SubjectUtils;
+import io.restassured.RestAssured;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.XmlConfig;
 import io.restassured.response.ValidatableResponse;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -366,6 +369,8 @@ public abstract class AbstractIntegrationTest {
   })
   @PostTestConstruct
   public void initFacades() {
+    RestAssured.config =
+        RestAssuredConfig.config().xmlConfig(XmlConfig.xmlConfig().namespaceAware(false));
     ddfHome = System.getProperty(DDF_HOME_PROPERTY);
     adminConfig = new AdminConfig(configAdmin);
     Security security = new org.codice.ddf.security.impl.Security();
@@ -978,9 +983,7 @@ public abstract class AbstractIntegrationTest {
               .basic("admin", "admin")
               .post(CSW_PATH.getUrl())
               .then();
-      response.body(
-          hasXPath(
-              "/*[local-name()='GetRecordsResponse']/*[local-name()='SearchResults'][@numberOfRecordsMatched=\"0\"]"));
+      response.body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsMatched=\"0\"]"));
       return true;
     } catch (AssertionError e) {
       return false;
