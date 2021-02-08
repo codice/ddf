@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -99,12 +98,13 @@ public class ZipCompression implements QueryResponseTransformer {
       throw new CatalogTransformerException("A valid transformer ID must be provided.");
     }
 
-    InputStream inputStream = createZip(sourceResponse, transformerId);
+    InputStream inputStream = createZip(sourceResponse, transformerId, arguments);
 
     return new BinaryContentImpl(inputStream, mimeType);
   }
 
-  private InputStream createZip(SourceResponse sourceResponse, String transformerId)
+  private InputStream createZip(
+      SourceResponse sourceResponse, String transformerId, Map<String, Serializable> arguments)
       throws CatalogTransformerException {
     ServiceReference<MetacardTransformer> serviceRef =
         getTransformerServiceReference(transformerId);
@@ -122,8 +122,7 @@ public class ZipCompression implements QueryResponseTransformer {
       for (Result result : sourceResponse.getResults()) {
         Metacard metacard = result.getMetacard();
 
-        BinaryContent binaryContent =
-            getTransformedMetacard(metacard, Collections.emptyMap(), transformer);
+        BinaryContent binaryContent = getTransformedMetacard(metacard, arguments, transformer);
 
         if (binaryContent != null) {
           ZipEntry entry = new ZipEntry(METACARD_PATH + metacard.getId() + extension);
