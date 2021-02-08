@@ -142,8 +142,10 @@ class Filter extends React.Component {
   }
   updateSuggestions = async () => {
     const { attribute } = this.state
-    const suggestions = await ExtensionPoints.getSuggestions(attribute,this.props.suggester)
-    console.log(suggestions)
+    const suggestions = await ExtensionPoints.getSuggestions(
+      attribute,
+      this.props.suggester
+    )
     this.setState({ suggestions })
   }
 

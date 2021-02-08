@@ -15,28 +15,30 @@
 const metacardDefinitions = require('../../component/singletons/metacard-definitions')
 
 const getSuggestions = async (attribute: any, suggester: any) => {
-  console.log("here")
+  console.log('here')
   debugger
   let suggestions = []
-    if (metacardDefinitions.enums[attribute]) {
-      suggestions = metacardDefinitions.enums[attribute].map((suggestion: any) => {
+  if (metacardDefinitions.enums[attribute]) {
+    suggestions = metacardDefinitions.enums[attribute].map(
+      (suggestion: any) => {
         return { label: suggestion, value: suggestion }
-      })
-    } else if (suggester) {
-      suggestions = (await suggester(
-        metacardDefinitions.metacardTypes[attribute]
-      )).map((suggestion: any) => ({
-        label: suggestion,
-        value: suggestion,
-      }))
-    }
-
-    suggestions.sort((a: any, b: any) =>
-      a.label.toLowerCase().localeCompare(b.label.toLowerCase())
+      }
     )
-    console.log(suggestions)
+  } else if (suggester) {
+    suggestions = (await suggester(
+      metacardDefinitions.metacardTypes[attribute]
+    )).map((suggestion: any) => ({
+      label: suggestion,
+      value: suggestion,
+    }))
+  }
 
-    return suggestions
+  suggestions.sort((a: any, b: any) =>
+    a.label.toLowerCase().localeCompare(b.label.toLowerCase())
+  )
+  console.log(suggestions)
+
+  return suggestions
 }
 
 export default getSuggestions
