@@ -31,6 +31,12 @@
         <bundle>mvn:ddf.lib/test-common/${project.version}</bundle>
     </feature>
 
+    <feature name="hamcrest-all" version="${project.version}"
+             description="Hamcrest bundles for asserting test cases.">
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/1.3_1
+        </bundle>
+    </feature>
+
     <feature name="awaitility" version="${project.version}"
              description="Hamcrest bundles for asserting test cases.">
         <bundle>mvn:org.awaitility/awaitility/${awaitility.version}</bundle>
