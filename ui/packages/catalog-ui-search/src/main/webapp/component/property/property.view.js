@@ -132,8 +132,8 @@ module.exports = Marionette.LayoutView.extend(
       this.$el.addClass('has-limited-width')
     },
     revert() {
-      this.model.revert()
       this.onBeforeShow()
+      this.model.revert()
     },
     isValid() {
       return this.model.isValid()
