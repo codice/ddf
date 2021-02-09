@@ -63,7 +63,6 @@ import org.codice.ddf.test.common.configurators.PortFinder;
 import org.codice.ddf.test.common.options.TestResourcesOptions;
 import org.codice.ddf.test.common.rules.ServiceRegistrationRule;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,7 +82,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Ignore
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class RestEndpointIT extends AbstractComponentTest {
