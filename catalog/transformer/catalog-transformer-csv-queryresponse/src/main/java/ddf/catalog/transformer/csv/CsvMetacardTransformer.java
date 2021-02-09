@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,8 @@ public class CsvMetacardTransformer implements MetacardTransformer {
     }
 
     Map<String, String> aliases =
-        (Map<String, String>) arguments.getOrDefault("aliases", new HashMap<>());
+        (Map<String, String>)
+            arguments.getOrDefault(CsvQueryResponseTransformer.COLUMN_ALIAS_KEY, new HashMap<>());
     List<String> attributes = getColumnOrder(arguments);
 
     List<AttributeDescriptor> allAttributes =
@@ -65,12 +67,11 @@ public class CsvMetacardTransformer implements MetacardTransformer {
   }
 
   private List<String> getColumnOrder(Map<String, Serializable> arguments) {
-    if (arguments.get("columnOrder") instanceof String) {
-      String[] attributes =
-          Optional.of(arguments.get("columnOrder")).map(String.class::cast).orElse("").split(",");
-      return Arrays.asList(attributes);
+    Object columnOrder = arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY);
+    if (columnOrder instanceof String && StringUtils.isNotBlank((String) columnOrder)) {
+      return Arrays.asList(((String) columnOrder).split(","));
     }
-    return Optional.of(arguments.get("columnOrder"))
+    return Optional.ofNullable(columnOrder)
         .filter(value -> value instanceof List)
         .map(value -> (List<String>) value)
         .orElse(new ArrayList<>());
