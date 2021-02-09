@@ -67,7 +67,7 @@ public class CsvMetacardTransformerTest {
   public void setUp() {
     this.transformer = new CsvMetacardTransformer();
     this.arguments = new HashMap<>();
-    arguments.put("columnOrder", "stringAtt,intAtt,doubleAtt");
+    arguments.put(CsvQueryResponseTransformer.COLUMN_ORDER_KEY, "stringAtt,intAtt,doubleAtt");
     normalMC = buildMetacard();
   }
 
@@ -78,6 +78,23 @@ public class CsvMetacardTransformerTest {
   @Test(expected = CatalogTransformerException.class)
   public void testTransformerWithNullMetacard() throws CatalogTransformerException {
     transformer.transform(nullMC, arguments);
+  }
+
+  @Test
+  public void testCsvMetacardTransformerNoArguments()
+      throws CatalogTransformerException, IOException {
+    arguments.clear();
+    BinaryContent binaryContent = transformer.transform(normalMC, arguments);
+    assertThat(binaryContent.getMimeType().toString(), is("text/csv"));
+
+    List<String> attributes = Arrays.asList(new String(binaryContent.getByteArray()).split("\r\n"));
+    List<String> attNames = Arrays.asList(attributes.get(0).split(","));
+    List<String> attValues = Arrays.asList(attributes.get(1).split(","));
+
+    for (int i = 0; i < attNames.size(); i++) {
+      String attributeValue = attValues.get(i);
+      assertThat(VALUES.contains(attributeValue), is(true));
+    }
   }
 
   @Test
