@@ -92,7 +92,6 @@ import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.util.Filter;
@@ -595,10 +594,6 @@ public abstract class AbstractIntegrationTest {
     return options(
         when(Boolean.getBoolean("isDebugEnabled"))
             .useOptions(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
-        when(Boolean.getBoolean("acdebuggerEnabled") && !Boolean.getBoolean("isDebugEnabled"))
-            .useOptions(
-                KarafDistributionOption.debugConfiguration(
-                    System.getProperty("acdebuggerPort", "5505"), true)),
         when(System.getProperty(MVN_LOCAL_REPO) != null)
             .useOptions(
                 systemProperty(PAX_URL_MVN_LOCAL_REPO)

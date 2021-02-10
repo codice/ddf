@@ -35,7 +35,7 @@ public class VmOptions {
         vmOption("-Dfile.encoding=UTF8"));
   }
 
-  public static Option java9VmOptions() {
+  public static Option javaModuleVmOptions() {
     return new DefaultCompositeOption(
         systemProperty("pax.exam.osgi.`unresolved.fail").value("true"),
         vmOption("--add-reads=java.xml=java.logging"),

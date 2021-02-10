@@ -61,8 +61,6 @@
         <codice-maven.version>0.3</codice-maven.version>
         <!-- Must MANUALLY update this if the codice-test project's version changes -->
         <codice-test.version>0.3</codice-test.version>
-        <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
-        <acdebugger.version>1.7</acdebugger.version>
         <!-- Must MANUALLY update this if the DDF Jaxb project's version changes -->
         <ddf.jaxb.version>1.0.1</ddf.jaxb.version>
 

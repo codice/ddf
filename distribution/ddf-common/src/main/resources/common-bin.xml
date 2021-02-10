@@ -335,24 +335,6 @@
         </dependencySet>
         <dependencySet>
             <outputDirectory>
-                system/org/codice/acdebugger/acdebugger-api/${acdebugger.version}
-            </outputDirectory>
-            <includes>
-                <include>org.codice.acdebugger:acdebugger-api:jar:${acdebugger.version}
-                </include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>
-                system/org/codice/acdebugger/acdebugger-backdoor/${acdebugger.version}
-            </outputDirectory>
-            <includes>
-                <include>org.codice.acdebugger:acdebugger-backdoor:jar:${acdebugger.version}
-                </include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>
                 system/org/apache/felix/org.apache.felix.scr/${felix.scr.version}
             </outputDirectory>
             <includes>

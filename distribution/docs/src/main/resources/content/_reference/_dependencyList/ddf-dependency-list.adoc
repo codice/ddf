@@ -198,8 +198,6 @@
 * org.bouncycastle:bcpkix-jdk15on:jar:1.61
 * org.bouncycastle:bcprov-jdk15on:jar:1.61
 * org.codehaus.woodstox:stax2-api:jar:4.2
-* org.codice.acdebugger:acdebugger-api:jar:1.7
-* org.codice.acdebugger:acdebugger-backdoor:jar:1.7
 * org.codice.countrycode:converter:jar:0.1.8
 * org.codice.httpproxy:proxy-camel-route:jar:2.21.0-SNAPSHOT
 * org.codice.httpproxy:proxy-camel-servlet:jar:2.21.0-SNAPSHOT

@@ -219,28 +219,6 @@
                                     </destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.codice.acdebugger</groupId>
-                                    <artifactId>acdebugger-api</artifactId>
-                                    <version>${acdebugger.version}</version>
-                                    <outputDirectory>
-                                        ${setup.folder}/system/org/codice/acdebugger/acdebugger-api/${acdebugger.version}
-                                    </outputDirectory>
-                                    <destFileName>
-                                        acdebugger-api-${acdebugger.version}.jar
-                                    </destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.codice.acdebugger</groupId>
-                                    <artifactId>acdebugger-backdoor</artifactId>
-                                    <version>${acdebugger.version}</version>
-                                    <outputDirectory>
-                                        ${setup.folder}/system/org/codice/acdebugger/acdebugger-backdoor/${acdebugger.version}
-                                    </outputDirectory>
-                                    <destFileName>
-                                        acdebugger-backdoor-${acdebugger.version}.jar
-                                    </destFileName>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>org.apache.servicemix.bundles</groupId>
                                     <artifactId>org.apache.servicemix.bundles.xerces</artifactId>
                                     <version>${xerces.bundle.version}</version>
@@ -413,16 +391,6 @@
             <groupId>org.apache.aries.proxy</groupId>
             <artifactId>org.apache.aries.proxy</artifactId>
             <version>${org.apache.aries.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.acdebugger</groupId>
-            <artifactId>acdebugger-api</artifactId>
-            <version>${acdebugger.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.acdebugger</groupId>
-            <artifactId>acdebugger-backdoor</artifactId>
-            <version>${acdebugger.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.saxon</groupId>

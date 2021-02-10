@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.test.common.configurators;
 
-import static org.codice.ddf.test.common.options.VmOptions.java9VmOptions;
+import static org.codice.ddf.test.common.options.VmOptions.javaModuleVmOptions;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
@@ -85,7 +85,7 @@ public class KarafOptions implements ContainerOptions {
 
   private Option getVmOptions() {
     return composite(
-        java9VmOptions(),
+        javaModuleVmOptions(),
         vmOption("-Xmx2048M"),
         // Avoid tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),
