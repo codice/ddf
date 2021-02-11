@@ -314,7 +314,10 @@ class Dropdown extends React.Component<Props, State> {
     })
   }
   handleOutsideInteraction = (event: any) => {
-    if (!DropdownBehaviorUtility.drawing(event)) {
+    if (
+      !DropdownBehaviorUtility.drawing(event) &&
+      !DropdownBehaviorUtility.announcments(event)
+    ) {
       this.checkOutsideClick(event.target)
     }
   }

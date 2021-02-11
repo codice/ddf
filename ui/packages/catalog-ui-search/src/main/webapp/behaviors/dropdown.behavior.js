@@ -217,7 +217,10 @@ Behaviors.addBehavior(
       $('body')
         .off(`mousedown.${this.view.cid}`)
         .on(`mousedown.${this.view.cid}`, event => {
-          if (!DropdownBehaviorUtility.drawing(event)) {
+          if (
+            !DropdownBehaviorUtility.drawing(event) &&
+            !DropdownBehaviorUtility.announcments(event)
+          ) {
             this.options.dropdowns
               .filter(dropdown => this.isOpen(dropdown))
               .forEach(dropdown =>

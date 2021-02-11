@@ -22,6 +22,13 @@ const CustomElements = require('../js/CustomElements.js')
 const store = require('../js/store.js')
 
 module.exports = {
+  announcments(event) {
+    return (
+      $('#announcments')
+        .find(event.target)
+        .addBack(event.target).length > 0
+    )
+  },
   drawing(event) {
     return store.get('content').get('drawing')
   },
