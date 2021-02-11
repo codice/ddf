@@ -13,13 +13,13 @@
  */
 package org.codice.ddf.itests.common;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
 import static org.hamcrest.Matchers.hasXPath;
 
-import com.jayway.restassured.response.ValidatableResponse;
+import io.restassured.response.ValidatableResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;

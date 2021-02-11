@@ -15,37 +15,37 @@ include::config.adoc[]
 == Introduction
 :sectnums:
 
-<#include "build/introduction.ftl">
+<#include "introduction.ftl">
 
-<#include "build/quickstart.ftl">
+<#include "quickstart-build.ftl">
 
 :sectnums!:
 == Managing
 :sectnums:
 
-<#include "build/managing.ftl">
+<#include "managing-build.ftl">
 
 :sectnums!:
 == Using
 :sectnums:
 
-<#include "build/using.ftl">
+<#include "using-build.ftl">
 
 :sectnums!:
 == Integrating
 :sectnums:
 
-<#include "build/integrating.ftl">
+<#include "integrating-build.ftl">
 
 :sectnums!:
 == Developing
 :sectnums:
 
-<#include "build/developing.ftl">
+<#include "developing-build.ftl">
 
-<#include "build/developing-components.ftl">
+<#include "developing-components.ftl">
 
-<#include "build/development-guidelines.ftl">
+<#include "development-guidelines.ftl">
 
 :sectnums!:
 == Appendices
@@ -54,13 +54,13 @@ include::config.adoc[]
 [appendix]
 == Application References
 
-<#include "build/application-reference.ftl">
+<#include "application-reference.ftl">
 
 [appendix]
-<#include "build/reference.ftl">
+<#include "reference-build.ftl">
 
 [appendix]
-<#include "build/metadata-reference.ftl">
+<#include "metadata-reference.ftl">
 
 ifdef::backend-pdf[]
 

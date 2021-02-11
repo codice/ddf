@@ -32,6 +32,8 @@ import ddf.catalog.transform.MetacardTransformer
 import ddf.security.audit.SecurityLogger
 import org.apache.karaf.shell.api.console.Session
 import org.codice.ddf.commands.util.DigitalSignature
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
 import spock.lang.Specification
@@ -41,6 +43,7 @@ import javax.activation.MimeType
 import java.nio.file.Paths
 import java.util.zip.ZipFile
 
+@RunWith(JUnitPlatform.class)
 class ExportCommandSpec extends Specification {
 
     File tmpHomeDir

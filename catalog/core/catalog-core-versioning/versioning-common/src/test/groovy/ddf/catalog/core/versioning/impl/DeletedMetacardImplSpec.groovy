@@ -19,9 +19,11 @@ import ddf.catalog.data.impl.AttributeImpl
 import ddf.catalog.data.impl.MetacardImpl
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.util.ThreadContext
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
-
+@RunWith(JUnitPlatform.class)
 class DeletedMetacardImplSpec extends Specification {
 
     void setup() {

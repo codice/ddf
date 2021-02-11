@@ -18,8 +18,6 @@ import java.io.File;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
@@ -32,10 +30,8 @@ import net.sourceforge.prograde.policyparser.ParsedPrincipal;
 import net.sourceforge.prograde.policyparser.Parser;
 import net.sourceforge.prograde.type.Priority;
 import org.apache.commons.lang3.text.StrSubstitutor;
-import org.codice.acdebugger.PermissionService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.service.condpermadmin.ConditionInfo;
 import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
 import org.osgi.service.condpermadmin.ConditionalPermissionInfo;
@@ -44,7 +40,7 @@ import org.osgi.service.permissionadmin.PermissionInfo;
 import org.osgi.util.tracker.ServiceTracker;
 
 /** Initializes the CondPermAdmin permission table from all policy files in ddf_home/security */
-public class PermissionActivator implements BundleActivator, PermissionService {
+public class PermissionActivator implements BundleActivator {
 
   private static final String BUNDLE_NAME_CONDITION =
       "org.codice.ddf.condition.BundleNameCondition";
@@ -129,14 +125,8 @@ public class PermissionActivator implements BundleActivator, PermissionService {
     }
 
     conditionalPermissionUpdate.commit();
-    final Dictionary<String, Object> props = new Hashtable<>(8);
-
-    props.put(Constants.SERVICE_DESCRIPTION, "DDF :: Platform :: OSGi :: CondPermAdmin");
-    props.put(Constants.SERVICE_VENDOR, "Codice Foundation");
-    bundleContext.registerService(PermissionService.class, this, props);
   }
 
-  @Override
   public void grantPermission(String bundle, String permission) throws Exception {
     synchronized (this) {
       // use the parsed policy to make it easier to parse the permission string

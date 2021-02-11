@@ -13,10 +13,13 @@
  */
 package org.codice.ddf.catalog.sourcepoller
 
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.util.concurrent.ExecutorService
 
+@RunWith(JUnitPlatform.class)
 class StatusSourcePollerSpec extends Specification {
 
     def 'test handleTimeout'() {

@@ -13,9 +13,9 @@
  */
 package ddf.test.itests.platform;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
+import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.TRANSFORMER_XML;
@@ -41,8 +41,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jayway.restassured.path.json.JsonPath;
 import ddf.catalog.data.Metacard;
+import io.restassured.path.json.JsonPath;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;

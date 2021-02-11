@@ -17,8 +17,11 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.AttributeImpl
 import ddf.catalog.data.impl.BasicTypes
 import ddf.catalog.impl.FrameworkProperties
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class CreateOperationsSpec extends Specification {
     private CreateOperations createOperations
 

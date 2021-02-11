@@ -302,7 +302,11 @@ public class ResourceOperationsTest {
   @Test(expected = ResourceNotSupportedException.class)
   public void testGetResourceCatchesStopProcessingException() throws Exception {
 
-    when(resourceRequestMock.getProperties()).thenThrow(StopProcessingException.class);
+    when(resourceRequestMock.getProperties())
+        .thenAnswer(
+            invocation -> {
+              throw new StopProcessingException("test");
+            });
     getResourceRequestAttributeUris();
 
     resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);

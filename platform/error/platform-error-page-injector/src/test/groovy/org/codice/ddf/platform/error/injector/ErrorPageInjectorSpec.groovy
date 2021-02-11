@@ -15,6 +15,8 @@
 package org.codice.ddf.platform.error.injector
 
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.FrameworkUtil
@@ -31,6 +33,7 @@ import javax.servlet.SessionCookieConfig
 import java.lang.reflect.Field
 import java.util.concurrent.ScheduledExecutorService
 
+@RunWith(JUnitPlatform.class)
 class ErrorPageInjectorSpec extends Specification {
 
     def curEvent

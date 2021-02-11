@@ -1,12 +1,15 @@
 package ddf.catalog.cache.impl
 
 import org.junit.Rule
+import org.junit.platform.runner.JUnitPlatform
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
 import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.nio.file.Path
 
+@RunWith(JUnitPlatform.class)
 class FileSystemPersistenceProviderSpec extends Specification {
 
     private Path cachePath

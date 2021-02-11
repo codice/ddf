@@ -8,12 +8,15 @@ import org.apache.karaf.features.FeaturesService
 import org.apache.shiro.authz.Permission
 import org.apache.shiro.subject.Subject
 import org.codice.ddf.admin.configurator.ConfiguratorException
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
 import spock.lang.Specification
 
 import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles
 
+@RunWith(JUnitPlatform.class)
 class FeatureConfigHandlerSpec extends Specification {
     public static final String FEATURE_NAME_AND_VERSION = 'xxx/0.1.0'
     private ServiceReference serviceReference

@@ -204,7 +204,11 @@ public class ResourceOperationsOptionsTest {
   @Test(expected = ResourceNotFoundException.class)
   public void testGetLocalResourceOptionsCatchesUnsupportedQueryException() throws Exception {
 
-    whenQueried().thenThrow(ResourceNotFoundException.class);
+    whenQueried()
+        .thenAnswer(
+            invocation -> {
+              throw new ResourceNotFoundException();
+            });
     helperGetLocalResourceOptions();
   }
 

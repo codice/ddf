@@ -14,10 +14,13 @@
 package org.codice.solr.client.solrj
 
 import org.codice.spock.Supplemental
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 
 @Supplemental
+@RunWith(JUnitPlatform.class)
 class SolrClientSpec extends Specification {
   @Unroll
   def "test that Apache's #method.simplePrototype method is defined in Codice's interface"() {

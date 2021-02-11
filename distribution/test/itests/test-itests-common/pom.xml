@@ -196,6 +196,12 @@
                         </Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Import-Package>
+                            org.junit.*,
+                            org.hamcrest.*,
+                            org.awaitility.*,
+                            com.google.common.*,
+                            io.restassured.*,
+                            org.apache.commons.*;
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>

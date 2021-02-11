@@ -13,10 +13,6 @@
  */
 package ddf.test.itests.catalog;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
-import static com.jayway.restassured.path.json.JsonPath.with;
 import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
 import static com.xebialabs.restito.semantics.Action.bytesContent;
 import static com.xebialabs.restito.semantics.Action.composite;
@@ -25,6 +21,10 @@ import static com.xebialabs.restito.semantics.Action.header;
 import static com.xebialabs.restito.semantics.Action.ok;
 import static com.xebialabs.restito.semantics.Action.success;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
+import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+import static io.restassured.path.json.JsonPath.with;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -51,10 +51,6 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.internal.http.Method;
-import com.jayway.restassured.path.xml.XmlPath;
-import com.jayway.restassured.response.ValidatableResponse;
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Condition;
@@ -63,6 +59,9 @@ import com.xebialabs.restito.server.secure.SecureStubServer;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
+import io.restassured.http.ContentType;
+import io.restassured.path.xml.XmlPath;
+import io.restassured.response.ValidatableResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -99,6 +98,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
+import org.glassfish.grizzly.http.Method;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
@@ -2024,7 +2024,7 @@ public class TestFederation extends AbstractIntegrationTest {
     if (CollectionUtils.isNotEmpty(calls)) {
       for (Call call : calls) {
 
-        if (call.getMethod().matchesMethod(Method.POST.name())
+        if (call.getMethod().matchesMethod(Method.POST.getMethodString())
             && StringUtils.isNotEmpty(call.getPostBody())) {
           LOGGER.debug("Event received '{}'", call.getPostBody());
 

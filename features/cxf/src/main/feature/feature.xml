@@ -59,6 +59,7 @@
              - jakarta.annotation-api
              - org.apache.servicemix.specs.jaxb-api-2.3
              - org.apache.servicemix.bundles.jaxb-runtime
+         - Added soap-api to saaj-impl
      DO NOT EDIT
      -->
     <feature name="cxf-specs" version="${cxf.version}">
@@ -100,6 +101,8 @@
         <bundle start-level='35'>mvn:org.apache.abdera/abdera-extensions-json/${cxf.abdera.version}</bundle>-->
     </feature>
     <feature name="saaj-impl" version="${cxf.saaj-impl.version}">
+        <feature prerequisite="true">wrap</feature>
+        <bundle start-level="20">wrap:mvn:jakarta.xml.soap/jakarta.xml.soap-api/${soap-api.version}</bundle>
         <bundle start-level="25">mvn:org.jvnet.staxex/stax-ex/${cxf.stax-ex.version}</bundle>
         <!--bundle start-level="25">mvn:com.sun.xml.messaging.saaj/saaj-impl/${cxf.saaj-impl.version}</bundle-->
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saaj-impl/${cxf.saaj-impl.version}</bundle>

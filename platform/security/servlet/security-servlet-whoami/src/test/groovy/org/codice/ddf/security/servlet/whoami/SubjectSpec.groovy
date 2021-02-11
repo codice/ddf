@@ -20,11 +20,14 @@ import ddf.security.assertion.AuthenticationStatement
 import ddf.security.assertion.SecurityAssertion
 import ddf.security.principal.impl.GuestPrincipal
 import org.apache.shiro.subject.PrincipalCollection
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.time.LocalDateTime
 import java.time.ZoneId
 
+@RunWith(JUnitPlatform.class)
 class SubjectSpec extends Specification {
 
     protected Date notOnOrAfter = Date.from(LocalDateTime.now()

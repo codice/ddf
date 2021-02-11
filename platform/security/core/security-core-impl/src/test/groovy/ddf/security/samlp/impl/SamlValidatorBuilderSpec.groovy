@@ -13,7 +13,8 @@
  */
 package ddf.security.samlp.impl
 
-
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.opensaml.saml.saml2.core.ArtifactResponse
 import org.opensaml.saml.saml2.core.LogoutRequest
 import org.opensaml.saml.saml2.core.LogoutResponse
@@ -21,6 +22,7 @@ import spock.lang.Specification
 
 import java.time.Duration
 
+@RunWith(JUnitPlatform.class)
 class SamlValidatorBuilderSpec extends Specification {
     def 'check simpleSign'() {
         setup:

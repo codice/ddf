@@ -13,6 +13,8 @@
  **/
 package org.codice.ddf.admin.configurator.impl
 
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -21,6 +23,7 @@ import java.nio.file.Paths
 
 import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validatePropertiesPath
 
+@RunWith(JUnitPlatform.class)
 class ConfigValidatorSpec extends Specification {
     @Shared
     String originalDdfHome

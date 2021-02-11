@@ -371,7 +371,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         .map(List.class::cast)
         .flatMap(List::stream)
         .map(Map.class::cast)
-        .map(m -> m.get("bundle_location"))
+        .map(m -> ((Map) m).get("bundle_location"))
         .filter(Objects::nonNull)
         .map(String.class::cast)
         .anyMatch(bundleLocations::contains);

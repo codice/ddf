@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.itests.common;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
@@ -23,6 +23,7 @@ import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
@@ -37,9 +38,12 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceCo
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.response.ValidatableResponse;
 import ddf.security.audit.impl.SecurityLoggerImpl;
 import ddf.security.service.impl.SubjectUtils;
+import io.restassured.RestAssured;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.XmlConfig;
+import io.restassured.response.ValidatableResponse;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -88,7 +92,6 @@ import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.util.Filter;
@@ -365,6 +368,8 @@ public abstract class AbstractIntegrationTest {
   })
   @PostTestConstruct
   public void initFacades() {
+    RestAssured.config =
+        RestAssuredConfig.config().xmlConfig(XmlConfig.xmlConfig().namespaceAware(false));
     ddfHome = System.getProperty(DDF_HOME_PROPERTY);
     adminConfig = new AdminConfig(configAdmin);
     Security security = new org.codice.ddf.security.impl.Security();
@@ -589,10 +594,6 @@ public abstract class AbstractIntegrationTest {
     return options(
         when(Boolean.getBoolean("isDebugEnabled"))
             .useOptions(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
-        when(Boolean.getBoolean("acdebuggerEnabled") && !Boolean.getBoolean("isDebugEnabled"))
-            .useOptions(
-                KarafDistributionOption.debugConfiguration(
-                    System.getProperty("acdebuggerPort", "5505"), true)),
         when(System.getProperty(MVN_LOCAL_REPO) != null)
             .useOptions(
                 systemProperty(PAX_URL_MVN_LOCAL_REPO)
@@ -667,15 +668,43 @@ public abstract class AbstractIntegrationTest {
 
   protected Option[] configureVmOptions() {
     return options(
+        systemProperty("pax.exam.osgi.`unresolved.fail").value("true"),
+        vmOption("--add-reads=java.xml=java.logging"),
+        vmOption("--add-exports=java.base/org.apache.karaf.specs.locator=java.xml,ALL-UNNAMED"),
+        vmOption("--patch-module"),
+        vmOption(
+            "java.base=lib/endorsed/org.apache.karaf.specs.locator-"
+                + System.getProperty("karafVersion", "4.2.9")
+                + ".jar"),
+        vmOption("--patch-module"),
+        vmOption(
+            "java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-"
+                + System.getProperty("karafVersion", "4.2.9")
+                + ".jar"),
+        vmOption("--add-opens"),
+        vmOption("java.base/java.security=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.base/java.net=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.base/java.lang=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.base/java.util=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.base/jdk.internal.reflect=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.naming/javax.naming.spi=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED"),
+        vmOption("--add-exports=java.base/sun.net.www.protocol.http=ALL-UNNAMED"),
+        vmOption("--add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED"),
+        vmOption("--add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED"),
+        vmOption("--add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED"),
+        vmOption("-classpath"),
+        vmOption("lib/jdk9plus/*" + File.pathSeparator + "lib/boot/*"),
         vmOption("-Xmx6144M"),
         // avoid integration tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),
         vmOption("-Dfile.encoding=UTF8"),
-        vmOption("-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy"),
-        vmOption("-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM"),
-        HomeAwareVmOption.homeAwareVmOption("-Djava.security.policy=={karaf.home}/etc/all.policy"),
-        vmOption(
-            "-DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"),
         HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"),
         HomePermVmOption.homePermVmOption("-Dddf.home.perm={karaf.home}"),
         HomePolicyVmOption.homePolicyVmOption("-Dddf.home.policy={karaf.home}"));
@@ -684,6 +713,8 @@ public abstract class AbstractIntegrationTest {
   protected Option[] configureStartScript() {
     // add test dependencies to the test-dependencies-app instead of here
     return options(
+        mavenBundle(
+            "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
         junitBundles(),
         features(
             maven()

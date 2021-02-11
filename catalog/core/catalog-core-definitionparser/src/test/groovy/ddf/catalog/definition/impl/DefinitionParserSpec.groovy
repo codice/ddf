@@ -17,7 +17,9 @@ import ddf.catalog.validation.ReportingMetacardValidator
 import ddf.catalog.validation.ValidationException
 import ddf.catalog.validation.impl.AttributeValidatorRegistryImpl
 import org.junit.Rule
+import org.junit.platform.runner.JUnitPlatform
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceRegistration
@@ -28,6 +30,7 @@ import java.time.ZoneOffset
 
 import static org.mockito.Matchers.isNull
 
+@RunWith(JUnitPlatform.class)
 class DefinitionParserSpec extends Specification {
 
     @Rule

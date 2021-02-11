@@ -19,6 +19,8 @@ import ddf.catalog.filter.AttributeBuilder
 import ddf.catalog.filter.FilterBuilder
 import ddf.catalog.operation.QueryRequest
 import ddf.catalog.source.SourceUnavailableException
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import static ddf.catalog.Constants.SUGGESTION_BUILD_KEY
@@ -28,6 +30,7 @@ import static ddf.catalog.Constants.SUGGESTION_QUERY_KEY
 import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG
 import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.SUGGEST_PLACE_KEY
 
+@RunWith(JUnitPlatform.class)
 class BuildSuggesterIndexSpec extends Specification {
     def catalogFramework = Mock(CatalogFramework)
     def filterBuilder = Stub(FilterBuilder) {

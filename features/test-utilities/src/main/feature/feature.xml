@@ -26,6 +26,8 @@
         <bundle>mvn:org.apache.commons/commons-compress/${commons-compress.version}</bundle>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-lang3/3.5</bundle>
+        <bundle>mvn:org.xmlunit/xmlunit-core/${xmlunit-matchers.version}</bundle>
+        <bundle>mvn:org.xmlunit/xmlunit-matchers/${xmlunit-matchers.version}</bundle>
         <bundle>mvn:ddf.lib/test-common/${project.version}</bundle>
     </feature>
 
@@ -37,8 +39,7 @@
 
     <feature name="awaitility" version="${project.version}"
              description="Hamcrest bundles for asserting test cases.">
-        <feature>hamcrest-all</feature>
-        <bundle>mvn:org.awaitility/awaitility/3.1.0</bundle>
+        <bundle>mvn:org.awaitility/awaitility/${awaitility.version}</bundle>
     </feature>
 
     <feature name="tinybundles" version="${project.version}" description="Dynamically creates bundles" >
@@ -53,12 +54,18 @@
     </feature>
 
     <feature name="rest-assured" version="${project.version}">
-        <bundle>mvn:ddf.thirdparty/rest-assured/${project.version}</bundle>
-        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
+        <feature prerequisite="true">wrap</feature>
+
+        <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
+        <bundle>wrap:mvn:org.ccil.cowan.tagsoup/tagsoup/1.2.1</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
-        <bundle>
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/${hamcrest-all.servicemix.version}
-        </bundle>
+        <bundle>wrap:mvn:org.apache.httpcomponents/httpmime/${httpmime.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
+        <bundle>wrap:mvn:jakarta.xml.bind/jakarta.xml.bind-api/${jakarta.xml.bind.version}</bundle>
+        <bundle>wrap:mvn:javax.activation/activation/1.1.1</bundle>
+        <bundle>mvn:org.codehaus.groovy/groovy-all/2.4.21</bundle>
+
+        <bundle>mvn:io.rest-assured/rest-assured/${restassured.version}</bundle>
     </feature>
 
     <feature name="tink-test-dependencies" version="${project.version}"

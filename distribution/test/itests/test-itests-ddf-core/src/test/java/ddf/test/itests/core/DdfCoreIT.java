@@ -13,9 +13,9 @@
  */
 package ddf.test.itests.core;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
+import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
@@ -35,11 +35,11 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
 import com.xebialabs.restito.server.StubServer;
 import com.xebialabs.restito.server.secure.SecureStubServer;
 import ddf.catalog.data.Metacard;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

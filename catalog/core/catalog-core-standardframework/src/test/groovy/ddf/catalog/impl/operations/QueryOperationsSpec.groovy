@@ -41,9 +41,12 @@ import ddf.security.Subject
 import ddf.security.audit.SecurityLogger
 import ddf.security.permission.impl.PermissionsImpl
 import org.apache.commons.collections.CollectionUtils
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Shared
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class QueryOperationsSpec extends Specification {
     private static final String SOURCE_ID = "test_source"
 

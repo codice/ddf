@@ -1,1 +1,2 @@
 set SOLR_OPTS=%SOLR_OPTS% -Djute.maxbuffer=2097152
+set SOLR_START_WAIT=60

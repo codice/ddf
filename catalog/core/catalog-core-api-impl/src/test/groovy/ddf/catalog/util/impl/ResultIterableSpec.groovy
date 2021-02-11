@@ -25,12 +25,15 @@ import ddf.catalog.operation.impl.QueryRequestImpl
 import ddf.catalog.operation.impl.QueryResponseImpl
 import ddf.catalog.source.SourceUnavailableException
 import ddf.catalog.source.UnsupportedQueryException
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import static ddf.catalog.util.impl.ResultIterable.resultIterable
 import static java.util.stream.Collectors.toList
 
+@RunWith(JUnitPlatform.class)
 class ResultIterableSpec extends Specification {
 
     CatalogFramework catalogFramework

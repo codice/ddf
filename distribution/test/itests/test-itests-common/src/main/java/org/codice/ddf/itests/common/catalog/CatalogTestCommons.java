@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.itests.common.catalog;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
@@ -26,9 +26,9 @@ import static org.codice.ddf.itests.common.csw.CswTestCommons.getMetacardIdFromC
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 
-import com.jayway.restassured.filter.log.LogDetail;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.response.ValidatableResponse;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import java.io.IOException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -89,6 +89,7 @@ public class CatalogTestCommons {
         .statusCode(expectedStatusCode)
         .log()
         .ifValidationFails(LogDetail.ALL)
+        .when()
         .post(REST_PATH.getUrl())
         .getHeader("id");
   }
@@ -125,6 +126,7 @@ public class CatalogTestCommons {
         .statusCode(expectedStatusCode)
         .log()
         .ifValidationFails(LogDetail.ALL)
+        .when()
         .post(REST_PATH.getUrl())
         .getHeader("id");
   }
@@ -290,6 +292,7 @@ public class CatalogTestCommons {
         .log()
         .ifValidationFails(LogDetail.ALL)
         .statusCode(expectedStatusCode)
+        .when()
         .put(new AbstractIntegrationTest.DynamicUrl(REST_PATH, id).getUrl());
   }
 
@@ -328,6 +331,7 @@ public class CatalogTestCommons {
         .log()
         .ifValidationFails(LogDetail.ALL)
         .statusCode(expectedStatusCode)
+        .when()
         .put(new AbstractIntegrationTest.DynamicUrl(REST_PATH, id).getUrl());
   }
 

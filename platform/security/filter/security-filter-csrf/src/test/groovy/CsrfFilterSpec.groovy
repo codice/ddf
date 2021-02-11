@@ -20,6 +20,8 @@ import org.codice.ddf.platform.filter.AuthenticationException
 import org.codice.ddf.platform.filter.SecurityFilterChain
 import org.codice.ddf.security.filter.csrf.CsrfFilter
 import org.eclipse.jetty.http.HttpMethod
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
@@ -28,6 +30,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @RestoreSystemProperties
+@RunWith(JUnitPlatform.class)
 class CsrfFilterSpec extends Specification {
 
   static final String DDF_HOST = 'ddf'

@@ -13,8 +13,10 @@
  */
 package org.codice.ddf.test.common.options;
 
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 
+import java.io.File;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
@@ -31,5 +33,42 @@ public class VmOptions {
         // avoid integration tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),
         vmOption("-Dfile.encoding=UTF8"));
+  }
+
+  public static Option javaModuleVmOptions() {
+    return new DefaultCompositeOption(
+        systemProperty("pax.exam.osgi.`unresolved.fail").value("true"),
+        vmOption("--add-reads=java.xml=java.logging"),
+        vmOption("--add-exports=java.base/org.apache.karaf.specs.locator=java.xml,ALL-UNNAMED"),
+        vmOption("--patch-module"),
+        vmOption(
+            "java.base=lib/endorsed/org.apache.karaf.specs.locator-"
+                + System.getProperty("karafVersion", "4.2.9")
+                + ".jar"),
+        vmOption("--patch-module"),
+        vmOption(
+            "java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-"
+                + System.getProperty("karafVersion", "4.2.9")
+                + ".jar"),
+        vmOption("--add-opens"),
+        vmOption("java.base/java.security=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.base/java.net=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.base/java.lang=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.base/java.util=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.base/jdk.internal.reflect=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.naming/javax.naming.spi=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED"),
+        vmOption("--add-exports=java.base/sun.net.www.protocol.http=ALL-UNNAMED"),
+        vmOption("--add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED"),
+        vmOption("--add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED"),
+        vmOption("--add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED"),
+        vmOption("-classpath"),
+        vmOption("lib/jdk9plus/*" + File.pathSeparator + "lib/boot/*"));
   }
 }

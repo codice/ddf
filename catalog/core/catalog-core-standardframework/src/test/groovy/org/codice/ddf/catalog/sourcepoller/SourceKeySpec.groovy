@@ -14,11 +14,14 @@
 package org.codice.ddf.catalog.sourcepoller
 
 import ddf.catalog.source.Source
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Ignore
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.containsString
 
+@RunWith(JUnitPlatform.class)
 class SourceKeySpec extends Specification {
 
     def 'test invalid constructor parameters'() {
@@ -103,7 +106,7 @@ class SourceKeySpec extends Specification {
     @Ignore("TODO DDF-4288")
     def 'test Source non-Describable value is modified'() {
         given:
-        final Source source /*= TODO DDF-4288*/
+        final Source source = _ /*= TODO DDF-4288*/
 
         expect:
         new SourceKey(source) == new SourceKey(source)

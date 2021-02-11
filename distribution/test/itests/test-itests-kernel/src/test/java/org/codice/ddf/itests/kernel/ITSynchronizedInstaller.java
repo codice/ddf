@@ -102,7 +102,7 @@ public class ITSynchronizedInstaller {
         logLevelOption("org.codice.ddf.sync.installer.impl", "TRACE"),
         includeTestResources(),
         addFeatureRepo(FeatureUtilities.toFeatureRepo(TEST_FEATURE_PATH)),
-        addBootFeature(TestUtilitiesFeatures.testCommon(), TestUtilitiesFeatures.awaitility()));
+        addBootFeature(TestUtilitiesFeatures.testCommon(), TestUtilitiesFeatures.hamcrestAll(), TestUtilitiesFeatures.awaitility()));
   }
 
   @BeforeExam

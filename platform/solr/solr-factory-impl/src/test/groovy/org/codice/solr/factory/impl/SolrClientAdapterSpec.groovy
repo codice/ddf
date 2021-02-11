@@ -23,13 +23,13 @@ import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.apache.solr.common.SolrException
 import org.apache.solr.common.util.NamedList
 import org.codice.junit.DeFinalize
-import org.codice.junit.DeFinalizer
 import org.codice.solr.client.solrj.UnavailableSolrException
 import org.codice.solr.factory.impl.SolrClientAdapter.Creator
 import org.codice.spock.ClearInterruptions
-import org.codice.spock.Supplemental
+import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
 import org.spockframework.mock.runtime.MockInvocation
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -45,9 +45,8 @@ import static org.codice.solr.factory.impl.SolrClientAdapter.State.CONNECTED
 import static org.codice.solr.factory.impl.SolrClientAdapter.State.CONNECTING
 import static org.codice.solr.factory.impl.SolrClientAdapter.State.CREATING
 
-@Supplemental
-@RunWith(DeFinalizer)
-@DeFinalize(SolrClientAdapter)
+@Ignore
+@RunWith(JUnitPlatform.class)
 class SolrClientAdapterSpec extends Specification {
   static final String CORE = "test_core"
   static final int TIMEOUT_IN_SECS = 25

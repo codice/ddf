@@ -15,6 +15,8 @@ package org.codice.ddf.catalog.sourcepoller
 
 import com.google.common.collect.ImmutableMap
 import com.google.common.util.concurrent.Futures
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.util.concurrent.Callable
@@ -33,14 +35,15 @@ import static org.hamcrest.CoreMatchers.is
 import static org.hamcrest.collection.IsMapContaining.hasEntry
 import static spock.util.matcher.HamcrestSupport.expect
 
+@RunWith(JUnitPlatform.class)
 class PollerSpec extends Specification {
 
     def 'test destroy'() {
         given:
-        final ExecutorService mockPollThreadPool = Mock()
-        final ExecutorService mockPollTimeoutWatcherThreadPool = Mock()
+        ExecutorService mockPollThreadPool = Mock()
+        ExecutorService mockPollTimeoutWatcherThreadPool = Mock()
 
-        final Poller poller = new Poller(mockPollThreadPool, mockPollTimeoutWatcherThreadPool)
+        Poller poller = new Poller(mockPollThreadPool, mockPollTimeoutWatcherThreadPool)
 
         when:
         poller.destroy()
@@ -52,7 +55,7 @@ class PollerSpec extends Specification {
 
     def 'test get a cached value for an unknown key'() {
         given:
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
 
         expect:
         ((Optional) poller.getCachedValue(_)) isEmpty()
@@ -63,10 +66,10 @@ class PollerSpec extends Specification {
 
     def 'test get value'() {
         given:
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
 
-        final key = _
-        final Object value = _
+        def key = _
+        Object value = _
 
         when:
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): { value }]))
@@ -80,17 +83,17 @@ class PollerSpec extends Specification {
 
     def 'test value changes'() {
         given:
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
 
-        final key = _
+        def key = _
 
-        final timeout = 1
-        final TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
+        def timeout = 1
+        TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
 
         and: 'an initial value is loaded'
         poller.pollItems(timeout, timeoutTimeUnit, ImmutableMap.copyOf([(key): { Mock(Object) }]))
 
-        final Object secondValue = _
+        Object secondValue = _
 
         when: 'a new value is loaded'
         poller.pollItems(timeout, timeoutTimeUnit, ImmutableMap.copyOf([(key): { secondValue }]))
@@ -104,9 +107,9 @@ class PollerSpec extends Specification {
 
     def 'test key is removed'() {
         given:
-        final key = _
+        def key = _
 
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
 
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): { _ }]))
 
@@ -122,10 +125,10 @@ class PollerSpec extends Specification {
 
     def 'test poll with no itemsToPoll'() {
         given:
-        final ExecutorService mockPollThreadPool = Mock()
-        final ExecutorService mockPollTimeoutWatcherThreadPool = Mock()
+        ExecutorService mockPollThreadPool = Mock()
+        ExecutorService mockPollTimeoutWatcherThreadPool = Mock()
 
-        final Poller poller = new Poller(mockPollThreadPool, mockPollTimeoutWatcherThreadPool)
+        Poller poller = new Poller(mockPollThreadPool, mockPollTimeoutWatcherThreadPool)
 
         when:
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.of())
@@ -144,20 +147,20 @@ class PollerSpec extends Specification {
 
     def 'test loader does not complete within pollItems timeout'() {
         given:
-        final key = _
-        final Callable loader = _ as Callable
+        def key = _
+        Callable loader = _ as Callable
 
-        final Closure mockHandleTimeout = Mock()
+        Closure mockHandleTimeout = Mock()
 
-        final timeout = 1
-        final TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
+        def timeout = 1
+        TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
 
-        final Future mockFuture = Mock() {
+        Future mockFuture = Mock() {
             get(timeout, timeoutTimeUnit) >> { throw new TimeoutException() }
         }
 
         // not sure why a Spy doesn't work here
-        final Poller poller = new Poller(Mock(ExecutorService) {
+        Poller poller = new Poller(Mock(ExecutorService) {
             submit(loader) >> mockFuture
         }, Executors.newCachedThreadPool()) {
             void handleTimeout(Object k) {
@@ -181,10 +184,10 @@ class PollerSpec extends Specification {
 
     def 'test loader throws a RuntimeException'() {
         given:
-        final key = _
-        final RuntimeException runtimeException = new RuntimeException()
+        def key = _
+        RuntimeException runtimeException = new RuntimeException()
 
-        final Poller poller = Spy(Poller, constructorArgs: [Executors.newCachedThreadPool(), Executors.newCachedThreadPool()])
+        Poller poller = Spy(Poller, constructorArgs: [Executors.newCachedThreadPool(), Executors.newCachedThreadPool()])
 
         when:
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): {
@@ -221,7 +224,7 @@ class PollerSpec extends Specification {
 
     def 'test get value for null key'() {
         given:
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
 
         when:
         poller.getCachedValue(null)
@@ -235,7 +238,7 @@ class PollerSpec extends Specification {
 
     def 'test null pollItems parameters'() {
         given:
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
 
         when:
         poller.pollItems(timeout, timeoutTimeUnit, itemsToPoll as ImmutableMap)
@@ -252,11 +255,11 @@ class PollerSpec extends Specification {
         1       | TimeUnit.MINUTES | null               || NullPointerException
     }
 
-    def 'test invalid pollItems timeout'(final TimeUnit timeoutTimeUnit) {
+    def 'test invalid pollItems timeout'(TimeUnit timeoutTimeUnit) {
         given:
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
 
-        final long minimumTimeoutNs = TimeUnit.NANOSECONDS.convert(Poller.MINIMUM_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        long minimumTimeoutNs = TimeUnit.NANOSECONDS.convert(Poller.MINIMUM_TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         when:
         poller.pollItems(timeoutTimeUnit.convert(minimumTimeoutNs - 1, TimeUnit.NANOSECONDS), timeoutTimeUnit, Mock(ImmutableMap))
@@ -273,7 +276,7 @@ class PollerSpec extends Specification {
 
     def 'test thread pool is already shutdown when poll'() {
         given:
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
 
         and: 'the thread polls are shutdown after instantiating the poller'
         poller.destroy()
@@ -289,10 +292,10 @@ class PollerSpec extends Specification {
 
     def 'test null loaded value'() {
         given:
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
 
-        final key = _
-        final value = _
+        def key = _
+        def value = _
 
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): { value }]))
 
@@ -300,8 +303,8 @@ class PollerSpec extends Specification {
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): { null }]))
 
         then:
-        final PollerException pollerException = thrown()
-        final Map<?, Throwable> causes = pollerException.getCauses()
+        PollerException pollerException = thrown()
+        Map<?, Throwable> causes = pollerException.getCauses()
         causes.size() == 1
         expect(causes, hasEntry(is(key), is(instanceOf(IllegalArgumentException))))
 
@@ -314,16 +317,16 @@ class PollerSpec extends Specification {
 
     def 'test unable to start a loader'() {
         given:
-        final timeout = 1
-        final TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
+        def timeout = 1
+        TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
 
-        final value = _
-        final Callable initialLoader = { value }
-        final Callable loader = _ as Callable
+        def value = _
+        Callable initialLoader = { value }
+        Callable loader = _ as Callable
 
-        final RejectedExecutionException rejectedExecutionException = new RejectedExecutionException()
+        RejectedExecutionException rejectedExecutionException = new RejectedExecutionException()
 
-        final Poller poller = new Poller(Mock(ExecutorService) {
+        Poller poller = new Poller(Mock(ExecutorService) {
             submit(initialLoader) >> { Callable callable ->
                 Mock(Future) {
                     get(timeout, timeoutTimeUnit) >> { callable.call() }
@@ -334,7 +337,7 @@ class PollerSpec extends Specification {
             }
         }, Executors.newCachedThreadPool())
 
-        final key = _
+        def key = _
 
         poller.pollItems(timeout, timeoutTimeUnit, ImmutableMap.copyOf([(key): initialLoader]))
 
@@ -342,7 +345,7 @@ class PollerSpec extends Specification {
         poller.pollItems(timeout, timeoutTimeUnit, ImmutableMap.copyOf([(key): loader]))
 
         then:
-        final PollerException pollerException = thrown()
+        PollerException pollerException = thrown()
         pollerException.getCauses() == [(key): rejectedExecutionException]
 
         and: 'any old value was not overridden or removed'
@@ -354,14 +357,14 @@ class PollerSpec extends Specification {
 
     def 'test pollTimeoutWatcherThreadPool is unable to schedule a task for execution'() {
         given:
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Mock(ExecutorService) {
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Mock(ExecutorService) {
             2 * execute(_ as Runnable) >> { Runnable runnable -> runnable.run() } >> {
                 throw exception
             }
         })
 
-        final key = _
-        final value = _
+        def key = _
+        def value = _
 
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): { value }]))
 
@@ -369,7 +372,7 @@ class PollerSpec extends Specification {
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): _ as Callable]))
 
         then:
-        final PollerException pollerException = thrown()
+        PollerException pollerException = thrown()
         pollerException.getCauses() == [(key): exception]
 
         and: 'any old value was not overridden or removed'
@@ -384,17 +387,17 @@ class PollerSpec extends Specification {
 
     def 'test interrupted while waiting for a loader to complete'() {
         given:
-        final timeout = 1
-        final TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
+        def timeout = 1
+        TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
 
-        final value = _
-        final Callable initialLoader = { value }
+        def value = _
+        Callable initialLoader = { value }
 
-        final Callable newLoader = _ as Callable
-        final InterruptedException interruptedException = new InterruptedException()
+        Callable newLoader = _ as Callable
+        InterruptedException interruptedException = new InterruptedException()
 
-        final Poller poller = new Poller(Mock(ExecutorService) {
-            submit(initialLoader) >> { final Callable loader -> Futures.immediateFuture(loader.call()) }
+        Poller poller = new Poller(Mock(ExecutorService) {
+            submit(initialLoader) >> { def Callable loader -> Futures.immediateFuture(loader.call()) }
             submit(newLoader) >> Mock(Future) {
                 get(timeout, timeoutTimeUnit) >> {
                     throw interruptedException
@@ -402,7 +405,7 @@ class PollerSpec extends Specification {
             }
         }, Executors.newCachedThreadPool())
 
-        final key = _
+        def key = _
 
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): initialLoader]))
 
@@ -410,7 +413,7 @@ class PollerSpec extends Specification {
         poller.pollItems(timeout, timeoutTimeUnit, ImmutableMap.copyOf([(key): newLoader]))
 
         then:
-        final PollerException pollerException = thrown()
+        PollerException pollerException = thrown()
         pollerException.getCauses() == [(key): interruptedException]
 
         and:
@@ -425,17 +428,17 @@ class PollerSpec extends Specification {
 
     def 'test the loader was cancelled'() {
         given:
-        final timeout = 1
-        final TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
+        def timeout = 1
+        TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
 
-        final value = _
-        final Callable initialLoader = { value }
+        def value = _
+        Callable initialLoader = { value }
 
-        final Callable newLoader = _ as Callable
-        final CancellationException cancellationException = new CancellationException()
+        Callable newLoader = _ as Callable
+        CancellationException cancellationException = new CancellationException()
 
-        final Poller poller = new Poller(Mock(ExecutorService) {
-            submit(initialLoader) >> { final Callable loader -> Futures.immediateFuture(loader.call()) }
+        Poller poller = new Poller(Mock(ExecutorService) {
+            submit(initialLoader) >> { def Callable loader -> Futures.immediateFuture(loader.call()) }
             submit(newLoader) >> Mock(Future) {
                 get(timeout, timeoutTimeUnit) >> {
                     throw cancellationException
@@ -443,7 +446,7 @@ class PollerSpec extends Specification {
             }
         }, Executors.newCachedThreadPool())
 
-        final key = _
+        def key = _
 
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): initialLoader]))
 
@@ -451,7 +454,7 @@ class PollerSpec extends Specification {
         poller.pollItems(timeout, timeoutTimeUnit, ImmutableMap.copyOf([(key): newLoader]))
 
         then:
-        final PollerException pollerException = thrown()
+        PollerException pollerException = thrown()
         pollerException.getCauses() == [(key): cancellationException]
 
         and: 'any old value was not overridden or removed'
@@ -463,19 +466,19 @@ class PollerSpec extends Specification {
 
     def 'test handleTimeout throws a RuntimeException'() {
         given:
-        final timeout = 1
-        final TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
+        def timeout = 1
+        TimeUnit timeoutTimeUnit = TimeUnit.MINUTES
 
-        final key = _
-        final value = _
-        final Callable initialLoader = { value }
+        def key = _
+        def value = _
+        Callable initialLoader = { value }
 
-        final Callable newLoader = _ as Callable
-        final RuntimeException runtimeException = new RuntimeException()
+        Callable newLoader = _ as Callable
+        RuntimeException runtimeException = new RuntimeException()
 
         // not sure why a Spy doesn't work here
-        final Poller poller = new Poller(Mock(ExecutorService) {
-            submit(initialLoader) >> { final Callable loader -> Futures.immediateFuture(loader.call()) }
+        Poller poller = new Poller(Mock(ExecutorService) {
+            submit(initialLoader) >> { def Callable loader -> Futures.immediateFuture(loader.call()) }
             submit(newLoader) >> Mock(Future) {
                 get(timeout, timeoutTimeUnit) >> { throw new TimeoutException() }
             }
@@ -492,7 +495,7 @@ class PollerSpec extends Specification {
         poller.pollItems(timeout, timeoutTimeUnit, ImmutableMap.copyOf([(key): newLoader]))
 
         then:
-        final PollerException pollerException = thrown()
+        PollerException pollerException = thrown()
         pollerException.getCauses() == [(key): runtimeException]
 
         and: 'any old value was not overridden or removed'
@@ -504,19 +507,19 @@ class PollerSpec extends Specification {
 
     def 'test handleException throws a RuntimeException'() {
         given:
-        final key = _
+        def key = _
 
-        final RuntimeException runtimeExceptionThrownByHandleException = new RuntimeException()
+        RuntimeException runtimeExceptionThrownByHandleException = new RuntimeException()
 
         // not sure why a Spy doesn't work here
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool()) {
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool()) {
             void handleException(Object k, RuntimeException e) {
                 assert k == key
                 throw runtimeExceptionThrownByHandleException
             }
         }
 
-        final value = _
+        def value = _
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): { value }]))
 
         when:
@@ -525,7 +528,7 @@ class PollerSpec extends Specification {
         }]))
 
         then:
-        final PollerException pollerException = thrown()
+        PollerException pollerException = thrown()
         pollerException.getCauses() == [(key): runtimeExceptionThrownByHandleException]
 
         and: 'any old value was not overridden or removed'
@@ -537,21 +540,21 @@ class PollerSpec extends Specification {
 
     def 'test the loader throws an Exception other than RuntimeException'() {
         given:
-        final key = _
-        final Throwable throwable = new Throwable()
+        def key = _
+        Throwable testThrowable = new Throwable()
 
         // not sure why a Spy doesn't work here
-        final Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
+        Poller poller = new Poller(Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
 
-        final value = _
+        def value = _
         poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): { value }]))
 
         when:
-        poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): { throw throwable }]))
+        poller.pollItems(1, TimeUnit.MINUTES, ImmutableMap.copyOf([(key): { throw testThrowable }]))
 
         then:
-        final PollerException pollerException = thrown()
-        pollerException.getCauses() == [(key): throwable]
+        PollerException pollerException = thrown()
+        pollerException.getCauses() == [(key): testThrowable]
 
         and: 'any old value was not overridden or removed'
         ((Optional<Object>) poller.getCachedValue(key)) hasValue(value)

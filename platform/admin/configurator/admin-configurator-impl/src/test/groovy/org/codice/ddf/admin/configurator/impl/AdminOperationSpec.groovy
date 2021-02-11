@@ -15,8 +15,11 @@ package org.codice.ddf.admin.configurator.impl
 
 import org.codice.ddf.admin.configurator.ConfiguratorException
 import org.codice.ddf.admin.core.api.jmx.AdminConsoleServiceMBean
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class AdminOperationSpec extends Specification {
     def initProps
 

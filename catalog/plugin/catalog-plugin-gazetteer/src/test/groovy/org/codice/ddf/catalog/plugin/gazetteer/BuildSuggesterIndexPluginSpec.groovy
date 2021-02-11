@@ -19,6 +19,8 @@ import ddf.catalog.operation.DeleteResponse
 import ddf.catalog.operation.Update
 import ddf.catalog.operation.UpdateResponse
 import ddf.catalog.plugin.PluginExecutionException
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.util.concurrent.RejectedExecutionException
@@ -28,6 +30,7 @@ import java.util.concurrent.TimeUnit
 
 import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG
 
+@RunWith(JUnitPlatform.class)
 class BuildSuggesterIndexPluginSpec extends Specification {
     def future = Mock(ScheduledFuture)
     def buildSuggesterIndex = Stub(BuildSuggesterIndex)

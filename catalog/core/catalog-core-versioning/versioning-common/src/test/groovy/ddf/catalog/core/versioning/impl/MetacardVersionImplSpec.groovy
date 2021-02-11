@@ -20,12 +20,15 @@ import ddf.security.service.impl.SubjectUtils
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.util.ThreadContext
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
 import java.time.Instant
 
 import static ddf.catalog.core.versioning.MetacardVersion.Action
 
+@RunWith(JUnitPlatform.class)
 class MetacardVersionImplSpec extends Specification {
 
     void setup() {

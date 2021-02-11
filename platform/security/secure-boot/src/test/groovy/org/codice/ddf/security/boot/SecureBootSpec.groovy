@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.security.boot
 
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.IgnoreIf
 
 import java.nio.file.Paths
@@ -25,6 +27,7 @@ import spock.util.environment.RestoreSystemProperties
 import java.nio.file.Files
 
 @RestoreSystemProperties
+@RunWith(JUnitPlatform.class)
 class SecureBootSpec  extends Specification {
 
     @Rule

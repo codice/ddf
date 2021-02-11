@@ -7,6 +7,8 @@ import org.apache.karaf.features.Feature
 import org.apache.karaf.features.FeaturesService
 import org.codice.ddf.sync.installer.api.SynchronizedInstallerException
 import org.codice.ddf.sync.installer.impl.SynchronizedInstallerImpl.SynchronizedConfigurationListener
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.osgi.framework.*
 import org.osgi.service.cm.Configuration
 import org.osgi.service.cm.ConfigurationAdmin
@@ -17,6 +19,7 @@ import spock.lang.Specification
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 
+@RunWith(JUnitPlatform.class)
 class SynchronizedInstallerImplSpec extends Specification {
 
     private BundleContext bundleContext

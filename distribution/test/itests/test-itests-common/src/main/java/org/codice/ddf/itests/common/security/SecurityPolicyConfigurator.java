@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.itests.common.security;
 
-import static com.jayway.restassured.RestAssured.when;
+import static io.restassured.RestAssured.when;
 import static org.awaitility.Awaitility.await;
 
 import ddf.security.audit.impl.SecurityLoggerImpl;

@@ -49,8 +49,8 @@
         <version>1.0.11</version>
     </parent>
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <!--  default URL properties -->
         <ddf.scm.connection.url />
         <snapshots.repository.url />
@@ -61,8 +61,6 @@
         <codice-maven.version>0.3</codice-maven.version>
         <!-- Must MANUALLY update this if the codice-test project's version changes -->
         <codice-test.version>0.3</codice-test.version>
-        <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
-        <acdebugger.version>1.7</acdebugger.version>
         <!-- Must MANUALLY update this if the DDF Jaxb project's version changes -->
         <ddf.jaxb.version>1.0.1</ddf.jaxb.version>
 
@@ -116,22 +114,25 @@
         <dom4j.bundle.version>2.1.3_1</dom4j.bundle.version>
 
         <!--Test properties-->
-        <byte-buddy.version>1.6.14</byte-buddy.version>
+        <byte-buddy.version>1.10.18</byte-buddy.version>
         <hamcrest-all.servicemix.version>1.3_1</hamcrest-all.servicemix.version>
         <hamcrest-all.version>1.3</hamcrest-all.version>
         <hamcrest-junit.version>2.0.0.0</hamcrest-junit.version>
         <hamcrest-optional.version>1.0</hamcrest-optional.version>
         <jsonassert.version>1.5.0</jsonassert.version>
-        <junit.version>4.12</junit.version>
-        <mockito.version>2.8.47</mockito.version>
-        <pax.exam.version>4.13.2.CODICE</pax.exam.version>
+        <junit.version>4.13.1</junit.version>
+        <spock.version>2.0-M4-groovy-3.0</spock.version>
+        <mockito.version>3.6.28</mockito.version>
+        <pax.exam.version>4.13.4</pax.exam.version>
         <pax.logging.version>1.11.6</pax.logging.version>
         <pax.url.version>2.6.2</pax.url.version>
         <pax.web.version>7.2.16</pax.web.version>
         <pax.web.jsp.version>7.2.18</pax.web.jsp.version>
         <restito.version>0.8.2</restito.version>
+        <restassured.version>3.3.0</restassured.version>
+        <groovy.version>3.0.7</groovy.version>
         <xmlunit.version>1.4</xmlunit.version>
-        <xmlunit-matchers.version>2.5.1</xmlunit-matchers.version>
+        <xmlunit-matchers.version>2.8.2</xmlunit-matchers.version>
         <auth0.jwt.version>3.8.1</auth0.jwt.version>
 
         <!--Project properties-->
@@ -139,11 +140,11 @@
         <project.report.output.directory>project-info</project.report.output.directory>
 
         <!--Documentation properties-->
-        <asciidoctor.maven.plugin.version>1.5.6</asciidoctor.maven.plugin.version>
-        <asciidoctorj.diagram.version>1.5.4.1</asciidoctorj.diagram.version>
-        <asciidoctorj.pdf.version>1.5.0-alpha.16</asciidoctorj.pdf.version>
-        <asciidoctorj.version>1.6.2</asciidoctorj.version>
-        <jruby.version>9.2.11.1</jruby.version>
+        <asciidoctor.maven.plugin.version>2.1.0</asciidoctor.maven.plugin.version>
+        <asciidoctorj.diagram.version>2.0.5</asciidoctorj.diagram.version>
+        <asciidoctorj.pdf.version>1.5.3</asciidoctorj.pdf.version>
+        <asciidoctorj.version>2.4.2</asciidoctorj.version>
+        <jruby.version>9.2.13.0</jruby.version>
         <openlayers.version>4.6.5</openlayers.version>
 
         <abdera.osgi.version>1.1.3_2</abdera.osgi.version>
@@ -151,8 +152,8 @@
         <antlr.version>4.3</antlr.version>
         <apache.shiro.version>1.6.0</apache.shiro.version>
         <asm.version>8.0.1</asm.version>
-        <awaitility.version>3.1.5</awaitility.version>
-        <bouncy.version>1.66</bouncy.version>
+        <awaitility.version>3.1.6</awaitility.version>
+        <bouncy.version>1.67</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
@@ -204,7 +205,8 @@
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
         <jackson.version>2.11.0</jackson.version>
-        <jakarta.activation.version>1.2.1</jakarta.activation.version>
+        <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
+        <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.mail.version>1.6.5</jakarta.mail.version>
         <jasypt.version>1.9.3</jasypt.version>
         <javax.annotation-api.version>1.3.5</javax.annotation-api.version>
@@ -214,6 +216,7 @@
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <javax.ws.rs.version>2.1</javax.ws.rs.version>
         <javax-el.version>3.0.0</javax-el.version>
+        <soap-api.version>1.4.2</soap-api.version>
         <jaxb.version>2.3.2</jaxb.version>
         <jvnet.jaxb2.version>0.10.0</jvnet.jaxb2.version>
         <jboss-logging.version>3.3.1.Final</jboss-logging.version>
@@ -243,12 +246,12 @@
         <logback.version>1.2.3</logback.version>
         <lucene.version>7.7.2</lucene.version>
         <mariadb.version>2.4.1</mariadb.version>
-        <maven.failsafe.version>3.0.0-M4</maven.failsafe.version>
-        <maven.surefire.version>3.0.0-M4</maven.surefire.version>
+        <maven.failsafe.version>2.22.2</maven.failsafe.version>
+        <maven.surefire.version>2.22.2</maven.surefire.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
         <netty.version>4.1.46.Final</netty.version>
-        <objenesis.version>2.6</objenesis.version>
+        <objenesis.version>3.1</objenesis.version>
         <ogc-tools-gml-jts.version>1.1.90</ogc-tools-gml-jts.version>
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
         <opengis.bundle.version>${opengis.version}_3</opengis.bundle.version>
@@ -634,6 +637,13 @@
                             </org.ops4j.pax.logging.DefaultServiceLog.level>
                         </systemPropertyVariables>
                     </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.surefire</groupId>
+                            <artifactId>surefire-junit47</artifactId>
+                            <version>${maven.surefire.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -651,17 +661,25 @@
                             </configuration>
                         </execution>
                     </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.surefire</groupId>
+                            <artifactId>surefire-junit47</artifactId>
+                            <version>${maven.surefire.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>4.2.1</version>
+                    <version>5.1.1</version>
                     <extensions>true</extensions>
                     <configuration>
                         <!-- Disabled OBR to increase build speed -->
                         <obrRepository>NONE</obrRepository>
                         <instructions>
                             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                            <_noee>true</_noee>
                         </instructions>
                     </configuration>
                 </plugin>
@@ -670,28 +688,25 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.1</version>
                     <configuration>
-                        <compilerId>javac-with-errorprone</compilerId>
-                        <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>11</source>
+                        <target>11</target>
                         <maxmem>512M</maxmem>
                         <fork>${compiler.fork}</fork>
                         <encoding>${project.build.sourceEncoding}</encoding>
+                        <compilerArgs>
+                            <arg>-XDcompilePolicy=simple</arg>
+                            <arg>-Xplugin:ErrorProne</arg>
+                            <arg>--add-exports</arg>
+                            <arg>java.base/sun.security.x509=ALL-UNNAMED</arg>
+                        </compilerArgs>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>com.google.errorprone</groupId>
+                                <artifactId>error_prone_core</artifactId>
+                                <version>2.4.0</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.codehaus.plexus</groupId>
-                            <artifactId>plexus-compiler-javac-errorprone</artifactId>
-                            <version>2.8.2</version>
-                        </dependency>
-                        <!-- override plexus-compiler-javac-errorprone's dependency on
-                             Error Prone with the latest version -->
-                        <dependency>
-                            <groupId>com.google.errorprone</groupId>
-                            <artifactId>error_prone_core</artifactId>
-                            <version>2.1.2</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -739,7 +754,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.6.0</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -866,12 +881,12 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.12.0</version>
                 <executions>
                     <execution>
                         <goals>
                             <goal>compile</goal>
-                            <goal>testCompile</goal>
+                            <goal>compileTests</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -1210,12 +1225,55 @@
      -->
     <dependencies>
         <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>spock-all</artifactId>
-            <version>${codice-test.version}</version>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.27.0-GA</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asm.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>3.3.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opentest4j</groupId>
+            <artifactId>opentest4j</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
             <type>pom</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.spockframework</groupId>
+            <artifactId>spock-junit4</artifactId>
+            <version>2.0-M4-groovy-3.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-runner</artifactId>
+            <version>1.7.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spockframework</groupId>
+            <artifactId>spock-core</artifactId>
+            <version>${spock.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
@@ -1265,18 +1323,6 @@
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
             <version>${xmlunit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>junit-extensions</artifactId>
-            <version>${codice-test.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>spock-extensions</artifactId>
-            <version>${codice-test.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

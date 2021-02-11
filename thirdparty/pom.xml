@@ -26,11 +26,10 @@
     <packaging>pom</packaging>
 
     <properties>
-        <restassured.version>2.9.0</restassured.version>
+        <restassured.version>3.3.0</restassured.version>
     </properties>
 
     <modules>
-        <module>rest-assured</module>
         <module>restito</module>
     </modules>
 </project>

@@ -18,7 +18,7 @@ import static org.codice.ddf.itests.common.AbstractIntegrationTest.CSW_REQUEST_R
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.getFileContent;
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.response.Response;
+import io.restassured.response.Response;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;

@@ -13,9 +13,12 @@
  */
 package org.codice.ddf.test.common.configurators;
 
+import static org.codice.ddf.test.common.options.VmOptions.javaModuleVmOptions;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.composite;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
@@ -82,6 +85,7 @@ public class KarafOptions implements ContainerOptions {
 
   private Option getVmOptions() {
     return composite(
+        javaModuleVmOptions(),
         vmOption("-Xmx2048M"),
         // Avoid tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),
@@ -90,6 +94,9 @@ public class KarafOptions implements ContainerOptions {
 
   private Option getPaxExamOptions() {
     return composite(
+        mavenBundle(
+            "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
+        junitBundles(),
         useOwnExamBundlesStartLevel(100),
         cleanCaches(),
         logLevel().logLevel(LogLevelOption.LogLevel.WARN));

@@ -4,7 +4,9 @@ import ddf.security.encryption.EncryptionService
 import ddf.security.samlp.LogoutWrapper
 import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.junit.Rule
+import org.junit.platform.runner.JUnitPlatform
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
 import org.opensaml.saml.common.SAMLVersion
 import org.opensaml.saml.saml2.core.LogoutRequest
 import org.opensaml.saml.saml2.core.LogoutResponse
@@ -16,20 +18,21 @@ import java.time.Instant
 import static java.time.Instant.now
 import static org.apache.commons.lang.StringUtils.isNotBlank
 
+@RunWith(JUnitPlatform.class)
 class LogoutMessageSpec extends Specification {
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()
 
     LogoutMessageImpl logoutMessage;
 
-    final String ENCRYPT_PREFIX = "ENCRYPTED "
+    String ENCRYPT_PREFIX = "ENCRYPTED "
 
-    final String NAME_ID = "MyNameId"
+    String NAME_ID = "MyNameId"
 
-    final String ISSUER_ID = "MyIssuerId"
+    String ISSUER_ID = "MyIssuerId"
 
-    final String IN_RESPONSE_TO = "InResponseToID"
-    final String SESSION_INDEX = "MySessionIndex";
+    String IN_RESPONSE_TO = "InResponseToID"
+    String SESSION_INDEX = "MySessionIndex";
 
     void setup() {
         System.setProperty("org.codice.ddf.system.hostname", "localhost")

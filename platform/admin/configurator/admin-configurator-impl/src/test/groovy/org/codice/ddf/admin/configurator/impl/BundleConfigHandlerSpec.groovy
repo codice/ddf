@@ -7,11 +7,14 @@ import org.apache.karaf.bundle.core.BundleStateService
 import org.apache.shiro.authz.Permission
 import org.apache.shiro.subject.Subject
 import org.codice.ddf.admin.configurator.ConfiguratorException
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class BundleConfigHandlerSpec extends Specification {
     private BundleStateService bundleStateService
     private ServiceReference serviceReference

@@ -1,7 +1,7 @@
 :title: Federated Source for Atlassian Confluence (R)
 :type: source
 :status: published
-:link: _federated_source_for_atlassian_confluence_r
+:link: _federated_source_for_atlassian_confluence
 :summary: Retrieve pages, comments, and attachments from an Atlassian Confluence(R) REST API.
 :federated: x
 :connected:

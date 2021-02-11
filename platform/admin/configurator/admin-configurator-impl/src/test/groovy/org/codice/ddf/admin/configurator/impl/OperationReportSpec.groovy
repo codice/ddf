@@ -15,8 +15,11 @@ package org.codice.ddf.admin.configurator.impl
 
 import org.codice.ddf.admin.configurator.ConfiguratorException
 import org.codice.ddf.admin.configurator.OperationReport
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class OperationReportSpec extends Specification {
     OperationReport report
 
@@ -46,8 +49,8 @@ class OperationReportSpec extends Specification {
     def 'report with failures'() {
         setup:
         def pass1 = ResultImpl.pass()
-        def throwable = Mock(ConfiguratorException)
-        def fail1 = ResultImpl.fail(throwable)
+        def reportThrowable = Mock(ConfiguratorException)
+        def fail1 = ResultImpl.fail(reportThrowable)
         def a1 = UUID.randomUUID()
         def b2 = UUID.randomUUID()
 
@@ -61,7 +64,7 @@ class OperationReportSpec extends Specification {
         report.getFailedResults() == [fail1]
         report.getResult(a1) == pass1
         report.getResult(b2) == fail1
-        report.getResult(b2).error.get() == throwable
+        report.getResult(b2).error.get() == reportThrowable
     }
 
     def 'pass with a managed service'() {
@@ -107,8 +110,8 @@ class OperationReportSpec extends Specification {
     def 'rollback failed'() {
         setup:
         def pass1 = ResultImpl.pass()
-        def throwable = Mock(ConfiguratorException)
-        def roll1 = ResultImpl.rollbackFail(throwable)
+        def rollbackThrowable = Mock(ConfiguratorException)
+        def roll1 = ResultImpl.rollbackFail(rollbackThrowable)
         def a1 = UUID.randomUUID()
         def b2 = UUID.randomUUID()
 
@@ -122,14 +125,14 @@ class OperationReportSpec extends Specification {
         report.getFailedResults() == [roll1]
         report.getResult(a1) == pass1
         report.getResult(b2) == roll1
-        report.getResult(b2).error.get() == throwable
+        report.getResult(b2).error.get() == rollbackThrowable
     }
 
     def 'rollback failed on a managed service'() {
         setup:
         def pass1 = ResultImpl.pass()
-        def throwable = Mock(ConfiguratorException)
-        def roll1 = ResultImpl.rollbackFailWithData(throwable, 'serviceId1')
+        def rollbackDatathrowable = Mock(ConfiguratorException)
+        def roll1 = ResultImpl.rollbackFailWithData(rollbackDatathrowable, 'serviceId1')
         def a1 = UUID.randomUUID()
         def b2 = UUID.randomUUID()
 
@@ -143,7 +146,7 @@ class OperationReportSpec extends Specification {
         report.getFailedResults() == [roll1]
         report.getResult(a1) == pass1
         report.getResult(b2) == roll1
-        report.getResult(b2).error.get() == throwable
+        report.getResult(b2).error.get() == rollbackDatathrowable
         report.getResult(b2).operationData.isPresent()
         report.getResult(b2).operationData.get() == 'serviceId1'
     }

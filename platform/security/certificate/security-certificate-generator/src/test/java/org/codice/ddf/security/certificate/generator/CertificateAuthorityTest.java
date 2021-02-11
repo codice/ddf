@@ -95,7 +95,11 @@ public class CertificateAuthorityTest {
         };
 
     when(csr.newCertificateBuilder(any(X509Certificate.class))).thenReturn(mockBuilder);
-    when(mockBuilder.build(any(ContentSigner.class))).thenThrow(CertificateException.class);
+    when(mockBuilder.build(any(ContentSigner.class)))
+        .thenAnswer(
+            invocation -> {
+              throw new CertificateException();
+            });
 
     demoCa.sign(csr);
   }
@@ -110,7 +114,11 @@ public class CertificateAuthorityTest {
         };
 
     when(csr.newCertificateBuilder(any(X509Certificate.class))).thenReturn(mockBuilder);
-    when(mockBuilder.build(any(ContentSigner.class))).thenThrow(CertIOException.class);
+    when(mockBuilder.build(any(ContentSigner.class)))
+        .thenAnswer(
+            invocation -> {
+              throw new CertIOException("test");
+            });
 
     demoCa.sign(csr);
   }

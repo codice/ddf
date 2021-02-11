@@ -98,7 +98,7 @@ public abstract class BaseTestConfiguration {
   }
 
   String inputStreamToString(InputStream inputStream) throws IOException {
-    return IOUtils.toString(inputStream, Charset.forName("UTF-8"));
+    return IOUtils.toString(inputStream, Charset.forName("UTF-8")).replaceAll("[\\r\\n]", "");
   }
 
   Metacard createMockMetacardWithBadImageData(String title) {

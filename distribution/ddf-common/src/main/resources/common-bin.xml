@@ -185,6 +185,11 @@
         </fileSet>
 
         <fileSet>
+            <directory>${setup.folder}/jdk9plus</directory>
+            <outputDirectory>/lib/jdk9plus</outputDirectory>
+        </fileSet>
+
+        <fileSet>
             <directory>${setup.folder}/boot</directory>
             <outputDirectory>/lib/boot</outputDirectory>
         </fileSet>
@@ -326,24 +331,6 @@
             </outputDirectory>
             <includes>
                 <include>org.eclipse.platform:org.eclipse.osgi:jar:${equinox.version}</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>
-                system/org/codice/acdebugger/acdebugger-api/${acdebugger.version}
-            </outputDirectory>
-            <includes>
-                <include>org.codice.acdebugger:acdebugger-api:jar:${acdebugger.version}
-                </include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>
-                system/org/codice/acdebugger/acdebugger-backdoor/${acdebugger.version}
-            </outputDirectory>
-            <includes>
-                <include>org.codice.acdebugger:acdebugger-backdoor:jar:${acdebugger.version}
-                </include>
             </includes>
         </dependencySet>
         <dependencySet>

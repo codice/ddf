@@ -169,13 +169,6 @@ public class AttributeQueryClientTest {
   }
 
   @Test(expected = AttributeQueryException.class)
-  public void testRetrieveResponseDispatchException() {
-    setResponse(cannedResponse, true);
-
-    attributeQueryClient.query(USERNAME);
-  }
-
-  @Test(expected = AttributeQueryException.class)
   public void testRetrieveResponseSimpleSignSignatureException() throws SignatureException {
     doThrow(new SignatureException())
         .when(spySimpleSign)

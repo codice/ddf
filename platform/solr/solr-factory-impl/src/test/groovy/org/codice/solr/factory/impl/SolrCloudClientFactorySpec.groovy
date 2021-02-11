@@ -32,7 +32,9 @@ import org.apache.zookeeper.KeeperException
 import org.codice.spock.ClearInterruptions
 import org.codice.spock.Supplemental
 import org.junit.Rule
+import org.junit.platform.runner.JUnitPlatform
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Timeout
@@ -44,6 +46,7 @@ import static org.apache.solr.common.SolrException.ErrorCode.BAD_REQUEST
 
 @RestoreSystemProperties
 @Supplemental
+@RunWith(JUnitPlatform.class)
 class SolrCloudClientFactorySpec extends Specification {
   static final String CORE = "test_core"
   static final String DATA_DIR = "data_dir"

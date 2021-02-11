@@ -13,9 +13,9 @@
  */
 package ddf.test.itests.catalog;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
 import static ddf.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static java.lang.String.format;
 import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
@@ -45,15 +45,15 @@ import static org.junit.Assert.fail;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.jayway.restassured.path.xml.XmlPath;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.response.ValidatableResponse;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.plugin.PostIngestPlugin;
+import io.restassured.path.xml.XmlPath;
+import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1527,6 +1527,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                   "application/vnd.openxmlformats-officedocument.presentationml.presentation")
               .expect()
               .statusCode(201)
+              .when()
               .post(REST_PATH.getUrl())
               .getHeader("id");
     }

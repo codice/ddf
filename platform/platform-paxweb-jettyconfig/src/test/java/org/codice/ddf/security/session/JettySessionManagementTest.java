@@ -21,8 +21,8 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.filter.session.SessionFilter;
+import io.restassured.RestAssured;
+import io.restassured.filter.session.SessionFilter;
 import java.io.IOException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

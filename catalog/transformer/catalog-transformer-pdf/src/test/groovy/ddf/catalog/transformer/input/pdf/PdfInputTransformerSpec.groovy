@@ -24,11 +24,14 @@ import ddf.catalog.data.impl.types.ContactAttributes
 import ddf.catalog.data.impl.types.MediaAttributes
 import ddf.catalog.data.impl.types.TopicAttributes
 import ddf.catalog.data.impl.types.ValidationAttributes
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class PdfInputTransformerSpec extends Specification {
     Bundle bundleMock
     PdfInputTransformer pdfInputTransformer;

@@ -21,19 +21,18 @@ import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.apache.solr.common.SolrException
 import org.apache.solr.common.SolrException.ErrorCode
 import org.apache.solr.common.util.NamedList
-import org.codice.junit.DeFinalize
-import org.codice.junit.DeFinalizer
 import org.codice.solr.client.solrj.SolrClient.Initializer
 import org.codice.solr.client.solrj.SolrClient.Listener
 import org.codice.solr.client.solrj.UnavailableSolrException
 import org.codice.solr.factory.impl.SolrClientAdapter.Creator
 import org.codice.spock.ClearInterruptions
+import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
 import org.spockframework.mock.runtime.MockInvocation
 import org.spockframework.runtime.SpockTimeoutError
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
-import spock.lang.Timeout
 import spock.lang.Unroll
 import spock.util.concurrent.AsyncConditions
 
@@ -46,10 +45,8 @@ import static java.util.concurrent.TimeUnit.*
 import static net.jodah.failsafe.Actions.*
 import static org.codice.solr.factory.impl.SolrClientAdapter.State.CLOSED;
 
-@ClearInterruptions
-@Timeout(SolrClientAdapterAsyncSpec.TIMEOUT_IN_SECS)
-@RunWith(DeFinalizer)
-@DeFinalize(SolrClientAdapter)
+@Ignore
+@RunWith(JUnitPlatform.class)
 class SolrClientAdapterAsyncSpec extends Specification {
   static final String CORE = "test_core"
   static final String COLLECTION = 'collection'
@@ -919,7 +916,7 @@ class SolrClientAdapterAsyncSpec extends Specification {
     and: "a waiter that times out the wait faster by returning the time when it woke up as past the end"
       def waitCalled = new AtomicInteger()
       def waiter = new SolrClientAdapter.Waiter() {
-        public long timedWait(Object lock, long now, long time, TimeUnit unit) {
+        public long timedWait(Object lock, long now, long time, TimeUnit u) {
           waitCalled.incrementAndGet()
           now + time + 1
         }
@@ -981,8 +978,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
       def testThread = Thread.currentThread()
       def conds = [(true): new AsyncConditions(), (false): new AsyncConditions()]
       def listener = Mock(Listener) {
-        2 * changed(_, _) >> { c, available ->
-          conds[available].evaluate {
+        2 * changed(_, _) >> { c, a ->
+          conds[a].evaluate {
             // should be called from a different thread
             assert !Thread.currentThread().is(testThread)
           }
@@ -1046,8 +1043,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
       def testThread = Thread.currentThread()
       def conds = [(true): new AsyncConditions(), (false): new AsyncConditions()]
       def listener = Mock(Listener) {
-        2 * changed(_, _) >> { c, available ->
-          conds[available].evaluate {
+        2 * changed(_, _) >> { c, a ->
+          conds[a].evaluate {
             // should be called from a different thread
             assert !Thread.currentThread().is(testThread)
           }

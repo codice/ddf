@@ -18,9 +18,12 @@ import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.validation.ValidationException
 import ddf.catalog.validation.impl.validator.RelationshipValidator
 import ddf.catalog.validation.report.MetacardValidationReport
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 
+@RunWith(JUnitPlatform.class)
 class RelationshipValidatorSpec extends Specification {
     public static final String MUST_HAVE = "mustHave"
     public static final String CANNOT_HAVE = "cannotHave"

@@ -17,8 +17,11 @@ import ddf.catalog.impl.FrameworkProperties
 import ddf.catalog.operation.Request
 import ddf.catalog.source.CatalogProvider
 import ddf.catalog.source.CatalogStore
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class OperationsCatalogStoreSupportSpec extends Specification {
 
     private static final String SOURCE_ID = 'test_source'

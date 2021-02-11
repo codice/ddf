@@ -28,15 +28,18 @@ import ddf.catalog.util.impl.CatalogQueryException
 import org.apache.solr.client.solrj.SolrServerException
 import org.codice.solr.client.solrj.SolrClient
 import org.codice.solr.client.solrj.UnavailableSolrException
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import org.opengis.filter.Filter
 import spock.lang.Unroll
 
+@RunWith(JUnitPlatform.class)
 class SyncCatalogCommandSpec extends Specification {
 
-    private final CatalogFramework mockCatalogFramework = Mock()
+    private CatalogFramework mockCatalogFramework = Mock()
 
-    private final SyncCatalogCommand syncCatalogCommand = new SyncCatalogCommand().with {
+    private SyncCatalogCommand syncCatalogCommand = new SyncCatalogCommand().with {
         catalogFramework = mockCatalogFramework
         filterBuilder = Mock(FilterBuilder) {
             attribute(_) >> Mock(AttributeBuilder) {
@@ -48,7 +51,7 @@ class SyncCatalogCommandSpec extends Specification {
         return it
     }
 
-    private final SolrClient mockSolrClient = Mock()
+    private SolrClient mockSolrClient = Mock()
 
     def 'test executeWithSolrClient'() {
         when:
@@ -72,14 +75,14 @@ class SyncCatalogCommandSpec extends Specification {
     @Unroll("test CatalogFramework query fails with #exceptionType")
     def 'test CatalogFramework query fails'() {
         given:
-        final mockException = Mock(exceptionType)
+        def mockException = Mock(exceptionType)
         mockCatalogFramework.query(_) >> { throw mockException }
 
         when:
         syncCatalogCommand.executeWithSolrClient(mockSolrClient)
 
         then:
-        final CatalogQueryException e = thrown()
+        def CatalogQueryException e = thrown()
         e.getCause() == mockException
 
         where:
@@ -101,7 +104,7 @@ class SyncCatalogCommandSpec extends Specification {
         }
 
         and:
-        final mockException = Mock(exceptionType)
+        def mockException = Mock(exceptionType)
         mockSolrClient.add(*_) >> { throw mockException }
 
         when:

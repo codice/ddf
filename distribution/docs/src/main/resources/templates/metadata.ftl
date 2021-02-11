@@ -12,7 +12,7 @@ include::config.adoc[]
 :reference-prefix: reference.adoc#_
 :using-prefix: using.adoc#_
 
-<#include "build/metadata-reference.ftl">
+<#include "metadata-reference.ftl">
 
 ifdef::backend-html5[]
 

@@ -15,10 +15,13 @@ package org.codice.solr.factory.impl
 
 import org.apache.solr.client.solrj.SolrClient
 import org.codice.spock.Supplemental
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 
 @Supplemental
+@RunWith(JUnitPlatform.class)
 class PingAwareSolrClientProxySpec extends Specification {
   @Unroll
   def 'test constructor with #test_constructor_with'() {

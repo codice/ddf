@@ -13,8 +13,11 @@
  */
 package org.codice.ddf.catalog.admin.poller
 
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class AdminPollerServiceBeanSpec extends Specification {
 
     def "test LDAP filter generation"() {

@@ -6,8 +6,11 @@ import ddf.catalog.data.types.Core
 import ddf.catalog.operation.ResourceResponse
 import ddf.catalog.resource.Resource
 import ddf.catalog.resource.ResourceReader
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 
+@RunWith(JUnitPlatform.class)
 class LocalResourceRetrieverSpec extends Specification {
 
     String TEST_SCHEME = "testScheme"
