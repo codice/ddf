@@ -31,7 +31,6 @@ const _ = require('underscore')
 const announcement = require('../../component/announcement/index.jsx')
 const properties = require('../../js/properties.js')
 const contentDisposition = require('content-disposition')
-import { getResultSetCql } from '../../react-component/utils/cql'
 
 type ExportResponse = {
   displayName: string
@@ -93,29 +92,40 @@ function getHiddenFields(): string[] {
     .get('preferences')
     .get('columnHide')
 }
-function getHiddenResults(exportSize: string): string[] {
-  return exportSize === 'visible'
-    ? user
+function getHiddenResults(
+  exportSize: string,
+  selectionInterface: any
+): string[] {
+  let hiddenResultIds: string[] = []
+  if (exportSize === 'visible') {
+    hiddenResultIds = user
+      .get('user')
+      .get('preferences')
+      .get('resultBlacklist')
+      .map((result: any) => result.get('id'))
+
+    if (
+      user
         .get('user')
         .get('preferences')
-        .get('resultBlacklist')
-        .map((result: any) => result.get('id'))
-    : []
-}
-export function limitToVisible(
-  selectionInterface: any,
-  exportSize: string
-): string {
-  let combCql = selectionInterface.getCurrentQuery().get('cql')
-  if (exportSize === 'visible') {
-    const visibleCql = getResultSetCql(
-      selectionInterface
+        .get('resultFilter')
+    ) {
+      let visibleResultIds: string[] = selectionInterface
         .getActiveSearchResults()
         .map((result: any) => result.get('metacard').id)
-    )
-    combCql = `(${[combCql, visibleCql].join(' AND ')})`
+
+      selectionInterface
+        .getCurrentQuery()
+        .get('result')
+        .get('results')
+        .map((result: any) => {
+          if (!visibleResultIds.includes(result.get('metacard').id)) {
+            hiddenResultIds.push(result.get('metacard').id)
+          }
+        })
+    }
   }
-  return combCql
+  return hiddenResultIds
 }
 function getSearches(
   exportSize: string,
@@ -222,10 +232,10 @@ export const getDownloadBody = (downloadInfo: DownloadInfo) => {
     getExportCount({ exportSize, selectionInterface, customExportCount }),
     properties.exportResultLimit
   )
-  const cql = limitToVisible(selectionInterface, exportSize)
+  const cql = selectionInterface.getCurrentQuery().get('cql')
   const srcs = getSrcs(selectionInterface)
   const sorts = getSorts(selectionInterface)
-  const hiddenResults = getHiddenResults(exportSize)
+  const hiddenResults = getHiddenResults(exportSize, selectionInterface)
   const args = {
     hiddenFields: hiddenFields.length > 0 ? hiddenFields : [],
     columnOrder: columnOrder.length > 0 ? columnOrder : {},

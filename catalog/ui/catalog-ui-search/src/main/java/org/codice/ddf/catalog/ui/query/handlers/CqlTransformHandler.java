@@ -341,8 +341,13 @@ public class CqlTransformHandler implements Route {
   private String getWarningMessage(
       String warningMsg, String idName, List<String> resultsNotToExport) {
     int count = 0;
+    int maxID = Math.min(resultsNotToExport.size(), 10);
     for (String resultId : resultsNotToExport) {
       warningMsg += String.format("\\n%s) %s: %s", ++count, idName, resultId);
+      if (maxID == count) {
+        warningMsg += String.format("\\n.... Total not exported: %s", resultsNotToExport.size());
+        break;
+      }
     }
     return warningMsg;
   }
