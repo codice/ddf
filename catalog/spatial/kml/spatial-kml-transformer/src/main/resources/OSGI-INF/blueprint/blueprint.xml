@@ -54,7 +54,11 @@
             <entry key="description"
                    value="Transforms a Metacard to KML for use with Google Earth and other visualization tools."/>
             <entry key="displayName" value="KML"/>
-            <entry key="generateActionProvider" value="false"/>
+            <entry key="required-attributes">
+                <list>
+                    <value>location</value>
+                </list>
+            </entry>
         </service-properties>
     </service>
 
@@ -66,6 +70,11 @@
             <entry key="description"
                    value="Transforms a Metacard to KML for use with Google Earth and other visualization tools."/>
             <entry key="displayName" value="KML"/>
+            <entry key="required-attributes">
+                <list>
+                    <value>location</value>
+                </list>
+            </entry>
         </service-properties>
     </service>
 
@@ -77,7 +86,11 @@
             <entry key="description"
                    value="Transforms a Metacard to KMZ for use with Google Earth and other visualization tools."/>
             <entry key="displayName" value="KMZ"/>
-            <entry key="generateActionProvider" value="false"/>
+            <entry key="required-attributes">
+                <list>
+                    <value>location</value>
+                </list>
+            </entry>
         </service-properties>
     </service>
 
@@ -89,6 +102,11 @@
             <entry key="description"
                    value="Transforms a Metacard to KMZ for use with Google Earth and other visualization tools."/>
             <entry key="displayName" value="KMZ"/>
+            <entry key="required-attributes">
+                <list>
+                    <value>location</value>
+                </list>
+            </entry>
         </service-properties>
     </service>
 
@@ -154,30 +172,6 @@
                     <value>application/vnd.google-earth.kmz</value>
                 </list>
             </entry>
-        </service-properties>
-    </service>
-
-    <bean id="kmlActionProvider"
-          class="org.codice.ddf.spatial.kml.actions.KmlActionProvider">
-        <argument value="catalog.data.metacard.kml"/>
-        <argument value="kml"/>
-    </bean>
-
-    <bean id="kmzActionProvider"
-          class="org.codice.ddf.spatial.kml.actions.KmlActionProvider">
-        <argument value="catalog.data.metacard.kmz"/>
-        <argument value="kmz"/>
-    </bean>
-
-    <service ref="kmlActionProvider" interface="ddf.action.ActionProvider">
-        <service-properties>
-            <entry key="id" value="catalog.data.metacard.kml"/>
-        </service-properties>
-    </service>
-
-    <service ref="kmzActionProvider" interface="ddf.action.ActionProvider">
-        <service-properties>
-            <entry key="id" value="catalog.data.metacard.kmz"/>
         </service-properties>
     </service>
 

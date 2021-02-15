@@ -26,6 +26,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.actions.AbstractMetacardActionProvider;
@@ -42,7 +44,7 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
 
   private String metacardTransformerId;
 
-  private String attributeName;
+  private List<String> attributeNames;
 
   private String baseUrl;
 
@@ -55,7 +57,7 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
    * @param metacardTransformerId
    */
   public MetacardTransformerActionProvider(String actionProviderId, String metacardTransformerId) {
-    this(actionProviderId, metacardTransformerId, "");
+    this(actionProviderId, metacardTransformerId, Collections.emptyList());
   }
 
   /**
@@ -63,16 +65,16 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
    *
    * @param actionProviderId
    * @param metacardTransformerId
-   * @param attributeName
+   * @param attributeNames
    */
   public MetacardTransformerActionProvider(
-      String actionProviderId, String metacardTransformerId, String attributeName) {
+      String actionProviderId, String metacardTransformerId, List<String> attributeNames) {
     super(
         actionProviderId,
         TITLE_PREFIX + metacardTransformerId,
         DESCRIPTION_PREFIX + metacardTransformerId + DESCRIPTION_SUFFIX);
     this.metacardTransformerId = metacardTransformerId;
-    this.attributeName = attributeName;
+    this.attributeNames = attributeNames;
     initBaseUrl(SystemBaseUrl.EXTERNAL.getBaseUrl());
     initContext(SystemBaseUrl.EXTERNAL.getRootContext(), SystemBaseUrl.INTERNAL.getRootContext());
   }
@@ -87,9 +89,13 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
 
   @Override
   protected boolean canHandleMetacard(Metacard metacard) {
-    if (StringUtils.isNotBlank(attributeName)) {
-      Attribute attr = metacard.getAttribute(attributeName);
-      return (attr != null && attr.getValue() != null);
+    if (attributeNames != null && !attributeNames.isEmpty()) {
+      for (String attrName : attributeNames) {
+        Attribute attr = metacard.getAttribute(attrName);
+        if (attr == null || attr.getValue() == null) {
+          return false;
+        }
+      }
     }
     return true;
   }

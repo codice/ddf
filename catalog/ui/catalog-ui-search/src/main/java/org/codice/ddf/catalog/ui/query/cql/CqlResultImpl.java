@@ -156,10 +156,10 @@ public class CqlResultImpl implements CqlResult {
   }
 
   private String getDisplayName(TransformerDescriptors descriptors, String id, String title) {
-    Map<String, String> transformerDescriptor = descriptors.getMetacardTransformer(id);
+    Map<String, Object> transformerDescriptor = descriptors.getMetacardTransformer(id);
 
     if (transformerDescriptor != null) {
-      return transformerDescriptor.get("displayName");
+      return (String) transformerDescriptor.get("displayName");
     }
 
     return title.replaceFirst("^Export( as)?\\s+\\b", "");

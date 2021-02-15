@@ -29,6 +29,8 @@ import org.osgi.framework.ServiceReference;
  */
 public class TransformerDescriptors {
 
+  public static final String REQUIRED_ATTR = "required-attributes";
+
   private final List<ServiceReference> metacardTransformers;
 
   private final List<ServiceReference> queryResponseTransformers;
@@ -44,22 +46,22 @@ public class TransformerDescriptors {
     this.queryResponseTransformers = queryResponseTransformers;
   }
 
-  public List<Map<String, String>> getMetacardTransformers() {
+  public List<Map<String, Object>> getMetacardTransformers() {
     return getTransformerDescriptors(metacardTransformers, blackListedMetacardTransformerIds);
   }
 
-  public List<Map<String, String>> getQueryResponseTransformers() {
+  public List<Map<String, Object>> getQueryResponseTransformers() {
     return getTransformerDescriptors(
         queryResponseTransformers, blackListedQueryResponseTransformerIds);
   }
 
   @Nullable
-  public Map<String, String> getMetacardTransformer(String id) {
+  public Map<String, Object> getMetacardTransformer(String id) {
     return getTransformerDescriptor(metacardTransformers, blackListedMetacardTransformerIds, id);
   }
 
   @Nullable
-  public Map<String, String> getQueryResponseTransformer(String id) {
+  public Map<String, Object> getQueryResponseTransformer(String id) {
     return getTransformerDescriptor(
         queryResponseTransformers, blackListedQueryResponseTransformerIds, id);
   }
@@ -78,7 +80,7 @@ public class TransformerDescriptors {
   }
 
   @Nullable
-  private Map<String, String> getTransformerDescriptor(
+  private Map<String, Object> getTransformerDescriptor(
       List<ServiceReference> serviceReferences, Set<String> blacklist, String id) {
     for (ServiceReference serviceRef : serviceReferences) {
       Object idProperty = serviceRef.getProperty("id");
@@ -95,7 +97,7 @@ public class TransformerDescriptors {
     return null;
   }
 
-  private List<Map<String, String>> getTransformerDescriptors(
+  private List<Map<String, Object>> getTransformerDescriptors(
       List<ServiceReference> transformers, Set<String> blacklist) {
     return transformers
         .stream()
@@ -105,11 +107,22 @@ public class TransformerDescriptors {
         .collect(Collectors.toList());
   }
 
-  private Map<String, String> getTransformerDescriptor(ServiceReference serviceRef) {
-    return new ImmutableMap.Builder<String, String>()
+  private Map<String, Object> getTransformerDescriptor(ServiceReference serviceRef) {
+    return new ImmutableMap.Builder<String, Object>()
         .put("id", serviceRef.getProperty("id").toString())
         .put("displayName", getDisplayName(serviceRef))
+        .put(REQUIRED_ATTR, getRequiredAttributes(serviceRef))
         .build();
+  }
+
+  private Object getRequiredAttributes(ServiceReference serviceRef) {
+    Object requiredAttributes = serviceRef.getProperty(REQUIRED_ATTR);
+
+    if (requiredAttributes == null) {
+      return Collections.emptyList();
+    }
+
+    return requiredAttributes;
   }
 
   private String getDisplayName(ServiceReference serviceRef) {

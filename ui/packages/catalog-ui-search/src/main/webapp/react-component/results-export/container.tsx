@@ -20,6 +20,8 @@ import { exportResultSet } from '../utils/export'
 import { getResultSetCql } from '../utils/cql'
 import saveFile from '../utils/save-file'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
+const _ = require('lodash')
+const announcement = require('../../component/announcement/index.jsx')
 const properties = require('../../js/properties.js')
 
 const contentDisposition = require('content-disposition')
@@ -27,6 +29,7 @@ const contentDisposition = require('content-disposition')
 type ExportFormat = {
   id: string
   displayName: string
+  'required-attributes': string[]
 }
 
 type Result = {
@@ -78,6 +81,26 @@ class ResultsExport extends React.Component<Props, State> {
   fetchExportOptions = () => {
     fetch(`./internal/transformers/${this.getTransformerType()}`)
       .then(response => response.json())
+      .then((exportFormats: ExportFormat[]) => {
+        const resultsAttributes = Array.from(
+          new Set(
+            this.props.results
+              .map((result: Result) => result.attributes)
+              .reduce((result, arr) => result.concat(arr))
+          )
+        )
+        return exportFormats.filter(exportFormat => {
+          if (exportFormat['required-attributes'].length == 0) {
+            return true
+          }
+          return (
+            _.intersection(
+              exportFormat['required-attributes'],
+              resultsAttributes
+            ).length == exportFormat['required-attributes'].length
+          )
+        })
+      })
       .then((exportFormats: ExportFormat[]) => {
         return exportFormats.sort(
           (format1: ExportFormat, format2: ExportFormat) => {
@@ -175,6 +198,24 @@ class ResultsExport extends React.Component<Props, State> {
       const data = await response.blob()
 
       saveFile(filename, 'data:' + contentType, data)
+      const warning = response.headers.get('warning')
+      if (warning) {
+        announcement.announce(
+          {
+            title: 'Warning',
+            message: warning.split('\\n'),
+            type: 'warn',
+          },
+          15000
+        )
+      }
+    } else {
+      const data = await response.json()
+      announcement.announce({
+        title: 'Error',
+        message: ['Could not export result(s).', (data && data.message) || ''],
+        type: 'error',
+      })
     }
   }
   handleExportOptionChange(name: string) {

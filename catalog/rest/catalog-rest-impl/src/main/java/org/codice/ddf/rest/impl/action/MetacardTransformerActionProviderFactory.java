@@ -13,10 +13,12 @@
  */
 package org.codice.ddf.rest.impl.action;
 
+import java.util.List;
+
 public class MetacardTransformerActionProviderFactory {
 
   public MetacardTransformerActionProvider createActionProvider(
-      String id, String transformer, String attributeName) {
-    return new MetacardTransformerActionProvider(id, transformer, attributeName);
+      String id, String transformer, List<String> attributeNames) {
+    return new MetacardTransformerActionProvider(id, transformer, attributeNames);
   }
 }

@@ -92,14 +92,40 @@ function getHiddenFields(): string[] {
     .get('preferences')
     .get('columnHide')
 }
-function getHiddenResults(exportSize: string): string[] {
-  return exportSize === 'visible'
-    ? user
+function getHiddenResults(
+  exportSize: string,
+  selectionInterface: any
+): string[] {
+  let hiddenResultIds: string[] = []
+  if (exportSize === 'visible') {
+    hiddenResultIds = user
+      .get('user')
+      .get('preferences')
+      .get('resultBlacklist')
+      .map((result: any) => result.get('id'))
+
+    if (
+      user
         .get('user')
         .get('preferences')
-        .get('resultBlacklist')
-        .map((result: any) => result.get('id'))
-    : []
+        .get('resultFilter')
+    ) {
+      let visibleResultIds: string[] = selectionInterface
+        .getActiveSearchResults()
+        .map((result: any) => result.get('metacard').id)
+
+      selectionInterface
+        .getCurrentQuery()
+        .get('result')
+        .get('results')
+        .map((result: any) => {
+          if (!visibleResultIds.includes(result.get('metacard').id)) {
+            hiddenResultIds.push(result.get('metacard').id)
+          }
+        })
+    }
+  }
+  return hiddenResultIds
 }
 function getSearches(
   exportSize: string,
@@ -209,7 +235,7 @@ export const getDownloadBody = (downloadInfo: DownloadInfo) => {
   const cql = selectionInterface.getCurrentQuery().get('cql')
   const srcs = getSrcs(selectionInterface)
   const sorts = getSorts(selectionInterface)
-  const hiddenResults = getHiddenResults(exportSize)
+  const hiddenResults = getHiddenResults(exportSize, selectionInterface)
   const args = {
     hiddenFields: hiddenFields.length > 0 ? hiddenFields : [],
     columnOrder: columnOrder.length > 0 ? columnOrder : {},
@@ -245,10 +271,22 @@ export const onDownloadSuccess = async (response: Response) => {
       response.headers.get('content-disposition')
     ).parameters.filename
     saveFile(filename, 'data:' + contentType, data)
+    const warning = response.headers.get('warning')
+    if (warning) {
+      announcement.announce(
+        {
+          title: 'Warning',
+          message: warning.split('\\n'),
+          type: 'warn',
+        },
+        15000
+      )
+    }
   } else {
+    const data = await response.json()
     announcement.announce({
       title: 'Error',
-      message: 'Could not export results.',
+      message: ['Could not export result(s).', (data && data.message) || ''],
       type: 'error',
     })
   }
@@ -257,23 +295,27 @@ export const onDownloadSuccess = async (response: Response) => {
 const TableExports = (props: Props) => {
   const [formats, setFormats] = useState([])
 
-  useEffect(() => {
-    const fetchFormats = async () => {
-      const exportFormats = await getExportOptions(Transformer.Query)
-      const sortedExportFormats = exportFormats.sort(
-        (format1: ExportResponse, format2: ExportResponse) => {
-          return format1.displayName.localeCompare(format2.displayName)
-        }
-      )
-      setFormats(
-        sortedExportFormats.map((exportFormat: ExportResponse) => ({
-          label: exportFormat.displayName,
-          value: exportFormat.id,
-        }))
-      )
-    }
-    fetchFormats()
-  }, [])
+  useEffect(
+    () => {
+      const fetchFormats = async () => {
+        setFormats([])
+        const exportFormats = await getExportOptions(Transformer.Query)
+        const sortedExportFormats = exportFormats.sort(
+          (format1: ExportResponse, format2: ExportResponse) => {
+            return format1.displayName.localeCompare(format2.displayName)
+          }
+        )
+        setFormats(
+          sortedExportFormats.map((exportFormat: ExportResponse) => ({
+            label: exportFormat.displayName,
+            value: exportFormat.id,
+          }))
+        )
+      }
+      fetchFormats()
+    },
+    [props.filteredAttributes]
+  )
 
   return (
     <TableExport

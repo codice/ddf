@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.ui.query.handlers;
 
 import static junit.framework.TestCase.assertNull;
+import static org.codice.ddf.catalog.ui.transformer.TransformerDescriptors.REQUIRED_ATTR;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.matchesPattern;
@@ -27,12 +28,16 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +89,10 @@ public class CqlTransformHandlerTest {
   private static final String OTHER_RETURN_ID = "xml";
   private static final String MIME_TYPE = "application/vnd.google-earth.kml+xml";
   private static final String SAFE_BODY =
-      "{\"searches\":[{\"srcs\":[\"ddf.distribution\"],\"cql\":\"anyText ILIKE '*'\",\"count\":250}],\"count\":250,\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\"}";
+      "{\"searches\":[{\"srcs\":[\"ddf.distribution\"],\"cql\":\"anyText ILIKE '*'\",\"count\":250}],\"count\":250,\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\",\"args\":{\"columnAliasMap\":{\"location\":\"Location\"}}}";
+  private static final String SAFE_BODY_NO_ARGS =
+      "{\"searches\":[{\"srcs\":[\"ddf.distribution\"],\"cql\":\"anyText ILIKE '*'\",\"count\":250}],\"count\":250,\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\",\"args\":{}}";
+
   private static final String CONTENT = "test";
   private static final String SERVICE_NOT_FOUND = "\"Service not found\"";
   private static final String SERVICE_SUCCESS = GSON.toJson("");
@@ -92,6 +100,9 @@ public class CqlTransformHandlerTest {
       "^attachment;filename=\"export-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?Z."
           + RETURN_ID
           + "\"$";
+  private static final String METACARD_ID1 = "7a491439-948e-431b-815e-a04f32fecec9";
+  private static final String METACARD_ID2 = "8cf7f8b689e8453abea53f5c99fb3c6f";
+  private static final String WARNING_HEADER = "Following not exported, missing required field(s)";
 
   private class MockResponse extends Response {
 
@@ -154,6 +165,8 @@ public class CqlTransformHandlerTest {
 
     when(mockServiceReference.getProperty(Core.ID)).thenReturn(RETURN_ID);
     when(mockServiceReference.getProperty("mime-type")).thenReturn(ImmutableList.of(MIME_TYPE));
+    when(mockServiceReference.getProperty(REQUIRED_ATTR))
+        .thenReturn(ImmutableList.of("location", "id"));
 
     MimeType mimeType = new MimeType(MIME_TYPE);
     binaryContent = new BinaryContentImpl(new ByteArrayInputStream(CONTENT.getBytes()), mimeType);
@@ -206,6 +219,78 @@ public class CqlTransformHandlerTest {
   }
 
   @Test
+  public void testServiceFoundWithValidResponseAndWarning() throws Exception {
+    List<Result> resultList =
+        createFakeMetacards(
+            METACARD_ID1,
+            "fakeMetacard1",
+            "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))",
+            METACARD_ID2,
+            "fakeMetacard2",
+            null);
+    when(mockQueryResponse.getResults()).thenReturn(resultList);
+    when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn(GZIP);
+    when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
+
+    String res = GSON.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
+
+    assertThat(res, is(SERVICE_SUCCESS));
+    assertThat(mockResponse.status(), is(HttpStatus.OK_200));
+    assertThat(
+        mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION),
+        matchesPattern(ATTACHMENT_REGEX));
+    assertThat(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING), is(GZIP));
+    assertThat(mockResponse.type(), is(MIME_TYPE));
+    assertThat(mockResponse.getHeaders().get("warning"), containsString(WARNING_HEADER));
+    assertThat(mockResponse.getHeaders().get("warning"), containsString(METACARD_ID2));
+    assertThat(mockResponse.getHeaders().get("warning"), containsString("Location"));
+  }
+
+  @Test
+  public void testNoArgsServiceFoundWithValidResponseAndWarning() throws Exception {
+    when(mockEndpointUtil.safeGetBody(mockRequest)).thenReturn(SAFE_BODY_NO_ARGS);
+    List<Result> resultList =
+        createFakeMetacards(
+            METACARD_ID1,
+            "fakeMetacard1",
+            "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))",
+            METACARD_ID2,
+            "fakeMetacard2",
+            null);
+    when(mockQueryResponse.getResults()).thenReturn(resultList);
+    when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn(GZIP);
+    when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
+
+    String res = GSON.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
+
+    assertThat(res, is(SERVICE_SUCCESS));
+    assertThat(mockResponse.status(), is(HttpStatus.OK_200));
+    assertThat(
+        mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION),
+        matchesPattern(ATTACHMENT_REGEX));
+    assertThat(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING), is(GZIP));
+    assertThat(mockResponse.type(), is(MIME_TYPE));
+    assertThat(mockResponse.getHeaders().get("warning"), containsString(WARNING_HEADER));
+    assertThat(mockResponse.getHeaders().get("warning"), containsString(METACARD_ID2));
+    assertThat(mockResponse.getHeaders().get("warning"), containsString("location"));
+  }
+
+  @Test
+  public void testServiceFoundWithResultsMissingRequiredAttributes() throws Exception {
+    List<Result> resultList =
+        createFakeMetacards(METACARD_ID1, "fakeMetacard1", null, null, null, null);
+    when(mockQueryResponse.getResults()).thenReturn(Arrays.asList(resultList.get(0)));
+    when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn(GZIP);
+    when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
+
+    String res = GSON.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
+
+    assertThat(res, containsString("Result(s) missing required field(s):"));
+    assertThat(mockResponse.status(), is(HttpStatus.BAD_REQUEST_400));
+    assertNull(mockResponse.getHeaders().get("warning"));
+  }
+
+  @Test
   public void testServiceFoundWithValidResponseNoGzip() throws Exception {
     when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn(NO_GZIP);
 
@@ -220,5 +305,24 @@ public class CqlTransformHandlerTest {
         matchesPattern(ATTACHMENT_REGEX));
     assertNull(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING));
     assertThat(mockResponse.type(), is(MIME_TYPE));
+  }
+
+  private List<Result> createFakeMetacards(
+      String id1, String title1, String wkt1, String id2, String title2, String wkt2) {
+    ResultImpl fakeResult1 = new ResultImpl();
+    MetacardImpl fakeMetacard1 = new MetacardImpl();
+    fakeMetacard1.setId(id1);
+    fakeMetacard1.setTitle(title1);
+    fakeMetacard1.setLocation(wkt1);
+    fakeResult1.setMetacard(fakeMetacard1);
+
+    ResultImpl fakeResult2 = new ResultImpl();
+    MetacardImpl fakeMetacard2 = new MetacardImpl();
+    fakeMetacard2.setId(id2);
+    fakeMetacard2.setTitle(title2);
+    fakeMetacard2.setLocation(wkt2);
+    fakeResult2.setMetacard(fakeMetacard2);
+
+    return Arrays.asList(fakeResult1, fakeResult2);
   }
 }
