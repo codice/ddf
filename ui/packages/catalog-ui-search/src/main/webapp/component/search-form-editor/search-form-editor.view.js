@@ -132,9 +132,11 @@ module.exports = Marionette.LayoutView.extend({
             filterTemplate.filters || [filterTemplate]
           ).filter(filter => CQLUtils.isGeoFilter(filter.type))
           const coords = this.wktToCoords(geoFilters)
-          Common.queueExecution(() => {
-            this.map.currentView.map.zoomToExtent(coords)
-          })
+          if (Array.isArray(coords) && coords.length > 0) {
+            Common.queueExecution(() => {
+              this.map.currentView.map.zoomToExtent(coords)
+            })
+          }
         },
       })
     )
