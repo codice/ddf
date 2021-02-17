@@ -89,6 +89,13 @@ pipeline {
         }
 
         stage('Integration Tests Only Build') {
+            when {
+                allOf {
+                    expression { env.CHANGE_ID == null }
+                    expression { env.BRANCH_NAME == 'master' }
+                    environment name: 'JENKINS_ENV', value: 'prod'
+                }
+            }
             options {
                 timeout(time: 1, unit: 'HOURS')
             }
@@ -103,6 +110,13 @@ pipeline {
         }
 
         stage('DDF Core Tests Only Build') {
+            when {
+                allOf {
+                    expression { env.CHANGE_ID == null }
+                    expression { env.BRANCH_NAME == 'master' }
+                    environment name: 'JENKINS_ENV', value: 'prod'
+                }
+            }
             options {
                 timeout(time: 1, unit: 'HOURS')
             }
