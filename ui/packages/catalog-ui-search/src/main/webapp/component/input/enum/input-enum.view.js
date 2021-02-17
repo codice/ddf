@@ -106,7 +106,10 @@ module.exports = InputView.extend({
     this.$el.toggleClass('is-readOnly', this.model.isReadOnly())
   },
   handleValue() {
-    this.enumRegion.currentView.model.set('value', InputUtil.getEnumValue(this.model))
+    this.enumRegion.currentView.model.set(
+      'value',
+      InputUtil.getEnumValue(this.model)
+    )
   },
   getCurrentValue() {
     const currentValue = this.model.get('property').get('enumMulti')

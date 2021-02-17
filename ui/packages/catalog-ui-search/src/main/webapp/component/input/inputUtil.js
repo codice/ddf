@@ -15,7 +15,7 @@
 const user = require('../singletons/user-instance.js')
 
 module.exports = {
-    getEnumValue(model) {
+  getEnumValue(model) {
     const multivalued = model.get('property').get('enumMulti')
     let value = model.get('value')
     if (value !== undefined && model.get('property').get('type') === 'DATE') {
@@ -29,4 +29,5 @@ module.exports = {
       value = [value]
     }
     return value
-  }}
+  },
+}
