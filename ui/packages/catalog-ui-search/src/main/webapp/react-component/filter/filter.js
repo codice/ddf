@@ -12,6 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import metacardDefinitions from '../../component/singletons/metacard-definitions.js'
+
 import * as React from 'react'
 
 import styled from 'styled-components'
@@ -21,7 +23,6 @@ import FilterAttribute from './filter-attribute'
 import FilterComparator from './filter-comparator'
 import FilterInput from './filter-input'
 import { getAttributeType } from './filterHelper'
-import ExtensionPoints from '../../extension-points'
 const sources = require('../../component/singletons/sources-instance')
 const Root = styled.div`
   width: auto;
@@ -142,10 +143,24 @@ class Filter extends React.Component {
   }
   updateSuggestions = async () => {
     const { attribute } = this.state
-    const suggestions = await ExtensionPoints.getSuggestions(
-      attribute,
-      this.props.suggester
+    let suggestions = []
+    if (metacardDefinitions.enums[attribute]) {
+      suggestions = metacardDefinitions.enums[attribute].map(suggestion => {
+        return { label: suggestion, value: suggestion }
+      })
+    } else if (this.props.suggester) {
+      suggestions = (await this.props.suggester(
+        metacardDefinitions.metacardTypes[attribute]
+      )).map(suggestion => ({
+        label: suggestion,
+        value: suggestion,
+      }))
+    }
+
+    suggestions.sort((a, b) =>
+      a.label.toLowerCase().localeCompare(b.label.toLowerCase())
     )
+
     this.setState({ suggestions })
   }
 

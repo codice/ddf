@@ -19,6 +19,7 @@ const DropdownView = require('../../dropdown/dropdown.view.js')
 const moment = require('moment')
 const user = require('../../singletons/user-instance.js')
 const DropdownModel = require('../../dropdown/dropdown.js')
+import ExtensionPoints from '../../../extension-points'
 
 function getValue(model) {
   const multivalued = model.get('property').get('enumMulti')
@@ -139,18 +140,6 @@ module.exports = InputView.extend({
     }
   },
   isValid() {
-    const value = getValue(this.model)
-    const choice = this.model
-      .get('property')
-      .get('enum')
-      .filter(
-        choice =>
-          value.filter(
-            subvalue =>
-              JSON.stringify(choice.value) === JSON.stringify(subvalue) ||
-              JSON.stringify(choice) === JSON.stringify(subvalue)
-          ).length > 0
-      )
-    return choice.length > 0
+    return ExtensionPoints.isValid(this.model)
   },
 })
