@@ -17,25 +17,9 @@ const template = require('./input-enum.hbs')
 const InputView = require('../input.view')
 const DropdownView = require('../../dropdown/dropdown.view.js')
 const moment = require('moment')
-const user = require('../../singletons/user-instance.js')
+const InputUtil = require('../inputUtil.js')
 const DropdownModel = require('../../dropdown/dropdown.js')
 import ExtensionPoints from '../../../extension-points'
-
-function getValue(model) {
-  const multivalued = model.get('property').get('enumMulti')
-  let value = model.get('value')
-  if (value !== undefined && model.get('property').get('type') === 'DATE') {
-    if (multivalued && value.map) {
-      value = value.map(subvalue => user.getUserReadableDateTime(subvalue))
-    } else {
-      value = user.getUserReadableDateTime(value)
-    }
-  }
-  if (!multivalued) {
-    value = [value]
-  }
-  return value
-}
 
 module.exports = InputView.extend({
   template,
@@ -56,7 +40,7 @@ module.exports = InputView.extend({
     )
   },
   serializeData() {
-    const value = getValue(this.model)
+    const value = InputUtil.getEnumValue(this.model)
     const choice = this.model
       .get('property')
       .get('enum')
@@ -77,7 +61,7 @@ module.exports = InputView.extend({
     InputView.prototype.onRender.call(this)
   },
   initializeEnum() {
-    const value = getValue(this.model)
+    const value = InputUtil.getEnumValue(this.model)
     const dropdownModel = new DropdownModel({
       value,
     })
@@ -122,7 +106,7 @@ module.exports = InputView.extend({
     this.$el.toggleClass('is-readOnly', this.model.isReadOnly())
   },
   handleValue() {
-    this.enumRegion.currentView.model.set('value', getValue(this.model))
+    this.enumRegion.currentView.model.set('value', InputUtil.getEnumValue(this.model))
   },
   getCurrentValue() {
     const currentValue = this.model.get('property').get('enumMulti')
