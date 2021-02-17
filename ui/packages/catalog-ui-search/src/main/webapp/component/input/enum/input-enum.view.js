@@ -17,7 +17,7 @@ const template = require('./input-enum.hbs')
 const InputView = require('../input.view')
 const DropdownView = require('../../dropdown/dropdown.view.js')
 const moment = require('moment')
-const InputUtil = require('../inputUtil.js')
+const getEnumValue = require('../inputUtil.js').getEnumValue
 const DropdownModel = require('../../dropdown/dropdown.js')
 import ExtensionPoints from '../../../extension-points'
 
@@ -40,7 +40,7 @@ module.exports = InputView.extend({
     )
   },
   serializeData() {
-    const value = InputUtil.getEnumValue(this.model)
+    const value = getEnumValue(this.model)
     const choice = this.model
       .get('property')
       .get('enum')
@@ -61,7 +61,7 @@ module.exports = InputView.extend({
     InputView.prototype.onRender.call(this)
   },
   initializeEnum() {
-    const value = InputUtil.getEnumValue(this.model)
+    const value = getEnumValue(this.model)
     const dropdownModel = new DropdownModel({
       value,
     })
@@ -106,10 +106,7 @@ module.exports = InputView.extend({
     this.$el.toggleClass('is-readOnly', this.model.isReadOnly())
   },
   handleValue() {
-    this.enumRegion.currentView.model.set(
-      'value',
-      InputUtil.getEnumValue(this.model)
-    )
+    this.enumRegion.currentView.model.set('value', getEnumValue(this.model))
   },
   getCurrentValue() {
     const currentValue = this.model.get('property').get('enumMulti')
