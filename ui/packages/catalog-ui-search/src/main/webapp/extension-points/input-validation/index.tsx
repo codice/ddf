@@ -12,10 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const user = require('../../component/singletons/user-instance.js')
+const InputUtil = require('../../component/input/InputUtil.js')
 
 const isValid = (model: any) => {
-  const value = getValue(model)
+  const value = InputUtil.getValue(model)
   const choice = model
     .get('property')
     .get('enum')
@@ -28,24 +28,6 @@ const isValid = (model: any) => {
         ).length > 0
     )
   return choice.length > 0
-}
-
-function getValue(model: any) {
-  const multivalued = model.get('property').get('enumMulti')
-  let value = model.get('value')
-  if (value !== undefined && model.get('property').get('type') === 'DATE') {
-    if (multivalued && value.map) {
-      value = value.map((subvalue: string) =>
-        user.getUserReadableDateTime(subvalue)
-      )
-    } else {
-      value = user.getUserReadableDateTime(value)
-    }
-  }
-  if (!multivalued) {
-    value = [value]
-  }
-  return value
 }
 
 export default isValid
