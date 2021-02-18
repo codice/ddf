@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const InputUtil = require('../../component/input/InputUtil.js')
+const InputUtil = require('../../component/input/inputUtil.js')
 
 const isValid = (model: any) => {
   const value = InputUtil.getValue(model)
