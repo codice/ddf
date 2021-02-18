@@ -37,8 +37,12 @@ public class SystemMetricsReporter {
     new DiskSpaceMetrics(Paths.get(System.getProperty("ddf.home")).toFile())
         .bindTo(Metrics.globalRegistry);
     new JvmMemoryMetrics().bindTo(Metrics.globalRegistry);
-    new JvmHeapPressureMetrics().bindTo(Metrics.globalRegistry);
-    new JvmGcMetrics().bindTo(Metrics.globalRegistry);
+    try (JvmHeapPressureMetrics jvmHeapPressureMetrics = new JvmHeapPressureMetrics()) {
+      jvmHeapPressureMetrics.bindTo(Metrics.globalRegistry);
+    }
+    try (JvmGcMetrics jvmGcMetrics = new JvmGcMetrics()) {
+      jvmGcMetrics.bindTo(Metrics.globalRegistry);
+    }
     new JvmThreadMetrics().bindTo(Metrics.globalRegistry);
 
     new FileDescriptorMetrics().bindTo(Metrics.globalRegistry);

@@ -64,6 +64,8 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
     this.isDav = isDav;
   }
 
+  // No need for try-with-resource closure handled by calling method
+  @SuppressWarnings("squid:S2095")
   @Override
   public GenericFileConsumer<File> createConsumer(Processor processor) throws Exception {
     ObjectHelper.notNull(file, "file");

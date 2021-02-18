@@ -96,11 +96,11 @@ public class ZipDecompression implements InputCollectionTransformer {
           }
 
           if (!zipEntryFile.isDirectory()) {
-            FileOutputStream fileOutputStream = new FileOutputStream(zipEntryFile);
+            try (FileOutputStream fileOutputStream = new FileOutputStream(zipEntryFile)) {
 
-            IOUtils.copy(zipInputStream, fileOutputStream);
-            IOUtils.closeQuietly(fileOutputStream);
-
+              IOUtils.copy(zipInputStream, fileOutputStream);
+              IOUtils.closeQuietly(fileOutputStream);
+            }
             if (!zipEntryFile.getPath().contains(CONTENT)) {
               metacardMap.put(zipEntryFile.getName(), readMetacard(zipEntryFile));
             }

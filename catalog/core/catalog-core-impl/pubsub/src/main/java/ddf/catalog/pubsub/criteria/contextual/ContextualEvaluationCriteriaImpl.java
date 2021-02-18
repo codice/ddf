@@ -13,13 +13,14 @@
  */
 package ddf.catalog.pubsub.criteria.contextual;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCriteria {
+public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCriteria, Closeable {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ContextualEvaluationCriteriaImpl.class);
 
@@ -107,5 +108,10 @@ public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCri
   @Override
   public String getMetadata() {
     return metadata;
+  }
+
+  @Override
+  public void close() throws IOException {
+    index.close();
   }
 }

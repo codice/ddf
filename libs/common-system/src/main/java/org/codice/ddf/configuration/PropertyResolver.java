@@ -15,6 +15,7 @@ package org.codice.ddf.configuration;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
@@ -86,8 +87,9 @@ public class PropertyResolver {
       throws IOException {
     Properties properties = new Properties();
 
-    properties.load(new FileInputStream(propertiesLocation));
-
+    try (InputStream input = new FileInputStream(propertiesLocation)) {
+      properties.load(input);
+    }
     properties.forEach(
         (key, value) ->
             properties.setProperty(
