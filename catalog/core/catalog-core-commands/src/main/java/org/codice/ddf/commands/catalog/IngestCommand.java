@@ -247,7 +247,7 @@ public class IngestCommand extends CatalogCommands {
 
   private File failedIngestDirectory = null;
 
-  private Optional<InputTransformer> transformer = null;
+  private Optional<InputTransformer> transformer = Optional.empty();
 
   public IngestCommand() {}
 
@@ -284,7 +284,7 @@ public class IngestCommand extends CatalogCommands {
 
     printProgressAndFlush(start, fileCount.get(), 0);
 
-    // Registering for the main thread and on behalf of the buildQueue thread;
+    // Registering for the main thread and on behalf of the buildQueue thread
     // the buildQueue thread will unregister itself when the files have all
     // been added to the blocking queue and the final registration will
     // be held for the await.
@@ -491,41 +491,19 @@ public class IngestCommand extends CatalogCommands {
   private Metacard readMetacard(File file) throws IngestException {
     Metacard result = null;
 
-    FileInputStream fis = null;
-    ObjectInputStream ois = null;
-
-    try {
+    try (FileInputStream fis = new FileInputStream(file);
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)); ) {
       if (SERIALIZED_OBJECT_ID.matches(transformerId)) {
-        ois = new ObjectInputStream(new FileInputStream(file));
         result = (Metacard) ois.readObject();
-        ois.close();
       } else {
-        fis = new FileInputStream(file);
         result = generateMetacard(fis);
         if (StringUtils.isBlank(result.getTitle())) {
           LOGGER.debug("Metacard title was blank. Setting title to filename.");
           result.setAttribute(new AttributeImpl(Metacard.TITLE, file.getName()));
         }
-        fis.close();
       }
     } catch (IOException | IllegalArgumentException | ClassNotFoundException e) {
       throw new IngestException(e);
-    } finally {
-      if (fis != null) {
-        try {
-          fis.close();
-        } catch (IOException e1) {
-          console.println(e1);
-        }
-      }
-
-      if (ois != null) {
-        try {
-          ois.close();
-        } catch (IOException e2) {
-          console.println(e2);
-        }
-      }
     }
     return result;
   }
@@ -620,10 +598,9 @@ public class IngestCommand extends CatalogCommands {
       if (includeContent) {
         try (InputStream data = new FileInputStream(inputFile);
             InputStream signature = new FileInputStream(signatureFile)) {
-          String alias =
-              AccessController.doPrivileged(
-                  (PrivilegedAction<String>)
-                      () -> System.getProperty("org.codice.ddf.system.hostname"));
+          PrivilegedAction<String> action =
+              () -> System.getProperty("org.codice.ddf.system.hostname");
+          String alias = AccessController.doPrivileged(action);
 
           if (verifier.verifyDigitalSignature(data, signature, alias)) {
             processIncludeContent(metacardQueue);
@@ -712,7 +689,7 @@ public class IngestCommand extends CatalogCommands {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        if (metacardList.size() != 0) {
+        if (!metacardList.isEmpty()) {
           metacardFileMapping = generateFileMap(new File(inputFile.getParent(), CONTENT_PATH));
           fileCount.set(metacardList.size());
 
