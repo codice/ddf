@@ -12,22 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const InputUtil = require('../../component/input/inputUtil.js')
-
-const isValid = (model: any) => {
-  const value = InputUtil.getValue(model)
-  const choice = model
-    .get('property')
-    .get('enum')
-    .filter(
-      (choice: any) =>
-        value.filter(
-          (subvalue: any) =>
-            JSON.stringify(choice.value) === JSON.stringify(subvalue) ||
-            JSON.stringify(choice) === JSON.stringify(subvalue)
-        ).length > 0
-    )
-  return choice.length > 0
-}
-
-export default isValid
+module.exports = v => v

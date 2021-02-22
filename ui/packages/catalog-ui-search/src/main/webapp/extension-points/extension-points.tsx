@@ -26,7 +26,6 @@ import searchInteractions, {
 import { tableExport, Props as TableExportProps } from './table-export'
 import multiSelectActions from './multi-select-actions'
 import sharingAliases from './sharing-aliases'
-import isValid from './input-validation'
 
 export type ExtensionPointsType = {
   routes: {}
@@ -40,7 +39,6 @@ export type ExtensionPointsType = {
   tableExport: SFC<TableExportProps>
   multiSelectActions: any[]
   sharingAliases: any[]
-  isValid: (model: any) => boolean
 }
 
 const ExtensionPoints: ExtensionPointsType = {
@@ -55,7 +53,6 @@ const ExtensionPoints: ExtensionPointsType = {
   tableExport,
   multiSelectActions,
   sharingAliases,
-  isValid,
 }
 
 export default ExtensionPoints
