@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -109,7 +110,8 @@ public class ZipCompression implements QueryResponseTransformer {
     ServiceReference<MetacardTransformer> serviceRef =
         getTransformerServiceReference(transformerId);
     MetacardTransformer transformer = bundleContext.getService(serviceRef);
-
+    int totalWritten = 0;
+    List<String> notAddedIds = new ArrayList<>();
     String extension = getFileExtensionFromService(serviceRef);
 
     if (StringUtils.isNotBlank(extension)) {
@@ -130,9 +132,18 @@ public class ZipCompression implements QueryResponseTransformer {
           zipOutputStream.putNextEntry(entry);
           zipOutputStream.write(binaryContent.getByteArray());
           zipOutputStream.closeEntry();
+          totalWritten++;
         } else {
+          notAddedIds.add(metacard.getId());
           LOGGER.debug("Metacard with id [{}] was not added to zip file", metacard.getId());
         }
+      }
+      zipOutputStream.finish();
+      if (totalWritten == 0) {
+        return null;
+      }
+      if (notAddedIds.size() > 0) {
+        arguments.put("failedTransformIds", (Serializable) notAddedIds);
       }
 
       return fileBackedOutputStream.asByteSource().openStream();

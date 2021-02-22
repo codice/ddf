@@ -42,6 +42,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -54,6 +55,7 @@ import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.codice.ddf.catalog.ui.metacard.transform.CsvTransformImpl;
@@ -80,6 +82,9 @@ import spark.utils.IOUtils;
 public class CqlTransformHandler implements Route {
 
   public static final String TRANSFORMER_ID_PROPERTY = "id";
+  public static final String COLUMN_ALIAS_MAP = "columnAliasMap";
+  public static final String FAILED_TRANSFORM_IDS = "failedTransformIds";
+  public static final String COLUMN_ALIASES = "aliases";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CqlTransformHandler.class);
   private static final String GZIP = "gzip";
@@ -314,10 +319,9 @@ public class CqlTransformHandler implements Route {
       arguments = cswTransformArgumentsAdapter();
     }
 
-    String warning = null;
+    String warning = "";
     if (resultsNotToExport.size() > 0) {
-      List<String> requiredAttrList = new ArrayList<>();
-      String idName = mapAliasAttributes(queryResponseTransformer, requiredAttrList, arguments);
+      List<String> requiredAttrList = mapAliasAttributes(queryResponseTransformer, arguments);
       if (results.size() == 0) {
         LOGGER.debug("0 Results to export due to missing required field(s): {}", requiredAttrList);
         response.status(HttpStatus.BAD_REQUEST_400);
@@ -328,18 +332,28 @@ public class CqlTransformHandler implements Route {
           getWarningMessage(
               String.format(
                   "Following not exported, missing required field(s): %s", requiredAttrList),
-              idName,
-              resultsNotToExport);
+              resultsNotToExport,
+              arguments);
     }
 
-    attachFileToResponse(
+    return attachFileToResponse(
         request, response, queryResponseTransformer, combinedResponse, arguments, warning);
+  }
 
-    return "";
+  private Map<String, Serializable> getAliasMap(Map<String, Serializable> arguments) {
+    if (arguments.get(COLUMN_ALIAS_MAP) != null) {
+      return (Map<String, Serializable>) arguments.get(COLUMN_ALIAS_MAP);
+    }
+    return (Map<String, Serializable>) arguments.get(COLUMN_ALIASES);
   }
 
   private String getWarningMessage(
-      String warningMsg, String idName, List<String> resultsNotToExport) {
+      String warningMsg, List<String> resultsNotToExport, Map<String, Serializable> arguments) {
+    Map<String, Serializable> columnAliasMap = getAliasMap(arguments);
+    String idName =
+        columnAliasMap == null || Strings.isBlank((String) columnAliasMap.get(Metacard.ID))
+            ? Metacard.ID
+            : (String) columnAliasMap.get(Metacard.ID);
     int count = 0;
     int maxID = Math.min(resultsNotToExport.size(), 10);
     for (String resultId : resultsNotToExport) {
@@ -349,18 +363,15 @@ public class CqlTransformHandler implements Route {
         break;
       }
     }
-    return warningMsg;
+    return warningMsg + "\\n";
   }
 
-  private String mapAliasAttributes(
+  private List<String> mapAliasAttributes(
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
-      List<String> requiredAttrList,
       Map<String, Serializable> arguments) {
-    String idName = Metacard.ID;
-    if (arguments.get("columnAliasMap") != null) {
-      Map<String, Serializable> columnAliasMap =
-          (Map<String, Serializable>) arguments.get("columnAliasMap");
-      idName = columnAliasMap.get(idName) == null ? idName : (String) columnAliasMap.get(idName);
+    List<String> requiredAttrList = new ArrayList<>();
+    if (getAliasMap(arguments) != null) {
+      Map<String, Serializable> columnAliasMap = getAliasMap(arguments);
       for (String attribute : (List<String>) queryResponseTransformer.getProperty(REQUIRED_ATTR)) {
         if (StringUtils.isNotBlank((String) columnAliasMap.get(attribute))) {
           requiredAttrList.add((String) columnAliasMap.get(attribute));
@@ -372,7 +383,7 @@ public class CqlTransformHandler implements Route {
     if (requiredAttrList.isEmpty()) {
       requiredAttrList.addAll((List<String>) queryResponseTransformer.getProperty(REQUIRED_ATTR));
     }
-    return idName;
+    return requiredAttrList;
   }
 
   public List<ServiceReference> getQueryResponseTransformers() {
@@ -425,7 +436,7 @@ public class CqlTransformHandler implements Route {
     return false;
   }
 
-  private void attachFileToResponse(
+  private Object attachFileToResponse(
       Request request,
       Response response,
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
@@ -436,6 +447,21 @@ public class CqlTransformHandler implements Route {
     BinaryContent content =
         bundleContext.getService(queryResponseTransformer).transform(cqlQueryResponse, arguments);
 
+    if (content.getInputStream() == null) {
+      LOGGER.debug("Unable to transform content for mimeType: {}", content.getMimeTypeValue());
+      response.status(HttpStatus.BAD_REQUEST_400);
+      return ImmutableMap.of(
+          "message", "Unable to transform content(s), may be missing required field(s)");
+    }
+
+    if (!CollectionUtils.isEmpty(
+        (Collection) arguments.get(CqlTransformHandler.FAILED_TRANSFORM_IDS))) {
+      warning +=
+          getWarningMessage(
+              "Unable to transform following(s):",
+              (List<String>) arguments.get(FAILED_TRANSFORM_IDS),
+              arguments);
+    }
     setHttpHeaders(request, response, content, warning);
 
     try (OutputStream servletOutputStream = response.raw().getOutputStream();
@@ -454,6 +480,8 @@ public class CqlTransformHandler implements Route {
     LOGGER.trace(
         "Successfully output file using transformer id {}",
         queryResponseTransformer.getProperty("id"));
+
+    return "";
   }
 
   private CollectionResultComparator getResultComparators(List<CqlRequest.Sort> sorts) {
@@ -524,7 +552,8 @@ public class CqlTransformHandler implements Route {
       Map<String, Serializable> arguments) {
     String columnOrder = "\"columnOrder\":" + GSON.toJson(arguments.get("columnOrder"));
     String hiddenFields = "\"hiddenFields\":" + GSON.toJson(arguments.get("hiddenFields"));
-    String columnAliasMap = "\"columnAliasMap\":" + GSON.toJson(arguments.get("columnAliasMap"));
+    String columnAliasMap =
+        "\"" + COLUMN_ALIAS_MAP + "\":" + GSON.toJson(arguments.get(COLUMN_ALIAS_MAP));
     String csvBody = String.format("{%s,%s,%s}", columnOrder, columnAliasMap, hiddenFields);
 
     CsvTransformImpl queryTransform = GSON.fromJson(csvBody, CsvTransformImpl.class);
@@ -550,7 +579,7 @@ public class CqlTransformHandler implements Route {
     return ImmutableMap.<String, Serializable>builder()
         .put("hiddenFields", (Serializable) hiddenFieldsSet)
         .put("columnOrder", (Serializable) columnOrderList)
-        .put("aliases", (Serializable) aliasMap)
+        .put(COLUMN_ALIASES, (Serializable) aliasMap)
         .put("transformerId", transformerId)
         .build();
   }

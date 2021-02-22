@@ -82,23 +82,32 @@ class ResultsExport extends React.Component<Props, State> {
     fetch(`./internal/transformers/${this.getTransformerType()}`)
       .then(response => response.json())
       .then((exportFormats: ExportFormat[]) => {
-        const resultsAttributes = Array.from(
-          new Set(
-            this.props.results
-              .map((result: Result) => result.attributes)
-              .reduce((result, arr) => result.concat(arr))
-          )
-        )
+        const resultsAttributes: any = {}
+        this.props.results.map((result: Result) => {
+          result.attributes.forEach((attr: any) => {
+            if (resultsAttributes[attr] === undefined) {
+              resultsAttributes[attr] = [result.id]
+            } else {
+              resultsAttributes[attr].push(result.id)
+            }
+          })
+        })
         return exportFormats.filter(exportFormat => {
-          if (exportFormat['required-attributes'].length == 0) {
+          const requiredAttr = exportFormat['required-attributes']
+          if (requiredAttr.length == 0) {
             return true
           }
-          return (
-            _.intersection(
-              exportFormat['required-attributes'],
-              resultsAttributes
-            ).length == exportFormat['required-attributes'].length
-          )
+          let resultIds = resultsAttributes[requiredAttr[0]]
+          if (resultIds && resultIds.length > 0) {
+            for (let index = 1; index < requiredAttr.length; index++) {
+              const currResultIds = resultsAttributes[requiredAttr[index]]
+              if (_.intersection(resultIds, currResultIds).length == 0) {
+                return false
+              }
+              resultIds = currResultIds
+            }
+            return true
+          }
         })
       })
       .then((exportFormats: ExportFormat[]) => {

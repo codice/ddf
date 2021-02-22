@@ -32,6 +32,11 @@
       <entry key="shortname" value="metadata"/>
 			<entry key="mime-type" value="text/xml"/>
 			<entry key="displayName" value="Metadata XML"/>
+			<entry key="required-attributes">
+				<list>
+					<value>metadata</value>
+				</list>
+			</entry>
 		</service-properties>
 	</service>
 	
