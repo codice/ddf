@@ -73,7 +73,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
   private final Set<String> endpointIds = Collections.synchronizedSet(new HashSet<>());
 
   public HttpProxyServiceImpl(CamelContext camelContext, String endpointType)
-      throws java.io.IOException {
+      throws IOException {
     this(camelContext);
     this.routeEndpointType = endpointType;
     if (!this.routeEndpointType.equals(SERVLET)) {
