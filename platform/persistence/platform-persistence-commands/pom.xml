@@ -60,6 +60,10 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
       </dependency>
+        <dependency>
+            <groupId>org.apache.karaf</groupId>
+            <artifactId>org.apache.karaf.client</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

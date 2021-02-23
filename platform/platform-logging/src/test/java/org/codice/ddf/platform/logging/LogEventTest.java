@@ -18,18 +18,13 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.ops4j.pax.logging.PaxLogger.LEVEL_DEBUG;
-import static org.ops4j.pax.logging.PaxLogger.LEVEL_ERROR;
-import static org.ops4j.pax.logging.PaxLogger.LEVEL_INFO;
-import static org.ops4j.pax.logging.PaxLogger.LEVEL_TRACE;
-import static org.ops4j.pax.logging.PaxLogger.LEVEL_WARNING;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.codice.ddf.platform.logging.LogEvent.Level;
 import org.junit.Test;
 import org.ops4j.pax.logging.spi.PaxLevel;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
+import org.osgi.service.log.LogLevel;
 
 public class LogEventTest {
 
@@ -114,8 +109,8 @@ public class LogEventTest {
     LogEvent logEvent =
         new LogEvent(
             getMockPaxLoggingEvent(1L, INFO_LEVEL, MESSAGE_1, BUNDLE_NAME_1, BUNDLE_VERSION));
-    Level level = logEvent.getLevel();
-    assertThat(level, equalTo(Level.INFO));
+    LogLevel level = logEvent.getLevel();
+    assertThat(level, equalTo(LogLevel.INFO));
   }
 
   private PaxLevel getMockPaxLevel(String level) {
@@ -132,20 +127,20 @@ public class LogEventTest {
           }
 
           @Override
-          public int toInt() {
+          public LogLevel toLevel() {
             switch (level) {
               case ERROR_LEVEL:
-                return LEVEL_ERROR;
+                return LogLevel.ERROR;
               case WARN_LEVEL:
-                return LEVEL_WARNING;
+                return LogLevel.WARN;
               case INFO_LEVEL:
-                return LEVEL_INFO;
+                return LogLevel.INFO;
               case DEBUG_LEVEL:
-                return LEVEL_DEBUG;
+                return LogLevel.DEBUG;
               case TRACE_LEVEL:
-                return LEVEL_TRACE;
+                return LogLevel.TRACE;
               default:
-                return -1;
+                return null;
             }
           }
 

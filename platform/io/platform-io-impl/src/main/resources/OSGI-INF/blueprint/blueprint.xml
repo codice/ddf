@@ -16,6 +16,7 @@
 
     <bean id="cfgStrategy" class="org.codice.ddf.platform.io.CfgStrategy"/>
     <bean id="configStrategy" class="org.codice.ddf.platform.io.ConfigStrategy"/>
+    <bean id="jsonStrategy" class="org.codice.ddf.platform.io.JsonStrategy"/>
 
     <service ref="cfgStrategy"
              interface="org.codice.ddf.platform.io.internal.PersistenceStrategy">
@@ -28,6 +29,13 @@
              interface="org.codice.ddf.platform.io.internal.PersistenceStrategy">
         <service-properties>
             <entry key="platform.io.strategy.extension" value="config"/>
+        </service-properties>
+    </service>
+
+    <service ref="jsonStrategy"
+             interface="org.codice.ddf.platform.io.internal.PersistenceStrategy">
+        <service-properties>
+            <entry key="platform.io.strategy.extension" value="json"/>
         </service-properties>
     </service>
 

@@ -124,9 +124,9 @@
         <spock.version>2.0-M4-groovy-3.0</spock.version>
         <mockito.version>3.6.28</mockito.version>
         <pax.exam.version>4.13.4</pax.exam.version>
-        <pax.logging.version>1.11.6</pax.logging.version>
+        <pax.logging.version>2.0.6</pax.logging.version>
         <pax.url.version>2.6.2</pax.url.version>
-        <pax.web.version>7.2.16</pax.web.version>
+        <pax.web.version>7.3.9</pax.web.version>
         <pax.web.jsp.version>7.2.18</pax.web.jsp.version>
         <restito.version>0.8.2</restito.version>
         <restassured.version>3.3.0</restassured.version>
@@ -186,11 +186,11 @@
         <decanter.version>1.3.0</decanter.version>
         <dropwizard.version>4.1.12.1</dropwizard.version>
         <equinox.version>3.13.0</equinox.version>
-        <felix.configadmin.version>1.9.16</felix.configadmin.version>
+        <felix.configadmin.version>1.9.18</felix.configadmin.version>
         <felix.coordinator.version>1.0.2</felix.coordinator.version>
-        <felix.fileinstall.version>3.6.6</felix.fileinstall.version>
+        <felix.fileinstall.version>3.6.8</felix.fileinstall.version>
         <felix.metatype.version>1.2.2</felix.metatype.version>
-        <felix.framework.version>5.6.12</felix.framework.version>
+        <felix.framework.version>6.0.3</felix.framework.version>
         <felix.scr.version>2.0.14</felix.scr.version>
         <geronimo-servlet-api.artifact>geronimo-servlet_3.0_spec</geronimo-servlet-api.artifact>
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>
@@ -239,7 +239,7 @@
         <jts.spatial4j.version>1.16.0</jts.spatial4j.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <jwnl.version>1.3.3</jwnl.version>
-        <karaf.version>4.2.9</karaf.version>
+        <karaf.version>4.3.0</karaf.version>
         <la4j.version>0.6.0</la4j.version>
         <apache-log4j.version>2.11.2</apache-log4j.version>
         <logback.classic.version>1.2.3</logback.classic.version>

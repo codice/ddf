@@ -13,15 +13,10 @@
  */
 package org.codice.ddf.platform.logging;
 
-import static org.ops4j.pax.logging.PaxLogger.LEVEL_DEBUG;
-import static org.ops4j.pax.logging.PaxLogger.LEVEL_ERROR;
-import static org.ops4j.pax.logging.PaxLogger.LEVEL_INFO;
-import static org.ops4j.pax.logging.PaxLogger.LEVEL_TRACE;
-import static org.ops4j.pax.logging.PaxLogger.LEVEL_WARNING;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
+import org.osgi.service.log.LogLevel;
 
 /** Describes a log event in the system */
 public class LogEvent {
@@ -32,7 +27,7 @@ public class LogEvent {
 
   private final long timestamp;
 
-  private final Level level;
+  private final LogLevel level;
 
   private final String message;
 
@@ -48,7 +43,7 @@ public class LogEvent {
    */
   LogEvent(PaxLoggingEvent paxLoggingEvent) {
     this.timestamp = paxLoggingEvent.getTimeStamp();
-    this.level = getLevel(paxLoggingEvent.getLevel().toInt());
+    this.level = paxLoggingEvent.getLevel().toLevel();
     this.message = paxLoggingEvent.getMessage();
     this.bundleName = getBundleName(paxLoggingEvent);
     this.bundleVersion = getBundleVersion(paxLoggingEvent);
@@ -63,7 +58,7 @@ public class LogEvent {
    *
    * @return {@link Level} of this {@link LogEvent}
    */
-  public Level getLevel() {
+  public LogLevel getLevel() {
     return level;
   }
 
@@ -106,7 +101,7 @@ public class LogEvent {
     LogEvent rhs = (LogEvent) anotherLogEvent;
     return new EqualsBuilder()
         .append(timestamp, rhs.getTimestamp())
-        .append(level.getLevel(), rhs.getLevel().getLevel())
+        .append(level, rhs.getLevel())
         .append(message, rhs.getMessage())
         .append(bundleName, rhs.getBundleName())
         .append(bundleVersion, rhs.getBundleVersion())
@@ -130,41 +125,5 @@ public class LogEvent {
 
   private String getBundleVersion(PaxLoggingEvent paxLoggingEvent) {
     return (String) paxLoggingEvent.getProperties().get(BUNDLE_VERSION_KEY);
-  }
-
-  private Level getLevel(int level) {
-    switch (level) {
-      case LEVEL_ERROR:
-        return Level.ERROR;
-      case LEVEL_WARNING:
-        return Level.WARN;
-      case LEVEL_INFO:
-        return Level.INFO;
-      case LEVEL_DEBUG:
-        return Level.DEBUG;
-      case LEVEL_TRACE:
-        return Level.TRACE;
-      default:
-        return Level.UNKNOWN;
-    }
-  }
-
-  public enum Level {
-    TRACE("TRACE"),
-    DEBUG("DEBUG"),
-    INFO("INFO"),
-    WARN("WARN"),
-    ERROR("ERROR"),
-    UNKNOWN("UNKNOWN");
-
-    private String level;
-
-    Level(String l) {
-      level = l;
-    }
-
-    public String getLevel() {
-      return level;
-    }
   }
 }

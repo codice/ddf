@@ -24,7 +24,6 @@ import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.platform.logging.LogEvent;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.Test;
@@ -80,7 +79,7 @@ public class TestPlatform extends AbstractIntegrationTest {
       final List events = JsonPath.given(bodyString).get("value");
       final Map firstEvent = (Map) events.get(0);
       final String levelOfFirstEvent = firstEvent.get("level").toString();
-      final String unknownLevel = LogEvent.Level.UNKNOWN.getLevel();
+      final String unknownLevel = "UNKNOWN";
       assertThat(
           String.format(
               "The level of an event returned by %s should not be %s",

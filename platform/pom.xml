@@ -27,7 +27,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <artifactId>karaf</artifactId>
+                <artifactId>karaf-bom</artifactId>
                 <groupId>org.apache.karaf</groupId>
                 <version>${karaf.version}</version>
                 <type>pom</type>

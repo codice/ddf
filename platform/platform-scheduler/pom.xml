@@ -112,6 +112,7 @@
                         <Private-Package>
                             ddf.platform.scheduler,
                             org.apache.felix.gogo.runtime,
+                            org.apache.felix.gogo.runtime.util.function,
                             org.apache.karaf.shell.security.impl
                         </Private-Package>
                         <Export-Package />

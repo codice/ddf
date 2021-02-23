@@ -38,13 +38,13 @@
     </feature>
 
     <feature name="third-party-dependencies" version="${project.version}">
-        <bundle>mvn:commons-io/commons-io/2.5</bundle>
+        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec.servicemix.version}
         </bundle>
-        <bundle>wrap:mvn:commons-logging/commons-logging/1.2</bundle>
-        <bundle>wrap:mvn:commons-net/commons-net/3.5</bundle>
+        <bundle>wrap:mvn:commons-logging/commons-logging/${commons-logging.version}</bundle>
+        <bundle>wrap:mvn:commons-net/commons-net/${commons-net.version}</bundle>
         <bundle>wrap:mvn:org.awaitility/awaitility/${awaitility.version}</bundle>
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/${hamcrest-all.servicemix.version}

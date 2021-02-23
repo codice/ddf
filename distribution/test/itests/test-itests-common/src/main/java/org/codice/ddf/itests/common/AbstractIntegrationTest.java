@@ -130,7 +130,7 @@ public abstract class AbstractIntegrationTest {
 
   protected static final String TEST_SECURITY_LOG_LEVEL_PROPERTY = "securityLogLevel";
 
-  protected static final String KARAF_VERSION = "4.2.9";
+  protected static final String KARAF_VERSION = "4.3.0";
 
   protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
 
@@ -674,12 +674,12 @@ public abstract class AbstractIntegrationTest {
         vmOption("--patch-module"),
         vmOption(
             "java.base=lib/endorsed/org.apache.karaf.specs.locator-"
-                + System.getProperty("karafVersion", "4.2.9")
+                + System.getProperty("karafVersion", KARAF_VERSION)
                 + ".jar"),
         vmOption("--patch-module"),
         vmOption(
             "java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-"
-                + System.getProperty("karafVersion", "4.2.9")
+                + System.getProperty("karafVersion", KARAF_VERSION)
                 + ".jar"),
         vmOption("--add-opens"),
         vmOption("java.base/java.security=ALL-UNNAMED"),
