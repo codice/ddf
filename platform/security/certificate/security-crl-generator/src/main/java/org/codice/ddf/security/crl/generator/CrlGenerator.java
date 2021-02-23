@@ -70,6 +70,9 @@ public class CrlGenerator implements Runnable {
   static final String CRL_PROPERTY_KEY = Merlin.OLD_PREFIX + Merlin.X509_CRL_FILE;
   static final String DEM_CRL = "/localCrl.crl";
   static final String PEM_CRL = "/localCrl.pem";
+  static final String CRL_ERROR = "Unable to save the CRL.";
+  static final String CRL_PROPERTY_ERROR =
+      "Unable to remove the CRL property from the signature.properties and encryption.properties files.";
 
   @VisibleForTesting
   static String issuerEncryptionPropertiesLocation =
@@ -134,17 +137,12 @@ public class CrlGenerator implements Runnable {
     }
 
     try (FileBackedOutputStream fileBackedOutputStream =
-        new FileBackedOutputStream(FILE_BACKED_STREAM_THRESHOLD)) {
+            new FileBackedOutputStream(FILE_BACKED_STREAM_THRESHOLD);
+        InputStream entityStream = (InputStream) entity) {
       try {
         // Read the response content and get the byte source
-        ByteSource byteSource = null;
-        try (InputStream entityStream = (InputStream) entity; ) {
-          IOUtils.copy(entityStream, fileBackedOutputStream);
-          fileBackedOutputStream.close();
-          byteSource = fileBackedOutputStream.asByteSource();
-        } catch (Exception e) {
-          LOGGER.warn("Error occurred while creating entityStream. {}", e.getMessage());
-        }
+        IOUtils.copy(entityStream, fileBackedOutputStream);
+        ByteSource byteSource = fileBackedOutputStream.asByteSource();
 
         File crlFile = getCrlFile(byteSource);
         // Verify that the CRL is valid
@@ -241,9 +239,9 @@ public class CrlGenerator implements Runnable {
                 return null;
               });
     } catch (PrivilegedActionException e) {
-      LOGGER.warn("Unable to save the CRL.");
-      LOGGER.debug("Unable to save the CRL.", e.getCause());
-      postErrorEvent("Unable to save the CRL.");
+      LOGGER.warn(CRL_ERROR);
+      LOGGER.debug(CRL_ERROR, e.getCause());
+      postErrorEvent(CRL_ERROR);
     }
   }
   /**
@@ -302,13 +300,9 @@ public class CrlGenerator implements Runnable {
                 return null;
               });
     } catch (PrivilegedActionException e) {
-      LOGGER.warn(
-          "Unable to remove the CRL property from the signature.properties and encryption.properties files.");
-      LOGGER.debug(
-          "Unable to remove the CRL property from the signature.properties and encryption.properties files.",
-          e.getCause());
-      postErrorEvent(
-          "Unable to remove the CRL property from the signature.properties and encryption.properties files.");
+      LOGGER.warn(CRL_PROPERTY_ERROR);
+      LOGGER.debug(CRL_PROPERTY_ERROR, e.getCause());
+      postErrorEvent(CRL_PROPERTY_ERROR);
     }
   }
   /**

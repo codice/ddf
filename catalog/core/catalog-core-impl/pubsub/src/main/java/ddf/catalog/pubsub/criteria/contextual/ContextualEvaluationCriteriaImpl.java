@@ -64,7 +64,6 @@ public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCri
           LOGGER.debug(textPath);
         }
       }
-      // LOGGER.debug( "metadata:\n{}", XPathHelper.xmlToString( metadata ) );
 
       this.criteria = criteria;
       this.fuzzy = fuzzy;

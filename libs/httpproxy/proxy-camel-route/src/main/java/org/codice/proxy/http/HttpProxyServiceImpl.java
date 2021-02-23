@@ -81,7 +81,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     }
   }
 
-  public HttpProxyServiceImpl(CamelContext camelContext) throws java.io.IOException {
+  public HttpProxyServiceImpl(CamelContext camelContext) {
     this.camelContext = camelContext;
 
     // Add servlet to the Camel Context
