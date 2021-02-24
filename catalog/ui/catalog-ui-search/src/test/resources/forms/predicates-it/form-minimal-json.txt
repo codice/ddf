@@ -1,0 +1,5 @@
+{
+  ${filterTemplate},
+  "title": "MY_TITLE",
+  "description": "MY_DESCRIPTION"
+}

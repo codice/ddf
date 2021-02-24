@@ -72,11 +72,28 @@ class AttributeValueNormalizer {
     if (isNotNormalizableDateValue(property, value)) {
       return value;
     }
+    if (value.contains("/")) {
+      return normalizeRangeForJson(property, value);
+    }
+    // Edge case for relative date function
+    if (EXPECTED_RELATIVE_FUNCTION_PATTERN.matcher(value).matches()) {
+      return value;
+    }
     Instant instant = instantFromEpoch(value);
     if (instant != null) {
       return instant.toString();
     }
     return value;
+  }
+
+  private String normalizeRangeForJson(String property, String value) {
+    String[] range = value.split("/");
+    if (range.length != 2) {
+      return value;
+    }
+    String before = normalizeForJson(property, range[0]);
+    String after = normalizeForJson(property, range[1]);
+    return before + "/" + after;
   }
 
   /**
@@ -100,6 +117,9 @@ class AttributeValueNormalizer {
     if (isNotNormalizableDateValue(property, value)) {
       return value;
     }
+    if (value.contains("/")) {
+      return normalizeRangeForXml(property, value);
+    }
     Instant epoch = instantFromEpoch(value);
     if (epoch != null) {
       return value;
@@ -113,6 +133,17 @@ class AttributeValueNormalizer {
       return value;
     }
     throw new FilterProcessingException("Unexpected date format on search form: " + value);
+  }
+
+  private String normalizeRangeForXml(String property, String value) {
+    String[] range = value.split("/");
+    if (range.length != 2) {
+      throw new FilterProcessingException(
+          String.format("Filter node range-value '%s' has too many delimiters", value));
+    }
+    String before = normalizeForXml(property, range[0]);
+    String after = normalizeForXml(property, range[1]);
+    return before + "/" + after;
   }
 
   private boolean eitherStringIsNull(String property, String value) {

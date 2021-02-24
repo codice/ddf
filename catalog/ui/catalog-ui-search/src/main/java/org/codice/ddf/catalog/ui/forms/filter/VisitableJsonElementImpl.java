@@ -69,6 +69,7 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
           // Temporal operator mapping
           .put("BEFORE", FilterVisitor2::visitBinaryTemporalType)
           .put("AFTER", FilterVisitor2::visitBinaryTemporalType)
+          .put("DURING", FilterVisitor2::visitBinaryTemporalType)
           // Spatial operator mapping
           .put("INTERSECTS", FilterVisitor2::visitBinarySpatialType)
           .put("DWITHIN", FilterVisitor2::visitDistanceBufferType)

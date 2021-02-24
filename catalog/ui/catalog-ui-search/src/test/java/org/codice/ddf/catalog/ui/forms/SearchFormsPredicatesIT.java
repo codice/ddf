@@ -29,7 +29,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static spark.Spark.stop;
 
-import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Header;
 import ddf.catalog.CatalogFramework;
@@ -50,9 +49,9 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.Subject;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
@@ -64,45 +63,21 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
 import spark.Spark;
 
 /**
- * Spin up the {@link SearchFormsApplication} spark application and verify the REST contract against
- * a mocked {@link CatalogFramework}.
+ * Refer to the {@link SearchFormsSymbolsIT} javadoc first.
  *
- * <p>This test suite uses HTTP to verify one of the data contracts for catalog-ui-search. By
- * testing the network directly, the tests remain stable regardless of the JSON solution used.
- *
- * <p>This particular test suite verifies both directions of JSON and XML transforms using
- * parameterized REST messages that are interpolated with actual test values at runtime. The
- * objective of this test suite is to ensure serialization can handle any special character.
+ * <p>This is a separate conformance suite that targets the conversion accuracy of specific
+ * predicates and is NOT parameterized like the symbols test counterpart.
  */
-@RunWith(Parameterized.class)
-public class SearchFormsSymbolsIT {
-  /**
-   * Set of symbols upon which to parameterize the tests; defined as they appear in a JSON document.
-   */
-  @Parameterized.Parameters(name = "Verify search form REST I/O for symbol: {0}")
-  public static Iterable<?> data() {
-    return Arrays.asList(
-        "'", "\\\"", "\\\\", ">", "<", "&", "{", "}", "[", "]", ":", ";", ",", ".", "?", "|", "-",
-        "_", "+", "=", "*", "^", "%", "$", "#", "@", "!", "~", "`", "(", ")");
-  }
+@RunWith(JUnit4.class)
+public class SearchFormsPredicatesIT {
 
-  /**
-   * Not all JSON representations are communitively validatable against XML. This mapping is what
-   * all the tests use to ensure expected XML counterparts are built correctly.
-   */
-  private static final Map<String, String> JSON_TO_XML_SYMBOL_MAPPING =
-      ImmutableMap.of(
-          "\\\"", "\"",
-          "\\\\", "\\",
-          ">", "&gt;",
-          "<", "&lt;",
-          "&", "&amp;");
+  private static final String FILTER_TEMPLATE_KEY = "filterTemplate";
 
   /*
    * ---------------------------------------------------------------------------------------------
@@ -110,14 +85,65 @@ public class SearchFormsSymbolsIT {
    * ---------------------------------------------------------------------------------------------
    */
 
-  private static final String TEMPLATE_FORM_METACARD_JSON_SIMPLE =
-      getContentsOfFile("/forms/symbols-it/form-simple.json");
+  private static final String FORM_FILTER_MIN_XML =
+      getContentsOfFile("/forms/predicates-it/form-filter-minimal-xml.txt");
 
-  private static final String TEMPLATE_FORM_METACARD_JSON_SIMPLE_RESPONSE =
-      removePrettyPrintingOnJson(getContentsOfFile("/forms/symbols-it/form-simple-response.json"));
+  private static final String FORM_MIN_JSON =
+      getContentsOfFile("/forms/predicates-it/form-minimal-json.txt");
 
-  private static final String TEMPLATE_FORM_FILTER_XML_SIMPLE =
-      removePrettyPrintingOnXml(getContentsOfFile("/forms/symbols-it/form-filter-simple.xml"));
+  private static final String FORM_RESP_JSON =
+      getContentsOfFile("/forms/predicates-it/form-response-json.txt");
+
+  private static String createJsonFilterTemplate(String type, String prop, String val) {
+    return "\"filterTemplate\": { "
+        + String.format(
+            "\"type\": \"%s\", \"property\": \"%s\", \"value\": \"%s\"", type, prop, val)
+        + " }";
+  }
+
+  private static String createJsonFilterTemplate(
+      String type, String prop, String val, String from, String to) {
+    return "\"filterTemplate\": { "
+        + String.format(
+            "\"type\": \"%s\", \"property\": \"%s\", \"value\": \"%s\", \"from\": \"%s\", \"to\": \"%s\"",
+            type, prop, val, from, to)
+        + " }";
+  }
+
+  private static String getXmlFilter(String type, String prop, String val) {
+    Map<String, String> keyvals = new HashMap<>();
+    keyvals.put("type", type);
+    keyvals.put("prop", prop);
+    keyvals.put("val", val);
+
+    StrSubstitutor subs = new StrSubstitutor(keyvals);
+    return removePrettyPrintingOnXml(subs.replace(FORM_FILTER_MIN_XML));
+  }
+
+  private static String getJsonFilter(String type, String prop, String val) {
+    StrSubstitutor subs =
+        new StrSubstitutor(
+            Collections.singletonMap(
+                FILTER_TEMPLATE_KEY, createJsonFilterTemplate(type, prop, val)));
+    return removePrettyPrintingOnJson(subs.replace(FORM_MIN_JSON));
+  }
+
+  private static String getJsonResponse(String type, String prop, String val) {
+    StrSubstitutor subs =
+        new StrSubstitutor(
+            Collections.singletonMap(
+                FILTER_TEMPLATE_KEY, createJsonFilterTemplate(type, prop, val)));
+    return removePrettyPrintingOnJson(subs.replace(FORM_RESP_JSON));
+  }
+
+  private static String getJsonResponse(
+      String type, String prop, String val, String from, String to) {
+    StrSubstitutor subs =
+        new StrSubstitutor(
+            Collections.singletonMap(
+                FILTER_TEMPLATE_KEY, createJsonFilterTemplate(type, prop, val, from, to)));
+    return removePrettyPrintingOnJson(subs.replace(FORM_RESP_JSON));
+  }
 
   /*
    * ---------------------------------------------------------------------------------------------
@@ -134,6 +160,8 @@ public class SearchFormsSymbolsIT {
   private static final String CANNED_ID = "abcdefg";
 
   private static final String CANNED_ISO_DATE = "2018-12-10T13:09:40Z";
+
+  private static final String CANNED_EPOCH_DATE = "1544447380000";
 
   private static final FilterBuilder FILTER_BUILDER = new GeotoolsFilterBuilder();
 
@@ -161,39 +189,6 @@ public class SearchFormsSymbolsIT {
 
   // Will be initialized by setUpClass() when the port is known
   private static String localhostFormsUrl = null;
-
-  /*
-   * ---------------------------------------------------------------------------------------------
-   * Parameterized Vars
-   * ---------------------------------------------------------------------------------------------
-   */
-
-  private final ArgumentCaptor<CreateRequest> requestCaptor;
-
-  private final String formFilterXml;
-
-  private final String formRequestJson;
-
-  private final String formResponseJson;
-
-  // Ctor necessary for parameterization
-  public SearchFormsSymbolsIT(String symbolUnderTest) {
-    this.requestCaptor = ArgumentCaptor.forClass(CreateRequest.class);
-    StrSubstitutor substitutor =
-        new StrSubstitutor(Collections.singletonMap("value", "hello" + symbolUnderTest));
-
-    this.formRequestJson = substitutor.replace(TEMPLATE_FORM_METACARD_JSON_SIMPLE);
-    this.formResponseJson = substitutor.replace(TEMPLATE_FORM_METACARD_JSON_SIMPLE_RESPONSE);
-
-    final String xmlVariation = JSON_TO_XML_SYMBOL_MAPPING.get(symbolUnderTest);
-    if (xmlVariation == null) {
-      this.formFilterXml = substitutor.replace(TEMPLATE_FORM_FILTER_XML_SIMPLE);
-    } else {
-      StrSubstitutor xmlSubstitutor =
-          new StrSubstitutor(Collections.singletonMap("value", "hello" + xmlVariation));
-      this.formFilterXml = xmlSubstitutor.replace(TEMPLATE_FORM_FILTER_XML_SIMPLE);
-    }
-  }
 
   /*
    * ---------------------------------------------------------------------------------------------
@@ -226,7 +221,44 @@ public class SearchFormsSymbolsIT {
   }
 
   @Test
-  public void testJsonToXml() throws IngestException, SourceUnavailableException {
+  public void testTextEqualJsonToXml() throws IngestException, SourceUnavailableException {
+    testJsonToXml(
+        getJsonFilter("=", "language", "english"),
+        getXmlFilter("PropertyIsEqualTo", "language", "english"));
+  }
+
+  @Test
+  public void testTextEqualXmlToJson()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    testXmlToJson(
+        getXmlFilter("PropertyIsEqualTo", "language", "english"),
+        getJsonResponse("=", "language", "english"));
+  }
+
+  @Test
+  public void testDateBetweenJsonToXml() throws IngestException, SourceUnavailableException {
+    testJsonToXml(
+        getJsonFilter("DURING", "created", CANNED_ISO_DATE + "/" + CANNED_ISO_DATE),
+        getXmlFilter("During", "created", CANNED_EPOCH_DATE + "/" + CANNED_EPOCH_DATE));
+  }
+
+  @Test
+  public void testDateBetweenXmlToJson()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    testXmlToJson(
+        getXmlFilter("During", "created", CANNED_EPOCH_DATE + "/" + CANNED_EPOCH_DATE),
+        getJsonResponse(
+            "DURING",
+            "created",
+            CANNED_ISO_DATE + "/" + CANNED_ISO_DATE,
+            CANNED_ISO_DATE,
+            CANNED_ISO_DATE));
+  }
+
+  private static void testJsonToXml(String requestJson, String expectedXml)
+      throws IngestException, SourceUnavailableException {
+    ArgumentCaptor<CreateRequest> requestCaptor = ArgumentCaptor.forClass(CreateRequest.class);
+
     // Prepare
     MetacardImpl metacardWithIdAndCreatedDate = new MetacardImpl();
     metacardWithIdAndCreatedDate.setId(CANNED_ID);
@@ -244,20 +276,23 @@ public class SearchFormsSymbolsIT {
     int statusCode =
         RestAssured.given()
             .header(CONTENT_IS_JSON)
-            .content(formRequestJson)
+            .content(requestJson)
             .post(localhostFormsUrl)
             .statusCode();
+
+    Metacard searchForm = requestCaptor.getValue().getMetacards().get(0);
+    String capturedXml = ((QueryTemplateMetacard) searchForm).getFormsFilter();
+
     assertThat(statusCode, is(200));
-    assertThat(getCapturedXml(), is(formFilterXml));
+    assertThat(capturedXml, is(expectedXml));
   }
 
-  @Test
-  public void testXmlToJson()
+  private static void testXmlToJson(String formXml, String expectedResponseJson)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
     // Prepare
     QueryTemplateMetacard queryTemplateMetacard =
         new QueryTemplateMetacard(CANNED_TITLE, CANNED_DESCRIPTION, CANNED_ID);
-    queryTemplateMetacard.setFormsFilter(formFilterXml);
+    queryTemplateMetacard.setFormsFilter(formXml);
     queryTemplateMetacard.setCreatedDate(Date.from(Instant.parse(CANNED_ISO_DATE)));
     queryTemplateMetacard.setModifiedDate(Date.from(Instant.parse(CANNED_ISO_DATE)));
 
@@ -270,11 +305,6 @@ public class SearchFormsSymbolsIT {
     // Execute
     String json =
         RestAssured.given().header(CONTENT_IS_JSON).get(localhostFormsUrl).body().asString();
-    assertThat(json, is(formResponseJson));
-  }
-
-  private String getCapturedXml() {
-    Metacard searchForm = requestCaptor.getValue().getMetacards().get(0);
-    return ((QueryTemplateMetacard) searchForm).getFormsFilter();
+    assertThat(json, is(expectedResponseJson));
   }
 }

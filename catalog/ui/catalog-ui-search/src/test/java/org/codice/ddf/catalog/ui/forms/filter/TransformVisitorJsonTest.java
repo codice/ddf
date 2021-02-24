@@ -40,8 +40,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TransformVisitorJsonTest {
+  // Note - testing conversion TO json requires xml data
   private static final URL FILTER_RESOURCES_DIR =
-      SearchFormsLoaderTest.class.getResource("/forms/filter2");
+      SearchFormsLoaderTest.class.getResource("/forms/tform-visitor-json-test");
 
   private static final String DEPTH_PROP = "depth";
 

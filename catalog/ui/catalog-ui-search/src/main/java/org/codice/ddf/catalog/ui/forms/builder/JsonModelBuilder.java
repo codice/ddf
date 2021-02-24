@@ -62,7 +62,12 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   private static final String LIKE = "LIKE";
 
   private static final Map<String, String> BINARY_TEMPORAL_MAPPING =
-      ImmutableMap.<String, String>builder().put("Before", "BEFORE").put("After", "AFTER").build();
+      ImmutableMap.<String, String>builder()
+          .put("Before", "BEFORE")
+          .put("After", "AFTER")
+          // used for 'date BETWEEN' ops by the UI - contains a range delineated by a slash '/'
+          .put("During", "DURING")
+          .build();
 
   private static final Set<String> BINARY_SPATIAL_OPS = ImmutableSet.of("INTERSECTS", "DWITHIN");
 
@@ -158,7 +163,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   @Override
-  public FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
+  public JsonModelBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     if (!PROPERTY_IS_LIKE.equals(operator)) {
@@ -171,7 +176,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   @Override
-  public FlatFilterBuilder beginBinaryTemporalType(String operator) {
+  public JsonModelBuilder beginBinaryTemporalType(String operator) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     String jsonOperator = BINARY_TEMPORAL_MAPPING.get(operator);

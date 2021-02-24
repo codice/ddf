@@ -34,6 +34,10 @@ public class FilterNodeImpl implements FilterNode {
 
   private Double distance;
 
+  private String from;
+
+  private String to;
+
   private Map<String, Object> templateProperties;
 
   public FilterNodeImpl(final String operator, final List<FilterNode> children) {
@@ -46,6 +50,8 @@ public class FilterNodeImpl implements FilterNode {
     this.value = null;
     this.distance = null;
     this.templateProperties = null;
+    this.from = null;
+    this.to = null;
   }
 
   public FilterNodeImpl(String operator) {
@@ -57,6 +63,8 @@ public class FilterNodeImpl implements FilterNode {
     this.value = null;
     this.distance = null;
     this.templateProperties = null;
+    this.from = null;
+    this.to = null;
   }
 
   public FilterNodeImpl(FilterNode node, Map<String, Object> templateProperties) {
@@ -73,6 +81,8 @@ public class FilterNodeImpl implements FilterNode {
     this.value = node.getValue();
     this.distance = node.getDistance();
     this.templateProperties = templateProperties;
+
+    // don't need from/to on template property nodes
   }
 
   @Override
@@ -135,6 +145,19 @@ public class FilterNodeImpl implements FilterNode {
   public void setValue(String value) {
     notNull(value);
     this.value = value;
+
+    if (!value.contains("/")) {
+      return;
+    }
+
+    String[] range = value.split("/");
+    if (range.length != 2) {
+      throw new IllegalArgumentException(
+          String.format("Filter node range-value '%s' has too many delimiters", value));
+    }
+
+    this.from = range[0];
+    this.to = range[1];
   }
 
   @Override
