@@ -31,7 +31,8 @@ public class SystemMetricsReporter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SystemMetricsReporter.class);
 
-  private SystemMetricsReporter() {
+  @SuppressWarnings("squid:S1118" /* Intentionally left public so OSGI can find it*/)
+  public SystemMetricsReporter() {
     LOGGER.debug("Adding JVM and system metrics to global registry.");
     new ClassLoaderMetrics().bindTo(Metrics.globalRegistry);
     new DiskSpaceMetrics(Paths.get(System.getProperty("ddf.home")).toFile())
