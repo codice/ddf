@@ -49,8 +49,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TransformVisitorXmlTest {
+  // Note - testing conversion TO xml requires json data
   private static final URL FILTER_RESOURCES_DIR =
-      SearchFormsLoaderTest.class.getResource("/forms/filter-json");
+      SearchFormsLoaderTest.class.getResource("/forms/tform-visitor-xml-test");
 
   private static final String EXPECTED_DATE = "2018-02-08T23:24:12.709Z";
 

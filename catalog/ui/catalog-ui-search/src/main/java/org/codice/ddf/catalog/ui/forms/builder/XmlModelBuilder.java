@@ -63,6 +63,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           .put("DWITHIN", Mapper::dwithin)
           .put("BEFORE", Mapper::before)
           .put("AFTER", Mapper::after)
+          // used for 'date BETWEEN' ops by the UI - contains a range delineated by a slash '/'
+          .put("DURING", Mapper::during)
           .build();
 
   private static final Map<String, MultiNodeReducer> LOGICAL_OPS =
@@ -151,7 +153,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
-  public FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
+  public XmlModelBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
@@ -163,7 +165,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
-  public FlatFilterBuilder beginBinaryTemporalType(String operator) {
+  public XmlModelBuilder beginBinaryTemporalType(String operator) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer temporalMapping = TERMINAL_OPS.get(operator);
@@ -344,7 +346,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
   private static class DistanceBufferSupplier extends TerminalNodeSupplier {
     private static final String UOM_METERS = "m";
-    private Double distance = null;
+    private final Double distance;
 
     DistanceBufferSupplier(final TerminalNodeSupplier original, Double distance) {
       super(original.reducer);
@@ -447,6 +449,10 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     private static JAXBElement<BinaryTemporalOpType> after(List<JAXBElement<?>> children) {
       return FACTORY.createAfter(binaryTemporalType(children));
+    }
+
+    private static JAXBElement<BinaryTemporalOpType> during(List<JAXBElement<?>> children) {
+      return FACTORY.createDuring(binaryTemporalType(children));
     }
 
     private static JAXBElement<BinarySpatialOpType> intersects(List<JAXBElement<?>> children) {

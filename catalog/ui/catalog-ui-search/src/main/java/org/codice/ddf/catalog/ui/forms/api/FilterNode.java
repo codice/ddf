@@ -93,8 +93,6 @@ public interface FilterNode {
   @Nullable
   Double getDistance();
 
-  void setDistance(Double distance);
-
   /**
    * Set this node's property name.
    *
@@ -110,4 +108,11 @@ public interface FilterNode {
    * @throws NullPointerException if the given target value is null.
    */
   void setValue(String value);
+
+  /**
+   * Set this node's distance property, if applicable.
+   *
+   * @param distance
+   */
+  void setDistance(Double distance);
 }

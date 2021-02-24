@@ -42,7 +42,7 @@ import org.mockito.Mock;
 public class SearchFormsLoaderCommandTest {
 
   private static final URL LOADER_RESOURCES_DIR =
-      SearchFormsLoaderCommandTest.class.getResource("/forms/loader");
+      SearchFormsLoaderCommandTest.class.getResource("/forms/loader-test");
 
   private static final String ROOT = LOADER_RESOURCES_DIR.getPath();
 
