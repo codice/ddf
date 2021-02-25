@@ -80,7 +80,7 @@ export DDF_ON_ERROR="bin/ddf_on_error.sh script "
 JAVA_ERROR_OPTS="-XX:OnOutOfMemoryError=\${DDF_ON_ERROR}%p -XX:OnError=\${DDF_ON_ERROR}%p"
 
 # Defines java garbage collection logging options
-GC_OPTS="-Xlog:gc=debug:file=${DDF_HOME}/data/log/gc.log:time,uptime,level,tags:filecount=5,filesize=100m"
+GC_OPTS="-Xlog:gc=info:file=${DDF_HOME}/data/log/gc.log:time,uptime,level,tags:filecount=5,filesize=100m"
 
 export KARAF_OPTS="-Dfile.encoding=UTF8"
 
