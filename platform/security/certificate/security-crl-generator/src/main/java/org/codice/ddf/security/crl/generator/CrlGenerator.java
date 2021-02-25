@@ -70,6 +70,9 @@ public class CrlGenerator implements Runnable {
   static final String CRL_PROPERTY_KEY = Merlin.OLD_PREFIX + Merlin.X509_CRL_FILE;
   static final String DEM_CRL = "/localCrl.crl";
   static final String PEM_CRL = "/localCrl.pem";
+  static final String CRL_ERROR = "Unable to save the CRL.";
+  static final String CRL_PROPERTY_ERROR =
+      "Unable to remove the CRL property from the signature.properties and encryption.properties files.";
 
   @VisibleForTesting
   static String issuerEncryptionPropertiesLocation =
@@ -133,36 +136,34 @@ public class CrlGenerator implements Runnable {
       return;
     }
 
-    FileBackedOutputStream fileBackedOutputStream = null;
-    try {
-      // Read the response content and get the byte source
-      ByteSource byteSource;
-      try (InputStream entityStream = (InputStream) entity) {
-        fileBackedOutputStream = new FileBackedOutputStream(FILE_BACKED_STREAM_THRESHOLD);
+    try (FileBackedOutputStream fileBackedOutputStream =
+            new FileBackedOutputStream(FILE_BACKED_STREAM_THRESHOLD);
+        InputStream entityStream = (InputStream) entity) {
+      try {
+        // Read the response content and get the byte source
         IOUtils.copy(entityStream, fileBackedOutputStream);
-        fileBackedOutputStream.close();
-        byteSource = fileBackedOutputStream.asByteSource();
-      }
+        ByteSource byteSource = fileBackedOutputStream.asByteSource();
 
-      File crlFile = getCrlFile(byteSource);
-      // Verify that the CRL is valid
-      if (!crlIsValid(byteSource)) {
-        postErrorEvent("An error occurred while validating the CRL.");
-        return;
-      }
-      writeCrlToFile(byteSource, crlFile);
-    } catch (IOException e) {
-      LOGGER.warn("Unable to copy CRL to local CRL. {}", e.getMessage());
-      postErrorEvent("An error occurred while downloading the CRL.");
-    } finally {
-      // Cleanup temp file
-      if (fileBackedOutputStream != null) {
+        File crlFile = getCrlFile(byteSource);
+        // Verify that the CRL is valid
+        if (!crlIsValid(byteSource)) {
+          postErrorEvent("An error occurred while validating the CRL.");
+          return;
+        }
+        writeCrlToFile(byteSource, crlFile);
+      } catch (Exception e) {
+        LOGGER.warn("Unable to copy CRL to local CRL. {}", e.getMessage());
+        postErrorEvent("An error occurred while downloading the CRL.");
+      } finally {
+        // Cleanup temp file
         try {
           fileBackedOutputStream.reset();
         } catch (IOException e) {
           LOGGER.warn("Error occurred while deleting the temporary file. {}", e.getMessage());
         }
       }
+    } catch (Exception e) {
+      LOGGER.warn("Error occurred while creating fileBackedOutputStream. {}", e.getMessage());
     }
   }
   /**
@@ -238,9 +239,9 @@ public class CrlGenerator implements Runnable {
                 return null;
               });
     } catch (PrivilegedActionException e) {
-      LOGGER.warn("Unable to save the CRL.");
-      LOGGER.debug("Unable to save the CRL.", e.getCause());
-      postErrorEvent("Unable to save the CRL.");
+      LOGGER.warn(CRL_ERROR);
+      LOGGER.debug(CRL_ERROR, e.getCause());
+      postErrorEvent(CRL_ERROR);
     }
   }
   /**
@@ -299,13 +300,9 @@ public class CrlGenerator implements Runnable {
                 return null;
               });
     } catch (PrivilegedActionException e) {
-      LOGGER.warn(
-          "Unable to remove the CRL property from the signature.properties and encryption.properties files.");
-      LOGGER.debug(
-          "Unable to remove the CRL property from the signature.properties and encryption.properties files.",
-          e.getCause());
-      postErrorEvent(
-          "Unable to remove the CRL property from the signature.properties and encryption.properties files.");
+      LOGGER.warn(CRL_PROPERTY_ERROR);
+      LOGGER.debug(CRL_PROPERTY_ERROR, e.getCause());
+      postErrorEvent(CRL_PROPERTY_ERROR);
     }
   }
   /**
