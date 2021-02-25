@@ -124,11 +124,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final int GET_BY_ID_LIMIT = 100;
 
-  public static final String EXCLUDE_ATTRIBUTES = "excludeAttributes";
-
   public static final String DO_REALTIME_GET = "doRealtimeGet";
 
-  private static final String RESOURCE_ATTRIBUTE = "resource";
+  private static final String ERR_UNSUPPORTED_QUERY_MSG = "Could not complete solr query.";
 
   private final SolrClient client;
 
@@ -205,7 +203,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         solrResponse = client.query(realTimeQuery, METHOD.POST);
       } else {
         if (userSpellcheckIsOn) {
-          query.setParam("spellcheck", true);
+          query.setParam(SPELLCHECK_KEY, true);
         }
         highlighter.processPreQuery(request, query);
         solrResponse = client.query(query, METHOD.POST);
@@ -227,7 +225,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         totalHits = docs.getNumFound();
       }
     } catch (SolrServerException | IOException | SolrException e) {
-      throw new UnsupportedQueryException("Could not complete solr query.", e);
+      throw new UnsupportedQueryException(ERR_UNSUPPORTED_QUERY_MSG, e);
     }
 
     return new SourceResponseImpl(request, responseProps, results, totalHits);
@@ -241,7 +239,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         SolrDocumentList page = client.getById(partition);
         page.iterator().forEachRemaining(solrDocs::add);
       } catch (SolrServerException | SolrException | IOException e) {
-        throw new UnsupportedQueryException("Could not complete solr query.", e);
+        throw new UnsupportedQueryException(ERR_UNSUPPORTED_QUERY_MSG, e);
       }
     }
     return solrDocs;
@@ -366,9 +364,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     QueryResponse highlightResponse = solrResponse;
     SolrDocumentList resultDocs = originalDocs;
     if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
-      Collation collation = getCollationToResend(query, solrResponse);
+      Collation collation = getCollationToResend(solrResponse);
       query.set("q", collation.getCollationQueryString());
-      query.set("spellcheck", false);
+      query.set(SPELLCHECK_KEY, false);
       highlighter.processPreQuery(request, query);
       QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
       SolrDocumentList docs = solrResponseRequery.getResults();
@@ -394,8 +392,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private Boolean userSpellcheckIsOn(QueryRequest request) {
     Boolean userSpellcheckChoice = false;
-    if (request.getProperties().get("spellcheck") != null) {
-      userSpellcheckChoice = (Boolean) request.getProperties().get("spellcheck");
+    if (request.getProperties().get(SPELLCHECK_KEY) != null) {
+      userSpellcheckChoice = (Boolean) request.getProperties().get(SPELLCHECK_KEY);
     }
     return userSpellcheckChoice;
   }
@@ -405,10 +403,11 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         && CollectionUtils.isNotEmpty(solrResponse.getSpellCheckResponse().getCollatedResults());
   }
 
-  private Collation getCollationToResend(SolrQuery query, QueryResponse solrResponse) {
+  private Collation getCollationToResend(QueryResponse solrResponse) {
+    List<Collation> collations = solrResponse.getSpellCheckResponse().getCollatedResults();
     long maxHits = Integer.MIN_VALUE;
-    Collation bestCollation = null;
-    for (Collation collation : solrResponse.getSpellCheckResponse().getCollatedResults()) {
+    Collation bestCollation = collations.get(0);
+    for (Collation collation : collations) {
       if (maxHits < collation.getNumberOfHits()) {
         maxHits = collation.getNumberOfHits();
         bestCollation = collation;
@@ -464,7 +463,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
       return createMetacards(docs);
     } catch (SolrServerException | SolrException | IOException e) {
-      throw new UnsupportedQueryException("Could not complete solr query.", e);
+      throw new UnsupportedQueryException(ERR_UNSUPPORTED_QUERY_MSG, e);
     }
   }
 
@@ -498,13 +497,13 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             Metacard.CONTENT_TYPE,
             AttributeType.AttributeFormat.STRING,
             true,
-            Collections.EMPTY_MAP);
+            Collections.emptyMap());
     String contentTypeVersionField =
         resolver.getField(
             Metacard.CONTENT_TYPE_VERSION,
             AttributeType.AttributeFormat.STRING,
             true,
-            Collections.EMPTY_MAP);
+            Collections.emptyMap());
 
     /*
      * If we didn't find the field, it most likely means it does not exist. If it does not
@@ -743,7 +742,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
                     Metacard.EFFECTIVE,
                     AttributeType.AttributeFormat.DATE,
                     false,
-                    Collections.EMPTY_MAP)),
+                    Collections.emptyMap())),
             order);
       } else {
         List<String> resolvedProperties = resolver.getAnonymousField(sortProperty);
@@ -901,9 +900,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private static String accessProperty(String key, String defaultValue) {
-    String value =
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty(key, defaultValue));
+    PrivilegedAction<String> action = () -> System.getProperty(key, defaultValue);
+    String value = AccessController.doPrivileged(action);
     LOGGER.debug("Read system property [{}] with value [{}]", key, value);
     return value;
   }
