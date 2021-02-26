@@ -45,7 +45,7 @@ public class DerivedContentActionProvider implements MultiActionProvider {
 
   private static final String DESCRIPTION_PREFIX = "Retrieves derived resource: ";
 
-  private static final String VIEW = VIEW;
+  private static final String VIEW = "View ";
 
   public DerivedContentActionProvider(ActionProvider actionProvider) {
     this.resourceActionProvider = actionProvider;
