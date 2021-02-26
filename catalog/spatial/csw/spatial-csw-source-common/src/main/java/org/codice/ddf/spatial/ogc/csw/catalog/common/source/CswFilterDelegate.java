@@ -15,7 +15,6 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,13 +60,14 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswFilterDelegate.class);
 
-  private static final String ATTEMPTING_TO_BUILD_MSG ="Attempting to build {} filter for property {} and WKT {} in LON/LAT order.";
+  private static final String ATTEMPTING_TO_BUILD_MSG =
+      "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.";
 
   private static final String CSW_SUPPORT_EXCEPTION_MSG =
-        "CSW source does not support {} filter or any of its fallback spatial filters. This may be due to spatial operators not being supported or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
+      "CSW source does not support {} filter or any of its fallback spatial filters. This may be due to spatial operators not being supported or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
 
   private static final String CSW_SUPPORT_EXCEPTION_MSG_SIMPLE =
-          "CSW source does not support {} filter or any of its fallback spatial filters. This may be due to spatial operators not being supported or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
+      "CSW source does not support {} filter or any of its fallback spatial filters. This may be due to spatial operators not being supported or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
 
   private static final String FALLING_BACK_MSG = "Falling back to {} filter.";
 
@@ -805,11 +805,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   @Override
   public FilterType beyond(String propertyName, String wkt, double distance) {
 
-    LOGGER.debug(
-        ATTEMPTING_TO_BUILD_MSG,
-        SpatialOperatorNameType.BEYOND,
-        propertyName,
-        wkt);
+    LOGGER.debug(ATTEMPTING_TO_BUILD_MSG, SpatialOperatorNameType.BEYOND, propertyName, wkt);
 
     if (isAnyGeo(propertyName)) {
       propertyName = mapPropertyName(propertyName);
@@ -832,17 +828,15 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    throw new UnsupportedOperationException(MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.BEYOND.name()));
+    throw new UnsupportedOperationException(
+        MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.BEYOND.name()));
   }
 
   @Override
   public FilterType contains(String propertyName, String wkt) {
 
     LOGGER.debug(
-        ATTEMPTING_TO_BUILD_MSG,
-        SpatialOperatorNameType.CONTAINS.name(),
-        propertyName,
-        wkt);
+        ATTEMPTING_TO_BUILD_MSG, SpatialOperatorNameType.CONTAINS.name(), propertyName, wkt);
 
     if (isAnyGeo(propertyName)) {
       propertyName = mapPropertyName(propertyName);
@@ -865,18 +859,15 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.CONTAINS.name());
+    String message =
+        MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.CONTAINS.name());
     throw new UnsupportedOperationException(message);
   }
 
   @Override
   public FilterType disjoint(String propertyName, String wkt) {
 
-    LOGGER.debug(
-        ATTEMPTING_TO_BUILD_MSG,
-        SpatialOperatorNameType.DISJOINT,
-        propertyName,
-        wkt);
+    LOGGER.debug(ATTEMPTING_TO_BUILD_MSG, SpatialOperatorNameType.DISJOINT, propertyName, wkt);
 
     if (isAnyGeo(propertyName)) {
       propertyName = mapPropertyName(propertyName);
@@ -908,18 +899,15 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.DISJOINT.name());
+    String message =
+        MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.DISJOINT.name());
     throw new UnsupportedOperationException(message);
   }
 
   @Override
   public FilterType crosses(String propertyName, String wkt) {
 
-    LOGGER.debug(
-        ATTEMPTING_TO_BUILD_MSG,
-        SpatialOperatorNameType.CROSSES,
-        propertyName,
-        wkt);
+    LOGGER.debug(ATTEMPTING_TO_BUILD_MSG, SpatialOperatorNameType.CROSSES, propertyName, wkt);
 
     if (isAnyGeo(propertyName)) {
       propertyName = mapPropertyName(propertyName);
@@ -934,7 +922,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.CROSSES.name());
+    String message =
+        MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.CROSSES.name());
     throw new UnsupportedOperationException(message);
   }
 
@@ -942,11 +931,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   public FilterType dwithin(String propertyName, String wkt, double distance) {
 
     LOGGER.debug(
-        ATTEMPTING_TO_BUILD_MSG,
-        SpatialOperatorNameType.D_WITHIN,
-        propertyName,
-        wkt,
-        distance);
+        ATTEMPTING_TO_BUILD_MSG, SpatialOperatorNameType.D_WITHIN, propertyName, wkt, distance);
 
     if (isAnyGeo(propertyName)) {
       propertyName = mapPropertyName(propertyName);
@@ -985,7 +970,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.D_WITHIN.name());
+    String message =
+        MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.D_WITHIN.name());
     throw new UnsupportedOperationException(message);
   }
 
@@ -998,11 +984,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   @Override
   public FilterType intersects(String propertyName, String wkt) {
 
-    LOGGER.debug(
-        ATTEMPTING_TO_BUILD_MSG,
-        SpatialOperatorNameType.INTERSECTS,
-        propertyName,
-        wkt);
+    LOGGER.debug(ATTEMPTING_TO_BUILD_MSG, SpatialOperatorNameType.INTERSECTS, propertyName, wkt);
 
     if (isAnyGeo(propertyName)) {
       propertyName = mapPropertyName(propertyName);
@@ -1040,7 +1022,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG,
+    String message =
+        MessageFormat.format(
+            CSW_SUPPORT_EXCEPTION_MSG,
             SpatialOperatorNameType.INTERSECTS.name() + " for " + getGeometryOperandFromWkt(wkt));
     throw new UnsupportedOperationException(message);
   }
@@ -1048,11 +1032,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   @Override
   public FilterType overlaps(String propertyName, String wkt) {
 
-    LOGGER.debug(
-        ATTEMPTING_TO_BUILD_MSG,
-        SpatialOperatorNameType.OVERLAPS,
-        propertyName,
-        wkt);
+    LOGGER.debug(ATTEMPTING_TO_BUILD_MSG, SpatialOperatorNameType.OVERLAPS, propertyName, wkt);
 
     if (isAnyGeo(propertyName)) {
       propertyName = mapPropertyName(propertyName);
@@ -1067,18 +1047,16 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG_SIMPLE,SpatialOperatorNameType.OVERLAPS.name());
+    String message =
+        MessageFormat.format(
+            CSW_SUPPORT_EXCEPTION_MSG_SIMPLE, SpatialOperatorNameType.OVERLAPS.name());
     throw new UnsupportedOperationException(message);
   }
 
   @Override
   public FilterType touches(String propertyName, String wkt) {
 
-    LOGGER.debug(
-        ATTEMPTING_TO_BUILD_MSG,
-        SpatialOperatorNameType.TOUCHES,
-        propertyName,
-        wkt);
+    LOGGER.debug(ATTEMPTING_TO_BUILD_MSG, SpatialOperatorNameType.TOUCHES, propertyName, wkt);
 
     if (isAnyGeo(propertyName)) {
       propertyName = mapPropertyName(propertyName);
@@ -1093,18 +1071,16 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG_SIMPLE, SpatialOperatorNameType.TOUCHES.name());
+    String message =
+        MessageFormat.format(
+            CSW_SUPPORT_EXCEPTION_MSG_SIMPLE, SpatialOperatorNameType.TOUCHES.name());
     throw new UnsupportedOperationException(message);
   }
 
   @Override
   public FilterType within(String propertyName, String wkt) {
 
-    LOGGER.debug(
-        ATTEMPTING_TO_BUILD_MSG,
-        SpatialOperatorNameType.WITHIN,
-        propertyName,
-        wkt);
+    LOGGER.debug(ATTEMPTING_TO_BUILD_MSG, SpatialOperatorNameType.WITHIN, propertyName, wkt);
 
     if (isAnyGeo(propertyName)) {
       propertyName = mapPropertyName(propertyName);
@@ -1127,7 +1103,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         return contains(propertyName, wkt);
       }
     }
-    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG_SIMPLE, SpatialOperatorNameType.WITHIN.name());
+    String message =
+        MessageFormat.format(
+            CSW_SUPPORT_EXCEPTION_MSG_SIMPLE, SpatialOperatorNameType.WITHIN.name());
     throw new UnsupportedOperationException(message);
   }
 

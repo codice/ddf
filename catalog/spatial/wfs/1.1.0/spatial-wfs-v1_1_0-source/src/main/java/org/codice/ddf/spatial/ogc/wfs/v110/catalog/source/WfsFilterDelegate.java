@@ -92,7 +92,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private static final String UNABLE_TO_PARSE_WKT_STRING = "Unable to parse WKT String";
 
-  private static final String UNABLE_TO_MAP_MSG = "{} could not be mapped to a feature property. Its query clause will be dropped.";
+  private static final String UNABLE_TO_MAP_MSG =
+      "{} could not be mapped to a feature property. Its query clause will be dropped.";
 
   private static final String MAPPED_TO_MSG = "{} maps to the feature property {}.";
 
@@ -481,9 +482,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     final String featurePropertyName =
         mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
     if (featurePropertyName == null) {
-      LOGGER.debug(
-          UNABLE_TO_MAP_MSG,
-          propertyName);
+      LOGGER.debug(UNABLE_TO_MAP_MSG, propertyName);
       return null;
     }
 
@@ -552,9 +551,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     final String featurePropertyName =
         mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
     if (featurePropertyName == null) {
-      LOGGER.debug(
-          UNABLE_TO_MAP_MSG,
-          propertyName);
+      LOGGER.debug(UNABLE_TO_MAP_MSG, propertyName);
       return null;
     }
 
@@ -991,9 +988,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     final String featurePropertyName =
         mapQueryPropertyToFeatureProperty(propertyName, this::isWfsGeospatialFeatureProperty);
     if (featurePropertyName == null) {
-      LOGGER.debug(
-          UNABLE_TO_MAP_MSG,
-          propertyName);
+      LOGGER.debug(UNABLE_TO_MAP_MSG, propertyName);
       return null;
     }
 

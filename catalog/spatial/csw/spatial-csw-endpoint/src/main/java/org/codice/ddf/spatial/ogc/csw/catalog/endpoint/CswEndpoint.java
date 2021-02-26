@@ -640,9 +640,7 @@ public class CswEndpoint implements Csw {
                 | CatalogQueryException e) {
               LOGGER.debug(UNABLE_TO_UPDATE_MSG, e);
               throw new CswException(
-                  UNABLE_TO_UPDATE_MSG,
-                  CswConstants.TRANSACTION_FAILED,
-                  updateAction.getHandle());
+                  UNABLE_TO_UPDATE_MSG, CswConstants.TRANSACTION_FAILED, updateAction.getHandle());
             }
           };
       Callable<Integer> updateCallable = subject.associateWith(callable);
@@ -655,8 +653,7 @@ public class CswEndpoint implements Csw {
           numUpdated += completedFuture.get();
         } catch (ExecutionException | CancellationException e) {
           LOGGER.debug("Error updating Metacard", e);
-          throw new CswException(
-              UNABLE_TO_UPDATE_MSG, CswConstants.TRANSACTION_FAILED, "Update");
+          throw new CswException(UNABLE_TO_UPDATE_MSG, CswConstants.TRANSACTION_FAILED, "Update");
         }
       } catch (InterruptedException e) {
         LOGGER.debug("Metacard update interrupted", e);
@@ -675,9 +672,7 @@ public class CswEndpoint implements Csw {
       } catch (Exception e) {
         LOGGER.debug(UNABLE_TO_DELETE_MSG, e);
         throw new CswException(
-            UNABLE_TO_DELETE_MSG,
-            CswConstants.TRANSACTION_FAILED,
-            deleteAction.getHandle());
+            UNABLE_TO_DELETE_MSG, CswConstants.TRANSACTION_FAILED, deleteAction.getHandle());
       }
     }
     LOGGER.debug("{} records deleted.", numDeleted);
@@ -790,9 +785,7 @@ public class CswEndpoint implements Csw {
           } catch (ExecutionException | CancellationException e) {
             LOGGER.debug("Error deleting Metacard", e);
             throw new CswException(
-                UNABLE_TO_DELETE_MSG,
-                CswConstants.TRANSACTION_FAILED,
-                deleteAction.getHandle());
+                UNABLE_TO_DELETE_MSG, CswConstants.TRANSACTION_FAILED, deleteAction.getHandle());
           }
         } catch (InterruptedException e) {
           LOGGER.debug("Metacard delete interrupted", e);
@@ -903,9 +896,7 @@ public class CswEndpoint implements Csw {
           } catch (ExecutionException | CancellationException e) {
             LOGGER.debug("Error updating", e);
             throw new CswException(
-                UNABLE_TO_UPDATE_MSG,
-                CswConstants.TRANSACTION_FAILED,
-                updateAction.getHandle());
+                UNABLE_TO_UPDATE_MSG, CswConstants.TRANSACTION_FAILED, updateAction.getHandle());
           }
         } catch (InterruptedException e) {
           LOGGER.debug("Metacard update interrupted", e);

@@ -64,7 +64,8 @@ public class FilterPlugin implements AccessPlugin {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FilterPlugin.class);
 
-  private static final String UNABLE_TO_FILTER_MSG = "Unable to filter contents of current message, no user Subject available.";
+  private static final String UNABLE_TO_FILTER_MSG =
+      "Unable to filter contents of current message, no user Subject available.";
 
   private Map<ServiceReference, FilterStrategy> filterStrategies =
       Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
