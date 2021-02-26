@@ -49,10 +49,14 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.Subject;
 import java.time.Instant;
+import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
@@ -79,6 +83,8 @@ public class SearchFormsPredicatesIT {
 
   private static final String FILTER_TEMPLATE_KEY = "filterTemplate";
 
+  private static final String DQ = "\"";
+
   /*
    * ---------------------------------------------------------------------------------------------
    * Test Data
@@ -88,25 +94,35 @@ public class SearchFormsPredicatesIT {
   private static final String FORM_FILTER_MIN_XML =
       getContentsOfFile("/forms/predicates-it/form-filter-minimal-xml.txt");
 
+  private static final String FORM_FILTER_NIL_XML =
+      getContentsOfFile("/forms/predicates-it/form-filter-nil-xml.txt");
+
   private static final String FORM_MIN_JSON =
       getContentsOfFile("/forms/predicates-it/form-minimal-json.txt");
 
   private static final String FORM_RESP_JSON =
       getContentsOfFile("/forms/predicates-it/form-response-json.txt");
 
-  private static String createJsonFilterTemplate(String type, String prop, String val) {
-    return "\"filterTemplate\": { "
-        + String.format(
-            "\"type\": \"%s\", \"property\": \"%s\", \"value\": \"%s\"", type, prop, val)
-        + " }";
+  private static Map.Entry<String, String> pair(String key, String val) {
+    return new AbstractMap.SimpleEntry<>(key, val);
   }
 
-  private static String createJsonFilterTemplate(
-      String type, String prop, String val, String from, String to) {
-    return "\"filterTemplate\": { "
-        + String.format(
-            "\"type\": \"%s\", \"property\": \"%s\", \"value\": \"%s\", \"from\": \"%s\", \"to\": \"%s\"",
-            type, prop, val, from, to)
+  @SafeVarargs
+  private static String createJsonFilterTemplate(Map.Entry<String, String>... keyvals) {
+    return DQ
+        + "filterTemplate"
+        + DQ
+        + ": { "
+        + Arrays.stream(keyvals)
+            .peek(kv -> Objects.requireNonNull(kv.getKey(), "JSON key cannot be null"))
+            .map(
+                kv ->
+                    DQ
+                        + kv.getKey()
+                        + DQ
+                        + ": "
+                        + (kv.getValue() == null ? "null" : DQ + kv.getValue() + DQ))
+            .collect(Collectors.joining(", "))
         + " }";
   }
 
@@ -120,19 +136,37 @@ public class SearchFormsPredicatesIT {
     return removePrettyPrintingOnXml(subs.replace(FORM_FILTER_MIN_XML));
   }
 
+  private static String getNilXmlFilter(String prop) {
+    StrSubstitutor subs = new StrSubstitutor(Collections.singletonMap("prop", prop));
+    return removePrettyPrintingOnXml(subs.replace(FORM_FILTER_NIL_XML));
+  }
+
   private static String getJsonFilter(String type, String prop, String val) {
     StrSubstitutor subs =
         new StrSubstitutor(
             Collections.singletonMap(
-                FILTER_TEMPLATE_KEY, createJsonFilterTemplate(type, prop, val)));
+                FILTER_TEMPLATE_KEY,
+                createJsonFilterTemplate(
+                    pair("type", type), pair("property", prop), pair("value", val))));
     return removePrettyPrintingOnJson(subs.replace(FORM_MIN_JSON));
+  }
+
+  private static String getJsonResponse(String type, String prop) {
+    StrSubstitutor subs =
+        new StrSubstitutor(
+            Collections.singletonMap(
+                FILTER_TEMPLATE_KEY,
+                createJsonFilterTemplate(pair("type", type), pair("property", prop))));
+    return removePrettyPrintingOnJson(subs.replace(FORM_RESP_JSON));
   }
 
   private static String getJsonResponse(String type, String prop, String val) {
     StrSubstitutor subs =
         new StrSubstitutor(
             Collections.singletonMap(
-                FILTER_TEMPLATE_KEY, createJsonFilterTemplate(type, prop, val)));
+                FILTER_TEMPLATE_KEY,
+                createJsonFilterTemplate(
+                    pair("type", type), pair("property", prop), pair("value", val))));
     return removePrettyPrintingOnJson(subs.replace(FORM_RESP_JSON));
   }
 
@@ -141,7 +175,13 @@ public class SearchFormsPredicatesIT {
     StrSubstitutor subs =
         new StrSubstitutor(
             Collections.singletonMap(
-                FILTER_TEMPLATE_KEY, createJsonFilterTemplate(type, prop, val, from, to)));
+                FILTER_TEMPLATE_KEY,
+                createJsonFilterTemplate(
+                    pair("type", type),
+                    pair("property", prop),
+                    pair("value", val),
+                    pair("from", from),
+                    pair("to", to))));
     return removePrettyPrintingOnJson(subs.replace(FORM_RESP_JSON));
   }
 
@@ -253,6 +293,23 @@ public class SearchFormsPredicatesIT {
             CANNED_ISO_DATE + "/" + CANNED_ISO_DATE,
             CANNED_ISO_DATE,
             CANNED_ISO_DATE));
+  }
+
+  @Test
+  public void testDateEmptyJsonToXml() throws IngestException, SourceUnavailableException {
+    testJsonToXml(
+        // counteract whitespace removal
+        getJsonFilter("IS NULL", "created", null).replace("ISNULL", "IS NULL"),
+        getNilXmlFilter("created"));
+  }
+
+  @Test
+  public void testDateEmptyXmlToJson()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    testXmlToJson(
+        getNilXmlFilter("created"),
+        // counteract whitespace removal
+        getJsonResponse("IS NULL", "created").replace("ISNULL", "IS NULL"));
   }
 
   private static void testJsonToXml(String requestJson, String expectedXml)

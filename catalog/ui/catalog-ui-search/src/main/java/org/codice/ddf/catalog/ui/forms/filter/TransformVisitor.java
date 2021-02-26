@@ -169,6 +169,14 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
     builder.endTerminalType();
   }
 
+  @Override
+  public void visitPropertyIsNilType(VisitableElement<VisitableElement<?>> visitable) {
+    traceName(visitable);
+    builder.beginNilType();
+    visitable.getValue().accept(this);
+    builder.endTerminalType();
+  }
+
   private static void traceName(VisitableElement element) {
     LOGGER.trace("LocalPart: {}", element.getName());
   }

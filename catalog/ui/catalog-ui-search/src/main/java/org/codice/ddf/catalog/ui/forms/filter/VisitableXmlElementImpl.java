@@ -397,7 +397,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
 
   private static class DistanceBufferElement extends ExpressionOrAnyElement {
 
-    private double buffer;
+    private final double buffer;
 
     public DistanceBufferElement(JAXBElement element) {
       super(element);

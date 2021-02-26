@@ -51,6 +51,8 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder beginBinarySpatialType(String operator);
 
+  FlatFilterBuilder beginNilType();
+
   FlatFilterBuilder endTerminalType();
 
   FlatFilterBuilder setProperty(String property);

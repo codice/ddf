@@ -40,6 +40,7 @@ import net.opengis.filter.v_2_0.LogicOpsType;
 import net.opengis.filter.v_2_0.MeasureType;
 import net.opengis.filter.v_2_0.ObjectFactory;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
+import net.opengis.filter.v_2_0.PropertyIsNilType;
 import net.opengis.filter.v_2_0.SpatialOpsType;
 import net.opengis.filter.v_2_0.TemporalOpsType;
 import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
@@ -63,7 +64,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           .put("DWITHIN", Mapper::dwithin)
           .put("BEFORE", Mapper::before)
           .put("AFTER", Mapper::after)
-          // used for 'date BETWEEN' ops by the UI - contains a range delineated by a slash '/'
+          // used for date 'BETWEEN' ops by the UI - contains a range delineated by a slash '/'
           .put("DURING", Mapper::during)
           .build();
 
@@ -187,6 +188,15 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           "Cannot find mapping for binary spatial operator: " + operator);
     }
     supplierInProgress = new TerminalNodeSupplier(spatialMapping);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder beginNilType() {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    // used for date 'IS EMPTY' ops by the UI
+    supplierInProgress = new TerminalNodeSupplier(Mapper::nil);
     return this;
   }
 
@@ -336,7 +346,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     @Override
     public JAXBElement<?> get() {
       notNull(propertyNode);
-      notNull(valueNode);
+      // notNull(valueNode);
       List<JAXBElement<?>> terminals = new ArrayList<>();
       terminals.add(propertyNode);
       terminals.add(valueNode);
@@ -462,6 +472,10 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     private static JAXBElement<DistanceBufferType> dwithin(List<JAXBElement<?>> children) {
       return FACTORY.createDWithin(
           new DistanceBufferType().withExpressionOrAny(new ArrayList<>(children)));
+    }
+
+    private static JAXBElement<PropertyIsNilType> nil(List<JAXBElement<?>> children) {
+      return FACTORY.createPropertyIsNil(new PropertyIsNilType().withExpression(children.get(0)));
     }
 
     private static BinaryLogicOpType binaryLogicType(List<JAXBElement<?>> ops) {
