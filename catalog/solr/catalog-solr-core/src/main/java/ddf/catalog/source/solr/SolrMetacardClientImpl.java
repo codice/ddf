@@ -130,6 +130,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final String RESOURCE_ATTRIBUTE = "resource";
 
+  private static final String SOLR_QUERY_FAILURE_MSG = "Could not complete solr query.";
+
   private final SolrClient client;
 
   private final SolrFilterDelegateFactory filterDelegateFactory;
@@ -205,7 +207,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         solrResponse = client.query(realTimeQuery, METHOD.POST);
       } else {
         if (userSpellcheckIsOn) {
-          query.setParam("spellcheck", true);
+          query.setParam(SPELLCHECK_KEY, true);
         }
         highlighter.processPreQuery(request, query);
         solrResponse = client.query(query, METHOD.POST);
@@ -227,7 +229,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         totalHits = docs.getNumFound();
       }
     } catch (SolrServerException | IOException | SolrException e) {
-      throw new UnsupportedQueryException("Could not complete solr query.", e);
+      throw new UnsupportedQueryException(SOLR_QUERY_FAILURE_MSG, e);
     }
 
     return new SourceResponseImpl(request, responseProps, results, totalHits);
@@ -241,7 +243,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         SolrDocumentList page = client.getById(partition);
         page.iterator().forEachRemaining(solrDocs::add);
       } catch (SolrServerException | SolrException | IOException e) {
-        throw new UnsupportedQueryException("Could not complete solr query.", e);
+        throw new UnsupportedQueryException(SOLR_QUERY_FAILURE_MSG, e);
       }
     }
     return solrDocs;
@@ -368,7 +370,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
       Collation collation = getCollationToResend(query, solrResponse);
       query.set("q", collation.getCollationQueryString());
-      query.set("spellcheck", false);
+      query.set(SPELLCHECK_KEY, false);
       highlighter.processPreQuery(request, query);
       QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
       SolrDocumentList docs = solrResponseRequery.getResults();
@@ -394,8 +396,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private Boolean userSpellcheckIsOn(QueryRequest request) {
     Boolean userSpellcheckChoice = false;
-    if (request.getProperties().get("spellcheck") != null) {
-      userSpellcheckChoice = (Boolean) request.getProperties().get("spellcheck");
+    if (request.getProperties().get(SPELLCHECK_KEY) != null) {
+      userSpellcheckChoice = (Boolean) request.getProperties().get(SPELLCHECK_KEY);
     }
     return userSpellcheckChoice;
   }
@@ -464,7 +466,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
       return createMetacards(docs);
     } catch (SolrServerException | SolrException | IOException e) {
-      throw new UnsupportedQueryException("Could not complete solr query.", e);
+      throw new UnsupportedQueryException(SOLR_QUERY_FAILURE_MSG, e);
     }
   }
 

@@ -32,7 +32,6 @@ import ddf.security.samlp.impl.SamlProtocol;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
@@ -105,6 +104,9 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
 
   public static final String APPLICATION_VND_PAOS_XML = "application/vnd.paos+xml";
 
+  public static final String IDP_SERVER_FAILURE_MSG =
+      "Unable to complete SAML ECP connection. Unable to determine IdP server.";
+
   private String soapMessage;
 
   private String soapfaultMessage;
@@ -152,7 +154,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
     }
     try {
       SOAPPart soapMessage =
-          SamlProtocol.parseSoapMessage(IOUtils.toString(content, Charset.forName("UTF-8")));
+          SamlProtocol.parseSoapMessage(IOUtils.toString(content, StandardCharsets.UTF_8));
       Iterator iterator = soapMessage.getEnvelope().getHeader().examineAllHeaderElements();
       IDPEntry idpEntry = null;
       String relayState = "";
@@ -171,15 +173,11 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
             Request ecpRequest = (Request) OpenSAMLUtil.fromDom(soapHeaderElement);
             IDPList idpList = ecpRequest.getIDPList();
             if (idpList == null) {
-              throw new Fault(
-                  new AccessDeniedException(
-                      "Unable to complete SAML ECP connection. Unable to determine IdP server."));
+              throw new Fault(new AccessDeniedException(IDP_SERVER_FAILURE_MSG));
             }
             List<IDPEntry> idpEntrys = idpList.getIDPEntrys();
             if (idpEntrys == null || idpEntrys.size() == 0) {
-              throw new Fault(
-                  new AccessDeniedException(
-                      "Unable to complete SAML ECP connection. Unable to determine IdP server."));
+              throw new Fault(new AccessDeniedException(IDP_SERVER_FAILURE_MSG));
             }
             // choose the right entry, probably need to do something better than select the first
             // one
@@ -197,9 +195,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
         }
       }
       if (idpEntry == null) {
-        throw new Fault(
-            new AccessDeniedException(
-                "Unable to complete SAML ECP connection. Unable to determine IdP server."));
+        throw new Fault(new AccessDeniedException(IDP_SERVER_FAILURE_MSG));
       }
       String token = createToken(authorization);
       checkAuthnRequest(soapMessage);
@@ -211,7 +207,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
       InputStream httpResponseContent = httpResponse.content;
       SOAPPart idpSoapResponse =
           SamlProtocol.parseSoapMessage(
-              IOUtils.toString(httpResponseContent, Charset.forName("UTF-8")));
+              IOUtils.toString(httpResponseContent, StandardCharsets.UTF_8));
       Iterator responseHeaderElements =
           idpSoapResponse.getEnvelope().getHeader().examineAllHeaderElements();
       String newRelayState = "";

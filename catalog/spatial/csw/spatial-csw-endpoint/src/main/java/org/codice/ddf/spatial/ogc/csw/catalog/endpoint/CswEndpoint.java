@@ -252,6 +252,10 @@ public class CswEndpoint implements Csw {
 
   private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Unable to retrieve product for ID: %s";
 
+  private static final String UNABLE_TO_UPDATE_MSG = "Unable to update record(s).";
+
+  private static final String UNABLE_TO_DELETE_MSG = "Unable to delete record(s)";
+
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
   private static final int MAX_Q_SIZE = 1024;
@@ -634,9 +638,9 @@ public class CswEndpoint implements Csw {
                 | SourceUnavailableException
                 | UnsupportedQueryException
                 | CatalogQueryException e) {
-              LOGGER.debug("Unable to update record(s)", e);
+              LOGGER.debug(UNABLE_TO_UPDATE_MSG, e);
               throw new CswException(
-                  "Unable to update record(s).",
+                  UNABLE_TO_UPDATE_MSG,
                   CswConstants.TRANSACTION_FAILED,
                   updateAction.getHandle());
             }
@@ -652,7 +656,7 @@ public class CswEndpoint implements Csw {
         } catch (ExecutionException | CancellationException e) {
           LOGGER.debug("Error updating Metacard", e);
           throw new CswException(
-              "Unable to update record(s).", CswConstants.TRANSACTION_FAILED, "Update");
+              UNABLE_TO_UPDATE_MSG, CswConstants.TRANSACTION_FAILED, "Update");
         }
       } catch (InterruptedException e) {
         LOGGER.debug("Metacard update interrupted", e);
@@ -669,9 +673,9 @@ public class CswEndpoint implements Csw {
       try {
         numDeleted += deleteRecords(deleteAction);
       } catch (Exception e) {
-        LOGGER.debug("Unable to delete record(s)", e);
+        LOGGER.debug(UNABLE_TO_DELETE_MSG, e);
         throw new CswException(
-            "Unable to delete record(s).",
+            UNABLE_TO_DELETE_MSG,
             CswConstants.TRANSACTION_FAILED,
             deleteAction.getHandle());
       }
@@ -768,7 +772,7 @@ public class CswEndpoint implements Csw {
               } catch (IngestException | SourceUnavailableException | CatalogQueryException e) {
                 LOGGER.debug("Unable to delete record: {}", id, e);
                 throw new CswException(
-                    "Unable to delete record(s).",
+                    UNABLE_TO_DELETE_MSG,
                     CswConstants.TRANSACTION_FAILED,
                     transformDeleteAction.getHandle());
               }
@@ -786,7 +790,7 @@ public class CswEndpoint implements Csw {
           } catch (ExecutionException | CancellationException e) {
             LOGGER.debug("Error deleting Metacard", e);
             throw new CswException(
-                "Unable to delete record(s).",
+                UNABLE_TO_DELETE_MSG,
                 CswConstants.TRANSACTION_FAILED,
                 deleteAction.getHandle());
           }
@@ -879,9 +883,9 @@ public class CswEndpoint implements Csw {
               try {
                 return updateResultList(recordProperties, batch, results);
               } catch (IngestException | SourceUnavailableException e) {
-                LOGGER.debug("Unable to update record(s)", e);
+                LOGGER.debug(UNABLE_TO_UPDATE_MSG, e);
                 throw new CswException(
-                    "Unable to update record(s).",
+                    UNABLE_TO_UPDATE_MSG,
                     CswConstants.TRANSACTION_FAILED,
                     callableUpdateAction.getHandle());
               }
@@ -899,7 +903,7 @@ public class CswEndpoint implements Csw {
           } catch (ExecutionException | CancellationException e) {
             LOGGER.debug("Error updating", e);
             throw new CswException(
-                "Unable to update record(s).",
+                UNABLE_TO_UPDATE_MSG,
                 CswConstants.TRANSACTION_FAILED,
                 updateAction.getHandle());
           }

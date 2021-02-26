@@ -63,6 +63,9 @@ public class CrlGenerator implements Runnable {
   private static final Logger LOGGER = LoggerFactory.getLogger(CrlGenerator.class);
   private static final PropertiesLoader PROPERTIES_LOADER = PropertiesLoader.getInstance();
   private static final String HTTPS = "https://";
+  private static final String SAVE_ERROR_MSG = "Unable to save the CRL.";
+  private static final String PROPERTY_REMOVAL_ERROR_MSG =
+      "Unable to remove the CRL property from the signature.properties and encryption.properties files.";
   private static final int INITIAL_DELAY = 0;
   private static final int SCHEDULER_INTERVAL = 30;
   private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
@@ -238,9 +241,9 @@ public class CrlGenerator implements Runnable {
                 return null;
               });
     } catch (PrivilegedActionException e) {
-      LOGGER.warn("Unable to save the CRL.");
-      LOGGER.debug("Unable to save the CRL.", e.getCause());
-      postErrorEvent("Unable to save the CRL.");
+      LOGGER.warn(SAVE_ERROR_MSG);
+      LOGGER.debug(SAVE_ERROR_MSG, e.getCause());
+      postErrorEvent(SAVE_ERROR_MSG);
     }
   }
   /**
@@ -299,13 +302,9 @@ public class CrlGenerator implements Runnable {
                 return null;
               });
     } catch (PrivilegedActionException e) {
-      LOGGER.warn(
-          "Unable to remove the CRL property from the signature.properties and encryption.properties files.");
-      LOGGER.debug(
-          "Unable to remove the CRL property from the signature.properties and encryption.properties files.",
-          e.getCause());
-      postErrorEvent(
-          "Unable to remove the CRL property from the signature.properties and encryption.properties files.");
+      LOGGER.warn(PROPERTY_REMOVAL_ERROR_MSG);
+      LOGGER.debug(PROPERTY_REMOVAL_ERROR_MSG);
+      postErrorEvent(PROPERTY_REMOVAL_ERROR_MSG);
     }
   }
   /**

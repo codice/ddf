@@ -52,6 +52,8 @@ public class GmlHandler extends AbstractSaxEventHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GmlHandler.class);
 
+  private static final String SAX_EXCEPTION_MSG = "GML threw a SAX exception";
+
   private static Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
 
   GMLHandler gh;
@@ -144,7 +146,7 @@ public class GmlHandler extends AbstractSaxEventHandler {
         try {
           gh.startElement(uri, localName, qName, attributes);
         } catch (SAXException e) {
-          LOGGER.debug("GML threw a SAX exception", e);
+          LOGGER.debug(SAX_EXCEPTION_MSG, e);
         }
       }
     }
@@ -175,7 +177,7 @@ public class GmlHandler extends AbstractSaxEventHandler {
         try {
           gh.endElement(namespaceURI, localName, qName);
         } catch (SAXException e) {
-          LOGGER.debug("GML threw a SAX exception", e);
+          LOGGER.debug(SAX_EXCEPTION_MSG, e);
         }
       }
       state.pop();
@@ -225,7 +227,7 @@ public class GmlHandler extends AbstractSaxEventHandler {
         try {
           gh.characters(ch, start, length);
         } catch (SAXException e) {
-          LOGGER.debug("GML threw a SAX exception", e);
+          LOGGER.debug(SAX_EXCEPTION_MSG, e);
         }
       }
     }

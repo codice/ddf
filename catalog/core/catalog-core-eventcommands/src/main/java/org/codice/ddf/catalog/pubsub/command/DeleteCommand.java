@@ -132,9 +132,7 @@ public class DeleteCommand extends SubscriptionsCommand {
 
         // Print summary of deletions to console
         console.println();
-        console.printf(
-            "Deleted %d subscriptions out of %s subscriptions found.",
-            deletedSubscriptionsCount, subscriptionIds.size());
+        console.printf(DELETION_SUMMARY_FORMAT, deletedSubscriptionsCount, subscriptionIds.size());
         console.println();
       }
     }

@@ -54,6 +54,7 @@ public class Crypter {
   private static final String DEFAULT_KEYSET_FILE_NAME = "default";
   private static final String STREAMING_KEYSET_FILE_SPECIFIER = "-streaming";
   private static final String KEYSET_FILE_EXTENSION = ".json";
+  private static final String NULL_DATA_MSG = "Associated data cannot be null.";
   private static final int ASSOCIATED_DATA_BYTE_SIZE = 10;
   @VisibleForTesting static final int CHUNK_SIZE = 256;
 
@@ -136,7 +137,7 @@ public class Crypter {
       throw new CrypterException("Bytes to encrypt cannot be null or empty.");
     }
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
 
     try {
@@ -156,7 +157,7 @@ public class Crypter {
       throw new CrypterException("Bytes to decrypt cannot be null or empty.");
     }
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
 
     try {
@@ -176,7 +177,7 @@ public class Crypter {
       throw new CrypterException("Value to encrypt cannot be null or blank.");
     }
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
 
     try {
@@ -197,7 +198,7 @@ public class Crypter {
       throw new CrypterException("Value to decrypt cannot be null or blank.");
     }
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
 
     try {
@@ -215,7 +216,7 @@ public class Crypter {
    */
   public InputStream encrypt(InputStream plainInputStream) throws CrypterException {
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
     try {
       if (plainInputStream == null || plainInputStream.available() < 1) {
@@ -265,7 +266,7 @@ public class Crypter {
    */
   public InputStream decrypt(InputStream encryptedInputStream) throws CrypterException {
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
     try {
       if (encryptedInputStream == null || encryptedInputStream.available() < 1) {

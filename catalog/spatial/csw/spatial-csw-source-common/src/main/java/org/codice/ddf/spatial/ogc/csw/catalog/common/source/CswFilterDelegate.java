@@ -15,6 +15,8 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
+
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -58,6 +60,16 @@ import org.slf4j.LoggerFactory;
 public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswFilterDelegate.class);
+
+  private static final String ATTEMPTING_TO_BUILD_MSG ="Attempting to build {} filter for property {} and WKT {} in LON/LAT order.";
+
+  private static final String CSW_SUPPORT_EXCEPTION_MSG =
+        "CSW source does not support {} filter or any of its fallback spatial filters. This may be due to spatial operators not being supported or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
+
+  private static final String CSW_SUPPORT_EXCEPTION_MSG_SIMPLE =
+          "CSW source does not support {} filter or any of its fallback spatial filters. This may be due to spatial operators not being supported or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
+
+  private static final String FALLING_BACK_MSG = "Falling back to {} filter.";
 
   // 1000 Nautical Miles in meters
   private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = 1852000;
@@ -794,7 +806,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   public FilterType beyond(String propertyName, String wkt, double distance) {
 
     LOGGER.debug(
-        "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
+        ATTEMPTING_TO_BUILD_MSG,
         SpatialOperatorNameType.BEYOND,
         propertyName,
         wkt);
@@ -820,19 +832,14 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message =
-        "CSW source does not support "
-            + SpatialOperatorNameType.BEYOND.name()
-            + " filter or any of its fallback spatial filters. This may be due to spatial operators not being supported "
-            + "or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
-    throw new UnsupportedOperationException(message);
+    throw new UnsupportedOperationException(MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.BEYOND.name()));
   }
 
   @Override
   public FilterType contains(String propertyName, String wkt) {
 
     LOGGER.debug(
-        "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
+        ATTEMPTING_TO_BUILD_MSG,
         SpatialOperatorNameType.CONTAINS.name(),
         propertyName,
         wkt);
@@ -858,11 +865,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message =
-        "CSW source does not support "
-            + SpatialOperatorNameType.CONTAINS.name()
-            + " filter or any of its fallback spatial filters. This may be due to spatial operators not being supported "
-            + "or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
+    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.CONTAINS.name());
     throw new UnsupportedOperationException(message);
   }
 
@@ -870,7 +873,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   public FilterType disjoint(String propertyName, String wkt) {
 
     LOGGER.debug(
-        "Attempting to build {} filter for property {} and WKT {} in LON/LAT order in LON/LAT order.",
+        ATTEMPTING_TO_BUILD_MSG,
         SpatialOperatorNameType.DISJOINT,
         propertyName,
         wkt);
@@ -905,11 +908,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message =
-        "CSW source does not support "
-            + SpatialOperatorNameType.DISJOINT.name()
-            + " filter or any of its fallback spatial filters. This may be due to spatial operators not being supported "
-            + "or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
+    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.DISJOINT.name());
     throw new UnsupportedOperationException(message);
   }
 
@@ -917,7 +916,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   public FilterType crosses(String propertyName, String wkt) {
 
     LOGGER.debug(
-        "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
+        ATTEMPTING_TO_BUILD_MSG,
         SpatialOperatorNameType.CROSSES,
         propertyName,
         wkt);
@@ -935,11 +934,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message =
-        "CSW source does not support "
-            + SpatialOperatorNameType.CROSSES.name()
-            + " filter or any of its fallback spatial filters. This may be due to spatial operators not being supported "
-            + "or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
+    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.CROSSES.name());
     throw new UnsupportedOperationException(message);
   }
 
@@ -947,7 +942,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   public FilterType dwithin(String propertyName, String wkt, double distance) {
 
     LOGGER.debug(
-        "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
+        ATTEMPTING_TO_BUILD_MSG,
         SpatialOperatorNameType.D_WITHIN,
         propertyName,
         wkt,
@@ -990,11 +985,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message =
-        "CSW source does not support "
-            + SpatialOperatorNameType.D_WITHIN.name()
-            + " filter or any of its fallback spatial filters. This may be due to spatial operators not being supported "
-            + "or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
+    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG, SpatialOperatorNameType.D_WITHIN.name());
     throw new UnsupportedOperationException(message);
   }
 
@@ -1008,7 +999,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   public FilterType intersects(String propertyName, String wkt) {
 
     LOGGER.debug(
-        "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
+        ATTEMPTING_TO_BUILD_MSG,
         SpatialOperatorNameType.INTERSECTS,
         propertyName,
         wkt);
@@ -1035,7 +1026,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
           useGeometryOrEnvelope(SpatialOperatorNameType.BBOX, wkt);
       // BBOX only supports Envelope
       if (bboxBinarySpatialOperand == BinarySpatialOperand.ENVELOPE) {
-        LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.BBOX);
+        LOGGER.debug(FALLING_BACK_MSG, SpatialOperatorNameType.BBOX);
         return cswFilterFactory.buildBBoxGeospatialFilter(propertyName, wkt);
       }
     }
@@ -1044,18 +1035,13 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       BinarySpatialOperand disjointBinarySpatialOperand =
           useGeometryOrEnvelope(SpatialOperatorNameType.DISJOINT, wkt);
       if (disjointBinarySpatialOperand != BinarySpatialOperand.NONE) {
-        LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.DISJOINT);
+        LOGGER.debug(FALLING_BACK_MSG, SpatialOperatorNameType.DISJOINT);
         return not(disjoint(propertyName, wkt));
       }
     }
 
-    String message =
-        "CSW source does not support "
-            + SpatialOperatorNameType.INTERSECTS.name()
-            + " for "
-            + getGeometryOperandFromWkt(wkt)
-            + " filter or any of its fallback spatial filters. This may be due to spatial operators not being supported "
-            + "or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
+    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG,
+            SpatialOperatorNameType.INTERSECTS.name() + " for " + getGeometryOperandFromWkt(wkt));
     throw new UnsupportedOperationException(message);
   }
 
@@ -1063,7 +1049,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   public FilterType overlaps(String propertyName, String wkt) {
 
     LOGGER.debug(
-        "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
+        ATTEMPTING_TO_BUILD_MSG,
         SpatialOperatorNameType.OVERLAPS,
         propertyName,
         wkt);
@@ -1081,8 +1067,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message =
-        "CSW source does not support " + SpatialOperatorNameType.OVERLAPS.name() + " filter.";
+    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG_SIMPLE,SpatialOperatorNameType.OVERLAPS.name());
     throw new UnsupportedOperationException(message);
   }
 
@@ -1090,7 +1075,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   public FilterType touches(String propertyName, String wkt) {
 
     LOGGER.debug(
-        "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
+        ATTEMPTING_TO_BUILD_MSG,
         SpatialOperatorNameType.TOUCHES,
         propertyName,
         wkt);
@@ -1108,8 +1093,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       }
     }
 
-    String message =
-        "CSW source does not support " + SpatialOperatorNameType.TOUCHES.name() + " filter.";
+    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG_SIMPLE, SpatialOperatorNameType.TOUCHES.name());
     throw new UnsupportedOperationException(message);
   }
 
@@ -1117,7 +1101,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   public FilterType within(String propertyName, String wkt) {
 
     LOGGER.debug(
-        "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
+        ATTEMPTING_TO_BUILD_MSG,
         SpatialOperatorNameType.WITHIN,
         propertyName,
         wkt);
@@ -1136,15 +1120,14 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     if (isSpatialOperationSupported(SpatialOperatorNameType.CONTAINS)) {
-      LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.CONTAINS);
+      LOGGER.debug(FALLING_BACK_MSG, SpatialOperatorNameType.CONTAINS);
       BinarySpatialOperand containsBinarySpatialOperand =
           useGeometryOrEnvelope(SpatialOperatorNameType.CONTAINS, wkt);
       if (containsBinarySpatialOperand != BinarySpatialOperand.NONE) {
         return contains(propertyName, wkt);
       }
     }
-    String message =
-        "CSW source does not support " + SpatialOperatorNameType.WITHIN.name() + " filter.";
+    String message = MessageFormat.format(CSW_SUPPORT_EXCEPTION_MSG_SIMPLE, SpatialOperatorNameType.WITHIN.name());
     throw new UnsupportedOperationException(message);
   }
 

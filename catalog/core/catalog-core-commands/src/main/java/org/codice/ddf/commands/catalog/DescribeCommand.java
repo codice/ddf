@@ -23,15 +23,16 @@ import org.codice.ddf.commands.catalog.facade.CatalogFacade;
     name = "describe",
     description = "Provides a basic description of the Catalog implementation.")
 public class DescribeCommand extends CatalogCommands {
+  private static final String FORMAT_STR = "%s=%s%n";
 
   @Override
   protected Object executeWithSubject() throws Exception {
     CatalogFacade catalog = getCatalog();
 
-    console.printf("%s=%s%n", "title", catalog.getTitle());
-    console.printf("%s=%s%n", "description", catalog.getDescription());
-    console.printf("%s=%s%n", "id", catalog.getId());
-    console.printf("%s=%s%n", "version", catalog.getVersion());
+    console.printf(FORMAT_STR, "title", catalog.getTitle());
+    console.printf(FORMAT_STR, "description", catalog.getDescription());
+    console.printf(FORMAT_STR, "id", catalog.getId());
+    console.printf(FORMAT_STR, "version", catalog.getVersion());
 
     return null;
   }

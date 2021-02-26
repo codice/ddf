@@ -80,6 +80,9 @@ public class CreateOperations {
 
   private static final String PRE_INGEST_ERROR = "Error during pre-ingest:\n\n";
 
+  private static final String PROCESSING_ERROR =
+      "Plugin processing failed. This is allowable. Skipping to next plugin.";
+
   // Inject properties
   private final FrameworkProperties frameworkProperties;
 
@@ -488,7 +491,7 @@ public class CreateOperations {
       try {
         createResponse = plugin.process(createResponse);
       } catch (PluginExecutionException e) {
-        LOGGER.info("Plugin processing failed. This is allowable. Skipping to next plugin.", e);
+        LOGGER.info(PROCESSING_ERROR, e);
       }
     }
     return createResponse;
@@ -526,7 +529,7 @@ public class CreateOperations {
       try {
         createRequest = plugin.process(createRequest);
       } catch (PluginExecutionException e) {
-        LOGGER.info("Plugin processing failed. This is allowable. Skipping to next plugin.", e);
+        LOGGER.info(PROCESSING_ERROR, e);
       }
     }
     return createRequest;
@@ -618,7 +621,7 @@ public class CreateOperations {
       try {
         createStorageResponse = plugin.process(createStorageResponse);
       } catch (PluginExecutionException e) {
-        LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.", e);
+        LOGGER.debug(PROCESSING_ERROR, e);
       }
     }
     return createStorageResponse;
@@ -630,7 +633,7 @@ public class CreateOperations {
       try {
         createStorageRequest = plugin.process(createStorageRequest);
       } catch (PluginExecutionException e) {
-        LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.", e);
+        LOGGER.debug(PROCESSING_ERROR, e);
       }
     }
     return createStorageRequest;

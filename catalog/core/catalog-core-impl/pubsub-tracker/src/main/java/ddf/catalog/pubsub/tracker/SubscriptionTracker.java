@@ -24,39 +24,45 @@ import org.slf4j.LoggerFactory;
 public class SubscriptionTracker {
   private static final Logger LOGGER = LoggerFactory.getLogger(SubscriptionTracker.class);
 
+  private static final String ENTERING_STR = "ENTERING: {}";
+
+  private static final String EXITING_STR = "EXITING: {}";
+
+  private static final String SERVICE_ID = "service.id";
+
   protected Map<String, String> services = new HashMap<String, String>();
 
   protected EventProcessor provider;
 
   public void startUp() {
     String methodName = "startUp";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
   }
 
   public void cleanUp() {
     String methodName = "cleanUp";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
   }
 
   public void setProvider(EventProcessor provider) {
     String methodName = "setProvider";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
 
     this.provider = provider;
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
   }
 
   public void addingService(Subscription subscription, Map props) {
     String methodName = "addingService";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
     LOGGER.debug("*********************************************");
 
-    String serviceId = props.get("service.id").toString();
+    String serviceId = props.get(SERVICE_ID).toString();
 
     LOGGER.debug(
         "{} has detected a subscription request({})",
@@ -79,16 +85,16 @@ public class SubscriptionTracker {
       LOGGER.debug("EventProcessor was null.");
     }
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
   }
 
   public void removedService(Subscription subscription, Map props) {
     String methodName = "removedService";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
 
     if (props != null) {
-      if (props.get("service.id") != null) {
-        String serviceId = props.get("service.id").toString();
+      if (props.get(SERVICE_ID) != null) {
+        String serviceId = props.get(SERVICE_ID).toString();
 
         String subscriptionId = services.get(serviceId);
 
@@ -114,6 +120,6 @@ public class SubscriptionTracker {
         }
       }
     }
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
   }
 }

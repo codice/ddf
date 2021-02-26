@@ -29,6 +29,14 @@ public class DownloadsStatusEventListener implements EventHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DownloadsStatusEventListener.class);
 
+  private static final String ENTERING_STR = "ENTERING: {}";
+
+  private static final String EXITING_STR = "EXITING: {}";
+
+  private static final String DOWNLOAD_MAP_STR = "downloadMap : ";
+
+  private static final String KEY_VALUE_STR = "  Key = {}  Value = {}";
+
   private Map<String, InputStream> downloadMap = new HashMap<String, InputStream>();
 
   public DownloadsStatusEventListener() {}
@@ -36,7 +44,7 @@ public class DownloadsStatusEventListener implements EventHandler {
   @Override
   public void handleEvent(Event event) {
     String methodName = "handleEvent";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
 
     if (null != event
         && null != event.getTopic()
@@ -56,11 +64,11 @@ public class DownloadsStatusEventListener implements EventHandler {
             }
           }
           if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("downloadMap : ");
+            LOGGER.debug(DOWNLOAD_MAP_STR);
             for (Map.Entry<String, InputStream> item : downloadMap.entrySet()) {
               String keyStr = item.getKey();
               InputStream value = item.getValue();
-              LOGGER.debug("  Key = {}  Value = {}", keyStr, value);
+              LOGGER.debug(KEY_VALUE_STR, keyStr, value);
             }
           }
         }
@@ -69,12 +77,12 @@ public class DownloadsStatusEventListener implements EventHandler {
       LOGGER.debug("Event is null ");
     }
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
   }
 
   public void setDownloadMap(String downloadIdentifier, ResourceResponse resourceResponse) {
     String methodName = "setDownloadMap";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
 
     if (null != downloadIdentifier && null != resourceResponse) {
 
@@ -84,21 +92,21 @@ public class DownloadsStatusEventListener implements EventHandler {
         this.downloadMap.put(downloadIdentifier, is);
 
         if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug("downloadMap : ");
+          LOGGER.debug(DOWNLOAD_MAP_STR);
           for (Map.Entry<String, InputStream> item : downloadMap.entrySet()) {
             String keyStr = item.getKey();
             InputStream value = item.getValue();
-            LOGGER.debug("  Key = {}  Value = {}", keyStr, value);
+            LOGGER.debug(KEY_VALUE_STR, keyStr, value);
           }
         }
       }
     }
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
   }
 
   public void removeDownloadIdentifier(String downloadIdentifier) {
     String methodName = "removeDownloadMap";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
 
     if (null != downloadIdentifier) {
 
@@ -112,16 +120,16 @@ public class DownloadsStatusEventListener implements EventHandler {
           }
         }
         if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug("downloadMap : ");
+          LOGGER.debug(DOWNLOAD_MAP_STR);
           for (Map.Entry<String, InputStream> item : downloadMap.entrySet()) {
             String keyStr = item.getKey();
             InputStream value = item.getValue();
-            LOGGER.debug("  Key = {}  Value = {}", keyStr, value);
+            LOGGER.debug(KEY_VALUE_STR, keyStr, value);
           }
         }
       }
     }
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
   }
 
   private String getProperty(ResourceResponse resourceResponse, String property) {

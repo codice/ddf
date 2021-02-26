@@ -15,6 +15,8 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
+
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -119,6 +121,14 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private static final String PROPERTY_NOT_QUERYABLE = "'%s' is not a queryable property.";
 
   private static final String PROPERTY_NOT_QUERYABLE_ARG = "{} is not a queryable property";
+
+  private static final String UNABLE_TO_MAP_MSG = "{} could not be mapped to a feature property. Its query clause will be dropped.";
+
+  private static final String MAPPED_TO_MSG = "{} maps to the feature property {}.";
+
+  private static final String NOT_SUPPORTED_MSG = "{} [{}] is not supported.";
+
+  private static final String DOES_NOT_MAP_MSG = "Property [{}] does not map to a feature property of type {}.";
 
   // Regex to match coords in WKT
   private static final Pattern COORD_PATTERN =
@@ -831,12 +841,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
     if (featurePropertyName == null) {
       LOGGER.debug(
-          "{} could not be mapped to a feature property. Its query clause will be dropped.",
+          UNABLE_TO_MAP_MSG,
           propertyName);
       return null;
     }
 
-    LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+    LOGGER.debug(MAPPED_TO_MSG, propertyName, featurePropertyName);
 
     FilterType filter = new FilterType();
     filter.setComparisonOps(
@@ -848,15 +858,14 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     if (!isTemporalOpSupported(TEMPORAL_OPERATORS.DURING)) {
       throw new UnsupportedOperationException(
-          "Temporal Operator [" + TEMPORAL_OPERATORS.DURING + "] is not supported.");
+              MessageFormat.format(NOT_SUPPORTED_MSG, "Temporal Operator", TEMPORAL_OPERATORS.DURING));
     }
 
     TemporalOperand timePeriodTemporalOperand = new TemporalOperand();
     timePeriodTemporalOperand.setName(
         new QName(Wfs20Constants.GML_3_2_NAMESPACE, Wfs20Constants.TIME_PERIOD));
     if (!isTemporalOperandSupported(timePeriodTemporalOperand)) {
-      throw new UnsupportedOperationException(
-          "Temporal Operand [" + timePeriodTemporalOperand.getName() + "] is not supported.");
+      throw new UnsupportedOperationException(MessageFormat.format(NOT_SUPPORTED_MSG, "Temporal Operand", timePeriodTemporalOperand.getName()));
     }
 
     if (!isValidInputParameters(propertyName, startDate, endDate)) {
@@ -867,12 +876,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         mapQueryPropertyToFeatureProperty(propertyName, this::isPropertyTemporalType);
 
     if (featurePropertyName == null) {
-      throw new IllegalArgumentException(
-          "Property ["
-              + propertyName
-              + "] does not map to a feature property of type "
-              + timePeriodTemporalOperand.getName()
-              + ".");
+      throw new IllegalArgumentException(MessageFormat.format(DOES_NOT_MAP_MSG, propertyName, timePeriodTemporalOperand.getName()));
     }
 
     FilterType filter = filterObjectFactory.createFilterType();
@@ -887,8 +891,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     timeInstantTemporalOperand.setName(
         new QName(Wfs20Constants.GML_3_2_NAMESPACE, Wfs20Constants.TIME_INSTANT));
     if (!isTemporalOperandSupported(timeInstantTemporalOperand)) {
-      throw new UnsupportedOperationException(
-          "Temporal Operand [" + timeInstantTemporalOperand.getName() + "] is not supported.");
+      throw new UnsupportedOperationException(MessageFormat.format(NOT_SUPPORTED_MSG, "Temporal Operand", timeInstantTemporalOperand.getName()));
     }
 
     if (!isValidInputParameters(propertyName, date)) {
@@ -899,12 +902,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         mapQueryPropertyToFeatureProperty(propertyName, this::isPropertyTemporalType);
 
     if (featurePropertyName == null) {
-      throw new IllegalArgumentException(
-          "Property ["
-              + propertyName
-              + "] does not map to a feature property of type "
-              + timeInstantTemporalOperand.getName()
-              + ".");
+      throw new IllegalArgumentException(MessageFormat.format(DOES_NOT_MAP_MSG, propertyName, timeInstantTemporalOperand.getName()));
     }
 
     if (!isTemporalOpSupported(TEMPORAL_OPERATORS.AFTER)) {
@@ -925,8 +923,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     timeInstantTemporalOperand.setName(
         new QName(Wfs20Constants.GML_3_2_NAMESPACE, Wfs20Constants.TIME_INSTANT));
     if (!isTemporalOperandSupported(timeInstantTemporalOperand)) {
-      throw new UnsupportedOperationException(
-          "Temporal Operand [" + timeInstantTemporalOperand.getName() + "] is not supported.");
+      throw new UnsupportedOperationException(MessageFormat.format(NOT_SUPPORTED_MSG, "Temporal Operand", timeInstantTemporalOperand.getName()));
     }
 
     if (!isValidInputParameters(propertyName, date)) {
@@ -937,12 +934,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         mapQueryPropertyToFeatureProperty(propertyName, this::isPropertyTemporalType);
 
     if (featurePropertyName == null) {
-      throw new IllegalArgumentException(
-          "Property ["
-              + propertyName
-              + "] does not map to a feature property of type "
-              + timeInstantTemporalOperand.getName()
-              + ".");
+      throw new IllegalArgumentException(MessageFormat.format(DOES_NOT_MAP_MSG, propertyName, timeInstantTemporalOperand.getName()));
     }
 
     FilterType filter = filterObjectFactory.createFilterType();
@@ -1016,12 +1008,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
           mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
       if (featurePropertyName == null) {
         LOGGER.debug(
-            "{} could not be mapped to a feature property. Its query clause will be dropped.",
+            UNABLE_TO_MAP_MSG,
             propertyName);
         return null;
       }
 
-      LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+      LOGGER.debug(MAPPED_TO_MSG, propertyName, featurePropertyName);
       returnFilter.setComparisonOps(
           createPropertyIsFilter(featurePropertyName, literal, propertyIsType));
     }
@@ -1467,12 +1459,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
           mapQueryPropertyToFeatureProperty(propertyName, this::isWfsGeospatialFeatureProperty);
       if (featurePropertyName == null) {
         LOGGER.debug(
-            "{} could not be mapped to a feature property. Its query clause will be dropped.",
+            UNABLE_TO_MAP_MSG,
             propertyName);
         return null;
       }
 
-      LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+      LOGGER.debug(MAPPED_TO_MSG, propertyName, featurePropertyName);
       returnFilter.setSpatialOps(
           createSpatialOpType(spatialOpType, featurePropertyName, wkt, distance));
     }
@@ -1593,8 +1585,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         return createLineString(wktGeometry);
       }
     }
-    throw new UnsupportedOperationException(
-        "Geometry Operand from WKT [" + convertedWkt + "] is not supported.");
+    throw new UnsupportedOperationException(MessageFormat.format(NOT_SUPPORTED_MSG, "Geometry Operand from WKT", convertedWkt));
   }
 
   private JAXBElement<PolygonType> createPolygon(Geometry geometry) {

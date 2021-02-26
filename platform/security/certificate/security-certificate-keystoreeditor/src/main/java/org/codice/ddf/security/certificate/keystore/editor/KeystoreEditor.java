@@ -110,6 +110,10 @@ public class KeystoreEditor implements KeystoreEditorMBean {
 
   protected static final String JKS_TYPE = "application/x-java-keystore";
 
+  protected static final String DDF_HOME = "ddf.home";
+
+  protected static final String NULL_ALIAS_MSG = "Alias cannot be null.";
+
   private KeyStore keyStore;
 
   private KeyStore trustStore;
@@ -142,7 +146,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     }
     Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
     Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
-    Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+    Path ddfHomePath = Paths.get(System.getProperty(DDF_HOME));
     if (!keyStoreFile.isAbsolute()) {
       keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
     }
@@ -249,7 +253,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     LOGGER.trace("Received data {}", data);
     Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
     if (!keyStoreFile.isAbsolute()) {
-      Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+      Path ddfHomePath = Paths.get(System.getProperty(DDF_HOME));
       keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
     }
     String keyStorePassword = SecurityConstants.getKeystorePassword();
@@ -278,7 +282,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     LOGGER.trace("Received data {}", data);
     Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
     if (!trustStoreFile.isAbsolute()) {
-      Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+      Path ddfHomePath = Paths.get(System.getProperty(DDF_HOME));
       trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
     }
     String trustStorePassword = SecurityConstants.getTruststorePassword();
@@ -320,7 +324,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
       }
       Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
       if (!trustStoreFile.isAbsolute()) {
-        Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+        Path ddfHomePath = Paths.get(System.getProperty(DDF_HOME));
         trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
       }
       String keyStorePassword = SecurityConstants.getTruststorePassword();
@@ -447,7 +451,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     try (InputStream inputStream =
         new ByteArrayInputStream(Base64.getDecoder().decode(keystoreData))) {
       if (StringUtils.isBlank(alias)) {
-        throw new IllegalArgumentException("Alias cannot be null.");
+        throw new IllegalArgumentException(NULL_ALIAS_MSG);
       }
       KeyStore ks = null;
       if (StringUtils.endsWithIgnoreCase(keystoreFileName, ".p12")
@@ -482,7 +486,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     OutputStream fos = null;
     try (InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data))) {
       if (StringUtils.isBlank(alias)) {
-        throw new IllegalArgumentException("Alias cannot be null.");
+        throw new IllegalArgumentException(NULL_ALIAS_MSG);
       }
       Path storeFile = Paths.get(path);
       // check the two most common key/cert stores first (pkcs12 and jks)
@@ -726,7 +730,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     securityLogger.audit("Removing {} from System keystore.", alias);
     Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
     if (!keyStoreFile.isAbsolute()) {
-      Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+      Path ddfHomePath = Paths.get(System.getProperty(DDF_HOME));
       keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
     }
     String keyStorePassword = SecurityConstants.getKeystorePassword();
@@ -738,7 +742,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     securityLogger.audit("Removing {} from System truststore.", alias);
     Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
     if (!trustStoreFile.isAbsolute()) {
-      Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+      Path ddfHomePath = Paths.get(System.getProperty(DDF_HOME));
       trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
     }
     String trustStorePassword = SecurityConstants.getTruststorePassword();
@@ -748,7 +752,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
   private synchronized void deleteFromStore(
       String alias, String path, String pass, KeyStore store) {
     if (alias == null) {
-      throw new IllegalArgumentException("Alias cannot be null.");
+      throw new IllegalArgumentException(NULL_ALIAS_MSG);
     }
     File storeFile = new File(path);
     try (FileOutputStream fos = new FileOutputStream(storeFile)) {

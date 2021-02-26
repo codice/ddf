@@ -40,6 +40,7 @@ public class BackupCommand extends SolrCommands {
   private static final String DEFAULT_CORE_NAME = "catalog";
   private static final String SEE_COMMAND_USAGE_MESSAGE =
       "Invalid Argument(s). Please see command usage for details.";
+  private static final String BACKUP_FAILURE_MSG = "Backup failed.";
   @Reference private EncryptionService encryptionService;
 
   @Option(
@@ -171,7 +172,7 @@ public class BackupCommand extends SolrCommands {
     CollectionAdminResponse response = backup.process(client, collection);
     LOGGER.debug("Backup status: {}", response.getStatus());
     if (response.getStatus() != 0) {
-      printErrorMessage("Backup failed.");
+      printErrorMessage(BACKUP_FAILURE_MSG);
       printResponseErrorMessages(response);
     }
     return response.isSuccess();
@@ -274,8 +275,8 @@ public class BackupCommand extends SolrCommands {
         }
       }
     } catch (Exception e) {
-      printErrorMessage("Backup failed.");
-      LOGGER.debug("Backup failed.", e);
+      printErrorMessage(BACKUP_FAILURE_MSG);
+      LOGGER.debug(BACKUP_FAILURE_MSG, e);
     }
   }
 }

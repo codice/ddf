@@ -30,6 +30,12 @@ public final class CswConstants {
    */
   public static final String CSW_ATTRIBUTE_PREFIX = "csw.";
 
+  public static final String CSW_NO_PREFIX_TITLE = "title";
+
+  public static final String CSW_NO_PREFIX_MODIFIED = "modified";
+
+  public static final String CSW_NO_PREFIX_CREATED = "created";
+
   public static final String CSW_NAMESPACE_URI = "http://www.opengis.net/cat/csw/2.0.2";
 
   public static final String CSW_METACARD_TYPE_NAME = "csw:Record";
@@ -39,7 +45,7 @@ public final class CswConstants {
   /** Substitution name for "identifier" */
   public static final String CSW_BIBLIOGRAPHIC_CITATION = "bibliographicCitation";
 
-  public static final String CSW_TITLE = CSW_ATTRIBUTE_PREFIX + "title";
+  public static final String CSW_TITLE = CSW_ATTRIBUTE_PREFIX + CSW_NO_PREFIX_TITLE;
 
   /** Substitution name for "title" */
   public static final String CSW_ALTERNATIVE = "alternative";
@@ -100,10 +106,10 @@ public final class CswConstants {
   public static final String CSW_DATE = "date";
 
   /** Substitution name for "date" */
-  public static final String CSW_MODIFIED = CSW_ATTRIBUTE_PREFIX + "modified";
+  public static final String CSW_MODIFIED = CSW_ATTRIBUTE_PREFIX + CSW_NO_PREFIX_MODIFIED;
 
   /** Substitution name for "date" */
-  public static final String CSW_CREATED = CSW_ATTRIBUTE_PREFIX + "created";
+  public static final String CSW_CREATED = CSW_ATTRIBUTE_PREFIX + CSW_NO_PREFIX_CREATED;
 
   /** Substitution name for "date" */
   public static final String CSW_DATE_ACCEPTED = "dateAccepted";
@@ -345,12 +351,6 @@ public final class CswConstants {
   public static final String OGC_OWS_PACKAGE = "net.opengis.ows.v_1_0_0";
 
   public static final String XML_SCHEMA_LANGUAGE = "http://www.w3.org/XML/Schema";
-
-  public static final String CSW_NO_PREFIX_TITLE = "title";
-
-  public static final String CSW_NO_PREFIX_MODIFIED = "modified";
-
-  public static final String CSW_NO_PREFIX_CREATED = "created";
 
   public static final String GML_POINT = "Point";
 

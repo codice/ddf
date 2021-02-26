@@ -58,6 +58,8 @@ import org.slf4j.LoggerFactory;
 public class OperationsMetacardSupport {
   private static final Logger LOGGER = LoggerFactory.getLogger(OperationsMetacardSupport.class);
 
+  private static final String MIME_TYPE_MSG = "Unable to guess mime type for file.";
+
   //
   // Injected properties
   //
@@ -237,7 +239,7 @@ public class OperationsMetacardSupport {
           mimeTypeRaw = mimeTypeGuess;
         }
       } catch (MimeTypeResolutionException e) {
-        LOGGER.debug("Unable to guess mime type for file.", e);
+        LOGGER.debug(MIME_TYPE_MSG, e);
       }
       if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
         Detector detector = new DefaultProbDetector();
@@ -245,7 +247,7 @@ public class OperationsMetacardSupport {
           MediaType mediaType = detector.detect(inputStreamMessageCopy, new Metadata());
           mimeTypeRaw = mediaType.toString();
         } catch (IOException e) {
-          LOGGER.debug("Unable to guess mime type for file.", e);
+          LOGGER.debug(MIME_TYPE_MSG, e);
         }
       }
       if (mimeTypeRaw.equals("text/plain")) {
@@ -268,7 +270,7 @@ public class OperationsMetacardSupport {
             mimeTypeRaw = "application/json";
           }
         } catch (IOException e) {
-          LOGGER.debug("Unable to guess mime type for file.", e);
+          LOGGER.debug(MIME_TYPE_MSG, e);
         }
       }
     }

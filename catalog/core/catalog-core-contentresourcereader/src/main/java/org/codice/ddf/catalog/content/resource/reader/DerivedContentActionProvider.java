@@ -45,6 +45,8 @@ public class DerivedContentActionProvider implements MultiActionProvider {
 
   private static final String DESCRIPTION_PREFIX = "Retrieves derived resource: ";
 
+  private static final String VIEW = VIEW;
+
   public DerivedContentActionProvider(ActionProvider actionProvider) {
     this.resourceActionProvider = actionProvider;
   }
@@ -72,7 +74,7 @@ public class DerivedContentActionProvider implements MultiActionProvider {
                       return Optional.of(
                           new ActionImpl(
                               ID,
-                              "View " + qualifier,
+                              VIEW + qualifier,
                               DESCRIPTION_PREFIX + qualifier,
                               builder.build().toURL()));
                     } else {
@@ -82,18 +84,12 @@ public class DerivedContentActionProvider implements MultiActionProvider {
                         // remote source
                         return Optional.of(
                             new ActionImpl(
-                                ID,
-                                "View " + qualifier,
-                                DESCRIPTION_PREFIX + uriString,
-                                uri.toURL()));
+                                ID, VIEW + qualifier, DESCRIPTION_PREFIX + uriString, uri.toURL()));
                       } else {
                         // fail case
                         return Optional.of(
                             new ActionImpl(
-                                ID,
-                                "View " + uriString,
-                                DESCRIPTION_PREFIX + uriString,
-                                uri.toURL()));
+                                ID, VIEW + uriString, DESCRIPTION_PREFIX + uriString, uri.toURL()));
                       }
                     }
                   } catch (URISyntaxException | MalformedURLException e) {

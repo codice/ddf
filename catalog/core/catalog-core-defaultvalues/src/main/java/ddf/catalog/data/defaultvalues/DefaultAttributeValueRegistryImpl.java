@@ -28,10 +28,14 @@ public class DefaultAttributeValueRegistryImpl implements DefaultAttributeValueR
 
   private final Map<String, Map<String, Serializable>> metacardDefaults = new ConcurrentHashMap<>();
 
+  private static final String NULL_TYPE_MSG = "The metacard type name cannot be null.";
+  private static final String NULL_ATTR_MSG = "The attribute name cannot be null.";
+  private static final String NULL_DEFAULT_MSG = "The default value cannot be null.";
+
   @Override
   public void setDefaultValue(String attributeName, Serializable defaultValue) {
-    notNull(attributeName, "The attribute name cannot be null");
-    notNull(defaultValue, "The default value cannot be null");
+    notNull(attributeName, NULL_ATTR_MSG);
+    notNull(defaultValue, NULL_DEFAULT_MSG);
 
     globalDefaults.put(attributeName, defaultValue);
   }
@@ -39,9 +43,9 @@ public class DefaultAttributeValueRegistryImpl implements DefaultAttributeValueR
   @Override
   public void setDefaultValue(
       String metacardTypeName, String attributeName, Serializable defaultValue) {
-    notNull(metacardTypeName, "The metacard type name cannot be null.");
-    notNull(attributeName, "The attribute name cannot be null.");
-    notNull(defaultValue, "The default value cannot be null.");
+    notNull(metacardTypeName, NULL_TYPE_MSG);
+    notNull(attributeName, NULL_ATTR_MSG);
+    notNull(defaultValue, NULL_DEFAULT_MSG);
 
     metacardDefaults.compute(
         metacardTypeName,
@@ -59,8 +63,8 @@ public class DefaultAttributeValueRegistryImpl implements DefaultAttributeValueR
 
   @Override
   public Optional<Serializable> getDefaultValue(String metacardTypeName, String attributeName) {
-    notNull(metacardTypeName, "The metacard type name cannot be null.");
-    notNull(attributeName, "The attribute name cannot be null.");
+    notNull(metacardTypeName, NULL_TYPE_MSG);
+    notNull(attributeName, NULL_ATTR_MSG);
 
     final Serializable globalDefault = globalDefaults.get(attributeName);
     final Serializable metacardDefault =
@@ -70,15 +74,15 @@ public class DefaultAttributeValueRegistryImpl implements DefaultAttributeValueR
 
   @Override
   public void removeDefaultValue(String attributeName) {
-    notNull(attributeName, "The attribute name cannot be null");
+    notNull(attributeName, NULL_ATTR_MSG);
 
     globalDefaults.remove(attributeName);
   }
 
   @Override
   public void removeDefaultValue(String metacardTypeName, String attributeName) {
-    notNull(metacardTypeName, "The metacard type name cannot be null.");
-    notNull(attributeName, "The attribute name cannot be null.");
+    notNull(metacardTypeName, NULL_TYPE_MSG);
+    notNull(attributeName, NULL_ATTR_MSG);
 
     metacardDefaults.computeIfPresent(
         metacardTypeName,
@@ -95,7 +99,7 @@ public class DefaultAttributeValueRegistryImpl implements DefaultAttributeValueR
 
   @Override
   public void removeDefaultValues(String metacardTypeName) {
-    notNull(metacardTypeName, "The metacard type name cannot be null.");
+    notNull(metacardTypeName, NULL_TYPE_MSG);
 
     metacardDefaults.remove(metacardTypeName);
   }
