@@ -29,6 +29,8 @@ import net.opengis.filter.v_2_0.UnaryLogicOpType;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Notes on the JSON to XML mapping representation.
@@ -49,6 +51,9 @@ import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
  * @see PropertyIsBetweenType
  */
 public class VisitableJsonElementImpl implements VisitableElement<Object> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(VisitableJsonElementImpl.class);
+
   private static final String LIKE = "LIKE";
 
   private static final String FAKE_PROPERTY_OPERATOR = "PROPERTY";
@@ -63,13 +68,15 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
           .put(FAKE_PROPERTY_OPERATOR, FilterVisitor2::visitString)
           .put(FAKE_VALUE_OPERATOR, FilterVisitor2::visitLiteralType)
           .put(FAKE_DISTANCE_OPERATOR, FilterVisitor2::visitDistanceType)
+          // Misc
+          .put("IS NULL", FilterVisitor2::visitPropertyIsNilType) // Date 'IS EMPTY' operator
           // Logical operator mapping
           .put("AND", FilterVisitor2::visitBinaryLogicType)
           .put("OR", FilterVisitor2::visitBinaryLogicType)
           // Temporal operator mapping
           .put("BEFORE", FilterVisitor2::visitBinaryTemporalType)
           .put("AFTER", FilterVisitor2::visitBinaryTemporalType)
-          .put("DURING", FilterVisitor2::visitBinaryTemporalType)
+          .put("DURING", FilterVisitor2::visitBinaryTemporalType) // Date 'BETWEEN' operator
           // Spatial operator mapping
           .put("INTERSECTS", FilterVisitor2::visitBinarySpatialType)
           .put("DWITHIN", FilterVisitor2::visitDistanceBufferType)
@@ -92,6 +99,12 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
     return new VisitableJsonElementImpl(node);
   }
 
+  private VisitableJsonElementImpl(String prop) {
+    this.visitMethod = FilterVisitor2::visitString;
+    this.name = null;
+    this.value = prop;
+  }
+
   private VisitableJsonElementImpl(final FilterNode node) {
     if (LIKE.equals(node.getOperator())) {
       throw new UnsupportedOperationException("LIKE (case sensitive) currently is not supported");
@@ -105,21 +118,46 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
     }
 
     this.name = node.getOperator();
-    if (node.isTemplated()) {
-      this.value = wrap(node.getProperty(), node.getTemplateProperties());
+
+    if (!node.isLeaf()) {
+      LOGGER.trace("Found JSON logical node [{}] with children", name);
+      this.value = wrap(node.getChildren());
       return;
     }
 
-    if (node.isLeaf()) {
-      Double distance = node.getDistance();
-      if (distance != null) {
-        this.value = wrap(node.getProperty(), node.getValue(), distance);
-      } else {
-        this.value = wrap(node.getProperty(), node.getValue());
-      }
-    } else {
-      this.value = wrap(node.getChildren());
+    String prop = node.getProperty();
+    String val = node.getValue();
+    Double distance = node.getDistance();
+
+    if (node.isTemplated()) {
+      Map<String, Object> template = node.getTemplateProperties();
+      LOGGER.trace(
+          "Found JSON templated node [{}] with property [{}] and template [{}]",
+          name,
+          prop,
+          template);
+      this.value = wrap(prop, template);
+      return;
     }
+
+    if (distance != null) {
+      LOGGER.trace(
+          "Found JSON distance buffer node [{}] with property [{}], value [{}], and distance [{}]",
+          name,
+          prop,
+          val,
+          distance);
+      this.value = wrap(prop, val, distance);
+      return;
+    }
+
+    if (val == null) {
+      LOGGER.trace("Found JSON nil node [{}] for property [{}]", name, prop);
+      this.value = new VisitableJsonElementImpl(prop);
+      return;
+    }
+
+    this.value = wrap(prop, val);
   }
 
   private VisitableJsonElementImpl(final String operator, final Object value) {

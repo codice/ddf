@@ -200,6 +200,15 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   @Override
+  public JsonModelBuilder beginNilType() {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    // used for date 'IS EMPTY' ops by the UI
+    nodeInProgress = new FilterNodeImpl("IS NULL");
+    return null;
+  }
+
+  @Override
   public JsonModelBuilder endTerminalType() {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();

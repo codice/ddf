@@ -99,7 +99,11 @@ public class FilterNodeMapImpl implements FilterNode {
     if (!isLeaf()) {
       throw new IllegalStateException("No target value exists for a logical operator");
     }
-    return Objects.toString(json.get(VALUE));
+    Object val = json.get(VALUE);
+    if (val == null) {
+      return null;
+    }
+    return Objects.toString(val);
   }
 
   @Override
