@@ -110,7 +110,7 @@ public class ZipCompression implements QueryResponseTransformer {
     ServiceReference<MetacardTransformer> serviceRef =
         getTransformerServiceReference(transformerId);
     MetacardTransformer transformer = bundleContext.getService(serviceRef);
-    int totalWritten = 0;
+    boolean isWritten = false;
     List<String> notAddedIds = new ArrayList<>();
     String extension = getFileExtensionFromService(serviceRef);
 
@@ -132,14 +132,14 @@ public class ZipCompression implements QueryResponseTransformer {
           zipOutputStream.putNextEntry(entry);
           zipOutputStream.write(binaryContent.getByteArray());
           zipOutputStream.closeEntry();
-          totalWritten++;
+          isWritten = true;
         } else {
           notAddedIds.add(metacard.getId());
           LOGGER.debug("Metacard with id [{}] was not added to zip file", metacard.getId());
         }
       }
       zipOutputStream.finish();
-      if (totalWritten == 0) {
+      if (isWritten) {
         return null;
       }
       if (notAddedIds.size() > 0) {

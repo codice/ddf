@@ -321,7 +321,7 @@ public class CqlTransformHandler implements Route {
 
     String warning = "";
     if (resultsNotToExport.size() > 0) {
-      List<String> requiredAttrList = mapAliasAttributes(queryResponseTransformer, arguments);
+      List<String> requiredAttrList = getRequiredAttributes(queryResponseTransformer, arguments);
       if (results.size() == 0) {
         LOGGER.debug("0 Results to export due to missing required field(s): {}", requiredAttrList);
         response.status(HttpStatus.BAD_REQUEST_400);
@@ -363,15 +363,15 @@ public class CqlTransformHandler implements Route {
         break;
       }
     }
-    return warningMsg + "\\n";
+    return warningMsg + System.lineSeparator();
   }
 
-  private List<String> mapAliasAttributes(
+  private List<String> getRequiredAttributes(
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
       Map<String, Serializable> arguments) {
     List<String> requiredAttrList = new ArrayList<>();
-    if (getAliasMap(arguments) != null) {
-      Map<String, Serializable> columnAliasMap = getAliasMap(arguments);
+    Map<String, Serializable> columnAliasMap = getAliasMap(arguments);
+    if (columnAliasMap != null) {
       for (String attribute : (List<String>) queryResponseTransformer.getProperty(REQUIRED_ATTR)) {
         if (StringUtils.isNotBlank((String) columnAliasMap.get(attribute))) {
           requiredAttrList.add((String) columnAliasMap.get(attribute));
@@ -436,7 +436,7 @@ public class CqlTransformHandler implements Route {
     return false;
   }
 
-  private Object attachFileToResponse(
+  private Map attachFileToResponse(
       Request request,
       Response response,
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
@@ -451,7 +451,10 @@ public class CqlTransformHandler implements Route {
       LOGGER.debug("Unable to transform content for mimeType: {}", content.getMimeTypeValue());
       response.status(HttpStatus.BAD_REQUEST_400);
       return ImmutableMap.of(
-          "message", "Unable to transform content(s), may be missing required field(s)");
+          "message",
+          "Unable to transform content for mimeType: "
+              + content.getMimeTypeValue()
+              + ", may be missing required field(s)");
     }
 
     if (!CollectionUtils.isEmpty(
@@ -481,7 +484,7 @@ public class CqlTransformHandler implements Route {
         "Successfully output file using transformer id {}",
         queryResponseTransformer.getProperty("id"));
 
-    return "";
+    return Collections.emptyMap();
   }
 
   private CollectionResultComparator getResultComparators(List<CqlRequest.Sort> sorts) {
