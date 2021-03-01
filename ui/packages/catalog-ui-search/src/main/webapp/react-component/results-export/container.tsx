@@ -94,7 +94,7 @@ class ResultsExport extends React.Component<Props, State> {
         })
         return exportFormats.filter(exportFormat => {
           const requiredAttr = exportFormat['required-attributes']
-          if (requiredAttr.length == 0) {
+          if (!Array.isArray(requiredAttr) || requiredAttr.length == 0) {
             return true
           }
           let resultIds = resultsAttributes[requiredAttr[0]]
