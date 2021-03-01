@@ -344,6 +344,7 @@
     <feature name="cxf-tracing-brave" version="${cxf.version}">
         <feature version="${cxf.version}">cxf-core</feature>
         <bundle start-level="35">mvn:io.zipkin.zipkin2/zipkin/${cxf.brave.zipkin.version}</bundle>
+        <bundle start-level="35">mvn:io.zipkin.reporter2/zipkin-reporter-brave/${cxf.brave.reporter.version}</bundle>
         <bundle start-level="35">mvn:io.zipkin.reporter2/zipkin-reporter/${cxf.brave.reporter.version}</bundle>
         <bundle start-level="35">mvn:io.zipkin.brave/brave/${cxf.brave.version}</bundle>
         <bundle start-level="35">mvn:io.zipkin.brave/brave-instrumentation-http/${cxf.brave.version}</bundle>
