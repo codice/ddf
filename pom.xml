@@ -129,7 +129,7 @@
         <pax.web.version>7.2.16</pax.web.version>
         <pax.web.jsp.version>7.2.18</pax.web.jsp.version>
         <restito.version>0.8.2</restito.version>
-        <restassured.version>3.3.0</restassured.version>
+        <restassured.version>4.3.3</restassured.version>
         <groovy.version>3.0.7</groovy.version>
         <xmlunit.version>1.4</xmlunit.version>
         <xmlunit-matchers.version>2.8.2</xmlunit-matchers.version>
