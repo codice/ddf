@@ -179,6 +179,8 @@ public class CswEndpoint implements Csw {
 
   protected static final String SERVICE_TITLE = "Catalog Service for the Web";
 
+  protected static final String SERVICE = "service";
+
   protected static final String SERVICE_ABSTRACT = "DDF CSW Endpoint";
 
   protected static final String ENDPOINT_THREADPOOL_COUNT =
@@ -952,19 +954,19 @@ public class CswEndpoint implements Csw {
   public void unknownService(@QueryParam("") CswRequest request) throws CswException {
     if (request.getService() == null) {
       throw new CswException(
-          "Missing service value", CswConstants.MISSING_PARAMETER_VALUE, "service");
+          "Missing service value", CswConstants.MISSING_PARAMETER_VALUE, SERVICE);
     }
     throw new CswException(
         "Unknown service (" + request.getService() + ")",
         CswConstants.INVALID_PARAMETER_VALUE,
-        "service");
+        SERVICE);
   }
 
   @POST
   @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   public void unknownService() throws CswException {
-    throw new CswException("Unknown Service", CswConstants.INVALID_PARAMETER_VALUE, "service");
+    throw new CswException("Unknown Service", CswConstants.INVALID_PARAMETER_VALUE, SERVICE);
   }
 
   @GET

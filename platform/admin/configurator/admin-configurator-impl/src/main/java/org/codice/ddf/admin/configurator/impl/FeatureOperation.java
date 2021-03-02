@@ -127,7 +127,7 @@ public class FeatureOperation implements Operation<Void> {
         }
       }
     } catch (Exception e) {
-      LOGGER.debug(INSTALL_ERROR);
+      LOGGER.debug(INSTALL_ERROR, e);
       throw new ConfiguratorException(INTERNAL_ERROR);
     }
 
@@ -146,7 +146,7 @@ public class FeatureOperation implements Operation<Void> {
         }
       }
     } catch (Exception e) {
-      LOGGER.debug(INSTALL_ERROR);
+      LOGGER.debug(INSTALL_ERROR, e);
       throw new ConfiguratorException(INTERNAL_ERROR);
     }
 

@@ -96,7 +96,7 @@ public class QueryOperations extends DescribableImpl {
   private static final String ZERO_PAGESIZE_COMPATIBILITY_PROPERTY =
       "catalog.zeroPageSizeCompatibility";
 
-  private static final String QUERY_FAILURE_MSG = "Unable to guess mime type for file.";
+  private static final String QUERY_FAILURE_MSG = "Query could not be executed.";
 
   /**
    * Enforcing a default maximum page size of 1000 to avoid overloading the system with too many

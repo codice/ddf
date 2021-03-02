@@ -27,14 +27,14 @@ import org.slf4j.LoggerFactory;
 
 public class AttributeRegistryImpl implements AttributeRegistry {
   private static final Logger LOGGER = LoggerFactory.getLogger(AttributeRegistryImpl.class);
-  private static final String NULL_ATTR_MSG = "The attribute descriptor cannot be null.";
+  private static final String NULL_ATTR_MSG = "The attribute name cannot be null.";
 
   private final ListMultimap<String, AttributeDescriptor> attributeMap =
       Multimaps.synchronizedListMultimap(LinkedListMultimap.create());
 
   @Override
   public void register(final AttributeDescriptor attributeDescriptor) {
-    notNull(attributeDescriptor, NULL_ATTR_MSG);
+    notNull(attributeDescriptor, "The attribute descriptor cannot be null.");
     notNull(attributeDescriptor.getName(), NULL_ATTR_MSG);
     attributeMap.put(attributeDescriptor.getName(), attributeDescriptor);
   }

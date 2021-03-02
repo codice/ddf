@@ -100,6 +100,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
 
   protected static final String CERT_TYPE = "application/x-x509-ca-cert";
 
+  protected static final String X509 = "X.509";
+
   protected static final String PEM_TYPE = "application/x-pem-file";
 
   protected static final String DER_TYPE = "application/x-x509-ca-cert";
@@ -530,7 +532,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         ASN1Primitive asn1Primitive = asn1InputStream.readObject();
         X509CertificateHolder x509CertificateHolder =
             new X509CertificateHolder(asn1Primitive.getEncoded());
-        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
+        CertificateFactory certificateFactory = CertificateFactory.getInstance(X509, "BC");
         Certificate certificate =
             certificateFactory.generateCertificate(
                 new ByteArrayInputStream(x509CertificateHolder.getEncoded()));
@@ -577,7 +579,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             setEntry = true;
           } else if (object instanceof X509CertificateHolder) {
             X509CertificateHolder x509CertificateHolder = (X509CertificateHolder) object;
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
+            CertificateFactory certificateFactory = CertificateFactory.getInstance(X509, "BC");
             Certificate certificate =
                 certificateFactory.generateCertificate(
                     new ByteArrayInputStream(x509CertificateHolder.getEncoded()));
@@ -670,7 +672,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             ((ASN1Encodable) certificateEnumeration.nextElement()).toASN1Primitive();
         org.bouncycastle.asn1.x509.Certificate instance =
             org.bouncycastle.asn1.x509.Certificate.getInstance(asn1Primitive);
-        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
+        CertificateFactory certificateFactory = CertificateFactory.getInstance(X509, "BC");
         Certificate certificate =
             certificateFactory.generateCertificate(new ByteArrayInputStream(instance.getEncoded()));
         X500Name x500name =

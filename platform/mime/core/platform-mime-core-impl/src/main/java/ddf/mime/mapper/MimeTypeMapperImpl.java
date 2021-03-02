@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of the {@link MimeTypeMapper} interface that searches through all of the
  * registered {@link MimeTypeResolver}s to retieve file extension for a given mime type, and vice
  * versa. Once a file extension (or mime type) is resolved, this mapper stops searching through any
- * remaining {@link MimeTypeResolver}s and returns. EXITING_STR *
+ * remaining {@link MimeTypeResolver}s and returns.
  *
  * @since 2.1.0
  */

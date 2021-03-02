@@ -55,6 +55,8 @@ public class Crypter {
   private static final String STREAMING_KEYSET_FILE_SPECIFIER = "-streaming";
   private static final String KEYSET_FILE_EXTENSION = ".json";
   private static final String NULL_DATA_MSG = "Associated data cannot be null.";
+  private static final String ENCRYPTION_PROBLEM_MSG = "Problem encrypting.";
+  private static final String DECRYPTION_PROBLEM_MSG = "Problem decrypting.";
   private static final int ASSOCIATED_DATA_BYTE_SIZE = 10;
   @VisibleForTesting static final int CHUNK_SIZE = 256;
 
@@ -143,7 +145,7 @@ public class Crypter {
     try {
       return aead.encrypt(plainBytes, associatedData);
     } catch (GeneralSecurityException e) {
-      throw new CrypterException("Problem encrypting.", e);
+      throw new CrypterException(ENCRYPTION_PROBLEM_MSG, e);
     }
   }
 
@@ -163,7 +165,7 @@ public class Crypter {
     try {
       return aead.decrypt(encryptedBytes, associatedData);
     } catch (GeneralSecurityException | NullPointerException e) {
-      throw new CrypterException("Problem decrypting.", e);
+      throw new CrypterException(DECRYPTION_PROBLEM_MSG, e);
     }
   }
 
@@ -184,7 +186,7 @@ public class Crypter {
       byte[] encryptedBytes = aead.encrypt(plainTextValue.getBytes(), associatedData);
       return Base64.getEncoder().encodeToString(encryptedBytes);
     } catch (GeneralSecurityException e) {
-      throw new CrypterException("Problem encrypting.", e);
+      throw new CrypterException(ENCRYPTION_PROBLEM_MSG, e);
     }
   }
 
@@ -205,7 +207,7 @@ public class Crypter {
       byte[] encryptedBytes = Base64.getDecoder().decode(encryptedValue);
       return new String(aead.decrypt(encryptedBytes, associatedData));
     } catch (GeneralSecurityException | NullPointerException e) {
-      throw new CrypterException("Problem decrypting.", e);
+      throw new CrypterException(DECRYPTION_PROBLEM_MSG, e);
     }
   }
 
@@ -253,7 +255,7 @@ public class Crypter {
       return Files.newInputStream(
           Paths.get(tmpFile.getAbsolutePath()), StandardOpenOption.DELETE_ON_CLOSE);
     } catch (GeneralSecurityException | IOException e) {
-      throw new CrypterException("Problem encrypting.", e);
+      throw new CrypterException(ENCRYPTION_PROBLEM_MSG, e);
     } finally {
       tmpFile.deleteOnExit();
     }
@@ -279,7 +281,7 @@ public class Crypter {
     try {
       return streamingAead.newDecryptingStream(encryptedInputStream, associatedData);
     } catch (GeneralSecurityException | IOException e) {
-      throw new CrypterException("Problem decrypting.", e);
+      throw new CrypterException(DECRYPTION_PROBLEM_MSG, e);
     }
   }
 

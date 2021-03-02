@@ -131,6 +131,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private static final String DOES_NOT_MAP_MSG =
       "Property [{}] does not map to a feature property of type {}.";
 
+  private static final String TEMPORAL_OPERAND = "Temporal Operand";
+
+  private static final String TEMPORAL_OPERATOR = "Temporal Operator";
+
   // Regex to match coords in WKT
   private static final Pattern COORD_PATTERN =
       Pattern.compile("-?\\.?\\d+(\\.?\\d+)?\\s-?\\.?\\d+(\\.?\\d+)?");
@@ -857,7 +861,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     if (!isTemporalOpSupported(TEMPORAL_OPERATORS.DURING)) {
       throw new UnsupportedOperationException(
-          MessageFormat.format(NOT_SUPPORTED_MSG, "Temporal Operator", TEMPORAL_OPERATORS.DURING));
+          MessageFormat.format(NOT_SUPPORTED_MSG, TEMPORAL_OPERATOR, TEMPORAL_OPERATORS.DURING));
     }
 
     TemporalOperand timePeriodTemporalOperand = new TemporalOperand();
@@ -866,7 +870,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     if (!isTemporalOperandSupported(timePeriodTemporalOperand)) {
       throw new UnsupportedOperationException(
           MessageFormat.format(
-              NOT_SUPPORTED_MSG, "Temporal Operand", timePeriodTemporalOperand.getName()));
+              NOT_SUPPORTED_MSG, TEMPORAL_OPERAND, timePeriodTemporalOperand.getName()));
     }
 
     if (!isValidInputParameters(propertyName, startDate, endDate)) {
@@ -896,7 +900,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     if (!isTemporalOperandSupported(timeInstantTemporalOperand)) {
       throw new UnsupportedOperationException(
           MessageFormat.format(
-              NOT_SUPPORTED_MSG, "Temporal Operand", timeInstantTemporalOperand.getName()));
+              NOT_SUPPORTED_MSG, TEMPORAL_OPERAND, timeInstantTemporalOperand.getName()));
     }
 
     if (!isValidInputParameters(propertyName, date)) {
@@ -932,7 +936,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     if (!isTemporalOperandSupported(timeInstantTemporalOperand)) {
       throw new UnsupportedOperationException(
           MessageFormat.format(
-              NOT_SUPPORTED_MSG, "Temporal Operand", timeInstantTemporalOperand.getName()));
+              NOT_SUPPORTED_MSG, TEMPORAL_OPERAND, timeInstantTemporalOperand.getName()));
     }
 
     if (!isValidInputParameters(propertyName, date)) {
