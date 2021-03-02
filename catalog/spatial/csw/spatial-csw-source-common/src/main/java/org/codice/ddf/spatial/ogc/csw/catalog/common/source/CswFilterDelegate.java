@@ -67,7 +67,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       "CSW source does not support {} filter or any of its fallback spatial filters. This may be due to spatial operators not being supported or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
 
   private static final String CSW_SUPPORT_EXCEPTION_MSG_SIMPLE =
-  "CSW source does not support {} filter."
+      "CSW source does not support {} filter.";
 
   private static final String FALLING_BACK_MSG = "Falling back to {} filter.";
 
