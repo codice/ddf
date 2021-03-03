@@ -139,7 +139,7 @@ public class ZipCompression implements QueryResponseTransformer {
         }
       }
       zipOutputStream.finish();
-      if (isWritten) {
+      if (!isWritten) {
         return null;
       }
       if (notAddedIds.size() > 0) {
