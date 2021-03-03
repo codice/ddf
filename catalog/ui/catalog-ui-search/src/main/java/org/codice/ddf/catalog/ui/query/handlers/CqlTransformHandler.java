@@ -436,7 +436,7 @@ public class CqlTransformHandler implements Route {
     return false;
   }
 
-  private Map attachFileToResponse(
+  private Map<String, String> attachFileToResponse(
       Request request,
       Response response,
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
@@ -457,7 +457,7 @@ public class CqlTransformHandler implements Route {
               + ", may be missing required field(s)");
     }
 
-    if (!CollectionUtils.isEmpty(
+    if (CollectionUtils.isNotEmpty(
         (Collection) arguments.get(CqlTransformHandler.FAILED_TRANSFORM_IDS))) {
       warning +=
           getWarningMessage(
