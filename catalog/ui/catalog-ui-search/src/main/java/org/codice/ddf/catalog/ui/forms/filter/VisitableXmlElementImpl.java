@@ -26,6 +26,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.AbstractIdType;
 import net.opengis.filter.v_2_0.BBOXType;
@@ -37,6 +38,7 @@ import net.opengis.filter.v_2_0.DistanceBufferType;
 import net.opengis.filter.v_2_0.FilterType;
 import net.opengis.filter.v_2_0.FunctionType;
 import net.opengis.filter.v_2_0.LiteralType;
+import net.opengis.filter.v_2_0.ObjectFactory;
 import net.opengis.filter.v_2_0.PropertyIsBetweenType;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0.PropertyIsNilType;
@@ -58,6 +60,8 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(VisitableXmlElementImpl.class);
+
+  private static final ObjectFactory FACTORY = new ObjectFactory();
 
   private static final String INVALID_INVOCATION = "Could not find valid invocation for type: ";
 
@@ -98,6 +102,11 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
   }
 
   @Override
+  public String getFunctionName() {
+    return null;
+  }
+
+  @Override
   public void accept(FilterVisitor2 visitor) {
     Class clazz = element.getDeclaredType();
     BiConsumer<FilterVisitor2, VisitableElement> biConsumer = VISIT_METHODS.get(clazz);
@@ -126,13 +135,15 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
       return root;
     }
 
+    FunctionType functionType = filterType.getFunction();
+    if (functionType != null) {
+      return FACTORY.createFunction(functionType);
+    }
+
     // Support can be enhanced in the future, but currently these components aren't needed
     // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
     handleUnsupported(filterType.getId());
     handleUnsupported(filterType.getExtensionOps());
-
-    // Functions are supported but not as the FIRST element of a document
-    handleUnsupported(filterType.getFunction());
 
     throw new FilterProcessingException("No valid starting element for the filter was found");
   }
@@ -226,8 +237,10 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
    *
    * <p>Function currying (embedded functions) is not yet supported.
    */
-  private static class FunctionElement extends VisitableXmlElementImpl<Map<String, Object>> {
-    private final Map<String, Object> value;
+  private static class FunctionElement extends VisitableXmlElementImpl<List<Serializable>> {
+    private final String functionName;
+
+    private final List<Serializable> value;
 
     private FunctionElement(JAXBElement element) {
       super(element);
@@ -236,19 +249,30 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
             INVALID_INVOCATION + element.getDeclaredType().getName());
       }
       FunctionType functionType = (FunctionType) element.getValue();
+      this.functionName = functionType.getName();
       this.value =
-          FunctionResolver.resolve(
-              functionType.getName(),
-              functionType
-                  .getExpression()
-                  .stream()
-                  .map(JAXBElement::getValue)
-                  .map(LiteralType.class::cast)
-                  .collect(Collectors.toList()));
+          functionType
+              .getExpression()
+              .stream()
+              .map(JAXBElement::getValue)
+              .map(LiteralType.class::cast)
+              .map(LiteralType::getContent)
+              .flatMap(
+                  content ->
+                      (content == null || content.isEmpty())
+                          ? Stream.of(Optional.<Serializable>empty())
+                          : content.stream().map(Optional::of))
+              .map(opt -> opt.orElse(null))
+              .collect(Collectors.toList());
     }
 
     @Override
-    public Map<String, Object> getValue() {
+    public String getFunctionName() {
+      return functionName;
+    }
+
+    @Override
+    public List<Serializable> getValue() {
       return value;
     }
   }
@@ -425,7 +449,13 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
 
             @Override
             public void accept(FilterVisitor2 visitor) {
-              visitor.visitDistanceType(this);
+              visitor.visitDoubleType(this);
+            }
+
+            @Nullable
+            @Override
+            public String getFunctionName() {
+              return null;
             }
           });
       return values;

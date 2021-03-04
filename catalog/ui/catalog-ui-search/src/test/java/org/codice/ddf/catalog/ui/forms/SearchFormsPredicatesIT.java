@@ -103,6 +103,36 @@ public class SearchFormsPredicatesIT {
   private static final String FORM_RESP_JSON =
       getContentsOfFile("/forms/predicates-it/form-response-json.txt");
 
+  private static final String FORM_FILTER_ILIKE_XML =
+      getContentsOfFile("/forms/predicates-it/form-filter-ilike-xml.txt");
+
+  private static final String FORM_FILTER_LIKE_XML =
+      getContentsOfFile("/forms/predicates-it/form-filter-like-xml.txt");
+
+  // ~ Near
+
+  private static final String FORM_NEAR_XML =
+      getContentsOfFile("/forms/predicates-it/form-near-xml.txt");
+
+  private static final String FORM_NEAR_JSON =
+      getContentsOfFile("/forms/predicates-it/form-near-json.txt");
+
+  private static final String FORM_NEAR_RESPONSE_JSON =
+      getContentsOfFile("/forms/predicates-it/form-near-response-json.txt");
+
+  // ~ Range
+
+  private static final String FORM_RANGE_XML =
+      getContentsOfFile("/forms/predicates-it/form-range-xml.txt");
+
+  private static final String FORM_RANGE_JSON =
+      getContentsOfFile("/forms/predicates-it/form-range-json.txt");
+
+  private static final String FORM_RANGE_RESPONSE_JSON =
+      getContentsOfFile("/forms/predicates-it/form-range-response-json.txt");
+
+  // ~ Helpers
+
   private static Map.Entry<String, String> pair(String key, String val) {
     return new AbstractMap.SimpleEntry<>(key, val);
   }
@@ -260,6 +290,8 @@ public class SearchFormsPredicatesIT {
     reset(MOCK_FRAMEWORK, MOCK_SUBJECT, MOCK_CONFIG);
   }
 
+  // '=' - PropertyIsEqualTo
+
   @Test
   public void testTextEqualJsonToXml() throws IngestException, SourceUnavailableException {
     testJsonToXml(
@@ -274,6 +306,74 @@ public class SearchFormsPredicatesIT {
         getXmlFilter("PropertyIsEqualTo", "language", "english"),
         getJsonResponse("=", "language", "english"));
   }
+
+  // 'ILIKE' - PropertyIsLike (case insensitive)
+
+  @Test
+  public void testTextILikeJsonToXml() throws IngestException, SourceUnavailableException {
+    testJsonToXml(
+        getJsonFilter("ILIKE", "language", "english"),
+        removePrettyPrintingOnXml(FORM_FILTER_ILIKE_XML));
+  }
+
+  @Test
+  public void testTextILikeXmlToJson()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    testXmlToJson(
+        removePrettyPrintingOnXml(FORM_FILTER_ILIKE_XML),
+        getJsonResponse("ILIKE", "language", "english"));
+  }
+
+  // 'LIKE' - PropertyIsLike (case sensitive) - Custom Function
+
+  @Test
+  public void testTextLikeJsonToXml() throws IngestException, SourceUnavailableException {
+    testJsonToXml(
+        getJsonFilter("LIKE", "language", "english"),
+        removePrettyPrintingOnXml(FORM_FILTER_LIKE_XML));
+  }
+
+  @Test
+  public void testTextLikeXmlToJson()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    testXmlToJson(
+        removePrettyPrintingOnXml(FORM_FILTER_LIKE_XML),
+        getJsonResponse("LIKE", "language", "english"));
+  }
+
+  // 'NEAR' - Proximity Function
+
+  @Test
+  public void testTextNearJsonToXml() throws IngestException, SourceUnavailableException {
+    testJsonToXml(
+        removePrettyPrintingOnJson(FORM_NEAR_JSON), removePrettyPrintingOnXml(FORM_NEAR_XML));
+  }
+
+  @Test
+  public void testTextNearXmlToJson()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    testXmlToJson(
+        removePrettyPrintingOnXml(FORM_NEAR_XML),
+        removePrettyPrintingOnJson(FORM_NEAR_RESPONSE_JSON));
+  }
+
+  // Numeric 'RANGE' - Custom Function
+
+  @Test
+  public void testNumericRangeJsonToXml() throws IngestException, SourceUnavailableException {
+    testJsonToXml(
+        removePrettyPrintingOnJson(FORM_RANGE_JSON), removePrettyPrintingOnXml(FORM_RANGE_XML));
+  }
+
+  @Test
+  public void testNumericRangeXmlToJson()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    testXmlToJson(
+        removePrettyPrintingOnXml(FORM_RANGE_XML),
+        removePrettyPrintingOnJson(FORM_RANGE_RESPONSE_JSON));
+  }
+
+  // Date 'BETWEEN' - DURING
 
   @Test
   public void testDateBetweenJsonToXml() throws IngestException, SourceUnavailableException {
@@ -294,6 +394,8 @@ public class SearchFormsPredicatesIT {
             CANNED_ISO_DATE,
             CANNED_ISO_DATE));
   }
+
+  // Date 'IS EMPTY' - NIL
 
   @Test
   public void testDateEmptyJsonToXml() throws IngestException, SourceUnavailableException {

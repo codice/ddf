@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.forms.api;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,9 +54,15 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder beginNilType();
 
+  FlatFilterBuilder addFunctionType(String functionName, List<Object> args);
+
+  FlatFilterBuilder addBetweenType(String property, Long lower, Long upper);
+
   FlatFilterBuilder endTerminalType();
 
   FlatFilterBuilder setProperty(String property);
+
+  FlatFilterBuilder setProperty(String functionName, List<Object> args);
 
   FlatFilterBuilder setValue(String value);
 

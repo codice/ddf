@@ -17,6 +17,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.AttributeRegistry;
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAttribute;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
@@ -175,7 +177,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           "Cannot find mapping for binary temporal operator: " + operator);
     }
     supplierInProgress = new TerminalNodeSupplier(temporalMapping);
-    return null;
+    return this;
   }
 
   @Override
@@ -201,6 +203,40 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
+  public XmlModelBuilder addFunctionType(String functionName, List<Object> args) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+
+    JAXBElement<FunctionType> func =
+        FACTORY.createFunction(
+            new FunctionType()
+                .withName(functionName)
+                .withExpression(
+                    args.stream()
+                        // binding workaround - unable to marshal type "java.lang.Integer" as
+                        // an element because it is missing an @XmlRootElement annotation
+                        .map(arg -> arg == null ? null : arg.toString())
+                        .map(Serializable.class::cast)
+                        .map(
+                            arg ->
+                                FACTORY.createLiteral(
+                                    new LiteralType().withContent(Collections.singletonList(arg))))
+                        .collect(Collectors.toList())));
+
+    if (depth.isEmpty()) {
+      rootNode = func;
+    } else {
+      depth.peek().add(func);
+    }
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder addBetweenType(String property, Long lower, Long upper) {
+    throw new UnsupportedOperationException("No native BETWEEN structure exists for XML");
+  }
+
+  @Override
   public XmlModelBuilder endTerminalType() {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
@@ -222,11 +258,43 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
+  public XmlModelBuilder setProperty(String functionName, List<Object> args) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress();
+
+    JAXBElement<FunctionType> func =
+        FACTORY.createFunction(
+            new FunctionType()
+                .withName(functionName)
+                .withExpression(
+                    args.stream()
+                        // binding workaround - unable to marshal type "java.lang.Integer" as
+                        // an element because it is missing an @XmlRootElement annotation
+                        .map(arg -> arg == null ? null : arg.toString())
+                        .map(Serializable.class::cast)
+                        .map(
+                            arg ->
+                                FACTORY.createLiteral(
+                                    new LiteralType().withContent(Collections.singletonList(arg))))
+                        .collect(Collectors.toList())));
+
+    supplierInProgress.setProperty(func);
+    return this;
+  }
+
+  @Override
   public XmlModelBuilder setValue(String value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    String normalizedValue =
-        normalizer.normalizeForXml(supplierInProgress.propertyNode.getValue(), value);
+
+    String normalizedValue;
+    if (supplierInProgress.propertyNode.getValue() instanceof String) {
+      String propertyName = (String) supplierInProgress.propertyNode.getValue();
+      normalizedValue = normalizer.normalizeForXml(propertyName, value);
+    } else {
+      normalizedValue = value;
+    }
+
     supplierInProgress.setValue(
         FACTORY.createLiteral(
             new LiteralType().withContent(Collections.singletonList(normalizedValue))));
@@ -325,7 +393,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
   private static class TerminalNodeSupplier implements Supplier<JAXBElement<?>> {
     private final MultiNodeReducer reducer;
-    private JAXBElement<String> propertyNode = null;
+    private JAXBElement<?> propertyNode = null;
     private JAXBElement<?> valueNode;
 
     private TerminalNodeSupplier(final MultiNodeReducer reducer) {
@@ -333,7 +401,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       this.reducer = reducer;
     }
 
-    public void setProperty(JAXBElement<String> propertyNode) {
+    public void setProperty(JAXBElement<?> propertyNode) {
       notNull(propertyNode);
       this.propertyNode = propertyNode;
     }
@@ -404,6 +472,9 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       if (TemporalOpsType.class.isAssignableFrom(root.getDeclaredType())) {
         return FACTORY.createFilter(
             new FilterType().withTemporalOps((JAXBElement<? extends TemporalOpsType>) root));
+      }
+      if (FunctionType.class.isAssignableFrom(root.getDeclaredType())) {
+        return FACTORY.createFilter(new FilterType().withFunction((FunctionType) root.getValue()));
       }
 
       throw new UnsupportedOperationException(

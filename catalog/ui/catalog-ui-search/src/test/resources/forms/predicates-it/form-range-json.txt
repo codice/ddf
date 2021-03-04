@@ -1,0 +1,14 @@
+{
+  "filterTemplate": {
+    "type": "BETWEEN",
+    "property": "ext.bitrate",
+    "value": {
+      "lower": 100,
+      "upper": 200
+    },
+    "lowerBoundary": 100,
+    "upperBoundary": 200
+  },
+  "title": "MY_TITLE",
+  "description": "MY_DESCRIPTION"
+}

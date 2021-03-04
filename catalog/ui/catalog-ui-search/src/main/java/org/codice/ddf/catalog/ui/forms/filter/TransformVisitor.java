@@ -14,6 +14,9 @@
 package org.codice.ddf.catalog.ui.forms.filter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.JAXBElement;
@@ -48,6 +51,46 @@ import org.slf4j.LoggerFactory;
 public class TransformVisitor<T> extends AbstractFilterVisitor2 {
   private static final Logger LOGGER = LoggerFactory.getLogger(TransformVisitor.class);
 
+  private static class TemplateSubstitutionV1 {
+    private static final String NAME = "template.value.v1";
+
+    private static final Integer INDEX_DEFAULT_VALUE = 0;
+
+    private static final Integer INDEX_NODE_ID = 1;
+
+    private static final Integer INDEX_IS_VISIBLE = 2;
+
+    private static final Integer INDEX_IS_READONLY = 3;
+  }
+
+  private static class Proximity {
+    private static final String NAME = "proximity";
+
+    private static final Integer INDEX_PROPERTY_NAME = 0;
+
+    private static final Integer INDEX_MAX_DIFFS = 1;
+
+    private static final Integer INDEX_TARGET_TXT = 2;
+  }
+
+  private static class Range {
+    private static final String NAME = "custom.preds.range";
+
+    private static final Integer INDEX_PROPERTY_NAME = 0;
+
+    private static final Integer INDEX_LOWER_LONG = 1;
+
+    private static final Integer INDEX_UPPER_LONG = 2;
+  }
+
+  private static class Like {
+    private static final String NAME = "custom.preds.like";
+
+    private static final Integer INDEX_PROPERTY_NAME = 0;
+
+    private static final Integer INDEX_VALUE_TXT = 1;
+  }
+
   private final FlatFilterBuilder<T> builder;
 
   public TransformVisitor(final FlatFilterBuilder<T> builder) {
@@ -79,8 +122,8 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
   }
 
   @Override
-  public void visitDistanceType(VisitableElement<Double> visitable) {
-    super.visitDistanceType(visitable);
+  public void visitDoubleType(VisitableElement<Double> visitable) {
+    super.visitDoubleType(visitable);
     Double value = visitable.getValue();
     if (value == null) {
       LOGGER.debug("No values found on distance type");
@@ -109,7 +152,7 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
   }
 
   @Override
-  public void visitFunctionType(VisitableElement<Map<String, Object>> visitable) {
+  public void visitTemplateType(VisitableElement<Map<String, Object>> visitable) {
     traceName(visitable);
     Map<String, Object> args = visitable.getValue();
     if (LOGGER.isTraceEnabled()) {
@@ -117,6 +160,87 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
     }
 
     builder.setTemplatedValues(args);
+  }
+
+  @Override
+  public void visitMapType(VisitableElement<Map<String, Object>> visitable) {
+    traceName(visitable);
+    Map<String, Object> pred = visitable.getValue();
+    if (LOGGER.isTraceEnabled()) {
+      pred.forEach((key, value) -> LOGGER.trace("Key: {} | Value: {}", key, value));
+    }
+
+    if ("BETWEEN".equals(pred.get("type"))) {
+      Map value = (Map) pred.get("value");
+      builder.addFunctionType(
+          Range.NAME, Arrays.asList(pred.get("property"), value.get("lower"), value.get("upper")));
+    } else if ("LIKE".equals(pred.get("type"))) {
+      builder.addFunctionType(Like.NAME, Arrays.asList(pred.get("property"), pred.get("value")));
+    } else {
+      throw new FilterProcessingException("Visiting the Map type only applies to BETWEEN and LIKE");
+    }
+  }
+
+  @Override
+  public void visitFunctionType(VisitableElement<List<Serializable>> visitable) {
+    traceName(visitable);
+    String functionName = visitable.getFunctionName();
+    if (functionName == null) {
+      throw new FilterProcessingException("Function name was expected but not provided");
+    }
+
+    List<Serializable> args = visitable.getValue();
+    if (LOGGER.isTraceEnabled()) {
+      args.forEach((arg) -> LOGGER.trace("Argument: {}", arg));
+    }
+
+    List<Object> newArgs = new ArrayList<>();
+    switch (functionName) {
+      case TemplateSubstitutionV1.NAME:
+        LOGGER.trace("Found template function: {} with {}", functionName, args);
+        Map<String, Object> argMap = new HashMap<>();
+        argMap.put("defaultValue", asString(args.get(TemplateSubstitutionV1.INDEX_DEFAULT_VALUE)));
+        argMap.put("nodeId", asString(args.get(TemplateSubstitutionV1.INDEX_NODE_ID)));
+        argMap.put(
+            "isVisible",
+            Boolean.parseBoolean(asString(args.get(TemplateSubstitutionV1.INDEX_IS_VISIBLE))));
+        argMap.put(
+            "isReadOnly",
+            Boolean.parseBoolean(asString(args.get(TemplateSubstitutionV1.INDEX_IS_READONLY))));
+        if (LOGGER.isTraceEnabled()) {
+          argMap.forEach((key, value) -> LOGGER.trace("Key: {} | Value: {}", key, value));
+        }
+        builder.setTemplatedValues(argMap);
+        break;
+
+      case Proximity.NAME:
+        LOGGER.trace("Found proximity function: {} with {}", functionName, args);
+        newArgs.add(asString(args.get(Proximity.INDEX_PROPERTY_NAME)));
+        newArgs.add(Integer.parseInt(asString(args.get(Proximity.INDEX_MAX_DIFFS))));
+        newArgs.add(asString(args.get(Proximity.INDEX_TARGET_TXT)));
+        builder.setProperty(functionName, newArgs);
+        break;
+
+      case Range.NAME:
+        LOGGER.trace("Found range function: {} with {}", functionName, args);
+        builder.addBetweenType(
+            asString(args.get(Range.INDEX_PROPERTY_NAME)),
+            Long.parseLong(asString(args.get(Range.INDEX_LOWER_LONG))),
+            Long.parseLong(asString(args.get(Range.INDEX_UPPER_LONG))));
+        break;
+
+      case Like.NAME:
+        LOGGER.trace("Found LIKE (case sensitive) function: {} with {}", functionName, args);
+        builder.beginPropertyIsLikeType("PropertyIsLike", true);
+        builder.setProperty(asString(args.get(Like.INDEX_PROPERTY_NAME)));
+        builder.setValue(asString(args.get(Like.INDEX_VALUE_TXT)));
+        builder.endTerminalType();
+        break;
+
+      default:
+        throw new FilterProcessingException(
+            "Unrecognized function name on filter: " + functionName);
+    }
   }
 
   @Override
@@ -175,6 +299,10 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
     builder.beginNilType();
     visitable.getValue().accept(this);
     builder.endTerminalType();
+  }
+
+  private static String asString(Serializable val) {
+    return val == null ? null : val.toString();
   }
 
   private static void traceName(VisitableElement element) {

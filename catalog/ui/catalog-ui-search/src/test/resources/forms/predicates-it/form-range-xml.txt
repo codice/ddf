@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Filter xmlns="http://www.opengis.net/fes/2.0" xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns:ns3="http://www.w3.org/1999/xlink">
+	<Function name="custom.preds.range">
+        <Literal>ext.bitrate</Literal>
+        <Literal>100</Literal>
+        <Literal>200</Literal>
+    </Function>
+</Filter>

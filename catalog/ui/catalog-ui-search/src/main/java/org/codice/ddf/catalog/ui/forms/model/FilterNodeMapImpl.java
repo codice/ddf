@@ -17,7 +17,6 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -45,7 +44,7 @@ public class FilterNodeMapImpl implements FilterNode {
     notNull(type);
     this.json = json;
 
-    if (!(isValidLogical(json) || isValidTerminal(json))) {
+    if (!(isValidLogical(json) || isValidTerminal(json) || isValidFunctional(json))) {
       throw new IllegalArgumentException("Filter node properties are invalid: " + json.toString());
     }
   }
@@ -58,6 +57,11 @@ public class FilterNodeMapImpl implements FilterNode {
   @Override
   public boolean isTemplated() {
     return json.get(TEMPLATE_PROPERTIES) != null;
+  }
+
+  @Override
+  public boolean isFunction() {
+    return "FILTER_FUNCTION".equals(type);
   }
 
   @Override
@@ -90,20 +94,30 @@ public class FilterNodeMapImpl implements FilterNode {
     if (!isLeaf()) {
       throw new IllegalStateException("No property value exists for a logical operator");
     }
-    return (String) json.get(PROPERTY);
+    Object property = json.get(PROPERTY);
+    if (!(property instanceof String)) {
+      throw new IllegalStateException("Property value is a function, not a string");
+    }
+    return (String) property;
+  }
+
+  @Nullable
+  @Override
+  public FilterNode getPropertyFunction() {
+    Object property = json.get(PROPERTY);
+    if (!(property instanceof Map)) {
+      return null;
+    }
+    return new FilterNodeMapImpl((Map<String, Object>) property);
   }
 
   @Override
   @Nullable
-  public String getValue() {
+  public Object getValue() {
     if (!isLeaf()) {
       throw new IllegalStateException("No target value exists for a logical operator");
     }
-    Object val = json.get(VALUE);
-    if (val == null) {
-      return null;
-    }
-    return Objects.toString(val);
+    return json.get(VALUE);
   }
 
   @Override
@@ -124,14 +138,43 @@ public class FilterNodeMapImpl implements FilterNode {
     throw new IllegalStateException("The distance value could not be converted into a double");
   }
 
+  @Nullable
   @Override
-  public void setProperty(String property) {
+  public String getFunctionName() {
+    if (!isFunction()) {
+      throw new IllegalStateException("Function name only exists for function type");
+    }
+    Object filterFunctionName = json.get("filterFunctionName");
+    if (!(filterFunctionName instanceof String)) {
+      throw new IllegalStateException("Malformed data provided on function type");
+    }
+    return (String) filterFunctionName;
+  }
+
+  @Nullable
+  @Override
+  public List<Object> getParams() {
+    if (!isFunction()) {
+      throw new IllegalStateException("Function name only exists for function type");
+    }
+    Object params = json.get("params");
+    if (!(params instanceof List)) {
+      throw new IllegalStateException("Malformed data provided on function type");
+    }
+    return (List<Object>) params;
+  }
+
+  @Override
+  public void setProperty(Object property) {
     notNull(property);
+    if (!(property instanceof String) && !(property instanceof FilterNode)) {
+      throw new IllegalStateException("Property can either be a String or FilterNode");
+    }
     json.put(PROPERTY, property);
   }
 
   @Override
-  public void setValue(String value) {
+  public void setValue(Object value) {
     notNull(value);
     json.put(VALUE, value);
   }
@@ -139,6 +182,19 @@ public class FilterNodeMapImpl implements FilterNode {
   @Override
   public void setDistance(Double distance) {
     json.put(DISTANCE, distance);
+  }
+
+  @Override
+  public void addArg(Object arg) {
+    throw new UnsupportedOperationException("No need to add args to the map impl");
+  }
+
+  private static boolean isValidFunctional(Map<String, Object> json) {
+    return !json.containsKey(CHILDREN)
+        && !json.containsKey(PROPERTY)
+        && !json.containsKey(VALUE)
+        && json.containsKey("filterFunctionName")
+        && json.containsKey("params");
   }
 
   private static boolean isValidLogical(Map<String, Object> json) {

@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.forms.model;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -28,9 +29,9 @@ public class FilterNodeImpl implements FilterNode {
   @SerializedName("filters")
   private final List<FilterNode> children;
 
-  private String property;
+  private Object property;
 
-  private String value;
+  private Object value;
 
   private Double distance;
 
@@ -39,6 +40,14 @@ public class FilterNodeImpl implements FilterNode {
   private String to;
 
   private Map<String, Object> templateProperties;
+
+  private String filterFunctionName;
+
+  private List<Object> params;
+
+  private Long lowerBoundary;
+
+  private Long upperBoundary;
 
   public FilterNodeImpl(final String operator, final List<FilterNode> children) {
     notNull(operator);
@@ -50,8 +59,15 @@ public class FilterNodeImpl implements FilterNode {
     this.value = null;
     this.distance = null;
     this.templateProperties = null;
+
     this.from = null;
     this.to = null;
+
+    this.lowerBoundary = null;
+    this.upperBoundary = null;
+
+    this.filterFunctionName = null;
+    this.params = null;
   }
 
   public FilterNodeImpl(String operator) {
@@ -63,8 +79,35 @@ public class FilterNodeImpl implements FilterNode {
     this.value = null;
     this.distance = null;
     this.templateProperties = null;
+
     this.from = null;
     this.to = null;
+
+    this.lowerBoundary = null;
+    this.upperBoundary = null;
+
+    this.filterFunctionName = null;
+    this.params = null;
+  }
+
+  public FilterNodeImpl(String operator, String filterFunctionName) {
+    notNull(operator);
+    this.operator = operator;
+    this.children = null;
+
+    this.property = null;
+    this.value = null;
+    this.distance = null;
+    this.templateProperties = null;
+
+    this.from = null;
+    this.to = null;
+
+    this.lowerBoundary = null;
+    this.upperBoundary = null;
+
+    this.filterFunctionName = filterFunctionName;
+    this.params = new ArrayList<>();
   }
 
   public FilterNodeImpl(FilterNode node, Map<String, Object> templateProperties) {
@@ -83,6 +126,7 @@ public class FilterNodeImpl implements FilterNode {
     this.templateProperties = templateProperties;
 
     // don't need from/to on template property nodes
+    // don't need function props on template property nodes
   }
 
   @Override
@@ -93,6 +137,11 @@ public class FilterNodeImpl implements FilterNode {
   @Override
   public boolean isTemplated() {
     return templateProperties != null;
+  }
+
+  @Override
+  public boolean isFunction() {
+    return "FILTER_FUNCTION".equals(operator);
   }
 
   @Override
@@ -114,12 +163,24 @@ public class FilterNodeImpl implements FilterNode {
     if (!isLeaf()) {
       throw new IllegalStateException("No property value exists for a logical operator");
     }
-    return property;
+    if (!(property instanceof String)) {
+      throw new IllegalStateException("Property value is a function, not a string");
+    }
+    return (String) property;
+  }
+
+  @Nullable
+  @Override
+  public FilterNode getPropertyFunction() {
+    if (!(property instanceof FilterNode)) {
+      return null;
+    }
+    return (FilterNode) property;
   }
 
   @Override
   @Nullable
-  public String getValue() {
+  public Object getValue() {
     if (!isLeaf()) {
       throw new IllegalStateException("No target value exists for a logical operator");
     }
@@ -135,22 +196,64 @@ public class FilterNodeImpl implements FilterNode {
     return distance;
   }
 
+  @Nullable
   @Override
-  public void setProperty(String property) {
+  public String getFunctionName() {
+    if (!isFunction()) {
+      throw new IllegalStateException("Function name only exists for function type");
+    }
+    if (filterFunctionName == null) {
+      throw new IllegalStateException("Malformed data provided on function type");
+    }
+    return filterFunctionName;
+  }
+
+  @Nullable
+  @Override
+  public List<Object> getParams() {
+    if (!isFunction()) {
+      throw new IllegalStateException("Function name only exists for function type");
+    }
+    if (params == null) {
+      throw new IllegalStateException("Malformed data provided on function type");
+    }
+    return params;
+  }
+
+  @Override
+  public void setProperty(Object property) {
     notNull(property);
+    if (!(property instanceof String) && !(property instanceof FilterNode)) {
+      throw new IllegalStateException("Property can either be a String or FilterNode");
+    }
     this.property = property;
   }
 
   @Override
-  public void setValue(String value) {
+  public void setValue(Object value) {
     notNull(value);
     this.value = value;
 
-    if (!value.contains("/")) {
+    if (value instanceof Map) {
+      Map mapVal = (Map) value;
+      if (mapVal.containsKey("lower") && mapVal.containsKey("upper")) {
+        this.lowerBoundary = (Long) mapVal.get("lower");
+        this.upperBoundary = (Long) mapVal.get("upper");
+        return;
+      }
+    }
+
+    if (!(value instanceof String)) {
       return;
     }
 
-    String[] range = value.split("/");
+    String str = (String) value;
+
+    if (!str.contains("/")) {
+      return;
+    }
+
+    String[] range = str.split("/");
     if (range.length != 2) {
       throw new IllegalArgumentException(
           String.format("Filter node range-value '%s' has too many delimiters", value));
@@ -163,6 +266,11 @@ public class FilterNodeImpl implements FilterNode {
   @Override
   public void setDistance(Double distance) {
     this.distance = distance;
+  }
+
+  @Override
+  public void addArg(Object arg) {
+    this.params.add(arg);
   }
 
   @Override
