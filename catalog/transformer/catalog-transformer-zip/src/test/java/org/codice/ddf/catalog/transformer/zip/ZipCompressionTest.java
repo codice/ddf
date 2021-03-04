@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.transformer.zip;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -191,7 +192,7 @@ public class ZipCompressionTest {
 
     BinaryContent binaryContent = zipCompression.transform(sourceResponse, arguments);
 
-    assertZipContents(binaryContent, Collections.emptyList());
+    assertThat(binaryContent.getByteArray(), is(nullValue()));
   }
 
   private void assertZipContents(BinaryContent binaryContent, List<String> ids) throws IOException {

@@ -32,6 +32,11 @@
             <entry key="shortname" value="thumbnail"/>
 			<entry key="mime-type" value="image/jpeg"/>
 			<entry key="displayName" value="Thumbnail"/>
+			<entry key="required-attributes">
+				<list>
+					<value>thumbnail</value>
+				</list>
+			</entry>
 		</service-properties>
 	</service>
 

@@ -22,6 +22,12 @@
             <entry key="mime-type" value="image/png"/>
             <entry key="generateActionProvider" value="false"/>
             <entry key="displayName" value="Overlay Thumbnail"/>
+            <entry key="required-attributes">
+                <list>
+                    <value>location</value>
+                    <value>thumbnail</value>
+                </list>
+            </entry>
         </service-properties>
         <bean class="ddf.catalog.transformer.OverlayMetacardTransformer">
             <argument>
