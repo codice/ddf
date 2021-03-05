@@ -35,12 +35,8 @@ import org.xml.sax.XMLReader;
 public class FilterReader {
   private final JAXBContext context;
 
-  private final SAXParserFactory factory;
-
   public FilterReader() throws JAXBException {
     this.context = JAXBContext.newInstance(FilterType.class);
-    this.factory = XMLUtils.getInstance().getSecureSAXParserFactory();
-    this.factory.setNamespaceAware(true);
   }
 
   public JAXBElement<FilterType> unmarshalFilter(InputStream inputStream) throws JAXBException {
@@ -50,6 +46,9 @@ public class FilterReader {
   @SuppressWarnings("unchecked")
   private <T> JAXBElement<T> unmarshal(InputStream inputStream, Class<T> tClass)
       throws JAXBException {
+    SAXParserFactory factory = XMLUtils.getInstance().getSecureSAXParserFactory();
+    factory.setNamespaceAware(true);
+
     SAXParser parser;
     try {
       parser = factory.newSAXParser();
