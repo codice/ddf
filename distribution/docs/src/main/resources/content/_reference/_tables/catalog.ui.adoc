@@ -253,6 +253,14 @@ Example:
 |true
 |true
 
+|Enable Validation
+|clientValidationEnabled
+|Boolean
+|Enable client-side validation for metacard attributes.
+|true
+|true
+
+
 |Enable Spellcheck
 |spellcheckEnabled
 |Boolean
