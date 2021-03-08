@@ -172,8 +172,8 @@ const properties = {
   isMetacardPreviewEnabled() {
     return !this.isMetacardPreviewDisabled
   },
-  isValidationEnabled() {
-    return !this.isClientValidationEnabled
+  isClientAttributeValidationEnabled() {
+    return this.isClientValidationEnabled
   },
 }
 

@@ -126,7 +126,7 @@ module.exports = plugin(
       }
     },
     isValid() {
-      if (!properties.isValidationEnabled()) {
+      if (!properties.isClientAttributeValidationEnabled()) {
         return true
       }
       const value = getEnumValue(this.model)

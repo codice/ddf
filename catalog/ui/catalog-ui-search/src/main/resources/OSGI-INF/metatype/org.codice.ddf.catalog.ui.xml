@@ -211,8 +211,8 @@
             default="true"/>
 
         <AD id="clientValidationEnabled"
-            name="Enable Validation"
-            description="Enable client-side validation of metacard attributes"
+            name="Enable Client-side Attribute Validation"
+            description="Enable client-side validation of metacard attributes. Invalid attribute values are marked with a red 'Not an acceptable value' banner."
             type="Boolean"
             default="true"/>
 

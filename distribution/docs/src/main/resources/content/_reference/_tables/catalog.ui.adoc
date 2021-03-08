@@ -253,12 +253,12 @@ Example:
 |true
 |true
 
-|Enable Validation
+|Enable Client-side Attribute Validation
 |clientValidationEnabled
 |Boolean
-|Enable client-side validation for metacard attributes.
+|Enable client-side validation of metacard attributes. Invalid attribute values are marked with a red 'Not an acceptable value' banner.
 |true
-|true
+|false
 
 
 |Enable Spellcheck
