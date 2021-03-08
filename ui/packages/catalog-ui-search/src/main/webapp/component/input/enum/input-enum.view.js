@@ -127,7 +127,7 @@ module.exports = plugin(
     },
     isValid() {
       if (!properties.isValidationEnabled()) {
-        return
+        return true
       }
       const value = getEnumValue(this.model)
       const choice = this.model
