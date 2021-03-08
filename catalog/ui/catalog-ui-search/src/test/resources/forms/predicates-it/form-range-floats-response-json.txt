@@ -4,11 +4,11 @@
         "type": "BETWEEN",
         "property": "ext.bitrate",
         "value": {
-          "lower": -100,
-          "upper": 200
+          "lower": 0.34986,
+          "upper": 13.1202
         },
-        "lowerBoundary": -100,
-        "upperBoundary": 200
+        "lowerBoundary": 0.34986,
+        "upperBoundary": 13.1202
     },
     "creator": "system",
     "querySettings": {},

@@ -131,6 +131,15 @@ public class SearchFormsPredicatesIT {
   private static final String FORM_RANGE_RESPONSE_JSON =
       getContentsOfFile("/forms/predicates-it/form-range-response-json.txt");
 
+  private static final String FORM_RANGE_FLOATS_XML =
+      getContentsOfFile("/forms/predicates-it/form-range-floats-xml.txt");
+
+  private static final String FORM_RANGE_FLOATS_JSON =
+      getContentsOfFile("/forms/predicates-it/form-range-floats-json.txt");
+
+  private static final String FORM_RANGE_FLOATS_RESPONSE_JSON =
+      getContentsOfFile("/forms/predicates-it/form-range-floats-response-json.txt");
+
   // ~ Helpers
 
   private static Map.Entry<String, String> pair(String key, String val) {
@@ -371,6 +380,21 @@ public class SearchFormsPredicatesIT {
     testXmlToJson(
         removePrettyPrintingOnXml(FORM_RANGE_XML),
         removePrettyPrintingOnJson(FORM_RANGE_RESPONSE_JSON));
+  }
+
+  @Test
+  public void testNumericRangeFloatsJsonToXml() throws IngestException, SourceUnavailableException {
+    testJsonToXml(
+        removePrettyPrintingOnJson(FORM_RANGE_FLOATS_JSON),
+        removePrettyPrintingOnXml(FORM_RANGE_FLOATS_XML));
+  }
+
+  @Test
+  public void testNumericRangeFloatsXmlToJson()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    testXmlToJson(
+        removePrettyPrintingOnXml(FORM_RANGE_FLOATS_XML),
+        removePrettyPrintingOnJson(FORM_RANGE_FLOATS_RESPONSE_JSON));
   }
 
   // Date 'BETWEEN' - DURING

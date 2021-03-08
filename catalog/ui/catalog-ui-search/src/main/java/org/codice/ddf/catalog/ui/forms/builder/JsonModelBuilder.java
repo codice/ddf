@@ -225,7 +225,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   @Override
-  public JsonModelBuilder addBetweenType(String property, Long lower, Long upper) {
+  public JsonModelBuilder addBetweenType(String property, Number lower, Number upper) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
 

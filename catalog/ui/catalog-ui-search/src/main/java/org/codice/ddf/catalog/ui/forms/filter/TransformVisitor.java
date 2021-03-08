@@ -14,6 +14,8 @@
 package org.codice.ddf.catalog.ui.forms.filter;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -225,8 +227,8 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
         LOGGER.trace("Found range function: {} with {}", functionName, args);
         builder.addBetweenType(
             asString(args.get(Range.INDEX_PROPERTY_NAME)),
-            Long.parseLong(asString(args.get(Range.INDEX_LOWER_LONG))),
-            Long.parseLong(asString(args.get(Range.INDEX_UPPER_LONG))));
+            parseNumber(asString(args.get(Range.INDEX_LOWER_LONG))),
+            parseNumber(asString(args.get(Range.INDEX_UPPER_LONG))));
         break;
 
       case Like.NAME:
@@ -303,6 +305,17 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
 
   private static String asString(Serializable val) {
     return val == null ? null : val.toString();
+  }
+
+  private static Number parseNumber(String str) {
+    NumberFormat numberFormat = NumberFormat.getInstance();
+    try {
+      return numberFormat.parse(str);
+    } catch (ParseException e) {
+      // Default to zero since this is called when reading FROM the database
+      // so fail gracefully because it must be a data persistence issue
+      return 0;
+    }
   }
 
   private static void traceName(VisitableElement element) {

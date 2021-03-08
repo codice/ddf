@@ -56,7 +56,7 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder addFunctionType(String functionName, List<Object> args);
 
-  FlatFilterBuilder addBetweenType(String property, Long lower, Long upper);
+  FlatFilterBuilder addBetweenType(String property, Number lower, Number upper);
 
   FlatFilterBuilder endTerminalType();
 

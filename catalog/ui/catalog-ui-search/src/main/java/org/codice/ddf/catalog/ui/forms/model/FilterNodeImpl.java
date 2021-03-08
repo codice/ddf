@@ -45,9 +45,9 @@ public class FilterNodeImpl implements FilterNode {
 
   private List<Object> params;
 
-  private Long lowerBoundary;
+  private Number lowerBoundary;
 
-  private Long upperBoundary;
+  private Number upperBoundary;
 
   public FilterNodeImpl(final String operator, final List<FilterNode> children) {
     notNull(operator);
@@ -237,8 +237,8 @@ public class FilterNodeImpl implements FilterNode {
     if (value instanceof Map) {
       Map mapVal = (Map) value;
       if (mapVal.containsKey("lower") && mapVal.containsKey("upper")) {
-        this.lowerBoundary = (Long) mapVal.get("lower");
-        this.upperBoundary = (Long) mapVal.get("upper");
+        this.lowerBoundary = (Number) mapVal.get("lower");
+        this.upperBoundary = (Number) mapVal.get("upper");
         return;
       }
     }

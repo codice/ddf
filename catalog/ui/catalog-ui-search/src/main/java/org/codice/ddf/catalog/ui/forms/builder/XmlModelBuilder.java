@@ -232,7 +232,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
-  public XmlModelBuilder addBetweenType(String property, Long lower, Long upper) {
+  public XmlModelBuilder addBetweenType(String property, Number lower, Number upper) {
     throw new UnsupportedOperationException("No native BETWEEN structure exists for XML");
   }
 
