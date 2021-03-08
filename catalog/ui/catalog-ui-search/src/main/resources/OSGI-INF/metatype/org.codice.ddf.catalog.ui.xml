@@ -210,6 +210,13 @@
             type="Boolean"
             default="true"/>
 
+        <AD id="clientValidationEnabled"
+            name="Enable Client-side Attribute Validation"
+            description="Enable client-side validation of metacard attributes. Invalid attribute values are marked with a red 'Not an acceptable value' banner."
+            type="Boolean"
+            default="true"/>
+
+
         <AD id="spellcheckEnabled"
             name="Enable Spellcheck"
             description="Enable Spellcheck for searches."

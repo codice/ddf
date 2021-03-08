@@ -20,6 +20,7 @@ const moment = require('moment')
 const getEnumValue = require('../inputUtil.js').getEnumValue
 const DropdownModel = require('../../dropdown/dropdown.js')
 const plugin = require('plugins/input-enum.view')
+const properties = require('../../../js/properties.js')
 
 module.exports = plugin(
   InputView.extend({
@@ -125,6 +126,9 @@ module.exports = plugin(
       }
     },
     isValid() {
+      if (!properties.isClientAttributeValidationEnabled()) {
+        return true
+      }
       const value = getEnumValue(this.model)
       const choice = this.model
         .get('property')

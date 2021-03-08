@@ -172,6 +172,9 @@ const properties = {
   isMetacardPreviewEnabled() {
     return !this.isMetacardPreviewDisabled
   },
+  isClientAttributeValidationEnabled() {
+    return this.isClientValidationEnabled
+  },
 }
 
 module.exports = properties

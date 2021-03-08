@@ -142,6 +142,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean phoneticsEnabled = false;
 
+  private Boolean clientValidationEnabled = true;
+
   private BrandingPlugin branding;
 
   private Integer timeout = 300000;
@@ -559,6 +561,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put(
         "isVersioningEnabled",
         historianConfiguration != null && historianConfiguration.isHistoryEnabled());
+    config.put("isClientValidationEnabled", clientValidationEnabled);
     config.put("theme", theme);
     config.put("customPrimaryColor", customPrimaryColor);
     config.put("customPositiveColor", customPositiveColor);
@@ -1140,6 +1143,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setPhoneticsEnabled(Boolean phoneticsEnabled) {
     this.phoneticsEnabled = phoneticsEnabled;
+  }
+
+  public Boolean getClientValidationEnabled() {
+    return clientValidationEnabled;
+  }
+
+  public void setClientValidationEnabled(Boolean clientValidationEnabled) {
+    this.clientValidationEnabled = clientValidationEnabled;
   }
 
   public void setHistorianConfiguration(HistorianConfiguration historian) {
