@@ -79,6 +79,11 @@ class LocationInput extends React.Component {
     this.props.listenTo(this.locationModel, 'change:mode', () => {
       this.clearLocation()
     })
+    this.props.listenTo(this.locationModel, 'change:polygon', () => {
+      if (this.locationModel.get('mode') !== 'poly') {
+        wreqr.vent.trigger('search:polydisplay', this.locationModel)
+      }
+    })
   }
   componentWillUnmount() {
     this.locationModel.off('change', this.setModelState)
