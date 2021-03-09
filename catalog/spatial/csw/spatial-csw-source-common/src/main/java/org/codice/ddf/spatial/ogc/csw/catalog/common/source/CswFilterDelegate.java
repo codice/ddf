@@ -64,10 +64,10 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.";
 
   private static final String CSW_SUPPORT_EXCEPTION_MSG =
-      "CSW source does not support {1} filter or any of its fallback spatial filters. This may be due to spatial operators not being supported or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
+      "CSW source does not support {0} filter or any of its fallback spatial filters. This may be due to spatial operators not being supported or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
 
   private static final String CSW_SUPPORT_EXCEPTION_MSG_SIMPLE =
-      "CSW source does not support {1} filter.";
+      "CSW source does not support {0} filter.";
 
   private static final String FALLING_BACK_MSG = "Falling back to {} filter.";
 

@@ -126,10 +126,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private static final String MAPPED_TO_MSG = "{} maps to the feature property {}.";
 
-  private static final String NOT_SUPPORTED_MSG = "{} [{}] is not supported.";
+  private static final String NOT_SUPPORTED_MSG = "{0} [{1}] is not supported.";
 
   private static final String DOES_NOT_MAP_MSG =
-      "Property [{}] does not map to a feature property of type {}.";
+      "Property [{0}] does not map to a feature property of type {1}.";
 
   private static final String TEMPORAL_OPERAND = "Temporal Operand";
 
