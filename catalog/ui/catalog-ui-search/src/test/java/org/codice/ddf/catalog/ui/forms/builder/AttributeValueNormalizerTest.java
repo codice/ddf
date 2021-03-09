@@ -168,8 +168,89 @@ public class AttributeValueNormalizerTest {
   }
 
   @Test(expected = FilterProcessingException.class)
-  public void testBadPropertyNameToXml() {
+  public void testBadPropertyNameQuotesToXml() {
     normalizer.normalizeForXml(PROPERTY_NAME_WITH_QUOTES, VALID_ISO_8601_DATE_STRING);
+  }
+
+  @Test(expected = FilterProcessingException.class)
+  public void testBadPropertyNameNumbersToXml() {
+    normalizer.normalizeForXml("anyText2", VALID_ISO_8601_DATE_STRING);
+  }
+
+  @Test
+  public void testBadPropertyNameSymbolsToXml() {
+    assertThrows(
+        FilterProcessingException.class,
+        () -> normalizer.normalizeForXml("anyText!", VALID_ISO_8601_DATE_STRING));
+    assertThrows(
+        FilterProcessingException.class,
+        () -> normalizer.normalizeForXml("anyText@", VALID_ISO_8601_DATE_STRING));
+    assertThrows(
+        FilterProcessingException.class,
+        () -> normalizer.normalizeForXml("anyText#", VALID_ISO_8601_DATE_STRING));
+    assertThrows(
+        FilterProcessingException.class,
+        () -> normalizer.normalizeForXml("anyText$", VALID_ISO_8601_DATE_STRING));
+    assertThrows(
+        FilterProcessingException.class,
+        () -> normalizer.normalizeForXml("anyText%", VALID_ISO_8601_DATE_STRING));
+    assertThrows(
+        FilterProcessingException.class,
+        () -> normalizer.normalizeForXml("anyText^", VALID_ISO_8601_DATE_STRING));
+    assertThrows(
+        FilterProcessingException.class,
+        () -> normalizer.normalizeForXml("anyText&", VALID_ISO_8601_DATE_STRING));
+    assertThrows(
+        FilterProcessingException.class,
+        () -> normalizer.normalizeForXml("anyText*", VALID_ISO_8601_DATE_STRING));
+    assertThrows(
+        FilterProcessingException.class,
+        () -> normalizer.normalizeForXml("anyText>", VALID_ISO_8601_DATE_STRING));
+    assertThrows(
+        FilterProcessingException.class,
+        () -> normalizer.normalizeForXml("anyText<", VALID_ISO_8601_DATE_STRING));
+  }
+
+  @Test
+  public void testGoodPropertyNameBasicToXml() {
+    assertThat(
+        normalizer.normalizeForXml("anyText", VALID_ISO_8601_DATE_STRING),
+        is(equalTo(VALID_ISO_8601_DATE_STRING)));
+  }
+
+  @Test
+  public void testGoodPropertyNameCompoundDotOnceToXml() {
+    assertThat(
+        normalizer.normalizeForXml("metacard.version", VALID_ISO_8601_DATE_STRING),
+        is(equalTo(VALID_ISO_8601_DATE_STRING)));
+  }
+
+  @Test
+  public void testGoodPropertyNameCompoundDotTwiceToXml() {
+    assertThat(
+        normalizer.normalizeForXml("metacard.version.action", VALID_ISO_8601_DATE_STRING),
+        is(equalTo(VALID_ISO_8601_DATE_STRING)));
+  }
+
+  @Test
+  public void testGoodPropertyNameCompoundDashOnceToXml() {
+    assertThat(
+        normalizer.normalizeForXml("versioned-on", VALID_ISO_8601_DATE_STRING),
+        is(equalTo(VALID_ISO_8601_DATE_STRING)));
+  }
+
+  @Test
+  public void testGoodPropertyNameCompoundDashTwiceToXml() {
+    assertThat(
+        normalizer.normalizeForXml("versioned-not-after", VALID_ISO_8601_DATE_STRING),
+        is(equalTo(VALID_ISO_8601_DATE_STRING)));
+  }
+
+  @Test
+  public void testGoodPropertyNameCompoundBothToXml() {
+    assertThat(
+        normalizer.normalizeForXml("metacard.version.versioned-on", VALID_ISO_8601_DATE_STRING),
+        is(equalTo(VALID_ISO_8601_DATE_STRING)));
   }
 
   @Test(expected = FilterProcessingException.class)
@@ -210,5 +291,18 @@ public class AttributeValueNormalizerTest {
 
   private static AttributeDescriptor createDateDescriptor() {
     return new AttributeDescriptorImpl("created", true, true, true, false, BasicTypes.DATE_TYPE);
+  }
+
+  private static <T> void assertThrows(Class<T> clazz, Runnable op) {
+    boolean wasThrown = false;
+    try {
+      op.run();
+    } catch (Exception e) {
+      wasThrown = true;
+      assertThat(
+          "Thrown exception " + e.getClass() + " did not satisfy provided class " + clazz,
+          clazz.isAssignableFrom(e.getClass()));
+    }
+    assertThat("Runnable finished with no exception thrown", wasThrown);
   }
 }
