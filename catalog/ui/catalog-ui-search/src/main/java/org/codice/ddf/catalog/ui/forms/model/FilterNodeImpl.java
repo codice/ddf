@@ -255,8 +255,7 @@ public class FilterNodeImpl implements FilterNode {
 
     String[] range = str.split("/");
     if (range.length != 2) {
-      throw new IllegalArgumentException(
-          String.format("Filter node range-value '%s' has too many delimiters", value));
+      return;
     }
 
     this.from = range[0];
