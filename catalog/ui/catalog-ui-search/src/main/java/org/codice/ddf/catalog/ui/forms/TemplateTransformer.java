@@ -159,18 +159,27 @@ public class TemplateTransformer {
           metacardOwner,
           wrapped.getQuerySettings());
     } catch (JAXBException e) {
+      LOGGER.debug("Search form error full stacktrace", e);
       LOGGER.error(
-          "XML parsing failed for query template metacard's filter, with metacard id "
-              + metacard.getId(),
-          e);
+          "XML parsing failed for query template metacard's filter. {} [metacard id = {}]",
+          e.getMessage(),
+          metacard.getId());
     } catch (FilterProcessingException e) {
+      LOGGER.debug("Search form error full stacktrace", e);
       LOGGER.error(
-          "Could not use filter XML for template - {} [metacard id = {}]",
+          "Could not use filter XML for template. {} [metacard id = {}]",
           e.getMessage(),
           metacard.getId());
     } catch (UnsupportedOperationException e) {
+      LOGGER.debug("Search form error full stacktrace", e);
       LOGGER.error(
-          "Could not use filter XML because it contains unsupported operations - {} [metacard id = {}]",
+          "Could not use filter XML because it contains unsupported operations. {} [metacard id = {}]",
+          e.getMessage(),
+          metacard.getId());
+    } catch (RuntimeException e) {
+      LOGGER.debug("Search form error full stacktrace", e);
+      LOGGER.error(
+          "General error occurred while fetching search form. {} [metacard id = {}]",
           e.getMessage(),
           metacard.getId());
     }
