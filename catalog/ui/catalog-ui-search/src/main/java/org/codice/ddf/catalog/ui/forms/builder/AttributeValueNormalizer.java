@@ -45,7 +45,7 @@ class AttributeValueNormalizer {
   // Primary purpose is to protect persistence layer from bad symbols leaking into valid prop names
   // https://codice.atlassian.net/wiki/spaces/CODICE/pages/77627393/Taxonomy+Guidelines
   private static final Pattern EXPECTED_ATTRIBUTE_NAME_PATTERN =
-      Pattern.compile("(ext\\.)?(\\p{Alpha}+\\.)?\\p{Alpha}+(-\\p{Alpha}+)*");
+      Pattern.compile("(\\p{Alpha}+([-.]\\p{Alpha}+)*)+");
 
   private static final Pattern EXPECTED_RELATIVE_FUNCTION_PATTERN =
       Pattern.compile("RELATIVE\\(\\p{Alnum}+\\)");
