@@ -313,7 +313,9 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
       return numberFormat.parse(str);
     } catch (ParseException e) {
       // Default to zero since this is called when reading FROM the database
-      // so fail gracefully because it must be a data persistence issue
+      // - fail gracefully because it must be a data persistence issue
+      // - throwing an exception here is not really an option
+      LOGGER.trace("Unable to parse persisted numeric value in search form, using zero instead", e);
       return 0;
     }
   }
