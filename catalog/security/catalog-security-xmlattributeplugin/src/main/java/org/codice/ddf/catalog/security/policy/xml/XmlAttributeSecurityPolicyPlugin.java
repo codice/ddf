@@ -84,8 +84,8 @@ public class XmlAttributeSecurityPolicyPlugin implements PolicyPlugin {
     }
 
     XMLStreamReader xmlStreamReader = null;
-    try {
-      xmlStreamReader = xmlInputFactory.createXMLStreamReader(new StringReader(xmlMetadata));
+    try (StringReader reader = new StringReader(xmlMetadata)) {
+      xmlStreamReader = xmlInputFactory.createXMLStreamReader(reader);
       Map<String, Set<Set<String>>> intersectionMap = new HashMap<>();
       while (xmlStreamReader.hasNext()) {
         int event = xmlStreamReader.next();
@@ -142,6 +142,11 @@ public class XmlAttributeSecurityPolicyPlugin implements PolicyPlugin {
         buildSecurityAttribute(valueSet, xmlStreamReader.getAttributeValue(i));
         intersectionMap.get(name).add(valueSet);
       }
+    }
+    try {
+      xmlStreamReader.close();
+    } catch (Exception e) {
+      LOGGER.debug("Exception closing xmlStreamReader. {}", e);
     }
     buildIntersectionAttributes(securityMap, intersectionMap);
   }

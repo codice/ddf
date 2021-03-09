@@ -110,10 +110,10 @@ public class CswTransformProvider implements Converter {
   }
 
   private void writeXml(BinaryContent content, HierarchicalStreamWriter writer) {
-    try {
+    try (InputStreamReader inputStreamReader =
+        new InputStreamReader(content.getInputStream(), StandardCharsets.UTF_8)) {
       XmlPullParser parser = XppFactory.createDefaultParser();
-      InputStreamReader inputStreamReader =
-          new InputStreamReader(content.getInputStream(), StandardCharsets.UTF_8);
+
       try {
         new HierarchicalStreamCopier().copy(new XppReader(inputStreamReader, parser), writer);
       } finally {
@@ -121,6 +121,8 @@ public class CswTransformProvider implements Converter {
       }
     } catch (XmlPullParserException e) {
       throw new ConversionException("Unable to copy metadata to XML Output.", e);
+    } catch (Exception e) {
+      LOGGER.debug("Exception during Input Stream Reader\n{}", e);
     }
   }
 

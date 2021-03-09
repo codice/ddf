@@ -61,7 +61,7 @@ public final class XSLTUtil {
   public static Document transform(
       Templates template, Document xmlDoc, Map<String, Object> parameters)
       throws TransformerException {
-    ByteArrayOutputStream baos;
+
     ByteArrayInputStream bais = null;
     Document resultDoc;
     try {
@@ -71,8 +71,7 @@ public final class XSLTUtil {
       DocumentBuilder builder = DBF.newDocumentBuilder();
       StreamResult resultOutput = null;
       Source source = new DOMSource(xmlDoc);
-      baos = new ByteArrayOutputStream();
-      try {
+      try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
         resultOutput = new StreamResult(baos);
         if (parameters != null && !parameters.isEmpty()) {
           for (Map.Entry<String, Object> entry : parameters.entrySet()) {
@@ -94,7 +93,6 @@ public final class XSLTUtil {
         resultDoc = builder.parse(bais);
       } finally {
         IOUtils.closeQuietly(bais);
-        IOUtils.closeQuietly(baos);
       }
 
       return resultDoc;
