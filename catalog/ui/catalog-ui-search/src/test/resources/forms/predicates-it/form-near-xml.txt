@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Filter xmlns="http://www.opengis.net/fes/2.0" xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns:ns3="http://www.w3.org/1999/xlink">
+	<PropertyIsEqualTo>
+		<Function name="proximity">
+		    <Literal>language</Literal>
+		    <Literal>2</Literal>
+		    <Literal>english</Literal>
+		</Function>
+		<Literal>true</Literal>
+	</PropertyIsEqualTo>
+</Filter>

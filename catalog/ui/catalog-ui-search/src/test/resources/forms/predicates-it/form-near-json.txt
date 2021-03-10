@@ -1,0 +1,13 @@
+{
+  "filterTemplate": {
+    "type": "=",
+    "property": {
+      "type": "FILTER_FUNCTION",
+      "filterFunctionName": "proximity",
+      "params": ["language", 2, "english"]
+    },
+    "value": true
+  },
+  "title": "MY_TITLE",
+  "description": "MY_DESCRIPTION"
+}

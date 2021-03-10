@@ -42,6 +42,13 @@ public interface FilterNode {
   boolean isTemplated();
 
   /**
+   * Determine if this filter node is a function.
+   *
+   * @return true if this node is a function, false otherwise.
+   */
+  boolean isFunction();
+
+  /**
    * Get the operator assocated with this node. Every node has an operator.
    *
    * @return this node's operator.
@@ -75,6 +82,15 @@ public interface FilterNode {
   String getProperty();
 
   /**
+   * If the property itself is non-terminal, fetch the function object for the property. Does not
+   * throw exceptions like the other methods.
+   *
+   * @return a property visitable, or null if the property is terminal.
+   */
+  @Nullable
+  FilterNode getPropertyFunction();
+
+  /**
    * If this node is a terminal node, fetch the target value associated with this node.
    *
    * @return the value associated with the property of this node, or null if the value has not been
@@ -82,7 +98,7 @@ public interface FilterNode {
    * @throws IllegalStateException if this node is not a terminal node.
    */
   @Nullable
-  String getValue();
+  Object getValue();
 
   /**
    * If this node is a terminal node, fetch the distance value associated with this node.
@@ -94,12 +110,30 @@ public interface FilterNode {
   Double getDistance();
 
   /**
+   * If this node is a function node, fetch the name of the function.
+   *
+   * @return the name of the function.
+   * @throws IllegalStateException if this node is not a function node.
+   */
+  @Nullable
+  String getFunctionName();
+
+  /**
+   * If this node is a function node, fetch the parameters of the function.
+   *
+   * @return the parameters of the function.
+   * @throws IllegalStateException if this node is not a function node.
+   */
+  @Nullable
+  List<Object> getParams();
+
+  /**
    * Set this node's property name.
    *
    * @param property the property name to use.
    * @throws NullPointerException if the given property name is null.
    */
-  void setProperty(String property);
+  void setProperty(Object property);
 
   /**
    * Set this node's target value.
@@ -107,12 +141,19 @@ public interface FilterNode {
    * @param value the target value to use.
    * @throws NullPointerException if the given target value is null.
    */
-  void setValue(String value);
+  void setValue(Object value);
 
   /**
    * Set this node's distance property, if applicable.
    *
-   * @param distance
+   * @param distance the distance to use.
    */
   void setDistance(Double distance);
+
+  /**
+   * If this node is a function node, add an additional argument to the arg list.
+   *
+   * @param arg the argument to add.
+   */
+  void addArg(Object arg);
 }

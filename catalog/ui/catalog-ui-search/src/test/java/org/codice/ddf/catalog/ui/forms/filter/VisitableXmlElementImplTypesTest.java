@@ -144,11 +144,6 @@ public class VisitableXmlElementImplTypesTest {
     VisitableXmlElementImpl.create(FILTER_NODE_WITH_EXT);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testSingletonExpressionForFilterWithFunctionFirst() {
-    VisitableXmlElementImpl.create(FILTER_NODE_STARTS_WITH_FUNCTION);
-  }
-
   private static void validateResult(JAXBElement element, Class type) {
     VisitableXmlElementImpl visitable = VisitableXmlElementImpl.create(element);
     assertThat(visitable.getValue(), instanceOf(type));

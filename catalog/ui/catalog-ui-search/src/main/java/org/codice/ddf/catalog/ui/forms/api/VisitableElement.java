@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.forms.api;
 
+import javax.annotation.Nullable;
+
 /**
  * Can be visited by a {@link org.codice.ddf.catalog.ui.forms.api.FilterVisitor2}. Currently
  * visitability is coupled to JAXB as a result of the Filter 2.0 binding implementation used.
@@ -23,6 +25,9 @@ package org.codice.ddf.catalog.ui.forms.api;
 public interface VisitableElement<T> {
 
   String getName();
+
+  @Nullable
+  String getFunctionName();
 
   T getValue();
 

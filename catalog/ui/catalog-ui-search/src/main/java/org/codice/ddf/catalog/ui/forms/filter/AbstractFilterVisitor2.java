@@ -59,13 +59,23 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   }
 
   @Override
-  public void visitDistanceType(VisitableElement<Double> visitable) {
+  public void visitDoubleType(VisitableElement<Double> visitable) {
     traceName(visitable);
     traceValue(visitable.getValue());
   }
 
   @Override
-  public void visitFunctionType(VisitableElement<Map<String, Object>> visitable) {
+  public void visitTemplateType(VisitableElement<Map<String, Object>> visitable) {
+    traceName(visitable);
+  }
+
+  @Override
+  public void visitMapType(VisitableElement<Map<String, Object>> visitable) {
+    traceName(visitable);
+  }
+
+  @Override
+  public void visitFunctionType(VisitableElement<List<Serializable>> visitable) {
     traceName(visitable);
   }
 

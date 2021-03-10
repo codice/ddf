@@ -1,0 +1,26 @@
+[
+  {
+    "filterTemplate": {
+        "type": "BETWEEN",
+        "property": "ext.bitrate",
+        "value": {
+          "lower": 0.34986,
+          "upper": 13.1202
+        },
+        "lowerBoundary": 0.34986,
+        "upperBoundary": 13.1202
+    },
+    "creator": "system",
+    "querySettings": {},
+    "id": "abcdefg",
+    "title": "MY_TITLE",
+    "description": "MY_DESCRIPTION",
+    "created": 1544447380000,
+    "modified": 1544447380000,
+    "accessGroups": [],
+    "accessGroupsRead": [],
+    "accessIndividuals": [],
+    "accessIndividualsRead": [],
+    "accessAdministrators": []
+  }
+]

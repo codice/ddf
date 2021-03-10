@@ -13,13 +13,14 @@
  */
 package org.codice.ddf.catalog.ui.forms.filter;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import net.opengis.filter.v_2_0.BBOXType;
 import net.opengis.filter.v_2_0.FilterType;
 import net.opengis.filter.v_2_0.PropertyIsBetweenType;
@@ -54,22 +55,15 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(VisitableJsonElementImpl.class);
 
-  private static final String LIKE = "LIKE";
-
-  private static final String FAKE_PROPERTY_OPERATOR = "PROPERTY";
-
-  private static final String FAKE_VALUE_OPERATOR = "VALUE";
-
-  private static final String FAKE_DISTANCE_OPERATOR = "DISTANCE";
-
   private static final Map<String, BiConsumer<FilterVisitor2, VisitableElement>> VISIT_METHODS =
       ImmutableMap.<String, BiConsumer<FilterVisitor2, VisitableElement>>builder()
-          // Fake operators to give a flat structure an XML-like "embedded" structure
-          .put(FAKE_PROPERTY_OPERATOR, FilterVisitor2::visitString)
-          .put(FAKE_VALUE_OPERATOR, FilterVisitor2::visitLiteralType)
-          .put(FAKE_DISTANCE_OPERATOR, FilterVisitor2::visitDistanceType)
           // Misc
           .put("IS NULL", FilterVisitor2::visitPropertyIsNilType) // Date 'IS EMPTY' operator
+          .put("FILTER_FUNCTION", FilterVisitor2::visitFunctionType) // Text 'NEAR' operator
+          .put("BETWEEN", FilterVisitor2::visitMapType) // Numeric 'RANGE' operator
+          // --
+          // Issue with XML binding library so it's mapped to a custom function
+          .put("LIKE", FilterVisitor2::visitMapType)
           // Logical operator mapping
           .put("AND", FilterVisitor2::visitBinaryLogicType)
           .put("OR", FilterVisitor2::visitBinaryLogicType)
@@ -87,7 +81,6 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
           .put(">=", FilterVisitor2::visitBinaryComparisonType)
           .put("<", FilterVisitor2::visitBinaryComparisonType)
           .put("<=", FilterVisitor2::visitBinaryComparisonType)
-          .put("LIKE", FilterVisitor2::visitPropertyIsLikeType)
           .put("ILIKE", FilterVisitor2::visitPropertyIsLikeType)
           .build();
 
@@ -95,22 +88,34 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   private final String name;
   private final Object value;
 
+  private String functionName;
+
   public static VisitableJsonElementImpl create(final FilterNode node) {
     return new VisitableJsonElementImpl(node);
   }
 
-  private VisitableJsonElementImpl(String prop) {
-    this.visitMethod = FilterVisitor2::visitString;
+  /**
+   * Base constructor.
+   *
+   * @param visitMethod dispatch method for visiting.
+   * @param value value of this node.
+   */
+  private VisitableJsonElementImpl(
+      final BiConsumer<FilterVisitor2, VisitableElement> visitMethod, final Object value) {
     this.name = null;
-    this.value = prop;
+    this.functionName = null;
+
+    this.visitMethod = visitMethod;
+    this.value = value;
   }
 
+  /**
+   * Primary constructor for evaluating a {@link FilterNode} and constructing the visitable tree
+   * accordingly.
+   *
+   * @param node the node to construct the tree for.
+   */
   private VisitableJsonElementImpl(final FilterNode node) {
-    if (LIKE.equals(node.getOperator())) {
-      throw new UnsupportedOperationException("LIKE (case sensitive) currently is not supported");
-      // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
-    }
-
     this.visitMethod = VISIT_METHODS.get(node.getOperator());
     if (this.visitMethod == null) {
       throw new FilterProcessingException(
@@ -121,12 +126,35 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
 
     if (!node.isLeaf()) {
       LOGGER.trace("Found JSON logical node [{}] with children", name);
-      this.value = wrap(node.getChildren());
+      this.value =
+          node.getChildren()
+              .stream()
+              .map(VisitableJsonElementImpl::new)
+              .collect(Collectors.toList());
+      return;
+    }
+
+    if (node.isFunction()) {
+      LOGGER.trace("Found JSON function node");
+      this.functionName = node.getFunctionName();
+      this.value = node.getParams();
+      return;
+    }
+
+    FilterNode propFunc = node.getPropertyFunction();
+    Object val = node.getValue();
+
+    if (propFunc != null) {
+      LOGGER.trace("Found JSON node with function on property: {}", node.getOperator());
+      this.value =
+          Arrays.asList(
+              new VisitableJsonElementImpl(propFunc),
+              new VisitableJsonElementImpl(
+                  FilterVisitor2::visitLiteralType, Collections.singletonList(val)));
       return;
     }
 
     String prop = node.getProperty();
-    String val = node.getValue();
     Double distance = node.getDistance();
 
     if (node.isTemplated()) {
@@ -136,7 +164,10 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
           name,
           prop,
           template);
-      this.value = wrap(prop, template);
+      this.value =
+          Arrays.asList(
+              new VisitableJsonElementImpl(FilterVisitor2::visitString, prop),
+              new VisitableJsonElementImpl(FilterVisitor2::visitTemplateType, template));
       return;
     }
 
@@ -147,66 +178,50 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
           prop,
           val,
           distance);
-      this.value = wrap(prop, val, distance);
+      this.value =
+          Arrays.asList(
+              new VisitableJsonElementImpl(FilterVisitor2::visitString, prop),
+              new VisitableJsonElementImpl(FilterVisitor2::visitDoubleType, distance),
+              new VisitableJsonElementImpl(
+                  FilterVisitor2::visitLiteralType, Collections.singletonList(val)));
       return;
     }
 
     if (val == null) {
       LOGGER.trace("Found JSON nil node [{}] for property [{}]", name, prop);
-      this.value = new VisitableJsonElementImpl(prop);
+      this.value = new VisitableJsonElementImpl(FilterVisitor2::visitString, prop);
       return;
     }
 
-    this.value = wrap(prop, val);
-  }
-
-  private VisitableJsonElementImpl(final String operator, final Object value) {
-    this.name = operator;
-    this.value = value;
-    this.visitMethod = VISIT_METHODS.get(operator);
-    if (this.visitMethod == null) {
-      throw new FilterProcessingException(
-          "Encountered an unexpected or unsupported type: " + operator);
+    if ("BETWEEN".equals(node.getOperator()) || "LIKE".equals(node.getOperator())) {
+      LOGGER.trace(
+          "Found JSON map-visitable node [{}] for property [{}] and value [{}]", name, prop, val);
+      Map<String, Object> remapped = new HashMap<>();
+      remapped.put("type", node.getOperator());
+      remapped.put("property", prop);
+      remapped.put("value", val);
+      this.value = remapped;
+      return;
     }
-  }
 
-  private VisitableJsonElementImpl(
-      final String operator,
-      final Object value,
-      final BiConsumer<FilterVisitor2, VisitableElement> visitMethod) {
-    this.name = operator;
-    this.value = value;
-    this.visitMethod = visitMethod;
-  }
-
-  private static List<VisitableElement<?>> wrap(String property, String value) {
-    return ImmutableList.of(
-        new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
-        new VisitableJsonElementImpl(FAKE_VALUE_OPERATOR, Collections.singletonList(value)));
-  }
-
-  private static List<VisitableElement<?>> wrap(String property, String value, Double distance) {
-    return ImmutableList.of(
-        new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
-        new VisitableJsonElementImpl(FAKE_DISTANCE_OPERATOR, distance),
-        new VisitableJsonElementImpl(FAKE_VALUE_OPERATOR, Collections.singletonList(value)));
-  }
-
-  private static List<VisitableElement<?>> wrap(
-      String property, Map<String, Object> templateProperties) {
-    return ImmutableList.of(
-        new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
-        new VisitableJsonElementImpl(
-            FAKE_VALUE_OPERATOR, templateProperties, FilterVisitor2::visitFunctionType));
-  }
-
-  private static List<VisitableElement<?>> wrap(List<FilterNode> children) {
-    return children.stream().map(VisitableJsonElementImpl::new).collect(Collectors.toList());
+    LOGGER.trace(
+        "Found JSON comparison node [{}] for property [{}] and value [{}]", name, prop, val);
+    this.value =
+        Arrays.asList(
+            new VisitableJsonElementImpl(FilterVisitor2::visitString, prop),
+            new VisitableJsonElementImpl(
+                FilterVisitor2::visitLiteralType, Collections.singletonList(val)));
   }
 
   @Override
   public String getName() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public String getFunctionName() {
+    return functionName;
   }
 
   @Override

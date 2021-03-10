@@ -43,10 +43,14 @@ public interface FilterVisitor2 {
 
   void visitLiteralType(VisitableElement<List<Serializable>> visitable);
 
-  void visitDistanceType(VisitableElement<Double> visitable);
+  void visitDoubleType(VisitableElement<Double> visitable);
+
+  void visitTemplateType(VisitableElement<Map<String, Object>> visitable);
+
+  void visitMapType(VisitableElement<Map<String, Object>> visitable);
 
   // Traversal for the time being will assume NO embedded functions / currying support
-  void visitFunctionType(VisitableElement<Map<String, Object>> visitable);
+  void visitFunctionType(VisitableElement<List<Serializable>> visitable);
 
   void visitBinaryLogicType(VisitableElement<List<VisitableElement<?>>> visitable);
 

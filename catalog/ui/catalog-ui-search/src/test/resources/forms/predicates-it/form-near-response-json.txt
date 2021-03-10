@@ -1,0 +1,25 @@
+[
+  {
+    "filterTemplate": {
+        "type": "=",
+        "property": {
+          "type": "FILTER_FUNCTION",
+          "filterFunctionName": "proximity",
+          "params": ["language", 2, "english"]
+        },
+        "value": true
+    },
+    "creator": "system",
+    "querySettings": {},
+    "id": "abcdefg",
+    "title": "MY_TITLE",
+    "description": "MY_DESCRIPTION",
+    "created": 1544447380000,
+    "modified": 1544447380000,
+    "accessGroups": [],
+    "accessGroupsRead": [],
+    "accessIndividuals": [],
+    "accessIndividualsRead": [],
+    "accessAdministrators": []
+  }
+]
