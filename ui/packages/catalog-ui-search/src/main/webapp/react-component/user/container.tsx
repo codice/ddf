@@ -15,6 +15,7 @@
 import * as React from 'react'
 import UserComponent from './presentation'
 const user = require('../../component/singletons/user-instance.js')
+const properties = require('../../js/properties.js')
 
 interface State {
   username: string
@@ -32,7 +33,12 @@ class UserContainer extends React.Component<{}, State> {
     }
   }
   signOut() {
-    window.location.href = '../../logout?service=' + window.location.href
+    if (properties.logoutUrl && properties.logoutUrl != '') {
+      window.location.href = properties.logoutUrl
+    } else {
+      window.location.href =
+        '../../logout/?service=' + encodeURIComponent(window.location.href)
+    }
   }
   render() {
     const { username, isGuest, email } = this.state

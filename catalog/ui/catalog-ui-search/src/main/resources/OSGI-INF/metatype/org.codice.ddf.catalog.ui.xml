@@ -336,6 +336,13 @@
             cardinality="100"
             required="false">
         </AD>
+        <AD id="logoutUrl"
+            name="Logout Url"
+            description="URL used for logging users out of the system when logging out of the Search UI. To use the default logout behavior, leave this field empty."
+            type="String"
+            required="false"
+            default="">
+        </AD>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui">
