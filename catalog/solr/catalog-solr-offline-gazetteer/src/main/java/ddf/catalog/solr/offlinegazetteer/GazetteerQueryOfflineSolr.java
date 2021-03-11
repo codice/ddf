@@ -229,7 +229,7 @@ public class GazetteerQueryOfflineSolr implements GeoEntryQueryable {
           bearingToCardinalDirection(getBearing(originalLocation.getCentroid(), geo.getCentroid()));
       distance = convertDegreeToKilometer(originalLocation.distance(geo.getCentroid()));
     } catch (org.locationtech.jts.io.ParseException e) {
-      LOGGER.debug("Could not parse location for item (object: {})", doc.toString(), e);
+      LOGGER.debug("Could not parse location for item (object: {})", doc, e);
     }
 
     return new NearbyLocationImpl(title, cardinalDirection, distance);

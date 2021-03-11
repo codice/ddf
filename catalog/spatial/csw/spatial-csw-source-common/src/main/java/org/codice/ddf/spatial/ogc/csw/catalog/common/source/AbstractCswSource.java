@@ -1976,8 +1976,8 @@ public abstract class AbstractCswSource extends MaskableImpl
       }
     } catch (CswException e) {
       LOGGER.info(
-          "Failed to register a subscription for events from csw source with id of "
-              + this.getId());
+          "Failed to register a subscription for events from csw source with id of {} "
+              , this.getId());
     }
   }
 

@@ -89,7 +89,7 @@ public class LoggingService implements PaxAppender, LoggingServiceMBean {
         LOGGER.debug("Unregistered Logging Service MBean");
       }
     } catch (InstanceNotFoundException | MBeanRegistrationException e) {
-      LOGGER.info("Exception unregistering MBean [{}].", objectName.toString(), e);
+      LOGGER.info("Exception unregistering MBean [{}].", objectName, e);
     }
   }
 

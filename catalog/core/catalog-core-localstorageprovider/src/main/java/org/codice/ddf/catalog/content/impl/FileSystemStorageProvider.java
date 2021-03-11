@@ -333,7 +333,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
       return !dirStream.iterator().hasNext();
     } catch (IOException e) {
-      LOGGER.debug("Unable to open directory stream for {}", dir.toString(), e);
+      LOGGER.debug("Unable to open directory stream for {}", dir, e);
       throw e;
     }
   }
@@ -571,7 +571,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     } catch (InvalidPathException e) {
       LOGGER.debug(
           "Invalid path: [{}/{}]",
-          baseContentDirectory.toString(),
+          baseContentDirectory,
           pathParts.stream().collect(Collectors.joining()));
       return null;
     }
@@ -715,7 +715,7 @@ public class FileSystemStorageProvider implements StorageProvider {
       directories = Files.createDirectories(directory);
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(
-            "Setting base content directory to: {}", directories.toAbsolutePath().toString());
+            "Setting base content directory to: {}", directories.toAbsolutePath());
       }
     } else {
       directories = directory;
@@ -727,7 +727,7 @@ public class FileSystemStorageProvider implements StorageProvider {
       tmpDirectories = Files.createDirectories(tmpDirectory);
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(
-            "Setting base content directory to: {}", tmpDirectory.toAbsolutePath().toString());
+            "Setting base content directory to: {}", tmpDirectory.toAbsolutePath());
       }
     } else {
       tmpDirectories = tmpDirectory;

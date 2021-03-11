@@ -268,7 +268,7 @@ public class MetadataConfigurationParser {
           } catch (IOException e) {
             LOGGER.info(
                 "Unable to parse metadata from: {}",
-                httpResponse.getRequest().getUrl().toString(),
+                httpResponse.getRequest().getUrl(),
                 e);
           }
         } else {

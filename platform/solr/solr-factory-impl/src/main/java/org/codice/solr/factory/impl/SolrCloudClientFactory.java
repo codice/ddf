@@ -224,7 +224,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       LOGGER.info(
           "Configuration for collection [{}] not present in Zookeeper. Uploading configset from [{}].",
           collection,
-          configPath.toString());
+          configPath);
 
       try (ZkClientClusterStateProvider zkStateProvider = newZkStateProvider(client)) {
         zkStateProvider.uploadConfig(configPath, collection);

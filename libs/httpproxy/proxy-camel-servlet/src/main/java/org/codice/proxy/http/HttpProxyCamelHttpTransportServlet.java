@@ -195,7 +195,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
         return;
       }
     } catch (IOException e) {
-      LOGGER.warn("Could not send error due to: ", e.getMessage());
+      LOGGER.warn("Could not send error due to: {}", e.getMessage());
       LOGGER.debug("Could not send error due to: ", e);
     }
 

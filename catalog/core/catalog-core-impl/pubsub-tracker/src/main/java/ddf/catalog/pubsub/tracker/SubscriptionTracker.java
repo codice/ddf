@@ -113,7 +113,7 @@ public class SubscriptionTracker {
             services.remove(serviceId);
 
           } catch (EventException e) {
-            LOGGER.info("Error in deleting subscription. ", serviceId, e);
+            LOGGER.info("Error in deleting subscription. Subscription {}", serviceId, e);
           }
         } else {
           LOGGER.debug("EventProcessor was null.");

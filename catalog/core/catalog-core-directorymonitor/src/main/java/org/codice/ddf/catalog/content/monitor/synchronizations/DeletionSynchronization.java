@@ -44,7 +44,7 @@ public class DeletionSynchronization implements Synchronization {
         LOGGER.debug(
             "Received deletion for key [{}] that was not in cache [{}].",
             reference,
-            productToMetacardIdMap.toString());
+            productToMetacardIdMap);
       }
     }
   }
@@ -54,7 +54,7 @@ public class DeletionSynchronization implements Synchronization {
     LOGGER.debug(
         "Reference [{}] to metacardId may not be removed from cache [{}].",
         reference,
-        productToMetacardIdMap.toString());
+        productToMetacardIdMap);
   }
 
   private String getShaFor(String value) {
