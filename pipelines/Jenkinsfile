@@ -1,0 +1,104 @@
+import static groovy.json.JsonOutput.toJson
+import static groovy.json.JsonOutput.prettyPrint
+
+@NonCPS
+def static parseEvictableHeroArtifacts(String fetchResponse, Integer max) {
+    def dateFmt = "yyyy-MM-dd'T'HH:mm:ss.SSS'+'"
+    def slurper = new groovy.json.JsonSlurper()
+
+    def artifacts = slurper.parseText(fetchResponse).items;
+    def records = artifacts.collect { [
+        repo: it.name,
+        pull: it.version,
+        lastModified: Date.parse(dateFmt, it.assets?.find().lastModified),
+        downloadUrl: it.assets?.find().downloadUrl
+    ] }
+
+    records.sort{ it.lastModified }
+    def recordsCount = records.size()
+    if (recordsCount <= max) {
+        return []
+    }
+    // Note: Groovy subscript operator is INCLUSIVE on both sides, so offset by 1
+    def lastToEvict = recordsCount - max - 1
+    return records[0..lastToEvict]
+}
+
+pipeline {
+    agent any
+    parameters {
+        booleanParam(name: 'doUpload', defaultValue: false, description: 'Flag controlling execution of upload.')
+        booleanParam(name: 'doEvict', defaultValue: true, description: 'Flag controlling execution of eviction.')
+        // Given a hero zip size of ~1.5 GB, a threshold of '20' should keep us at ~30 GB of storage cost
+        string(name: 'maxEntries', defaultValue: '20', description: 'Maximum number of cached artifacts.')
+    }
+    stages {
+        stage('Upload_Hero_Artifact') {
+            steps {
+                // (TODO) Needs to get plugged into the correct stage of PR build
+                script {
+                    if (!params.doUpload) {
+                        echo 'Skipping upload'
+                        return
+                    }
+
+                    echo '---------------------- UPLOAD ----------------------'
+                    def host = 'localhost:8081'
+                    def creds = 'admin:admin'
+
+                    def repo = 'ddf'
+                    def prid = '6525'
+                    def file = '/cx/deploy/ddf-2.21.0.zip'
+
+                    def destUrl = "http://${host}/repository/maven-releases/com/connexta/heroes/${repo}/pr-${prid}/${repo}-pr-${prid}.zip"
+
+                    // (TODO) Should be single quotes since creds are involved but for testing this is fine
+                    def uploadCommand = "curl -v -u ${creds} --upload-file ${file} ${destUrl}"
+                    def response = sh(script: uploadCommand, returnStdout: true).trim()
+                    // (TODO) Still need to handle the case where a PR gets rebuilt and reuploaded
+                    echo response
+                }
+            }
+        }
+        stage('Evict_Old_Artifacts') {
+            steps {
+                echo 'Eviction Stage'
+                // (TODO) Needs to be setup to run nightly
+                script {
+                    if (!params.doEvict) {
+                        echo 'Skipping eviction'
+                        return
+                    }
+
+                    echo '---------------------- EVICT ----------------------'
+                    def host = 'localhost:8081'
+                    def creds = 'admin:admin'
+
+                    def fetchUrl = "http://${host}/service/rest/v1/search?repository=maven-releases&group=com.connexta.heroes"
+
+                    // (TODO) Should be single quotes since creds are involved but for testing this is fine
+                    def fetchCommand = "curl -u ${creds} -X GET '${fetchUrl}'"
+                    def fetchResponse = sh(script: fetchCommand, returnStdout: true).trim()
+                    echo fetchResponse
+
+                    def max = Integer.parseInt(params.maxEntries)
+                    def records = parseEvictableHeroArtifacts(fetchResponse, max)
+                    echo prettyPrint(toJson(records))
+
+                    if (!records) {
+                        echo 'No records to evict'
+                        return
+                    }
+
+                    for (int i = 0; i < records.size(); i++) {
+                        def recordUrl = records[i].downloadUrl
+                        // (TODO) Should be single quotes since creds are involved but for testing this is fine
+                        def deleteCommand = "curl --request DELETE --user ${creds} ${recordUrl}"
+                        def deleteResponse = sh(script: deleteCommand, returnStdout: true).trim()
+                        echo deleteResponse
+                    }
+                }
+            }
+        }
+    }
+}
