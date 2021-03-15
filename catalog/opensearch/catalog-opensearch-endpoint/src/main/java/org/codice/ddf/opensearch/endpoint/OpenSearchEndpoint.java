@@ -182,8 +182,8 @@ public class OpenSearchEndpoint implements OpenSearch {
 
         if (siteSet.contains(framework.getId()) && siteSet.size() == 1) {
           LOGGER.trace(
-              "Only local site specified, saving overhead and just performing a local query on Id : {} ."
-                  , framework.getId());
+              "Only local site specified, saving overhead and just performing a local query on Id : {} .",
+              framework.getId());
         } else {
           LOGGER.trace("Querying site set: {}", siteSet);
           query.setSiteIds(siteSet);

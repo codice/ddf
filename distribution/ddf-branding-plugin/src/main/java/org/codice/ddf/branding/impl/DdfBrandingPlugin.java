@@ -60,7 +60,10 @@ public class DdfBrandingPlugin implements BrandingPlugin {
       vendorImage = propertiesConfiguration.getString("branding.vendor.image", "/ddf/logo.png");
       favIcon = propertiesConfiguration.getString("branding.favicon", "/ddf/favicon.png");
     } catch (ConfigurationException e) {
-      LOGGER.info("Unable to read properties file properties {} Message {}", brandingPropertiesFilePath, e.getMessage());
+      LOGGER.info(
+          "Unable to read properties file properties {} Message {}",
+          brandingPropertiesFilePath,
+          e.getMessage());
       productName = "DDF";
       productURL = "http://codice.org/ddf";
       productImage = "/ddf/ddf.png";
