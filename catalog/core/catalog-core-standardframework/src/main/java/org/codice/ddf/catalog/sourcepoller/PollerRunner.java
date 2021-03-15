@@ -191,7 +191,7 @@ abstract class PollerRunner<K, V> {
       LOGGER.trace(
           "Successfully finished the process of polling the {} source(s)", currentItemsCount);
     } catch (InterruptedException e) {
-      LOGGER.debug("A scheduled poll was interrupted.", pollIntervalMinutes, e);
+      LOGGER.debug("A scheduled poll was interrupted. Minutes : {}", pollIntervalMinutes, e);
       Thread.currentThread().interrupt();
     } catch (final VirtualMachineError e) {
       final String message = "A scheduled poll failed";

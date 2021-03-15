@@ -147,7 +147,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
       if (StringUtils.isNotEmpty(mimeType)) {
         LOGGER.debug(
-            "mimeType [{}] retrieved from MimeTypeResolver:  ", mimeType, resolver.getName());
+            "mimeType [{}] retrieved from MimeTypeResolver: {}", mimeType, resolver.getName());
         break;
       }
     }

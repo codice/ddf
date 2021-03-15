@@ -119,8 +119,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
               "The metacard with title='{}' and id={} is being removed from the operation because it failed the enforced validator [{}].",
               metacard.getTitle(),
               metacard.getId(),
-              validatorName,
-              e.getMessage());
+              validatorName);
           return null;
         } else {
           if (validationErrorsExist) {

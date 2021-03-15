@@ -67,7 +67,7 @@ public class ContentTypePredicate implements Predicate {
     }
 
     Object inputContentType = properties.getProperty(PubSubConstants.HEADER_CONTENT_TYPE_KEY);
-    LOGGER.debug("input obtained from event properties: ", inputContentType);
+    LOGGER.debug("input obtained from event properties: {}", inputContentType);
 
     if (inputContentType != null) {
       ContentTypeEvaluationCriteriaImpl ctec =

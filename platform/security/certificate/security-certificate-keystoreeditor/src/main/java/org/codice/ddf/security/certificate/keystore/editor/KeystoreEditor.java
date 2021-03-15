@@ -321,7 +321,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
           resultList.add(Collections.singletonMap("success", true));
         } catch (CertificateEncodingException e) {
           resultList.add(Collections.singletonMap("success", false));
-          LOGGER.info("Unable to store certificate: {}", certificate.toString(), e);
+          LOGGER.info("Unable to store certificate: {}", certificate, e);
         }
       }
       Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());

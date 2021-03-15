@@ -56,7 +56,7 @@ public class TransformerConsumer extends DefaultConsumer {
     this.transformerClass = transformerClass;
     this.endpoint = endpoint;
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("INSIDE TransformerConsumer constructor for " + endpoint.getTransformerId());
+      LOGGER.debug("INSIDE TransformerConsumer constructor for {}", endpoint.getTransformerId());
     }
   }
 
@@ -78,7 +78,7 @@ public class TransformerConsumer extends DefaultConsumer {
     }
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug(
-          "Registering as QueryResponseTransformer with id=" + endpoint.getTransformerId());
+          "Registering as QueryResponseTransformer with id={}", endpoint.getTransformerId());
     }
 
     // Register this Catalog Consumer as an QueryResponseTransformer in the OSGi registry.
@@ -121,7 +121,7 @@ public class TransformerConsumer extends DefaultConsumer {
 
     Exchange exchange = endpoint.createExchange();
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("exchange pattern = " + exchange.getPattern());
+      LOGGER.debug("exchange pattern = {}", exchange.getPattern());
     }
 
     // Copy SourceResponse into message body and arguments into headers

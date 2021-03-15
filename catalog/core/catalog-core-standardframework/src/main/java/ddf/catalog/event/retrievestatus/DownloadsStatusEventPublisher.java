@@ -310,7 +310,7 @@ public class DownloadsStatusEventPublisher {
 
     response.append(". ");
     response.append(detail);
-    LOGGER.debug("message: {}", response.toString());
+    LOGGER.debug("message: {}", response);
 
     return response.toString();
   }
