@@ -202,8 +202,8 @@ public class QueryOperations extends DescribableImpl {
               "No Federation Strategies exist.  Cannot execute federated query.");
         } else {
           LOGGER.debug(
-              "FederationStrategy was not specified, using default strategy: {}"
-                  , frameworkProperties.getFederationStrategy().getClass());
+              "FederationStrategy was not specified, using default strategy: {}",
+              frameworkProperties.getFederationStrategy().getClass());
           fedStrategy = frameworkProperties.getFederationStrategy();
         }
       }

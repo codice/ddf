@@ -714,8 +714,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     if (!directory.toFile().exists()) {
       directories = Files.createDirectories(directory);
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(
-            "Setting base content directory to: {}", directories.toAbsolutePath());
+        LOGGER.debug("Setting base content directory to: {}", directories.toAbsolutePath());
       }
     } else {
       directories = directory;
@@ -726,8 +725,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     if (!tmpDirectory.toFile().exists()) {
       tmpDirectories = Files.createDirectories(tmpDirectory);
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(
-            "Setting base content directory to: {}", tmpDirectory.toAbsolutePath());
+        LOGGER.debug("Setting base content directory to: {}", tmpDirectory.toAbsolutePath());
       }
     } else {
       tmpDirectories = tmpDirectory;

@@ -49,7 +49,9 @@ public class QueryResponseTransformerConsumer extends TransformerConsumer
     super(QueryResponseTransformer.class, endpoint, processor);
 
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("INSIDE QueryResponseTransformerConsumer constructor for {}",endpoint.getTransformerId());
+      LOGGER.debug(
+          "INSIDE QueryResponseTransformerConsumer constructor for {}",
+          endpoint.getTransformerId());
     }
   }
 
