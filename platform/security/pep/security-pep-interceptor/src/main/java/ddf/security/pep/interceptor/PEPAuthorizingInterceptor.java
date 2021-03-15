@@ -49,6 +49,8 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
+  private static final String UNAUTH = "Unauthorized";
+
   private final Function<Message, SecurityAssertion> assertionRetriever;
 
   private SecurityManager securityManager;
@@ -99,7 +101,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
         try {
           user = securityManager.getSubject(assertion.getToken());
           if (user == null) {
-            throw new AccessDeniedException("Unauthorized");
+            throw new AccessDeniedException(UNAUTH);
           }
 
           LOGGER.debug("Is user authenticated: {}", user.isAuthenticated());
@@ -109,7 +111,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
           if (StringUtils.isEmpty(actionURI)) {
             securityLogger.audit("Denying access to Subject for unknown action.", user);
-            throw new AccessDeniedException("Unauthorized");
+            throw new AccessDeniedException(UNAUTH);
           }
 
           action = new KeyValueCollectionPermissionImpl(actionURI);
@@ -131,22 +133,22 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                   + actionURI
                   + "]",
               e);
-          throw new AccessDeniedException("Unauthorized");
+          throw new AccessDeniedException(UNAUTH);
         }
         if (!isPermitted) {
           securityLogger.audit(
               "Denying access to Subject for service: " + action.getAction(), user);
-          throw new AccessDeniedException("Unauthorized");
+          throw new AccessDeniedException(UNAUTH);
         }
       } else {
         securityLogger.audit(
             "Unable to retrieve the security assertion associated with the web service call.");
-        throw new AccessDeniedException("Unauthorized");
+        throw new AccessDeniedException(UNAUTH);
       }
     } else {
       securityLogger.audit(
           "Unable to retrieve the current message associated with the web service call.");
-      throw new AccessDeniedException("Unauthorized");
+      throw new AccessDeniedException(UNAUTH);
     }
   }
 

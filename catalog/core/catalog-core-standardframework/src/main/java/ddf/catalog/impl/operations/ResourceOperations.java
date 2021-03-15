@@ -81,6 +81,24 @@ public class ResourceOperations extends DescribableImpl {
 
   private static final String DEFAULT_RESOURCE_NOT_FOUND_MESSAGE = "Unknown resource request";
 
+  private static final String ENTERING_STR = "ENTERING: {}";
+
+  private static final String EXITING_STR = "EXITING: {}";
+
+  private static final String ERR_FINDING_MC = "Error finding metacard {}";
+
+  private static final String ERR_FINDING_MC_UNSUPPORTED =
+      "Error finding metacard due to Unsuppported Query";
+
+  private static final String ERR_FEDERATING_QUERY = "Error federating query for metacard {}";
+
+  private static final String ERR_FINDING_MC_FEDERATION =
+      "Error finding metacard due to Federation issue";
+
+  private static final String NO_MC_FOUND = "Metacard couldn't be found {}";
+
+  private static final String QUERY_RETURNED_NULL = "Query returned null metacard";
+
   // Inject properties
   private final FrameworkProperties frameworkProperties;
 
@@ -107,9 +125,9 @@ public class ResourceOperations extends DescribableImpl {
   public ResourceResponse getEnterpriseResource(ResourceRequest request, boolean fanoutEnabled)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     String methodName = "getEnterpriseResource";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
     ResourceResponse resourceResponse = getResource(request, true, null, fanoutEnabled);
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
     return resourceResponse;
   }
 
@@ -138,32 +156,32 @@ public class ResourceOperations extends DescribableImpl {
       } else {
         String message = "Unable to find metacard " + metacardId + " on enterprise.";
         LOGGER.debug(message);
-        LOGGER.trace("EXITING: getEnterpriseResourceOptions");
+        LOGGER.trace(EXITING_STR, "getEnterpriseResourceOptions");
         throw new ResourceNotFoundException(message);
       }
 
     } catch (UnsupportedQueryException e) {
-      LOGGER.debug("Error finding metacard {}", metacardId, e);
-      LOGGER.trace("EXITING: getEnterpriseResourceOptions");
-      throw new ResourceNotFoundException("Error finding metacard due to Unsuppported Query", e);
+      LOGGER.debug(ERR_FINDING_MC, metacardId, e);
+      LOGGER.trace(EXITING_STR, "getEnterpriseResourceOptions");
+      throw new ResourceNotFoundException(ERR_FINDING_MC_UNSUPPORTED, e);
     } catch (FederationException e) {
-      LOGGER.debug("Error federating query for metacard {}", metacardId, e);
-      LOGGER.trace("EXITING: getEnterpriseResourceOptions");
-      throw new ResourceNotFoundException("Error finding metacard due to Federation issue", e);
+      LOGGER.debug(ERR_FEDERATING_QUERY, metacardId, e);
+      LOGGER.trace(EXITING_STR, "getEnterpriseResourceOptions");
+      throw new ResourceNotFoundException(ERR_FINDING_MC_FEDERATION, e);
     } catch (IllegalArgumentException e) {
-      LOGGER.debug("Metacard couldn't be found {}", metacardId, e);
-      LOGGER.trace("EXITING: getEnterpriseResourceOptions");
-      throw new ResourceNotFoundException("Query returned null metacard", e);
+      LOGGER.debug(NO_MC_FOUND, metacardId, e);
+      LOGGER.trace(EXITING_STR, "getEnterpriseResourceOptions");
+      throw new ResourceNotFoundException(QUERY_RETURNED_NULL, e);
     }
 
-    LOGGER.trace("EXITING: getEnterpriseResourceOptions");
+    LOGGER.trace(EXITING_STR, "getEnterpriseResourceOptions");
     return Collections.singletonMap(ResourceRequest.OPTION_ARGUMENT, supportedOptions);
   }
 
   public ResourceResponse getLocalResource(ResourceRequest request, boolean fanoutEnabled)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     String methodName = "getLocalResource";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
     ResourceResponse resourceResponse;
     if (fanoutEnabled) {
       LOGGER.debug("getLocalResource call received, fanning it out to all sites.");
@@ -171,13 +189,13 @@ public class ResourceOperations extends DescribableImpl {
     } else {
       resourceResponse = getResource(request, false, getId(), fanoutEnabled);
     }
-    LOGGER.debug("EXITING: {} ", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
     return resourceResponse;
   }
 
   public Map<String, Set<String>> getLocalResourceOptions(String metacardId, boolean fanoutEnabled)
       throws ResourceNotFoundException {
-    LOGGER.trace("ENTERING: getLocalResourceOptions");
+    LOGGER.trace(ENTERING_STR, "getLocalResourceOptions");
 
     Map<String, Set<String>> optionsMap;
     try {
@@ -197,24 +215,24 @@ public class ResourceOperations extends DescribableImpl {
         String message = "Could not find metacard " + metacardId + " on local source";
         ResourceNotFoundException resourceNotFoundException =
             new ResourceNotFoundException(message);
-        LOGGER.trace("EXITING: getLocalResourceOptions");
+        LOGGER.trace(EXITING_STR, "getLocalResourceOptions");
         throw resourceNotFoundException;
       }
     } catch (UnsupportedQueryException e) {
-      LOGGER.debug("Error finding metacard {}", metacardId, e);
-      LOGGER.trace("EXITING: getLocalResourceOptions");
-      throw new ResourceNotFoundException("Error finding metacard due to Unsuppported Query", e);
+      LOGGER.debug(ERR_FINDING_MC, metacardId, e);
+      LOGGER.trace(EXITING_STR, "getLocalResourceOptions");
+      throw new ResourceNotFoundException(ERR_FINDING_MC_UNSUPPORTED, e);
     } catch (FederationException e) {
-      LOGGER.debug("Error federating query for metacard {}", metacardId, e);
-      LOGGER.trace("EXITING: getLocalResourceOptions");
-      throw new ResourceNotFoundException("Error finding metacard due to Federation issue", e);
+      LOGGER.debug(ERR_FEDERATING_QUERY, metacardId, e);
+      LOGGER.trace(EXITING_STR, "getLocalResourceOptions");
+      throw new ResourceNotFoundException(ERR_FINDING_MC_FEDERATION, e);
     } catch (IllegalArgumentException e) {
-      LOGGER.debug("Metacard couldn't be found {}", metacardId, e);
-      LOGGER.trace("EXITING: getLocalResourceOptions");
-      throw new ResourceNotFoundException("Query returned null metacard", e);
+      LOGGER.debug(NO_MC_FOUND, metacardId, e);
+      LOGGER.trace(EXITING_STR, "getLocalResourceOptions");
+      throw new ResourceNotFoundException(QUERY_RETURNED_NULL, e);
     }
 
-    LOGGER.trace("EXITING: getLocalResourceOptions");
+    LOGGER.trace(EXITING_STR, "getLocalResourceOptions");
 
     return optionsMap;
   }
@@ -223,7 +241,7 @@ public class ResourceOperations extends DescribableImpl {
       ResourceRequest request, String resourceSiteName, boolean fanoutEnabled)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     String methodName = "getResource";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.debug(ENTERING_STR, methodName);
     ResourceResponse resourceResponse;
     if (fanoutEnabled) {
       LOGGER.debug("getResource call received, fanning it out to all sites.");
@@ -231,13 +249,13 @@ public class ResourceOperations extends DescribableImpl {
     } else {
       resourceResponse = getResource(request, false, resourceSiteName, false);
     }
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.debug(EXITING_STR, methodName);
     return resourceResponse;
   }
 
   public Map<String, Set<String>> getResourceOptions(
       String metacardId, String sourceId, boolean fanoutEnabled) throws ResourceNotFoundException {
-    LOGGER.trace("ENTERING: getResourceOptions");
+    LOGGER.trace(ENTERING_STR, "getResourceOptions");
     Map<String, Set<String>> optionsMap;
     try {
       LOGGER.debug("source id to get options from: {}", sourceId);
@@ -270,16 +288,16 @@ public class ResourceOperations extends DescribableImpl {
         throw new ResourceNotFoundException(message);
       }
     } catch (UnsupportedQueryException e) {
-      LOGGER.debug("Error finding metacard {}", metacardId, e);
-      throw new ResourceNotFoundException("Error finding metacard due to Unsuppported Query", e);
+      LOGGER.debug(ERR_FINDING_MC, metacardId, e);
+      throw new ResourceNotFoundException(ERR_FINDING_MC_UNSUPPORTED, e);
     } catch (FederationException e) {
-      LOGGER.debug("Error federating query for metacard {}", metacardId, e);
-      throw new ResourceNotFoundException("Error finding metacard due to Federation issue", e);
+      LOGGER.debug(ERR_FEDERATING_QUERY, metacardId, e);
+      throw new ResourceNotFoundException(ERR_FINDING_MC_FEDERATION, e);
     } catch (IllegalArgumentException e) {
-      LOGGER.debug("Metacard couldn't be found {}", metacardId, e);
-      throw new ResourceNotFoundException("Query returned null metacard", e);
+      LOGGER.debug(NO_MC_FOUND, metacardId, e);
+      throw new ResourceNotFoundException(QUERY_RETURNED_NULL, e);
     } finally {
-      LOGGER.trace("EXITING: getResourceOptions");
+      LOGGER.trace(EXITING_STR, "getResourceOptions");
     }
 
     return optionsMap;
@@ -702,7 +720,7 @@ public class ResourceOperations extends DescribableImpl {
    */
   @Deprecated
   private Set<String> getOptionsFromLocalProvider(Metacard metacard) {
-    LOGGER.trace("ENTERING: getOptionsFromLocalProvider");
+    LOGGER.trace(ENTERING_STR, "getOptionsFromLocalProvider");
     Set<String> supportedOptions = Collections.emptySet();
     URI resourceUri = metacard.getResourceURI();
     for (ResourceReader reader : frameworkProperties.getResourceReaders()) {
@@ -714,7 +732,7 @@ public class ResourceOperations extends DescribableImpl {
       }
     }
 
-    LOGGER.trace("EXITING: getOptionsFromLocalProvider");
+    LOGGER.trace(EXITING_STR, "getOptionsFromLocalProvider");
     return supportedOptions;
   }
 
@@ -732,7 +750,7 @@ public class ResourceOperations extends DescribableImpl {
   @Deprecated
   private Set<String> getOptionsFromFederatedSource(Metacard metacard, String sourceId)
       throws ResourceNotFoundException {
-    LOGGER.trace("ENTERING: getOptionsFromFederatedSource");
+    LOGGER.trace(ENTERING_STR, "getOptionsFromFederatedSource");
 
     final List<FederatedSource> sources =
         frameworkProperties.getFederatedSources().stream()
@@ -743,12 +761,12 @@ public class ResourceOperations extends DescribableImpl {
       if (sources.size() != 1) {
         LOGGER.debug("Multiple FederatedSources found for id: {}", sourceId);
       }
-      LOGGER.trace("EXITING: getOptionsFromFederatedSource");
+      LOGGER.trace(EXITING_STR, "getOptionsFromFederatedSource");
 
       return sources.get(0).getOptions(metacard);
     } else {
       String message = "Unable to find source corresponding to given site name: " + sourceId;
-      LOGGER.trace("EXITING: getOptionsFromFederatedSource");
+      LOGGER.trace(EXITING_STR, "getOptionsFromFederatedSource");
 
       throw new ResourceNotFoundException(message);
     }

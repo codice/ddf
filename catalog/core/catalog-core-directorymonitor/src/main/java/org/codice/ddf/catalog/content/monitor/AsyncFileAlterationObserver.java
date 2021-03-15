@@ -59,6 +59,7 @@ public class AsyncFileAlterationObserver {
 
   private static final int LOGGING_TIME_DELAY = 500;
   private static final int LOGGING_TIME_INTERVAL = 5000;
+  private static final String NULL_ARG_MSG = "Arguments can not be null";
 
   private final AsyncFileEntry rootFile;
   private AsyncFileAlterationListener listener = null;
@@ -73,7 +74,7 @@ public class AsyncFileAlterationObserver {
 
   public AsyncFileAlterationObserver(File fileToObserve, ObjectPersistentStore serializer) {
     if (fileToObserve == null || serializer == null) {
-      throw new IllegalArgumentException("Arguments can not be null");
+      throw new IllegalArgumentException(NULL_ARG_MSG);
     }
     this.serializer = serializer;
     rootFile = new AsyncFileEntry(fileToObserve);
@@ -81,7 +82,7 @@ public class AsyncFileAlterationObserver {
 
   private AsyncFileAlterationObserver(AsyncFileEntry entry, ObjectPersistentStore serializer) {
     if (entry == null) {
-      throw new IllegalArgumentException("Arguments can not be null");
+      throw new IllegalArgumentException(NULL_ARG_MSG);
     }
     rootFile = entry;
     rootFile.initialize();
@@ -97,7 +98,7 @@ public class AsyncFileAlterationObserver {
   public static @Nullable AsyncFileAlterationObserver load(
       File observedFile, ObjectPersistentStore store) {
     if (observedFile == null || store == null) {
-      throw new IllegalArgumentException("Arguments can not be null");
+      throw new IllegalArgumentException(NULL_ARG_MSG);
     }
     AsyncFileEntry temp = store.load(observedFile.getName(), AsyncFileEntry.class);
     if (temp == null) {

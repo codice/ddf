@@ -55,6 +55,9 @@ import org.slf4j.LoggerFactory;
 public class SourceOperations extends DescribableImpl {
   private static final Logger LOGGER = LoggerFactory.getLogger(SourceOperations.class);
 
+  private static final String GET_SOURCE_EXCEPTION_MSG =
+      "Exception during runtime while performing getSourceInfo";
+
   //
   // Injected properties
   //
@@ -268,9 +271,8 @@ public class SourceOperations extends DescribableImpl {
       response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
 
     } catch (RuntimeException re) {
-      LOGGER.debug("Exception during runtime while performing getSourceInfo", re);
-      throw new SourceUnavailableException(
-          "Exception during runtime while performing getSourceInfo");
+      LOGGER.debug(GET_SOURCE_EXCEPTION_MSG, re);
+      throw new SourceUnavailableException(GET_SOURCE_EXCEPTION_MSG);
     }
 
     return response;
@@ -397,8 +399,7 @@ public class SourceOperations extends DescribableImpl {
       response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
 
     } catch (RuntimeException re) {
-      throw new SourceUnavailableException(
-          "Exception during runtime while performing getSourceInfo", re);
+      throw new SourceUnavailableException(GET_SOURCE_EXCEPTION_MSG, re);
     }
     return response;
   }

@@ -60,6 +60,8 @@ public class OidcLogoutActionProvider implements ActionProvider {
   private static final String DESCRIPTION =
       "Logging out of the Identity Provider(IdP) will logout all external clients signed in via that Identity Provider.";
 
+  private static final String PREV_URL = "prevurl";
+
   private final OidcHandlerConfiguration handlerConfiguration;
 
   private SubjectOperations subjectOperations;
@@ -128,7 +130,7 @@ public class OidcLogoutActionProvider implements ActionProvider {
           new URIBuilder(SystemBaseUrl.EXTERNAL.constructUrl("/oidc/logout", true));
       String prevUrl = getPreviousUrl(request);
       if (prevUrl != null) {
-        urlBuilder.addParameter("prevurl", prevUrl);
+        urlBuilder.addParameter(PREV_URL, prevUrl);
       }
 
       RedirectionAction logoutAction =
@@ -172,8 +174,8 @@ public class OidcLogoutActionProvider implements ActionProvider {
             .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
 
     String previousUrl;
-    if (queryParams.containsKey("prevurl")) {
-      previousUrl = queryParams.get("prevurl");
+    if (queryParams.containsKey(PREV_URL)) {
+      previousUrl = queryParams.get(PREV_URL);
     } else if (queryParams.containsKey("service")) {
       previousUrl = queryParams.get("service");
     } else {

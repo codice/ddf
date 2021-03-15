@@ -78,6 +78,8 @@ public class Wfs20Constants extends WfsConstants {
 
   public static final QName MULTI_POLYGON = new QName(GML_3_2_NAMESPACE, "MultiPolygon");
 
+  private static final String NO_ENUM_MSG = "No enum value ";
+
   protected static final List<QName> GEOMETRY_QNAMES =
       Arrays.asList(
           POINT,
@@ -121,7 +123,7 @@ public class Wfs20Constants extends WfsConstants {
       return Arrays.stream(values())
           .filter(spatialOperators -> spatialOperators.getValue().equals(value))
           .findAny()
-          .orElseThrow(() -> new IllegalArgumentException("No enum value " + value));
+          .orElseThrow(() -> new IllegalArgumentException(NO_ENUM_MSG + value));
     }
   }
 
@@ -161,7 +163,7 @@ public class Wfs20Constants extends WfsConstants {
       return Arrays.stream(values())
           .filter(conformanceConstraints -> conformanceConstraints.getValue().equals(value))
           .findAny()
-          .orElseThrow(() -> new IllegalArgumentException("No enum value " + value));
+          .orElseThrow(() -> new IllegalArgumentException(NO_ENUM_MSG + value));
     }
   }
 
@@ -196,7 +198,7 @@ public class Wfs20Constants extends WfsConstants {
       return Arrays.stream(values())
           .filter(comparisonOperators -> comparisonOperators.getValue().equals(value))
           .findAny()
-          .orElseThrow(() -> new IllegalArgumentException("No enum value " + value));
+          .orElseThrow(() -> new IllegalArgumentException(NO_ENUM_MSG + value));
     }
   }
 
@@ -234,7 +236,7 @@ public class Wfs20Constants extends WfsConstants {
       return Arrays.stream(values())
           .filter(temporalOperators -> temporalOperators.getValue().equals(value))
           .findAny()
-          .orElseThrow(() -> new IllegalArgumentException("No enum value " + value));
+          .orElseThrow(() -> new IllegalArgumentException(NO_ENUM_MSG + value));
     }
   }
 }

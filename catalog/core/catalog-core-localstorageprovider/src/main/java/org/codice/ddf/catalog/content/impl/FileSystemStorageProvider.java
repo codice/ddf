@@ -706,7 +706,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         directory = Paths.get(path, DEFAULT_CONTENT_REPOSITORY, DEFAULT_CONTENT_STORE);
       }
     } else {
-      String path = System.getProperty("karaf.home");
+      String path = System.getProperty(KARAF_HOME);
       directory = Paths.get(path, DEFAULT_CONTENT_REPOSITORY, DEFAULT_CONTENT_STORE);
     }
 

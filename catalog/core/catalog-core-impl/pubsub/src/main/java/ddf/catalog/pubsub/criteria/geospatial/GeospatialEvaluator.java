@@ -42,6 +42,10 @@ public class GeospatialEvaluator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GeospatialEvaluator.class);
 
+  private static final String ENTERING_STR = "ENTERING: {}";
+
+  private static final String EXITING_STR = "EXITING: {}";
+
   private GeospatialEvaluator() {}
 
   // If both criteria and input are GeometryCollections, each element of input must lie entirely
@@ -88,7 +92,7 @@ public class GeospatialEvaluator {
 
   public static boolean evaluate(GeospatialEvaluationCriteria gec) {
     String methodName = "evaluate";
-    LOGGER.trace("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING_STR, methodName);
 
     String operation = gec.getOperation();
     Geometry input = gec.getInput();
@@ -155,7 +159,7 @@ public class GeospatialEvaluator {
 
     LOGGER.debug("evaluation = {}", evaluation);
 
-    LOGGER.trace("EXITING: {}", methodName);
+    LOGGER.trace(EXITING_STR, methodName);
 
     return evaluation;
   }
@@ -163,7 +167,7 @@ public class GeospatialEvaluator {
   public static Geometry buildGeometry(String gmlText)
       throws IOException, SAXException, ParserConfigurationException {
     String methodName = "buildGeometry";
-    LOGGER.trace("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING_STR, methodName);
 
     Geometry geometry = null;
 
@@ -213,7 +217,7 @@ public class GeospatialEvaluator {
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug("Translates to {}", polygon.toText()); // this logs the transformed WKT
           // with LON,LAT ordered points
-          LOGGER.trace("EXITING: {}", methodName);
+          LOGGER.trace(EXITING_STR, methodName);
         }
 
         return polygon;
@@ -228,7 +232,7 @@ public class GeospatialEvaluator {
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug("Translates to {}", point.toText()); // this logs the transformed WKT
           // with a LON,LAT ordered point
-          LOGGER.trace("EXITING: {}", methodName);
+          LOGGER.trace(EXITING_STR, methodName);
         }
 
         return point;
@@ -239,14 +243,14 @@ public class GeospatialEvaluator {
 
     LOGGER.debug("No translation done for geometry - probably not good ...");
 
-    LOGGER.trace("EXITING: {}", methodName);
+    LOGGER.trace(EXITING_STR, methodName);
 
     return geometry;
   }
 
   public static String supportSRSName(String gml) {
     String methodName = "supportSRSName";
-    LOGGER.trace("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING_STR, methodName);
 
     if (gml.contains(METADATA_DOD_MIL_CRS_WGS84E_2D)) {
       gml = gml.replaceAll(Pattern.quote(METADATA_DOD_MIL_CRS_WGS84E_2D), EPSG_4326);

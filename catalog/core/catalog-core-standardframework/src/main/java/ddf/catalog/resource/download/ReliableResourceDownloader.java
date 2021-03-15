@@ -56,6 +56,11 @@ public class ReliableResourceDownloader implements Runnable {
 
   public static final String BYTES_SKIPPED = "BytesSkipped";
 
+  private static final String ATTEMPT_STR = "Attempt %d of %d.";
+
+  private static final String CANCELLING_RESOURCE_MONITOR_MSG =
+      "Cancelling resourceRetrievalMonitor";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ReliableResourceDownloader.class);
 
   private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD =
@@ -243,8 +248,7 @@ public class ReliableResourceDownloader implements Runnable {
               resourceResponse,
               ProductRetrievalStatus.RETRYING,
               metacard,
-              String.format(
-                  "Attempt %d of %d.", retryAttempts, downloaderConfig.getMaxRetryAttempts()),
+              String.format(ATTEMPT_STR, retryAttempts, downloaderConfig.getMaxRetryAttempts()),
               (null == reliableResourceStatus) ? null : reliableResourceStatus.getBytesRead(),
               downloadIdentifier);
           delay();
@@ -298,7 +302,7 @@ public class ReliableResourceDownloader implements Runnable {
 
         if (DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE.equals(
             reliableResourceStatus.getDownloadStatus())) {
-          LOGGER.debug("Cancelling resourceRetrievalMonitor");
+          LOGGER.debug(CANCELLING_RESOURCE_MONITOR_MSG);
           resourceRetrievalMonitor.cancel();
           if (downloadState.getDownloadState() != DownloadState.CANCELED) {
             LOGGER.debug("Sending Product Retrieval Complete event");
@@ -361,8 +365,7 @@ public class ReliableResourceDownloader implements Runnable {
                 resourceResponse,
                 ProductRetrievalStatus.RETRYING,
                 metacard,
-                String.format(
-                    "Attempt %d of %d.", retryAttempts, downloaderConfig.getMaxRetryAttempts()),
+                String.format(ATTEMPT_STR, retryAttempts, downloaderConfig.getMaxRetryAttempts()),
                 reliableResourceStatus.getBytesRead(),
                 downloadIdentifier);
             IOUtils.closeQuietly(resourceInputStream);
@@ -381,8 +384,7 @@ public class ReliableResourceDownloader implements Runnable {
                 resourceResponse,
                 ProductRetrievalStatus.RETRYING,
                 metacard,
-                String.format(
-                    "Attempt %d of %d.", retryAttempts, downloaderConfig.getMaxRetryAttempts()),
+                String.format(ATTEMPT_STR, retryAttempts, downloaderConfig.getMaxRetryAttempts()),
                 reliableResourceStatus.getBytesRead(),
                 downloadIdentifier);
             if (doCaching) {
@@ -416,7 +418,7 @@ public class ReliableResourceDownloader implements Runnable {
                 downloadIdentifier);
             IOUtils.closeQuietly(fbos);
             IOUtils.closeQuietly(countingFbos);
-            LOGGER.debug("Cancelling resourceRetrievalMonitor");
+            LOGGER.debug(CANCELLING_RESOURCE_MONITOR_MSG);
             resourceRetrievalMonitor.cancel();
             reliableResourceCallable =
                 constructReliableResourceCallable(
@@ -428,7 +430,7 @@ public class ReliableResourceDownloader implements Runnable {
 
             LOGGER.info("Handling client cancellation of product download");
             downloadState.setDownloadState(DownloadState.CANCELED);
-            LOGGER.debug("Cancelling resourceRetrievalMonitor");
+            LOGGER.debug(CANCELLING_RESOURCE_MONITOR_MSG);
             resourceRetrievalMonitor.cancel();
             eventListener.removeDownloadIdentifier(downloadIdentifier);
             eventPublisher.postRetrievalStatus(
@@ -467,8 +469,7 @@ public class ReliableResourceDownloader implements Runnable {
                 resourceResponse,
                 ProductRetrievalStatus.RETRYING,
                 metacard,
-                String.format(
-                    "Attempt %d of %d.", retryAttempts, downloaderConfig.getMaxRetryAttempts()),
+                String.format(ATTEMPT_STR, retryAttempts, downloaderConfig.getMaxRetryAttempts()),
                 reliableResourceStatus.getBytesRead(),
                 downloadIdentifier);
             delay();

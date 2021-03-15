@@ -54,6 +54,9 @@ public class Crypter {
   private static final String DEFAULT_KEYSET_FILE_NAME = "default";
   private static final String STREAMING_KEYSET_FILE_SPECIFIER = "-streaming";
   private static final String KEYSET_FILE_EXTENSION = ".json";
+  private static final String NULL_DATA_MSG = "Associated data cannot be null.";
+  private static final String ENCRYPTION_PROBLEM_MSG = "Problem encrypting.";
+  private static final String DECRYPTION_PROBLEM_MSG = "Problem decrypting.";
   private static final int ASSOCIATED_DATA_BYTE_SIZE = 10;
   @VisibleForTesting static final int CHUNK_SIZE = 256;
 
@@ -136,13 +139,13 @@ public class Crypter {
       throw new CrypterException("Bytes to encrypt cannot be null or empty.");
     }
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
 
     try {
       return aead.encrypt(plainBytes, associatedData);
     } catch (GeneralSecurityException e) {
-      throw new CrypterException("Problem encrypting.", e);
+      throw new CrypterException(ENCRYPTION_PROBLEM_MSG, e);
     }
   }
 
@@ -156,13 +159,13 @@ public class Crypter {
       throw new CrypterException("Bytes to decrypt cannot be null or empty.");
     }
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
 
     try {
       return aead.decrypt(encryptedBytes, associatedData);
     } catch (GeneralSecurityException | NullPointerException e) {
-      throw new CrypterException("Problem decrypting.", e);
+      throw new CrypterException(DECRYPTION_PROBLEM_MSG, e);
     }
   }
 
@@ -176,14 +179,14 @@ public class Crypter {
       throw new CrypterException("Value to encrypt cannot be null or blank.");
     }
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
 
     try {
       byte[] encryptedBytes = aead.encrypt(plainTextValue.getBytes(), associatedData);
       return Base64.getEncoder().encodeToString(encryptedBytes);
     } catch (GeneralSecurityException e) {
-      throw new CrypterException("Problem encrypting.", e);
+      throw new CrypterException(ENCRYPTION_PROBLEM_MSG, e);
     }
   }
 
@@ -197,14 +200,14 @@ public class Crypter {
       throw new CrypterException("Value to decrypt cannot be null or blank.");
     }
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
 
     try {
       byte[] encryptedBytes = Base64.getDecoder().decode(encryptedValue);
       return new String(aead.decrypt(encryptedBytes, associatedData));
     } catch (GeneralSecurityException | NullPointerException e) {
-      throw new CrypterException("Problem decrypting.", e);
+      throw new CrypterException(DECRYPTION_PROBLEM_MSG, e);
     }
   }
 
@@ -215,7 +218,7 @@ public class Crypter {
    */
   public InputStream encrypt(InputStream plainInputStream) throws CrypterException {
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
     try {
       if (plainInputStream == null || plainInputStream.available() < 1) {
@@ -252,7 +255,7 @@ public class Crypter {
       return Files.newInputStream(
           Paths.get(tmpFile.getAbsolutePath()), StandardOpenOption.DELETE_ON_CLOSE);
     } catch (GeneralSecurityException | IOException e) {
-      throw new CrypterException("Problem encrypting.", e);
+      throw new CrypterException(ENCRYPTION_PROBLEM_MSG, e);
     } finally {
       tmpFile.deleteOnExit();
     }
@@ -265,7 +268,7 @@ public class Crypter {
    */
   public InputStream decrypt(InputStream encryptedInputStream) throws CrypterException {
     if (associatedData == null) {
-      throw new CrypterException("Associated data cannot be null.");
+      throw new CrypterException(NULL_DATA_MSG);
     }
     try {
       if (encryptedInputStream == null || encryptedInputStream.available() < 1) {
@@ -278,7 +281,7 @@ public class Crypter {
     try {
       return streamingAead.newDecryptingStream(encryptedInputStream, associatedData);
     } catch (GeneralSecurityException | IOException e) {
-      throw new CrypterException("Problem decrypting.", e);
+      throw new CrypterException(DECRYPTION_PROBLEM_MSG, e);
     }
   }
 

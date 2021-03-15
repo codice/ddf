@@ -48,6 +48,14 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
+  private static final String CALLING_RESOLVER_MSG = "Calling MimeTypeResolver {}";
+
+  private static final String MIME_TYPE_FILE_EXT_MSG = "mimeType = {},   file extension = [{}]";
+
+  private static final String EXITING_STR = "EXITING: {}";
+
+  private static final String ENTERING_STR = "ENTERING: {}";
+
   /**
    * The {@link List} of {@link MimeTypeResolver}s configured for this mapper and will be searched
    * on mime type/file extension mapping requests.
@@ -68,7 +76,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
   @Override
   public String getFileExtensionForMimeType(String mimeType) throws MimeTypeResolutionException {
-    LOGGER.trace("ENTERING: getFileExtensionForMimeType()");
+    LOGGER.trace(ENTERING_STR, "getFileExtensionForMimeType()");
 
     String extension = null;
 
@@ -86,7 +94,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
     // resolvers that may override mime types supported by Tika to be invoked first.
     // Once a file extension is find for the given mime type, exit the loop.
     for (MimeTypeResolver resolver : sortedResolvers) {
-      LOGGER.debug("Calling MimeTypeResolver {}", resolver.getName());
+      LOGGER.debug(CALLING_RESOLVER_MSG, resolver.getName());
       try {
         extension = resolver.getFileExtensionForMimeType(mimeType);
       } catch (Exception e) {
@@ -101,9 +109,9 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
       }
     }
 
-    LOGGER.debug("mimeType = {},   file extension = [{}]", mimeType, extension);
+    LOGGER.debug(MIME_TYPE_FILE_EXT_MSG, mimeType, extension);
 
-    LOGGER.trace("EXITING: getFileExtensionForMimeType()");
+    LOGGER.trace(EXITING_STR, "getFileExtensionForMimeType()");
 
     return extension;
   }
@@ -111,7 +119,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
   @Override
   public String getMimeTypeForFileExtension(String fileExtension)
       throws MimeTypeResolutionException {
-    LOGGER.trace("ENTERING: getMimeTypeForFileExtension()");
+    LOGGER.trace(ENTERING_STR, "getMimeTypeForFileExtension()");
 
     String mimeType = null;
 
@@ -129,7 +137,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
     // resolvers that may override mime types supported by Tika to be invoked first.
     // Once a file extension is find for the given mime type, exit the loop.
     for (MimeTypeResolver resolver : sortedResolvers) {
-      LOGGER.debug("Calling MimeTypeResolver {}", resolver.getName());
+      LOGGER.debug(CALLING_RESOLVER_MSG, resolver.getName());
       try {
         mimeType = resolver.getMimeTypeForFileExtension(fileExtension);
       } catch (Exception e) {
@@ -144,9 +152,9 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
       }
     }
 
-    LOGGER.debug("mimeType = {},   file extension = [{}]", mimeType, fileExtension);
+    LOGGER.debug(MIME_TYPE_FILE_EXT_MSG, mimeType, fileExtension);
 
-    LOGGER.trace("EXITING: getMimeTypeForFileExtension()");
+    LOGGER.trace(EXITING_STR, "getMimeTypeForFileExtension()");
 
     return mimeType;
   }
@@ -154,7 +162,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
   @Override
   public String guessMimeType(InputStream is, String fileExtension)
       throws MimeTypeResolutionException {
-    LOGGER.trace("ENTERING: guessMimeType()");
+    LOGGER.trace(ENTERING_STR, "guessMimeType()");
 
     String mimeType = null;
 
@@ -201,7 +209,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
     // resolvers that may override mime types supported by Tika to be invoked first.
     // Once a file extension is find for the given mime type, exit the loop.
     for (MimeTypeResolver resolver : sortedResolvers) {
-      LOGGER.debug("Calling MimeTypeResolver {}", resolver.getName());
+      LOGGER.debug(CALLING_RESOLVER_MSG, resolver.getName());
       try {
         // If processing an XML file, then match the namespace extracted from the
         // XML file to the MimeTypeResolver that supports that schema (namespace).
@@ -230,9 +238,9 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
       }
     }
 
-    LOGGER.debug("mimeType = {},   file extension = [{}]", mimeType, fileExtension);
+    LOGGER.debug(MIME_TYPE_FILE_EXT_MSG, mimeType, fileExtension);
 
-    LOGGER.trace("EXITING: guessMimeType()");
+    LOGGER.trace(EXITING_STR, "guessMimeType()");
 
     return mimeType;
   }
@@ -245,7 +253,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
    * @return the sorted list of {@link MimeTypeResolver}s by descending priority
    */
   private List<MimeTypeResolver> sortResolvers(List<MimeTypeResolver> resolvers) {
-    LOGGER.debug("ENTERING: sortResolvers()");
+    LOGGER.debug(ENTERING_STR, "sortResolvers()");
 
     List<MimeTypeResolver> sortedResolvers = null;
 
@@ -291,7 +299,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
       }
     }
 
-    LOGGER.debug("EXITING: sortResolvers()");
+    LOGGER.debug(EXITING_STR, "sortResolvers()");
 
     return sortedResolvers;
   }

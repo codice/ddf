@@ -112,6 +112,8 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
 
   private static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
 
+  private static final String UNABLE_TO_CREATE_RWC = "Unable to create restWebClient";
+
   private static final String ORGANIZATION = "DDF";
 
   private static final String TITLE = "OpenSearch DDF Federated Source";
@@ -454,7 +456,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
 
       final WebClient restWebClient = factory.getWebClientForSubject(subject);
       if (restWebClient == null) {
-        throw new UnsupportedQueryException("Unable to create restWebClient");
+        throw new UnsupportedQueryException(UNABLE_TO_CREATE_RWC);
       }
       response =
           doOpenSearchQuery(
@@ -464,10 +466,10 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
       try {
         restWebClient = newRestClient(query, idSearch, false, subject);
       } catch (URISyntaxException e) {
-        throw new UnsupportedQueryException("Unable to create restWebClient", e);
+        throw new UnsupportedQueryException(UNABLE_TO_CREATE_RWC, e);
       }
       if (restWebClient == null) {
-        throw new UnsupportedQueryException("Unable to create restWebClient");
+        throw new UnsupportedQueryException(UNABLE_TO_CREATE_RWC);
       }
 
       response = doQueryById(queryRequest, restWebClient);
@@ -944,7 +946,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
       try {
         restClient = newRestClient(null, metacardId, true, null);
       } catch (URISyntaxException e) {
-        throw new IOException("Unable to create restWebClient", e);
+        throw new IOException(UNABLE_TO_CREATE_RWC, e);
       }
       if (StringUtils.isNotBlank(username)) {
         requestProperties.put(USERNAME_PROPERTY, username);

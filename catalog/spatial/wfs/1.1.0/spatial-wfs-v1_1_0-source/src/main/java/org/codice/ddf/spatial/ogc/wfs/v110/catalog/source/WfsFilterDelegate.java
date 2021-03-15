@@ -92,6 +92,11 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private static final String UNABLE_TO_PARSE_WKT_STRING = "Unable to parse WKT String";
 
+  private static final String UNABLE_TO_MAP_MSG =
+      "{} could not be mapped to a feature property. Its query clause will be dropped.";
+
+  private static final String MAPPED_TO_MSG = "{} maps to the feature property {}.";
+
   private static final ThreadLocal<WKTReader> WKT_READER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTReader::new);
 
@@ -477,13 +482,11 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     final String featurePropertyName =
         mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
     if (featurePropertyName == null) {
-      LOGGER.debug(
-          "{} could not be mapped to a feature property. Its query clause will be dropped.",
-          propertyName);
+      LOGGER.debug(UNABLE_TO_MAP_MSG, propertyName);
       return null;
     }
 
-    LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+    LOGGER.debug(MAPPED_TO_MSG, propertyName, featurePropertyName);
     final FilterType filter = new FilterType();
     filter.setComparisonOps(
         createPropertyIsBetween(featurePropertyName, lowerBoundary, upperBoundary));
@@ -548,13 +551,11 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     final String featurePropertyName =
         mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
     if (featurePropertyName == null) {
-      LOGGER.debug(
-          "{} could not be mapped to a feature property. Its query clause will be dropped.",
-          propertyName);
+      LOGGER.debug(UNABLE_TO_MAP_MSG, propertyName);
       return null;
     }
 
-    LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+    LOGGER.debug(MAPPED_TO_MSG, propertyName, featurePropertyName);
     final FilterType filter = new FilterType();
     filter.setComparisonOps(
         createPropertyIsFilter(featurePropertyName, literal, propertyIsType, isCaseSensitive));
@@ -987,13 +988,11 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     final String featurePropertyName =
         mapQueryPropertyToFeatureProperty(propertyName, this::isWfsGeospatialFeatureProperty);
     if (featurePropertyName == null) {
-      LOGGER.debug(
-          "{} could not be mapped to a feature property. Its query clause will be dropped.",
-          propertyName);
+      LOGGER.debug(UNABLE_TO_MAP_MSG, propertyName);
       return null;
     }
 
-    LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+    LOGGER.debug(MAPPED_TO_MSG, propertyName, featurePropertyName);
     final FilterType filter = new FilterType();
     filter.setSpatialOps(createSpatialOpType(spatialOpType, featurePropertyName, wkt, distance));
     return filter;

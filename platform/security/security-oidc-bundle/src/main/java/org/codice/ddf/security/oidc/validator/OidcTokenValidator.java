@@ -56,6 +56,10 @@ public class OidcTokenValidator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OidcTokenValidator.class);
 
+  private static final String ID_VALIDATION_ERR_MSG = "Error validating id token.";
+
+  private static final String ACCESS_VALIDATION_ERR_MSG = "Error validating access token.";
+
   private OidcTokenValidator() {}
 
   /**
@@ -97,8 +101,8 @@ public class OidcTokenValidator {
       TokenValidator tokenValidator = new TokenValidator(configuration);
       return tokenValidator.validate(idToken, nonce);
     } catch (Exception e) {
-      LOGGER.error("Error validating id token.", e);
-      throw new OidcValidationException("Error validating id token.", e);
+      LOGGER.error(ID_VALIDATION_ERR_MSG, e);
+      throw new OidcValidationException(ID_VALIDATION_ERR_MSG, e);
     }
   }
 
@@ -192,8 +196,8 @@ public class OidcTokenValidator {
       throw new OidcValidationException(
           "Error Validating userinfo ID token. No matching verifier(s) found");
     } catch (Exception e) {
-      LOGGER.error("Error validating id token.", e);
-      throw new OidcValidationException("Error validating id token.", e);
+      LOGGER.error(ID_VALIDATION_ERR_MSG, e);
+      throw new OidcValidationException(ID_VALIDATION_ERR_MSG, e);
     }
   }
 
@@ -281,8 +285,8 @@ public class OidcTokenValidator {
       jwtProcessor.process(accessToken.getValue(), null);
 
     } catch (Exception e) {
-      LOGGER.error("Error validating access token.", e);
-      throw new OidcValidationException("Error validating access token.", e);
+      LOGGER.error(ACCESS_VALIDATION_ERR_MSG, e);
+      throw new OidcValidationException(ACCESS_VALIDATION_ERR_MSG, e);
     }
   }
 
@@ -316,8 +320,8 @@ public class OidcTokenValidator {
       AccessTokenHash accessTokenHash = new AccessTokenHash((String) atHash);
       AccessTokenValidator.validate(accessToken, jwsAlgorithm, accessTokenHash);
     } catch (Exception e) {
-      LOGGER.error("Error validating access token.", e);
-      throw new OidcValidationException("Error validating access token.", e);
+      LOGGER.error(ACCESS_VALIDATION_ERR_MSG, e);
+      throw new OidcValidationException(ACCESS_VALIDATION_ERR_MSG, e);
     }
   }
 }

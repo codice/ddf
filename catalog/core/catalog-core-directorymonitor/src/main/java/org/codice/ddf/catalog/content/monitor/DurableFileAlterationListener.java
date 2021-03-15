@@ -200,7 +200,7 @@ public class DurableFileAlterationListener
 
   @Override
   public void onFileDelete(File file) {
-    onFileChange(file, new LoggingSynchronization(file, "DELETE"));
+    onFileChange(file, new LoggingSynchronization(file, CATALOG_DELETE));
   }
 
   @Override

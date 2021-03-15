@@ -27,10 +27,12 @@ public class AttributeValidatorRegistryImpl implements AttributeValidatorRegistr
   private final Map<String, Set<AttributeValidator>> attributeValidatorMap =
       new ConcurrentHashMap<>();
 
+  private static final String NULL_ATTR_NAME_MSG = "The attribute name cannot be null.";
+
   @Override
   public void registerValidators(
       final String attributeName, final Set<? extends AttributeValidator> validators) {
-    Preconditions.checkArgument(attributeName != null, "The attribute name cannot be null.");
+    Preconditions.checkArgument(attributeName != null, NULL_ATTR_NAME_MSG);
     Preconditions.checkArgument(
         CollectionUtils.isNotEmpty(validators), "Must register at least one validator.");
 
@@ -48,14 +50,14 @@ public class AttributeValidatorRegistryImpl implements AttributeValidatorRegistr
 
   @Override
   public void deregisterValidators(final String attributeName) {
-    Preconditions.checkArgument(attributeName != null, "The attribute name cannot be null.");
+    Preconditions.checkArgument(attributeName != null, NULL_ATTR_NAME_MSG);
 
     attributeValidatorMap.remove(attributeName);
   }
 
   @Override
   public Set<AttributeValidator> getValidators(final String attributeName) {
-    Preconditions.checkArgument(attributeName != null, "The attribute name cannot be null.");
+    Preconditions.checkArgument(attributeName != null, NULL_ATTR_NAME_MSG);
 
     return Collections.unmodifiableSet(
         attributeValidatorMap.getOrDefault(attributeName, Collections.emptySet()));
