@@ -12,7 +12,7 @@ RUN unzip /zips/ddf-${project.version}.zip -d /prep
 RUN mv /prep/ddf-${project.version} /prep/ddf
 
 # Final Image Stage
-FROM master:docker-ddf-base
+FROM codice/ddf-base:${docker.ddf.base.version}
 LABEL maintainer=codice
 
 ENV APP_HOME=/app
