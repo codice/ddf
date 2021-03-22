@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.spatial.kml.util;
 
-import de.micromata.opengis.kml.v_2_2_0.Kml;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Optional;
@@ -25,6 +24,8 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import net.opengis.kml.v_2_2_0.KmlType;
+import net.opengis.kml.v_2_2_0.ObjectFactory;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ public class KmlMarshaller {
 
   private Unmarshaller unmarshaller;
   private JAXBContext jaxbContext;
+  private static final ObjectFactory KML220_OBJECT_FACTORY = new ObjectFactory();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KmlMarshaller.class);
 
@@ -40,7 +42,9 @@ public class KmlMarshaller {
 
   public KmlMarshaller() {
     try {
-      this.jaxbContext = JAXBContext.newInstance(Kml.class);
+      this.jaxbContext =
+          JAXBContext.newInstance(
+              net.opengis.kml.v_2_2_0.ObjectFactory.class.getPackage().getName());
       this.unmarshaller = jaxbContext.createUnmarshaller();
     } catch (JAXBException e) {
       LOGGER.debug("Unable to create JAXB Context.  Setting to null.");
@@ -48,7 +52,7 @@ public class KmlMarshaller {
     }
   }
 
-  public Optional<Kml> unmarshal(InputStream inputStream) {
+  public Optional<KmlType> unmarshal(InputStream inputStream) {
     if (unmarshaller == null) {
       return Optional.empty();
     }
@@ -57,8 +61,8 @@ public class KmlMarshaller {
 
     try {
       XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(inputStream);
-      JAXBElement<Kml> unmarshal = unmarshaller.unmarshal(xmlStreamReader, Kml.class);
-      Kml kml = unmarshal.getValue();
+      JAXBElement<KmlType> unmarshal = unmarshaller.unmarshal(xmlStreamReader, KmlType.class);
+      KmlType kml = unmarshal.getValue();
       return Optional.of(kml);
     } catch (JAXBException | XMLStreamException e) {
       LOGGER.debug("Exception while unmarshalling default style resource.", e);
@@ -66,7 +70,7 @@ public class KmlMarshaller {
     }
   }
 
-  public String marshal(Kml kml) {
+  public String marshal(JAXBElement<KmlType> kml) {
     String kmlResultString;
     StringWriter writer = new StringWriter();
 

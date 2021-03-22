@@ -20,13 +20,14 @@ import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import de.micromata.opengis.kml.v_2_2_0.Feature;
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.NoSuchElementException;
+import net.opengis.kml.v_2_2_0.AbstractFeatureType;
+import net.opengis.kml.v_2_2_0.KmlType;
+import net.opengis.kml.v_2_2_0.ObjectFactory;
+import net.opengis.kml.v_2_2_0.PlacemarkType;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -38,6 +39,8 @@ import org.xml.sax.SAXException;
 public class KmlMarshallerTest {
 
   private KmlMarshaller kmlMarshaller;
+
+  private static final ObjectFactory KML220_OBJECT_FACTORY = new ObjectFactory();
 
   @Before
   public void setup() {
@@ -53,13 +56,13 @@ public class KmlMarshallerTest {
 
   @Test
   public void marshall() throws SAXException, IOException, XpathException {
-
-    Placemark placemark = new Placemark();
+    PlacemarkType placemark = KML220_OBJECT_FACTORY.createPlacemarkType();
     placemark.setName("a");
 
-    Kml kml = new Kml();
-    kml.setFeature(placemark);
-    final String kmlString = kmlMarshaller.marshal(kml);
+    KmlType kmlType = KML220_OBJECT_FACTORY.createKmlType();
+    kmlType.setAbstractFeatureGroup(KML220_OBJECT_FACTORY.createPlacemark(placemark));
+
+    final String kmlString = kmlMarshaller.marshal(KML220_OBJECT_FACTORY.createKml(kmlType));
 
     assertXpathExists("/m:kml", kmlString);
     assertXpathEvaluatesTo("a", "//m:Placemark/m:name", kmlString);
@@ -73,26 +76,21 @@ public class KmlMarshallerTest {
   @Test
   public void unmarshall() {
     final InputStream resourceAsStream = this.getClass().getResourceAsStream("/kmlPoint.kml");
-    final Kml kml = kmlMarshaller.unmarshal(resourceAsStream).get();
-    final Feature feature = kml.getFeature();
+    final KmlType kml = kmlMarshaller.unmarshal(resourceAsStream).get();
+
+    final AbstractFeatureType feature = kml.getAbstractFeatureGroup().getValue();
 
     assertThat(feature.getName(), is("Simple placemark"));
   }
 
   @Test(expected = NoSuchElementException.class)
   public void unmarshallNullStream() {
-    final Kml kml = kmlMarshaller.unmarshal(null).get();
-    final Feature feature = kml.getFeature();
-
-    assertThat(feature.getName(), is("Simple placemark"));
+    final KmlType kml = kmlMarshaller.unmarshal(null).get();
   }
 
   @Test(expected = NoSuchElementException.class)
   public void unmarshallEmptyStream() {
     final ByteArrayInputStream inputStream = new ByteArrayInputStream("".getBytes(UTF_8));
-    final Kml kml = kmlMarshaller.unmarshal(inputStream).get();
-    final Feature feature = kml.getFeature();
-
-    assertThat(feature.getName(), is("Simple placemark"));
+    final KmlType kml = kmlMarshaller.unmarshal(inputStream).get();
   }
 }
