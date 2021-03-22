@@ -68,6 +68,11 @@ public class JsonStrategyTest {
     runTestWithValues("aa", "bb");
   }
 
+  @Test
+  public void testReadWriteBooleans() throws Exception {
+    runTestWithValues(true, false);
+  }
+
   private void runTestWithValues(Object val1, Object val2) throws Exception {
     data.put("key1", val1);
     data.put("key2", val2);

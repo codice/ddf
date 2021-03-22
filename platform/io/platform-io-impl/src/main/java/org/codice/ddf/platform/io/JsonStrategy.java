@@ -22,6 +22,12 @@ import java.util.Dictionary;
 import org.apache.felix.cm.file.ConfigurationHandler;
 import org.codice.ddf.platform.io.internal.PersistenceStrategy;
 
+/**
+ * Class that persists configuration properties using .json file format.
+ *
+ * <p>Karaf 4.3.0 added support for JSON configuration files, so this class registers .json as a
+ * valid strategy
+ */
 public class JsonStrategy implements PersistenceStrategy {
 
   @Override
