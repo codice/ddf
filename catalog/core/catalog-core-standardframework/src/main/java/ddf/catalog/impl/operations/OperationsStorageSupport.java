@@ -44,13 +44,11 @@ public class OperationsStorageSupport {
   private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
   //
-  // Injected propertiers
+  // Injected properties
   //
   private final SourceOperations sourceOperations;
 
   private final QueryOperations queryOperations;
-
-  private Historian historian;
 
   public OperationsStorageSupport(
       SourceOperations sourceOperations, QueryOperations queryOperations) {
@@ -59,7 +57,7 @@ public class OperationsStorageSupport {
   }
 
   public void setHistorian(Historian historian) {
-    this.historian = historian;
+    // historian is not currently being used in this class
   }
 
   <T extends StorageRequest> T prepareStorageRequest(

@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.admin.insecure.defaults.service.Alert.Level;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class CryptoPropertiesFileValidator extends PropertiesFileValidator {
 
@@ -51,8 +49,6 @@ public abstract class CryptoPropertiesFileValidator extends PropertiesFileValida
 
   static final String NO_DEFAULT_ALIAS_PROVIDED_TO_VALIDATOR_MSG =
       "Unable to determine if [%s] is using a default keystore alias. No default keystore alias provided to the validator.";
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(CryptoPropertiesFileValidator.class);
 
   protected String defaultPrivateKeyPassword;
 

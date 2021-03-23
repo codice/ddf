@@ -34,8 +34,6 @@ import org.slf4j.LoggerFactory;
 public class GuestInterceptorWrapper extends AbstractWSS4JInterceptor {
   private static final Logger LOGGER = LoggerFactory.getLogger(GuestInterceptorWrapper.class);
 
-  private PhaseInterceptor guestIntercep;
-
   public GuestInterceptorWrapper() {
     super();
     setPhase(Phase.PRE_PROTOCOL);

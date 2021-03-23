@@ -45,8 +45,6 @@ public class PointOfContactPolicyPlugin implements PolicyPlugin {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PointOfContactPolicyPlugin.class);
 
-  private Permissions permissions;
-
   public PointOfContactPolicyPlugin(Permissions permissions) {
     permissionMap = permissions.parsePermissionsFromString(PERMISSION_STRING);
   }

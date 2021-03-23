@@ -62,8 +62,6 @@ import org.slf4j.LoggerFactory;
 /** Provides common security related utility functions. */
 public class Security implements org.codice.ddf.security.Security {
 
-  private static final Security INSTANCE = new Security();
-
   private static final Logger LOGGER = LoggerFactory.getLogger(Security.class);
 
   private static final String INSUFFICIENT_PERMISSIONS_ERROR =

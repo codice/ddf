@@ -89,8 +89,6 @@ public class ClaimsHandlerManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ClaimsHandlerManager.class);
 
-  private static final String PROTOCOL = "TLS";
-
   private EncryptionService encryptService;
 
   private ServiceRegistration<ClaimsHandler> roleHandlerRegistration = null;

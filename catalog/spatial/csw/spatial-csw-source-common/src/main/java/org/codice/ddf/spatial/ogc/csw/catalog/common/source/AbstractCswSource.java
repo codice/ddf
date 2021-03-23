@@ -254,7 +254,6 @@ public abstract class AbstractCswSource extends MaskableImpl
   private ScheduledExecutorService scheduler;
   private AvailabilityTask availabilityTask;
   private boolean isConstraintCql;
-  private Permissions permissions;
 
   /**
    * Instantiates a CswSource. This constructor is for unit tests
@@ -277,7 +276,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     this.cswSourceConfiguration = cswSourceConfiguration;
     this.security = security;
     this.clientBuilderFactory = clientBuilderFactory;
-    this.permissions = permissions;
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
@@ -297,7 +295,6 @@ public abstract class AbstractCswSource extends MaskableImpl
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
     this.clientBuilderFactory = clientBuilderFactory;
     this.security = security;
-    this.permissions = permissions;
   }
 
   private static JAXBContext initJaxbContext() {

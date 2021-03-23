@@ -109,8 +109,6 @@ public class Historian {
 
   private List<MetacardType> metacardTypes;
 
-  private FilterBuilder filterBuilder;
-
   private Security security;
 
   private UuidGenerator uuidGenerator;
@@ -444,7 +442,7 @@ public class Historian {
   }
 
   public void setFilterBuilder(FilterBuilder filterBuilder) {
-    this.filterBuilder = filterBuilder;
+    // filterBuilder is not currently used
   }
 
   public void setUuidGenerator(UuidGenerator uuidGenerator) {

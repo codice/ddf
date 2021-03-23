@@ -20,15 +20,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.lucene.analysis.CharTokenizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** This is a workaround for https://issues.apache.org/jira/browse/LUCENE-588 */
 public class ContextualTokenizer extends CharTokenizer {
 
   public static final Set<Character> SPECIAL_CHARACTERS_SET;
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ContextualTokenizer.class);
 
   static {
     final List<Character> specialChars =

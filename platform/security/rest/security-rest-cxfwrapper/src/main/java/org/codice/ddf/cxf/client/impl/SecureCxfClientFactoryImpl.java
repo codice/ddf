@@ -134,8 +134,6 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
 
   private Integer sameUriRedirectMax = SAME_URI_REDIRECT_MAX;
 
-  private boolean basicAuth = false;
-
   private Integer connectionTimeout;
 
   private Integer receiveTimeout;
@@ -319,7 +317,6 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
       jaxrsClientFactoryBean.setPassword(password);
       jaxrsClientFactoryBean.setUsername(username);
-      this.basicAuth = true;
     }
 
     this.clientFactory = jaxrsClientFactoryBean;
