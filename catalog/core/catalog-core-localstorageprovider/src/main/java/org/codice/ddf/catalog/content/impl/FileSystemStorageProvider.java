@@ -514,26 +514,22 @@ public class FileSystemStorageProvider implements StorageProvider {
   }
 
   private ByteSource decryptStream(InputStream contentInputStream) throws StorageException {
-    InputStream decryptedInputStream = null;
-    FileBackedOutputStream decryptedOutputStream = null;
 
-    try {
+    ByteSource output = null;
+    try (InputStream decryptedInputStream = crypter.decrypt(contentInputStream);
+        FileBackedOutputStream decryptedOutputStream = new FileBackedOutputStream(128)) {
       // do not use try with resources in order to have these InputStreams in the finally block
-      decryptedInputStream = crypter.decrypt(contentInputStream);
-      decryptedOutputStream = new FileBackedOutputStream(128);
+
       IOUtils.copy(decryptedInputStream, decryptedOutputStream);
+      output = decryptedOutputStream.asByteSource();
     } catch (CrypterException | IOException e) {
       LOGGER.debug(
           "Error decrypting InputStream {}. Failing StorageProvider read.", contentInputStream, e);
       throw new StorageException(
           String.format("Cannot decrypt InputStream %s.", contentInputStream), e);
-    } finally {
-      // need to close both streams in order for IOUtils to copy properly
-      IOUtils.closeQuietly(decryptedInputStream);
-      IOUtils.closeQuietly(decryptedOutputStream);
     }
 
-    return decryptedOutputStream.asByteSource();
+    return output;
   }
 
   private List<Path> listPaths(Path dir) throws IOException {

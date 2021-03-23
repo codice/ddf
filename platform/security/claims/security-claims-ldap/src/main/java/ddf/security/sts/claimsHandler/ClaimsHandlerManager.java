@@ -34,7 +34,6 @@ import java.util.Map;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.forgerock.opendj.ldap.ConnectionFactory;
@@ -88,8 +87,6 @@ public class ClaimsHandlerManager {
   public static final String PROPERTY_FILE_LOCATION = "propertyFileLocation";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ClaimsHandlerManager.class);
-
-  private static final String PROTOCOL = "TLS";
 
   private EncryptionService encryptService;
 
@@ -497,14 +494,11 @@ public class ClaimsHandlerManager {
       // keystore stuff
       KeyStore keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
       LOGGER.debug("keyStoreLoc = {}", keyStoreLoc);
-      FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
-      try {
+      try (FileInputStream keyFIS = new FileInputStream(keyStoreLoc)) {
         LOGGER.debug("Loading keyStore");
         keyStore.load(keyFIS, keyStorePass.toCharArray());
       } catch (CertificateException e) {
         throw new IOException("Unable to load certificates from keystore. " + keyStoreLoc, e);
-      } finally {
-        IOUtils.closeQuietly(keyFIS);
       }
       kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
       kmf.init(keyStore, keyStorePass.toCharArray());
@@ -530,14 +524,11 @@ public class ClaimsHandlerManager {
       // truststore stuff
       KeyStore trustStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
       LOGGER.debug("trustStoreLoc = {}", trustStoreLoc);
-      FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
-      try {
+      try (FileInputStream trustFIS = new FileInputStream(trustStoreLoc)) {
         LOGGER.debug("Loading trustStore");
         trustStore.load(trustFIS, trustStorePass.toCharArray());
       } catch (CertificateException e) {
         throw new IOException("Unable to load certificates from truststore. " + trustStoreLoc, e);
-      } finally {
-        IOUtils.closeQuietly(trustFIS);
       }
 
       tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());

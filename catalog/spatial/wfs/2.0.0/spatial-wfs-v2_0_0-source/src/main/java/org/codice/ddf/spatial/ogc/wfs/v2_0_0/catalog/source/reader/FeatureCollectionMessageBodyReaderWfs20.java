@@ -119,7 +119,10 @@ public class FeatureCollectionMessageBodyReaderWfs20
     return Wfs20FeatureCollection.class.isAssignableFrom(clazz);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({
+    "unchecked",
+    "squid:S2093"
+  } /*instream declaration is a re-creation and as such cannot be put in a try-catch*/)
   @Override
   public Wfs20FeatureCollection readFrom(
       Class<Wfs20FeatureCollection> clazz,

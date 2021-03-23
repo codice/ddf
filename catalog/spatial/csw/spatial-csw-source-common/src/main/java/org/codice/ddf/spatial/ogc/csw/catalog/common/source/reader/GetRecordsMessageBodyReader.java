@@ -139,32 +139,33 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     // exception message creation)
     inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
 
-    try {
-      HierarchicalStreamReader reader =
-          new XppReader(
-              new InputStreamReader(inStream, StandardCharsets.UTF_8),
-              XmlPullParserFactory.newInstance().newPullParser());
-      cswRecords = (CswRecordCollection) xstream.unmarshal(reader, null, argumentHolder);
-    } catch (XmlPullParserException e) {
-      LOGGER.debug("Unable to create XmlPullParser, and cannot parse CSW Response.", e);
-    } catch (XStreamException e) {
-      // If an ExceptionReport is sent from the remote CSW site it will be sent with an
-      // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.
-      // Instead the ExceptionReport will come here and be treated like a GetRecords
-      // response, resulting in an XStreamException since ExceptionReport cannot be
-      // unmarshalled. So this catch clause is responsible for catching that XStream
-      // exception and creating a JAX-RS response containing the original stream
-      // (with the ExceptionReport) and rethrowing it as a WebApplicatioNException,
-      // which CXF will wrap as a ClientException that the CswSource catches, converts
-      // to a CswException, and logs.
-      ByteArrayInputStream bis =
-          new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8));
-      ResponseBuilder responseBuilder = Response.ok(bis);
-      responseBuilder.type("text/xml");
-      Response response = responseBuilder.build();
-      throw new WebApplicationException(e, response);
-    } finally {
-      IOUtils.closeQuietly(inStream);
+    try (ByteArrayInputStream bis =
+            new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8));
+        InputStreamReader inputReader = new InputStreamReader(inStream, StandardCharsets.UTF_8)) {
+      try {
+        HierarchicalStreamReader reader =
+            new XppReader(inputReader, XmlPullParserFactory.newInstance().newPullParser());
+        cswRecords = (CswRecordCollection) xstream.unmarshal(reader, null, argumentHolder);
+      } catch (XmlPullParserException e) {
+        LOGGER.debug("Unable to create XmlPullParser, and cannot parse CSW Response.", e);
+      } catch (XStreamException e) {
+        // If an ExceptionReport is sent from the remote CSW site it will be sent with an
+        // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.
+        // Instead the ExceptionReport will come here and be treated like a GetRecords
+        // response, resulting in an XStreamException since ExceptionReport cannot be
+        // unmarshalled. So this catch clause is responsible for catching that XStream
+        // exception and creating a JAX-RS response containing the original stream
+        // (with the ExceptionReport) and rethrowing it as a WebApplicatioNException,
+        // which CXF will wrap as a ClientException that the CswSource catches, converts
+        // to a CswException, and logs.
+
+        ResponseBuilder responseBuilder = Response.ok(bis);
+        responseBuilder.type("text/xml");
+        Response response = responseBuilder.build();
+        throw new WebApplicationException(e, response);
+      } finally {
+        IOUtils.closeQuietly(inStream);
+      }
     }
     return cswRecords;
   }
