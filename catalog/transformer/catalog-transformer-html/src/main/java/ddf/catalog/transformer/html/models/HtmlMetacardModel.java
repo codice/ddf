@@ -20,22 +20,17 @@ import java.util.stream.Collectors;
 
 public class HtmlMetacardModel {
 
-  private String title;
-
   private Metacard metacard;
 
   private List<HtmlExportCategory> categories;
 
   public HtmlMetacardModel(Metacard metacard) {
     this.metacard = metacard;
-    this.title = metacard.getTitle();
     this.categories = new ArrayList<>();
   }
 
   public HtmlMetacardModel(Metacard metacard, List<HtmlExportCategory> categories) {
     this.metacard = metacard;
-    this.title = metacard.getTitle();
-
     this.categories =
         categories.stream()
             .map(category -> new HtmlCategoryModel(category.getTitle(), category.getAttributes()))

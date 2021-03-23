@@ -31,10 +31,6 @@ public class ConfigurationStore {
 
   private Double nearestNeighborDistanceLimit;
 
-  private List<String> anyTextFieldWhitelist = new ArrayList<>();
-
-  private List<String> anyTextFieldBlacklist = new ArrayList<>();
-
   private List<ConfigurationListener> listeners = new ArrayList<>();
 
   private ConfigurationStore() { // everything is already initialized

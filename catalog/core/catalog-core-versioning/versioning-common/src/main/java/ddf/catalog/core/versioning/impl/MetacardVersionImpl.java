@@ -94,8 +94,6 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
     METACARD_VERSION = new MetacardTypeImpl(PREFIX, VERSION_DESCRIPTORS);
   }
 
-  private SubjectOperations subjectOperations;
-
   /**
    * Will convert the given {@link Metacard} to a {@link MetacardVersionImpl} by cloning it and
    * adding the current subject, time, and a random UUID. Cannot take a {@link MetacardVersionImpl}

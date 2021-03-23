@@ -124,8 +124,6 @@ public class DynamicSchemaResolver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
-  private static int metadataMaximumBytes;
-
   private static final ObjectMapper METACARD_TYPE_MAPPER =
       MetacardTypeMapperFactory.newObjectMapper();
 
@@ -165,7 +163,6 @@ public class DynamicSchemaResolver {
 
   public DynamicSchemaResolver(List<String> additionalFields) {
     schemaFields = new SchemaFields();
-    metadataMaximumBytes = getMetadataSizeLimit();
     anyTextFields = getAnyTextFields();
     caseInsensitiveSort = "true".equals(System.getProperty("solr.query.sort.caseInsensitive"));
     try {

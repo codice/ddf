@@ -16,12 +16,8 @@ package ddf.camel.component.catalog.content;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
 import org.apache.camel.spi.ComponentResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ContentComponentResolver implements ComponentResolver {
-  private static final transient Logger LOGGER =
-      LoggerFactory.getLogger(ContentComponentResolver.class);
 
   private Component component;
 

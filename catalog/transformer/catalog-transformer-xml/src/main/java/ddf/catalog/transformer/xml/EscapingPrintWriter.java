@@ -31,18 +31,6 @@ public class EscapingPrintWriter extends PrettyPrintWriter implements PrintWrite
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EscapingPrintWriter.class);
 
-  private static final char[] AMP = "&amp;".toCharArray();
-
-  private static final char[] LT = "&lt;".toCharArray();
-
-  private static final char[] GT = "&gt;".toCharArray();
-
-  private static final char[] CR = "&#xd;".toCharArray();
-
-  private static final char[] APOS = "&apos;".toCharArray();
-
-  private static final char[] QUOT = "&quot;".toCharArray();
-
   private boolean isRawText = false;
 
   private static final BitSet WELL_KNOWN_CHARACTERS;

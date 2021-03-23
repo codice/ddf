@@ -90,8 +90,6 @@ public class DeleteOperations {
 
   private final OperationsMetacardSupport opsMetacardSupport;
 
-  private OperationsCatalogStoreSupport opsCatStoreSupport;
-
   private Historian historian;
 
   private RemoteDeleteOperations remoteDeleteOperations;
@@ -605,7 +603,7 @@ public class DeleteOperations {
   }
 
   public void setOpsCatStoreSupport(OperationsCatalogStoreSupport opsCatStoreSupport) {
-    this.opsCatStoreSupport = opsCatStoreSupport;
+    // OperationsCatalogStoreSupport is not currently being used
   }
 
   public void setRemoteDeleteOperations(RemoteDeleteOperations remoteDeleteOperations) {

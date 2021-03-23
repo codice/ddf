@@ -87,8 +87,6 @@ public class WhoAmI {
   public static class WhoAmISubject {
     private final String name;
 
-    private final String principalName;
-
     private final String displayName;
 
     private final String email;
@@ -101,8 +99,6 @@ public class WhoAmI {
 
     private final String issuer;
 
-    private final String tokenType;
-
     private final boolean isGuest;
 
     private final List<String> authnContextClasses;
@@ -112,13 +108,11 @@ public class WhoAmI {
     public WhoAmISubject(
         SecurityAssertion assertion, Subject subject, SubjectOperations subjectOperations) {
       name = subjectOperations.getName(subject);
-      principalName = assertion.getPrincipal().getName();
       displayName = subjectOperations.getName(subject, null, true);
       email = subjectOperations.getEmailAddress(subject);
       claims = Collections.unmodifiableMap(getAttributes(assertion));
 
       issuer = assertion.getIssuer();
-      tokenType = assertion.getTokenType();
       isGuest = assertion.getPrincipal() instanceof GuestPrincipal;
 
       notOnOrAfter = assertion.getNotOnOrAfter();

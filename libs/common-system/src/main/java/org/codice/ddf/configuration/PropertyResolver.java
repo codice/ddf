@@ -20,15 +20,12 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class holds a string potentially containing variables of the format ${system.prop} and handles
  * resolving those variables by trying to replace them with system properties
  */
 public class PropertyResolver {
-  private static final Logger LOGGER = LoggerFactory.getLogger(PropertyResolver.class);
 
   private String propertyString;
 

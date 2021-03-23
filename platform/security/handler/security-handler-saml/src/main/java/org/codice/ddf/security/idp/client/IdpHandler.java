@@ -189,8 +189,6 @@ public class IdpHandler implements AuthenticationHandler {
 
   private boolean userAgentCheck = true;
 
-  private SessionFactory sessionFactory;
-
   private List<String> authContextClasses;
 
   private SamlSecurity samlSecurity;
@@ -715,9 +713,7 @@ public class IdpHandler implements AuthenticationHandler {
     return result;
   }
 
-  public void setSessionFactory(SessionFactory sessionFactory) {
-    this.sessionFactory = sessionFactory;
-  }
+  public void setSessionFactory(SessionFactory sessionFactory) {}
 
   public void setUserAgentCheck(boolean userAgentCheck) {
     this.userAgentCheck = userAgentCheck;
