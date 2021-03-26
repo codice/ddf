@@ -70,6 +70,7 @@ module.exports = Marionette.LayoutView.extend({
       workspace => {
         if (this.currentWorkspaceId !== workspace.get('id')) {
           this.currentWorkspaceId = workspace.get('id')
+          this.model.set('title', '')
           this.cancel()
         }
       }
