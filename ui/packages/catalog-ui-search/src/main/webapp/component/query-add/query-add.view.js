@@ -65,6 +65,9 @@ module.exports = Marionette.LayoutView.extend({
       .get('currentWorkspace')
       .get('id')
     this.listenTo(store.get('content'), 'change:currentWorkspace', content => {
+      if (!content.get('currentWorkspace')) {
+        return
+      }
       const workspaceId = content.get('currentWorkspace').get('id')
       if (this.currentWorkspaceId !== workspaceId) {
         this.currentWorkspaceId = workspaceId
