@@ -93,7 +93,10 @@
             <artifactId>owasp-java-html-sanitizer</artifactId>
             <version>${owasp-html-sanitizer.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+        </dependency>
         <!-- Unit Tests -->
         <dependency>
             <groupId>ddf.catalog.core</groupId>

@@ -66,6 +66,10 @@
             <type>zip</type>
             <classifier>bin</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

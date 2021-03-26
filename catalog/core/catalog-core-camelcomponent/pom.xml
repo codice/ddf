@@ -115,6 +115,10 @@
             <version>${tika.thirdparty.bundle.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -45,8 +45,7 @@
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>${osgi.version}</version>
+            <artifactId>osgi.core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.karaf.bundle</groupId>
@@ -61,7 +60,7 @@
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-junit4</artifactId>
-            <version>${pax.exam.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
