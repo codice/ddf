@@ -13,17 +13,17 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.Kml;
+import net.opengis.kml.v_2_2_0.KmlType;
 import org.locationtech.jts.geom.Geometry;
 
 public class KmlToJtsConverter {
   private KmlToJtsConverter() {}
 
-  public static Geometry from(Kml kml) {
+  public static Geometry from(KmlType kml) {
     if (kml == null) {
       return null;
     }
 
-    return KmlFeatureToJtsGeometryConverter.from(kml.getFeature());
+    return KmlFeatureToJtsGeometryConverter.from(kml.getAbstractFeatureGroup().getValue());
   }
 }

@@ -13,45 +13,45 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.Geometry;
-import de.micromata.opengis.kml.v_2_2_0.LineString;
-import de.micromata.opengis.kml.v_2_2_0.LinearRing;
-import de.micromata.opengis.kml.v_2_2_0.Model;
-import de.micromata.opengis.kml.v_2_2_0.MultiGeometry;
-import de.micromata.opengis.kml.v_2_2_0.Point;
-import de.micromata.opengis.kml.v_2_2_0.Polygon;
+import net.opengis.kml.v_2_2_0.AbstractGeometryType;
+import net.opengis.kml.v_2_2_0.LineStringType;
+import net.opengis.kml.v_2_2_0.LinearRingType;
+import net.opengis.kml.v_2_2_0.ModelType;
+import net.opengis.kml.v_2_2_0.MultiGeometryType;
+import net.opengis.kml.v_2_2_0.PointType;
+import net.opengis.kml.v_2_2_0.PolygonType;
 
 public class KmlToJtsGeometryConverter {
 
   private KmlToJtsGeometryConverter() {}
 
-  public static org.locationtech.jts.geom.Geometry from(Geometry kmlGeometry) {
+  public static org.locationtech.jts.geom.Geometry from(AbstractGeometryType kmlGeometry) {
     if (kmlGeometry == null) {
       return null;
     }
 
-    if (kmlGeometry instanceof Point) {
-      return KmlToJtsPointConverter.from((Point) kmlGeometry);
+    if (kmlGeometry instanceof PointType) {
+      return KmlToJtsPointConverter.from((PointType) kmlGeometry);
     }
 
-    if (kmlGeometry instanceof LineString) {
-      return KmlToJtsLineStringConverter.from((LineString) kmlGeometry);
+    if (kmlGeometry instanceof LineStringType) {
+      return KmlToJtsLineStringConverter.from((LineStringType) kmlGeometry);
     }
 
-    if (kmlGeometry instanceof LinearRing) {
-      return KmlToJtsLinearRingConverter.from((LinearRing) kmlGeometry);
+    if (kmlGeometry instanceof LinearRingType) {
+      return KmlToJtsLinearRingConverter.from((LinearRingType) kmlGeometry);
     }
 
-    if (kmlGeometry instanceof Polygon) {
-      return KmlToJtsPolygonConverter.from((Polygon) kmlGeometry);
+    if (kmlGeometry instanceof PolygonType) {
+      return KmlToJtsPolygonConverter.from((PolygonType) kmlGeometry);
     }
 
-    if (kmlGeometry instanceof MultiGeometry) {
-      return KmlToJtsMultiGeometryConverter.from((MultiGeometry) kmlGeometry);
+    if (kmlGeometry instanceof MultiGeometryType) {
+      return KmlToJtsMultiGeometryConverter.from((MultiGeometryType) kmlGeometry);
     }
 
-    if (kmlGeometry instanceof Model) {
-      return KmlModelToJtsPointConverter.from((Model) kmlGeometry);
+    if (kmlGeometry instanceof ModelType) {
+      return KmlModelToJtsPointConverter.from((ModelType) kmlGeometry);
     }
 
     // Shouldn't get here

@@ -13,7 +13,7 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.LinearRing;
+import net.opengis.kml.v_2_2_0.LinearRingType;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -22,7 +22,7 @@ import org.springframework.util.CollectionUtils;
 public class KmlToJtsLinearRingConverter {
   private KmlToJtsLinearRingConverter() {}
 
-  public static org.locationtech.jts.geom.LinearRing from(LinearRing kmlLinearRing) {
+  public static org.locationtech.jts.geom.LinearRing from(LinearRingType kmlLinearRing) {
     if (!isValidKmlLinearRing(kmlLinearRing)) {
       return null;
     }
@@ -34,7 +34,7 @@ public class KmlToJtsLinearRingConverter {
     return geometryFactory.createLinearRing(jtsCoordinates);
   }
 
-  public static boolean isValidKmlLinearRing(LinearRing kmlLinearRing) {
+  public static boolean isValidKmlLinearRing(LinearRingType kmlLinearRing) {
     return kmlLinearRing != null && !CollectionUtils.isEmpty(kmlLinearRing.getCoordinates());
   }
 }

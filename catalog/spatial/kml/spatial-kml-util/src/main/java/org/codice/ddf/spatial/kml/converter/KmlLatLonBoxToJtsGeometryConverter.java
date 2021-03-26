@@ -15,7 +15,7 @@ package org.codice.ddf.spatial.kml.converter;
 
 import static java.lang.Math.abs;
 
-import de.micromata.opengis.kml.v_2_2_0.LatLonBox;
+import net.opengis.kml.v_2_2_0.LatLonBoxType;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -27,7 +27,7 @@ public class KmlLatLonBoxToJtsGeometryConverter {
 
   private KmlLatLonBoxToJtsGeometryConverter() {}
 
-  public static Geometry from(LatLonBox kmlLatLonBox) {
+  public static Geometry from(LatLonBoxType kmlLatLonBox) {
     if (!isValidKmlLatLonBox(kmlLatLonBox)) {
       return null;
     }
@@ -37,7 +37,8 @@ public class KmlLatLonBoxToJtsGeometryConverter {
     return geometryFactory.createPolygon(createLinearRing(geometryFactory, kmlLatLonBox), null);
   }
 
-  private static LinearRing createLinearRing(GeometryFactory geometryFactory, LatLonBox latLonBox) {
+  private static LinearRing createLinearRing(
+      GeometryFactory geometryFactory, LatLonBoxType latLonBox) {
     double minX = latLonBox.getWest();
     double maxX = latLonBox.getEast();
     if (minX > maxX) {
@@ -63,7 +64,7 @@ public class KmlLatLonBoxToJtsGeometryConverter {
         });
   }
 
-  public static boolean isValidKmlLatLonBox(LatLonBox latLonBox) {
+  public static boolean isValidKmlLatLonBox(LatLonBoxType latLonBox) {
     if (latLonBox == null) {
       return false;
     }

@@ -13,47 +13,36 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-import java.io.InputStream;
-import org.junit.Test;
-import org.locationtech.jts.geom.Geometry;
-
 public class KmlToJtsConverterTest {
 
-  @Test
-  public void testConvertGiantKml() {
-    InputStream stream = KmlToJtsConverterTest.class.getResourceAsStream("/sampleKml.kml");
-
-    Kml kml = Kml.unmarshal(stream);
-
-    assertThat(kml, notNullValue());
-
-    Geometry jtsGeometry = KmlToJtsConverter.from(kml);
-    assertThat(jtsGeometry, notNullValue());
-    assertThat(jtsGeometry.toString(), not(containsString("EMPTY")));
-  }
-
-  @Test
-  public void testConvertKml() {
-    InputStream stream = KmlToJtsConverterTest.class.getResourceAsStream("/kmlPoint.kml");
-
-    Kml kml = Kml.unmarshal(stream);
-
-    assertThat(kml, notNullValue());
-
-    Geometry jtsGeometry = KmlToJtsConverter.from(kml);
-    KmlFeatureToJtsGeometryConverterTest.assertFeature(kml.getFeature(), jtsGeometry);
-  }
-
-  @Test
-  public void testConvertNullKmlReturnsNullGeometry() {
-    Geometry jtsGeometry = KmlToJtsConverter.from(null);
-    assertThat(jtsGeometry, nullValue());
-  }
+  //  @Test
+  //  public void testConvertGiantKml() {
+  //    InputStream stream = KmlToJtsConverterTest.class.getResourceAsStream("/sampleKml.kml");
+  //
+  //    Kml kml = Kml.unmarshal(stream);
+  //
+  //    assertThat(kml, notNullValue());
+  //
+  //    Geometry jtsGeometry = KmlToJtsConverter.from(kml);
+  //    assertThat(jtsGeometry, notNullValue());
+  //    assertThat(jtsGeometry.toString(), not(containsString("EMPTY")));
+  //  }
+  //
+  //  @Test
+  //  public void testConvertKml() {
+  //    InputStream stream = KmlToJtsConverterTest.class.getResourceAsStream("/kmlPoint.kml");
+  //
+  //    Kml kml = Kml.unmarshal(stream);
+  //
+  //    assertThat(kml, notNullValue());
+  //
+  //    Geometry jtsGeometry = KmlToJtsConverter.from(kml);
+  //    KmlFeatureToJtsGeometryConverterTest.assertFeature(kml.getFeature(), jtsGeometry);
+  //  }
+  //
+  //  @Test
+  //  public void testConvertNullKmlReturnsNullGeometry() {
+  //    Geometry jtsGeometry = KmlToJtsConverter.from(null);
+  //    assertThat(jtsGeometry, nullValue());
+  //  }
 }

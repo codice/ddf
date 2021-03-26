@@ -18,13 +18,13 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.DateTime;
-import de.micromata.opengis.kml.v_2_2_0.Feature;
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-import de.micromata.opengis.kml.v_2_2_0.TimePrimitive;
-import de.micromata.opengis.kml.v_2_2_0.TimeSpan;
-import de.micromata.opengis.kml.v_2_2_0.TimeStamp;
 import java.text.ParseException;
 import java.util.Date;
+import net.opengis.kml.v_2_2_0.AbstractFeatureType;
+import net.opengis.kml.v_2_2_0.AbstractTimePrimitiveType;
+import net.opengis.kml.v_2_2_0.KmlType;
+import net.opengis.kml.v_2_2_0.TimeSpanType;
+import net.opengis.kml.v_2_2_0.TimeStampType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.locationtech.jts.geom.Geometry;
@@ -62,7 +62,7 @@ public class KmlToMetacard {
 
   private KmlToMetacard() {}
 
-  public static Metacard from(Metacard metacard, Kml kml) {
+  public static Metacard from(Metacard metacard, KmlType kml) {
     if (kml == null) {
       LOGGER.debug("Null kml received. Nothing to convert.");
       return null;
@@ -76,7 +76,7 @@ public class KmlToMetacard {
     return metacard;
   }
 
-  private static void setLocation(Metacard metacard, Kml kml) {
+  private static void setLocation(Metacard metacard, KmlType kml) {
     String location = getBboxFromKml(kml);
 
     if (StringUtils.isNotBlank(location)) {
@@ -84,19 +84,19 @@ public class KmlToMetacard {
     }
   }
 
-  private static void setDates(Metacard metacard, Kml kml) {
-    setDatesFromFeature(metacard, kml.getFeature());
+  private static void setDates(Metacard metacard, KmlType kml) {
+    setDatesFromFeature(metacard, kml.getAbstractFeatureGroup().getValue());
   }
 
-  private static void setDescription(Metacard metacard, Kml kml) {
-    setDescriptionFromFeature(metacard, kml.getFeature());
+  private static void setDescription(Metacard metacard, KmlType kml) {
+    setDescriptionFromFeature(metacard, kml.getAbstractFeatureGroup().getValue());
   }
 
-  private static void setContactInfo(Metacard metacard, Kml kml) {
-    setContactInfoFromFeature(metacard, kml.getFeature());
+  private static void setContactInfo(Metacard metacard, KmlType kml) {
+    setContactInfoFromFeature(metacard, kml.getAbstractFeatureGroup().getValue());
   }
 
-  private static void setContactInfoFromFeature(Metacard metacard, Feature feature) {
+  private static void setContactInfoFromFeature(Metacard metacard, AbstractFeatureType feature) {
     if (feature == null) {
       return;
     }
@@ -112,7 +112,7 @@ public class KmlToMetacard {
     }
   }
 
-  private static void setDescriptionFromFeature(Metacard metacard, Feature feature) {
+  private static void setDescriptionFromFeature(Metacard metacard, AbstractFeatureType feature) {
     if (feature == null) {
       return;
     }
@@ -123,29 +123,30 @@ public class KmlToMetacard {
     }
   }
 
-  private static void setDatesFromFeature(Metacard metacard, Feature feature) {
+  private static void setDatesFromFeature(Metacard metacard, AbstractFeatureType feature) {
     if (feature == null) {
       return;
     }
 
-    setDatesFromTimePrimitive(metacard, feature.getTimePrimitive());
+    setDatesFromTimePrimitive(metacard, feature.getAbstractTimePrimitiveGroup().getValue());
   }
 
-  private static void setDatesFromTimePrimitive(Metacard metacard, TimePrimitive timePrimitive) {
+  private static void setDatesFromTimePrimitive(
+      Metacard metacard, AbstractTimePrimitiveType timePrimitive) {
     if (timePrimitive == null) {
       return;
     }
 
-    if (timePrimitive instanceof TimeSpan) {
-      setDatesFromTimeSpan(metacard, (TimeSpan) timePrimitive);
+    if (timePrimitive instanceof TimeSpanType) {
+      setDatesFromTimeSpan(metacard, (TimeSpanType) timePrimitive);
     }
 
-    if (timePrimitive instanceof TimeStamp) {
-      setDatesFromTimeStamp(metacard, (TimeStamp) timePrimitive);
+    if (timePrimitive instanceof TimeStampType) {
+      setDatesFromTimeStamp(metacard, (TimeStampType) timePrimitive);
     }
   }
 
-  private static void setDatesFromTimeSpan(Metacard metacard, TimeSpan timeSpan) {
+  private static void setDatesFromTimeSpan(Metacard metacard, TimeSpanType timeSpan) {
     if (timeSpan == null) {
       return;
     }
@@ -162,7 +163,7 @@ public class KmlToMetacard {
     }
   }
 
-  private static void setDatesFromTimeStamp(Metacard metacard, TimeStamp timeStamp) {
+  private static void setDatesFromTimeStamp(Metacard metacard, TimeStampType timeStamp) {
     if (timeStamp == null) {
       return;
     }
@@ -173,7 +174,7 @@ public class KmlToMetacard {
     }
   }
 
-  private static String getBboxFromKml(Kml kml) {
+  private static String getBboxFromKml(KmlType kml) {
     Geometry geometry = KmlToJtsConverter.from(kml);
     String bBox = "";
     if (geometry != null) {

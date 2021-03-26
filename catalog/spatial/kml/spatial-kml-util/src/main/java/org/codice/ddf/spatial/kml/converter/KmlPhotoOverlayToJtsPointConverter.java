@@ -13,13 +13,13 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.PhotoOverlay;
+import net.opengis.kml.v_2_2_0.PhotoOverlayType;
 import org.locationtech.jts.geom.Point;
 
 public class KmlPhotoOverlayToJtsPointConverter {
   private KmlPhotoOverlayToJtsPointConverter() {}
 
-  public static Point from(PhotoOverlay kmlPhotoOverlay) {
+  public static Point from(PhotoOverlayType kmlPhotoOverlay) {
     if (!isValidKmlPhotoOverlay(kmlPhotoOverlay)) {
       return null;
     }
@@ -27,7 +27,7 @@ public class KmlPhotoOverlayToJtsPointConverter {
     return KmlToJtsPointConverter.from(kmlPhotoOverlay.getPoint());
   }
 
-  public static boolean isValidKmlPhotoOverlay(PhotoOverlay kmlPhotoOverlay) {
+  public static boolean isValidKmlPhotoOverlay(PhotoOverlayType kmlPhotoOverlay) {
     if (kmlPhotoOverlay == null) {
       return false;
     }

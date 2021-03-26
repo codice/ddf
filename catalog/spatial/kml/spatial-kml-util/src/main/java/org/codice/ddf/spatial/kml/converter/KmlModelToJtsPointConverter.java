@@ -13,8 +13,8 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.Location;
-import de.micromata.opengis.kml.v_2_2_0.Model;
+import net.opengis.kml.v_2_2_0.LocationType;
+import net.opengis.kml.v_2_2_0.ModelType;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -23,12 +23,12 @@ import org.locationtech.jts.geom.Point;
 public class KmlModelToJtsPointConverter {
   private KmlModelToJtsPointConverter() {}
 
-  public static Point from(Model kmlModel) {
+  public static Point from(ModelType kmlModel) {
     if (kmlModel == null || kmlModel.getLocation() == null) {
       return null;
     }
 
-    Location kmlLocation = kmlModel.getLocation();
+    LocationType kmlLocation = kmlModel.getLocation();
 
     Coordinate jtsCoordinate =
         new Coordinate(

@@ -19,25 +19,27 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import de.micromata.opengis.kml.v_2_2_0.Document;
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import java.io.InputStream;
+import net.opengis.kml.v_2_2_0.DocumentType;
+import net.opengis.kml.v_2_2_0.KmlType;
+import net.opengis.kml.v_2_2_0.PlacemarkType;
+import org.codice.ddf.spatial.kml.util.KmlMarshaller;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 
 public class KmlDocumentToJtsGeometryConverterTest {
-  private static Document testKmlDocument;
+  private static DocumentType testKmlDocument;
 
   @BeforeClass
   public static void setupClass() {
     InputStream stream =
         KmlDocumentToJtsGeometryConverterTest.class.getResourceAsStream("/kmlDocument.kml");
 
-    Kml kml = Kml.unmarshal(stream);
+    KmlMarshaller kmlMarshaller = new KmlMarshaller();
+    KmlType kmlType = kmlMarshaller.unmarshal(stream).get();
 
-    testKmlDocument = ((Document) kml.getFeature());
+    testKmlDocument = ((DocumentType) kmlType.getAbstractFeatureGroup().getValue());
   }
 
   @Test
@@ -55,12 +57,14 @@ public class KmlDocumentToJtsGeometryConverterTest {
     assertThat(jtsGeometry, nullValue());
   }
 
-  static void assertKmlDocument(Document kmlDocument, Geometry jtsGeometry) {
-    assertThat(kmlDocument.getFeature().size(), is(equalTo(jtsGeometry.getNumGeometries())));
+  static void assertKmlDocument(DocumentType kmlDocument, Geometry jtsGeometry) {
+    assertThat(
+        kmlDocument.getAbstractFeatureGroup().size(), is(equalTo(jtsGeometry.getNumGeometries())));
 
-    for (int i = 0; i < kmlDocument.getFeature().size(); i++) {
+    for (int i = 0; i < kmlDocument.getAbstractFeatureGroup().size(); i++) {
       KmlPlacemarkToJtsGeometryConverterTest.assertPlacemark(
-          (Placemark) kmlDocument.getFeature().get(i), jtsGeometry.getGeometryN(i));
+          (PlacemarkType) kmlDocument.getAbstractFeatureGroup().get(i).getValue(),
+          jtsGeometry.getGeometryN(i));
     }
   }
 }

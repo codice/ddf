@@ -13,7 +13,7 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.LineString;
+import net.opengis.kml.v_2_2_0.LineStringType;
 import org.apache.commons.collections.CollectionUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Coordinate;
@@ -24,7 +24,7 @@ public class KmlToJtsLineStringConverter {
 
   private KmlToJtsLineStringConverter() {}
 
-  public static org.locationtech.jts.geom.LineString from(LineString kmlLineString) {
+  public static org.locationtech.jts.geom.LineString from(LineStringType kmlLineString) {
     if (!isValidKmlLineString(kmlLineString)) {
       return null;
     }
@@ -33,7 +33,7 @@ public class KmlToJtsLineStringConverter {
     return GEOMETRY_FACTORY.createLineString(jtsCoordinates);
   }
 
-  public static boolean isValidKmlLineString(LineString kmlLineString) {
+  public static boolean isValidKmlLineString(LineStringType kmlLineString) {
     return kmlLineString != null && !CollectionUtils.isEmpty(kmlLineString.getCoordinates());
   }
 }

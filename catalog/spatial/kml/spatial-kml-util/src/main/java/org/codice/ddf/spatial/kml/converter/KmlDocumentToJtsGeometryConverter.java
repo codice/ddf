@@ -13,10 +13,11 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.Document;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.xml.bind.JAXBElement;
+import net.opengis.kml.v_2_2_0.DocumentType;
 import org.apache.commons.collections.CollectionUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Geometry;
@@ -25,13 +26,14 @@ import org.locationtech.jts.geom.GeometryFactory;
 public class KmlDocumentToJtsGeometryConverter {
   private KmlDocumentToJtsGeometryConverter() {}
 
-  public static Geometry from(Document kmlDocument) {
+  public static Geometry from(DocumentType kmlDocument) {
     if (kmlDocument == null) {
       return null;
     }
 
     List<Geometry> jtsGeometries =
-        kmlDocument.getFeature().stream()
+        kmlDocument.getAbstractFeatureGroup().stream()
+            .map(JAXBElement::getValue)
             .map(KmlFeatureToJtsGeometryConverter::from)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());

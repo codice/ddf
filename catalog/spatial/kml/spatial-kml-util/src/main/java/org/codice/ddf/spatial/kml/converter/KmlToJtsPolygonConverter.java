@@ -13,12 +13,12 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.Boundary;
-import de.micromata.opengis.kml.v_2_2_0.Polygon;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import net.opengis.kml.v_2_2_0.BoundaryType;
+import net.opengis.kml.v_2_2_0.PolygonType;
 import org.apache.commons.collections.CollectionUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -27,7 +27,7 @@ import org.locationtech.jts.geom.LinearRing;
 public class KmlToJtsPolygonConverter {
   private KmlToJtsPolygonConverter() {}
 
-  public static org.locationtech.jts.geom.Polygon from(Polygon kmlPolygon) {
+  public static org.locationtech.jts.geom.Polygon from(PolygonType kmlPolygon) {
     if (!isValidPolygon(kmlPolygon)) {
       return null;
     }
@@ -41,7 +41,7 @@ public class KmlToJtsPolygonConverter {
     return geometryFactory.createPolygon(jtsShell, jtsHoles.toArray(new LinearRing[0]));
   }
 
-  private static LinearRing getJtsShell(Boundary kmlOuterBoundary) {
+  private static LinearRing getJtsShell(BoundaryType kmlOuterBoundary) {
     if (kmlOuterBoundary == null) {
       return null;
     }
@@ -49,23 +49,23 @@ public class KmlToJtsPolygonConverter {
     return KmlToJtsLinearRingConverter.from(kmlOuterBoundary.getLinearRing());
   }
 
-  private static List<LinearRing> getJtsHoles(List<Boundary> kmlInnerBoundaries) {
+  private static List<LinearRing> getJtsHoles(List<BoundaryType> kmlInnerBoundaries) {
     if (CollectionUtils.isEmpty(kmlInnerBoundaries)) {
       return new ArrayList<>();
     }
 
     return kmlInnerBoundaries.stream()
-        .map(Boundary::getLinearRing)
+        .map(BoundaryType::getLinearRing)
         .filter(Objects::nonNull)
         .map(KmlToJtsLinearRingConverter::from)
         .collect(Collectors.toList());
   }
 
-  public static boolean isValidPolygon(Polygon kmlPolygon) {
+  public static boolean isValidPolygon(PolygonType kmlPolygon) {
     return kmlPolygon != null && isValidKmlBoundary(kmlPolygon.getOuterBoundaryIs());
   }
 
-  private static boolean isValidKmlBoundary(Boundary kmlBoundary) {
+  private static boolean isValidKmlBoundary(BoundaryType kmlBoundary) {
     if (kmlBoundary == null) {
       return false;
     }

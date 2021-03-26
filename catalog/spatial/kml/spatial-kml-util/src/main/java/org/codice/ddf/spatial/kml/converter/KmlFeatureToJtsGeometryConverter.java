@@ -13,40 +13,40 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.Document;
-import de.micromata.opengis.kml.v_2_2_0.Feature;
-import de.micromata.opengis.kml.v_2_2_0.Folder;
-import de.micromata.opengis.kml.v_2_2_0.GroundOverlay;
-import de.micromata.opengis.kml.v_2_2_0.PhotoOverlay;
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import net.opengis.kml.v_2_2_0.AbstractFeatureType;
+import net.opengis.kml.v_2_2_0.DocumentType;
+import net.opengis.kml.v_2_2_0.FolderType;
+import net.opengis.kml.v_2_2_0.GroundOverlayType;
+import net.opengis.kml.v_2_2_0.PhotoOverlayType;
+import net.opengis.kml.v_2_2_0.PlacemarkType;
 import org.locationtech.jts.geom.Geometry;
 
 public class KmlFeatureToJtsGeometryConverter {
   private KmlFeatureToJtsGeometryConverter() {}
 
-  public static Geometry from(Feature kmlFeature) {
+  public static Geometry from(AbstractFeatureType kmlFeature) {
     if (kmlFeature == null) {
       return null;
     }
 
-    if (kmlFeature instanceof Document) {
-      return KmlDocumentToJtsGeometryConverter.from((Document) kmlFeature);
+    if (kmlFeature instanceof DocumentType) {
+      return KmlDocumentToJtsGeometryConverter.from((DocumentType) kmlFeature);
     }
 
-    if (kmlFeature instanceof Folder) {
-      return KmlFolderToJtsGeometryConverter.from((Folder) kmlFeature);
+    if (kmlFeature instanceof FolderType) {
+      return KmlFolderToJtsGeometryConverter.from((FolderType) kmlFeature);
     }
 
-    if (kmlFeature instanceof Placemark) {
-      return KmlPlacemarkToJtsGeometryConverter.from((Placemark) kmlFeature);
+    if (kmlFeature instanceof PlacemarkType) {
+      return KmlPlacemarkToJtsGeometryConverter.from((PlacemarkType) kmlFeature);
     }
 
-    if (kmlFeature instanceof PhotoOverlay) {
-      return KmlPhotoOverlayToJtsPointConverter.from((PhotoOverlay) kmlFeature);
+    if (kmlFeature instanceof PhotoOverlayType) {
+      return KmlPhotoOverlayToJtsPointConverter.from((PhotoOverlayType) kmlFeature);
     }
 
-    if (kmlFeature instanceof GroundOverlay) {
-      return KmlGroundOverlayToJtsGeometryConverter.from((GroundOverlay) kmlFeature);
+    if (kmlFeature instanceof GroundOverlayType) {
+      return KmlGroundOverlayToJtsGeometryConverter.from((GroundOverlayType) kmlFeature);
     }
 
     return null;

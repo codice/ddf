@@ -13,17 +13,17 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import net.opengis.kml.v_2_2_0.PlacemarkType;
 import org.locationtech.jts.geom.Geometry;
 
 public class KmlPlacemarkToJtsGeometryConverter {
   private KmlPlacemarkToJtsGeometryConverter() {}
 
-  public static Geometry from(Placemark kmlPlacemark) {
+  public static Geometry from(PlacemarkType kmlPlacemark) {
     if (kmlPlacemark == null) {
       return null;
     }
 
-    return KmlToJtsGeometryConverter.from(kmlPlacemark.getGeometry());
+    return KmlToJtsGeometryConverter.from(kmlPlacemark.getAbstractGeometryGroup().getValue());
   }
 }

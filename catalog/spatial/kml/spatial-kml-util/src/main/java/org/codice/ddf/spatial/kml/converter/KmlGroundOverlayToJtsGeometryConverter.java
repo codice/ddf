@@ -13,13 +13,13 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.GroundOverlay;
+import net.opengis.kml.v_2_2_0.GroundOverlayType;
 import org.locationtech.jts.geom.Geometry;
 
 public class KmlGroundOverlayToJtsGeometryConverter {
   private KmlGroundOverlayToJtsGeometryConverter() {}
 
-  public static Geometry from(GroundOverlay kmlGroundOverlay) {
+  public static Geometry from(GroundOverlayType kmlGroundOverlay) {
     if (!isValidKmlPhotoOverlay(kmlGroundOverlay)) {
       return null;
     }
@@ -27,7 +27,7 @@ public class KmlGroundOverlayToJtsGeometryConverter {
     return KmlLatLonBoxToJtsGeometryConverter.from(kmlGroundOverlay.getLatLonBox());
   }
 
-  public static boolean isValidKmlPhotoOverlay(GroundOverlay kmlGroundOverlay) {
+  public static boolean isValidKmlPhotoOverlay(GroundOverlayType kmlGroundOverlay) {
     if (kmlGroundOverlay == null) {
       return false;
     }

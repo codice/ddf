@@ -13,7 +13,7 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.Point;
+import net.opengis.kml.v_2_2_0.PointType;
 import org.apache.commons.collections.CollectionUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Coordinate;
@@ -24,7 +24,7 @@ public class KmlToJtsPointConverter {
 
   private KmlToJtsPointConverter() {}
 
-  public static org.locationtech.jts.geom.Point from(Point kmlPoint) {
+  public static org.locationtech.jts.geom.Point from(PointType kmlPoint) {
     if (!isValidKmlPoint(kmlPoint)) {
       return null;
     }
@@ -36,7 +36,7 @@ public class KmlToJtsPointConverter {
     return GEOMETRY_FACTORY.createPoint(jtsCoordinate);
   }
 
-  public static boolean isValidKmlPoint(Point kmlPoint) {
+  public static boolean isValidKmlPoint(PointType kmlPoint) {
     return kmlPoint != null && !CollectionUtils.isEmpty(kmlPoint.getCoordinates());
   }
 }

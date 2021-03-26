@@ -13,9 +13,10 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.MultiGeometry;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.xml.bind.JAXBElement;
+import net.opengis.kml.v_2_2_0.MultiGeometryType;
 import org.apache.commons.collections.CollectionUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Geometry;
@@ -25,7 +26,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 public class KmlToJtsMultiGeometryConverter {
   private KmlToJtsMultiGeometryConverter() {}
 
-  public static GeometryCollection from(MultiGeometry kmlMultiGeometry) {
+  public static GeometryCollection from(MultiGeometryType kmlMultiGeometry) {
     if (kmlMultiGeometry == null) {
       return null;
     }
@@ -33,7 +34,8 @@ public class KmlToJtsMultiGeometryConverter {
     GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
 
     List<Geometry> jtsGeometries =
-        kmlMultiGeometry.getGeometry().stream()
+        kmlMultiGeometry.getAbstractGeometryGroup().stream()
+            .map(JAXBElement::getValue)
             .map(KmlToJtsGeometryConverter::from)
             .collect(Collectors.toList());
 

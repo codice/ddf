@@ -13,7 +13,6 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -23,16 +22,20 @@ public class KmlToJtsCoordinateConverter {
 
   private KmlToJtsCoordinateConverter() {}
 
-  public static org.locationtech.jts.geom.Coordinate from(Coordinate kmlCoordinate) {
+  public static org.locationtech.jts.geom.Coordinate from(String kmlCoordinate) {
     if (kmlCoordinate == null) {
       return null;
     }
+    System.out.println("GORDO ======== Fix this conversion!!!!!");
 
-    return new org.locationtech.jts.geom.Coordinate(
-        kmlCoordinate.getLongitude(), kmlCoordinate.getLatitude(), kmlCoordinate.getAltitude());
+    //    return new org.locationtech.jts.geom.Coordinate(
+    //        kmlCoordinate.getLongitude(), kmlCoordinate.getLatitude(),
+    // kmlCoordinate.getAltitude());
+
+    return new org.locationtech.jts.geom.Coordinate();
   }
 
-  public static org.locationtech.jts.geom.Coordinate[] from(List<Coordinate> kmlCoordinates) {
+  public static org.locationtech.jts.geom.Coordinate[] from(List<String> kmlCoordinates) {
     if (CollectionUtils.isEmpty(kmlCoordinates)) {
       return new org.locationtech.jts.geom.Coordinate[0];
     }
