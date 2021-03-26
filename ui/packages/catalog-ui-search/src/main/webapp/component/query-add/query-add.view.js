@@ -64,17 +64,14 @@ module.exports = Marionette.LayoutView.extend({
       .get('content')
       .get('currentWorkspace')
       .get('id')
-    this.listenTo(
-      store.get('content'),
-      'change:currentWorkspace',
-      workspace => {
-        if (this.currentWorkspaceId !== workspace.get('id')) {
-          this.currentWorkspaceId = workspace.get('id')
-          this.model.set('title', '')
-          this.cancel()
-        }
+    this.listenTo(store.get('content'), 'change:currentWorkspace', content => {
+      const workspaceId = content.get('currentWorkspace').get('id')
+      if (this.currentWorkspaceId !== workspaceId) {
+        this.currentWorkspaceId = workspaceId
+        this.model.set('title', '')
+        this.cancel()
       }
-    )
+    })
   },
   updateCurrentQuery(currentQuerySettings) {
     if (
