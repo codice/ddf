@@ -34,9 +34,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>de.micromata.jak</groupId>
-            <artifactId>JavaAPIforKml</artifactId>
-            <version>${JavaAPIforKml.version}</version>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>kml-v_2_2_0</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.jknack</groupId>

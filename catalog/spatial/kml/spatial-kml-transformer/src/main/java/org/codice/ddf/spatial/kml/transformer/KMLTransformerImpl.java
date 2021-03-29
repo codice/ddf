@@ -34,16 +34,6 @@ import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
-import de.micromata.opengis.kml.v_2_2_0.Data;
-import de.micromata.opengis.kml.v_2_2_0.Document;
-import de.micromata.opengis.kml.v_2_2_0.ExtendedData;
-import de.micromata.opengis.kml.v_2_2_0.Feature;
-import de.micromata.opengis.kml.v_2_2_0.Geometry;
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-import de.micromata.opengis.kml.v_2_2_0.KmlFactory;
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
-import de.micromata.opengis.kml.v_2_2_0.StyleSelector;
-import de.micromata.opengis.kml.v_2_2_0.TimeSpan;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,6 +47,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +58,15 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.security.auth.Subject;
 import javax.xml.bind.DatatypeConverter;
+import net.opengis.kml.v_2_2_0.AbstractFeatureType;
+import net.opengis.kml.v_2_2_0.AbstractGeometryType;
+import net.opengis.kml.v_2_2_0.AbstractStyleSelectorType;
+import net.opengis.kml.v_2_2_0.DataType;
+import net.opengis.kml.v_2_2_0.ExtendedDataType;
+import net.opengis.kml.v_2_2_0.KmlType;
+import net.opengis.kml.v_2_2_0.ObjectFactory;
+import net.opengis.kml.v_2_2_0.PlacemarkType;
+import net.opengis.kml.v_2_2_0.TimeSpanType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
@@ -101,7 +101,9 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   @VisibleForTesting static final MimeType KML_MIMETYPE = new MimeType();
 
-  private List<StyleSelector> defaultStyle;
+  private static final ObjectFactory KML220_OBJECT_FACTORY = new ObjectFactory();
+
+  private List<AbstractStyleSelectorType> defaultStyle;
 
   static {
     try {
@@ -144,8 +146,8 @@ public class KMLTransformerImpl implements KMLTransformer {
       defaultStyle =
           kmlMarshaller
               .unmarshal(stylingUrl.openStream())
-              .map(Kml::getFeature)
-              .map(Feature::getStyleSelector)
+              .map(KmlType::getAbstractFeatureGroup)
+              .map(AbstractFeatureType::getAbstractStyleSelectorGroup)
               .orElse(emptyList());
     } catch (IOException e) {
       LOGGER.debug("Exception while opening default style resource.", e);
@@ -168,7 +170,8 @@ public class KMLTransformerImpl implements KMLTransformer {
    * @throws CatalogTransformerException
    */
   @Override
-  public Placemark transformEntry(Subject user, Metacard entry, Map<String, Serializable> arguments)
+  public PlacemarkType transformEntry(
+      Subject user, Metacard entry, Map<String, Serializable> arguments)
       throws CatalogTransformerException {
     return performDefaultTransformation(entry);
   }
@@ -182,12 +185,12 @@ public class KMLTransformerImpl implements KMLTransformer {
    * @return
    * @throws javax.xml.transform.TransformerException
    */
-  protected Placemark performDefaultTransformation(Metacard entry)
+  protected PlacemarkType performDefaultTransformation(Metacard entry)
       throws CatalogTransformerException {
 
     // wrap metacard to work around classLoader/reflection issues
     entry = new MetacardImpl(entry);
-    Placemark kmlPlacemark = KmlFactory.createPlacemark();
+    PlacemarkType kmlPlacemark = KML220_OBJECT_FACTORY.createPlacemarkType();
     kmlPlacemark.setId("Placemark-" + entry.getId());
     kmlPlacemark.setName(entry.getTitle());
 
@@ -199,11 +202,14 @@ public class KMLTransformerImpl implements KMLTransformer {
     } else {
       effectiveTime = dateFormat.format(entry.getEffectiveDate());
     }
-    TimeSpan timeSpan = KmlFactory.createTimeSpan();
-    timeSpan.setBegin(effectiveTime);
-    kmlPlacemark.setTimePrimitive(timeSpan);
 
-    kmlPlacemark.setGeometry(getKmlGeoWithPointsFromWkt(entry.getLocation()));
+    TimeSpanType timeSpan = KML220_OBJECT_FACTORY.createTimeSpanType();
+    timeSpan.setBegin(effectiveTime);
+    //    kmlPlacemark.setTimePrimitive(timeSpan);
+    kmlPlacemark.setAbstractTimePrimitiveGroup(KML220_OBJECT_FACTORY.createTimeSpan(timeSpan));
+
+    //    kmlPlacemark.setGeometry(getKmlGeoWithPointsFromWkt(entry.getLocation()));
+    kmlPlacemark.setAbstractGeometryGroup(getKmlGeoWithPointsFromWkt(entry.getLocation()));
 
     String description = entry.getTitle();
     Handlebars handlebars = new Handlebars(templateLoader);
@@ -229,8 +235,8 @@ public class KMLTransformerImpl implements KMLTransformer {
     return kmlPlacemark;
   }
 
-  private void setExtendedData(Placemark placemark, Metacard metacard) {
-    final ExtendedData extendedData = new ExtendedData();
+  private void setExtendedData(PlacemarkType placemark, Metacard metacard) {
+    final ExtendedDataType extendedData = KML220_OBJECT_FACTORY.createExtendedDataType();
 
     final Set<AttributeDescriptor> attributeDescriptors =
         metacard.getMetacardType().getAttributeDescriptors();
@@ -243,18 +249,20 @@ public class KMLTransformerImpl implements KMLTransformer {
         if (attributeValue == null) {
           LOGGER.debug("Attribute {} converted to null value.", attributeName);
         } else {
-          final Data data = getData(attributeName, attributeValue.toString());
-          extendedData.addToData(data);
+          final List<DataType> data = getData(attributeName, attributeValue.toString());
+          //          extendedData.addToData(data);
+          extendedData.setData(data);
         }
       }
     }
     placemark.setExtendedData(extendedData);
   }
 
-  private Data getData(String attributeAlias, String attributeValue) {
-    final Data data = new Data(attributeValue);
+  private List<DataType> getData(String attributeAlias, String attributeValue) {
+    final DataType data = KML220_OBJECT_FACTORY.createDataType();
+    data.setValue(attributeValue);
     data.setName(attributeAlias);
-    return data;
+    return Collections.singletonList(data);
   }
 
   private Serializable convertAttribute(Attribute attribute, AttributeDescriptor descriptor) {
@@ -317,13 +325,32 @@ public class KMLTransformerImpl implements KMLTransformer {
   public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
       throws CatalogTransformerException {
     try {
-      Placemark placemark = transformEntry(null, metacard, arguments);
+      PlacemarkType placemark = transformEntry(null, metacard, arguments);
+
+      /*
       if (placemark.getStyleSelector().isEmpty() && StringUtils.isBlank(placemark.getStyleUrl())) {
         placemark.getStyleSelector().addAll(defaultStyle);
       }
-      Kml kml = KmlFactory.createKml().withFeature(placemark);
 
-      String transformedKmlString = kmlMarshaller.marshal(kml);
+      if (!placemark.isSetAbstractStyleSelectorGroup() &&
+      StringUtils.isBlank(placemark.getStyleUrl())) {
+        placemark.getAbstractStyleSelectorGroup().addAll(defaultStyle);
+        placemark.withAbstractStyleSelectorGroup(
+            KML220_OBJECT_FACTORY.createAbstractStyleSelectorGroup(
+                defaultStyle
+            )
+        );
+
+      }
+      */
+
+      //      Kml kml = KmlFactory.createKml().withFeature(placemark);
+      KmlType kml =
+          KML220_OBJECT_FACTORY
+              .createKmlType()
+              .withAbstractFeatureGroup(KML220_OBJECT_FACTORY.createPlacemark(placemark));
+
+      String transformedKmlString = kmlMarshaller.marshal(KML220_OBJECT_FACTORY.createKml(kml));
 
       InputStream kmlInputStream =
           new ByteArrayInputStream(transformedKmlString.getBytes(StandardCharsets.UTF_8));
@@ -387,9 +414,11 @@ public class KMLTransformerImpl implements KMLTransformer {
     return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
   }
 
-  private Geometry getKmlGeoWithPointsFromWkt(String wkt) throws CatalogTransformerException {
+  private AbstractGeometryType getKmlGeoWithPointsFromWkt(String wkt)
+      throws CatalogTransformerException {
     final org.locationtech.jts.geom.Geometry jtsGeo = getJtsGeoFromWkt(wkt);
-    Geometry kmlGeo = getKmlGeoFromJtsGeo(jtsGeo);
+    // Geometry kmlGeo = getKmlGeoFromJtsGeo(jtsGeo);
+    AbstractGeometryType kmlGeo = getKmlGeoFromJtsGeo(jtsGeo);
     kmlGeo = addJtsGeoPointsToKmlGeo(jtsGeo, kmlGeo);
     return kmlGeo;
   }
