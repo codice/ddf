@@ -134,6 +134,17 @@ pipeline {
             }
         }
 
+        stage('Deploy pr artifact') {
+            when {
+                // TODO steal logic from postCommentIfPR to determine if this is a PR build
+            }
+            steps{
+                withMaven(maven: 'maven-latest', jdk: 'jdk11', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LINUX_MVN_RANDOM}') {
+                    sh 'mvn deploy -pl distribution/ddf -B -DskipStatic=true -DskipTests=true -DretryFailedDeploymentCount=10 $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                }
+            }
+        }
+
         /*
           Deploy stage will only be executed for deployable branches. These include master and any patch branch matching M.m.x format (i.e. 2.10.x, 2.9.x, etc...).
           It will also only deploy in the presence of an environment variable JENKINS_ENV = 'prod'. This can be passed in globally from the jenkins master node settings.
