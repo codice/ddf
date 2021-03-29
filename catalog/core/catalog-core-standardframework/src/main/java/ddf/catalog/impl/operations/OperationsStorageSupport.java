@@ -18,7 +18,6 @@ import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.StorageRequest;
-import ddf.catalog.history.Historian;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
@@ -54,10 +53,6 @@ public class OperationsStorageSupport {
       SourceOperations sourceOperations, QueryOperations queryOperations) {
     this.sourceOperations = sourceOperations;
     this.queryOperations = queryOperations;
-  }
-
-  public void setHistorian(Historian historian) {
-    // historian is not currently being used in this class
   }
 
   <T extends StorageRequest> T prepareStorageRequest(

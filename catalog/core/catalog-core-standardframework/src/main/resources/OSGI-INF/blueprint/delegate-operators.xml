@@ -61,7 +61,6 @@
     <bean id="cfOpsStorage" class="ddf.catalog.impl.operations.OperationsStorageSupport">
         <argument ref="cfSourceOps"/>
         <argument ref="cfQueryOps"/>
-        <property name="historian" ref="historian"/>
     </bean>
 
     <reference-list id="sourceActionProviders" interface="ddf.action.ActionProvider"
