@@ -81,6 +81,7 @@ module.exports = new (Backbone.Model.extend({
         previousWorkspace &&
         previousWorkspace.id !== this.get('content').get('currentWorkspace').id
       ) {
+        this.get('content').trigger('workspaceChanged')
         previousWorkspace.clearResults()
       }
     }

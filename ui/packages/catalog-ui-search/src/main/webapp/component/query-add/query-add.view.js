@@ -60,20 +60,9 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'closeDropdown', this.closeDropdown)
     this.listenTo(wreqr.vent, 'resetSearch', this.cancel)
     this.listenForSave()
-    this.currentWorkspaceId = store
-      .get('content')
-      .get('currentWorkspace')
-      .get('id')
-    this.listenTo(store.get('content'), 'change:currentWorkspace', content => {
-      if (!content.get('currentWorkspace')) {
-        return
-      }
-      const workspaceId = content.get('currentWorkspace').get('id')
-      if (this.currentWorkspaceId !== workspaceId) {
-        this.currentWorkspaceId = workspaceId
-        this.model.set('title', '')
-        this.cancel()
-      }
+    store.get('content').on('workspaceChanged', () => {
+      this.model.set('title', '')
+      this.cancel()
     })
   },
   updateCurrentQuery(currentQuerySettings) {
