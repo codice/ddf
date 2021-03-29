@@ -18,6 +18,7 @@ import static org.apache.camel.LoggingLevel.DEBUG;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
+import ddf.security.Subject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,9 +34,7 @@ import javax.annotation.Nullable;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
-import org.apache.camel.Processor;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
@@ -102,8 +101,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private Integer readLockIntervalMilliseconds;
 
-  Processor systemSubjectBinder;
-
   /**
    * Constructs a monitor that uses the given RetryPolicy while waiting for the content scheme, and
    * the given Executor to run the setup and Camel configuration.
@@ -130,7 +127,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     this.delayBetweenRetries = delayBetweenRetries;
     this.configurationExecutor = configurationExecutor;
     this.security = security;
-    systemSubjectBinder = new SystemSubjectBinder(security);
     setBlacklist();
   }
 
@@ -405,11 +401,13 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
           routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY).constant(attributeOverrides);
         }
 
+        Subject subject = security.getSystemSubject();
+
         ThreadsDefinition td =
             routeDefinition
                 .threads(numThreads, numThreads)
                 .maxQueueSize(numThreads * 2)
-                .process(systemSubjectBinder);
+                .process(exchange -> ThreadContext.bind(subject));
         if (processingMechanism.equals(IN_PLACE)) {
           String maxSize =
               System.getProperty(
@@ -457,25 +455,5 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       }
     }
     LOGGER.debug("***************  END: {}  *****************\n\n", msg);
-  }
-
-  public static class SystemSubjectBinder implements Processor {
-
-    private Security security;
-
-    public SystemSubjectBinder(Security security) {
-      this.security = security;
-    }
-
-    /**
-     * Adds the system subject to the {@link ThreadContext} to allow proper authentication with the
-     * catalog framework.
-     *
-     * @param exchange Camel {@link Exchange} object
-     */
-    @Override
-    public void process(Exchange exchange) {
-      ThreadContext.bind(security.getSystemSubject());
-    }
   }
 }
