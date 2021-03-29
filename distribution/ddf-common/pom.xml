@@ -58,7 +58,6 @@ These shared resources include:
     <dependency>
       <groupId>org.apache.felix</groupId>
       <artifactId>org.apache.felix.scr</artifactId>
-      <version>${felix.scr.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.crypto.tink</groupId>

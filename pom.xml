@@ -120,14 +120,12 @@
         <hamcrest-junit.version>2.0.0.0</hamcrest-junit.version>
         <hamcrest-optional.version>1.0</hamcrest-optional.version>
         <jsonassert.version>1.5.0</jsonassert.version>
-        <junit.version>4.13.1</junit.version>
         <spock.version>2.0-M4-groovy-3.0</spock.version>
         <mockito.version>3.6.28</mockito.version>
         <pax.exam.version>4.13.4</pax.exam.version>
         <pax.logging.version>2.0.6</pax.logging.version>
         <pax.url.version>2.6.2</pax.url.version>
         <pax.web.version>7.3.9</pax.web.version>
-        <pax.web.jsp.version>7.2.18</pax.web.jsp.version>
         <restito.version>0.8.2</restito.version>
         <restassured.version>3.3.0</restassured.version>
         <groovy.version>3.0.7</groovy.version>
@@ -151,7 +149,6 @@
         <abdera.version>1.1.3</abdera.version>
         <antlr.version>4.3</antlr.version>
         <apache.shiro.version>1.7.1</apache.shiro.version>
-        <asm.version>8.0.1</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
         <bouncy.version>1.67</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
@@ -170,7 +167,7 @@
         <commons-csv.version>1.4</commons-csv.version>
         <commons-digester.version>1.8.1</commons-digester.version>
         <commons-exec.version>1.3</commons-exec.version>
-        <commons-io.version>2.7</commons-io.version>
+        <commons-io.version>2.8.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
         <commons-lang3.version>3.11</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
@@ -190,8 +187,7 @@
         <felix.coordinator.version>1.0.2</felix.coordinator.version>
         <felix.fileinstall.version>3.6.8</felix.fileinstall.version>
         <felix.metatype.version>1.2.2</felix.metatype.version>
-        <felix.framework.version>6.0.3</felix.framework.version>
-        <felix.scr.version>2.0.14</felix.scr.version>
+        <felix.scr.version>2.1.24</felix.scr.version>
         <geronimo-servlet-api.artifact>geronimo-servlet_3.0_spec</geronimo-servlet-api.artifact>
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>
         <google-http-client.version>1.22.0</google-http-client.version>
@@ -301,7 +297,7 @@
         <spark.version>2.9.2</spark.version>
         <spatial4j.version>0.7</spatial4j.version>
         <spring.version>5.2.5.RELEASE</spring.version>
-        <spring-osgi.version>1.2.1</spring-osgi.version>
+        <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
         <tika.thirdparty.bundle.version>1.24.1_1</tika.thirdparty.bundle.version>
         <tika.version>1.24.1</tika.version>
         <usng4j.version>0.4</usng4j.version>
@@ -471,11 +467,6 @@
                 <version>${apache.shiro.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons-io.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
@@ -484,11 +475,6 @@
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>${commons-lang.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
-                <version>${asm.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codice.thirdparty</groupId>
@@ -679,7 +665,6 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>5.1.1</version>
                     <extensions>true</extensions>
                     <configuration>
                         <!-- Disabled OBR to increase build speed -->
@@ -1238,12 +1223,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>${asm.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
             <version>3.3.0</version>
@@ -1317,7 +1296,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
