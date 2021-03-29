@@ -15,9 +15,12 @@ package org.codice.ddf.spatial.kml.converter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.is;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class KmlToJtsCoordinateConverterTest {
 
@@ -102,14 +105,16 @@ public class KmlToJtsCoordinateConverterTest {
       List<String> kmlCoordinates, org.locationtech.jts.geom.Coordinate[] jtsCoordinates) {
     assertThat(jtsCoordinates.length, is(equalTo(kmlCoordinates.size())));
 
-    /* GORDO
-    for (Coordinate kmlCoordinate : kmlCoordinates) {
-      org.locationtech.jts.geom.Coordinate jtsCoordinate =
-          new org.locationtech.jts.geom.Coordinate(
-              kmlCoordinate.getLongitude(),
-              kmlCoordinate.getLatitude(),
-              kmlCoordinate.getAltitude());
+    for (String kmlCoordinate : kmlCoordinates) {
+      org.locationtech.jts.geom.Coordinate jtsCoordinate = coordStringToJtsCoord(kmlCoordinate);
       assertThat(jtsCoordinates, hasItemInArray((jtsCoordinate)));
-    }*/
+    }
+  }
+
+  static org.locationtech.jts.geom.Coordinate coordStringToJtsCoord(String coord) {
+    List<Double> coords =
+        Arrays.stream(coord.split(",")).map(Double::parseDouble).collect(Collectors.toList());
+
+    return new org.locationtech.jts.geom.Coordinate(coords.get(0), coords.get(1), coords.get(2));
   }
 }

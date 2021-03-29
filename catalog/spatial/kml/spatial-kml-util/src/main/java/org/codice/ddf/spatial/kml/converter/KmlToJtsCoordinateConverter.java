@@ -13,26 +13,28 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class KmlToJtsCoordinateConverter {
 
   private KmlToJtsCoordinateConverter() {}
 
   public static org.locationtech.jts.geom.Coordinate from(String kmlCoordinate) {
-    if (kmlCoordinate == null) {
+    if (StringUtils.isBlank(kmlCoordinate)) {
       return null;
     }
-    System.out.println("GORDO ======== Fix this conversion!!!!!");
 
-    //    return new org.locationtech.jts.geom.Coordinate(
-    //        kmlCoordinate.getLongitude(), kmlCoordinate.getLatitude(),
-    // kmlCoordinate.getAltitude());
+    List<Double> coords =
+        Arrays.stream(kmlCoordinate.split(","))
+            .map(Double::parseDouble)
+            .collect(Collectors.toList());
 
-    return new org.locationtech.jts.geom.Coordinate();
+    return new org.locationtech.jts.geom.Coordinate(coords.get(0), coords.get(1), coords.get(2));
   }
 
   public static org.locationtech.jts.geom.Coordinate[] from(List<String> kmlCoordinates) {

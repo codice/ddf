@@ -58,9 +58,10 @@ public class KmlModelToJtsPointConverterTest {
 
     LocationType location = kmlModel.getLocation();
     KmlToJtsCoordinateConverterTest.assertJtsCoordinatesFromKmlCoordinates(
-        Collections.singletonList("Gordo fix the coord stuff"),
-        //            new Coordinate(
-        //                location.getLongitude(), location.getLatitude(), location.getAltitude())),
+        Collections.singletonList(
+            String.format(
+                "%f,%f,%f",
+                location.getLongitude(), location.getLatitude(), location.getAltitude())),
         jtsPoint.getCoordinates());
   }
 }
