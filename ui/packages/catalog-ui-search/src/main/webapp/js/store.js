@@ -23,6 +23,9 @@ module.exports = new (Backbone.Model.extend({
     this.set('content', new Content())
     this.set('workspaces', new WorkspaceCollection())
 
+    //trigger for change of currentWorspace id
+    this.WORKSPACE_CHANGED_TRIGGER = 'workspaceChanged'
+
     window.onbeforeunload = () => {
       const unsaved = this.get('workspaces')
         .chain()
@@ -81,7 +84,9 @@ module.exports = new (Backbone.Model.extend({
         previousWorkspace &&
         previousWorkspace.id !== this.get('content').get('currentWorkspace').id
       ) {
-        this.get('content').trigger('workspaceChanged')
+        //Workspace change event is triggered here so other components can listen
+        //to this specific event without implementing this additional logic
+        this.get('content').trigger(this.WORKSPACE_CHANGED_TRIGGER)
         previousWorkspace.clearResults()
       }
     }

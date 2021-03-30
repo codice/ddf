@@ -60,7 +60,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'closeDropdown', this.closeDropdown)
     this.listenTo(wreqr.vent, 'resetSearch', this.cancel)
     this.listenForSave()
-    store.get('content').on('workspaceChanged', () => {
+    store.get('content').on(store.WORKSPACE_CHANGED_TRIGGER, () => {
       this.model.set('title', '')
       this.cancel()
     })
