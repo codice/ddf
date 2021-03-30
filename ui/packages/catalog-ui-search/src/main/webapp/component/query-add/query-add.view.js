@@ -58,12 +58,8 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'resetToDefaults change:type', this.reshow)
     this.listenTo(this.model, 'change:filterTree', this.reshow)
     this.listenTo(this.model, 'closeDropdown', this.closeDropdown)
-    this.listenTo(wreqr.vent, 'resetSearch', this.cancel)
+    this.listenTo(wreqr.vent, 'resetSearch', this.resetSearch)
     this.listenForSave()
-    store.get('content').on(store.WORKSPACE_CHANGED_TRIGGER, () => {
-      this.model.set('title', '')
-      this.cancel()
-    })
   },
   updateCurrentQuery(currentQuerySettings) {
     if (
@@ -225,6 +221,18 @@ module.exports = Marionette.LayoutView.extend({
     if (!this.queryView) {
       this.queryContent.currentView.edit()
     }
+  },
+  resetSearch() {
+    if (this.model.get('type') !== 'custom') {
+      this.model.set('title', '')
+      this.initialize()
+    } else {
+      let userDefaultTemplate = user.getQuerySettings().get('template')
+      if (userDefaultTemplate) {
+        this.model.set('title', userDefaultTemplate['title'])
+      }
+    }
+    this.cancel()
   },
   cancel() {
     this.$el.removeClass('is-editing')
