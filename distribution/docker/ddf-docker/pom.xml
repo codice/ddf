@@ -26,7 +26,7 @@
 
     <properties>
         <!-- Set the version of the codice/ddf-base docker image to build on top of here -->
-        <docker.ddf.base.version>2.14-alpine</docker.ddf.base.version>
+        <docker.ddf.base.version>2.27-alpine</docker.ddf.base.version>
     </properties>
 
     <dependencies>
