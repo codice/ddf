@@ -72,9 +72,9 @@
         <cxf.activemq.version>5.16.0</cxf.activemq.version>
         <cxf.ahc.version>2.12.1</cxf.ahc.version>
         <cxf.atmosphere.version>2.6.1</cxf.atmosphere.version>
-        <cxf.brave.reporter.version>2.12.1</cxf.brave.reporter.version>
-        <cxf.brave.version>5.11.2</cxf.brave.version>
-        <cxf.brave.zipkin.version>2.19.3</cxf.brave.zipkin.version>
+        <cxf.brave.reporter.version>2.15.4</cxf.brave.reporter.version>
+        <cxf.brave.version>5.13.0</cxf.brave.version>
+        <cxf.brave.zipkin.version>2.22.1</cxf.brave.zipkin.version>
         <cxf.classgraph.version>4.8.25</cxf.classgraph.version>
         <cxf.classmate.version>1.5.1</cxf.classmate.version>
         <cxf.commons-codec.version>${commons-codec-version}</cxf.commons-codec.version>
