@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
 
 import ddf.catalog.data.AttributeRegistry;
+import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -403,11 +404,12 @@ public class ContentDirectoryMonitorTest extends ExchangeTestSupport {
   }
 
   private ContentDirectoryMonitor createContentDirectoryMonitor() {
+    Security security = new Security();
+    security.setSecurityLogger(mock(SecurityLogger.class));
     ContentDirectoryMonitor monitor =
         new ContentDirectoryMonitor(
-            camelContext, mock(AttributeRegistry.class), 1, 1, Runnable::run, new Security());
+            camelContext, mock(AttributeRegistry.class), 1, 1, Runnable::run, security);
 
-    monitor.systemSubjectBinder = exchange -> {};
     monitor.setNumThreads(1);
     monitor.setReadLockIntervalMilliseconds(1000);
     return monitor;
