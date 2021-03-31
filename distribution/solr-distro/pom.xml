@@ -99,11 +99,11 @@
                         </goals>
                         <configuration>
                             <url>
-                                http://artifacts.codice.org/content/repositories/thirdparty/org/apache/archive/solr/${solr.version}/solr-${solr.version}.zip
+                                ${solr.download.url}/lucene/solr/${solr.version}/solr-${solr.version}.zip
                             </url>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
-                            <sha512>aca27ff6942872a571160f49f5e4d43090dbe9bb37da0d1999557e1655f25055173ef999bfb8eba8f19f19b9c438b43205c805d0d294b9756cf5c0aaf66a656a</sha512>
+                            <sha512>fa68e00b69240dc89542c12627efba90faa05600622a3cf33691041fdf3721930df1dff7c1c2ef0737bbeb99198b1ced038ca2be8686e2c194359413da114d20</sha512>
                             <checkSignature>true</checkSignature>
                         </configuration>
                     </execution>

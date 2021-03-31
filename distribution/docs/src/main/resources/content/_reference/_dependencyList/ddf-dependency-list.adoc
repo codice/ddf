@@ -301,7 +301,6 @@
 * org.locationtech.spatial4j:spatial4j:jar:0.6
 * org.locationtech.spatial4j:spatial4j:jar:0.7
 * org.mockito:mockito-core:jar:1.10.19
-* org.noggit:noggit:jar:0.6
 * org.objenesis:objenesis:jar:2.5.1
 * org.objenesis:objenesis:jar:2.6
 * org.openexi:nagasena-rta:jar:0000.0002.0049.0

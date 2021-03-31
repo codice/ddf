@@ -54,6 +54,11 @@ public class PingAwareSolrClientProxy extends SolrClientProxy {
   }
 
   @Override
+  public SolrPingResponse ping(String collection) throws SolrServerException, IOException {
+    return pingClient.ping(collection);
+  }
+
+  @Override
   @SuppressWarnings(
       "squid:S00108" /* Using empty block of try-with-resources to close multiple resources */)
   public void close() throws IOException {
