@@ -122,6 +122,38 @@ public class GeoEntry {
     public GeoEntry build() {
       return new GeoEntry(this);
     }
+
+    @Override
+    public String toString() {
+      return "Builder{"
+          + "name='"
+          + name
+          + '\''
+          + ", latitude="
+          + latitude
+          + ", longitude="
+          + longitude
+          + ", featureCode='"
+          + featureCode
+          + '\''
+          + ", population="
+          + population
+          + ", alternateNames='"
+          + alternateNames
+          + '\''
+          + ", countryCode='"
+          + countryCode
+          + '\''
+          + ", importLocation='"
+          + importLocation
+          + '\''
+          + ", gazetteerSort="
+          + gazetteerSort
+          + ", featureClass='"
+          + featureClass
+          + '\''
+          + '}';
+    }
   }
 
   public String getName() {
@@ -158,5 +190,37 @@ public class GeoEntry {
 
   public String getFeatureClass() {
     return featureClass;
+  }
+
+  @Override
+  public String toString() {
+    return "GeoEntry{"
+        + "name='"
+        + name
+        + '\''
+        + ", latitude="
+        + latitude
+        + ", longitude="
+        + longitude
+        + ", featureCode='"
+        + featureCode
+        + '\''
+        + ", population="
+        + population
+        + ", alternateNames='"
+        + alternateNames
+        + '\''
+        + ", countryCode='"
+        + countryCode
+        + '\''
+        + ", importLocation='"
+        + importLocation
+        + '\''
+        + ", gazetteerSort="
+        + gazetteerSort
+        + ", featureClass='"
+        + featureClass
+        + '\''
+        + '}';
   }
 }

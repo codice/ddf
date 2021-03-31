@@ -35,6 +35,7 @@
     <modules>
         <module>catalog-solr-provider</module>
         <module>catalog-solr-solrclient</module>
+        <module>catalog-solr-offline-gazetteer</module>
         <module>solr-app</module>
     </modules>
 </project>
