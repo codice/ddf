@@ -222,7 +222,7 @@
         <jboss-logging.version>3.3.1.Final</jboss-logging.version>
         <jcodec.version>0.2.0_1</jcodec.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
-        <jetty.version>9.4.28.v20200408</jetty.version>
+        <jetty.version>9.4.33.v20201020</jetty.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
         <jodah-failsafe.version>0.9.5</jodah-failsafe.version>
