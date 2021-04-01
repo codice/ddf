@@ -76,7 +76,6 @@
     <bundle>mvn:org.apache.camel/camel-health/${camel.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-xml-jaxp/${camel.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-xml-jaxb/${camel.version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-caffeine-lrucache/${camel.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-tooling-model/${camel.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-main/${camel.version}</bundle>
     <!-- core components -->
