@@ -157,7 +157,7 @@
         <c3p0.version>0.9.5.5</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
-        <camel.version>3.4.0</camel.version>
+        <camel.version>3.8.0</camel.version>
         <cesium.version>1.34</cesium.version>
         <commons-compress.version>1.20</commons-compress.version>
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
