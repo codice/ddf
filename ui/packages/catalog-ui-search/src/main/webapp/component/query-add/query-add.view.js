@@ -223,13 +223,13 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   resetSearch() {
-    if(this.model.get('type') === 'custom'){
+    if (this.model.get('type') === 'custom') {
       this.model.set(this.getDefaultQuery())
-    }else{
+      this.cancel()
+    } else {
+      this.model.set('title', '')
       this.model.resetToDefaults()
-      this.model.set('title','')
     }
-    this.cancel()
   },
   cancel() {
     this.$el.removeClass('is-editing')
