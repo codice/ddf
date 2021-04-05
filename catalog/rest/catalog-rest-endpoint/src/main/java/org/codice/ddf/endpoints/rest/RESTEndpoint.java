@@ -62,6 +62,8 @@ public class RESTEndpoint implements RESTService {
 
   private static final String BYTES = "bytes";
 
+  private static final String PRE_FORMAT = "<pre>%s</pre>";
+
   private CatalogService catalogService;
 
   public RESTEndpoint(CatalogService catalogService) {
@@ -250,7 +252,7 @@ public class RESTEndpoint implements RESTService {
 
     } catch (DataUsageLimitExceededException e) {
       return Response.status(Status.REQUEST_ENTITY_TOO_LARGE)
-          .entity("<pre>" + e.getMessage() + "</pre>")
+          .entity(String.format(PRE_FORMAT, e.getMessage()))
           .type(MediaType.TEXT_HTML)
           .build();
     } catch (OAuthPluginException e) {
@@ -417,14 +419,14 @@ public class RESTEndpoint implements RESTService {
 
   private Response createBadRequestResponse(String entityMessage) {
     return Response.status(Status.BAD_REQUEST)
-        .entity("<pre>" + entityMessage + "</pre>")
+        .entity(String.format(PRE_FORMAT, entityMessage))
         .type(MediaType.TEXT_HTML)
         .build();
   }
 
   private Response createErrorResponse(String entityMessage) {
     return Response.status(Status.INTERNAL_SERVER_ERROR)
-        .entity("<pre>" + entityMessage + "</pre>")
+        .entity(String.format(PRE_FORMAT, entityMessage))
         .type(MediaType.TEXT_HTML)
         .build();
   }

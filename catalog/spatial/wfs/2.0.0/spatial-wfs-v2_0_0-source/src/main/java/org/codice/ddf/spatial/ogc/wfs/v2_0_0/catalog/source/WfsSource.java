@@ -169,6 +169,8 @@ public class WfsSource extends AbstractWfsSource {
 
   private static final String BASIC = "basic";
 
+  private static final String SOURCE_FORMAT = " Source '%s'";
+
   private static Properties describableProperties = new Properties();
 
   private final EncryptionService encryptionService;
@@ -1192,24 +1194,25 @@ public class WfsSource extends AbstractWfsSource {
     } else if (cause instanceof IllegalArgumentException) {
       msg =
           WFS_ERROR_MESSAGE
-              + " Source '"
-              + sourceId
-              + "'. The URI '"
+              + String.format(SOURCE_FORMAT, sourceId)
+              + ". The URI '"
               + getWfsUrl()
               + "' does not specify a valid protocol or could not be correctly parsed. "
               + ce.getMessage();
     } else if (cause instanceof SSLHandshakeException) {
       msg =
           WFS_ERROR_MESSAGE
-              + " Source '"
-              + sourceId
-              + "' with URL '"
+              + String.format(SOURCE_FORMAT, sourceId)
+              + " with URL '"
               + getWfsUrl()
               + "': "
               + ce.getMessage();
     } else if (cause instanceof ConnectException) {
       msg =
-          WFS_ERROR_MESSAGE + " Source '" + sourceId + "' may not be running.\n" + ce.getMessage();
+          WFS_ERROR_MESSAGE
+              + String.format(SOURCE_FORMAT, sourceId)
+              + " may not be running.\n"
+              + ce.getMessage();
     } else {
       msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'\n" + ce;
     }
@@ -1246,22 +1249,20 @@ public class WfsSource extends AbstractWfsSource {
   }
 
   private void debugResult(Result result) {
-    if (LOGGER.isDebugEnabled()) {
-      if (result != null && result.getMetacard() != null) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\nid:\t" + result.getMetacard().getId());
-        sb.append("\nmetacardType:\t" + result.getMetacard().getMetacardType());
-        if (result.getMetacard().getMetacardType() != null) {
-          sb.append("\nmetacardType name:\t" + result.getMetacard().getMetacardType().getName());
-        }
-        sb.append("\ncontentType:\t" + result.getMetacard().getContentTypeName());
-        sb.append("\ntitle:\t" + result.getMetacard().getTitle());
-        sb.append("\nsource:\t" + result.getMetacard().getSourceId());
-        sb.append("\nmetadata:\t" + result.getMetacard().getMetadata());
-        sb.append("\nlocation:\t" + result.getMetacard().getLocation());
-
-        LOGGER.debug("Transform complete. Metacard: {}", sb);
+    if (LOGGER.isDebugEnabled() && result != null && result.getMetacard() != null) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("\nid:\t" + result.getMetacard().getId());
+      sb.append("\nmetacardType:\t" + result.getMetacard().getMetacardType());
+      if (result.getMetacard().getMetacardType() != null) {
+        sb.append("\nmetacardType name:\t" + result.getMetacard().getMetacardType().getName());
       }
+      sb.append("\ncontentType:\t" + result.getMetacard().getContentTypeName());
+      sb.append("\ntitle:\t" + result.getMetacard().getTitle());
+      sb.append("\nsource:\t" + result.getMetacard().getSourceId());
+      sb.append("\nmetadata:\t" + result.getMetacard().getMetadata());
+      sb.append("\nlocation:\t" + result.getMetacard().getLocation());
+
+      LOGGER.debug("Transform complete. Metacard: {}", sb);
     }
   }
 
