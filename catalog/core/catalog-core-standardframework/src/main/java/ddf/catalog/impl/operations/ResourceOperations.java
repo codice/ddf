@@ -139,7 +139,7 @@ public class ResourceOperations extends DescribableImpl {
 
   public Map<String, Set<String>> getEnterpriseResourceOptions(
       String metacardId, boolean fanoutEnabled) throws ResourceNotFoundException {
-    LOGGER.trace("ENTERING: getEnterpriseResourceOptions");
+    LOGGER.trace(ENTERING_STR, GET_ENTERPRISE_RESOURCE_OPTIONS);
     Set<String> supportedOptions = Collections.emptySet();
 
     try {

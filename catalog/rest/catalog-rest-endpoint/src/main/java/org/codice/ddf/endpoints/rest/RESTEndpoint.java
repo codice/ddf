@@ -64,6 +64,9 @@ public class RESTEndpoint implements RESTService {
 
   private static final String PRE_FORMAT = "<pre>%s</pre>";
 
+  private static final String UNABLE_TO_RETRIEVE_REQUESTED_METACARD =
+      "Unable to retrieve requested metacard.";
+
   private CatalogService catalogService;
 
   public RESTEndpoint(CatalogService catalogService) {
@@ -125,7 +128,7 @@ public class RESTEndpoint implements RESTService {
 
       if (content == null) {
         return Response.status(Status.NOT_FOUND)
-            .entity("<pre>Unable to retrieve requested metacard.</pre>")
+            .entity(String.format(PRE_FORMAT, UNABLE_TO_RETRIEVE_REQUESTED_METACARD))
             .type(MediaType.TEXT_HTML)
             .build();
       }
@@ -227,7 +230,7 @@ public class RESTEndpoint implements RESTService {
 
       if (content == null) {
         return Response.status(Status.NOT_FOUND)
-            .entity("<pre>Unable to retrieve requested metacard.</pre>")
+            .entity(String.format(PRE_FORMAT, UNABLE_TO_RETRIEVE_REQUESTED_METACARD))
             .type(MediaType.TEXT_HTML)
             .build();
       }

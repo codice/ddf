@@ -1214,7 +1214,7 @@ public class WfsSource extends AbstractWfsSource {
               + " may not be running.\n"
               + ce.getMessage();
     } else {
-      msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'\n" + ce;
+      msg = WFS_ERROR_MESSAGE + String.format(SOURCE_FORMAT, sourceId) + "\n" + ce;
     }
     LOGGER.info(msg);
     LOGGER.debug(msg, ce);
