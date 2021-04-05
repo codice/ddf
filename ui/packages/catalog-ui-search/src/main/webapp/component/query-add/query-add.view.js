@@ -223,7 +223,12 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   resetSearch() {
-    this.initialize()
+    if(this.model.get('type') === 'custom'){
+      this.model.set(this.getDefaultQuery())
+    }else{
+      this.model.resetToDefaults()
+      this.model.set('title','')
+    }
     this.cancel()
   },
   cancel() {
