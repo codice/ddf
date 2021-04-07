@@ -490,11 +490,11 @@ public class IngestCommand extends CatalogCommands {
 
   private Metacard readMetacard(File file) throws IngestException {
     Metacard result = null;
-
-    try (FileInputStream fis = new FileInputStream(file);
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)); ) {
+    try (FileInputStream fis = new FileInputStream(file)) {
       if (SERIALIZED_OBJECT_ID.matches(transformerId)) {
-        result = (Metacard) ois.readObject();
+        try (ObjectInputStream ois = new ObjectInputStream(fis)) {
+          result = (Metacard) ois.readObject();
+        }
       } else {
         result = generateMetacard(fis);
         if (StringUtils.isBlank(result.getTitle())) {
