@@ -17,6 +17,7 @@ const Backbone = require('backbone')
 const WorkspaceCollection = require('./model/Workspace.collection.js')
 const Content = require('../component/content/content.js')
 const router = require('../component/router/router.js')
+const wreqr = require('./wreqr.js')
 
 module.exports = new (Backbone.Model.extend({
   initialize() {
@@ -81,6 +82,7 @@ module.exports = new (Backbone.Model.extend({
         previousWorkspace &&
         previousWorkspace.id !== this.get('content').get('currentWorkspace').id
       ) {
+        wreqr.vent.trigger('resetSearch')
         previousWorkspace.clearResults()
       }
     }
