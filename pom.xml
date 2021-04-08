@@ -151,7 +151,7 @@
         <abdera.version>1.1.3</abdera.version>
         <antlr.version>4.3</antlr.version>
         <apache.shiro.version>1.7.1</apache.shiro.version>
-        <asm.version>8.0.1</asm.version>
+        <asm.version>9.0</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
         <bouncy.version>1.67</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
@@ -274,7 +274,7 @@
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
         <openjson.version>1.0.12</openjson.version>
         <pac4j.version>4.0.1</pac4j.version>
-        <pdfbox.version>2.0.19</pdfbox.version>
+        <pdfbox.version>2.0.23</pdfbox.version>
         <poi.version>4.1.2</poi.version>
         <xlsx.transformer.poi.version>4.1.2</xlsx.transformer.poi.version>
         <protobuf.version>3.12.4</protobuf.version>
@@ -302,11 +302,11 @@
         <spatial4j.version>0.7</spatial4j.version>
         <spring.version>5.2.5.RELEASE</spring.version>
         <spring-osgi.version>1.2.1</spring-osgi.version>
-        <tika.thirdparty.bundle.version>1.24.1_1</tika.thirdparty.bundle.version>
-        <tika.version>1.24.1</tika.version>
+        <tika.thirdparty.bundle.version>1.26.0_1</tika.thirdparty.bundle.version>
+        <tika.version>1.26</tika.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
-        <woodstox.core.version>6.2.1</woodstox.core.version>
+        <woodstox.core.version>6.2.4</woodstox.core.version>
         <woodstox.stax2-api.version>4.2.1</woodstox.stax2-api.version>
         <wss4j.neethi.version>3.1.1</wss4j.neethi.version>
         <wss4j.version>2.3.0</wss4j.version>
@@ -323,7 +323,7 @@
         <micrometer.hdrhistogram.version>2.1.12</micrometer.hdrhistogram.version>
         <micrometer.latencyutils.version>2.0.3</micrometer.latencyutils.version>
         <micrometer.prometheus-client.version>0.8.1</micrometer.prometheus-client.version>
-        <zstd-jni.version>1.4.5-4</zstd-jni.version>
+        <zstd-jni.version>1.4.9-1</zstd-jni.version>
 
         <!-- Command line argument properties for the maven-surefire-plugin -->
         <surefire.argline.append />
