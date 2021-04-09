@@ -114,16 +114,6 @@
             <artifactId>calcite-core</artifactId>
             <version>1.26.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-            <version>9.4.33.v20201020</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>9.4.33.v20201020</version>
-        </dependency>
 
         <!--feature dependencies-->
         <dependency>
