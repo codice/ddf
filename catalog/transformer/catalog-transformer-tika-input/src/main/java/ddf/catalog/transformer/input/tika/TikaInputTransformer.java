@@ -129,6 +129,8 @@ public class TikaInputTransformer implements InputTransformer {
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
         com.google.common.net.MediaType.BZIP2, DataType.COLLECTION.toString());
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.BZIP2, DataType.COLLECTION.toString());
+    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
         com.google.common.net.MediaType.OCTET_STREAM, OVERALL_FALLBACK_DATA_TYPE);
 
     FALLBACK_MIME_TYPE_DATA_TYPE_MAP = new HashMap<>();
