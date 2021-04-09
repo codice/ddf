@@ -492,6 +492,30 @@ public class TikaInputTransformerTest {
   }
 
   @Test
+  public void testMp4WithExcelEpochDate() throws Exception {
+    InputStream stream =
+        Thread.currentThread()
+            .getContextClassLoader()
+            .getResourceAsStream("testMp4ExcelEpochDates.mp4");
+    Metacard metacard = transform(stream);
+    assertNotNull(metacard);
+    assertThat(metacard.getCreatedDate(), nullValue());
+    assertThat(metacard.getModifiedDate(), nullValue());
+  }
+
+  @Test
+  public void testMp4WithUnixEpochDate() throws Exception {
+    InputStream stream =
+        Thread.currentThread()
+            .getContextClassLoader()
+            .getResourceAsStream("testMp4UnixEpochDates.mp4");
+    Metacard metacard = transform(stream);
+    assertNotNull(metacard);
+    assertThat(metacard.getCreatedDate(), nullValue());
+    assertThat(metacard.getModifiedDate(), nullValue());
+  }
+
+  @Test
   public void testPDF() throws Exception {
     InputStream stream =
         Thread.currentThread().getContextClassLoader().getResourceAsStream("testPDF.pdf");
