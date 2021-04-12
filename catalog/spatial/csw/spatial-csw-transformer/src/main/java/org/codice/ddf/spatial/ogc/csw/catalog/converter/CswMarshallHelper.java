@@ -51,6 +51,8 @@ class CswMarshallHelper {
 
   static final DatatypeFactory XSD_FACTORY;
 
+  private static final String XMLNS = "xmlns:";
+
   static {
     DatatypeFactory factory = null;
 
@@ -66,14 +68,13 @@ class CswMarshallHelper {
   private CswMarshallHelper() {}
 
   static void writeNamespaces(HierarchicalStreamWriter writer) {
+    writer.addAttribute(XMLNS + CswConstants.CSW_NAMESPACE_PREFIX, CswConstants.CSW_OUTPUT_SCHEMA);
     writer.addAttribute(
-        "xmlns:" + CswConstants.CSW_NAMESPACE_PREFIX, CswConstants.CSW_OUTPUT_SCHEMA);
+        XMLNS + CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX, CswConstants.DUBLIN_CORE_SCHEMA);
     writer.addAttribute(
-        "xmlns:" + CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX, CswConstants.DUBLIN_CORE_SCHEMA);
-    writer.addAttribute(
-        "xmlns:" + CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX,
+        XMLNS + CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX,
         CswConstants.DUBLIN_CORE_TERMS_SCHEMA);
-    writer.addAttribute("xmlns:" + CswConstants.OWS_NAMESPACE_PREFIX, CswConstants.OWS_NAMESPACE);
+    writer.addAttribute(XMLNS + CswConstants.OWS_NAMESPACE_PREFIX, CswConstants.OWS_NAMESPACE);
   }
 
   static void writeTemporalData(

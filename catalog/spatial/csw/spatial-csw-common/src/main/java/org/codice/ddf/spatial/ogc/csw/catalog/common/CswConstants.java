@@ -336,9 +336,9 @@ public final class CswConstants {
 
   public static final String DUBLIN_CORE_TERMS_SCHEMA = "http://purl.org/dc/terms/";
 
-  public static final QName DC_IDENTIFIER_QNAME = new QName(DUBLIN_CORE_SCHEMA, "identifier");
+  public static final QName DC_IDENTIFIER_QNAME = new QName(DUBLIN_CORE_SCHEMA, CSW_IDENTIFIER);
 
-  public static final QName DC_TITLE_QNAME = new QName(DUBLIN_CORE_SCHEMA, "title");
+  public static final QName DC_TITLE_QNAME = new QName(DUBLIN_CORE_SCHEMA, CSW_NO_PREFIX_TITLE);
 
   public static final String CONSTRAINT_VERSION = "1.1.0";
 
