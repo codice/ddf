@@ -16,7 +16,6 @@ package org.codice.ddf.security.idp.client;
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
 import ddf.security.audit.SecurityLogger;
-import ddf.security.http.SessionFactory;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.RequestBuilder;
@@ -712,8 +711,6 @@ public class IdpHandler implements AuthenticationHandler {
     LOGGER.debug("In error handler for idp - no action taken.");
     return result;
   }
-
-  public void setSessionFactory(SessionFactory sessionFactory) {}
 
   public void setUserAgentCheck(boolean userAgentCheck) {
     this.userAgentCheck = userAgentCheck;

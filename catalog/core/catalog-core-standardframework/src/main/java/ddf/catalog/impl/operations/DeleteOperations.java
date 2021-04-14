@@ -602,10 +602,6 @@ public class DeleteOperations {
     }
   }
 
-  public void setOpsCatStoreSupport(OperationsCatalogStoreSupport opsCatStoreSupport) {
-    // OperationsCatalogStoreSupport is not currently being used
-  }
-
   public void setRemoteDeleteOperations(RemoteDeleteOperations remoteDeleteOperations) {
     this.remoteDeleteOperations = remoteDeleteOperations;
   }

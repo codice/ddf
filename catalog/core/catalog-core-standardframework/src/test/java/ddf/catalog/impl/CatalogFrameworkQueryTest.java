@@ -147,7 +147,6 @@ public class CatalogFrameworkQueryTest {
 
     updateOperations.setHistorian(historian);
     deleteOperations.setHistorian(historian);
-    deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
     framework =
         new CatalogFrameworkImpl(

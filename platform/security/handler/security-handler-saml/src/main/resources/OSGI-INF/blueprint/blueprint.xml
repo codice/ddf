@@ -68,7 +68,6 @@
         <argument ref="simpleSign"/>
         <argument ref="idpMetadata"/>
         <argument ref="relayStates"/>
-        <property name="sessionFactory" ref="sessionFactory"/>
         <property name="authContextClasses">
             <list>
                 <value>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</value>

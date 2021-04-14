@@ -36,7 +36,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Operation;
@@ -439,10 +438,6 @@ public class Historian {
 
   public void setCatalogProviders(List<CatalogProvider> catalogProviders) {
     this.catalogProviders = catalogProviders;
-  }
-
-  public void setFilterBuilder(FilterBuilder filterBuilder) {
-    // filterBuilder is not currently used
   }
 
   public void setUuidGenerator(UuidGenerator uuidGenerator) {

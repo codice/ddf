@@ -434,8 +434,6 @@ public class CatalogFrameworkImplTest {
         new DeleteOperations(
             frameworkProperties, queryOperations, sourceOperations, opsSecurity, opsMetacard);
 
-    deleteOperations.setOpsCatStoreSupport(opsCatStore);
-
     ResourceOperations resOps =
         new ResourceOperations(frameworkProperties, queryOperations, opsSecurity) {
           @Override
@@ -1443,7 +1441,6 @@ public class CatalogFrameworkImplTest {
 
     updateOperations.setHistorian(historian);
     deleteOperations.setHistorian(historian);
-    deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
     CatalogFrameworkImpl catalogFramework =
         new CatalogFrameworkImpl(

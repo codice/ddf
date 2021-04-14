@@ -46,7 +46,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
@@ -117,8 +116,6 @@ public class HistorianTest {
 
     storageProvider = new InMemoryStorageProvider();
     historian.setStorageProviders(Collections.singletonList(storageProvider));
-
-    historian.setFilterBuilder(new GeotoolsFilterBuilder());
 
     historian.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
 
