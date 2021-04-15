@@ -16,16 +16,21 @@ package org.codice.ddf.rest.impl.action;
 import static org.codice.ddf.rest.api.CatalogService.CONTEXT_ROOT;
 import static org.codice.ddf.rest.api.CatalogService.SOURCES_PATH;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import ddf.action.Action;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Collections;
 import org.apache.commons.lang.CharEncoding;
 import org.codice.ddf.configuration.SystemBaseUrl;
@@ -47,10 +52,12 @@ public class MetacardTransformerActionProviderTest extends AbstractActionProvide
   private static final String REMOTE_SOURCE_ID = "remote";
 
   @Mock private Metacard metacard;
+  @Mock private Attribute attribute;
 
   private URL actionUrl;
 
   private MetacardTransformerActionProvider actionProvider;
+  private MetacardTransformerActionProvider actionProviderWithAttr;
 
   @Before
   public void setup() throws Exception {
@@ -64,6 +71,9 @@ public class MetacardTransformerActionProviderTest extends AbstractActionProvide
 
     actionProvider =
         new MetacardTransformerActionProvider(ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
+    actionProviderWithAttr =
+        new MetacardTransformerActionProvider(
+            ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID, Arrays.asList(Core.LOCATION, Core.ID));
   }
 
   @Test
@@ -75,6 +85,28 @@ public class MetacardTransformerActionProviderTest extends AbstractActionProvide
   public void createMetacardAction() throws MalformedURLException {
     Action action = actionProvider.getAction(metacard);
 
+    assertThat(action.getId(), is(ACTION_PROVIDER_ID));
+    assertThat(action.getTitle(), is("Export as " + SAMPLE_TRANSFORMER_ID));
+    assertThat(
+        action.getDescription(),
+        is(
+            "Provides a URL to the metacard that transforms the return value via the "
+                + SAMPLE_TRANSFORMER_ID
+                + " transformer"));
+    assertThat(action.getUrl(), is(actionUrl));
+  }
+
+  @Test
+  public void createMetacardActionMissingAttributes() throws MalformedURLException {
+    Action action = actionProviderWithAttr.getAction(metacard);
+    assertNull(action);
+  }
+
+  @Test
+  public void createMetacardActionValidAttributes() throws MalformedURLException {
+    when(metacard.getAttribute(any(String.class))).thenReturn(attribute);
+    when(attribute.getValue()).thenReturn("attribute");
+    Action action = actionProviderWithAttr.getAction(metacard);
     assertThat(action.getId(), is(ACTION_PROVIDER_ID));
     assertThat(action.getTitle(), is("Export as " + SAMPLE_TRANSFORMER_ID));
     assertThat(
