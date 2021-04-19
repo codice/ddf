@@ -26,6 +26,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -40,6 +41,7 @@ import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -431,6 +433,61 @@ public class SortedQueryMonitorTest {
     queryMonitor.run();
 
     assertResults(queryResponse.getResults(), TEST_PROPERTY, outputArray);
+  }
+
+  @Test
+  public void testSourcePropertiesCollision() throws Exception {
+    PropertyName propertyName = mock(PropertyName.class);
+    when(propertyName.getPropertyName()).thenReturn(TEST_PROPERTY);
+
+    CompletionService completionService = mock(CompletionService.class);
+    QueryRequest queryRequest = mock(QueryRequest.class);
+    Query query = mock(Query.class);
+    when(query.getTimeoutMillis()).thenReturn(0L);
+    when(queryRequest.getQuery()).thenReturn(query);
+    when(queryRequest.getSourceIds())
+        .thenReturn(new HashSet<>(Arrays.asList("Source1", "Source2")));
+    Map<Future<SourceResponse>, QueryRequest> futures = new LinkedHashMap<>();
+
+    Future futureMock = mock(Future.class);
+    QueryRequest queryRequest1 = mock(QueryRequest.class);
+    when(queryRequest1.getQuery()).thenReturn(query);
+    when(queryRequest1.getSourceIds()).thenReturn(new HashSet<>(Arrays.asList("Source1")));
+    SourceResponse sourceResponseMock = getMockedResponse(getResults(TEST_PROPERTY, 1));
+    when(sourceResponseMock.getProperties()).thenReturn(ImmutableMap.of("test", 1));
+    when(futureMock.get()).thenReturn(sourceResponseMock);
+    futures.put(futureMock, queryRequest1);
+
+    Future futureMock2 = mock(Future.class);
+    QueryRequest queryRequest2 = mock(QueryRequest.class);
+    when(queryRequest2.getQuery()).thenReturn(query);
+    when(queryRequest2.getSourceIds()).thenReturn(new HashSet<>(Arrays.asList("Source2")));
+    SourceResponse sourceResponseMock2 = getMockedResponse(getResults(TEST_PROPERTY, 2));
+    when(sourceResponseMock2.getProperties()).thenReturn(ImmutableMap.of("test", 2));
+    when(futureMock2.get()).thenReturn(sourceResponseMock2);
+    futures.put(futureMock2, queryRequest2);
+
+    QueryResponseImpl queryResponse = new QueryResponseImpl(queryRequest);
+
+    SortedQueryMonitor queryMonitor =
+        new SortedQueryMonitor(
+            completionService, futures, queryResponse, queryRequest, new ArrayList<>());
+
+    when(completionService.take()).thenReturn(futureMock, futureMock2);
+    queryMonitor.run();
+
+    Map<String, Serializable> returnedProperties = queryResponse.getProperties();
+    // Verify that the "test" property had a collision and only has the last value returned
+    assertThat(returnedProperties.get("test")).isEqualTo(2);
+
+    // Verify that the original source properties are available
+    assertThat(returnedProperties.containsKey(SortedQueryMonitor.ORIGINAL_SOURCE_PROPERTIES))
+        .isEqualTo(true);
+    Map<String, Map<String, Serializable>> returnedSourceProperties =
+        (Map<String, Map<String, Serializable>>) returnedProperties.get("originalSourceProperties");
+    assertThat(returnedSourceProperties.size()).isEqualTo(2);
+    assertThat(returnedSourceProperties.get("Source1").get("test")).isEqualTo(1);
+    assertThat(returnedSourceProperties.get("Source2").get("test")).isEqualTo(2);
   }
 
   private List<Result> getResults(String property, Serializable... values) {

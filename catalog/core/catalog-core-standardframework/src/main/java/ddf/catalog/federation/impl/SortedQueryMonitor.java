@@ -61,7 +61,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class SortedQueryMonitor implements Runnable {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(SortedQueryMonitor.class);
+
+  public static final String ORIGINAL_SOURCE_PROPERTIES = "originalSourceProperties";
 
   private final QueryRequest request;
 
@@ -147,6 +150,8 @@ class SortedQueryMonitor implements Runnable {
     long totalHits = 0;
     Set<ProcessingDetails> detailsOfReturnResults = returnResults.getProcessingDetails();
 
+    Map<String, Map<String, Serializable>> sourceProperties = new HashMap<>();
+
     Map<String, Serializable> returnProperties = returnResults.getProperties();
     HashMap<String, Long> hitsPerSource = new HashMap<>();
 
@@ -207,11 +212,16 @@ class SortedQueryMonitor implements Runnable {
       hitsPerSource.merge(sourceId, hits, (l1, l2) -> l1 + l2);
 
       Map<String, Serializable> properties = sourceResponse.getProperties();
+      sourceProperties.put(sourceId, properties);
+
       returnProperties.putAll(properties);
       detailsOfReturnResults.addAll(
           sourceProcessingDetailsToProcessingDetails(sourceId, sourceResponse));
     }
+
     returnProperties.put("hitsPerSource", hitsPerSource);
+    returnProperties.put(
+        ORIGINAL_SOURCE_PROPERTIES, (Serializable) Collections.unmodifiableMap(sourceProperties));
     LOGGER.debug("All sources finished returning results: {}", resultList.size());
 
     returnResults.setHits(totalHits);
