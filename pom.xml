@@ -298,7 +298,7 @@
         <spark.version>2.9.2</spark.version>
         <spatial4j.version>0.7</spatial4j.version>
         <spring.version>5.2.5.RELEASE</spring.version>
-        <spring-osgi.version>1.2.1</spring-osgi.version>
+        <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
         <tika.thirdparty.bundle.version>1.26.0_1</tika.thirdparty.bundle.version>
         <tika.version>1.26</tika.version>
         <usng4j.version>0.4</usng4j.version>
