@@ -43,6 +43,10 @@ import java.util.List;
  * @version 0.3
  */
 public class Klv {
+
+  private static final String OUT_OF_RANGE_FORMAT =
+      "Offset %d is out of range (byte array length: %d).";
+
   /**
    * The encoding style for the length field can be fixed at one byte, two bytes, four bytes, or
    * variable with Basic Encoding Rules (BER).
@@ -131,10 +135,7 @@ public class Klv {
       final KeyLength keyLength,
       final LengthEncoding lengthEncoding) {
     Preconditions.checkElementIndex(
-        offset,
-        theBytes.length,
-        String.format(
-            "Offset %d is out of range (byte array length: %d).", offset, theBytes.length));
+        offset, theBytes.length, String.format(OUT_OF_RANGE_FORMAT, offset, theBytes.length));
 
     // These methods will interpret the byte array
     // and set the appropriate key length and length encoding flags.
@@ -351,8 +352,7 @@ public class Klv {
     Preconditions.checkElementIndex(
         offset,
         inTheseBytes.length,
-        String.format(
-            "Offset %d is out of range (byte array length: %d).", offset, inTheseBytes.length));
+        String.format(OUT_OF_RANGE_FORMAT, offset, inTheseBytes.length));
 
     final int remaining = inTheseBytes.length - offset;
     checkEnoughBytesRemaining(
@@ -408,8 +408,7 @@ public class Klv {
     Preconditions.checkElementIndex(
         offset,
         inTheseBytes.length,
-        String.format(
-            "Offset %d is out of range (byte array length: %d).", offset, inTheseBytes.length));
+        String.format(OUT_OF_RANGE_FORMAT, offset, inTheseBytes.length));
 
     int length = 0;
     int valueOffset = 0;

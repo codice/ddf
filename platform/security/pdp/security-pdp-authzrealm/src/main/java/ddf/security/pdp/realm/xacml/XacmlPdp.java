@@ -94,6 +94,8 @@ public class XacmlPdp {
 
   private static final String FILTER_ACTION = "filter";
 
+  private static final String AUDIT_MSG_FORMAT = "XACML %s [%s] access for action %s";
+
   private XacmlClient pdp;
 
   private List<String> environmentAttributes;
@@ -125,10 +127,11 @@ public class XacmlPdp {
         && CollectionUtils.isEmpty(info.getRoles())
         && !CollectionUtils.isEmpty(curPermission.getKeyValuePermissionList())) {
       securityLogger.audit(
-          "XACML short-circuit denied ["
-              + primaryPrincipal
-              + "] access for action "
-              + curPermission.getAction());
+          String.format(
+              AUDIT_MSG_FORMAT,
+              "short-circuit denied",
+              primaryPrincipal,
+              curPermission.getAction()));
       return false;
     }
 
@@ -137,10 +140,11 @@ public class XacmlPdp {
             || !CollectionUtils.isEmpty(info.getRoles()))
         && CollectionUtils.isEmpty(curPermission.getKeyValuePermissionList())) {
       securityLogger.audit(
-          "XACML short-circuit permitted ["
-              + primaryPrincipal
-              + "] access for action "
-              + curPermission.getAction());
+          String.format(
+              AUDIT_MSG_FORMAT,
+              "short-circuit permitted",
+              primaryPrincipal,
+              curPermission.getAction()));
       return true;
     }
 
@@ -151,13 +155,11 @@ public class XacmlPdp {
     curResponse = isPermitted(curRequest);
     if (curResponse) {
       securityLogger.audit(
-          "XACML permitted ["
-              + primaryPrincipal
-              + "] access for action "
-              + curPermission.getAction());
+          String.format(
+              AUDIT_MSG_FORMAT, "permitted", primaryPrincipal, curPermission.getAction()));
     } else {
       securityLogger.audit(
-          "XACML denied [" + primaryPrincipal + "] access for action " + curPermission.getAction());
+          String.format(AUDIT_MSG_FORMAT, "denied", primaryPrincipal, curPermission.getAction()));
     }
     return curResponse;
   }
@@ -358,7 +360,7 @@ public class XacmlPdp {
           return X500_NAME_DATA_TYPE;
         }
       } catch (IllegalArgumentException e) {
-
+        LOGGER.debug("Unable to get X500 Name", e);
       }
     }
     return STRING_DATA_TYPE;
