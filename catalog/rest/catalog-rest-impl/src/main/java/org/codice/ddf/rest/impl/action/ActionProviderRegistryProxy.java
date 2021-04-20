@@ -17,9 +17,13 @@ import ddf.action.ActionProvider;
 import ddf.catalog.Constants;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transformer.attribute.AttributeMetacardTransformer;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.BundleContext;
@@ -76,10 +80,10 @@ public class ActionProviderRegistryProxy {
 
     String actionProviderId = ACTION_ID_PREFIX + transformerId;
 
-    String attributeName = getAttributeName(reference);
+    List<String> attributeNames = getAttributeNames(reference);
 
     ActionProvider provider =
-        actionFactory.createActionProvider(actionProviderId, transformerId, attributeName);
+        actionFactory.createActionProvider(actionProviderId, transformerId, attributeNames);
 
     Dictionary<String, String> actionProviderProperties = new DictionaryMap<>();
 
@@ -107,15 +111,19 @@ public class ActionProviderRegistryProxy {
   }
 
   /* Determines if this ServiceReference is an AttributeMetacardTransformer.
-  If not returns empty string*/
-  private String getAttributeName(ServiceReference<MetacardTransformer> serviceReference) {
+  If not determine if have any required-attributes to add or returns empty list*/
+  private List<String> getAttributeNames(ServiceReference<MetacardTransformer> serviceReference) {
     if (serviceReference != null) {
       MetacardTransformer transformer = getBundleContext().getService(serviceReference);
       if (transformer instanceof AttributeMetacardTransformer) {
-        return ((AttributeMetacardTransformer) transformer).getAttributeName();
+        return Arrays.asList(((AttributeMetacardTransformer) transformer).getAttributeName());
       }
+      return Optional.ofNullable(serviceReference.getProperty("required-attributes"))
+          .filter(List.class::isInstance)
+          .map(List.class::cast)
+          .orElse(Collections.emptyList());
     }
-    return "";
+    return Collections.emptyList();
   }
 
   protected BundleContext getBundleContext() {
