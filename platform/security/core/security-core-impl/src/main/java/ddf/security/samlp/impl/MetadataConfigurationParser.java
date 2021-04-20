@@ -266,10 +266,7 @@ public class MetadataConfigurationParser {
             buildEntityDescriptor(parsedResponse);
             service.shutdown();
           } catch (IOException e) {
-            LOGGER.info(
-                "Unable to parse metadata from: {}",
-                httpResponse.getRequest().getUrl().toString(),
-                e);
+            LOGGER.info("Unable to parse metadata from: {}", httpResponse.getRequest().getUrl(), e);
           }
         } else {
           LOGGER.warn("No/bad response; re-submitting request");

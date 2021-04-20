@@ -16,7 +16,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
-    <version>2.27.0-SNAPSHOT</version>
+    <version>2.28.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Reactor</name>
     <description>Distributed Data Framework (DDF) Parent</description>
@@ -46,7 +46,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>1.0.11</version>
+        <version>1.0.12</version>
     </parent>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -150,14 +150,14 @@
         <abdera.osgi.version>1.1.3_2</abdera.osgi.version>
         <abdera.version>1.1.3</abdera.version>
         <antlr.version>4.3</antlr.version>
-        <apache.shiro.version>1.6.0</apache.shiro.version>
-        <asm.version>8.0.1</asm.version>
+        <apache.shiro.version>1.7.1</apache.shiro.version>
+        <asm.version>9.0</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
-        <bouncy.version>1.67</bouncy.version>
+        <bouncy.version>1.68</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
-        <camel.version>3.4.0</camel.version>
+        <camel.version>3.8.0</camel.version>
         <cesium.version>1.34</cesium.version>
         <commons-compress.version>1.20</commons-compress.version>
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
@@ -181,7 +181,7 @@
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.1.8</countryconverter.version>
-        <cxf.version>3.4.0</cxf.version>
+        <cxf.version>3.4.2</cxf.version>
         <ddf-admin-ui.version>2.25.0</ddf-admin-ui.version>
         <decanter.version>1.3.0</decanter.version>
         <dropwizard.version>4.1.12.1</dropwizard.version>
@@ -204,7 +204,7 @@
         <httpmime.version>${httpclient.version}</httpmime.version>
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
-        <jackson.version>2.11.0</jackson.version>
+        <jackson.version>2.11.4</jackson.version>
         <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.mail.version>1.6.5</jakarta.mail.version>
@@ -244,7 +244,7 @@
         <apache-log4j.version>2.11.2</apache-log4j.version>
         <logback.classic.version>1.2.3</logback.classic.version>
         <logback.version>1.2.3</logback.version>
-        <lucene.version>7.7.2</lucene.version>
+        <lucene.version>8.7.0</lucene.version>
         <mariadb.version>2.4.1</mariadb.version>
         <maven.failsafe.version>2.22.2</maven.failsafe.version>
         <maven.surefire.version>2.22.2</maven.surefire.version>
@@ -256,7 +256,7 @@
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
         <opengis.bundle.version>${opengis.version}_3</opengis.bundle.version>
         <opengis.version>20.1</opengis.version>
-        <opensaml.version>3.4.5</opensaml.version>
+        <opensaml.version>3.4.6</opensaml.version>
         <opensaml.osgi.version>3.4.5_2</opensaml.osgi.version>
         <nimbus.version>8.14.1</nimbus.version>
         <nimbus.oidc.version>8.3</nimbus.oidc.version>
@@ -274,7 +274,7 @@
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
         <openjson.version>1.0.12</openjson.version>
         <pac4j.version>4.0.1</pac4j.version>
-        <pdfbox.version>2.0.19</pdfbox.version>
+        <pdfbox.version>2.0.23</pdfbox.version>
         <poi.version>4.1.2</poi.version>
         <xlsx.transformer.poi.version>4.1.2</xlsx.transformer.poi.version>
         <protobuf.version>3.12.4</protobuf.version>
@@ -290,8 +290,8 @@
         <servicemix.specs.version>2.9.0</servicemix.specs.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <smtp.client.version>1.7.1</smtp.client.version>
-        <solr.version>8.7.0</solr.version>
-        <solr.docs.version>8_7</solr.docs.version>
+        <solr.version>8.8.1</solr.version>
+        <solr.docs.version>8_8</solr.docs.version>
         <solr.httpclient.version>4.5.12</solr.httpclient.version>
         <solr.httpcore.version>4.4.13</solr.httpcore.version>
         <solr.httpmime.version>4.5.12</solr.httpmime.version>
@@ -302,11 +302,11 @@
         <spatial4j.version>0.7</spatial4j.version>
         <spring.version>5.2.5.RELEASE</spring.version>
         <spring-osgi.version>1.2.1</spring-osgi.version>
-        <tika.thirdparty.bundle.version>1.24.1_1</tika.thirdparty.bundle.version>
-        <tika.version>1.24.1</tika.version>
+        <tika.thirdparty.bundle.version>1.26.0_1</tika.thirdparty.bundle.version>
+        <tika.version>1.26</tika.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
-        <woodstox.core.version>6.2.1</woodstox.core.version>
+        <woodstox.core.version>6.2.4</woodstox.core.version>
         <woodstox.stax2-api.version>4.2.1</woodstox.stax2-api.version>
         <wss4j.neethi.version>3.1.1</wss4j.neethi.version>
         <wss4j.version>2.3.0</wss4j.version>
@@ -318,12 +318,12 @@
         <xmlbeans.version>3.1.0</xmlbeans.version>
         <xmlsec.version>2.2.0</xmlsec.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
-        <xstream.version>1.4.11.1</xstream.version>
+        <xstream.version>1.4.15</xstream.version>
         <micrometer.version>1.5.1</micrometer.version>
         <micrometer.hdrhistogram.version>2.1.12</micrometer.hdrhistogram.version>
         <micrometer.latencyutils.version>2.0.3</micrometer.latencyutils.version>
         <micrometer.prometheus-client.version>0.8.1</micrometer.prometheus-client.version>
-        <zstd-jni.version>1.4.5-4</zstd-jni.version>
+        <zstd-jni.version>1.4.9-1</zstd-jni.version>
 
         <!-- Command line argument properties for the maven-surefire-plugin -->
         <surefire.argline.append />

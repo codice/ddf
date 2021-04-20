@@ -55,6 +55,8 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 
   private static final String GRAND_TOTAL = "grandTotal";
 
+  private static final String TRANSFORMATION_FAILURE_MSG = "Could not perform Xslt transform: ";
+
   // private static final String XML_RESULTS_NAMESPACE =
   // "http://ddf/xslt-response-queue-transformer";
   private static final String XML_RESULTS_NAMESPACE = null;
@@ -233,7 +235,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
       try {
         transformer = templates.newTransformer();
       } catch (TransformerConfigurationException tce) {
-        throw new CatalogTransformerException("Could not perform Xslt transform: ", tce);
+        throw new CatalogTransformerException(TRANSFORMATION_FAILURE_MSG, tce);
       }
 
       for (Map.Entry<String, Object> entry : mergedMap.entrySet()) {
@@ -247,8 +249,8 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
         LOGGER.debug("Transform complete.");
         resultContent = new XsltTransformedContent(bytes, mimeType);
       } catch (TransformerException te) {
-        LOGGER.debug("Could not perform Xslt transform: ", te);
-        throw new CatalogTransformerException("Could not perform Xslt transform: ", te);
+        LOGGER.debug(TRANSFORMATION_FAILURE_MSG, te);
+        throw new CatalogTransformerException(TRANSFORMATION_FAILURE_MSG, te);
       }
 
       return resultContent;

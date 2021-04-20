@@ -89,6 +89,10 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
   private static final String UUID_URN = "urn:uuid:";
 
+  private static final String ENTERING_STR = "ENTERING: {}";
+
+  private static final String EXITING_STR = "EXITING: {}";
+
   private final TransformerManager schemaTransformerManager;
 
   private final TransformerManager mimeTypeTransformerManager;
@@ -474,7 +478,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       LOGGER.debug("Subscription registration failed");
     }
 
-    LOGGER.trace("EXITING: {}", methodName);
+    LOGGER.trace(EXITING_STR, methodName);
     return subscriptionUuid;
   }
 
@@ -491,7 +495,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       throws CswException {
     String methodName = "deleteCswSubscription";
     LogSanitizer logSanitizedId = LogSanitizer.sanitize(subscriptionId);
-    LOGGER.trace("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING_STR, methodName);
     LOGGER.trace("subscriptionId = {}", logSanitizedId);
 
     if (StringUtils.isEmpty(subscriptionId)) {
@@ -545,7 +549,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
   private void persistSubscription(
       CswSubscription subscription, String deliveryMethodUrl, String subscriptionUuid) {
     String methodName = "persistSubscription";
-    LOGGER.trace("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING_STR, methodName);
 
     try {
       StringWriter sw = new StringWriter();
@@ -574,7 +578,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       LOGGER.debug("Unable to persist subscription {}", subscriptionUuid, e);
     }
 
-    LOGGER.trace("EXITING: {}", methodName);
+    LOGGER.trace(EXITING_STR, methodName);
   }
 
   private ConfigurationAdmin getConfigAdmin() {
@@ -592,7 +596,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
   private Configuration getSubscriptionConfiguration(String subscriptionUuid) {
     String methodName = "getSubscriptionConfiguration";
-    LOGGER.trace("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING_STR, methodName);
 
     String filterStr = getSubscriptionUuidFilter(subscriptionUuid);
     LogSanitizer logSanitizedFilter = LogSanitizer.sanitize(filterStr);
@@ -625,7 +629,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
           "IOException trying to list configurations for filter {}", logSanitizedFilter, e);
     }
 
-    LOGGER.trace("EXITING: {}", methodName);
+    LOGGER.trace(EXITING_STR, methodName);
 
     return config;
   }

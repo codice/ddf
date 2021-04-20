@@ -13,6 +13,7 @@
  */
 package org.codice.proxy.http;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,7 +72,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
   private final Set<String> endpointIds = Collections.synchronizedSet(new HashSet<>());
 
-  public HttpProxyServiceImpl(CamelContext camelContext, String endpointType) {
+  public HttpProxyServiceImpl(CamelContext camelContext, String endpointType) throws IOException {
     this(camelContext);
     this.routeEndpointType = endpointType;
     if (!this.routeEndpointType.equals(SERVLET)) {
@@ -83,11 +84,14 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     this.camelContext = camelContext;
 
     // Add servlet to the Camel Context
-    ServletComponent servlet = new ServletComponent();
-    servlet.setCamelContext(camelContext);
-    servlet.setServletName(SERVLET_NAME);
-    if (camelContext != null) {
-      this.camelContext.addComponent(SERVLET_COMPONENT, servlet);
+    try (ServletComponent servlet = new ServletComponent()) {
+      servlet.setCamelContext(camelContext);
+      servlet.setServletName(SERVLET_NAME);
+      if (camelContext != null) {
+        this.camelContext.addComponent(SERVLET_COMPONENT, servlet);
+      }
+    } catch (IOException e) {
+      LOGGER.debug("Could not get servlet for context", e);
     }
   }
 

@@ -190,6 +190,8 @@ public final class ContextualEvaluator {
    * @return the Lucene index for the indexed text from the XML document
    * @throws IOException
    */
+  // No need for try-with-resource handled by calling method
+  @SuppressWarnings("squid:S2095")
   public static Directory buildIndex(String fullDocument, String[] xpathSelectors)
       throws IOException {
     // 0. Specify the analyzer for tokenizing text.

@@ -68,6 +68,9 @@ public class SecurityAssertionSaml implements SecurityAssertion {
   /** Log4j Logger */
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
 
+  public static final String SAML1_TOKEN_TYPE =
+      "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1";
+
   public static final String SAML2_TOKEN_TYPE =
       "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
 
@@ -253,11 +256,9 @@ public class SecurityAssertionSaml implements SecurityAssertion {
                     String value = xmlStreamReader.getAttributeValue(i);
                     if (Assertion.VERSION_ATTRIB_NAME.equals(name)) {
                       if ("2.0".equals(value)) {
-                        tokenType =
-                            "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
+                        tokenType = SAML2_TOKEN_TYPE;
                       } else if ("1.1".equals(value)) {
-                        tokenType =
-                            "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1";
+                        tokenType = SAML1_TOKEN_TYPE;
                       }
                     }
                   }

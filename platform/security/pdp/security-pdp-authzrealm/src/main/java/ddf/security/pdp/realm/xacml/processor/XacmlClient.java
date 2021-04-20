@@ -290,14 +290,13 @@ public class XacmlClient {
     DOMResult domResult;
     ClassLoader tccl = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(XacmlClient.class.getClassLoader());
-    try {
+    try (StringReader reader = new StringReader(xacmlResponse)) {
       TransformerFactory transformerFactory = XML_UTILS.getSecureXmlTransformerFactory();
 
       domResult = new DOMResult();
 
       Transformer transformer = transformerFactory.newTransformer();
-      transformer.transform(
-          new SAXSource(xmlReader, new InputSource(new StringReader(xacmlResponse))), domResult);
+      transformer.transform(new SAXSource(xmlReader, new InputSource(reader)), domResult);
     } catch (TransformerException e) {
       String message = "Unable to transform XACML response:\n" + xacmlResponse;
       LOGGER.info(message);

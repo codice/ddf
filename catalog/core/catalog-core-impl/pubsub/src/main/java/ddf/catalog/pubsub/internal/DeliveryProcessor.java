@@ -28,6 +28,12 @@ import org.slf4j.LoggerFactory;
 public class DeliveryProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(DeliveryProcessor.class);
 
+  private static final String PLUGIN_EXCEPTION_MSG =
+      "Plugin had exception during execution - still delivering the entry";
+
+  private static final String DELIVERY_FAILURE_MSG =
+      "Pre-delivery plugin determined entry cannot be delivered";
+
   private Subscription subscription;
 
   private List<PreDeliveryPlugin> preDelivery;
@@ -55,10 +61,10 @@ public class DeliveryProcessor {
             }
             subscription.getDeliveryMethod().created(entry);
           } catch (PluginExecutionException e) {
-            LOGGER.debug("Plugin had exception during execution - still delivering the entry", e);
+            LOGGER.debug(PLUGIN_EXCEPTION_MSG, e);
             subscription.getDeliveryMethod().created(entry);
           } catch (StopProcessingException e) {
-            LOGGER.info("Pre-delivery plugin determined entry cannot be delivered", e);
+            LOGGER.info(DELIVERY_FAILURE_MSG, e);
           }
         } else if (operation.equalsIgnoreCase(PubSubConstants.UPDATE)) {
           // TODO: Handle hit or miss
@@ -70,10 +76,10 @@ public class DeliveryProcessor {
             }
             subscription.getDeliveryMethod().updatedHit(entry, entry);
           } catch (PluginExecutionException e) {
-            LOGGER.debug("Plugin had exception during execution - still delivering the entry", e);
+            LOGGER.debug(PLUGIN_EXCEPTION_MSG, e);
             subscription.getDeliveryMethod().updatedHit(entry, entry);
           } catch (StopProcessingException e) {
-            LOGGER.info("Pre-delivery plugin determined entry cannot be delivered", e);
+            LOGGER.info(DELIVERY_FAILURE_MSG, e);
           }
         } else if (operation.equalsIgnoreCase(PubSubConstants.DELETE)) {
 
@@ -84,10 +90,10 @@ public class DeliveryProcessor {
             }
             subscription.getDeliveryMethod().deleted(entry);
           } catch (PluginExecutionException e) {
-            LOGGER.debug("Plugin had exception during execution - still delivering the entry", e);
+            LOGGER.debug(PLUGIN_EXCEPTION_MSG, e);
             subscription.getDeliveryMethod().deleted(entry);
           } catch (StopProcessingException e) {
-            LOGGER.info("Pre-delivery plugin determined entry cannot be delivered", e);
+            LOGGER.info(DELIVERY_FAILURE_MSG, e);
           }
         } else {
           LOGGER.debug("Could not deliver hit for subscription.");

@@ -179,6 +179,8 @@ public class CswEndpoint implements Csw {
 
   protected static final String SERVICE_TITLE = "Catalog Service for the Web";
 
+  protected static final String SERVICE = "service";
+
   protected static final String SERVICE_ABSTRACT = "DDF CSW Endpoint";
 
   protected static final String ENDPOINT_THREADPOOL_COUNT =
@@ -251,6 +253,10 @@ public class CswEndpoint implements Csw {
           + "incorrect output format and schema.";
 
   private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Unable to retrieve product for ID: %s";
+
+  private static final String UNABLE_TO_UPDATE_MSG = "Unable to update record(s).";
+
+  private static final String UNABLE_TO_DELETE_MSG = "Unable to delete record(s)";
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
@@ -634,11 +640,9 @@ public class CswEndpoint implements Csw {
                 | SourceUnavailableException
                 | UnsupportedQueryException
                 | CatalogQueryException e) {
-              LOGGER.debug("Unable to update record(s)", e);
+              LOGGER.debug(UNABLE_TO_UPDATE_MSG, e);
               throw new CswException(
-                  "Unable to update record(s).",
-                  CswConstants.TRANSACTION_FAILED,
-                  updateAction.getHandle());
+                  UNABLE_TO_UPDATE_MSG, CswConstants.TRANSACTION_FAILED, updateAction.getHandle());
             }
           };
       Callable<Integer> updateCallable = subject.associateWith(callable);
@@ -651,8 +655,7 @@ public class CswEndpoint implements Csw {
           numUpdated += completedFuture.get();
         } catch (ExecutionException | CancellationException e) {
           LOGGER.debug("Error updating Metacard", e);
-          throw new CswException(
-              "Unable to update record(s).", CswConstants.TRANSACTION_FAILED, "Update");
+          throw new CswException(UNABLE_TO_UPDATE_MSG, CswConstants.TRANSACTION_FAILED, "Update");
         }
       } catch (InterruptedException e) {
         LOGGER.debug("Metacard update interrupted", e);
@@ -669,11 +672,9 @@ public class CswEndpoint implements Csw {
       try {
         numDeleted += deleteRecords(deleteAction);
       } catch (Exception e) {
-        LOGGER.debug("Unable to delete record(s)", e);
+        LOGGER.debug(UNABLE_TO_DELETE_MSG, e);
         throw new CswException(
-            "Unable to delete record(s).",
-            CswConstants.TRANSACTION_FAILED,
-            deleteAction.getHandle());
+            UNABLE_TO_DELETE_MSG, CswConstants.TRANSACTION_FAILED, deleteAction.getHandle());
       }
     }
     LOGGER.debug("{} records deleted.", numDeleted);
@@ -768,7 +769,7 @@ public class CswEndpoint implements Csw {
               } catch (IngestException | SourceUnavailableException | CatalogQueryException e) {
                 LOGGER.debug("Unable to delete record: {}", id, e);
                 throw new CswException(
-                    "Unable to delete record(s).",
+                    UNABLE_TO_DELETE_MSG,
                     CswConstants.TRANSACTION_FAILED,
                     transformDeleteAction.getHandle());
               }
@@ -786,9 +787,7 @@ public class CswEndpoint implements Csw {
           } catch (ExecutionException | CancellationException e) {
             LOGGER.debug("Error deleting Metacard", e);
             throw new CswException(
-                "Unable to delete record(s).",
-                CswConstants.TRANSACTION_FAILED,
-                deleteAction.getHandle());
+                UNABLE_TO_DELETE_MSG, CswConstants.TRANSACTION_FAILED, deleteAction.getHandle());
           }
         } catch (InterruptedException e) {
           LOGGER.debug("Metacard delete interrupted", e);
@@ -879,9 +878,9 @@ public class CswEndpoint implements Csw {
               try {
                 return updateResultList(recordProperties, batch, results);
               } catch (IngestException | SourceUnavailableException e) {
-                LOGGER.debug("Unable to update record(s)", e);
+                LOGGER.debug(UNABLE_TO_UPDATE_MSG, e);
                 throw new CswException(
-                    "Unable to update record(s).",
+                    UNABLE_TO_UPDATE_MSG,
                     CswConstants.TRANSACTION_FAILED,
                     callableUpdateAction.getHandle());
               }
@@ -899,9 +898,7 @@ public class CswEndpoint implements Csw {
           } catch (ExecutionException | CancellationException e) {
             LOGGER.debug("Error updating", e);
             throw new CswException(
-                "Unable to update record(s).",
-                CswConstants.TRANSACTION_FAILED,
-                updateAction.getHandle());
+                UNABLE_TO_UPDATE_MSG, CswConstants.TRANSACTION_FAILED, updateAction.getHandle());
           }
         } catch (InterruptedException e) {
           LOGGER.debug("Metacard update interrupted", e);
@@ -957,19 +954,19 @@ public class CswEndpoint implements Csw {
   public void unknownService(@QueryParam("") CswRequest request) throws CswException {
     if (request.getService() == null) {
       throw new CswException(
-          "Missing service value", CswConstants.MISSING_PARAMETER_VALUE, "service");
+          "Missing service value", CswConstants.MISSING_PARAMETER_VALUE, SERVICE);
     }
     throw new CswException(
         "Unknown service (" + request.getService() + ")",
         CswConstants.INVALID_PARAMETER_VALUE,
-        "service");
+        SERVICE);
   }
 
   @POST
   @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   public void unknownService() throws CswException {
-    throw new CswException("Unknown Service", CswConstants.INVALID_PARAMETER_VALUE, "service");
+    throw new CswException("Unknown Service", CswConstants.INVALID_PARAMETER_VALUE, SERVICE);
   }
 
   @GET

@@ -61,7 +61,7 @@ final class FeatureAttributeEntry {
     } catch (IOException e) {
       LOGGER.debug("Could not compile handlebars template: {}. ", templateText, e);
     } catch (HandlebarsException e) {
-      LOGGER.debug("Error compiling template for entry: {}", toString(), e);
+      LOGGER.debug("Error compiling template for entry: {}", e);
     }
   }
 

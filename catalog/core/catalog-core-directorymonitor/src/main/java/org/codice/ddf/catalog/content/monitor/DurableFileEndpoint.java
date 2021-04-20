@@ -64,6 +64,8 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
     this.isDav = isDav;
   }
 
+  // No need for try-with-resource closure handled by calling method
+  @SuppressWarnings("squid:S2095")
   @Override
   public GenericFileConsumer<File> createConsumer(Processor processor) throws Exception {
     ObjectHelper.notNull(file, "file");
@@ -131,7 +133,7 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
     try {
       getConfiguration().setDirectory(file.getCanonicalPath());
     } catch (IOException e) {
-      LOGGER.warn("Unable to canonicalize {}. Verify location is accessible.", file.toString());
+      LOGGER.warn("Unable to canonicalize {}. Verify location is accessible.", file);
     }
   }
 

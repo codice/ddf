@@ -67,6 +67,22 @@ public abstract class Decorator implements AdminModule, Comparable<AdminModule> 
     return getName().compareTo(o.getName());
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o instanceof AdminModule) {
+      return compareTo((AdminModule) o) == 0;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return getName().hashCode();
+  }
+
   private String uriToString(URI uri) {
     if (uri == null) {
       return "";

@@ -96,6 +96,8 @@ public class QueryOperations extends DescribableImpl {
   private static final String ZERO_PAGESIZE_COMPATIBILITY_PROPERTY =
       "catalog.zeroPageSizeCompatibility";
 
+  private static final String QUERY_FAILURE_MSG = "Query could not be executed.";
+
   /**
    * Enforcing a default maximum page size of 1000 to avoid overloading the system with too many
    * records. In practice, correct paging techniques should be implemented. If needed, this property
@@ -200,8 +202,8 @@ public class QueryOperations extends DescribableImpl {
               "No Federation Strategies exist.  Cannot execute federated query.");
         } else {
           LOGGER.debug(
-              "FederationStrategy was not specified, using default strategy: "
-                  + frameworkProperties.getFederationStrategy().getClass());
+              "FederationStrategy was not specified, using default strategy: {}",
+              frameworkProperties.getFederationStrategy().getClass());
           fedStrategy = frameworkProperties.getFederationStrategy();
         }
       }
@@ -430,7 +432,7 @@ public class QueryOperations extends DescribableImpl {
       } catch (PluginExecutionException see) {
         LOGGER.debug("Error executing PostQueryPlugin: {}", see.getMessage(), see);
       } catch (StopProcessingException e) {
-        throw new FederationException("Query could not be executed.", e);
+        throw new FederationException(QUERY_FAILURE_MSG, e);
       }
     }
     return queryResponse;
@@ -442,7 +444,7 @@ public class QueryOperations extends DescribableImpl {
       try {
         queryResponse = plugin.processPostQuery(queryResponse);
       } catch (StopProcessingException e) {
-        throw new FederationException("Query could not be executed.", e);
+        throw new FederationException(QUERY_FAILURE_MSG, e);
       }
     }
     return queryResponse;
@@ -462,7 +464,7 @@ public class QueryOperations extends DescribableImpl {
           opsSecuritySupport.buildPolicyMap(
               responsePolicyMap, policyResponse.operationPolicy().entrySet());
         } catch (StopProcessingException e) {
-          throw new FederationException("Query could not be executed.", e);
+          throw new FederationException(QUERY_FAILURE_MSG, e);
         }
       }
       result.getMetacard().setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
@@ -479,7 +481,7 @@ public class QueryOperations extends DescribableImpl {
       } catch (PluginExecutionException see) {
         LOGGER.debug("Error executing PreQueryPlugin: {}", see.getMessage(), see);
       } catch (StopProcessingException e) {
-        throw new FederationException("Query could not be executed.", e);
+        throw new FederationException(QUERY_FAILURE_MSG, e);
       }
     }
     return queryReq;
@@ -491,7 +493,7 @@ public class QueryOperations extends DescribableImpl {
       try {
         queryReq = plugin.processPreQuery(queryReq);
       } catch (StopProcessingException e) {
-        throw new FederationException("Query could not be executed.", e);
+        throw new FederationException(QUERY_FAILURE_MSG, e);
       }
     }
     return queryReq;
@@ -503,7 +505,7 @@ public class QueryOperations extends DescribableImpl {
       try {
         queryRequest = plugin.processPreQuery(queryRequest);
       } catch (StopProcessingException e) {
-        throw new FederationException("Query could not be executed.", e);
+        throw new FederationException(QUERY_FAILURE_MSG, e);
       }
     }
     return queryRequest;
@@ -515,7 +517,7 @@ public class QueryOperations extends DescribableImpl {
       try {
         queryResponse = plugin.processPostQuery(queryResponse);
       } catch (StopProcessingException e) {
-        throw new FederationException("Query could not be executed.", e);
+        throw new FederationException(QUERY_FAILURE_MSG, e);
       }
     }
     return queryResponse;
@@ -533,7 +535,7 @@ public class QueryOperations extends DescribableImpl {
         opsSecuritySupport.buildPolicyMap(
             requestPolicyMap, policyResponse.operationPolicy().entrySet());
       } catch (StopProcessingException e) {
-        throw new FederationException("Query could not be executed.", e);
+        throw new FederationException(QUERY_FAILURE_MSG, e);
       }
     }
     queryReq.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);

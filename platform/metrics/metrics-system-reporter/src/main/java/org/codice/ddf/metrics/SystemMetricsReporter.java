@@ -31,14 +31,19 @@ public class SystemMetricsReporter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SystemMetricsReporter.class);
 
+  @SuppressWarnings("squid:S1118" /* Intentionally left public so OSGI can find it*/)
   public SystemMetricsReporter() {
     LOGGER.debug("Adding JVM and system metrics to global registry.");
     new ClassLoaderMetrics().bindTo(Metrics.globalRegistry);
     new DiskSpaceMetrics(Paths.get(System.getProperty("ddf.home")).toFile())
         .bindTo(Metrics.globalRegistry);
     new JvmMemoryMetrics().bindTo(Metrics.globalRegistry);
-    new JvmHeapPressureMetrics().bindTo(Metrics.globalRegistry);
-    new JvmGcMetrics().bindTo(Metrics.globalRegistry);
+    try (JvmHeapPressureMetrics jvmHeapPressureMetrics = new JvmHeapPressureMetrics()) {
+      jvmHeapPressureMetrics.bindTo(Metrics.globalRegistry);
+    }
+    try (JvmGcMetrics jvmGcMetrics = new JvmGcMetrics()) {
+      jvmGcMetrics.bindTo(Metrics.globalRegistry);
+    }
     new JvmThreadMetrics().bindTo(Metrics.globalRegistry);
 
     new FileDescriptorMetrics().bindTo(Metrics.globalRegistry);

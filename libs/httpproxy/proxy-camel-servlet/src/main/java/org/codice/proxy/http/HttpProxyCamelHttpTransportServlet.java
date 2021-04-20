@@ -65,6 +65,8 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(HttpProxyCamelHttpTransportServlet.class);
 
+  private static final String PROCESSING_ERROR_MSG = "Error processing request";
+
   private final Map<String, HttpConsumer> consumers = new ConcurrentHashMap<String, HttpConsumer>();
 
   @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint */)
@@ -193,7 +195,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
         return;
       }
     } catch (IOException e) {
-      LOGGER.warn("Could not send error due to: ", e.getMessage());
+      LOGGER.warn("Could not send error due to: {}", e.getMessage());
       LOGGER.debug("Could not send error due to: ", e);
     }
 
@@ -230,7 +232,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
     try {
       consumer.createUoW(exchange);
     } catch (Exception e) {
-      log.debug("Error processing request", e);
+      log.debug(PROCESSING_ERROR_MSG, e);
       throw new ServletException(e);
     }
 
@@ -256,10 +258,10 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
       }
       consumer.getBinding().writeResponse(exchange, response);
     } catch (IOException e) {
-      log.debug("Error processing request", e);
+      log.debug(PROCESSING_ERROR_MSG, e);
       throw e;
     } catch (Exception e) {
-      log.debug("Error processing request", e);
+      log.debug(PROCESSING_ERROR_MSG, e);
       throw new ServletException(e);
     } finally {
       consumer.doneUoW(exchange);

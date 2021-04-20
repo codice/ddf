@@ -17,7 +17,7 @@
     <parent>
         <artifactId>ddf</artifactId>
         <groupId>ddf</groupId>
-        <version>2.27.0-SNAPSHOT</version>
+        <version>2.28.0-SNAPSHOT</version>
     </parent>
     <name>DDF Features</name>
     <groupId>ddf.features</groupId>
@@ -49,11 +49,11 @@
         -->
         <aws-java-sdk-bundle-version>1.11.714_1</aws-java-sdk-bundle-version>
         <c3p0-bundle-version>${c3p0.version}_1</c3p0-bundle-version>
-        <caffeine-version>2.8.4</caffeine-version>
+        <caffeine-version>2.8.8</caffeine-version>
         <commons-codec-version>${commons-codec.version}</commons-codec-version>
         <hikaricp-version>2.4.13</hikaricp-version>
-        <httpclient4-version>4.5.12</httpclient4-version>
-        <httpcore4-version>4.4.13</httpcore4-version>
+        <httpclient4-version>4.5.13</httpclient4-version>
+        <httpcore4-version>4.4.14</httpcore4-version>
         <jackson2-version>${jackson.version}</jackson2-version>
         <jakarta-mail-version>${jakarta.mail.version}</jakarta-mail-version>
         <javax-servlet-api-version>3.1.0</javax-servlet-api-version>
@@ -72,9 +72,9 @@
         <cxf.activemq.version>5.16.0</cxf.activemq.version>
         <cxf.ahc.version>2.12.1</cxf.ahc.version>
         <cxf.atmosphere.version>2.6.1</cxf.atmosphere.version>
-        <cxf.brave.reporter.version>2.12.1</cxf.brave.reporter.version>
-        <cxf.brave.version>5.11.2</cxf.brave.version>
-        <cxf.brave.zipkin.version>2.19.3</cxf.brave.zipkin.version>
+        <cxf.brave.reporter.version>2.15.4</cxf.brave.reporter.version>
+        <cxf.brave.version>5.13.0</cxf.brave.version>
+        <cxf.brave.zipkin.version>2.22.1</cxf.brave.zipkin.version>
         <cxf.classgraph.version>4.8.25</cxf.classgraph.version>
         <cxf.classmate.version>1.5.1</cxf.classmate.version>
         <cxf.commons-codec.version>${commons-codec-version}</cxf.commons-codec.version>

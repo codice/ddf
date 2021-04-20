@@ -61,6 +61,8 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
   private static final Logger LOGGER =
       LoggerFactory.getLogger(CatalogGazetteerForwardingPlugin.class);
 
+  private static final String PROCESSING_ERROR = "Error while processing gazetteer data";
+
   private final SolrClient solrClient;
 
   public CatalogGazetteerForwardingPlugin(SolrClientFactory clientFactory) {
@@ -85,7 +87,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
               .map(CatalogGazetteerForwardingPlugin::convert)
               .collect(Collectors.toList()));
     } catch (SolrServerException | IOException e) {
-      throw new PluginExecutionException("Error while processing gazetteer data", e);
+      throw new PluginExecutionException(PROCESSING_ERROR, e);
     }
 
     return input;
@@ -110,7 +112,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
               .map(CatalogGazetteerForwardingPlugin::convert)
               .collect(Collectors.toList()));
     } catch (SolrServerException | IOException e) {
-      LOGGER.debug("Error while processing gazetteer data", e);
+      LOGGER.debug(PROCESSING_ERROR, e);
       throw new PluginExecutionException(e);
     }
     return input;
@@ -130,7 +132,7 @@ public class CatalogGazetteerForwardingPlugin implements PostIngestPlugin, PreQu
     try {
       solrClient.deleteById(ids);
     } catch (SolrServerException | IOException e) {
-      LOGGER.debug("Error while processing gazetteer data", e);
+      LOGGER.debug(PROCESSING_ERROR, e);
       throw new PluginExecutionException(e);
     }
 

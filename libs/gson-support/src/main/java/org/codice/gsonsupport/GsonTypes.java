@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -197,10 +198,6 @@ public class GsonTypes {
     }
   }
 
-  static boolean equal(Object a, Object b) {
-    return a == b || (a != null && a.equals(b));
-  }
-
   /** Returns true if {@code a} and {@code b} are equal. */
   public static boolean equals(Type a, Type b) {
     if (a == b) {
@@ -219,7 +216,7 @@ public class GsonTypes {
       // TODO: save a .clone() call
       ParameterizedType pa = (ParameterizedType) a;
       ParameterizedType pb = (ParameterizedType) b;
-      return equal(pa.getOwnerType(), pb.getOwnerType())
+      return Objects.equals(pa.getOwnerType(), pb.getOwnerType())
           && pa.getRawType().equals(pb.getRawType())
           && Arrays.equals(pa.getActualTypeArguments(), pb.getActualTypeArguments());
 
@@ -374,7 +371,7 @@ public class GsonTypes {
   }
 
   public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
-    return resolve(context, contextRawType, toResolve, new HashSet<TypeVariable>());
+    return resolve(context, contextRawType, toResolve, new HashSet<>());
   }
 
   private static Type resolve(
@@ -646,7 +643,7 @@ public class GsonTypes {
 
     @Override
     public int hashCode() {
-      // this equals Arrays.hashCode(getLowerBounds()) ^ Arrays.hashCode(getUpperBounds());
+      // this equals Arrays.hashCode(getLowerBounds()) ^ Arrays.hashCode(getUpperBounds())
       return (lowerBound != null ? 31 + lowerBound.hashCode() : 1) ^ (31 + upperBound.hashCode());
     }
 

@@ -69,7 +69,7 @@ public final class SubjectUtils implements SubjectOperations {
       displayName = getCommonName((X500Principal) principal);
     } else {
       LOGGER.debug(
-          "No display name format identified for given principal. Returning principal name ",
+          "No display name format identified for given principal. Returning principal name {} ",
           defaultName);
     }
 

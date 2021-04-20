@@ -41,6 +41,8 @@ public class FeatureOperation implements Operation<Void> {
 
   private static final String SECURITY_ERROR = "Security error";
 
+  private static final String INSTALL_ERROR = "Error installing/uninstalling feature";
+
   public static class Actions implements FeatureActions {
     @Override
     public FeatureOperation start(String featureName) throws ConfiguratorException {
@@ -111,7 +113,7 @@ public class FeatureOperation implements Operation<Void> {
   @Override
   public Result<Void> commit() throws ConfiguratorException {
     if (!isPermittedToViewFeature(featureName)) {
-      LOGGER.debug("Error installing/uninstalling feature");
+      LOGGER.debug(INSTALL_ERROR);
       throw new ConfiguratorException(SECURITY_ERROR);
     }
 
@@ -125,7 +127,7 @@ public class FeatureOperation implements Operation<Void> {
         }
       }
     } catch (Exception e) {
-      LOGGER.debug("Error installing/uninstalling feature", e);
+      LOGGER.debug(INSTALL_ERROR, e);
       throw new ConfiguratorException(INTERNAL_ERROR);
     }
 
@@ -144,7 +146,7 @@ public class FeatureOperation implements Operation<Void> {
         }
       }
     } catch (Exception e) {
-      LOGGER.debug("Error installing/uninstalling feature", e);
+      LOGGER.debug(INSTALL_ERROR, e);
       throw new ConfiguratorException(INTERNAL_ERROR);
     }
 

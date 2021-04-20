@@ -80,7 +80,7 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
     } catch (InstanceAlreadyExistsException e) {
       LOGGER.error("Re-registered Certificate Generator MBean");
     } catch (MBeanRegistrationException | NotCompliantMBeanException e) {
-      LOGGER.error("Could not register MBean [{}].", objectName.toString());
+      LOGGER.error("Could not register MBean [{}].", objectName);
     }
   }
 }

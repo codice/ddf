@@ -62,6 +62,7 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
     init();
   }
 
+  @Override
   public void init() {
     if (productToMetacardIdMap == null) {
       productToMetacardIdMap =

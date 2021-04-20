@@ -16,12 +16,20 @@ package ddf.camel.component.catalog.content;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
+import org.apache.camel.spi.UriParam;
 import org.apache.camel.support.DefaultEndpoint;
+import org.apache.camel.support.SynchronousDelegateProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ContentEndpoint extends DefaultEndpoint {
   private static final transient Logger LOGGER = LoggerFactory.getLogger(ContentEndpoint.class);
+
+  @UriParam(
+      defaultValue = "false",
+      label = "producer,advanced",
+      description = "Sets whether synchronous processing should be strictly used")
+  private boolean synchronous;
 
   public ContentEndpoint(String uri, ContentComponent component) {
     super(uri, component);
@@ -45,6 +53,9 @@ public class ContentEndpoint extends DefaultEndpoint {
 
     // Camel Producers map to <to> route nodes.
     Producer producer = new ContentProducer(this);
+    if (isSynchronous()) {
+      return new SynchronousDelegateProducer(producer);
+    }
 
     return producer;
   }
@@ -58,5 +69,13 @@ public class ContentEndpoint extends DefaultEndpoint {
   @Override
   public boolean isSingleton() {
     return true;
+  }
+
+  public boolean isSynchronous() {
+    return synchronous;
+  }
+
+  public void setSynchronous(boolean synchronous) {
+    this.synchronous = synchronous;
   }
 }

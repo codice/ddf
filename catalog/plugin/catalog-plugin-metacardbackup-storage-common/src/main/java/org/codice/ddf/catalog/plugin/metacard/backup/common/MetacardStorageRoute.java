@@ -70,7 +70,7 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
       getContext().addRoutes(this);
       getContext().start();
     } catch (Exception e) {
-      LOGGER.error("Could not start route: {}", toString(), e);
+      LOGGER.error("Could not start route: {}", e);
     }
   }
 
@@ -90,7 +90,7 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
         context.removeRouteDefinition(routeDefinition);
       }
     } catch (Exception e) {
-      LOGGER.error("Could not stop route: {}", toString(), e);
+      LOGGER.error("Could not stop route: {}", e);
     }
   }
 

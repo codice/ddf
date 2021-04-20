@@ -94,6 +94,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
   private static final String LOGIN_ERROR_MESSAGE =
       "Username [%s] could not log in successfully using LDAP authentication due to an exception: \n\t";
 
+  private static final String BIND_FAILURE_MSG = "Bind failed";
+
   private String realm;
 
   private String kdcAddress;
@@ -225,7 +227,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
           BindResult bindResult = connection.bind(request);
 
           if (!bindResult.isSuccess()) {
-            LOGGER.debug("Bind failed");
+            LOGGER.debug(BIND_FAILURE_MSG);
             return false;
           }
         } catch (LdapException e) {
@@ -268,7 +270,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
           BindResult bindResult = connection.bind(userDn, tmpPassword);
 
           if (!bindResult.isSuccess()) {
-            LOGGER.info("Bind failed");
+            LOGGER.info(BIND_FAILURE_MSG);
             return false;
           }
         } catch (Exception e) {
@@ -287,7 +289,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
           BindResult bindResult = connection.bind(connectionUsername, connectionPassword);
 
           if (!bindResult.isSuccess()) {
-            LOGGER.info("Bind failed");
+            LOGGER.info(BIND_FAILURE_MSG);
             return false;
           }
         } catch (LdapException e) {

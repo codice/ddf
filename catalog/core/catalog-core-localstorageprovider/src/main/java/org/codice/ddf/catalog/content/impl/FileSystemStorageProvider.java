@@ -333,7 +333,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
       return !dirStream.iterator().hasNext();
     } catch (IOException e) {
-      LOGGER.debug("Unable to open directory stream for {}", dir.toString(), e);
+      LOGGER.debug("Unable to open directory stream for {}", dir, e);
       throw e;
     }
   }
@@ -514,26 +514,22 @@ public class FileSystemStorageProvider implements StorageProvider {
   }
 
   private ByteSource decryptStream(InputStream contentInputStream) throws StorageException {
-    InputStream decryptedInputStream = null;
-    FileBackedOutputStream decryptedOutputStream = null;
 
-    try {
+    ByteSource output = null;
+    try (InputStream decryptedInputStream = crypter.decrypt(contentInputStream);
+        FileBackedOutputStream decryptedOutputStream = new FileBackedOutputStream(128)) {
       // do not use try with resources in order to have these InputStreams in the finally block
-      decryptedInputStream = crypter.decrypt(contentInputStream);
-      decryptedOutputStream = new FileBackedOutputStream(128);
+
       IOUtils.copy(decryptedInputStream, decryptedOutputStream);
+      output = decryptedOutputStream.asByteSource();
     } catch (CrypterException | IOException e) {
       LOGGER.debug(
           "Error decrypting InputStream {}. Failing StorageProvider read.", contentInputStream, e);
       throw new StorageException(
           String.format("Cannot decrypt InputStream %s.", contentInputStream), e);
-    } finally {
-      // need to close both streams in order for IOUtils to copy properly
-      IOUtils.closeQuietly(decryptedInputStream);
-      IOUtils.closeQuietly(decryptedOutputStream);
     }
 
-    return decryptedOutputStream.asByteSource();
+    return output;
   }
 
   private List<Path> listPaths(Path dir) throws IOException {
@@ -571,7 +567,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     } catch (InvalidPathException e) {
       LOGGER.debug(
           "Invalid path: [{}/{}]",
-          baseContentDirectory.toString(),
+          baseContentDirectory,
           pathParts.stream().collect(Collectors.joining()));
       return null;
     }
@@ -706,7 +702,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         directory = Paths.get(path, DEFAULT_CONTENT_REPOSITORY, DEFAULT_CONTENT_STORE);
       }
     } else {
-      String path = System.getProperty("karaf.home");
+      String path = System.getProperty(KARAF_HOME);
       directory = Paths.get(path, DEFAULT_CONTENT_REPOSITORY, DEFAULT_CONTENT_STORE);
     }
 
@@ -714,8 +710,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     if (!directory.toFile().exists()) {
       directories = Files.createDirectories(directory);
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(
-            "Setting base content directory to: {}", directories.toAbsolutePath().toString());
+        LOGGER.debug("Setting base content directory to: {}", directories.toAbsolutePath());
       }
     } else {
       directories = directory;
@@ -726,8 +721,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     if (!tmpDirectory.toFile().exists()) {
       tmpDirectories = Files.createDirectories(tmpDirectory);
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(
-            "Setting base content directory to: {}", tmpDirectory.toAbsolutePath().toString());
+        LOGGER.debug("Setting base content directory to: {}", tmpDirectory.toAbsolutePath());
       }
     } else {
       tmpDirectories = tmpDirectory;

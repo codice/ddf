@@ -596,11 +596,11 @@ public class DeleteOperations {
           "While rewriting the query, did not get a metacardId corresponding to every attribute.");
       LOGGER.debug("Original Delete By attribute was: {}", attributeName);
       LOGGER.debug(
-          "Metacards unable to get Metacard ID from are: "
-              + deleteRequest.getAttributeValues().stream()
-                  .map(Object::toString)
-                  .filter(s -> !queryResults.contains(s))
-                  .collect(Collectors.joining(", ", "[", "]")));
+          "Metacards unable to get Metacard ID from are: {}",
+          deleteRequest.getAttributeValues().stream()
+              .map(Object::toString)
+              .filter(s -> !queryResults.contains(s))
+              .collect(Collectors.joining(", ", "[", "]")));
     }
   }
 

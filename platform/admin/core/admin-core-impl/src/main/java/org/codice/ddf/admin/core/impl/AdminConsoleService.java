@@ -610,9 +610,11 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
         value = cardinalityEnforcer.positiveCardinality(value);
       }
 
-      entry.setValue(value);
-
-      return entry;
+      // Ensure not overriding original Map Entry data, by creating new Map Entry with the
+      // new transformed value
+      Map<String, Object> temp = new HashMap<>();
+      temp.put(entry.getKey(), value);
+      return temp.entrySet().iterator().next();
     }
   }
 

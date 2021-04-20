@@ -309,7 +309,7 @@ public class ActivityEvent extends HashMap<String, Object> {
       Long bytes = Long.valueOf(this.get(BYTES_READ_KEY).toString());
       return bytes;
     } catch (NumberFormatException nfe) {
-      LOGGER.debug("Received invalid number of bytes. ", nfe.getMessage());
+      LOGGER.debug("Received invalid number of bytes. {} ", nfe.getMessage());
       return 0L;
     }
   }
