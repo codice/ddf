@@ -102,18 +102,6 @@ pipeline {
             }
         }
 
-        stage('Codecov.io upload') {
-            when {
-                expression {env.CHANGE_ID == null}
-            }
-            environment {
-                CODECOV_TOKEN = credentials('DDF_CodeCov')
-            }
-            steps {
-                sh 'curl -s https://codecov.io/bash | bash -s - -t ${CODECOV_TOKEN}'
-             }
-        }
-
         stage('Dependency Check') {
             steps {
                 withMaven(maven: 'maven-latest', jdk: 'jdk11', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
