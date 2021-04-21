@@ -161,6 +161,11 @@
             <version>0.11.0</version>
         </dependency>
         <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-metacardtype-registry-api</artifactId>
             <version>${project.version}</version>
@@ -226,7 +231,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            jaxb2-basics-runtime;version="0.11.0",
                             spatial-wfs-common,
                             spatial-wfs-v1_1_0-common,
                             spatial-wfs-source,
@@ -240,6 +244,7 @@
                         <Import-Package>
                             !org.bouncycastle.crypto.*,
                             net.opengis.filter.v_1_1_0;version="[${org.jvnet.ogc.wfs.1.1.0.version},${org.jvnet.ogc.wfs.1.1.0.version}]",
+                            org.jvnet.jaxb2_commons.*,
                             *
                         </Import-Package>
                         <Include-Resource>{maven-resources},target/classes/describable.properties</Include-Resource>
