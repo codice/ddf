@@ -16,7 +16,6 @@ package ddf.catalog.event.retrievestatus;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import com.hazelcast.test.TestHazelcastInstanceFactory;
 import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.ResourceRequest;
@@ -69,9 +68,7 @@ public class DownloadsStatusEventListenerTest {
     ReliableResourceDownloaderConfig downloaderConfig = new ReliableResourceDownloaderConfig();
     testDownloadStatusInfo = new DownloadStatusInfoImpl();
     testDownloadStatusInfo.setSubjectOperations(new SubjectUtils());
-    TestHazelcastInstanceFactory hcInstanceFactory = new TestHazelcastInstanceFactory(10);
-    ResourceCacheImpl testResourceCache = new ResourceCacheImpl(productCacheDir);
-    testResourceCache.setCache(hcInstanceFactory.newHazelcastInstance());
+    ResourceCacheImpl testResourceCache = new ResourceCacheImpl();
     DownloadsStatusEventPublisher testEventPublisher = mock(DownloadsStatusEventPublisher.class);
     DownloadsStatusEventListener testEventListener = new DownloadsStatusEventListener();
     downloaderConfig.setResourceCache(testResourceCache);
