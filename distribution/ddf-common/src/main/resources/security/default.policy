@@ -480,6 +480,10 @@ grant codeBase "file:/PAXEXAM-PROBE/sample-soap-endpoint/ddf.thirdparty.restito/
     permission java.io.FilePermission "<<ALL FILES>>", "read,write,delete,execute";
 }
 
+grant codeBase "file:/org.jline.terminal" {
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+}
+
 grant {
     permission java.io.FilePermission "${test.resources.dir}", "read, write, delete";
     permission java.io.FilePermission "${test.resources.dir}${/}-", "read, write, delete";

@@ -414,6 +414,7 @@
 
     <feature name="security-filter-csrf" version="${project.version}"
              description="CSRF Filter for web applications.">
+        <feature>security-core-api</feature>
         <bundle>mvn:ddf.security.filter/security-filter-csrf/${project.version}</bundle>
     </feature>
 
@@ -616,6 +617,7 @@
     </feature>
 
     <feature name="platform-email" version="${project.version}" start-level="50">
+        <feature>security-encryption</feature>
         <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
         <feature>guava</feature>
