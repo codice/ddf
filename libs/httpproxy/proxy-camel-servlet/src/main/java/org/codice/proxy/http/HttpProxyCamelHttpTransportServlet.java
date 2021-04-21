@@ -67,7 +67,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
 
   private static final String PROCESSING_ERROR_MSG = "Error processing request";
 
-  private final Map<String, HttpConsumer> consumers = new ConcurrentHashMap<String, HttpConsumer>();
+  private final Map<String, HttpConsumer> consumers = new ConcurrentHashMap<>();
 
   @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint */)
   private transient CamelContext camelContext;
@@ -346,8 +346,12 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
   }
 
   @Override
-  public void writeExternal(ObjectOutput out) throws IOException {}
+  public void writeExternal(ObjectOutput out) throws IOException {
+    // Does nothing as of now
+  }
 
   @Override
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {}
+  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    // Does nothing as of now
+  }
 }

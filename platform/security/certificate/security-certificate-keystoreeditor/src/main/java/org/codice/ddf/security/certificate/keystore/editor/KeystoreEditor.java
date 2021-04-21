@@ -788,11 +788,15 @@ public class KeystoreEditor implements KeystoreEditorMBean {
   private static class NonVerifyingTrustManager implements X509TrustManager {
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType)
-        throws CertificateException {}
+        throws CertificateException {
+      // Does nothing as of now
+    }
 
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType)
-        throws CertificateException {}
+        throws CertificateException {
+      // Does nothing as of now
+    }
 
     @Override
     public X509Certificate[] getAcceptedIssuers() {

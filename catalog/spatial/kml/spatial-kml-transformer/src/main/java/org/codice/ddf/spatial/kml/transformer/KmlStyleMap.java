@@ -29,9 +29,11 @@ public class KmlStyleMap {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KmlStyleMap.class);
 
-  private List<KmlStyleMapEntry> styleMap = new ArrayList<KmlStyleMapEntry>();
+  private List<KmlStyleMapEntry> styleMap = new ArrayList<>();
 
-  public KmlStyleMap() {}
+  public KmlStyleMap() {
+    // Does nothing as of now, used in blueprint
+  }
 
   public void addMapEntry(KmlStyleMapEntry entry) {
     if (entry != null) {

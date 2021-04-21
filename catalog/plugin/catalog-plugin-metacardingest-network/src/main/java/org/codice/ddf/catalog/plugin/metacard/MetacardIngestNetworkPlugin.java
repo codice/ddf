@@ -120,7 +120,9 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
   }
 
   /** Method required by the component-managed strategy. */
-  public void destroy() {}
+  public void destroy() {
+    // Does nothing as of now, used in blueprint
+  }
 
   /**
    * Atomically update the condition so that ingest rules are not evaluated based on an invalid

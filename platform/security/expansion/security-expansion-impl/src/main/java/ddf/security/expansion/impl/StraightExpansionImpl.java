@@ -15,7 +15,9 @@ package ddf.security.expansion.impl;
 
 public class StraightExpansionImpl extends AbstractExpansion {
 
-  public StraightExpansionImpl() {}
+  public StraightExpansionImpl() {
+    // Does nothing as of now, used in blueprint
+  }
 
   /**
    * Performs an expansion using straight string equality and substitution for both parts of the

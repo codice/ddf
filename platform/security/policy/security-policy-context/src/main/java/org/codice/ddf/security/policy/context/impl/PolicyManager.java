@@ -219,7 +219,7 @@ public class PolicyManager implements ContextPolicyManager {
 
     if (webAuthTypes != null && endpointAuthTypes != null && attrContexts != null) {
 
-      Map<String, List<ContextAttributeMapping>> contextToAttr = new HashMap<>();
+      Map<String, List<ContextAttributeMapping>> contextToAttributes = new HashMap<>();
 
       List<String> attrContextList = new ArrayList<>();
       Collections.addAll(attrContextList, attrContexts);
@@ -247,19 +247,19 @@ public class PolicyManager implements ContextPolicyManager {
               attrMaps.add(new DefaultContextAttributeMapping(context, parts[0], parts[1]));
             }
           }
-          contextToAttr.put(context, attrMaps);
+          contextToAttributes.put(context, attrMaps);
         }
       }
-      this.contextToAttr = contextToAttr;
+      this.contextToAttr = contextToAttributes;
       if (contextToAuthFile == null) {
         Map<String, List<String>> contextToAuthMap = new HashMap<>();
         contextToAuthMap.put(ROOT_CONTEXT, Arrays.asList(webAuthTypes.split("\\|")));
         contextToAuthMap.put(SERVICES_CONTEXT, Arrays.asList(endpointAuthTypes.split("\\|")));
 
         contextToAuthConfig = contextToAuthMap;
-        setPolicyStore(contextToAuthMap, contextToAttr);
+        setPolicyStore(contextToAuthMap, contextToAttributes);
       } else {
-        setPolicyStore(contextToAuthFile, contextToAttr);
+        setPolicyStore(contextToAuthFile, contextToAttributes);
       }
     }
     LOGGER.debug("Policy store initialized, now contains {} entries", policyStore.size());
@@ -519,16 +519,24 @@ public class PolicyManager implements ContextPolicyManager {
   private class PolicyAlterationListener implements FileAlterationListener {
 
     @Override
-    public void onStart(FileAlterationObserver observer) {}
+    public void onStart(FileAlterationObserver observer) {
+      // Does nothing as of now
+    }
 
     @Override
-    public void onDirectoryCreate(File directory) {}
+    public void onDirectoryCreate(File directory) {
+      // Does nothing as of now
+    }
 
     @Override
-    public void onDirectoryChange(File directory) {}
+    public void onDirectoryChange(File directory) {
+      // Does nothing as of now
+    }
 
     @Override
-    public void onDirectoryDelete(File directory) {}
+    public void onDirectoryDelete(File directory) {
+      // Does nothing as of now
+    }
 
     @Override
     public void onFileCreate(File file) {
@@ -546,7 +554,9 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     @Override
-    public void onStop(FileAlterationObserver observer) {}
+    public void onStop(FileAlterationObserver observer) {
+      // Does nothing as of now
+    }
   }
 
   private void updateFileConfiguration(String policyFilePath) {

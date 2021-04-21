@@ -77,7 +77,9 @@ public class SubjectRetrievalInterceptor extends AbstractPhaseInterceptor<Messag
   }
 
   @Override
-  public void close(MessageContext context) {}
+  public void close(MessageContext context) {
+    // Does nothing as of now
+  }
 
   public static class EventSecurityEndingInterceptor extends AbstractPhaseInterceptor<Message> {
     public EventSecurityEndingInterceptor() {

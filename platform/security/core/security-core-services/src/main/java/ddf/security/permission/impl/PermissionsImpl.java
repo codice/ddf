@@ -31,7 +31,9 @@ public class PermissionsImpl implements Permissions {
 
   private static final Pattern PATTERN = Pattern.compile(",");
 
-  public PermissionsImpl() {}
+  public PermissionsImpl() {
+    // Does nothing as of now, used in blueprint
+  }
 
   @Override
   public Map<String, Set<String>> parsePermissionsFromString(List<String> permStrings) {
