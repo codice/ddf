@@ -23,13 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.management.MBeanServer;
-import org.apache.log4j.Priority;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.ops4j.pax.logging.spi.PaxLevel;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
+import org.osgi.service.log.LogLevel;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoggingServiceTest {
@@ -137,20 +137,20 @@ public class LoggingServiceTest {
           }
 
           @Override
-          public int toInt() {
+          public LogLevel toLevel() {
             switch (level) {
               case "ERROR":
-                return Priority.ERROR_INT;
+                return LogLevel.ERROR;
               case "WARN":
-                return Priority.WARN_INT;
+                return LogLevel.WARN;
               case "INFO":
-                return Priority.INFO_INT;
+                return LogLevel.INFO;
               case "DEBUG":
-                return Priority.DEBUG_INT;
+                return LogLevel.DEBUG;
               case "TRACE":
-                return org.apache.log4j.Level.TRACE_INT;
+                return LogLevel.TRACE;
               default:
-                return -1;
+                return null;
             }
           }
 

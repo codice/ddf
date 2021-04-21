@@ -75,7 +75,6 @@
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-api</artifactId>
-            <version>${pax.web.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -89,7 +88,7 @@
         <dependency>
             <groupId>org.springframework.osgi</groupId>
             <artifactId>spring-osgi-mock</artifactId>
-            <version>${spring-osgi.version}</version>
+            <version>${spring-osgi-mock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -106,6 +105,15 @@
             <groupId>ddf.platform</groupId>
             <artifactId>http-filter-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

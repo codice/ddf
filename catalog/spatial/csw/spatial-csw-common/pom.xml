@@ -169,7 +169,6 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>${jakarta.xml.bind.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
@@ -182,6 +181,10 @@
             <artifactId>gt-referencing</artifactId>
             <version>${org.geotools.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
         </dependency>
     </dependencies>
 </project>

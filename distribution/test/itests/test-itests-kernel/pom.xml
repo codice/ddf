@@ -54,8 +54,7 @@
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <version>${osgi.version}</version>
+            <artifactId>osgi.cmpn</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

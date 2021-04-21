@@ -32,7 +32,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -59,8 +58,7 @@
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>${osgi.version}</version>
+            <artifactId>osgi.core</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>

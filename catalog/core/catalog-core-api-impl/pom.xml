@@ -66,7 +66,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.security</groupId>
@@ -78,6 +77,10 @@
             <artifactId>jakarta.activation</artifactId>
             <version>${jakarta.activation.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
         </dependency>
     </dependencies>
     <build>

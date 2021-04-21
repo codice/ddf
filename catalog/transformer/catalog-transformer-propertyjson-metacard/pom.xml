@@ -54,7 +54,6 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>${jakarta.xml.bind.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -119,7 +119,6 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>${jakarta.xml.bind.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf</groupId>
@@ -143,6 +142,10 @@
             <artifactId>catalog-core-attributeregistry</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
         </dependency>
     </dependencies>
     <build>

@@ -39,13 +39,6 @@
                 <module>test-itests-kernel</module>
                 <module>test-itests-ddf-core</module>
             </modules>
-            <properties>
-                <!-- Copied from ops4j/org.ops4j.pax.exam2/4.11.0/pom/pystemStateManagerom.xml
-                Do not change these unless upgrading pax exam-->
-                <pax.tinybundles.version>2.1.1</pax.tinybundles.version>
-                <pax.url.version>2.4.5</pax.url.version>
-                <!-- End pax exam properties -->
-            </properties>
             <dependencyManagement>
                 <dependencies>
                     <dependency>
@@ -54,37 +47,10 @@
                         <version>${restassured.version}</version>
                     </dependency>
                     <dependency>
-                        <groupId>org.ops4j.pax.tinybundles</groupId>
-                        <artifactId>tinybundles</artifactId>
-                        <version>${pax.tinybundles.version}</version>
-                    </dependency>
-                    <!-- Start of dependencies for pax exam karaf container -->
-                    <dependency>
-                        <groupId>org.ops4j.pax.exam</groupId>
-                        <artifactId>pax-exam-container-karaf</artifactId>
-                        <version>${pax.exam.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.ops4j.pax.exam</groupId>
-                        <artifactId>pax-exam-junit4</artifactId>
-                        <version>${pax.exam.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.ops4j.pax.exam</groupId>
-                        <artifactId>pax-exam</artifactId>
-                        <version>${pax.exam.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.ops4j.pax.url</groupId>
-                        <artifactId>pax-url-aether</artifactId>
-                        <version>${pax.url.version}</version>
-                    </dependency>
-                    <dependency>
                         <groupId>javax.inject</groupId>
                         <artifactId>javax.inject</artifactId>
                         <version>${javax.inject.version}</version>
                     </dependency>
-                    <!-- End of pax exam dependencies -->
                 </dependencies>
             </dependencyManagement>
             <dependencies>
@@ -116,7 +82,6 @@
                 <dependency>
                     <groupId>org.springframework.osgi</groupId>
                     <artifactId>spring-osgi-core</artifactId>
-                    <version>${spring-osgi.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>ddf.security.policy</groupId>
@@ -130,7 +95,6 @@
                 <dependency>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>org.apache.felix.configadmin</artifactId>
-                    <version>${felix.configadmin.version}</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>

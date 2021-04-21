@@ -44,7 +44,6 @@
             <version>${pac4j.version}</version>
         </dependency>
         <dependency>
-
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>${nimbus.version}</version>
@@ -87,7 +86,10 @@
             <artifactId>security-oidc-bundle</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+        </dependency>
         <!-- Test Dependencies -->
         <dependency>
             <groupId>com.auth0</groupId>

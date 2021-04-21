@@ -33,7 +33,6 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.configadmin</artifactId>
-            <version>${felix.configadmin.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.osgi</groupId>
@@ -42,13 +41,12 @@
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>${osgi.version}</version>
+            <artifactId>osgi.core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.enterprise</artifactId>
-            <version>${osgi.version}</version>
+            <version>${osgi.enterprise.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

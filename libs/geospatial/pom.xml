@@ -32,7 +32,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
@@ -70,7 +69,6 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>${commons-collections.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -66,6 +66,10 @@
             <artifactId>org.apache.karaf.features.core</artifactId>
             <version>${karaf.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

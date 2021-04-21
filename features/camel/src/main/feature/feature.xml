@@ -431,15 +431,6 @@
     <feature version='${camel.version}'>camel-core</feature>
     <bundle>mvn:org.apache.camel/camel-jaxb/${camel.version}</bundle>
   </feature>
-  <feature name='camel-jetty' version='${camel.version}' start-level='50'>
-    <feature>jetty</feature>
-    <feature version='${camel.version}'>camel-core</feature>
-    <bundle>mvn:org.apache.camel/camel-attachments/${camel.version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-http-base/${camel.version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-jetty-common/${camel.version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-jetty/${camel.version}</bundle>
-  </feature>
   <feature name='camel-quartz' version='${camel.version}' start-level='50'>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.c3p0/${c3p0-bundle-version}</bundle>
     <bundle dependency='true'>mvn:com.zaxxer/HikariCP-java7/${hikaricp-version}</bundle>

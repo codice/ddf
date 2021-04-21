@@ -13,6 +13,7 @@
  */
 package ddf.catalog.util.impl;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import org.osgi.framework.Bundle;
@@ -51,6 +52,11 @@ public class ServiceReferenceImpl implements ServiceReference {
   @Override
   public boolean isAssignableTo(Bundle bundle, String className) {
     return false;
+  }
+
+  @Override
+  public Dictionary<String, Object> getProperties() {
+    return null;
   }
 
   @Override

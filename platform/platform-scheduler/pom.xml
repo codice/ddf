@@ -91,6 +91,10 @@
             <artifactId>security-core-services</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -112,6 +116,7 @@
                         <Private-Package>
                             ddf.platform.scheduler,
                             org.apache.felix.gogo.runtime,
+                            org.apache.felix.gogo.runtime.util.function,
                             org.apache.karaf.shell.security.impl
                         </Private-Package>
                         <Export-Package />

@@ -41,9 +41,8 @@
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
+            <artifactId>osgi.core</artifactId>
             <scope>provided</scope>
-            <version>${osgi.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.lib</groupId>
