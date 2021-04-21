@@ -75,7 +75,7 @@ public class ResourceCacheImplTest {
     defaultProductCacheDirectory = Paths.get(ddfData.toString(), "Product_Cache");
     defaultProductCacheDirectory.toFile().mkdirs();
 
-    resourceCache = new ResourceCacheImpl(defaultProductCacheDirectory.toString());
+    resourceCache = new ResourceCacheImpl();
 
     newResourceCache =
         new org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl(resourceCache);
@@ -96,14 +96,11 @@ public class ResourceCacheImplTest {
   public void testPutThenGet() throws URISyntaxException {
     Metacard metacard = generateMetacard();
     ReliableResource reliableResource = createCachedResource(metacard);
-
     resourceCache.addPendingCacheEntry(reliableResource);
-    assertTrue(resourceCache.isPending(CACHED_RESOURCE_KEY));
+    assertFalse("cache should be noop", resourceCache.isPending(CACHED_RESOURCE_KEY));
     resourceCache.put(reliableResource);
-    assertTrue(
-        assertReliableResourceEquals(
-            reliableResource, resourceCache.getValid(CACHED_RESOURCE_KEY, metacard)));
-    assertFalse(resourceCache.isPending(CACHED_RESOURCE_KEY));
+    assertNull("cache should be noop", resourceCache.getValid(CACHED_RESOURCE_KEY, metacard));
+    assertFalse("cache should be noop", resourceCache.isPending(CACHED_RESOURCE_KEY));
   }
 
   /**
@@ -115,10 +112,8 @@ public class ResourceCacheImplTest {
     ReliableResource reliableResource = createCachedResource(metacard);
 
     resourceCache.put(reliableResource);
-    assertFalse(resourceCache.isPending(CACHED_RESOURCE_KEY));
-    assertTrue(
-        assertReliableResourceEquals(
-            reliableResource, resourceCache.getValid(CACHED_RESOURCE_KEY, metacard)));
+    assertFalse("cache should be noop", resourceCache.isPending(CACHED_RESOURCE_KEY));
+    assertNull("cache should be noop", resourceCache.getValid(CACHED_RESOURCE_KEY, metacard));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -141,7 +136,6 @@ public class ResourceCacheImplTest {
   public void testGetValidWhenNoProductInCacheDirectory() {
     String key = CACHED_RESOURCE_KEY;
     MetacardImpl metacard = new MetacardImpl();
-
     assertNull(resourceCache.getValid(key, metacard));
   }
 
@@ -149,9 +143,9 @@ public class ResourceCacheImplTest {
   public void testValidationEqualMetacards() throws URISyntaxException {
     MetacardImpl metacard = generateMetacard();
     MetacardImpl metacard1 = generateMetacard();
-
     ReliableResource cachedResource = new ReliableResource("key", "", null, null, metacard);
-    assertTrue(resourceCache.validateCacheEntry(cachedResource, metacard1));
+    assertFalse(
+        "cache should be noop", resourceCache.validateCacheEntry(cachedResource, metacard1));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -188,7 +182,7 @@ public class ResourceCacheImplTest {
         new ReliableResource(
             cachedResourceMetacardKey, cachedResourceFilePath.toString(), null, null, metacard);
     resourceCache.validateCacheEntry(cachedResource, metacard1);
-    assertFalse(cachedResourceFile.exists());
+    assertTrue("cache should be noop", cachedResourceFile.exists());
   }
 
   @Test
@@ -198,7 +192,7 @@ public class ResourceCacheImplTest {
 
     String cacheKey = "cacheKey1";
     resourceCache.put(new ReliableResource(cacheKey, "", null, "name", cachedMetacard));
-    assertTrue(resourceCache.containsValid(cacheKey, latestMetacard));
+    assertFalse("cache should be noop", resourceCache.containsValid(cacheKey, latestMetacard));
   }
 
   @Test
@@ -207,15 +201,6 @@ public class ResourceCacheImplTest {
 
     String key = "cacheKey1";
     assertFalse(resourceCache.containsValid(key, latestMetacard));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testContainsNullLatestMetacard() throws URISyntaxException {
-    MetacardImpl cachedMetacard = generateMetacard();
-
-    String cacheKey = "cacheKey1";
-    resourceCache.put(new ReliableResource(cacheKey, "", null, "name", cachedMetacard));
-    assertFalse(resourceCache.containsValid("cacheKey1", null));
   }
 
   @Test
@@ -238,8 +223,10 @@ public class ResourceCacheImplTest {
             null,
             "name",
             cachedMetacard));
-    assertFalse(resourceCache.containsValid(cachedResourceMetacardKey, latestMetacard));
-    assertFalse(cachedResourceFile.exists());
+    assertFalse(
+        "cache should be noop",
+        resourceCache.containsValid(cachedResourceMetacardKey, latestMetacard));
+    assertTrue("cache should be noop", cachedResourceFile.exists());
   }
 
   @Test
@@ -247,7 +234,6 @@ public class ResourceCacheImplTest {
     MetacardImpl cachedMetacard = generateMetacard();
     cachedMetacard.setId("different-id");
     MetacardImpl latestMetacard = generateMetacard();
-
     String cacheKey = "cacheKey1";
     resourceCache.put(new ReliableResource(cacheKey, "", null, "name", cachedMetacard));
     assertFalse(resourceCache.containsValid(cacheKey, latestMetacard));
@@ -287,23 +273,17 @@ public class ResourceCacheImplTest {
   public void getDefaultResourceInCache() {
     ReliableResource cachedResource = createCachedResource(cachedMetacard);
     resourceCache.put(cachedResource);
-
     Optional<Resource> optionalResource = newResourceCache.get(cachedMetacard);
-
-    assertTrue(optionalResource.isPresent());
-    assertTrue(assertReliableResourceEquals(cachedResource, optionalResource.get()));
+    assertFalse("cache should be noop", optionalResource.isPresent());
   }
 
   @Test
   public void getSpecificResourceInCache() {
     ReliableResource cachedResource = createCachedResource(cachedMetacard);
     resourceCache.put(cachedResource);
-
     Optional<Resource> optionalResource =
         newResourceCache.get(cachedMetacard, new ResourceRequestById(METACARD_ID));
-
-    assertTrue(optionalResource.isPresent());
-    assertTrue(assertReliableResourceEquals(cachedResource, optionalResource.get()));
+    assertFalse("cache should be noop", optionalResource.isPresent());
   }
 
   @Test
@@ -325,17 +305,17 @@ public class ResourceCacheImplTest {
   public void containsDefaultResourceInCache() {
     ReliableResource cachedResource = createCachedResource(cachedMetacard);
     resourceCache.put(cachedResource);
-
-    assertThat(newResourceCache.contains(cachedMetacard), is(true));
+    assertThat("cache should be noop", newResourceCache.contains(cachedMetacard), is(false));
   }
 
   @Test
   public void containsSpecificResourceInCache() {
     ReliableResource cachedResource = createCachedResource(cachedMetacard);
     resourceCache.put(cachedResource);
-
     assertThat(
-        newResourceCache.contains(cachedMetacard, new ResourceRequestById(METACARD_ID)), is(true));
+        "cache should be noop",
+        newResourceCache.contains(cachedMetacard, new ResourceRequestById(METACARD_ID)),
+        is(false));
   }
 
   @Test

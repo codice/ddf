@@ -47,9 +47,7 @@
     </reference-list>
 
     <bean id="deprecatedProductCache" class="ddf.catalog.cache.impl.ResourceCacheImpl"
-          destroy-method="teardownCache">
-        <argument value="${ddf.data}/Product_Cache"/>
-    </bean>
+          destroy-method="teardownCache"/>
 
     <bean id="productCache" class="org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl">
         <argument ref="deprecatedProductCache"/>
