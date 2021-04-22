@@ -14,15 +14,15 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Video Thumbnail Plugin"
-         id="org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin">
+    <OCD name="Video Thumbnail Service"
+         id="ddf.video.thumbnail.impl.VideoThumbnailImpl">
         <AD description="Maximum video file size in Megabytes for which to create a thumbnail. Default is 120 Megabytes. Processing large videos may affect system performance."
             name="Maximum video file size to process (Megabytes)" id="maxFileSizeMB"
             type="Long" default="120"/>
     </OCD>
 
-    <Designate pid="org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin">
-        <Object ocdref="org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin"/>
+    <Designate pid="ddf.video.thumbnail.impl.VideoThumbnailImpl">
+        <Object ocdref="ddf.video.thumbnail.impl.VideoThumbnailImpl"/>
     </Designate>
 
 </metatype:MetaData>
