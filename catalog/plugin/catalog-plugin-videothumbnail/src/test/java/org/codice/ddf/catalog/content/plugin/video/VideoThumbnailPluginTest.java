@@ -13,276 +13,73 @@
  */
 package org.codice.ddf.catalog.content.plugin.video;
 
-import static org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin.DEFAULT_MAX_FILE_SIZE_MB;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.data.ContentItem;
-import ddf.catalog.content.operation.CreateStorageRequest;
-import ddf.catalog.content.operation.CreateStorageResponse;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.video.thumbnail.VideoThumbnail;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.junit.After;
-import org.junit.Assume;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
+import org.mockito.ArgumentMatcher;
 
 public class VideoThumbnailPluginTest {
 
-  private static final long BYTES_PER_MEGABYTE = 1024L * 1024L;
+  private static final byte[] GIF = new byte[] {0x47, 0x49, 0x46, 0x38, 0x39, 0x61};
 
-  private String binaryPath;
+  private static final byte[] PNG =
+      new byte[] {(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+
+  private static final MimeType VIDEO_MP4;
+
+  private static final MimeType IMAGE_JPEG;
 
   private VideoThumbnailPlugin videoThumbnailPlugin;
 
   private HashMap<String, Map> tmpContentPaths;
 
-  @BeforeClass
-  public static void setUpClass() {
-    Assume.assumeFalse("Skip unit tests on Windows. See DDF-3503.", SystemUtils.IS_OS_WINDOWS);
-  }
+  private VideoThumbnail videoThumbnail;
 
-  @Before
-  public void setUp() throws IOException, MimeTypeParseException, URISyntaxException {
-    System.setProperty("ddf.home", SystemUtils.USER_DIR);
-
-    binaryPath = FilenameUtils.concat(System.getProperty("ddf.home"), "bin_third_party");
-
-    videoThumbnailPlugin = new VideoThumbnailPlugin(createMockBundleContext());
-    tmpContentPaths = new HashMap<>();
-  }
-
-  @After
-  public void tearDown() {
-    videoThumbnailPlugin.destroy();
-
-    final File binaryFolder = new File(binaryPath);
-    if (binaryFolder.exists() && !FileUtils.deleteQuietly(binaryFolder)) {
-      binaryFolder.deleteOnExit();
+  static {
+    try {
+      VIDEO_MP4 = new MimeType("video/mp4");
+      IMAGE_JPEG = new MimeType("image/jpeg");
+    } catch (MimeTypeParseException e) {
+      throw new ExceptionInInitializerError(e);
     }
   }
 
-  /**
-   * Tests processing short.mp4. This file is short enough that FFmpeg will only generate one
-   * thumbnail for it even if we request more than one.
-   */
-  @Test
-  public void testProcessShortVideo() throws Exception {
-    // given
-    final ContentItem mockContentItem = createMockVideoContentItemFromResource("/short.mp4");
+  @Before
+  public void setUp() {
+    videoThumbnail = mock(VideoThumbnail.class);
 
-    // when
-    final CreateStorageResponse processedCreateResponse =
-        videoThumbnailPlugin.process(createMockCreateStorageResponse(mockContentItem));
+    videoThumbnailPlugin = new VideoThumbnailPlugin(videoThumbnail);
 
-    // then
-    final List<ContentItem> processedContentItems =
-        processedCreateResponse.getCreatedContentItems();
-    assertThat(
-        "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
-    verifyThumbnailIsPng(mockContentItem, processedContentItems.get(0));
-  }
-
-  /**
-   * Tests processing medium.mp4. This file is short enough that the plugin won't try to grab
-   * thumbnails from different portions of the video but is long enough that the resulting thumbnail
-   * will be a GIF.
-   */
-  @Test
-  public void testProcessMediumVideo() throws Exception {
-    // given
-    final ContentItem mockContentItem = createMockVideoContentItemFromResource("/medium.mp4");
-
-    // when
-    final CreateStorageResponse processedCreateResponse =
-        videoThumbnailPlugin.process(createMockCreateStorageResponse(mockContentItem));
-
-    // then
-    final List<ContentItem> processedContentItems =
-        processedCreateResponse.getCreatedContentItems();
-    assertThat(
-        "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
-    verifyThumbnailIsGif(mockContentItem, processedContentItems.get(0));
-  }
-
-  /**
-   * Tests processing long.mp4. This file is long enough that the plugin will try to grab thumbnails
-   * from different portions of the video.
-   */
-  @Test
-  public void testProcessLongVideo() throws Exception {
-    // given
-    final ContentItem mockContentItem = createMockVideoContentItemFromResource("/long.mp4");
-
-    // when
-    final CreateStorageResponse processedCreateResponse =
-        videoThumbnailPlugin.process(createMockCreateStorageResponse(mockContentItem));
-
-    // then
-    final List<ContentItem> processedContentItems =
-        processedCreateResponse.getCreatedContentItems();
-    assertThat(
-        "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
-    verifyThumbnailIsGif(mockContentItem, processedContentItems.get(0));
-  }
-
-  @Test
-  public void testProcessNotVideoFile() throws Exception {
-    // given
-    final ContentItem mockContentItem = createMockContentItemOfMimeType("image/jpeg");
-
-    // when
-    final CreateStorageResponse processedCreateResponse =
-        videoThumbnailPlugin.process(createMockCreateStorageResponse(mockContentItem));
-
-    // then
-    final List<ContentItem> processedContentItems =
-        processedCreateResponse.getCreatedContentItems();
-    assertThat(
-        "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
-    verifyThumbnailIsNotSet(mockContentItem, processedContentItems.get(0));
-  }
-
-  @Test
-  public void testProcessCorruptedVideo() throws Exception {
-    // given
-    final ContentItem mockContentItem = createMockVideoContentItemFromResource("/corrupted.mp4");
-
-    // when
-    final CreateStorageResponse processedCreateResponse =
-        videoThumbnailPlugin.process(createMockCreateStorageResponse(mockContentItem));
-
-    // then
-    final List<ContentItem> processedContentItems =
-        processedCreateResponse.getCreatedContentItems();
-    assertThat(
-        "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
-    verifyThumbnailIsNotSet(mockContentItem, processedContentItems.get(0));
-  }
-
-  @Test
-  public void testProcessVideoLargerThanDefaultMaxFileSize() throws Exception {
-    // given
-    final ContentItem mockContentItem =
-        createMockVideoContentItemWithSizeBytes(DEFAULT_MAX_FILE_SIZE_MB * BYTES_PER_MEGABYTE + 1);
-
-    // when
-    final CreateStorageResponse processedCreateResponse =
-        videoThumbnailPlugin.process(createMockCreateStorageResponse(mockContentItem));
-
-    // then
-    final List<ContentItem> processedContentItems =
-        processedCreateResponse.getCreatedContentItems();
-    assertThat(
-        "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
-    verifyThumbnailIsNotSet(mockContentItem, processedContentItems.get(0));
-  }
-
-  @Test
-  public void testProcessVideoLargerThanConfiguredMaxFileSize() throws Exception {
-    // given
-    final int maxFileSizeMB = 5;
-    videoThumbnailPlugin.setMaxFileSizeMB(maxFileSizeMB);
-    final ContentItem mockContentItem =
-        createMockVideoContentItemWithSizeBytes(maxFileSizeMB * BYTES_PER_MEGABYTE + 1);
-
-    // when
-    final CreateStorageResponse processedCreateResponse =
-        videoThumbnailPlugin.process(createMockCreateStorageResponse(mockContentItem));
-
-    // then
-    final List<ContentItem> processedContentItems =
-        processedCreateResponse.getCreatedContentItems();
-    assertThat(
-        "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
-    verifyThumbnailIsNotSet(mockContentItem, processedContentItems.get(0));
-  }
-
-  @Test
-  public void testProcessVideoWhenMaxFileSizeIs0() throws Exception {
-    // given
-    videoThumbnailPlugin.setMaxFileSizeMB(0);
-
-    final ContentItem mockContentItem = createMockVideoContentItemFromResource("/short.mp4");
-
-    // when
-    final CreateStorageResponse processedCreateResponse =
-        videoThumbnailPlugin.process(createMockCreateStorageResponse(mockContentItem));
-
-    // then
-    final List<ContentItem> processedContentItems =
-        processedCreateResponse.getCreatedContentItems();
-    assertThat(
-        "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
-    verifyThumbnailIsNotSet(mockContentItem, processedContentItems.get(0));
-  }
-
-  @Test
-  public void testProcessVideoSmallerThanConfiguredMaxFileSize() throws Exception {
-    // given
-    videoThumbnailPlugin.setMaxFileSizeMB(1);
-
-    final ContentItem mockContentItem = createMockVideoContentItemFromResource("/long.mp4");
-
-    // when
-    final CreateStorageResponse processedCreateResponse =
-        videoThumbnailPlugin.process(createMockCreateStorageResponse(mockContentItem));
-
-    // then
-    final List<ContentItem> processedContentItems =
-        processedCreateResponse.getCreatedContentItems();
-    assertThat(
-        "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
-    verifyThumbnailIsGif(mockContentItem, processedContentItems.get(0));
-  }
-
-  @Test
-  public void testProcessVideoWhenErrorRetrievingContentItemSize() throws Exception {
-    // given
-    final ContentItem mockContentItem = createMockVideoContentItem();
-    doThrow(new IOException()).when(mockContentItem).getSize();
-
-    // when
-    final CreateStorageResponse processedCreateResponse =
-        videoThumbnailPlugin.process(createMockCreateStorageResponse(mockContentItem));
-
-    // then
-    final List<ContentItem> processedContentItems =
-        processedCreateResponse.getCreatedContentItems();
-    assertThat(
-        "There should be exactly 1 returned content item", processedContentItems, hasSize(1));
-    verifyThumbnailIsNotSet(mockContentItem, processedContentItems.get(0));
+    tmpContentPaths = new HashMap<>();
   }
 
   /**
@@ -292,27 +89,38 @@ public class VideoThumbnailPluginTest {
   @Test
   public void testProcessMixedContentItems() throws Exception {
     // given
+    Pair<File, Path> mediumContent = mockContent(307707);
+    Pair<File, Path> longContent = mockContent(926666);
+    Pair<File, Path> corruptedContent = mockContent(92160);
+    Pair<File, Path> shortContent = mockContent(137408);
+
     final ContentItem mediumVideoMockContentItem =
-        createMockVideoContentItemFromResource("/medium.mp4");
-    final ContentItem throwsIoExceptionVideoMockContentItem = createMockVideoContentItem();
-    doThrow(new IOException()).when(throwsIoExceptionVideoMockContentItem).getSize();
+        createMockVideoContentItemFromResource(mediumContent.getRight());
     final ContentItem longVideoMockContentItem =
-        createMockVideoContentItemFromResource("/long.mp4");
+        createMockVideoContentItemFromResource(longContent.getRight());
     final ContentItem corruptedVideoMockContentItem =
-        createMockVideoContentItemFromResource("/corrupted.mp4");
-    final ContentItem videoLargerThanDefaultMaxFileSizeMockContentItem =
-        createMockVideoContentItemWithSizeBytes(DEFAULT_MAX_FILE_SIZE_MB * BYTES_PER_MEGABYTE + 1);
+        createMockVideoContentItemFromResource(corruptedContent.getRight());
     final ContentItem shortVideoMockContentItem =
-        createMockVideoContentItemFromResource("/short.mp4");
-    final ContentItem notVideoMockContentItem = createMockContentItemOfMimeType("image/jpeg");
+        createMockVideoContentItemFromResource(shortContent.getRight());
+    final ContentItem notVideoMockContentItem =
+        createMockContentItemOfMimeType(IMAGE_JPEG.toString());
+
+    when(videoThumbnail.isVideo(withVideoMime())).thenReturn(true);
+
+    when(videoThumbnail.videoThumbnail(eq(mediumContent.getLeft()), withVideoMime()))
+        .thenReturn(Optional.of(GIF));
+    when(videoThumbnail.videoThumbnail(eq(longContent.getLeft()), withVideoMime()))
+        .thenReturn(Optional.of(GIF));
+    when(videoThumbnail.videoThumbnail(eq(corruptedContent.getLeft()), withVideoMime()))
+        .thenThrow(IOException.class);
+    when(videoThumbnail.videoThumbnail(eq(shortContent.getLeft()), withVideoMime()))
+        .thenReturn(Optional.of(PNG));
 
     final UpdateStorageResponse updateStorageResponse =
         createMockUpdateStorageResponse(
             mediumVideoMockContentItem,
-            throwsIoExceptionVideoMockContentItem,
             longVideoMockContentItem,
             corruptedVideoMockContentItem,
-            videoLargerThanDefaultMaxFileSizeMockContentItem,
             shortVideoMockContentItem,
             notVideoMockContentItem);
 
@@ -324,46 +132,22 @@ public class VideoThumbnailPluginTest {
     final List<ContentItem> processedContentItems =
         processedUpdateResponse.getUpdatedContentItems();
     assertThat(
-        "There should be exactly 7 returned content items", processedContentItems, hasSize(7));
+        "There should be exactly 5 returned content items", processedContentItems, hasSize(5));
 
     verifyThumbnailIsGif(mediumVideoMockContentItem, processedContentItems.get(0));
-    verifyThumbnailIsNotSet(throwsIoExceptionVideoMockContentItem, processedContentItems.get(1));
-    verifyThumbnailIsGif(longVideoMockContentItem, processedContentItems.get(2));
-    verifyThumbnailIsNotSet(corruptedVideoMockContentItem, processedContentItems.get(3));
-    verifyThumbnailIsNotSet(
-        videoLargerThanDefaultMaxFileSizeMockContentItem, processedContentItems.get(4));
-    verifyThumbnailIsPng(shortVideoMockContentItem, processedContentItems.get(5));
-    verifyThumbnailIsNotSet(notVideoMockContentItem, processedContentItems.get(6));
+    verifyThumbnailIsGif(longVideoMockContentItem, processedContentItems.get(1));
+    verifyThumbnailIsNotSet(corruptedVideoMockContentItem, processedContentItems.get(2));
+    verifyThumbnailIsPng(shortVideoMockContentItem, processedContentItems.get(3));
+    verifyThumbnailIsNotSet(notVideoMockContentItem, processedContentItems.get(4));
   }
 
-  /** create mock methods */
-  private BundleContext createMockBundleContext() {
-    final BundleContext mockBundleContext = mock(BundleContext.class);
-
-    final Bundle mockBundle = mock(Bundle.class);
-    doReturn(mockBundle).when(mockBundleContext).getBundle();
-
-    String ffmpegResourcePath;
-    URL ffmpegBinaryUrl;
-
-    if (SystemUtils.IS_OS_LINUX) {
-      ffmpegResourcePath = "linux/ffmpeg-4.3.1";
-    } else if (SystemUtils.IS_OS_MAC) {
-      ffmpegResourcePath = "osx/ffmpeg-4.3.1";
-      //      Skip unit tests on Windows. See DDF-3503.
-      //    } else if (SystemUtils.IS_OS_WINDOWS) {
-      //      ffmpegResourcePath = "windows/ffmpeg-4.3.1.exe";
-    } else {
-      fail(
-          "Platform is not Linux, Mac, or Windows. No FFmpeg binaries are provided for this platform.");
-      return null;
-    }
-
-    ffmpegBinaryUrl = getClass().getClassLoader().getResource(ffmpegResourcePath);
-
-    doReturn(ffmpegBinaryUrl).when(mockBundle).getEntry(ffmpegResourcePath);
-
-    return mockBundleContext;
+  private Pair<File, Path> mockContent(long size) {
+    File file = mock(File.class);
+    Path path = mock(Path.class);
+    when(path.toAbsolutePath()).thenReturn(path);
+    when(path.toFile()).thenReturn(file);
+    when(file.length()).thenReturn(size);
+    return Pair.of(file, path);
   }
 
   private ContentItem createMockContentItemOfMimeType(String mimeType)
@@ -379,38 +163,15 @@ public class VideoThumbnailPluginTest {
     return createMockContentItemOfMimeType("video/mp4");
   }
 
-  private ContentItem createMockVideoContentItemWithSizeBytes(long sizeBytes) throws Exception {
+  private ContentItem createMockVideoContentItemFromResource(Path path) throws Exception {
+
     final ContentItem mockContentItem = createMockVideoContentItem();
-    doReturn(sizeBytes).when(mockContentItem).getSize();
-    return mockContentItem;
-  }
-
-  private ContentItem createMockVideoContentItemFromResource(final String resource)
-      throws Exception {
-    final Path tmpPath = Paths.get(getClass().getResource(resource).toURI());
-
-    final ContentItem mockContentItem =
-        createMockVideoContentItemWithSizeBytes(Files.size(tmpPath));
 
     HashMap<String, Path> contentItemPaths = new HashMap<>();
-    contentItemPaths.put(null, tmpPath);
+    contentItemPaths.put(null, path);
     tmpContentPaths.put(mockContentItem.getId(), contentItemPaths);
 
     return mockContentItem;
-  }
-
-  private CreateStorageResponse createMockCreateStorageResponse(ContentItem contentItem) {
-    final CreateStorageResponse mockCreateResponse = mock(CreateStorageResponse.class);
-    doReturn(Collections.singletonList(contentItem))
-        .when(mockCreateResponse)
-        .getCreatedContentItems();
-    final CreateStorageRequest mockCreateRequest = mock(CreateStorageRequest.class);
-    doReturn(mockCreateRequest).when(mockCreateResponse).getRequest();
-
-    final Map<String, Serializable> properties = new HashMap<>();
-    properties.put(Constants.CONTENT_PATHS, tmpContentPaths);
-    doReturn(properties).when(mockCreateResponse).getProperties();
-    return mockCreateResponse;
   }
 
   private UpdateStorageResponse createMockUpdateStorageResponse(ContentItem... contentItems) {
@@ -432,8 +193,7 @@ public class VideoThumbnailPluginTest {
         "The returned content item should be the same as the original content item",
         unprocessedContentItem,
         is(processedContentItem));
-    final byte[] thumbnail = processedContentItem.getMetacard().getThumbnail();
-    return thumbnail;
+    return processedContentItem.getMetacard().getThumbnail();
   }
 
   private void verifyThumbnailIsGif(
@@ -482,5 +242,15 @@ public class VideoThumbnailPluginTest {
       ContentItem unprocessedContentItem, ContentItem processedContentItem) {
     final byte[] thumbnail = getThumbnail(unprocessedContentItem, processedContentItem);
     assertThat("The thumbnail should be null", thumbnail, nullValue());
+  }
+
+  private static MimeType withVideoMime() {
+    return argThat(new VideoMimeTypeMatcher());
+  }
+
+  private static class VideoMimeTypeMatcher implements ArgumentMatcher<MimeType> {
+    public boolean matches(MimeType mimeType) {
+      return VIDEO_MP4.match(mimeType);
+    }
   }
 }
