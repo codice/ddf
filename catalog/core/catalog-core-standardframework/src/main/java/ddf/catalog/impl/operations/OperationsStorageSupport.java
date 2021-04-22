@@ -18,7 +18,6 @@ import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.StorageRequest;
-import ddf.catalog.history.Historian;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
@@ -44,22 +43,16 @@ public class OperationsStorageSupport {
   private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
   //
-  // Injected propertiers
+  // Injected properties
   //
   private final SourceOperations sourceOperations;
 
   private final QueryOperations queryOperations;
 
-  private Historian historian;
-
   public OperationsStorageSupport(
       SourceOperations sourceOperations, QueryOperations queryOperations) {
     this.sourceOperations = sourceOperations;
     this.queryOperations = queryOperations;
-  }
-
-  public void setHistorian(Historian historian) {
-    this.historian = historian;
   }
 
   <T extends StorageRequest> T prepareStorageRequest(

@@ -29,17 +29,7 @@ import org.codice.ddf.commands.util.SpatialOperations;
     description = "Searches spatially the Catalog Provider.")
 public class SpatialCommand extends CatalogCommands {
 
-  private static final String ID = "ID ";
-
-  private static final String TITLE = "Title ";
-
-  private static final String DATE = "Date ";
-
   private static final int MAX_LENGTH = 30;
-
-  private static final String FORMAT = "%1$-33s %2$-26s %3$-" + MAX_LENGTH + "s %4$-50s%n";
-
-  private static final Object WKT = "WKT";
 
   @Argument(
       name = "Operation",

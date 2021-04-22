@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.transform.Transformer;
@@ -70,10 +69,6 @@ public class XacmlClient {
   private static final String XACML30_NAMESPACE = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
 
   private static final String XACML_PREFIX = "xacml";
-
-  private static JAXBContext jaxbContext;
-
-  private static final long DEFAULT_POLLING_INTERVAL_IN_SECONDS = 60;
 
   private static final String NULL_DIRECTORY_EXCEPTION_MSG =
       "Cannot read from null XACML Policy Directory";

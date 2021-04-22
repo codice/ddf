@@ -90,8 +90,6 @@ public class DeleteOperations {
 
   private final OperationsMetacardSupport opsMetacardSupport;
 
-  private OperationsCatalogStoreSupport opsCatStoreSupport;
-
   private Historian historian;
 
   private RemoteDeleteOperations remoteDeleteOperations;
@@ -602,10 +600,6 @@ public class DeleteOperations {
               .filter(s -> !queryResults.contains(s))
               .collect(Collectors.joining(", ", "[", "]")));
     }
-  }
-
-  public void setOpsCatStoreSupport(OperationsCatalogStoreSupport opsCatStoreSupport) {
-    this.opsCatStoreSupport = opsCatStoreSupport;
   }
 
   public void setRemoteDeleteOperations(RemoteDeleteOperations remoteDeleteOperations) {

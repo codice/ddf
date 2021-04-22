@@ -30,7 +30,6 @@
         <property name="uuidGenerator" ref="uuidGenerator"/>
         <property name="catalogProviders" ref="catalogProviderSortedList"/>
         <property name="storageProviders" ref="storageProviderSortedList"/>
-        <property name="filterBuilder" ref="filterBuilder"/>
         <property name="subjectIdentity" ref="subjectIdentity"/>
         <property name="metacardTypes">
             <reference-list interface="ddf.catalog.data.MetacardType"/>
@@ -61,7 +60,6 @@
     <bean id="cfOpsStorage" class="ddf.catalog.impl.operations.OperationsStorageSupport">
         <argument ref="cfSourceOps"/>
         <argument ref="cfQueryOps"/>
-        <property name="historian" ref="historian"/>
     </bean>
 
     <reference-list id="sourceActionProviders" interface="ddf.action.ActionProvider"
@@ -144,7 +142,6 @@
         <argument ref="cfOpsMetacard"/>
         <property name="historian" ref="historian"/>
         <property name="remoteDeleteOperations" ref="remoteDeleteOperations"/>
-        <property name="opsCatStoreSupport" ref="cfOpsCatStore"/>
     </bean>
 
     <bean id="cfTransformOps" class="ddf.catalog.impl.operations.TransformOperations">

@@ -17,7 +17,6 @@ import ddf.catalog.content.StorageException
 import ddf.catalog.content.StorageProvider
 import ddf.catalog.content.data.ContentItem
 import ddf.catalog.content.operation.StorageRequest
-import ddf.catalog.history.Historian
 import ddf.catalog.source.IngestException
 import ddf.catalog.source.SourceUnavailableException
 import org.junit.platform.runner.JUnitPlatform
@@ -28,17 +27,14 @@ import java.nio.file.Path
 
 @RunWith(JUnitPlatform.class)
 class OperationsStorageSupportSpec extends Specification {
-    private Historian historian
     private SourceOperations sourceOperations
     private QueryOperations queryOperations
     private OperationsStorageSupport opsStorage
 
     def setup() {
-        historian = Mock(Historian)
         sourceOperations = Mock(SourceOperations)
         queryOperations = Mock(QueryOperations)
         opsStorage = new OperationsStorageSupport(sourceOperations, queryOperations)
-        opsStorage.setHistorian(historian)
     }
 
     def 'test prepare storage with null request'() {

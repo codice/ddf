@@ -116,8 +116,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
   private static final String QUOTE = "\"";
 
-  private static final String FILTER_QUERY_PARAM_NAME = "fq";
-
   private static final String SOLR_WILDCARD_CHAR = "*";
 
   private static final String SOLR_SINGLE_WILDCARD_CHAR = "?";

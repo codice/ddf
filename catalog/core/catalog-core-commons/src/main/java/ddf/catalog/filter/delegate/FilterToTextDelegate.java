@@ -21,6 +21,9 @@ import java.util.List;
 
 public class FilterToTextDelegate extends FilterDelegate<String> {
 
+  private static final String XPATH = "xpath";
+  private static final String WKT = "wkt";
+
   // Custom functions
   @Override
   public String propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
@@ -442,70 +445,70 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
   // XpathExists
   @Override
   public String xpathExists(String xpath) {
-    return "xpath(" + xpath + ")";
+    return String.format("%s(%s)", XPATH, xpath);
   }
 
   // XpathIsLike
   @Override
   public String xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
-    return "xpath(" + xpath + "," + pattern + ")";
+    return String.format("%s(%s,%s)", XPATH, xpath, pattern);
   }
 
   // XpathIsFuzzy
   @Override
   public String xpathIsFuzzy(String xpath, String literal) {
-    return "xpath(" + xpath + ",fuzzy(" + literal + "))";
+    return String.format("%s(%s,fuzzy(%s))", XPATH, xpath, literal);
   }
 
   // Spatial filters
   @Override
   public String beyond(String propertyName, String wkt, double distance) {
-    return "beyond(" + propertyName + ",wkt(" + wkt + ")," + distance + ")";
+    return String.format("beyond(%s,%s(%s),%s)", propertyName, WKT, wkt, distance);
   }
 
   @Override
   public String contains(String propertyName, String wkt) {
-    return "contains(" + propertyName + ",wkt(" + wkt + "))";
+    return String.format("contains(%s,%s(%s))", propertyName, WKT, wkt);
   }
 
   @Override
   public String dwithin(String propertyName, String wkt, double distance) {
-    return "dwithin(" + propertyName + ",wkt(" + wkt + ")," + distance + ")";
+    return String.format("dwithin(%s,%s(%s),%s)", propertyName, WKT, wkt, distance);
   }
 
   @Override
   public String intersects(String propertyName, String wkt) {
-    return "intersects(" + propertyName + ",wkt(" + wkt + "))";
+    return String.format("intersects(%s,%s(%s))", propertyName, WKT, wkt);
   }
 
   @Override
   public String nearestNeighbor(String propertyName, String wkt) {
-    return "nn(" + propertyName + ",wkt(" + wkt + "))";
+    return String.format("nn(%s,%s(%s))", propertyName, WKT, wkt);
   }
 
   @Override
   public String within(String propertyName, String wkt) {
-    return "within(" + propertyName + ",wkt(" + wkt + "))";
+    return String.format("within(%s,%s(%s))", propertyName, WKT, wkt);
   }
 
   @Override
   public String crosses(String propertyName, String wkt) {
-    return "crosses(" + propertyName + ",wkt(" + wkt + "))";
+    return String.format("crosses(%s,%s(%s))", propertyName, WKT, wkt);
   }
 
   @Override
   public String disjoint(String propertyName, String wkt) {
-    return "disjoint(" + propertyName + ",wkt(" + wkt + "))";
+    return String.format("disjoint(%s,%s(%s))", propertyName, WKT, wkt);
   }
 
   @Override
   public String overlaps(String propertyName, String wkt) {
-    return "overlaps(" + propertyName + ",wkt(" + wkt + "))";
+    return String.format("overlaps(%s,%s(%s))", propertyName, WKT, wkt);
   }
 
   @Override
   public String touches(String propertyName, String wkt) {
-    return "touches(" + propertyName + ",wkt(" + wkt + "))";
+    return String.format("touches(%s,%s(%s))", propertyName, WKT, wkt);
   }
 
   // Temporal filters

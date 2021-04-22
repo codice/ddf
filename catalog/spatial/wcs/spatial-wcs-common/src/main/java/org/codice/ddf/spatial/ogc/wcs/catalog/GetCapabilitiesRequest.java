@@ -19,10 +19,13 @@ package org.codice.ddf.spatial.ogc.wcs.catalog;
  */
 public class GetCapabilitiesRequest {
 
+  @SuppressWarnings("squid:S1068") /* Unrecoverable state that we do not want caught later */
   private String service = WcsConstants.WCS;
 
   // The following parameters are optional for the GetCapabilities Request
+  @SuppressWarnings("squid:S1068")
   private String acceptVersions = WcsConstants.VERSION_1_0_0;
 
+  @SuppressWarnings("squid:S1068")
   private String updateSequence;
 }

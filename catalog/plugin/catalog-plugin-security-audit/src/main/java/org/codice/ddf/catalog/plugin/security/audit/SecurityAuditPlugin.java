@@ -38,13 +38,9 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** SecurityAuditPlugin Allows changes to security attributes on a metacard to be audited */
 public class SecurityAuditPlugin implements AccessPlugin {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAuditPlugin.class);
 
   private List<String> auditAttributes = new ArrayList<>();
 

@@ -16,7 +16,6 @@ package org.codice.ddf.security.idp.client;
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
 import ddf.security.audit.SecurityLogger;
-import ddf.security.http.SessionFactory;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.RequestBuilder;
@@ -188,8 +187,6 @@ public class IdpHandler implements AuthenticationHandler {
       "IdP metadata is missing. No IDPSSODescriptor present.";
 
   private boolean userAgentCheck = true;
-
-  private SessionFactory sessionFactory;
 
   private List<String> authContextClasses;
 
@@ -713,10 +710,6 @@ public class IdpHandler implements AuthenticationHandler {
     result.setSource(SOURCE);
     LOGGER.debug("In error handler for idp - no action taken.");
     return result;
-  }
-
-  public void setSessionFactory(SessionFactory sessionFactory) {
-    this.sessionFactory = sessionFactory;
   }
 
   public void setUserAgentCheck(boolean userAgentCheck) {

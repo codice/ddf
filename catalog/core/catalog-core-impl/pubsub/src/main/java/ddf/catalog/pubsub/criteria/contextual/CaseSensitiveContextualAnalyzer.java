@@ -68,9 +68,7 @@ public class CaseSensitiveContextualAnalyzer extends Analyzer {
    * Specifies whether deprecated acronyms should be replaced with HOST type. See {@linkplain
    * https://issues.apache.org/jira/browse/LUCENE-1068}
    */
-  private final boolean replaceInvalidAcronym, enableStopPositionIncrements;
-
-  private final Version matchVersion;
+  private final boolean enableStopPositionIncrements;
 
   private Set<?> stopSet;
 
@@ -96,8 +94,6 @@ public class CaseSensitiveContextualAnalyzer extends Analyzer {
     setOverridesTokenStreamMethod(CaseSensitiveContextualAnalyzer.class);
     enableStopPositionIncrements =
         StopFilter.getEnablePositionIncrementsVersionDefault(matchVersion);
-    replaceInvalidAcronym = matchVersion.onOrAfter(Version.LUCENE_24);
-    this.matchVersion = matchVersion;
   }
 
   /**

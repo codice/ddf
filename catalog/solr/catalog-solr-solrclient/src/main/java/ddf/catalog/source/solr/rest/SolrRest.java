@@ -63,8 +63,6 @@ public class SolrRest {
 
   private SecureCxfClientFactory<SolrRestClient> solrMetacardCacheSchemaClientFactory;
 
-  private SecureCxfClientFactory<SolrUpdateClient> solrMetacardCacheUpdateClientFactory;
-
   private Float k1;
 
   private Gson gson;
@@ -140,9 +138,8 @@ public class SolrRest {
                 .build();
         solrMetacardCacheSchemaClientFactory =
             restFactoryBuilder.endpoint(getSolrMetacardCacheSchemaUrl()).build();
-        solrMetacardCacheUpdateClientFactory =
-            solrCatalogUpdateClientFactory =
-                updateFactoryBuilder.endpoint(getSolrMetacardCacheUpdateUrl()).build();
+        solrCatalogUpdateClientFactory =
+            updateFactoryBuilder.endpoint(getSolrMetacardCacheUpdateUrl()).build();
       } else {
         solrCatalogSchemaClientFactory =
             restFactoryBuilder
@@ -161,12 +158,6 @@ public class SolrRest {
         solrMetacardCacheSchemaClientFactory =
             restFactoryBuilder
                 .endpoint(getSolrMetacardCacheSchemaUrl())
-                .username(username)
-                .password(password)
-                .build();
-        solrMetacardCacheUpdateClientFactory =
-            updateFactoryBuilder
-                .endpoint(getSolrMetacardCacheUpdateUrl())
                 .username(username)
                 .password(password)
                 .build();

@@ -263,6 +263,12 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
 
     try {
       videoDuration = getVideoDuration(videoFilePath);
+    } catch (InterruptedException e) {
+      LOGGER.debug(
+          "InterruptedException occured while getting video duration from FFmpeg output for videoFilePath={}",
+          videoFilePath,
+          e);
+      Thread.currentThread().interrupt();
     } catch (Exception e) {
       LOGGER.debug(
           "Couldn't get video duration from FFmpeg output for videoFilePath={}.", videoFilePath, e);

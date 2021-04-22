@@ -409,7 +409,6 @@ public class CatalogFrameworkImplTest {
     queryOperations.setPermissions(new PermissionsImpl());
     OperationsStorageSupport opsStorage =
         new OperationsStorageSupport(sourceOperations, queryOperations);
-    opsStorage.setHistorian(historian);
 
     OperationsCatalogStoreSupport opsCatStore =
         new OperationsCatalogStoreSupport(frameworkProperties, sourceOperations);
@@ -434,8 +433,6 @@ public class CatalogFrameworkImplTest {
     deleteOperations =
         new DeleteOperations(
             frameworkProperties, queryOperations, sourceOperations, opsSecurity, opsMetacard);
-
-    deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
     ResourceOperations resOps =
         new ResourceOperations(frameworkProperties, queryOperations, opsSecurity) {
@@ -1442,10 +1439,8 @@ public class CatalogFrameworkImplTest {
     Historian historian = new Historian();
     historian.setHistoryEnabled(false);
 
-    opsStorage.setHistorian(historian);
     updateOperations.setHistorian(historian);
     deleteOperations.setHistorian(historian);
-    deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
     CatalogFrameworkImpl catalogFramework =
         new CatalogFrameworkImpl(

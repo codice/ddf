@@ -55,9 +55,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
-import javax.xml.transform.Templates;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -68,7 +65,6 @@ import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MediaTypeRegistry;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
-import org.codice.ddf.platform.util.XMLUtils;
 import org.imgscalr.Scalr;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -141,8 +137,6 @@ public class TikaInputTransformer implements InputTransformer {
     FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(
         com.google.common.net.MediaType.ANY_AUDIO_TYPE, DataType.SOUND.toString());
   }
-
-  private Templates templates = null;
 
   private Map<ServiceReference, ContentMetadataExtractor> contentExtractors =
       Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
@@ -460,22 +454,6 @@ public class TikaInputTransformer implements InputTransformer {
   }
 
   private void classLoaderAndBundleContextSetup(BundleContext bundleContext) {
-    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-    try (InputStream stream = TikaMetadataExtractor.class.getResourceAsStream("/metadata.xslt")) {
-      Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-      templates =
-          XMLUtils.getInstance()
-              .getSecureXmlTransformerFactory(
-                  net.sf.saxon.TransformerFactoryImpl.class.getName(),
-                  net.sf.saxon.TransformerFactoryImpl.class.getClassLoader())
-              .newTemplates(new StreamSource(stream));
-    } catch (TransformerConfigurationException e) {
-      LOGGER.debug("Couldn't create XML transformer", e);
-    } catch (IOException e) {
-      LOGGER.debug("Could not get Tiki metadata XSLT", e);
-    } finally {
-      Thread.currentThread().setContextClassLoader(tccl);
-    }
 
     if (bundleContext == null) {
       LOGGER.info(
