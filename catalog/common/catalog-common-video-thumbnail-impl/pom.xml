@@ -17,7 +17,7 @@
     <parent>
         <artifactId>common</artifactId>
         <groupId>ddf.catalog.common</groupId>
-        <version>2.26.8</version>
+        <version>2.26.9-SNAPSHOT</version>
     </parent>
     <artifactId>video-thumbnail-impl</artifactId>
     <name>DDF :: Catalog :: Common :: Video Thumbnail Impl</name>
@@ -141,13 +141,11 @@
                                     <limits>
                                         <!--
                                         The coverages here have been lowered to 0 because coverage
-                                        is OS-specific. OS X coverage ratios have been left
-                                        commented out for reference.
+                                        is OS-specific.
                                         -->
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <!--<minimum>0.90</minimum>-->
                                             <minimum>0.0</minimum>
                                         </limit>
                                         <!--
@@ -158,13 +156,11 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <!--<minimum>0.62</minimum>-->
                                             <minimum>0.0</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <!--<minimum>0.67</minimum>-->
                                             <minimum>0.0</minimum>
                                         </limit>
                                     </limits>
