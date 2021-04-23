@@ -388,7 +388,7 @@ grant codeBase "file:/catalog-core-standardframework" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
 }
 
-grant codeBase "file:/catalog-plugin-videothumbnail/catalog-rest-endpoint/catalog-core-standardframework/catalog-ui-search/org.eclipse.jetty.websocket.server" {
+grant codeBase "file:/video-thumbnail-impl/catalog-plugin-videothumbnail/catalog-rest-endpoint/catalog-core-standardframework/catalog-ui-search/org.eclipse.jetty.websocket.server" {
     permission java.io.FilePermission "${ddf.home.perm}bin_third_party", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}bin_third_party${/}-", "read,write,execute";
     permission java.io.FilePermission "${ddf.home.perm}bin_third_party${/}ffmpeg${/}-", "read,write,execute";

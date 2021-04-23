@@ -19,13 +19,14 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-    <reference id="thumbnailService" interface="ddf.video.thumbnail.VideoThumbnail"/>
-
     <bean id="videoThumbnail"
-          class="org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin">
-        <argument ref="thumbnailService"/>
+          class="ddf.video.thumbnail.impl.VideoThumbnailImpl"
+          destroy-method="destroy">
+        <cm:managed-properties persistent-id="ddf.video.thumbnail.impl.VideoThumbnailImpl"
+                               update-strategy="container-managed"/>
+        <argument ref="blueprintBundleContext"/>
     </bean>
 
-    <service ref="videoThumbnail" auto-export="interfaces"/>
+    <service ref="videoThumbnail" interface="ddf.video.thumbnail.VideoThumbnail"/>
 
 </blueprint>

@@ -438,6 +438,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.common</groupId>
+            <artifactId>video-thumbnail</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.common</groupId>
+            <artifactId>video-thumbnail-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-directorymonitor</artifactId>
             <version>${project.version}</version>

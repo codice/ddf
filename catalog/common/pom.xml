@@ -25,5 +25,7 @@
     <name>DDF :: Catalog :: Common</name>
     <modules>
         <module>catalog-common-geo-formatter</module>
+        <module>catalog-common-video-thumbnail</module>
+        <module>catalog-common-video-thumbnail-impl</module>
     </modules>
 </project>
