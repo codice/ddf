@@ -31,9 +31,6 @@ public class ObjectFactory {
    * Create a new ObjectFactory that can be used to create new instances of schema derived classes
    * for package: ddf.catalog.transformer.xml.binding
    */
-  public ObjectFactory() {
-    // Create new ObjectFactory instance
-  }
 
   /** Create an instance of {@link AdaptedMetacard } */
   public AdaptedMetacard createAdaptedMetacard() {

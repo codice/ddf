@@ -31,10 +31,6 @@ public class KmlStyleMap {
 
   private List<KmlStyleMapEntry> styleMap = new ArrayList<>();
 
-  public KmlStyleMap() {
-    // Does nothing as of now, used in blueprint
-  }
-
   public void addMapEntry(KmlStyleMapEntry entry) {
     if (entry != null) {
       LOGGER.debug("Adding KmlStyleMapEntry");
