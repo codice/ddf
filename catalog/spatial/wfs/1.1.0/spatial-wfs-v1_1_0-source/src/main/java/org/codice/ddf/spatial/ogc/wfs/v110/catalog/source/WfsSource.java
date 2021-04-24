@@ -107,7 +107,6 @@ import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformationSe
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.reader.XmlSchemaMessageBodyReaderWfs11;
 import org.opengis.filter.sort.SortBy;
@@ -226,7 +225,7 @@ public class WfsSource extends AbstractWfsSource {
 
   private Set<SourceMonitor> sourceMonitors = new HashSet<>();
 
-  private SecureCxfClientFactory<Wfs> factory;
+  private SecureCxfClientFactory<ExtendedWfs> factory;
 
   private String configurationPid;
 
@@ -256,6 +255,9 @@ public class WfsSource extends AbstractWfsSource {
 
   private static final String DISABLE_SORTING = "disableSorting";
   private boolean disableSorting;
+
+  private static final String SUPPORTS_START_INDEX = "supportsStartIndex";
+  private boolean supportsStartIndex = Boolean.FALSE;
 
   static {
     try (InputStream properties =
@@ -337,6 +339,7 @@ public class WfsSource extends AbstractWfsSource {
     setSingleChar((Character) configuration.get(SINGLE_CHAR_KEY));
     setEscapeChar((Character) configuration.get(ESCAPE_CHAR_KEY));
     setDisableSorting((Boolean) configuration.get(DISABLE_SORTING));
+    setSupportsStartIndex((Boolean) configuration.get(SUPPORTS_START_INDEX));
 
     createClientFactory();
     configureWfsFeatures();
@@ -357,14 +360,14 @@ public class WfsSource extends AbstractWfsSource {
 
   /** This method should only be called after all properties have been set. */
   private void createClientFactory() {
-    ClientBuilder<Wfs> clientBuilder = clientBuilderFactory.getClientBuilder();
+    ClientBuilder<ExtendedWfs> clientBuilder = clientBuilderFactory.getClientBuilder();
     if (BASIC.equals(authenticationType)
         && StringUtils.isNotBlank(username)
         && StringUtils.isNotBlank(password)) {
       factory =
           clientBuilder
               .endpoint(wfsUrl)
-              .interfaceClass(Wfs.class)
+              .interfaceClass(ExtendedWfs.class)
               .entityProviders(initProviders())
               .interceptor(new MarkableStreamInterceptor())
               .disableCnCheck(disableCnCheck)
@@ -380,7 +383,7 @@ public class WfsSource extends AbstractWfsSource {
       factory =
           clientBuilder
               .endpoint(wfsUrl)
-              .interfaceClass(Wfs.class)
+              .interfaceClass(ExtendedWfs.class)
               .entityProviders(initProviders())
               .interceptor(new MarkableStreamInterceptor())
               .disableCnCheck(disableCnCheck)
@@ -395,7 +398,7 @@ public class WfsSource extends AbstractWfsSource {
       factory =
           clientBuilder
               .endpoint(wfsUrl)
-              .interfaceClass(Wfs.class)
+              .interfaceClass(ExtendedWfs.class)
               .entityProviders(initProviders())
               .interceptor(new MarkableStreamInterceptor())
               .disableCnCheck(disableCnCheck)
@@ -410,13 +413,13 @@ public class WfsSource extends AbstractWfsSource {
   private List<?> initProviders() {
     // We need to tell the JAXBElementProvider to marshal the GetFeatureType
     // class as an element because it is missing the @XmlRootElement Annotation
-    JAXBElementProvider<GetFeatureType> provider = new JAXBElementProvider<>();
+    JAXBElementProvider<ExtendedGetFeatureType> provider = new JAXBElementProvider<>();
     Map<String, String> jaxbClassMap = new HashMap<>();
 
     // Ensure a namespace is used when the GetFeature request is generated
     String expandedName =
         new QName(Wfs11Constants.WFS_NAMESPACE, Wfs11Constants.GET_FEATURE).toString();
-    jaxbClassMap.put(GetFeatureType.class.getName(), expandedName);
+    jaxbClassMap.put(ExtendedGetFeatureType.class.getName(), expandedName);
     provider.setJaxbElementClassMap(jaxbClassMap);
     provider.setMarshallAsJaxbElement(true);
 
@@ -456,7 +459,7 @@ public class WfsSource extends AbstractWfsSource {
 
   private WFSCapabilitiesType getCapabilities() {
     WFSCapabilitiesType capabilities = null;
-    Wfs wfs = factory.getClient();
+    ExtendedWfs wfs = factory.getClient();
     try {
       capabilities = wfs.getCapabilities(new GetCapabilitiesRequest());
     } catch (WfsException wfse) {
@@ -514,7 +517,7 @@ public class WfsSource extends AbstractWfsSource {
   }
 
   private void buildFeatureFilters(List<FeatureTypeType> featureTypes, List<String> supportedGeo) {
-    Wfs wfs = factory.getClient();
+    ExtendedWfs wfs = factory.getClient();
 
     // Use local Map for metacardtype registrations and once they are populated with latest
     // MetacardTypes, then do actual registration
@@ -660,7 +663,7 @@ public class WfsSource extends AbstractWfsSource {
 
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-    Wfs wfs = factory.getClient();
+    ExtendedWfs wfs = factory.getClient();
 
     Query query = request.getQuery();
     LOGGER.debug("WFS Source {}: Received query: \n{}", getId(), query);
@@ -672,22 +675,25 @@ public class WfsSource extends AbstractWfsSource {
               + "]");
     }
 
+    Query modifiedQuery;
     int origPageSize = query.getPageSize();
     if (origPageSize <= 0 || origPageSize > WFS_MAX_FEATURES_RETURNED) {
       origPageSize = WFS_MAX_FEATURES_RETURNED;
     }
-
-    QueryImpl modifiedQuery =
-        new QueryImpl(query, 1, Constants.DEFAULT_PAGE_SIZE, query.getSortBy(), false, 300000L);
-
     int pageNumber = query.getStartIndex() / origPageSize + 1;
+    if (!supportsStartIndex) {
+      modifiedQuery =
+          new QueryImpl(query, 1, Constants.DEFAULT_PAGE_SIZE, query.getSortBy(), false, 300000L);
 
-    int modifiedPageSize = Math.min(pageNumber * origPageSize, WFS_MAX_FEATURES_RETURNED);
-    LOGGER.debug("WFS Source {}: modified page size = {}", getId(), modifiedPageSize);
-    modifiedQuery.setPageSize(modifiedPageSize);
+      int modifiedPageSize = Math.min(pageNumber * origPageSize, WFS_MAX_FEATURES_RETURNED);
+      LOGGER.debug("WFS Source {}: modified page size = {}", getId(), modifiedPageSize);
+      ((QueryImpl) modifiedQuery).setPageSize(modifiedPageSize);
+    } else {
+      modifiedQuery = query;
+    }
 
-    final GetFeatureType getHits = buildGetFeatureRequestHits(modifiedQuery);
-    final GetFeatureType getResults = buildGetFeatureRequestResults(modifiedQuery);
+    final ExtendedGetFeatureType getHits = buildGetFeatureRequestHits(modifiedQuery);
+    final ExtendedGetFeatureType getResults = buildGetFeatureRequestResults(modifiedQuery);
 
     try {
       LOGGER.debug("WFS Source {}: Getting hits.", getId());
@@ -708,33 +714,39 @@ public class WfsSource extends AbstractWfsSource {
           getId(),
           featureCollection.getFeatureMembers().size());
 
-      // Only return the number of results originally asked for in the
-      // query, or the entire list of results if it is smaller than the
-      // original page size.
-      int numberOfResultsToReturn =
-          Math.min(origPageSize, featureCollection.getFeatureMembers().size());
-      List<Result> results = new ArrayList<>(numberOfResultsToReturn);
-
-      int stopIndex =
-          Math.min(
-              origPageSize + query.getStartIndex(),
-              featureCollection.getFeatureMembers().size() + 1);
-
       LOGGER.debug(
-          "WFS Source {}: startIndex = {}, stopIndex = {}, origPageSize = {}, pageNumber = {}",
+          "WFS Source {}: startIndex = {}, origPageSize = {}, pageNumber = {}",
           getId(),
           query.getStartIndex(),
-          stopIndex,
           origPageSize,
           pageNumber);
 
-      for (int i = query.getStartIndex(); i < stopIndex; i++) {
-        Metacard mc = featureCollection.getFeatureMembers().get(i - 1);
-        mc = transform(mc, DEFAULT_WFS_TRANSFORMER_ID);
-        Result result = new ResultImpl(mc);
-        results.add(result);
-        debugResult(result);
+      List<Result> results;
+      if (supportsStartIndex) {
+        results = new ArrayList<>(featureCollection.getFeatureMembers().size());
+        for (Metacard mc : featureCollection.getFeatureMembers()) {
+          addTransformedResult(mc, results);
+        }
+      } else {
+        // Only return the number of results originally asked for in the
+        // query, or the entire list of results if it is smaller than the
+        // original page size.
+        int numberOfResultsToReturn =
+            Math.min(origPageSize, featureCollection.getFeatureMembers().size());
+        results = new ArrayList<>(numberOfResultsToReturn);
+
+        int stopIndex =
+            Math.min(
+                origPageSize + query.getStartIndex(),
+                featureCollection.getFeatureMembers().size() + 1);
+        LOGGER.debug("WFS Source {}: stopIndex = {}", getId(), stopIndex);
+
+        for (int i = query.getStartIndex(); i < stopIndex; i++) {
+          Metacard mc = featureCollection.getFeatureMembers().get(i - 1);
+          addTransformedResult(mc, results);
+        }
       }
+
       return new SourceResponseImpl(request, results, totalHits);
     } catch (WfsException wfse) {
       LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
@@ -745,18 +757,25 @@ public class WfsSource extends AbstractWfsSource {
     }
   }
 
-  private GetFeatureType buildGetFeatureRequestHits(final Query query)
+  private void addTransformedResult(Metacard mc, List<Result> results) {
+    mc = transform(mc, DEFAULT_WFS_TRANSFORMER_ID);
+    Result result = new ResultImpl(mc);
+    results.add(result);
+    debugResult(result);
+  }
+
+  private ExtendedGetFeatureType buildGetFeatureRequestHits(final Query query)
       throws UnsupportedQueryException {
     return buildGetFeatureRequest(query, ResultTypeType.HITS, null);
   }
 
-  private GetFeatureType buildGetFeatureRequestResults(final Query query)
+  private ExtendedGetFeatureType buildGetFeatureRequestResults(final Query query)
       throws UnsupportedQueryException {
     return buildGetFeatureRequest(
         query, ResultTypeType.RESULTS, BigInteger.valueOf(query.getPageSize()));
   }
 
-  private GetFeatureType buildGetFeatureRequest(
+  private ExtendedGetFeatureType buildGetFeatureRequest(
       Query query, ResultTypeType resultType, BigInteger maxFeatures)
       throws UnsupportedQueryException {
     List<ContentType> contentTypes = getContentTypesFromQuery(query);
@@ -806,12 +825,16 @@ public class WfsSource extends AbstractWfsSource {
       }
     }
     if (!queries.isEmpty()) {
-      GetFeatureType getFeatureType = new GetFeatureType();
+      ExtendedGetFeatureType getFeatureType = new ExtendedGetFeatureType();
       getFeatureType.setMaxFeatures(maxFeatures);
       getFeatureType.getQuery().addAll(queries);
       getFeatureType.setService(Wfs11Constants.WFS);
       getFeatureType.setVersion(Wfs11Constants.VERSION_1_1_0);
       getFeatureType.setResultType(resultType);
+      if (supportsStartIndex && resultType.equals(ResultTypeType.RESULTS)) {
+        // Convert DDF index of 1 back to index of 0 for WFS
+        getFeatureType.setStartIndex(BigInteger.valueOf(query.getStartIndex() - 1));
+      }
       logMessage(getFeatureType);
       return getFeatureType;
     } else {
@@ -1179,6 +1202,10 @@ public class WfsSource extends AbstractWfsSource {
 
   public void setDisableSorting(final Boolean disableSorting) {
     this.disableSorting = disableSorting;
+  }
+
+  public void setSupportsStartIndex(final Boolean supportsStartIndex) {
+    this.supportsStartIndex = supportsStartIndex;
   }
 
   @Override

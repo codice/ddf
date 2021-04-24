@@ -87,7 +87,6 @@ import net.opengis.filter.v_1_1_0.SpatialOpsType;
 import net.opengis.gml.v_3_1_1.PointType;
 import net.opengis.wfs.v_1_1_0.FeatureTypeListType;
 import net.opengis.wfs.v_1_1_0.FeatureTypeType;
-import net.opengis.wfs.v_1_1_0.GetFeatureType;
 import net.opengis.wfs.v_1_1_0.QueryType;
 import net.opengis.wfs.v_1_1_0.ResultTypeType;
 import net.opengis.wfs.v_1_1_0.WFSCapabilitiesType;
@@ -108,7 +107,6 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardT
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -257,7 +255,7 @@ public class WfsSourceTest {
 
   private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
-  private Wfs mockWfs = mock(Wfs.class);
+  private ExtendedWfs mockWfs = mock(ExtendedWfs.class);
 
   private WFSCapabilitiesType mockCapabilities = new WFSCapabilitiesType();
 
@@ -294,23 +292,23 @@ public class WfsSourceTest {
       final List<String> supportedGeos, final String srsName, final int results, final int hits)
       throws WfsException {
 
-    SecureCxfClientFactory<Wfs> mockFactory = mock(SecureCxfClientFactory.class);
+    SecureCxfClientFactory<ExtendedWfs> mockFactory = mock(SecureCxfClientFactory.class);
     when(mockFactory.getClient()).thenReturn(mockWfs);
 
     clientBuilderFactory = mock(ClientBuilderFactory.class);
-    ClientBuilder<Wfs> clientBuilder =
-        new ClientBuilderImpl<Wfs>(
+    ClientBuilder<ExtendedWfs> clientBuilder =
+        new ClientBuilderImpl<ExtendedWfs>(
             mock(OAuthSecurity.class),
             mock(SamlSecurity.class),
             mock(SecurityLogger.class),
             mock(SecurityManager.class)) {
           @Override
-          public SecureCxfClientFactory<Wfs> build() {
+          public SecureCxfClientFactory<ExtendedWfs> build() {
             return mockFactory;
           }
         };
 
-    when(clientBuilderFactory.<Wfs>getClientBuilder()).thenReturn(clientBuilder);
+    when(clientBuilderFactory.<ExtendedWfs>getClientBuilder()).thenReturn(clientBuilder);
 
     // GetCapabilities Response
     when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilities);
@@ -381,6 +379,7 @@ public class WfsSourceTest {
     source.setMetacardMappers(metacardMappers);
     source.setPollInterval(10);
     source.setWfsUrl(SAMPLE_WFS_URL);
+    source.setSupportsStartIndex(false);
     source.init();
   }
 
@@ -409,12 +408,13 @@ public class WfsSourceTest {
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
 
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -432,11 +432,12 @@ public class WfsSourceTest {
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -461,11 +462,12 @@ public class WfsSourceTest {
         new QueryImpl(builder.allOf(propertyIsLikeFilter, contentTypeFilter));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -490,11 +492,12 @@ public class WfsSourceTest {
 
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(ONE_FEATURE, is(getFeatureType.getQuery().size()));
     assertThat(sampleFeatures.get(0), is(getFeatureType.getQuery().get(0).getTypeName().get(0)));
@@ -522,11 +525,12 @@ public class WfsSourceTest {
 
     twoContentTypeQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(twoContentTypeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, twoContentTypeQuery);
     getFeatureType.getQuery().sort(QUERY_TYPE_COMPARATOR);
     assertThat(TWO_FEATURES, is(getFeatureType.getQuery().size()));
@@ -544,11 +548,12 @@ public class WfsSourceTest {
         new QueryImpl(builder.allOf(propertyIsLikeFilter, contentTypeFilter));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -566,11 +571,12 @@ public class WfsSourceTest {
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
     intersectQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(intersectQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, intersectQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -588,11 +594,12 @@ public class WfsSourceTest {
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
     intersectQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(intersectQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, intersectQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -612,11 +619,12 @@ public class WfsSourceTest {
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
     intersectQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(intersectQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, intersectQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -634,11 +642,12 @@ public class WfsSourceTest {
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
     intersectQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(intersectQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, intersectQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -667,11 +676,12 @@ public class WfsSourceTest {
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(getFeatureType.getQuery().size(), is(TWO_FEATURES));
     Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
@@ -920,6 +930,68 @@ public class WfsSourceTest {
   }
 
   @Test
+  public void testPagingWithFirstPageWithStartIndex() throws Exception {
+    int pageSize = 4;
+    int startIndex = 1;
+
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
+    setUpMocks(null, null, pageSize, MAX_FEATURES);
+
+    List<Metacard> metacards = new ArrayList<>(pageSize);
+    for (int i = startIndex; i < startIndex + pageSize; i++) {
+      MetacardImpl mc = new MetacardImpl();
+      mc.setId("ID_" + i);
+      metacards.add(mc);
+    }
+
+    when(mockWfs.getFeature(withResultType(ResultTypeType.HITS)))
+        .thenReturn(new WfsFeatureCollectionImpl(MAX_FEATURES));
+    when(mockWfs.getFeature(hasStartIndex(startIndex)))
+        .thenReturn(new WfsFeatureCollectionImpl(pageSize, metacards));
+
+    source.setSupportsStartIndex(true);
+
+    SourceResponse response = executeQuery(startIndex, pageSize);
+    List<Result> results = response.getResults();
+
+    assertThat(response.getHits(), equalTo((long) MAX_FEATURES));
+
+    // Verify that metacards 1 thru 4 were returned
+    assertCorrectMetacardsReturned(results, startIndex, pageSize);
+  }
+
+  @Test
+  public void testPagingToSecondPageWithStartIndex() throws Exception {
+    int pageSize = 4;
+    int startIndex = 5;
+
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
+    setUpMocks(null, null, pageSize, MAX_FEATURES);
+
+    List<Metacard> metacards = new ArrayList<>(pageSize);
+    for (int i = startIndex; i < startIndex + pageSize; i++) {
+      MetacardImpl mc = new MetacardImpl();
+      mc.setId("ID_" + i);
+      metacards.add(mc);
+    }
+
+    when(mockWfs.getFeature(withResultType(ResultTypeType.HITS)))
+        .thenReturn(new WfsFeatureCollectionImpl(MAX_FEATURES));
+    when(mockWfs.getFeature(hasStartIndex(startIndex)))
+        .thenReturn(new WfsFeatureCollectionImpl(pageSize, metacards));
+
+    source.setSupportsStartIndex(true);
+
+    SourceResponse response = executeQuery(startIndex, pageSize);
+    List<Result> results = response.getResults();
+
+    assertThat(response.getHits(), equalTo((long) MAX_FEATURES));
+
+    // Verify that metacards 5 thru 8 were returned
+    assertCorrectMetacardsReturned(results, startIndex, pageSize);
+  }
+
+  @Test
   public void testGetContentTypes() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, TWO_FEATURES);
     setUpMocks(null, null, TWO_FEATURES, TWO_FEATURES);
@@ -960,11 +1032,12 @@ public class WfsSourceTest {
     QueryImpl inQuery = new QueryImpl(totalFilter);
     inQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(inQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, inQuery);
 
     List<QueryType> filterQueries =
@@ -1009,11 +1082,12 @@ public class WfsSourceTest {
     QueryImpl inQuery = new QueryImpl(totalFilter);
     inQuery.setPageSize(MAX_FEATURES);
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(inQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, inQuery);
     getFeatureType.getQuery().sort(QUERY_TYPE_COMPARATOR);
     assertThat(TWO_FEATURES, is(getFeatureType.getQuery().size()));
@@ -1046,11 +1120,12 @@ public class WfsSourceTest {
 
     QueryImpl idQuery = new QueryImpl(builder.attribute(Core.ID).is().text(ORDER_PERSON));
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(idQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertThat(ONE_FEATURE, is(getFeatureType.getQuery().get(0).getFilter().getId().size()));
 
     assertThat(
@@ -1070,11 +1145,12 @@ public class WfsSourceTest {
 
     QueryImpl twoIDQuery = new QueryImpl(builder.anyOf(Arrays.asList(idFilter1, idFilter2)));
 
-    ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(twoIDQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertThat(TWO_FEATURES, is(getFeatureType.getQuery().get(0).getFilter().getId().size()));
 
     assertThat(
@@ -1144,11 +1220,11 @@ public class WfsSourceTest {
     final QueryRequest queryRequest = new QueryRequestImpl(query);
     source.query(queryRequest);
 
-    final ArgumentCaptor<GetFeatureType> getFeatureCaptor =
-        ArgumentCaptor.forClass(GetFeatureType.class);
+    final ArgumentCaptor<ExtendedGetFeatureType> getFeatureCaptor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     verify(mockWfs, times(2)).getFeature(getFeatureCaptor.capture());
 
-    GetFeatureType getFeatureType = getFeatureCaptor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = getFeatureCaptor.getAllValues().get(1);
     final String getFeatureXml = marshal(getFeatureType);
     assertThat(
         getFeatureXml,
@@ -1205,6 +1281,7 @@ public class WfsSourceTest {
             .put("receiveTimeout", receiveTimeout)
             .put("pollInterval", 1)
             .put("disableSorting", false)
+            .put("supportsStartIndex", false)
             .build();
     source.refresh(configuration);
 
@@ -1240,6 +1317,7 @@ public class WfsSourceTest {
             .put("receiveTimeout", receiveTimeout)
             .put("pollInterval", 1)
             .put("disableSorting", false)
+            .put("supportsStartIndex", false)
             .build();
     source.refresh(configuration);
 
@@ -1268,6 +1346,7 @@ public class WfsSourceTest {
             .put("receiveTimeout", receiveTimeout)
             .put("pollInterval", 1)
             .put("disableSorting", false)
+            .put("supportsStartIndex", false)
             .build();
     source.refresh(configuration);
 
@@ -1290,6 +1369,7 @@ public class WfsSourceTest {
             .put("disableCnCheck", false)
             .put("pollInterval", 1)
             .put("disableSorting", false)
+            .put("supportsStartIndex", false)
             .build();
     source.refresh(configuration);
 
@@ -1297,11 +1377,12 @@ public class WfsSourceTest {
         builder.attribute(Metacard.ANY_GEO).is().withinBuffer().wkt(POINT_WKT, 10.0);
     final Query withinQuery = new QueryImpl(withinFilter);
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    final ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(withinQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertThat(getFeatureType.getQuery(), hasSize(1));
 
     final QueryType query = getFeatureType.getQuery().get(0);
@@ -1332,6 +1413,7 @@ public class WfsSourceTest {
             .put("disableCnCheck", false)
             .put("pollInterval", 1)
             .put("disableSorting", false)
+            .put("supportsStartIndex", false)
             .build();
     source.refresh(configuration);
 
@@ -1339,11 +1421,12 @@ public class WfsSourceTest {
         builder.attribute(Metacard.ANY_GEO).is().withinBuffer().wkt(POINT_WKT, 10.0);
     final Query withinQuery = new QueryImpl(withinFilter);
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    final ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(withinQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getAllValues().get(1);
+    ExtendedGetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertThat(getFeatureType.getQuery(), hasSize(1));
 
     final QueryType query = getFeatureType.getQuery().get(0);
@@ -1366,20 +1449,21 @@ public class WfsSourceTest {
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    final ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
 
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    final GetFeatureType getHits = captor.getAllValues().get(0);
+    final ExtendedGetFeatureType getHits = captor.getAllValues().get(0);
     assertThat(getHits.getResultType(), is(ResultTypeType.HITS));
     assertThat(getHits.getMaxFeatures(), is(nullValue()));
 
-    final GetFeatureType getResults = captor.getAllValues().get(1);
+    final ExtendedGetFeatureType getResults = captor.getAllValues().get(1);
     assertThat(getResults.getResultType(), is(ResultTypeType.RESULTS));
     assertMaxFeatures(getResults, propertyIsLikeQuery);
 
-    for (final GetFeatureType getFeatureType : captor.getAllValues()) {
+    for (final ExtendedGetFeatureType getFeatureType : captor.getAllValues()) {
       assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
       final QueryType query = getFeatureType.getQuery().get(0);
       assertThat(query.getTypeName().get(0), is(sampleFeatures.get(0)));
@@ -1399,13 +1483,14 @@ public class WfsSourceTest {
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     propertyIsLikeQuery.setPageSize(1);
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    final ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    final GetFeatureType getResults = captor.getAllValues().get(1);
+    final ExtendedGetFeatureType getResults = captor.getAllValues().get(1);
     assertThat(getResults.getResultType(), is(ResultTypeType.RESULTS));
-    for (final GetFeatureType getFeatureType : captor.getAllValues()) {
+    for (final ExtendedGetFeatureType getFeatureType : captor.getAllValues()) {
       assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
       final QueryType queryType = getFeatureType.getQuery().get(0);
       assertThat(queryType.isSetSortBy(), is(false));
@@ -1432,11 +1517,12 @@ public class WfsSourceTest {
     source.setMetacardMappers(metacardMappers);
     propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING));
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    final ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    for (final GetFeatureType getFeatureType : captor.getAllValues()) {
+    for (final ExtendedGetFeatureType getFeatureType : captor.getAllValues()) {
       assertFeature(getFeatureType, true, MOCK_TEMPORAL_SORT_PROPERTY, "ASC");
     }
   }
@@ -1452,11 +1538,12 @@ public class WfsSourceTest {
     source.setMetacardMappers(metacardMappers);
     propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING));
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    final ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    for (final GetFeatureType getFeatureType : captor.getAllValues()) {
+    for (final ExtendedGetFeatureType getFeatureType : captor.getAllValues()) {
       assertFeature(getFeatureType, true, MOCK_TEMPORAL_SORT_PROPERTY, "DESC");
     }
   }
@@ -1473,11 +1560,12 @@ public class WfsSourceTest {
     source.setDisableSorting(true);
     propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING));
 
-    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    final ArgumentCaptor<ExtendedGetFeatureType> captor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
     verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    for (final GetFeatureType getFeatureType : captor.getAllValues()) {
+    for (final ExtendedGetFeatureType getFeatureType : captor.getAllValues()) {
       assertFeature(getFeatureType, false, MOCK_TEMPORAL_SORT_PROPERTY, "ASC");
     }
   }
@@ -1566,7 +1654,7 @@ public class WfsSourceTest {
   }
 
   private void assertFeature(
-      GetFeatureType getFeatureType,
+      ExtendedGetFeatureType getFeatureType,
       boolean sortingEnabled,
       String sortProperty,
       String sortOrder) {
@@ -1609,7 +1697,7 @@ public class WfsSourceTest {
     return source.query(request);
   }
 
-  private void assertMaxFeatures(GetFeatureType getFeatureType, Query inQuery) {
+  private void assertMaxFeatures(ExtendedGetFeatureType getFeatureType, Query inQuery) {
     int pageSize = (inQuery.getStartIndex() / MAX_FEATURES + 1) * inQuery.getPageSize();
     assertThat(getFeatureType.getMaxFeatures(), is(BigInteger.valueOf(pageSize)));
   }
@@ -1624,18 +1712,18 @@ public class WfsSourceTest {
     }
   }
 
-  private String marshal(final GetFeatureType getFeatureType) throws JAXBException {
+  private String marshal(final ExtendedGetFeatureType getFeatureType) throws JAXBException {
     Writer writer = new StringWriter();
     Marshaller marshaller = jaxbContext.createMarshaller();
     marshaller.marshal(getGetFeatureTypeJaxbElement(getFeatureType), writer);
     return writer.toString();
   }
 
-  private JAXBElement<GetFeatureType> getGetFeatureTypeJaxbElement(
-      final GetFeatureType getFeatureType) {
+  private JAXBElement<ExtendedGetFeatureType> getGetFeatureTypeJaxbElement(
+      final ExtendedGetFeatureType getFeatureType) {
     return new JAXBElement<>(
         new QName("http://www.opengis.net/wfs", "GetFeature"),
-        GetFeatureType.class,
+        ExtendedGetFeatureType.class,
         getFeatureType);
   }
 
@@ -1684,12 +1772,12 @@ public class WfsSourceTest {
     }
   }
 
-  private static GetFeatureType withResultType(final ResultTypeType resultType) {
+  private static ExtendedGetFeatureType withResultType(final ResultTypeType resultType) {
     return argThat(new IsGetFeatureRequestWithResultType(resultType));
   }
 
   private static class IsGetFeatureRequestWithResultType
-      implements ArgumentMatcher<GetFeatureType> {
+      implements ArgumentMatcher<ExtendedGetFeatureType> {
     private final ResultTypeType resultType;
 
     private IsGetFeatureRequestWithResultType(final ResultTypeType resultType) {
@@ -1697,8 +1785,33 @@ public class WfsSourceTest {
     }
 
     @Override
-    public boolean matches(final GetFeatureType featureType) {
-      return featureType != null && Objects.equals(featureType.getResultType(), resultType);
+    public boolean matches(final ExtendedGetFeatureType featureType) {
+      return featureType != null
+          && Objects.equals(featureType.getResultType(), resultType)
+          && !featureType.isSetStartIndex()
+          && featureType.startIndex == null;
+    }
+  }
+
+  private static ExtendedGetFeatureType hasStartIndex(int ddfStartIndex) {
+    return argThat(new IsGetFeatureRequestWithStartIndex(ddfStartIndex - 1));
+  }
+
+  private static class IsGetFeatureRequestWithStartIndex
+      implements ArgumentMatcher<ExtendedGetFeatureType> {
+
+    private final int startIndex;
+
+    public IsGetFeatureRequestWithStartIndex(int startIndex) {
+      this.startIndex = startIndex;
+    }
+
+    @Override
+    public boolean matches(final ExtendedGetFeatureType featureType) {
+      return featureType != null
+          && Objects.equals(featureType.getResultType(), ResultTypeType.RESULTS)
+          && featureType.isSetStartIndex()
+          && featureType.startIndex.intValue() == startIndex;
     }
   }
 }
