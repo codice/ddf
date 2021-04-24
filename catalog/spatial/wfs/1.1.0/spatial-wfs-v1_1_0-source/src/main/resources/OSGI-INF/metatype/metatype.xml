@@ -91,6 +91,9 @@
         <AD description="When selected, the system will not specify sort criteria with the query.  This should only be used if the remote source is unable to handle sorting."
             name="Disable Sorting" id="disableSorting" required="true"
             type="Boolean" default="true"/>
+        <AD description="Some WFS 1.1.0 servers like Geoserver support startIndex in queries. This enables efficient deep paging."
+            name="Supports startIndex" id="supportsStartIndex" required="false"
+            type="Boolean" default="false"/>
     </OCD>
 
     <Designate pid="Wfs_v110_Federated_Source" factoryPid="Wfs_v110_Federated_Source">
