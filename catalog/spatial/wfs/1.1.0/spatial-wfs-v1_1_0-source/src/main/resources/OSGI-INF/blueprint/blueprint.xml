@@ -80,6 +80,7 @@
             <property name="metacardMappers" ref="metacardMappers"/>
             <property name="srsName" value="EPSG:4326"/>
             <property name="disableSorting" value="true"/>
+            <property name="supportsStartIndex" value="false"/>
 
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
