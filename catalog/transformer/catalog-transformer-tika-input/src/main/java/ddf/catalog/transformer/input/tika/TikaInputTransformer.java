@@ -325,6 +325,9 @@ public class TikaInputTransformer implements InputTransformer {
     // .xltm
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-excel.template.macroenabled.12", fallbackExcelMetacardType);
+    // .avi
+    mimeTypeToMetacardTypeMap.put("video/avi", fallbackMp4MetacardType);
+    mimeTypeToMetacardTypeMap.put("video/x-msvideo", fallbackMp4MetacardType);
   }
 
   /**
