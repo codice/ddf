@@ -379,7 +379,7 @@ public class TikaInputTransformer implements InputTransformer {
       }
 
       if (extractor != null) {
-        metadataText = extractor.getMetadataXml();
+        metadataText = getMetadataXml(extractor.getMetadataXml());
         Attribute validationAttribute = null;
         if (metadataText.equals(TikaMetadataExtractor.METADATA_LIMIT_REACHED_MSG)) {
           validationAttribute =
@@ -413,6 +413,14 @@ public class TikaInputTransformer implements InputTransformer {
       LOGGER.debug("Finished transforming input stream using Tika.");
       return metacard;
     }
+  }
+
+  private String getMetadataXml(String extractorMetadataXml) {
+    if (extractorMetadataXml != null && extractorMetadataXml.trim().endsWith("?>")) {
+      // Contains just the prolog, use empty string instead
+      return "";
+    }
+    return extractorMetadataXml;
   }
 
   private void processMetadataExtractors(String metadataText, Metacard metacard) {

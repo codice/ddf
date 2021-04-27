@@ -622,7 +622,7 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertNull(metacard.getMetadata());
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is("Dataset"));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is("Text"));
   }
 
   @Test
