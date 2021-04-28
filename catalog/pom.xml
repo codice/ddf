@@ -393,6 +393,7 @@
         <module>spatial</module>
         <module>validator</module>
         <module>confluence</module>
+        <module>healthcheck</module>
     </modules>
     <build>
         <plugins>
