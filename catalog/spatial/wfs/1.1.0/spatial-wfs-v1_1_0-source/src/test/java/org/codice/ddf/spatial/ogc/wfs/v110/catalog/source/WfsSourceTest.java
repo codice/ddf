@@ -929,6 +929,37 @@ public class WfsSourceTest {
   }
 
   @Test
+  public void testPagingWithFirstPageWithStartIndex() throws Exception {
+    int pageSize = 4;
+    int startIndex = 1;
+
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
+    setUpMocks(null, null, pageSize, MAX_FEATURES);
+
+    List<Metacard> metacards = new ArrayList<>(pageSize);
+    for (int i = startIndex; i < startIndex + pageSize; i++) {
+      MetacardImpl mc = new MetacardImpl();
+      mc.setId("ID_" + i);
+      metacards.add(mc);
+    }
+
+    when(mockWfs.getFeature(withResultType(ResultTypeType.HITS)))
+        .thenReturn(new WfsFeatureCollectionImpl(MAX_FEATURES));
+    when(mockWfs.getFeature(hasStartIndex(startIndex)))
+        .thenReturn(new WfsFeatureCollectionImpl(pageSize, metacards));
+
+    source.setSupportsStartIndex(true);
+
+    SourceResponse response = executeQuery(startIndex, pageSize);
+    List<Result> results = response.getResults();
+
+    assertThat(response.getHits(), equalTo((long) MAX_FEATURES));
+
+    // Verify that metacards 1 thru 4 were returned
+    assertCorrectMetacardsReturned(results, startIndex, pageSize);
+  }
+
+  @Test
   public void testPagingToSecondPageWithStartIndex() throws Exception {
     int pageSize = 4;
     int startIndex = 5;
@@ -945,7 +976,7 @@ public class WfsSourceTest {
 
     when(mockWfs.getFeature(withResultType(ResultTypeType.HITS)))
         .thenReturn(new WfsFeatureCollectionImpl(MAX_FEATURES));
-    when(mockWfs.getFeature(hasStartIndex()))
+    when(mockWfs.getFeature(hasStartIndex(startIndex)))
         .thenReturn(new WfsFeatureCollectionImpl(pageSize, metacards));
 
     source.setSupportsStartIndex(true);
@@ -1753,19 +1784,25 @@ public class WfsSourceTest {
     }
   }
 
-  private static ExtendedGetFeatureType hasStartIndex() {
-    return argThat(new IsGetFeatureRequestWithStartIndex());
+  private static ExtendedGetFeatureType hasStartIndex(int ddfStartIndex) {
+    return argThat(new IsGetFeatureRequestWithStartIndex(ddfStartIndex - 1));
   }
 
   private static class IsGetFeatureRequestWithStartIndex
       implements ArgumentMatcher<ExtendedGetFeatureType> {
+
+    private final int startIndex;
+
+    public IsGetFeatureRequestWithStartIndex(int startIndex) {
+      this.startIndex = startIndex;
+    }
 
     @Override
     public boolean matches(final ExtendedGetFeatureType featureType) {
       return featureType != null
           && Objects.equals(featureType.getResultType(), ResultTypeType.RESULTS)
           && featureType.isSetStartIndex()
-          && featureType.startIndex.intValue() > 0;
+          && featureType.startIndex.intValue() == startIndex;
     }
   }
 }
