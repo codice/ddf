@@ -52,7 +52,9 @@ import net.opengis.gml.v_3_1_1.DirectPositionType;
 import net.opengis.gml.v_3_1_1.EnvelopeType;
 import net.opengis.gml.v_3_1_1.LineStringType;
 import net.opengis.gml.v_3_1_1.LinearRingType;
+import net.opengis.gml.v_3_1_1.MultiPolygonType;
 import net.opengis.gml.v_3_1_1.PointType;
+import net.opengis.gml.v_3_1_1.PolygonPropertyType;
 import net.opengis.gml.v_3_1_1.PolygonType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -66,6 +68,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
@@ -1163,12 +1166,15 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return filterObjectFactory.createBBOX(bboxType);
   }
 
-  private JAXBElement<PolygonType> createPolygon(String wkt) {
-    PolygonType polygon = new PolygonType();
-    LinearRingType linearRing = new LinearRingType();
+  private JAXBElement<PolygonType> createPolygon(Geometry geometry) {
+    return gmlObjectFactory.createPolygon(createPolygon(geometry.getCoordinates()));
+  }
 
-    Coordinate[] coordinates = getCoordinatesFromWkt(wkt);
+  private PolygonType createPolygon(Coordinate[] coordinates) {
     if (coordinates != null && coordinates.length > 0) {
+      PolygonType polygon = new PolygonType();
+      LinearRingType linearRing = new LinearRingType();
+
       String coordinateString = coordinateStrategy.toString(coordinates);
 
       CoordinatesType coordinatesType = new CoordinatesType();
@@ -1185,7 +1191,30 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
       polygon.setExterior(gmlObjectFactory.createExterior(abstractRingPropertyType));
 
-      return gmlObjectFactory.createPolygon(polygon);
+      return polygon;
+    } else {
+      throw new IllegalArgumentException("Unable to parse Polygon coordinates from WKT String");
+    }
+  }
+
+  private JAXBElement<MultiPolygonType> createMultiPolygon(Geometry geometry) {
+    MultiPolygonType multiPolygon = new MultiPolygonType();
+
+    if (geometry.getNumGeometries() > 0) {
+
+      List<PolygonPropertyType> geometryMembers = multiPolygon.getPolygonMember();
+
+      for (int i = 0; i < geometry.getNumGeometries(); i++) {
+        Geometry currentGeo = geometry.getGeometryN(i);
+        PolygonType currentPolygon = createPolygon(currentGeo.getCoordinates());
+
+        PolygonPropertyType member = new PolygonPropertyType();
+        member.setPolygon(currentPolygon);
+
+        geometryMembers.add(member);
+      }
+
+      return gmlObjectFactory.createMultiPolygon(multiPolygon);
     } else {
       throw new IllegalArgumentException("Unable to parse Polygon coordinates from WKT String");
     }
@@ -1318,7 +1347,19 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
     if (wktGeometry instanceof Polygon) {
       if (isGeometryOperandSupported(Wfs11Constants.POLYGON)) {
-        return createPolygon(wkt);
+        return createPolygon(wktGeometry);
+      } else {
+        throw new IllegalArgumentException("The Polygon operand is not supported.");
+      }
+    } else if (wktGeometry instanceof MultiPolygon) {
+      if (isGeometryOperandSupported(Wfs11Constants.MULTI_POLYGON)) {
+        return createMultiPolygon(wktGeometry);
+      } else if (isGeometryOperandSupported(Wfs11Constants.POLYGON)) {
+        if (wktGeometry.getNumGeometries() == 1) {
+          return createPolygon(wktGeometry.getGeometryN(0));
+        } else {
+          return createPolygon(wktGeometry.getEnvelope());
+        }
       } else {
         throw new IllegalArgumentException("The Polygon operand is not supported.");
       }

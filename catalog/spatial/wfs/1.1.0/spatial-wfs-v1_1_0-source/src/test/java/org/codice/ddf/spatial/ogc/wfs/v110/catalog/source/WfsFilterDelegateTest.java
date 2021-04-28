@@ -59,11 +59,13 @@ import net.opengis.gml.v_3_1_1.DirectPositionType;
 import net.opengis.gml.v_3_1_1.EnvelopeType;
 import net.opengis.gml.v_3_1_1.LineStringType;
 import net.opengis.gml.v_3_1_1.LinearRingType;
+import net.opengis.gml.v_3_1_1.MultiPolygonType;
 import net.opengis.gml.v_3_1_1.PointType;
 import net.opengis.gml.v_3_1_1.PolygonType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
+import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants.SPATIAL_OPERATORS;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.joda.time.DateTime;
@@ -94,6 +96,9 @@ public class WfsFilterDelegateTest {
   private static final List<String> SUPPORTED_GEO = asList("Intersects", "BBox", "Within");
 
   private static final String POLYGON = "POLYGON ((40 -10, 40 30, 10 30, 10 -10, 40 -10))";
+
+  private static final String MULTIPOLYGON =
+      "MULTIPOLYGON (((30 20, 10 40, 45 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))";
 
   private static final String LINESTRING = "LINESTRING (30 10, 10 30, 50 40)";
 
@@ -1811,6 +1816,123 @@ public class WfsFilterDelegateTest {
     assertThat(
         linearRingType.getCoordinates().getValue(),
         is("40.0,-10.0 40.0,30.0 10.0,30.0 10.0,-10.0 40.0,-10.0"));
+  }
+
+  @Test
+  public void testMultiPolygonLatLonOrder() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LatLonCoordinateStrategy());
+
+    final FilterType filter = delegate.intersects(Metacard.ANY_GEO, MULTIPOLYGON);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
+
+    final BinarySpatialOpType binarySpatialOpType =
+        (BinarySpatialOpType) filter.getSpatialOps().getValue();
+    assertThat(
+        binarySpatialOpType.getGeometry().getValue(), is(instanceOf(MultiPolygonType.class)));
+
+    final MultiPolygonType multiPolygonType =
+        (MultiPolygonType) binarySpatialOpType.getGeometry().getValue();
+    assertThat(multiPolygonType.getPolygonMember().size(), is(2));
+    final LinearRingType firstLinearRing =
+        (LinearRingType)
+            multiPolygonType
+                .getPolygonMember()
+                .get(0)
+                .getPolygon()
+                .getExterior()
+                .getValue()
+                .getRing()
+                .getValue();
+    assertThat(
+        firstLinearRing.getCoordinates().getValue(), is("20.0,30.0 40.0,10.0 40.0,45.0 20.0,30.0"));
+  }
+
+  @Test
+  public void testMultiPolygonLonLatOrder() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LonLatCoordinateStrategy());
+
+    final FilterType filter = delegate.intersects(Metacard.ANY_GEO, MULTIPOLYGON);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
+
+    final BinarySpatialOpType binarySpatialOpType =
+        (BinarySpatialOpType) filter.getSpatialOps().getValue();
+    assertThat(
+        binarySpatialOpType.getGeometry().getValue(), is(instanceOf(MultiPolygonType.class)));
+
+    final MultiPolygonType multiPolygonType =
+        (MultiPolygonType) binarySpatialOpType.getGeometry().getValue();
+    assertThat(multiPolygonType.getPolygonMember().size(), is(2));
+    final LinearRingType firstLinearRing =
+        (LinearRingType)
+            multiPolygonType
+                .getPolygonMember()
+                .get(0)
+                .getPolygon()
+                .getExterior()
+                .getValue()
+                .getRing()
+                .getValue();
+    assertThat(
+        firstLinearRing.getCoordinates().getValue(), is("30.0,20.0 10.0,40.0 45.0,40.0 30.0,20.0"));
+  }
+
+  @Test
+  public void testMultiPolygonWithSinglePolygonSupportsOnlyPolygon() {
+    final String MULTIPOLYGON_SINGLE_POLYGON = "MULTIPOLYGON (((30 20, 10 40, 45 40, 30 20)))";
+
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LatLonCoordinateStrategy());
+
+    delegate.setSupportedGeometryOperands(singletonList(Wfs11Constants.POLYGON));
+
+    final FilterType filter = delegate.intersects(Metacard.ANY_GEO, MULTIPOLYGON_SINGLE_POLYGON);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
+
+    final BinarySpatialOpType binarySpatialOpType =
+        (BinarySpatialOpType) filter.getSpatialOps().getValue();
+    assertThat(binarySpatialOpType.getGeometry().getValue(), is(instanceOf(PolygonType.class)));
+
+    final PolygonType polygonType = (PolygonType) binarySpatialOpType.getGeometry().getValue();
+    assertThat(
+        polygonType.getExterior().getValue().getRing().getValue(),
+        is(instanceOf(LinearRingType.class)));
+
+    final LinearRingType linearRingType =
+        (LinearRingType) polygonType.getExterior().getValue().getRing().getValue();
+    assertThat(
+        linearRingType.getCoordinates().getValue(), is("20.0,30.0 40.0,10.0 40.0,45.0 20.0,30.0"));
+  }
+
+  @Test
+  public void testMultiPolygonSupportsOnlyPolygonIsEnvelopePolygon() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LonLatCoordinateStrategy());
+
+    delegate.setSupportedGeometryOperands(singletonList(Wfs11Constants.POLYGON));
+
+    final FilterType filter = delegate.intersects(Metacard.ANY_GEO, MULTIPOLYGON);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
+
+    final BinarySpatialOpType binarySpatialOpType =
+        (BinarySpatialOpType) filter.getSpatialOps().getValue();
+    assertThat(binarySpatialOpType.getGeometry().getValue(), is(instanceOf(PolygonType.class)));
+
+    final PolygonType polygonType = (PolygonType) binarySpatialOpType.getGeometry().getValue();
+    assertThat(
+        polygonType.getExterior().getValue().getRing().getValue(),
+        is(instanceOf(LinearRingType.class)));
+
+    final LinearRingType linearRingType =
+        (LinearRingType) polygonType.getExterior().getValue().getRing().getValue();
+    assertThat(
+        linearRingType.getCoordinates().getValue(),
+        is("5.0,5.0 5.0,40.0 45.0,40.0 45.0,5.0 5.0,5.0"));
   }
 
   @Test
