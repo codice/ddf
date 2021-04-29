@@ -831,7 +831,8 @@ public class WfsSource extends AbstractWfsSource {
       getFeatureType.setVersion(Wfs11Constants.VERSION_1_1_0);
       getFeatureType.setResultType(resultType);
       if (supportsStartIndex && resultType.equals(ResultTypeType.RESULTS)) {
-        getFeatureType.setStartIndex(BigInteger.valueOf(query.getStartIndex()));
+        // Convert DDF index of 1 back to index of 0 for WFS
+        getFeatureType.setStartIndex(BigInteger.valueOf(query.getStartIndex() - 1));
       }
       logMessage(getFeatureType);
       return getFeatureType;
