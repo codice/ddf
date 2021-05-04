@@ -39,6 +39,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.impl.PropertyNameImpl;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -1591,8 +1592,7 @@ public class WfsSourceTest {
   public void testSortingNoSortOrder() throws Exception {
     // if sort order is missing, throw UnsupportedQueryException
     expectedEx.expect(UnsupportedQueryException.class);
-    expectedEx.expectMessage(
-        "Source WFS_ID does not support specified sort property TEMPORAL with sort order null");
+    expectedEx.expectMessage("Source WFS_ID does not support specified sort property TEMPORAL");
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
     setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
@@ -1608,11 +1608,7 @@ public class WfsSourceTest {
 
   @Test
   public void testSortingNoSortProperty() throws Exception {
-    // if sort property is missing, throw UnsupportedQueryException
-    expectedEx.expect(UnsupportedQueryException.class);
-    expectedEx.expectMessage(
-        "Source WFS_ID does not support specified sort property null with sort order SortOrder[ASCENDING]");
-
+    // query is still valid even if sort property is missing
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
     setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     final QueryImpl propertyIsLikeQuery =
@@ -1626,11 +1622,24 @@ public class WfsSourceTest {
   }
 
   @Test
+  public void testNullSortProperty() throws Exception {
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
+    final QueryImpl propertyIsLikeQuery =
+        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
+    setupMapper(
+        MOCK_TEMPORAL_SORT_PROPERTY, MOCK_RELEVANCE_SORT_PROPERTY, MOCK_DISTANCE_SORT_PROPERTY);
+    source.setMetacardMappers(metacardMappers);
+    propertyIsLikeQuery.setSortBy(new SortByImpl(new PropertyNameImpl(null), null));
+
+    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+  }
+
+  @Test
   public void testSortingBadSortOrder() throws Exception {
     // if sort order is invalid throw UnsupportedQueryException
     expectedEx.expect(UnsupportedQueryException.class);
-    expectedEx.expectMessage(
-        "Source WFS_ID does not support specified sort property TEMPORAL with sort order SortOrder[foo]");
+    expectedEx.expectMessage("Source WFS_ID does not support specified sort property TEMPORAL");
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
     setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);

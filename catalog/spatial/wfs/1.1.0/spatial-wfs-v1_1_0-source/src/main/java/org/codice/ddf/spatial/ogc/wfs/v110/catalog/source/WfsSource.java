@@ -794,7 +794,10 @@ public class WfsSource extends AbstractWfsSource {
           if (areAnyFiltersSet(filter)) {
             wfsQuery.setFilter(filter);
           }
-          if (!this.disableSorting && query.getSortBy() != null) {
+          if (!this.disableSorting
+              && query.getSortBy() != null
+              && query.getSortBy().getPropertyName() != null
+              && query.getSortBy().getPropertyName().getPropertyName() != null) {
             SortByType sortByType = buildSortBy(filterDelegateEntry.getKey(), query.getSortBy());
             if (sortByType != null
                 && sortByType.getSortProperty() != null
@@ -809,12 +812,10 @@ public class WfsSource extends AbstractWfsSource {
                   "Source "
                       + this.getId()
                       + " does not support specified sort property "
-                      + query.getSortBy().getPropertyName().getPropertyName()
-                      + " with sort order "
-                      + query.getSortBy().getSortOrder());
+                      + query.getSortBy().getPropertyName().getPropertyName());
             }
           } else {
-            LOGGER.debug("Sorting is disabled.");
+            LOGGER.debug("Sorting is disabled or sort not specified.");
           }
           queries.add(wfsQuery);
         } else {
