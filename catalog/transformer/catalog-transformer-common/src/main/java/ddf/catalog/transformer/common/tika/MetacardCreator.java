@@ -229,20 +229,25 @@ public class MetacardCreator {
     Serializable result = null;
     if (StringUtils.isNotBlank(value)) {
       AttributeDescriptor descriptor = metacardType.getAttributeDescriptor(attributeName);
-      AttributeFormat attributeFormat = descriptor.getType().getAttributeFormat();
 
-      if (attributeFormat == AttributeFormat.INTEGER) {
-        try {
-          result = Integer.valueOf(value.trim());
-        } catch (NumberFormatException nfe) {
-          LOGGER.debug(
-              "Expected integer but was not integer. This is expected behavior when "
-                  + "a defined integer attribute does not exist on the ingested product.");
+      if (descriptor != null) {
+        AttributeFormat attributeFormat = descriptor.getType().getAttributeFormat();
+
+        if (attributeFormat == AttributeFormat.INTEGER) {
+          try {
+            result = Integer.valueOf(value.trim());
+          } catch (NumberFormatException nfe) {
+            LOGGER.debug(
+                "Expected integer but was not integer. This is expected behavior when "
+                    + "a defined integer attribute does not exist on the ingested product.");
+          }
+        } else if (attributeFormat == AttributeFormat.DOUBLE) {
+          result = getDoubleFromString(value);
+        } else if (attributeFormat == AttributeFormat.DATE) {
+          result = convertDate(value);
+        } else {
+          result = value;
         }
-      } else if (attributeFormat == AttributeFormat.DOUBLE) {
-        result = getDoubleFromString(value);
-      } else if (attributeFormat == AttributeFormat.DATE) {
-        result = convertDate(value);
       } else {
         result = value;
       }
