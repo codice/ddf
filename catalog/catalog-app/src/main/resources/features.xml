@@ -713,6 +713,7 @@
         <feature>catalog-core-attachment</feature>
         <feature>catalog-plugin-gazetteer</feature>
         <feature>catalog-facet-attribute-access-plugin</feature>
+        <feature>catalog-healthcheck-docker</feature>
     </feature>
 
 </features>

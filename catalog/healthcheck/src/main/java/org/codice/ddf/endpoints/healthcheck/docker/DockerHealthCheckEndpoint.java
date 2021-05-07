@@ -13,12 +13,13 @@
  */
 package org.codice.ddf.endpoints.healthcheck.docker;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
 import org.codice.ddf.endpoints.healthcheck.HealthChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 
 /** Docker Health Check */
 @Path("/")
@@ -31,7 +32,7 @@ public class DockerHealthCheckEndpoint implements DockerHealthCheck {
   }
 
   @GET
-  @Path("/healthcheck")
+  @Path("/docker")
   public Response getDocument() {
     LOGGER.info("in /healthcheck");
     return healthChecker.handle();
