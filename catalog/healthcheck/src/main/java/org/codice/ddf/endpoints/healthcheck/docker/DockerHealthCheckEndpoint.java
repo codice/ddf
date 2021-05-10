@@ -34,7 +34,7 @@ public class DockerHealthCheckEndpoint implements DockerHealthCheck {
   @GET
   @Path("/docker")
   public Response getDocument() {
-    LOGGER.info("in /healthcheck");
+    LOGGER.trace("in /services/healthcheck/docker");
     return healthChecker.handle();
   }
 }

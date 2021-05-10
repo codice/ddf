@@ -26,16 +26,6 @@ import ddf.catalog.operation.impl.SourceInfoRequestLocal;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.Subject;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import javax.ws.rs.core.Response;
 import org.apache.karaf.bundle.core.BundleInfo;
 import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.bundle.core.BundleState;
@@ -47,6 +37,17 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class HealthChecker {
 
@@ -82,21 +83,57 @@ public class HealthChecker {
   }
 
   public Response handle() {
-    if (catalogFramework != null
-        && filterBuilder != null
-        && context != null
-        && bundleService != null) {
-      if (isSolrQueryable() && areBundlesReady() && isCatalogAvailable()) {
-        LOGGER.info("bundles ready, solr queryable, catalog available");
-        return Response.ok().build();
-      } else {
-        LOGGER.info("Server NOT OK");
-        return Response.serverError().build();
-      }
-    } else {
-      LOGGER.info("Server NOT OK");
+    if (!isDDFReady()) {
+      LOGGER.warn("DDF is not ready");
       return Response.serverError().build();
     }
+
+    if (!isSolrQueryable()) {
+      LOGGER.warn("Solr is not queryable");
+      return Response.serverError().build();
+    }
+
+    if (!areBundlesReady()) {
+      LOGGER.warn("Bundles are not ready");
+      return Response.serverError().build();
+    }
+
+    if (!isCatalogAvailable()) {
+      LOGGER.warn("Catalog is not available");
+      return Response.serverError().build();
+    }
+
+    LOGGER.info("Bundles ready, solr queryable, catalog available");
+    return Response.ok().build();
+  }
+
+  private boolean isDDFReady() {
+    boolean isCatalogFrameworkReady = true;
+    boolean isFilterBuilderReady = true;
+    boolean isContextReady = true;
+    boolean isBundleServiceReady = true;
+
+    if (catalogFramework == null) {
+      LOGGER.warn("Catalog Framework is unavailable");
+      isCatalogFrameworkReady = false;
+    }
+
+    if (filterBuilder == null) {
+      LOGGER.warn("Filter Builder is unavailable");
+      isFilterBuilderReady = false;
+    }
+
+    if (context == null) {
+      LOGGER.warn("Context is unavailable");
+      isContextReady = false;
+    }
+
+    if (bundleService == null) {
+      LOGGER.warn("Bundle Service is unavailable");
+      isBundleServiceReady = false;
+    }
+
+    return isCatalogFrameworkReady && isFilterBuilderReady && isContextReady && isBundleServiceReady;
   }
 
   private boolean areBundlesReady() {
@@ -108,21 +145,21 @@ public class HealthChecker {
     BundleInfo info = bundleService.getInfo(bundle);
     BundleState state = info.getState();
 
-    boolean ready;
+    boolean isReady;
     if (info.isFragment()) {
-      ready = BundleState.Resolved.equals(state);
+      isReady = BundleState.Resolved.equals(state);
     } else {
       if (BundleState.Failure.equals(state)) {
         printInactiveBundles();
       }
-      ready = BundleState.Active.equals(state);
+      isReady = BundleState.Active.equals(state);
     }
 
-    if (!ready) {
+    if (!isReady) {
       LOGGER.debug("{} bundle not ready yet", name);
     }
 
-    return ready;
+    return isReady;
   }
 
   public void printInactiveBundles() {
@@ -181,7 +218,7 @@ public class HealthChecker {
       if (localSource != null) {
         LOGGER.debug(
             "SourceID {}, isAvail {}", localSource.getSourceId(), localSource.isAvailable());
-        LOGGER.info("Catalog is available: {}", localSource.isAvailable());
+        LOGGER.debug("Catalog is available: {}", localSource.isAvailable());
         return localSource.isAvailable();
       }
     }
@@ -203,26 +240,28 @@ public class HealthChecker {
 
     } catch (ExecutionException e) {
       LOGGER.debug("Catalog unavailable", e);
-      LOGGER.info("Solr not queryable");
+      LOGGER.debug("Solr not queryable");
       return false;
     }
-    if (queryResponse != null) {
 
-      Set<ProcessingDetails> details = queryResponse.getProcessingDetails();
-      if (details != null && details.size() > 0) {
-        for (ProcessingDetails detail : details) {
-
-          if (detail != null && detail.hasException()) {
-            LOGGER.debug("Catalog query unsuccessful", detail.getException());
-            return false;
-          }
-        }
-      }
-      LOGGER.info("Solr queryable");
-      return true;
+    if (queryResponse == null) {
+      LOGGER.debug("Null query response from Solr");
+      return false;
     }
-    LOGGER.info("Solr queryable");
-    return false;
+
+    Set<ProcessingDetails> details = queryResponse.getProcessingDetails();
+    if (details == null || details.isEmpty()) {
+      LOGGER.debug("Solr is not queryable");
+      return false;
+    }
+
+    for (ProcessingDetails detail : details) {
+      if (detail != null && detail.hasException()) {
+        LOGGER.debug("Catalog query unsuccessful", detail.getException());
+        return false;
+      }
+    }
+    return true;
   }
 
   private Filter getFilter() {
