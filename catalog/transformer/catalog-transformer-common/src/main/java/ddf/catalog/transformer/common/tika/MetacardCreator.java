@@ -21,6 +21,7 @@ import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Media;
 import ddf.catalog.data.types.Topic;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +37,10 @@ import org.slf4j.LoggerFactory;
 /** Creates {@link Metacard}s from Tika {@link Metadata} objects. */
 public class MetacardCreator {
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardCreator.class);
+
+  private static final Date UNIX_EPOCH_DATE = Date.from(Instant.EPOCH);
+
+  private static final Date EXCEL_EPOCH_DATE = Date.from(Instant.parse("1904-01-01T00:00:00.000Z"));
 
   public static final String COMPRESSION_TYPE_METADATA_KEY = "Compression Type";
 
@@ -201,7 +206,13 @@ public class MetacardCreator {
     if (StringUtils.isBlank(dateStr)) {
       return null;
     }
+    Date date = javax.xml.bind.DatatypeConverter.parseDateTime(dateStr).getTime();
 
-    return javax.xml.bind.DatatypeConverter.parseDateTime(dateStr).getTime();
+    // Tika will return epoch dates when they are missing/null in the source metadata
+    if (date.equals(UNIX_EPOCH_DATE) || date.equals(EXCEL_EPOCH_DATE)) {
+      return null;
+    }
+
+    return date;
   }
 }
