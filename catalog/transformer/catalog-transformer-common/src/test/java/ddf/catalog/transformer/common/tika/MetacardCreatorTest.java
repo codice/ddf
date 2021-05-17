@@ -29,6 +29,7 @@ import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Media;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -212,6 +213,56 @@ public class MetacardCreatorTest {
         MetacardCreator.createMetacard(metadata, null, null, MetacardImpl.BASIC_METACARD, false);
 
     assertThat(metacard.getAttribute(Contact.CONTRIBUTOR_NAME), nullValue());
+  }
+
+  @Test
+  public void testAdditionalKeyMappings() {
+    Metadata metadata = new Metadata();
+    String imageLength = "14";
+    String imageWidth = "18";
+    String duration = "12.5 s";
+    String durationHms = "00:01:30.5";
+    String customImageWidthKey = "Width_Of_Image";
+    String customDurationKey = "Media_Duration";
+    String customDurationMetacardKey = "ext.media.duration";
+    metadata.add(TIFF.IMAGE_LENGTH, imageLength);
+    metadata.add(customImageWidthKey, imageWidth);
+    metadata.add("Duration", duration);
+    metadata.add(customDurationKey, durationHms);
+
+    MetacardCreator.ALTERNATE_METADATA_KEY_MAPPING.put(
+        Media.WIDTH, Arrays.asList("Image Width", customImageWidthKey));
+    MetacardCreator.ALTERNATE_METADATA_KEY_MAPPING.put(
+        customDurationMetacardKey, Arrays.asList(customDurationKey));
+
+    final String id = "id";
+    final String metadataXml = "<xml>test</xml>";
+
+    Set<AttributeDescriptor> extraAttributes = new HashSet<>();
+    extraAttributes.add(
+        new AttributeDescriptorImpl(
+            Media.HEIGHT, false, false, false, false, BasicTypes.INTEGER_TYPE));
+    extraAttributes.add(
+        new AttributeDescriptorImpl(
+            Media.WIDTH, false, false, false, false, BasicTypes.INTEGER_TYPE));
+    extraAttributes.add(
+        new AttributeDescriptorImpl(
+            Media.DURATION, false, false, false, false, BasicTypes.DOUBLE_TYPE));
+    extraAttributes.add(
+        new AttributeDescriptorImpl(
+            customDurationMetacardKey, false, false, false, false, BasicTypes.DOUBLE_TYPE));
+
+    MetacardTypeImpl extendedMetacardType =
+        new MetacardTypeImpl(
+            MetacardImpl.BASIC_METACARD.getName(), MetacardImpl.BASIC_METACARD, extraAttributes);
+
+    final Metacard metacard =
+        MetacardCreator.createMetacard(metadata, id, metadataXml, extendedMetacardType);
+
+    assertThat(metacard.getAttribute(Media.HEIGHT).getValue(), is(Integer.valueOf(imageLength)));
+    assertThat(metacard.getAttribute(Media.WIDTH).getValue(), is(Integer.valueOf(imageWidth)));
+    assertThat(metacard.getAttribute(Media.DURATION).getValue(), is(12.5));
+    assertThat(metacard.getAttribute(customDurationMetacardKey).getValue(), is(90.5));
   }
 
   private AttributeDescriptorImpl createObjectAttr(String name) {
