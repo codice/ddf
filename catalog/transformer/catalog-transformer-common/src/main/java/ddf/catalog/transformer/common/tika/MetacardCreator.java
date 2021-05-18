@@ -28,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.metadata.DublinCore;
 import org.apache.tika.metadata.Metadata;
@@ -241,10 +243,38 @@ public class MetacardCreator {
                 "Expected integer but was not integer. This is expected behavior when "
                     + "a defined integer attribute does not exist on the ingested product.");
           }
+        } else if (attributeFormat == AttributeFormat.LONG) {
+          try {
+            result = Long.valueOf(value.trim());
+          } catch (NumberFormatException nfe) {
+            LOGGER.debug(
+                "Expected long but was not long. This is expected behavior when "
+                    + "a defined long attribute does not exist on the ingested product.");
+          }
+        } else if (attributeFormat == AttributeFormat.SHORT) {
+          try {
+            result = Short.valueOf(value.trim());
+          } catch (NumberFormatException nfe) {
+            LOGGER.debug(
+                "Expected short but was not short. This is expected behavior when "
+                    + "a defined short attribute does not exist on the ingested product.");
+          }
         } else if (attributeFormat == AttributeFormat.DOUBLE) {
           result = getDoubleFromString(value);
+        } else if (attributeFormat == AttributeFormat.FLOAT) {
+          try {
+            result = Float.valueOf(value.trim());
+          } catch (NumberFormatException nfe) {
+            LOGGER.debug(
+                "Expected float but was not float. This is expected behavior when "
+                    + "a defined float attribute does not exist on the ingested product.");
+          }
         } else if (attributeFormat == AttributeFormat.DATE) {
           result = convertDate(value);
+        } else if (attributeFormat == AttributeFormat.BOOLEAN) {
+          result = BooleanUtils.toBoolean(value.trim());
+        } else if (attributeFormat == AttributeFormat.BINARY) {
+          result = value.getBytes(StandardCharsets.UTF_8);
         } else {
           result = value;
         }

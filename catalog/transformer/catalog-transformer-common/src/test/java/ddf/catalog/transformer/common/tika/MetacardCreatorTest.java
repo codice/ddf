@@ -225,15 +225,39 @@ public class MetacardCreatorTest {
     String customImageWidthKey = "Width_Of_Image";
     String customDurationKey = "Media_Duration";
     String customDurationMetacardKey = "ext.media.duration";
+    String shortMetacardKey = "ext.short";
+    String shortMetadataKey = "Short Value";
+    String shortValue = "3";
+    String longMetacardKey = "ext.long";
+    String longMetadataKey = "Long Value";
+    String longValue = "4";
+    String booleanMetacardKey = "ext.boolean";
+    String booleanMetadataKey = "Boolean Value";
+    String booleanValue = "true";
+    String floatMetacardKey = "ext.float";
+    String floatMetadataKey = "Float Value";
+    String floatValue = "1.2";
     metadata.add(TIFF.IMAGE_LENGTH, imageLength);
     metadata.add(customImageWidthKey, imageWidth);
     metadata.add("Duration", duration);
     metadata.add(customDurationKey, durationHms);
+    metadata.add(shortMetadataKey, shortValue);
+    metadata.add(longMetadataKey, longValue);
+    metadata.add(booleanMetadataKey, booleanValue);
+    metadata.add(floatMetadataKey, floatValue);
 
     MetacardCreator.ALTERNATE_METADATA_KEY_MAPPING.put(
         Media.WIDTH, Arrays.asList("Image Width", customImageWidthKey));
     MetacardCreator.ALTERNATE_METADATA_KEY_MAPPING.put(
         customDurationMetacardKey, Arrays.asList(customDurationKey));
+    MetacardCreator.ALTERNATE_METADATA_KEY_MAPPING.put(
+        shortMetacardKey, Arrays.asList(shortMetadataKey));
+    MetacardCreator.ALTERNATE_METADATA_KEY_MAPPING.put(
+        longMetacardKey, Arrays.asList(longMetadataKey));
+    MetacardCreator.ALTERNATE_METADATA_KEY_MAPPING.put(
+        booleanMetacardKey, Arrays.asList(booleanMetadataKey));
+    MetacardCreator.ALTERNATE_METADATA_KEY_MAPPING.put(
+        floatMetacardKey, Arrays.asList(floatMetadataKey));
 
     final String id = "id";
     final String metadataXml = "<xml>test</xml>";
@@ -251,6 +275,18 @@ public class MetacardCreatorTest {
     extraAttributes.add(
         new AttributeDescriptorImpl(
             customDurationMetacardKey, false, false, false, false, BasicTypes.DOUBLE_TYPE));
+    extraAttributes.add(
+        new AttributeDescriptorImpl(
+            shortMetacardKey, false, false, false, false, BasicTypes.SHORT_TYPE));
+    extraAttributes.add(
+        new AttributeDescriptorImpl(
+            longMetacardKey, false, false, false, false, BasicTypes.LONG_TYPE));
+    extraAttributes.add(
+        new AttributeDescriptorImpl(
+            booleanMetacardKey, false, false, false, false, BasicTypes.BOOLEAN_TYPE));
+    extraAttributes.add(
+        new AttributeDescriptorImpl(
+            floatMetacardKey, false, false, false, false, BasicTypes.FLOAT_TYPE));
 
     MetacardTypeImpl extendedMetacardType =
         new MetacardTypeImpl(
@@ -263,6 +299,10 @@ public class MetacardCreatorTest {
     assertThat(metacard.getAttribute(Media.WIDTH).getValue(), is(Integer.valueOf(imageWidth)));
     assertThat(metacard.getAttribute(Media.DURATION).getValue(), is(12.5));
     assertThat(metacard.getAttribute(customDurationMetacardKey).getValue(), is(90.5));
+    assertThat(metacard.getAttribute(shortMetacardKey).getValue(), is((short) 3));
+    assertThat(metacard.getAttribute(longMetacardKey).getValue(), is(4l));
+    assertThat(metacard.getAttribute(booleanMetacardKey).getValue(), is(true));
+    assertThat(metacard.getAttribute(floatMetacardKey).getValue(), is(1.2f));
   }
 
   private AttributeDescriptorImpl createObjectAttr(String name) {
