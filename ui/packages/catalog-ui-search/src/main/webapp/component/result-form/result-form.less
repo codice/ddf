@@ -23,23 +23,25 @@
     left: 0;
     right: 0;
     bottom: 0;
-    margin-top: @minimumSpacing;
+    display: flex;
+    justify-content: flex-end;
+    margin: @minimumSpacing;
     height: @minimumButtonSize;
     white-space: nowrap;
 
     > button {
       height: 100%;
       display: inline-block;
+      padding-left: @minimumSpacing;
+      padding-right: @minimumSpacing;
     }
     > .editor-edit {
       width: 100%;
     }
     > .editor-cancel {
-      width: 50%;
       display: none;
     }
     > .editor-save {
-      width: 50%;
       display: none;
     }
   }

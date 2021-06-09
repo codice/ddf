@@ -17,23 +17,26 @@
   }
 
   .editor-footer {
-    margin-top: @largeSpacing;
     height: @minimumButtonSize;
     white-space: nowrap;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: @mediumSpacing;
+    padding-right: @minimumSpacing;
 
     > button {
       height: 100%;
       display: inline-block;
+      padding-left: @minimumSpacing;
+      padding-right: @minimumSpacing;
     }
     > .editor-edit {
       width: 100%;
     }
     > .editor-cancel {
-      width: 50%;
       display: none;
     }
     > .editor-save {
-      width: 50%;
       display: none;
     }
   }
