@@ -11,29 +11,32 @@
   .editor-properties {
     display: inline-block; // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
     width: 100%;
+    height: 100%;
     overflow: auto;
-    max-height: ~'calc(100% - 2*@{minimumButtonSize})';
-    padding: @minimumSpacing @minimumSpacing 0px @minimumSpacing;
+    max-height: ~'calc(100% - @{minimumButtonSize} - 3 * @{minimumSpacing})';
+    padding: @minimumSpacing;
   }
 
   .editor-footer {
-    margin-top: @largeSpacing;
+    display: flex;
+    justify-content: flex-end;
+    margin: @minimumSpacing;
     height: @minimumButtonSize;
     white-space: nowrap;
 
     > button {
       height: 100%;
       display: inline-block;
+      padding-left: @minimumSpacing;
+      padding-right: @minimumSpacing;
     }
     > .editor-edit {
       width: 100%;
     }
     > .editor-cancel {
-      width: 50%;
       display: none;
     }
     > .editor-save {
-      width: 50%;
       display: none;
     }
   }
