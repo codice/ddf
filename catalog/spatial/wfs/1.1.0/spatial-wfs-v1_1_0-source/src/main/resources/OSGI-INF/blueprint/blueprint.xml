@@ -81,6 +81,7 @@
             <property name="srsName" value="EPSG:4326"/>
             <property name="disableSorting" value="true"/>
             <property name="supportsStartIndex" value="false"/>
+            <property name="forceAllGeometryOperands" value="false"/>
 
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
