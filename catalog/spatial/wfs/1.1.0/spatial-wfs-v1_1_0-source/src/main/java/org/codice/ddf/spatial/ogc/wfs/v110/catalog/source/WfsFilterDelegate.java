@@ -123,14 +123,15 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private final String escapeChar;
 
-  private List<String> supportedGeo;
+  private List<String> supportedSpatialOperators;
 
   private List<QName> geometryOperands;
 
   public WfsFilterDelegate(
       FeatureMetacardType featureMetacardType,
       MetacardMapper metacardMapper,
-      List<String> supportedGeo,
+      List<String> supportedSpatialOperators,
+      List<QName> supportedGeometryOperands,
       CoordinateStrategy coordinateStrategy,
       Character wildcardChar,
       Character singleChar,
@@ -140,8 +141,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
     this.featureMetacardType = featureMetacardType;
     this.metacardMapper = metacardMapper;
-    this.supportedGeo = supportedGeo;
-    setSupportedGeometryOperands(Wfs11Constants.wktOperandsAsList());
+    this.supportedSpatialOperators = supportedSpatialOperators;
+    setSupportedGeometryOperands(supportedGeometryOperands);
 
     this.coordinateStrategy = coordinateStrategy;
 
@@ -151,16 +152,17 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   public void setSupportedGeometryOperands(List<QName> geometryOperands) {
-    this.geometryOperands = geometryOperands;
+    this.geometryOperands =
+        geometryOperands == null ? Wfs11Constants.wktOperandsAsList() : geometryOperands;
   }
 
   private boolean isGeometryOperandSupported(QName geoOperand) {
     return geometryOperands.contains(geoOperand);
   }
 
-  public void setSupportedGeoFilters(List<String> supportedGeos) {
-    LOGGER.debug("Updating supportedGeos to: {}", supportedGeos);
-    this.supportedGeo = supportedGeos;
+  public void setSupportedSpatialOperators(List<String> supportedSpatialOperators) {
+    LOGGER.debug("Updating supportedGeos to: {}", supportedSpatialOperators);
+    this.supportedSpatialOperators = supportedSpatialOperators;
   }
 
   @Override
@@ -802,10 +804,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (supportedGeo.contains(SPATIAL_OPERATORS.BEYOND.getValue())) {
+    if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.BEYOND.getValue())) {
       return buildGeospatialFilterType(
           SPATIAL_OPERATORS.BEYOND.toString(), propertyName, wkt, distance);
-    } else if (supportedGeo.contains(SPATIAL_OPERATORS.DWITHIN.getValue())) {
+    } else if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.DWITHIN.getValue())) {
       return not(dwithin(propertyName, wkt, distance));
     } else {
       LOGGER.debug("WFS Source does not support Beyond filters");
@@ -820,10 +822,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (supportedGeo.contains(SPATIAL_OPERATORS.CONTAINS.getValue())) {
+    if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.CONTAINS.getValue())) {
       return buildGeospatialFilterType(
           SPATIAL_OPERATORS.CONTAINS.toString(), propertyName, wkt, null);
-    } else if (supportedGeo.contains(SPATIAL_OPERATORS.WITHIN.getValue())) {
+    } else if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.WITHIN.getValue())) {
       return not(within(propertyName, wkt));
     } else {
       LOGGER.debug("WFS Source does not support Contains filters");
@@ -838,7 +840,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (supportedGeo.contains(SPATIAL_OPERATORS.CROSSES.getValue())) {
+    if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.CROSSES.getValue())) {
       return buildGeospatialFilterType(
           SPATIAL_OPERATORS.CROSSES.toString(), propertyName, wkt, null);
     } else {
@@ -854,12 +856,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (supportedGeo.contains(SPATIAL_OPERATORS.DISJOINT.getValue())) {
+    if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.DISJOINT.getValue())) {
       return buildGeospatialFilterType(
           SPATIAL_OPERATORS.DISJOINT.toString(), propertyName, wkt, null);
-    } else if (supportedGeo.contains(SPATIAL_OPERATORS.BBOX.getValue())) {
+    } else if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.BBOX.getValue())) {
       return not(bbox(propertyName, wkt));
-    } else if (supportedGeo.contains(SPATIAL_OPERATORS.INTERSECTS.getValue())) {
+    } else if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.INTERSECTS.getValue())) {
       return not(intersects(propertyName, wkt));
     } else {
       LOGGER.debug("WFS Source does not support Disjoint or BBOX filters");
@@ -874,12 +876,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (supportedGeo.contains(SPATIAL_OPERATORS.DWITHIN.getValue())) {
+    if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.DWITHIN.getValue())) {
       return buildGeospatialFilterType(
           SPATIAL_OPERATORS.DWITHIN.toString(), propertyName, wkt, distance);
-    } else if (supportedGeo.contains(SPATIAL_OPERATORS.BEYOND.getValue())) {
+    } else if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.BEYOND.getValue())) {
       return not(beyond(propertyName, wkt, distance));
-    } else if (supportedGeo.contains(SPATIAL_OPERATORS.INTERSECTS.getValue())) {
+    } else if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.INTERSECTS.getValue())) {
       String bufferedWkt = bufferGeometry(wkt, distance);
       return intersects(propertyName, bufferedWkt);
     } else {
@@ -896,12 +898,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (supportedGeo.contains(SPATIAL_OPERATORS.INTERSECTS.getValue())) {
+    if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.INTERSECTS.getValue())) {
       return buildGeospatialFilterType(
           SPATIAL_OPERATORS.INTERSECTS.toString(), propertyName, wkt, null);
-    } else if (supportedGeo.contains(SPATIAL_OPERATORS.BBOX.getValue())) {
+    } else if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.BBOX.getValue())) {
       return bbox(propertyName, wkt);
-    } else if (supportedGeo.contains(SPATIAL_OPERATORS.DISJOINT.getValue())) {
+    } else if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.DISJOINT.getValue())) {
       return not(disjoint(propertyName, wkt));
     } else {
       LOGGER.debug("WFS Source does not support Intersect or BBOX");
@@ -916,7 +918,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (supportedGeo.contains(SPATIAL_OPERATORS.OVERLAPS.getValue())) {
+    if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.OVERLAPS.getValue())) {
       return buildGeospatialFilterType(
           SPATIAL_OPERATORS.OVERLAPS.toString(), propertyName, wkt, null);
     } else {
@@ -932,7 +934,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (supportedGeo.contains(SPATIAL_OPERATORS.TOUCHES.getValue())) {
+    if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.TOUCHES.getValue())) {
       return buildGeospatialFilterType(
           SPATIAL_OPERATORS.TOUCHES.toString(), propertyName, wkt, null);
     } else {
@@ -948,10 +950,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (supportedGeo.contains(SPATIAL_OPERATORS.WITHIN.getValue())) {
+    if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.WITHIN.getValue())) {
       return buildGeospatialFilterType(
           SPATIAL_OPERATORS.WITHIN.toString(), propertyName, wkt, null);
-    } else if (supportedGeo.contains(SPATIAL_OPERATORS.CONTAINS.getValue())) {
+    } else if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.CONTAINS.getValue())) {
       return not(within(propertyName, wkt));
     } else {
       LOGGER.debug("WFS Source does not support Within filters");
@@ -965,7 +967,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (supportedGeo.contains(SPATIAL_OPERATORS.BBOX.getValue())) {
+    if (supportedSpatialOperators.contains(SPATIAL_OPERATORS.BBOX.getValue())) {
       return buildGeospatialFilterType(SPATIAL_OPERATORS.BBOX.toString(), propertyName, wkt, null);
     } else {
       LOGGER.debug("WFS Source does not support BBOX filters");

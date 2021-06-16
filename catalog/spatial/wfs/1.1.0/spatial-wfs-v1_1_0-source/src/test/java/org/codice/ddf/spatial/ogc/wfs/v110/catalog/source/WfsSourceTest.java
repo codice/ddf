@@ -77,6 +77,7 @@ import net.opengis.filter.v_1_1_0.BinaryLogicOpType;
 import net.opengis.filter.v_1_1_0.DistanceBufferType;
 import net.opengis.filter.v_1_1_0.FeatureIdType;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
+import net.opengis.filter.v_1_1_0.GeometryOperandsType;
 import net.opengis.filter.v_1_1_0.LogicOpsType;
 import net.opengis.filter.v_1_1_0.PropertyIsLikeType;
 import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
@@ -222,7 +223,12 @@ public class WfsSourceTest {
 
   private static final String POLYGON_WKT = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
 
+  private static final String MULTIPOLYGON_WKT =
+      "MULTIPOLYGON (((30 20, 10 40, 45 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))";
+
   private static final String POINT_WKT = "POINT (30 -10)";
+
+  private static final String LINESTRING_WKT = "LINESTRING (30 10, 10 30, 50 40)";
 
   private static final String ORDER_PERSON = "orderperson";
 
@@ -276,6 +282,8 @@ public class WfsSourceTest {
   private ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
 
   private List<MetacardMapper> metacardMappers = new ArrayList<>();
+
+  private boolean forceAllGeometryOperands = false;
 
   @Rule public ExpectedException expectedEx = ExpectedException.none();
 
@@ -334,6 +342,16 @@ public class WfsSourceTest {
                       })
                   .collect(Collectors.toList()));
     }
+    mockCapabilities
+        .getFilterCapabilities()
+        .getSpatialCapabilities()
+        .setGeometryOperands(new GeometryOperandsType());
+    mockCapabilities
+        .getFilterCapabilities()
+        .getSpatialCapabilities()
+        .getGeometryOperands()
+        .getGeometryOperand()
+        .addAll(Arrays.asList(Wfs11Constants.POLYGON, Wfs11Constants.POINT));
 
     sampleFeatures = new ArrayList<>();
     mockCapabilities.setFeatureTypeList(new FeatureTypeListType());
@@ -380,6 +398,7 @@ public class WfsSourceTest {
     source.setPollInterval(10);
     source.setWfsUrl(SAMPLE_WFS_URL);
     source.setSupportsStartIndex(false);
+    source.setForceAllGeometryOperands(forceAllGeometryOperands);
     source.init();
   }
 
@@ -657,7 +676,7 @@ public class WfsSourceTest {
   }
 
   @Test(expected = UnsupportedQueryException.class)
-  public void testNoGeoAttributesQuery() throws Exception {
+  public void testUnsupportedSpatialOperandQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, ONE_FEATURE);
     setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     Filter intersectFilter =
@@ -666,6 +685,45 @@ public class WfsSourceTest {
     intersectQuery.setPageSize(MAX_FEATURES);
 
     source.query(new QueryRequestImpl(intersectQuery));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testUnsupportedGeometryOperandQuery() throws Exception {
+    mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
+    setUpMocks(Collections.singletonList("Intersects"), SRS_NAME, ONE_FEATURE, ONE_FEATURE);
+    Filter intersectFilter =
+        builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(LINESTRING_WKT);
+    QueryImpl intersectQuery = new QueryImpl(intersectFilter);
+    intersectQuery.setPageSize(MAX_FEATURES);
+
+    source.query(new QueryRequestImpl(intersectQuery));
+  }
+
+  @Test
+  public void testMultipolygonFallback() throws Exception {
+    mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
+    setUpMocks(Collections.singletonList("Intersects"), SRS_NAME, ONE_FEATURE, ONE_FEATURE);
+    Filter intersectFilter =
+        builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(MULTIPOLYGON_WKT);
+    QueryImpl intersectQuery = new QueryImpl(intersectFilter);
+    intersectQuery.setPageSize(MAX_FEATURES);
+
+    SourceResponse result = source.query(new QueryRequestImpl(intersectQuery));
+    assertThat(result.getHits(), is(1L));
+  }
+
+  @Test
+  public void testForceAllGeometeryOperands() throws Exception {
+    forceAllGeometryOperands = true;
+    mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
+    setUpMocks(Collections.singletonList("Intersects"), SRS_NAME, ONE_FEATURE, ONE_FEATURE);
+    Filter intersectFilter =
+        builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(LINESTRING_WKT);
+    QueryImpl intersectQuery = new QueryImpl(intersectFilter);
+    intersectQuery.setPageSize(MAX_FEATURES);
+
+    SourceResponse result = source.query(new QueryRequestImpl(intersectQuery));
+    assertThat(result.getHits(), is(1L));
   }
 
   @Test
@@ -1282,6 +1340,7 @@ public class WfsSourceTest {
             .put("pollInterval", 1)
             .put("disableSorting", false)
             .put("supportsStartIndex", false)
+            .put("forceAllGeometryOperands", false)
             .build();
     source.refresh(configuration);
 
@@ -1318,6 +1377,7 @@ public class WfsSourceTest {
             .put("pollInterval", 1)
             .put("disableSorting", false)
             .put("supportsStartIndex", false)
+            .put("forceAllGeometryOperands", false)
             .build();
     source.refresh(configuration);
 
@@ -1347,6 +1407,7 @@ public class WfsSourceTest {
             .put("pollInterval", 1)
             .put("disableSorting", false)
             .put("supportsStartIndex", false)
+            .put("forceAllGeometryOperands", false)
             .build();
     source.refresh(configuration);
 
@@ -1370,6 +1431,7 @@ public class WfsSourceTest {
             .put("pollInterval", 1)
             .put("disableSorting", false)
             .put("supportsStartIndex", false)
+            .put("forceAllGeometryOperands", false)
             .build();
     source.refresh(configuration);
 
@@ -1414,6 +1476,7 @@ public class WfsSourceTest {
             .put("pollInterval", 1)
             .put("disableSorting", false)
             .put("supportsStartIndex", false)
+            .put("forceAllGeometryOperands", false)
             .build();
     source.refresh(configuration);
 

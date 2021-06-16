@@ -177,6 +177,8 @@ public class WfsSource extends AbstractWfsSource {
 
   private static final String ESCAPE_CHAR_KEY = "escapeChar";
 
+  private static final String FORCE_ALL_GEOMETRY_OPERANDS = "forceAllGeometryOperands";
+
   private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 
   private static final String SOURCE_MSG = " Source '";
@@ -244,6 +246,8 @@ public class WfsSource extends AbstractWfsSource {
   private Character singleChar;
 
   private Character escapeChar;
+
+  private boolean forceAllGeometryOperands = false;
 
   private WfsMetadata<FeatureTypeType> wfsMetadata;
 
@@ -340,6 +344,7 @@ public class WfsSource extends AbstractWfsSource {
     setEscapeChar((Character) configuration.get(ESCAPE_CHAR_KEY));
     setDisableSorting((Boolean) configuration.get(DISABLE_SORTING));
     setSupportsStartIndex((Boolean) configuration.get(SUPPORTS_START_INDEX));
+    setForceAllGeometryOperands((Boolean) configuration.get(FORCE_ALL_GEOMETRY_OPERANDS));
 
     createClientFactory();
     configureWfsFeatures();
@@ -482,8 +487,9 @@ public class WfsSource extends AbstractWfsSource {
     if (capabilities != null) {
       wfsVersion = capabilities.getVersion();
       List<FeatureTypeType> featureTypes = getFeatureTypes(capabilities);
-      List<String> supportedGeo = getSupportedGeo(capabilities);
-      buildFeatureFilters(featureTypes, supportedGeo);
+      List<String> supportedSpatialOperators = getSupportedSpatialOperators(capabilities);
+      List<QName> supportedGeometryOperands = getSupportedGeometryOperators(capabilities);
+      buildFeatureFilters(featureTypes, supportedSpatialOperators, supportedGeometryOperands);
     } else {
       LOGGER.info("WfsSource {}: WFS Server did not return any capabilities.", getId());
     }
@@ -497,8 +503,8 @@ public class WfsSource extends AbstractWfsSource {
     return featureTypes;
   }
 
-  private List<String> getSupportedGeo(WFSCapabilitiesType capabilities) {
-    final List<String> supportedGeoFilters = new ArrayList<>();
+  private List<String> getSupportedSpatialOperators(WFSCapabilitiesType capabilities) {
+    final List<String> supportedSpatialFilters = new ArrayList<>();
 
     List<SpatialOperatorType> geoTypes =
         capabilities
@@ -507,16 +513,34 @@ public class WfsSource extends AbstractWfsSource {
             .getSpatialOperators()
             .getSpatialOperator();
 
-    supportedGeoFilters.addAll(
+    supportedSpatialFilters.addAll(
         geoTypes.stream().map(geoType -> geoType.getName().value()).collect(Collectors.toList()));
 
     if (!NO_FORCED_SPATIAL_FILTER.equals(forceSpatialFilter)) {
       return Collections.singletonList(forceSpatialFilter);
     }
-    return supportedGeoFilters;
+    return supportedSpatialFilters;
   }
 
-  private void buildFeatureFilters(List<FeatureTypeType> featureTypes, List<String> supportedGeo) {
+  private List<QName> getSupportedGeometryOperators(WFSCapabilitiesType capabilities) {
+    if (forceAllGeometryOperands) {
+      return new ArrayList<>(Wfs11Constants.wktOperandsAsList());
+    }
+
+    List<QName> geoTypes =
+        capabilities
+            .getFilterCapabilities()
+            .getSpatialCapabilities()
+            .getGeometryOperands()
+            .getGeometryOperand();
+
+    return new ArrayList<>(geoTypes);
+  }
+
+  private void buildFeatureFilters(
+      List<FeatureTypeType> featureTypes,
+      List<String> supportedSpatialOperators,
+      List<QName> supportedGeometryOperands) {
     ExtendedWfs wfs = factory.getClient();
 
     // Use local Map for metacardtype registrations and once they are populated with latest
@@ -565,7 +589,8 @@ public class WfsSource extends AbstractWfsSource {
               new WfsFilterDelegate(
                   featureMetacardType,
                   metacardMapper,
-                  supportedGeo,
+                  supportedSpatialOperators,
+                  supportedGeometryOperands,
                   getCoordinateStrategy(),
                   wildcardChar,
                   singleChar,
@@ -1206,6 +1231,10 @@ public class WfsSource extends AbstractWfsSource {
 
   public void setSupportsStartIndex(final Boolean supportsStartIndex) {
     this.supportsStartIndex = supportsStartIndex;
+  }
+
+  public void setForceAllGeometryOperands(final Boolean forceAllGeometryOperands) {
+    this.forceAllGeometryOperands = forceAllGeometryOperands;
   }
 
   @Override
