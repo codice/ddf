@@ -22,6 +22,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.session.Session;
+import org.eclipse.jetty.server.session.SessionCache;
+import org.eclipse.jetty.server.session.SessionHandler;
 
 public class HttpSessionFactory implements SessionFactory {
 
@@ -39,6 +43,37 @@ public class HttpSessionFactory implements SessionFactory {
    */
   @Override
   public synchronized HttpSession getOrCreateSession(HttpServletRequest httpRequest) {
+    /*
+     * DDF-6587 - This check is made so that when simultaneous requests are received for the same
+     * context, the second request will not attempt to create a new session.  This method is
+     * synchronized so the first request will create a new session object and the second one
+     * look up the previously created session object from the jetty session cache.  This is
+     * necessary because at this point in the processing chain, jetty was not able to associate
+     * a session for either of the simultaneous requests.  Therefore, we need to manually attach
+     * the session to the second request.  Otherwise, jetty will attempt to recreate the same
+     * session object and fail, causing the second request to fail.
+     */
+    if (httpRequest instanceof Request) {
+      try {
+        Request request = (Request) httpRequest;
+        SessionHandler sessionHandler = request.getSessionHandler();
+        SessionCache sessionCache = sessionHandler.getSessionCache();
+        String sessionId =
+            sessionHandler.getSessionIdManager().newSessionId(request, System.currentTimeMillis());
+        Session cachedSession = sessionCache.get(sessionId);
+        if (cachedSession != null
+            && cachedSession instanceof HttpSession
+            && cachedSession.isValid()) {
+          HttpSession session = (HttpSession) cachedSession;
+          request.enterSession(session);
+          request.setSession(session);
+          return session;
+        }
+      } catch (Exception e) {
+        // unable to get session from cache, let a new one get created.
+      }
+    }
+
     HttpSession session = httpRequest.getSession(true);
     if (session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY) == null) {
       session.setMaxInactiveInterval(Math.toIntExact(TimeUnit.MINUTES.toSeconds(expirationTime)));
