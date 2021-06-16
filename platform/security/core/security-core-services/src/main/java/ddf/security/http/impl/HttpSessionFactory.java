@@ -72,7 +72,7 @@ public class HttpSessionFactory implements SessionFactory {
    * attempt to recreate the same session object and fail, causing the second request to fail.
    */
   private HttpSession getCachedSession(HttpServletRequest httpRequest) {
-    if (httpRequest instanceof Request) {
+    if (httpRequest instanceof Request && hasValidDependencies((Request) httpRequest)) {
       try {
         Request request = (Request) httpRequest;
         SessionHandler sessionHandler = request.getSessionHandler();
@@ -93,6 +93,13 @@ public class HttpSessionFactory implements SessionFactory {
       }
     }
     return null;
+  }
+
+  private boolean hasValidDependencies(Request request) {
+    SessionHandler handler = request.getSessionHandler();
+    return handler != null
+        && handler.getSessionCache() != null
+        && handler.getSessionIdManager() != null;
   }
 
   public void setExpirationTime(int expirationTime) {
