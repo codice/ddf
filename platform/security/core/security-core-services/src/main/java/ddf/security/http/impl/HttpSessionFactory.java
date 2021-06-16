@@ -26,8 +26,12 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.session.Session;
 import org.eclipse.jetty.server.session.SessionCache;
 import org.eclipse.jetty.server.session.SessionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpSessionFactory implements SessionFactory {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpSessionFactory.class);
 
   private int expirationTime;
 
@@ -43,16 +47,31 @@ public class HttpSessionFactory implements SessionFactory {
    */
   @Override
   public synchronized HttpSession getOrCreateSession(HttpServletRequest httpRequest) {
-    /*
-     * DDF-6587 - This check is made so that when simultaneous requests are received for the same
-     * context, the second request will not attempt to create a new session.  This method is
-     * synchronized so the first request will create a new session object and the second one
-     * look up the previously created session object from the jetty session cache.  This is
-     * necessary because at this point in the processing chain, jetty was not able to associate
-     * a session for either of the simultaneous requests.  Therefore, we need to manually attach
-     * the session to the second request.  Otherwise, jetty will attempt to recreate the same
-     * session object and fail, causing the second request to fail.
-     */
+    HttpSession session = getCachedSession(httpRequest);
+    if (session == null) {
+      session = httpRequest.getSession(true);
+      if (session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY) == null) {
+        session.setMaxInactiveInterval(Math.toIntExact(TimeUnit.MINUTES.toSeconds(expirationTime)));
+        session.setAttribute(SecurityConstants.SECURITY_TOKEN_KEY, new PrincipalHolder());
+        securityLogger.audit(
+            "Creating a new session with id {} for client {}.",
+            Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString(),
+            httpRequest.getRemoteAddr());
+      }
+    }
+    return session;
+  }
+
+  /**
+   * DDF-6587 - This check is made so that when simultaneous requests are received for the same
+   * context, the second request will not attempt to create a new session. The first request will
+   * create a new session object and the second one will look up the previously created session
+   * object from the jetty session cache. This is necessary because at this point in the processing
+   * chain, jetty was not able to associate a session for either of the simultaneous requests.
+   * Therefore, we need to manually attach the session to the second request. Otherwise, jetty will
+   * attempt to recreate the same session object and fail, causing the second request to fail.
+   */
+  private HttpSession getCachedSession(HttpServletRequest httpRequest) {
     if (httpRequest instanceof Request) {
       try {
         Request request = (Request) httpRequest;
@@ -70,20 +89,10 @@ public class HttpSessionFactory implements SessionFactory {
           return session;
         }
       } catch (Exception e) {
-        // unable to get session from cache, let a new one get created.
+        LOGGER.trace("Unable to get session from cache, letting a new one get created", e);
       }
     }
-
-    HttpSession session = httpRequest.getSession(true);
-    if (session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY) == null) {
-      session.setMaxInactiveInterval(Math.toIntExact(TimeUnit.MINUTES.toSeconds(expirationTime)));
-      session.setAttribute(SecurityConstants.SECURITY_TOKEN_KEY, new PrincipalHolder());
-      securityLogger.audit(
-          "Creating a new session with id {} for client {}.",
-          Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString(),
-          httpRequest.getRemoteAddr());
-    }
-    return session;
+    return null;
   }
 
   public void setExpirationTime(int expirationTime) {
