@@ -22,8 +22,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.session.Session;
+import org.eclipse.jetty.server.session.SessionCache;
+import org.eclipse.jetty.server.session.SessionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpSessionFactory implements SessionFactory {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpSessionFactory.class);
 
   private int expirationTime;
 
@@ -39,16 +47,59 @@ public class HttpSessionFactory implements SessionFactory {
    */
   @Override
   public synchronized HttpSession getOrCreateSession(HttpServletRequest httpRequest) {
-    HttpSession session = httpRequest.getSession(true);
-    if (session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY) == null) {
-      session.setMaxInactiveInterval(Math.toIntExact(TimeUnit.MINUTES.toSeconds(expirationTime)));
-      session.setAttribute(SecurityConstants.SECURITY_TOKEN_KEY, new PrincipalHolder());
-      securityLogger.audit(
-          "Creating a new session with id {} for client {}.",
-          Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString(),
-          httpRequest.getRemoteAddr());
+    HttpSession session = getCachedSession(httpRequest);
+    if (session == null) {
+      session = httpRequest.getSession(true);
+      if (session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY) == null) {
+        session.setMaxInactiveInterval(Math.toIntExact(TimeUnit.MINUTES.toSeconds(expirationTime)));
+        session.setAttribute(SecurityConstants.SECURITY_TOKEN_KEY, new PrincipalHolder());
+        securityLogger.audit(
+            "Creating a new session with id {} for client {}.",
+            Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString(),
+            httpRequest.getRemoteAddr());
+      }
     }
     return session;
+  }
+
+  /**
+   * DDF-6587 - This check is made so that when simultaneous requests are received for the same
+   * context, the second request will not attempt to create a new session. The first request will
+   * create a new session object and the second one will look up the previously created session
+   * object from the jetty session cache. This is necessary because at this point in the processing
+   * chain, jetty was not able to associate a session for either of the simultaneous requests.
+   * Therefore, we need to manually attach the session to the second request. Otherwise, jetty will
+   * attempt to recreate the same session object and fail, causing the second request to fail.
+   */
+  private HttpSession getCachedSession(HttpServletRequest httpRequest) {
+    if (httpRequest instanceof Request && hasValidDependencies((Request) httpRequest)) {
+      try {
+        Request request = (Request) httpRequest;
+        SessionHandler sessionHandler = request.getSessionHandler();
+        SessionCache sessionCache = sessionHandler.getSessionCache();
+        String sessionId =
+            sessionHandler.getSessionIdManager().newSessionId(request, System.currentTimeMillis());
+        Session cachedSession = sessionCache.get(sessionId);
+        if (cachedSession != null
+            && cachedSession instanceof HttpSession
+            && cachedSession.isValid()) {
+          HttpSession session = (HttpSession) cachedSession;
+          request.enterSession(session);
+          request.setSession(session);
+          return session;
+        }
+      } catch (Exception e) {
+        LOGGER.trace("Unable to get session from cache, letting a new one get created", e);
+      }
+    }
+    return null;
+  }
+
+  private boolean hasValidDependencies(Request request) {
+    SessionHandler handler = request.getSessionHandler();
+    return handler != null
+        && handler.getSessionCache() != null
+        && handler.getSessionIdManager() != null;
   }
 
   public void setExpirationTime(int expirationTime) {
