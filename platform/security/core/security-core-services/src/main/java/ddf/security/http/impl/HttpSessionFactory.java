@@ -50,14 +50,14 @@ public class HttpSessionFactory implements SessionFactory {
     HttpSession session = getCachedSession(httpRequest);
     if (session == null) {
       session = httpRequest.getSession(true);
-      if (session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY) == null) {
-        session.setMaxInactiveInterval(Math.toIntExact(TimeUnit.MINUTES.toSeconds(expirationTime)));
-        session.setAttribute(SecurityConstants.SECURITY_TOKEN_KEY, new PrincipalHolder());
-        securityLogger.audit(
-            "Creating a new session with id {} for client {}.",
-            Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString(),
-            httpRequest.getRemoteAddr());
-      }
+    }
+    if (session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY) == null) {
+      session.setMaxInactiveInterval(Math.toIntExact(TimeUnit.MINUTES.toSeconds(expirationTime)));
+      session.setAttribute(SecurityConstants.SECURITY_TOKEN_KEY, new PrincipalHolder());
+      securityLogger.audit(
+          "Creating a new session with id {} for client {}.",
+          Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString(),
+          httpRequest.getRemoteAddr());
     }
     return session;
   }
