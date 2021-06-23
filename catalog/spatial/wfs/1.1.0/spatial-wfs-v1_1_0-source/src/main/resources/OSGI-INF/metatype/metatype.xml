@@ -94,6 +94,9 @@
         <AD description="Some WFS 1.1.0 servers like Geoserver support startIndex in queries. This enables efficient deep paging."
             name="Supports startIndex" id="supportsStartIndex" required="false"
             type="Boolean" default="false"/>
+        <AD description="Forces the source to support all geometry operands."
+            name="Force All Geometry Operands" id="forceAllGeometryOperands" required="false"
+            type="Boolean" default="false"/>
     </OCD>
 
     <Designate pid="Wfs_v110_Federated_Source" factoryPid="Wfs_v110_Federated_Source">
