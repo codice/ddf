@@ -14,13 +14,6 @@
 
 package ddf.catalog.transformer.csv;
 
-import static ddf.catalog.transformer.csv.common.CsvTransformer.createResponse;
-import static ddf.catalog.transformer.csv.common.CsvTransformer.getAllCsvAttributeDescriptors;
-import static ddf.catalog.transformer.csv.common.CsvTransformer.getOnlyRequestedAttributes;
-import static ddf.catalog.transformer.csv.common.CsvTransformer.sortAttributes;
-import static ddf.catalog.transformer.csv.common.CsvTransformer.writeMetacardsToCsv;
-
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -28,12 +21,8 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -42,13 +31,6 @@ import java.util.stream.Collectors;
  * @see ddf.catalog.transform.QueryResponseTransformer
  */
 public class CsvQueryResponseTransformer implements QueryResponseTransformer {
-
-  public static final String COLUMN_ORDER_KEY = "columnOrder";
-
-  public static final String COLUMN_ALIAS_KEY = "aliases";
-
-  private static final String HIDDEN_FIELDS_KEY = "hiddenFields";
-
   /**
    * @param upstreamResponse the SourceResponse to be converted.
    * @param arguments this transformer accepts 2 parameters in the 'arguments' map.
@@ -78,35 +60,6 @@ public class CsvQueryResponseTransformer implements QueryResponseTransformer {
             .map(Result::getMetacard)
             .collect(Collectors.toList());
 
-    Set<String> hiddenFields =
-        Optional.ofNullable((Set<String>) arguments.get(HIDDEN_FIELDS_KEY))
-            .orElse(Collections.emptySet());
-
-    List<String> attributeOrder =
-        Optional.ofNullable((List<String>) arguments.get(COLUMN_ORDER_KEY))
-            .orElse(Collections.emptyList());
-
-    Map<String, String> columnAliasMap =
-        Optional.ofNullable((Map<String, String>) arguments.get(COLUMN_ALIAS_KEY))
-            .orElse(Collections.emptyMap());
-
-    Set<String> requestedFields = new HashSet<>(attributeOrder);
-
-    Set<AttributeDescriptor> requestedAttributeDescriptors =
-        requestedFields.isEmpty()
-            ? getAllCsvAttributeDescriptors(metacards)
-            : getOnlyRequestedAttributes(metacards, requestedFields);
-
-    Set<AttributeDescriptor> filteredAttributeDescriptors =
-        requestedAttributeDescriptors.stream()
-            .filter(desc -> !hiddenFields.contains(desc.getName()))
-            .collect(Collectors.toSet());
-
-    List<AttributeDescriptor> sortedAttributeDescriptors =
-        sortAttributes(filteredAttributeDescriptors, attributeOrder);
-
-    Appendable csv = writeMetacardsToCsv(metacards, sortedAttributeDescriptors, columnAliasMap);
-
-    return createResponse(csv);
+    return CsvTransformerSupport.transformWithArguments(metacards, arguments);
   }
 }
