@@ -15,8 +15,6 @@ package ddf.security.expansion.impl;
 
 public class StraightExpansionImpl extends AbstractExpansion {
 
-  public StraightExpansionImpl() {}
-
   /**
    * Performs an expansion using straight string equality and substitution for both parts of the
    * rule. The first element is the string that must match the entire original string, the second

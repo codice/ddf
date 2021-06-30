@@ -40,11 +40,13 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
 
   private CatalogFramework catalogFramework;
 
-  public SourceConfigurationAdminPlugin() {}
+  public void init() {
+    // Does nothing as of now, used in blueprint
+  }
 
-  public void init() {}
-
-  public void destroy() {}
+  public void destroy() {
+    // Does nothing as of now, used in blueprint
+  }
 
   public CatalogFramework getCatalogFramework() {
     return catalogFramework;
@@ -74,10 +76,9 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
     LOGGER.debug(
         "Obtaining configuration data for the following configuration PID: {}", configurationPid);
 
-    Map<String, Object> statusMap = new HashMap<String, Object>();
+    Map<String, Object> statusMap = new HashMap<>();
     try {
-      List<ServiceReference<? extends Source>> refs =
-          new ArrayList<ServiceReference<? extends Source>>();
+      List<ServiceReference<? extends Source>> refs = new ArrayList<>();
 
       refs.addAll(bundleContext.getServiceReferences(FederatedSource.class, null));
       refs.addAll(bundleContext.getServiceReferences(CatalogProvider.class, null));

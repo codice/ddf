@@ -33,7 +33,9 @@ public class LoggingSynchronization implements Synchronization {
   }
 
   @Override
-  public void onComplete(Exchange exchange) {}
+  public void onComplete(Exchange exchange) {
+    // Does nothing as of now
+  }
 
   @Override
   public void onFailure(Exchange exchange) {

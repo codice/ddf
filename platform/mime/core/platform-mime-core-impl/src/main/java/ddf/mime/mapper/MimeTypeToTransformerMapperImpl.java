@@ -40,8 +40,6 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
   private static final Logger LOGGER =
       LoggerFactory.getLogger(MimeTypeToTransformerMapperImpl.class);
 
-  public MimeTypeToTransformerMapperImpl() {}
-
   protected BundleContext getContext() {
     Bundle cxfBundle = FrameworkUtil.getBundle(MimeTypeToTransformerMapperImpl.class);
     if (cxfBundle != null) {

@@ -414,7 +414,9 @@ public class WebSSOFilter implements SecurityFilter {
   }
 
   @Override
-  public void destroy() {}
+  public void destroy() {
+    // Does nothing as of now
+  }
 
   @Override
   public String toString() {

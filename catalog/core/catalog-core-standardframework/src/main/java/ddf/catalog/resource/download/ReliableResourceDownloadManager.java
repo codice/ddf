@@ -68,7 +68,9 @@ public class ReliableResourceDownloadManager implements DownloadManager {
     this.executor = executor;
   }
 
-  public void init() {}
+  public void init() {
+    // Does nothing as of now, used in blueprint
+  }
 
   public void cleanUp() {
     executor.shutdown();

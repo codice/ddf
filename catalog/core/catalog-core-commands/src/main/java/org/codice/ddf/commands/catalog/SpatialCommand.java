@@ -93,9 +93,15 @@ public class SpatialCommand extends CatalogCommands {
     return null;
   }
 
-  protected void doRadiusQuery(PrintStream console, CatalogFacade catalogFacade) {}
+  protected void doRadiusQuery(PrintStream console, CatalogFacade catalogFacade) {
+    // Does nothing as of now
+  }
 
-  protected void doNNQuery(PrintStream console, CatalogFacade catalogFacade) {}
+  protected void doNNQuery(PrintStream console, CatalogFacade catalogFacade) {
+    // Does nothing as of now
+  }
 
-  private void doOperationsQuery(PrintStream console, CatalogFacade catalogFacade) {}
+  private void doOperationsQuery(PrintStream console, CatalogFacade catalogFacade) {
+    // Does nothing as of now
+  }
 }

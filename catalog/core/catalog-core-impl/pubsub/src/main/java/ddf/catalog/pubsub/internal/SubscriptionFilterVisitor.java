@@ -68,10 +68,6 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
   private static final String QUOTE = "\"";
 
-  // private static final String FUZZY_FUNCTION_NAME = "fuzzy";
-
-  public SubscriptionFilterVisitor() {}
-
   /** A helper method to combine multiple predicates by a logical AND */
   public static Predicate and(final Predicate left, final Predicate right) {
     notNull(left, "left");
@@ -157,7 +153,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     LOGGER.debug("ENTERING: OR filter");
     Predicate returnPredicate = null;
 
-    List<Predicate> predList = new ArrayList<Predicate>();
+    List<Predicate> predList = new ArrayList<>();
     List<Filter> childList = filter.getChildren();
     if (childList != null) {
       for (Filter child : childList) {
@@ -188,7 +184,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
     Predicate returnPredicate = null;
 
-    List<Predicate> predList = new ArrayList<Predicate>();
+    List<Predicate> predList = new ArrayList<>();
     List<Filter> childList = filter.getChildren();
     if (childList != null) {
       for (Filter child : childList) {
@@ -410,7 +406,6 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
     String wildcard = filter.getWildCard();
     String escape = filter.getEscape();
-    String single = filter.getSingleChar();
     boolean isFuzzy = false;
     List<String> textPathList = null;
 
@@ -426,13 +421,11 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
       if (Metacard.CONTENT_TYPE.equals(propertyName.getPropertyName())) {
         LOGGER.debug("Expression is ContentType.");
         String typeValue = likeFilter.getLiteral();
-        ContentTypePredicate predicate = new ContentTypePredicate(typeValue, null);
-        return predicate;
+        return new ContentTypePredicate(typeValue, null);
       } else if (Metacard.CONTENT_TYPE_VERSION.equals(propertyName.getPropertyName())) {
         LOGGER.debug("Expression is ContentTypeVersion.");
         String versionValue = likeFilter.getLiteral();
-        ContentTypePredicate predicate = new ContentTypePredicate(null, versionValue);
-        return predicate;
+        return new ContentTypePredicate(null, versionValue);
       }
     }
 
@@ -455,7 +448,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     String searchPhrase = likeFilter.getLiteral();
     LOGGER.debug("raw searchPhrase = [{}]", searchPhrase);
 
-    String sterilizedSearchPhrase = sterilize(searchPhrase, wildcard, escape, single);
+    String sterilizedSearchPhrase = sterilize(searchPhrase, wildcard, escape);
     LOGGER.debug("sterilizedSearchPhrase = [{}]", sterilizedSearchPhrase);
 
     ContextualPredicate contextPred =
@@ -468,7 +461,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
   }
 
   private List<String> extractXpathSelectors(AttributeExpressionImpl textPathExpression) {
-    List<String> textPathList = new ArrayList<String>();
+    List<String> textPathList = new ArrayList<>();
     String selectors;
     selectors = textPathExpression.getPropertyName();
     LOGGER.debug("sub filter visitor selectors = {}", selectors);
@@ -489,8 +482,6 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
   public Object visit(PropertyName expression, Object data) {
     LOGGER.debug("ENTERING: PropertyName expression");
 
-    // countOccurrence( expression );
-
     LOGGER.debug("EXITING: PropertyName expression");
 
     return data;
@@ -499,8 +490,6 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
   @Override
   public Object visit(Literal expression, Object data) {
     LOGGER.debug("ENTERING: Literal expression");
-
-    // countOccurrence( expression );
 
     LOGGER.debug("EXITING: Literal expression");
 
@@ -517,7 +506,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
   }
 
   // translate filter contextual criteria to lucene syntax
-  private String sterilize(String searchPhrase, String wildcard, String escape, String single) {
+  private String sterilize(String searchPhrase, String wildcard, String escape) {
 
     // remove any spaces leading or trailing
     String returnSearchPhrase = searchPhrase.trim();

@@ -37,9 +37,7 @@ public class DownloadsStatusEventListener implements EventHandler {
 
   private static final String KEY_VALUE_STR = "  Key = {}  Value = {}";
 
-  private Map<String, InputStream> downloadMap = new HashMap<String, InputStream>();
-
-  public DownloadsStatusEventListener() {}
+  private Map<String, InputStream> downloadMap = new HashMap<>();
 
   @Override
   public void handleEvent(Event event) {
@@ -108,38 +106,24 @@ public class DownloadsStatusEventListener implements EventHandler {
     String methodName = "removeDownloadMap";
     LOGGER.debug(ENTERING_STR, methodName);
 
-    if (null != downloadIdentifier) {
-
-      if (null != downloadMap) {
-        for (Map.Entry<String, InputStream> item : downloadMap.entrySet()) {
-          if (StringUtils.equals(downloadIdentifier, item.getKey())) {
-            downloadMap.remove(downloadIdentifier);
-            LOGGER.debug(
-                "Removed downloadIdentifier ==> {}:{} ", downloadIdentifier, item.getValue());
-            break;
-          }
+    if (null != downloadIdentifier && null != downloadMap) {
+      for (Map.Entry<String, InputStream> item : downloadMap.entrySet()) {
+        if (StringUtils.equals(downloadIdentifier, item.getKey())) {
+          downloadMap.remove(downloadIdentifier);
+          LOGGER.debug(
+              "Removed downloadIdentifier ==> {}:{} ", downloadIdentifier, item.getValue());
+          break;
         }
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug(DOWNLOAD_MAP_STR);
-          for (Map.Entry<String, InputStream> item : downloadMap.entrySet()) {
-            String keyStr = item.getKey();
-            InputStream value = item.getValue();
-            LOGGER.debug(KEY_VALUE_STR, keyStr, value);
-          }
+      }
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(DOWNLOAD_MAP_STR);
+        for (Map.Entry<String, InputStream> item : downloadMap.entrySet()) {
+          String keyStr = item.getKey();
+          InputStream value = item.getValue();
+          LOGGER.debug(KEY_VALUE_STR, keyStr, value);
         }
       }
     }
     LOGGER.debug(EXITING_STR, methodName);
-  }
-
-  private String getProperty(ResourceResponse resourceResponse, String property) {
-    String response = "";
-
-    if (resourceResponse.getRequest().containsPropertyName(property)) {
-      response = (String) resourceResponse.getRequest().getPropertyValue(property);
-      LOGGER.debug("resourceResponse {} property: {}", property, response);
-    }
-
-    return response;
   }
 }

@@ -281,8 +281,6 @@ public class XMLUtils {
 
     T value;
 
-    public ResultHolder() {}
-
     public T get() {
       return value;
     }

@@ -217,7 +217,9 @@ public class ClaimsHandlerManager {
     return urls;
   }
 
-  public void destroy() {}
+  public void destroy() {
+    // Does nothing as of now, used in blueprint
+  }
 
   protected ConnectionFactory createConnectionFactory(
       List<String> urls, Boolean startTls, String loadBalancingAlgorithm) throws LdapException {

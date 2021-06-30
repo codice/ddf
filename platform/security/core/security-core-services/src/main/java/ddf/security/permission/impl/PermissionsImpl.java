@@ -31,8 +31,6 @@ public class PermissionsImpl implements Permissions {
 
   private static final Pattern PATTERN = Pattern.compile(",");
 
-  public PermissionsImpl() {}
-
   @Override
   public Map<String, Set<String>> parsePermissionsFromString(List<String> permStrings) {
     return parsePermissionsFromString(permStrings.toArray(new String[permStrings.size()]));

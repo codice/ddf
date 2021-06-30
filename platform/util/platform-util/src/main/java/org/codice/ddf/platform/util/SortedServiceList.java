@@ -69,8 +69,6 @@ public class SortedServiceList<T> implements List<T> {
    * ddf-catalog-framework bundle's blueprint and the fanout-catalogframework bundle's blueprint
    * upon framework construction.
    */
-  public SortedServiceList() {}
-
   protected BundleContext getContext() {
     Bundle cxfBundle = FrameworkUtil.getBundle(SortedServiceList.class);
     if (cxfBundle != null) {

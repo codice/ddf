@@ -14,7 +14,6 @@
 package ddf.security.expansion.impl;
 
 public class RegexExpansion extends AbstractExpansion {
-  public RegexExpansion() {}
 
   /**
    * Performs an expansion using regular expressions for both parts of the rule. The first element
