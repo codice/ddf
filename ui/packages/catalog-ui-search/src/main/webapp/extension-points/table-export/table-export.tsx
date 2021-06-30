@@ -134,6 +134,7 @@ function getSearches(
   count: any,
   selectionInterface: any
 ): any {
+  const cacheId = selectionInterface.getCurrentQuery().get('cacheId')
   if (exportSize !== 'visible') {
     return srcs.length > 0
       ? [
@@ -141,6 +142,7 @@ function getSearches(
             srcs,
             cql,
             count,
+            cacheId,
           },
         ]
       : []
@@ -153,6 +155,7 @@ function getSearches(
       cql,
       start,
       count: srcCount,
+      cacheId,
     }
   })
 }
