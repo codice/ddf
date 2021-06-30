@@ -89,6 +89,20 @@ class ResultsExport extends React.Component<Props, State> {
           },
           [] as Array<Set<string>>
         )
+        // Zipped exports always go to the ZipCompression transformer, which
+        // can handle a result set as long as at least one result has the
+        // attributes required by the selected result transformer.
+        // Unzipped exports can go to any available transformer. We require
+        // all results to have the required attributes because we don't know
+        // whether the selected transformer can handle results that don't have
+        // them.
+        const canExportResults: (
+          hasRequiredAttributes: (attributes: Set<string>) => boolean
+        ) => boolean = this.props.isZipped
+          ? hasRequiredAttributes =>
+              attributesByResult.some(hasRequiredAttributes)
+          : hasRequiredAttributes =>
+              attributesByResult.every(hasRequiredAttributes)
         return exportFormats.filter(exportFormat => {
           const requiredAttributes = exportFormat['required-attributes']
           const attributesNotRequired =
@@ -97,7 +111,7 @@ class ResultsExport extends React.Component<Props, State> {
           if (attributesNotRequired) {
             return true
           }
-          return attributesByResult.some(resultAttributes =>
+          return canExportResults(resultAttributes =>
             requiredAttributes.every(attribute =>
               resultAttributes.has(attribute)
             )
