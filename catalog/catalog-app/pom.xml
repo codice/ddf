@@ -655,6 +655,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog</groupId>
+            <artifactId>docker-healthcheck-endpoint</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.poi</artifactId>
             <version>${servicemix.bundles.poi.version}</version>

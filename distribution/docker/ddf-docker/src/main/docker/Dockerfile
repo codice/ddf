@@ -24,3 +24,5 @@ COPY --from=prep /prep/ddf $APP_HOME
 VOLUME $APP_HOME/data $APP_HOME/deploy $APP_HOME/etc
 
 EXPOSE 8993 8181 8101
+
+HEALTHCHECK CMD curl --fail -u admin:admin -k https://localhost:8993/services/healthcheck/docker || exit 1
