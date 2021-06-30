@@ -18,6 +18,9 @@ import static org.apache.commons.lang.Validate.notNull;
 import ddf.catalog.transformer.common.tika.handler.BodyAndMetadataContentHandler;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -69,14 +72,23 @@ public class TikaMetadataExtractor {
   }
 
   private void parseMetadata(InputStream inputStream) throws TikaException {
-    Parser parser = new AutoDetectParser();
 
     try {
-      parser.parse(inputStream, this.bodyAndMetadataContentHandler, metadata, new ParseContext());
-    } catch (IOException e) {
-      throw new TikaException("Unexpected IOException. Stream may already be closed", e);
-    } catch (SAXException e) {
-      LOGGER.debug("Unexpected tika parsing failure", e);
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Object>)
+              () -> {
+                Parser parser = new AutoDetectParser();
+                parser.parse(
+                    inputStream, this.bodyAndMetadataContentHandler, metadata, new ParseContext());
+                return null;
+              });
+    } catch (PrivilegedActionException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof IOException) {
+        throw new TikaException("Unexpected IOException. Stream may already be closed", cause);
+      } else if (cause instanceof SAXException) {
+        LOGGER.debug("Unexpected tika parsing failure", cause);
+      }
     } finally {
       IOUtils.closeQuietly(inputStream);
     }

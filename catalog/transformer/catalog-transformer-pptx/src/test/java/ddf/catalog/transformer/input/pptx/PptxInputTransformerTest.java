@@ -76,7 +76,7 @@ public class PptxInputTransformerTest {
       assertThat(metacard, notNullValue());
       assertThat(metacard.getThumbnail(), nullValue());
       MatcherAssert.assertThat(
-          metacard.getAttribute(Core.DATATYPE).getValue(), Matchers.is("Dataset"));
+          metacard.getAttribute(Core.DATATYPE).getValue(), Matchers.is("Text"));
     }
   }
 
