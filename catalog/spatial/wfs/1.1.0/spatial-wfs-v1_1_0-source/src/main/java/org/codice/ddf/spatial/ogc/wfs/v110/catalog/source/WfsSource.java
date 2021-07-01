@@ -63,6 +63,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBContext;
@@ -119,6 +120,9 @@ import org.slf4j.LoggerFactory;
 
 /** Provides a Federated and Connected source implementation for OGC WFS servers. */
 public class WfsSource extends AbstractWfsSource {
+
+  /** See the contract for {@link SourceResponse#getHits()}. */
+  private static final long UNKNOWN_HITS = -1;
 
   static final int WFS_MAX_FEATURES_RETURNED = 1000;
 
@@ -193,7 +197,7 @@ public class WfsSource extends AbstractWfsSource {
 
   private String wfsVersion;
 
-  private Map<QName, WfsFilterDelegate> featureTypeFilters = new HashMap<>();
+  private final Map<QName, WfsFilterDelegate> featureTypeFilters = new HashMap<>();
 
   private String authenticationType;
 
@@ -219,13 +223,13 @@ public class WfsSource extends AbstractWfsSource {
 
   private String forceSpatialFilter = NO_FORCED_SPATIAL_FILTER;
 
-  private ScheduledExecutorService scheduler;
+  private final ScheduledExecutorService scheduler;
 
   private ScheduledFuture<?> availabilityPollFuture;
 
   private AvailabilityTask availabilityTask;
 
-  private Set<SourceMonitor> sourceMonitors = new HashSet<>();
+  private final Set<SourceMonitor> sourceMonitors = new HashSet<>();
 
   private SecureCxfClientFactory<ExtendedWfs> factory;
 
@@ -722,8 +726,16 @@ public class WfsSource extends AbstractWfsSource {
 
     try {
       LOGGER.debug("WFS Source {}: Getting hits.", getId());
-      final WfsFeatureCollection hitsResponse = wfs.getFeature(getHits);
-      final long totalHits = hitsResponse.getNumberOfFeatures();
+
+      long totalHits;
+
+      try {
+        final WfsFeatureCollection hitsResponse = wfs.getFeature(getHits);
+        totalHits = hitsResponse.getNumberOfFeatures();
+      } catch (ResponseProcessingException e) {
+        LOGGER.warn("WFS Source {} hit count query returned an exception", getId(), e);
+        totalHits = UNKNOWN_HITS;
+      }
 
       LOGGER.debug("The query has {} hits.", totalHits);
 
@@ -882,7 +894,7 @@ public class WfsSource extends AbstractWfsSource {
 
       SortPropertyType sortPropertyType = filterObjectFactory.createSortPropertyType();
       PropertyNameType propertyNameType = filterObjectFactory.createPropertyNameType();
-      List<Serializable> props = Arrays.asList(propertyName);
+      List<Serializable> props = Collections.singletonList(propertyName);
       propertyNameType.setContent(props);
       sortPropertyType.setPropertyName(propertyNameType);
 
