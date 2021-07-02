@@ -20,7 +20,6 @@ import { exportResultSet } from '../utils/export'
 import { getResultSetCql } from '../utils/cql'
 import saveFile from '../utils/save-file'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
-const _ = require('lodash')
 const announcement = require('../../component/announcement/index.jsx')
 const properties = require('../../js/properties.js')
 
@@ -82,32 +81,41 @@ class ResultsExport extends React.Component<Props, State> {
     fetch(`./internal/transformers/${this.getTransformerType()}`)
       .then(response => response.json())
       .then((exportFormats: ExportFormat[]) => {
-        const resultsAttributes: any = {}
-        this.props.results.map((result: Result) => {
-          result.attributes.forEach((attr: any) => {
-            if (resultsAttributes[attr] === undefined) {
-              resultsAttributes[attr] = [result.id]
-            } else {
-              resultsAttributes[attr].push(result.id)
-            }
-          })
-        })
+        const attributesByResult = this.props.results.reduce(
+          (acc, result) => {
+            const attributes = new Set(result.attributes)
+            acc.push(attributes)
+            return acc
+          },
+          [] as Array<Set<string>>
+        )
+        // Zipped exports always go to the ZipCompression transformer, which
+        // can handle a result set as long as at least one result has the
+        // attributes required by the selected result transformer.
+        // Unzipped exports can go to any available transformer. We require
+        // all results to have the required attributes because we don't know
+        // whether the selected transformer can handle results that don't have
+        // them.
+        const canExportResults: (
+          hasRequiredAttributes: (attributes: Set<string>) => boolean
+        ) => boolean = this.props.isZipped
+          ? hasRequiredAttributes =>
+              attributesByResult.some(hasRequiredAttributes)
+          : hasRequiredAttributes =>
+              attributesByResult.every(hasRequiredAttributes)
         return exportFormats.filter(exportFormat => {
-          const requiredAttr = exportFormat['required-attributes']
-          if (!Array.isArray(requiredAttr) || requiredAttr.length == 0) {
+          const requiredAttributes = exportFormat['required-attributes']
+          const attributesNotRequired =
+            !Array.isArray(requiredAttributes) ||
+            requiredAttributes.length === 0
+          if (attributesNotRequired) {
             return true
           }
-          let resultIds = resultsAttributes[requiredAttr[0]]
-          if (resultIds && resultIds.length > 0) {
-            for (let index = 1; index < requiredAttr.length; index++) {
-              const currResultIds = resultsAttributes[requiredAttr[index]]
-              if (_.intersection(resultIds, currResultIds).length == 0) {
-                return false
-              }
-              resultIds = currResultIds
-            }
-            return true
-          }
+          return canExportResults(resultAttributes =>
+            requiredAttributes.every(attribute =>
+              resultAttributes.has(attribute)
+            )
+          )
         })
       })
       .then((exportFormats: ExportFormat[]) => {
