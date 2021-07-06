@@ -26,7 +26,9 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.SourceProcessingDetails;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
@@ -727,6 +729,8 @@ public class WfsSource extends AbstractWfsSource {
     try {
       LOGGER.debug("WFS Source {}: Getting hits.", getId());
 
+      Set<SourceProcessingDetails> sourceProcessingDetails = null;
+
       long totalHits;
 
       try {
@@ -734,6 +738,7 @@ public class WfsSource extends AbstractWfsSource {
         totalHits = hitsResponse.getNumberOfFeatures();
       } catch (ResponseProcessingException e) {
         LOGGER.warn("WFS Source {} hit count query returned an exception", getId(), e);
+        sourceProcessingDetails = buildProcessingDetails(e);
         totalHits = UNKNOWN_HITS;
       }
 
@@ -784,7 +789,7 @@ public class WfsSource extends AbstractWfsSource {
         }
       }
 
-      return new SourceResponseImpl(request, results, totalHits);
+      return new SourceResponseImpl(request, null, results, totalHits, sourceProcessingDetails);
     } catch (WfsException wfse) {
       LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
       throw new UnsupportedQueryException("Error received from WFS Server", wfse);
@@ -792,6 +797,11 @@ public class WfsSource extends AbstractWfsSource {
       String msg = handleClientException(ce);
       throw new UnsupportedQueryException(msg, ce);
     }
+  }
+
+  /** Create processing details for the scenario when the total hits query fails. */
+  private Set<SourceProcessingDetails> buildProcessingDetails(ResponseProcessingException e) {
+    return Collections.singleton(new ProcessingDetailsImpl(getId(), e));
   }
 
   private void addTransformedResult(Metacard mc, List<Result> results) {
