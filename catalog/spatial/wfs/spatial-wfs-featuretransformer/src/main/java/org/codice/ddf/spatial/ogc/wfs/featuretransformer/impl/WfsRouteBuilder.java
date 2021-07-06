@@ -24,7 +24,6 @@ import org.apache.camel.language.xpath.XPathBuilder;
 import org.apache.camel.processor.aggregate.AbstractListAggregationStrategy;
 import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollectionImpl;
-import org.codice.ddf.spatial.ogc.wfs.featuretransformer.ExceptionReportException;
 
 public final class WfsRouteBuilder extends RouteBuilder {
 
@@ -50,12 +49,6 @@ public final class WfsRouteBuilder extends RouteBuilder {
         // copy that cache to the header so we can access it later.
         .setBody(simple("${body[0]}"))
         .setHeader("xml", body())
-        .choice()
-        .when(
-            XPathBuilder.xpath("/ows:ExceptionReport")
-                .namespace("ows", "http://www.opengis.net/ows"))
-        .bean(ExceptionFactory.class, "throwExceptionReportException(${bodyOneLine})")
-        .otherwise()
         .setHeader(
             "numberOfFeatures",
             XPathBuilder.xpath("/wfs:FeatureCollection/@numberOfFeatures", Long.class)
@@ -116,28 +109,15 @@ public final class WfsRouteBuilder extends RouteBuilder {
     }
   }
 
-  public static class ExceptionFactory {
-
-    private ExceptionFactory() {}
-
-    @SuppressWarnings("unused" /* used in camel route */)
-    public static Object throwExceptionReportException(String body)
-        throws ExceptionReportException {
-      throw new ExceptionReportException(body);
-    }
-  }
-
   // Must be public for Camel bean binding
   public static class WfsCollectionFactory {
 
     private WfsCollectionFactory() {}
 
-    @SuppressWarnings("unused" /* used in camel route */)
     public static WfsFeatureCollection createEmptyWfsCollection() {
       return new WfsFeatureCollectionImpl(0);
     }
 
-    @SuppressWarnings("unused" /* used in camel route */)
     public static WfsFeatureCollection createWfsCollection(
         final List<Metacard> featureMembers, final Long numberOfFeatures) {
       if (numberOfFeatures != null) {
