@@ -69,6 +69,9 @@ public class LoginFilter implements SecurityFilter {
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
+  // Applications, such as Hawtio, are specifically looking for this property. Do not change it.
+  private static final String JAVA_SUBJECT = "subject";
+
   private SecurityManager securityManager;
 
   private SessionFactory sessionFactory;
@@ -174,6 +177,9 @@ public class LoginFilter implements SecurityFilter {
                     emptySet,
                     emptySet);
             httpRequest.setAttribute(SecurityConstants.SECURITY_JAVA_SUBJECT, javaSubject);
+            if (contextPolicyManager.getSessionAccess()) {
+              addToSession(httpRequest, javaSubject);
+            }
             javax.security.auth.Subject.doAs(javaSubject, action);
           } else {
             LOGGER.debug("Subject had no security assertion.");
@@ -190,17 +196,26 @@ public class LoginFilter implements SecurityFilter {
    * @param subject Subject to attach to request
    */
   private void addToSession(HttpServletRequest httpRequest, Subject subject) {
-    if (sessionFactory == null) {
-      throw new SessionException("Unable to store user's session.");
-    }
+    HttpSession session = getSession(httpRequest);
     PrincipalCollection principals = subject.getPrincipals();
-    HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
     PrincipalHolder principalHolder =
         (PrincipalHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
     PrincipalCollection oldPrincipals = principalHolder.getPrincipals();
     if (!principals.equals(oldPrincipals)) {
       principalHolder.setPrincipals(principals);
     }
+  }
+
+  private void addToSession(HttpServletRequest httpRequest, javax.security.auth.Subject subject) {
+    HttpSession session = getSession(httpRequest);
+    session.setAttribute(JAVA_SUBJECT, subject);
+  }
+
+  private HttpSession getSession(HttpServletRequest httpRequest) throws SessionException {
+    if (sessionFactory == null) {
+      throw new SessionException("Unable to store user's session.");
+    }
+    return sessionFactory.getOrCreateSession(httpRequest);
   }
 
   public void setSecurityManager(SecurityManager securityManager) {

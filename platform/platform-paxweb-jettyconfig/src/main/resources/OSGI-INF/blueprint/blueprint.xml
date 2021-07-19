@@ -28,12 +28,6 @@
     </bean>
     <service ref="responseFilter" interface="org.codice.ddf.platform.filter.http.HttpFilter"/>
 
-    <!-- Rank set to Integer.MAX_VALUE so that SecurityJavaSubjectFilter will run first. This gives
-         any global http filters access to the Subject -->
-    <service id="securityJavaSubjectFilter" interface="org.codice.ddf.platform.filter.http.HttpFilter" ranking="2147483647">
-        <bean class="org.codice.ddf.pax.web.jetty.SecurityJavaSubjectFilter"/>
-    </service>
-
     <!-- Rank set to Integer.MIN_VALUE so that DoPrivilegedFilter will run last. This prevents
          security policy permission requirements from leaking up to the global http filters -->
     <service id="doPrivilegedFilter" interface="org.codice.ddf.platform.filter.http.HttpFilter" ranking="-2147483648">
