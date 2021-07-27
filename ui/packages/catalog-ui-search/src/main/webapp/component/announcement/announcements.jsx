@@ -15,7 +15,6 @@
 
 var React = require('react')
 var actions = require('./actions')
-var $ = require('jquery')
 var connect = require('react-redux').connect
 
 var dim = function(Component) {

@@ -60,3 +60,11 @@ exports.announce = function(announcement, timeout) {
     }
   }
 }
+
+exports.removeAll = function() {
+  return function(dispatch, getState) {
+    getState()
+      .map(a => a.id)
+      .forEach(id => dispatch(remove(id)))
+  }
+}

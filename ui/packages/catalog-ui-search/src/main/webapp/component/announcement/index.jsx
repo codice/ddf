@@ -18,6 +18,8 @@ var React = require('react')
 var render = require('react-dom').render
 var Provider = require('react-redux').Provider
 
+const wreqr = require('../../js/wreqr.js')
+
 var actions = require('./actions')
 var configureStore = require('./configureStore')
 
@@ -38,6 +40,12 @@ render(
 exports.announce = function(announcement, timeout) {
   store.dispatch(actions.announce(announcement, timeout))
 }
+
+const removeAll = (exports.removeAll = function() {
+  store.dispatch(actions.removeAll())
+})
+
+wreqr.vent.on('router:navigate', removeAll)
 
 if (process.env.NODE_ENV !== 'production' && module.hot) {
   module.hot.accept()
