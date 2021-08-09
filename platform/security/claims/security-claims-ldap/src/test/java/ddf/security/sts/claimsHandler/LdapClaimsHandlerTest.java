@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.security.SubjectOperations;
@@ -58,6 +59,8 @@ public class LdapClaimsHandlerTest {
   public static final String ATTRIBUTE_NAME = "cn";
 
   public static final String USER_BASE_DN = "ou=avengers,dc=marvel,dc=com";
+
+  private static final String USER_ATTRIBUTE = "uid";
 
   public static final String DUMMY_VALUE = "Tony Stark";
 
@@ -116,6 +119,7 @@ public class LdapClaimsHandlerTest {
     claimsHandler.setBindUserCredentials(BIND_USER_CREDENTIALS);
     claimsHandler.setKdcAddress(KCD);
     claimsHandler.setUserBaseDN(USER_BASE_DN);
+    claimsHandler.setUserNameAttribute(USER_ATTRIBUTE);
   }
 
   @Test
@@ -140,5 +144,12 @@ public class LdapClaimsHandlerTest {
     assertThat(processedClaims, hasSize(1));
     Claim claim = processedClaims.get(0);
     assertThat(claim.getValues(), contains(DUMMY_VALUE));
+
+    verify(mockConnection)
+        .search(
+            eq(USER_BASE_DN),
+            any(),
+            eq("(&(objectclass=person)(uid=cn=Tony Stark,ou=avengers,dc=marvel,dc=com))"),
+            eq(ATTRIBUTE_NAME));
   }
 }

@@ -64,7 +64,8 @@
             <property name="membershipUserAttribute" value="uid"/>
             <property name="loginUserAttribute" value="uid" />
             <property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
-            <property name="objectClass" value="groupOfNames"/>
+            <property name="groupObjectClass" value="groupOfNames"/>
+            <property name="personObjectClass" value="person"/>
             <property name="memberNameAttribute" value="member"/>
             <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
             <property name="propertyFileLocation" value="${ddf.etc}/ws-security/attributeMap.properties"/>
