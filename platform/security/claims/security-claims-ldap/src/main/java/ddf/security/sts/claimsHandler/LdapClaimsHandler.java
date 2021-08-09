@@ -64,7 +64,7 @@ public class LdapClaimsHandler implements ClaimsHandler {
 
   private boolean overrideCertDn = false;
 
-  private String objectClass;
+  private String objectClass = "person";
 
   private String userNameAttribute;
 

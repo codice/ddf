@@ -79,7 +79,9 @@ public class ClaimsHandlerManager {
 
   public static final String USER_BASE_DN = "userBaseDn";
 
-  public static final String OBJECT_CLASS = "objectClass";
+  public static final String GROUP_OBJECT_CLASS = "groupObjectClass";
+
+  public static final String PERSON_OBJECT_CLASS = "personObjectClass";
 
   public static final String MEMBER_NAME_ATTRIBUTE = "memberNameAttribute";
 
@@ -134,7 +136,8 @@ public class ClaimsHandlerManager {
     String userDn = (String) props.get(ClaimsHandlerManager.LDAP_BIND_USER_DN);
     String password = (String) props.get(ClaimsHandlerManager.PASSWORD);
     String userBaseDn = (String) props.get(ClaimsHandlerManager.USER_BASE_DN);
-    String objectClass = (String) props.get(ClaimsHandlerManager.OBJECT_CLASS);
+    String groupObjectClass = (String) props.get(ClaimsHandlerManager.GROUP_OBJECT_CLASS);
+    String personObjectClass = (String) props.get(ClaimsHandlerManager.PERSON_OBJECT_CLASS);
     String memberNameAttribute = (String) props.get(ClaimsHandlerManager.MEMBER_NAME_ATTRIBUTE);
     String groupBaseDn = (String) props.get(ClaimsHandlerManager.GROUP_BASE_DN);
     String loginUserAttribute = (String) props.get(ClaimsHandlerManager.LOGIN_USER_ATTRIBUTE);
@@ -180,7 +183,7 @@ public class ClaimsHandlerManager {
           userBaseDn,
           loginUserAttribute,
           membershipUserAttribute,
-          objectClass,
+          groupObjectClass,
           memberNameAttribute,
           groupBaseDn,
           userDn,
@@ -194,6 +197,7 @@ public class ClaimsHandlerManager {
           propertyFileLocation,
           userBaseDn,
           loginUserAttribute,
+          personObjectClass,
           userDn,
           password,
           overrideCertDn,
@@ -344,6 +348,7 @@ public class ClaimsHandlerManager {
       String propertyFileLoc,
       String userBaseDn,
       String userNameAttr,
+      String objectClass,
       String userDn,
       String password,
       boolean overrideCertDn,
@@ -356,6 +361,7 @@ public class ClaimsHandlerManager {
     ldapHandler.setPropertyFileLocation(propertyFileLoc);
     ldapHandler.setUserBaseDN(userBaseDn);
     ldapHandler.setUserNameAttribute(userNameAttr);
+    ldapHandler.setObjectClass(objectClass);
     ldapHandler.setBindUserDN(userDn);
     ldapHandler.setBindUserCredentials(password);
     ldapHandler.setOverrideCertDn(overrideCertDn);
@@ -445,9 +451,14 @@ public class ClaimsHandlerManager {
     ldapProperties.put(USER_BASE_DN, userBaseDn);
   }
 
-  public void setObjectClass(String objectClass) {
-    LOGGER.trace("Setting objectClass: {}", objectClass);
-    ldapProperties.put(OBJECT_CLASS, objectClass);
+  public void setGroupObjectClass(String objectClass) {
+    LOGGER.trace("Setting group objectClass: {}", objectClass);
+    ldapProperties.put(GROUP_OBJECT_CLASS, objectClass);
+  }
+
+  public void setPersonObjectClass(String objectClass) {
+    LOGGER.trace("Setting person objectClass: {}", objectClass);
+    ldapProperties.put(PERSON_OBJECT_CLASS, objectClass);
   }
 
   public void setMemberNameAttribute(String memberNameAttribute) {
