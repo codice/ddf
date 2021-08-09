@@ -80,7 +80,7 @@ public class ClaimsHandlerManagerTest {
     manager.setUrl("ldap://ldap:1389");
     manager.setStartTls(false);
     manager.setLdapBindUserDn("cn=admin");
-    manager.setObjectClass("ou=users,dc=example,dc=com");
+    manager.setGroupObjectClass("ou=users,dc=example,dc=com");
     manager.setMemberNameAttribute("member");
     manager.setPassword("secret");
     manager.setPropertyFileLocation("etc/ws-security/attributeMap.properties");
