@@ -81,10 +81,15 @@
 			description="When checked, this setting will ignore the DN of a user and instead use the LDAP Base User DN value.">
 		</AD>
 
-        <AD name="LDAP Group ObjectClass:" id="objectClass" required="true" type="String"
+        <AD name="LDAP Group ObjectClass:" id="groupObjectClass" required="true" type="String"
             default="groupOfNames"
             description="ObjectClass that defines structure for group membership in LDAP. Usually this is groupOfNames or groupOfUniqueNames.">
         </AD>
+
+		<AD name="LDAP Person ObjectClass:" id="personObjectClass" required="true" type="String"
+			default="person"
+			description="ObjectClass that defines structure for people in LDAP. Usually this is person or organizationalPerson.">
+		</AD>
 
         <AD name="LDAP Membership Attribute:" id="memberNameAttribute" required="true" type="String"
             default="member"
