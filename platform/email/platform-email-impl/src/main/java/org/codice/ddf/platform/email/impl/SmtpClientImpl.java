@@ -168,6 +168,14 @@ public class SmtpClientImpl implements SmtpClient {
   @Override
   public Future<Void> send(Message message) {
     notNull(message, "message must be non-null");
+    try {
+      securityLogger.audit(
+          "Sending email: recipient={} subject={}",
+          Arrays.toString(message.getAllRecipients()),
+          message.getSubject());
+    } catch (MessagingException e) {
+      // ignore
+    }
     return executorService.submit(
         () -> {
           final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -175,16 +183,12 @@ public class SmtpClientImpl implements SmtpClient {
           try {
             Transport.send(message);
           } catch (MessagingException e) {
-            LOGGER.debug("Could not send message {}", message, e);
+            LOGGER.warn("Could not send message {}", message, e);
             return null;
           } finally {
             Thread.currentThread().setContextClassLoader(classLoader);
           }
 
-          securityLogger.audit(
-              "Sent an email: recipient={} subject={}",
-              Arrays.toString(message.getAllRecipients()),
-              message.getSubject());
           return null;
         });
   }
