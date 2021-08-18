@@ -174,8 +174,9 @@ public class SmtpClientImpl implements SmtpClient {
           Arrays.toString(message.getAllRecipients()),
           message.getSubject());
     } catch (MessagingException e) {
-      // ignore
+      securityLogger.auditWarn("Unable to audit log email", e);
     }
+
     return executorService.submit(
         () -> {
           final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
