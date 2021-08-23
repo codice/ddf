@@ -33,13 +33,11 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 import org.codice.ddf.platform.util.SortedServiceList;
 import org.junit.Before;
 import org.junit.Rule;
@@ -96,9 +94,9 @@ public class GeoJsonExtensibleTest {
 
   private static final int DEFAULT_COLUMNS = 5;
 
-  private static final String DEFAULT_MODIFIED_DATE = "2012-09-01T00:09:19.368+0000";
+  private static final String DEFAULT_MODIFIED_DATE = "2012-09-01T00:09:19.368Z";
 
-  private static final String DEFAULT_CREATED_DATE = "2012-08-01T00:09:19.368+0000";
+  private static final String DEFAULT_CREATED_DATE = "2012-08-01T00:09:19.368Z";
 
   private static final String SAMPLE_A_METACARD_TYPE_NAME = "MetacardTypeA";
 
@@ -106,9 +104,9 @@ public class GeoJsonExtensibleTest {
 
   private static final String DEFAULT_URI = "http://example.com";
 
-  private static final Object DEFAULT_EXPIRATION_DATE = "2013-09-01T00:09:19.368+0000";
+  private static final Object DEFAULT_EXPIRATION_DATE = "2013-09-01T00:09:19.368Z";
 
-  private static final Object DEFAULT_EFFECTIVE_DATE = "2012-08-15T00:09:19.368+0000";
+  private static final Object DEFAULT_EFFECTIVE_DATE = "2012-08-15T00:09:19.368Z";
 
   private static final String sampleJsonExtensibleA() {
     return "{"
@@ -569,13 +567,10 @@ public class GeoJsonExtensibleTest {
     assertEquals(DEFAULT_TYPE, metacard.getContentTypeName());
     assertEquals(DEFAULT_VERSION, metacard.getContentTypeVersion());
     assertEquals("<xml></xml>", metacard.getMetadata());
-    SimpleDateFormat dateFormat =
-        new SimpleDateFormat(GeoJsonInputTransformer.ISO_8601_DATE_FORMAT);
-    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    assertEquals(DEFAULT_CREATED_DATE, dateFormat.format(metacard.getCreatedDate()));
-    assertEquals(DEFAULT_MODIFIED_DATE, dateFormat.format(metacard.getModifiedDate()));
-    assertEquals(DEFAULT_EXPIRATION_DATE, dateFormat.format(metacard.getExpirationDate()));
-    assertEquals(DEFAULT_EFFECTIVE_DATE, dateFormat.format(metacard.getEffectiveDate()));
+    assertEquals(DEFAULT_CREATED_DATE, metacard.getCreatedDate().toInstant().toString());
+    assertEquals(DEFAULT_MODIFIED_DATE, metacard.getModifiedDate().toInstant().toString());
+    assertEquals(DEFAULT_EXPIRATION_DATE, metacard.getExpirationDate().toInstant().toString());
+    assertEquals(DEFAULT_EFFECTIVE_DATE, metacard.getEffectiveDate().toInstant().toString());
     assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
     assertEquals(DEFAULT_TEMPERATURE, metacard.getAttribute(TEMPERATURE_KEY).getValue());
     assertEquals(MetacardImpl.BASIC_METACARD.getName(), metacard.getMetacardType().getName());
