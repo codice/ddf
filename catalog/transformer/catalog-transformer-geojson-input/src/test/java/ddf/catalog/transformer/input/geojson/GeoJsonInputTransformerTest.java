@@ -27,8 +27,6 @@ import ddf.catalog.transform.InputTransformer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 import java.util.stream.Stream;
 import org.codice.ddf.platform.util.SortedServiceList;
 import org.junit.Before;
@@ -185,11 +183,11 @@ public class GeoJsonInputTransformerTest {
         + "        \"title\":\"myTitle\","
         + "        \"thumbnail\":\"CA==\","
         + "        \"resource-uri\":\"http:\\/\\/example.com\","
-        + "        \"created\":\"2012-09-01T00:09:19.368+0000\","
+        + "        \"created\":\"2012-09-01T00:09:19.368+00:00\","
         + "        \"metadata-content-type-version\":\"myVersion\","
         + "        \"metadata-content-type\":\"myType\","
         + "        \"metadata\":\"<xml><\\/xml>\","
-        + "        \"modified\":\"2012-09-01T00:09:19.368+0000\""
+        + "        \"modified\":\"2012-09-01T00:09:19.368+00:00\""
         + "    },"
         + "    \"type\":\"Feature\","
         + "    \"geometry\":{"
@@ -226,11 +224,11 @@ public class GeoJsonInputTransformerTest {
         + "        \"title\":\"myTitle\","
         + "        \"thumbnail\":\"CA==\","
         + "        \"resource-uri\":\"http:\\/\\/example.com\","
-        + "        \"created\":\"2012-09-01T00:09:19.368+0000\","
+        + "        \"created\":\"2012-09-01T00:09:19.368Z\","
         + "        \"metadata-content-type-version\":\"myVersion\","
         + "        \"metadata-content-type\":\"myType\","
         + "        \"metadata\":\"<xml><\\/xml>\","
-        + "        \"modified\":\"2012-09-01T00:09:19.368+0000\""
+        + "        \"modified\":\"2012-09-01T00:09:19.368Z\""
         + "    },"
         + "    \"type\":\"Feature\","
         + "    \"geometry\":null"
@@ -384,11 +382,8 @@ public class GeoJsonInputTransformerTest {
     assertEquals(DEFAULT_TYPE, metacard.getContentTypeName());
     assertEquals(DEFAULT_VERSION, metacard.getContentTypeVersion());
     assertEquals("<xml></xml>", metacard.getMetadata());
-    SimpleDateFormat dateFormat =
-        new SimpleDateFormat(GeoJsonInputTransformer.ISO_8601_DATE_FORMAT);
-    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    assertEquals("2012-09-01T00:09:19.368+0000", dateFormat.format(metacard.getCreatedDate()));
-    assertEquals("2012-09-01T00:09:19.368+0000", dateFormat.format(metacard.getModifiedDate()));
+    assertEquals("2012-09-01T00:09:19.368Z", metacard.getCreatedDate().toInstant().toString());
+    assertEquals("2012-09-01T00:09:19.368Z", metacard.getModifiedDate().toInstant().toString());
     assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
   }
 }

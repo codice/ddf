@@ -37,14 +37,16 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.function.Function;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +62,19 @@ import org.slf4j.LoggerFactory;
  */
 public class GeoJsonInputTransformer implements InputTransformer {
 
-  static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+  static final DateTimeFormatter ISO_8601_DATE_FORMAT =
+      new DateTimeFormatterBuilder()
+          .append(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+          .optionalStart()
+          .appendOffset("+HH:MM", "+00:00")
+          .optionalEnd()
+          .optionalStart()
+          .appendOffset("+HHMM", "+0000")
+          .optionalEnd()
+          .optionalStart()
+          .appendOffset("+HH", "Z")
+          .optionalEnd()
+          .toFormatter();
 
   private static final Gson GSON =
       new GsonBuilder()
@@ -304,9 +318,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
       case BINARY:
         return DatatypeConverter.parseBase64Binary(value.toString());
       case DATE:
-        SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return dateFormat.parse(value.toString());
+        return Date.from(Instant.from(ISO_8601_DATE_FORMAT.parse(value.toString())));
       case GEOMETRY:
       case STRING:
       case XML:
