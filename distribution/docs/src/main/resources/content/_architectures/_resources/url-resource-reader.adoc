@@ -16,11 +16,11 @@ It is downloaded from the product cache which bypasses the `URLResourceReader`.
 For example, if path `/my/valid/path` is configured in the ``URLResourceReader``'s `rootResourceDirectories` and one downloads the product with resource-uri `file:///my/valid/path/product.txt` and then one removes `/my/valid/path` from the ``URLResourceReader``'s `rootResourceDirectories` configuration, the product will still be accessible via the product cache.
 ====
 
-===== Installing the URL Resource Reader
+== Installing the URL Resource Reader
 
 The `URLResourceReader` is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring Permissions for the URL Resource Reader
+== Configuring Permissions for the URL Resource Reader
 
 Configuring the URL Resource Reader to retrieve files requires adding Security Manager read permission entries for the directory containing the resources. To add the correct permission entries, edit the file ${home_directory}/security/configurations.policy. In the URL Resource Reader section of the file, add two new permission for each top-level directory that the Resource Reader needs to access. The Resource Reader needs one permission to read the directory and another to read its contents.
 
@@ -38,7 +38,7 @@ permission java.io.FilePermission "<OTHER_DIRECTORY_PATH>", "read";
 
 Trailing slashes after <DIRECTORY_PATH> have no effect on the permissions granted. For example, adding a permission for "${/}test${/}path" and "${/}test${/}path${/}" are equivalent. The recursive forms "${/}test${/}path${/}-", and "${/}test${/}path${/}${/}-" are also equivalent.
 
-===== Configuring the URL Resource Reader
+== Configuring the URL Resource Reader
 
 Configure the URL Resource Reader from the ${admin-console}.
 
@@ -49,7 +49,7 @@ Configure the URL Resource Reader from the ${admin-console}.
 
 See <<{reference-prefix}ddf.catalog.resource.impl.URLResourceReader,URL Resource Reader configurations>> for all possible configurations.
 
-==== Using the URL Resource Reader
+== Using the URL Resource Reader
 
 `URLResourceReader` will be used by the Catalog Framework to obtain a resource whose metacard is cataloged in the local data store.
 This particular `ResourceReader` will be chosen by the `CatalogFramework` if the requested resource's URL has a protocol of `http`, `https`, or `file`.  

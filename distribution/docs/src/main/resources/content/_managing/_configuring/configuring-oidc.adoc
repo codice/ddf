@@ -5,12 +5,12 @@
 :summary: Configuring included IdP.
 :order: 03
 
-==== {title}
+== {title}
 
 To use https://openid.net/specs/openid-connect-core-1_0.html[OpenID Connect (OIDC)] and https://tools.ietf.org/html/rfc6749[OAuth 2.0],
 ${branding} needs to be connected to an external Identity Provider (IdP) which supports these protocols.
 
-===== OIDC
+=== OIDC
 
 OIDC is used to authenticate (or log in) a user. To use this protocol in ${branding}, ${branding} needs the external IdP's information.
 
@@ -28,7 +28,7 @@ Once connected, the Web Context Policy Manager needs to be updated. to do so,
 . Select the *Web Context Policy Manager*.
 . Under `Authentication Types for Web Pages` and `Authentication Types for Endpoints` add OIDC.
 
-===== OAuth 2.0
+=== OAuth 2.0
 
 OAuth 2.0 is an authorization protocol and ${branding} can use it when federating.
 When a user queries a source that is configured to use this protocol, ${branding} will forward the user's information (access token) with the request.

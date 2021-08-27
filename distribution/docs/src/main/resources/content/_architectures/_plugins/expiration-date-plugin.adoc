@@ -7,7 +7,7 @@
 
 The Expiration Date plugin adds or updates expiration dates which can be used later for archiving old data.
 
-===== Installing the Expiration Date Pre-Ingest Plugin
+== Installing the Expiration Date Pre-Ingest Plugin
 
 The Expiration Date Pre-Ingest Plugin is not installed by default with a standard installation.
 To install:
@@ -17,7 +17,7 @@ To install:
 . Select the *Configuration* tab.
 . Select the *Expiration Data Pre-Ingest Plugin*.
 
-===== Configuring the Expiration Date Pre-Ingest Plugin
+== Configuring the Expiration Date Pre-Ingest Plugin
 
 To configure the Expiration Date Pre-Ingest Plugin:
 

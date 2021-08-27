@@ -22,7 +22,7 @@ catalog:framework
 |the operation to perform using the Catalog Framework (possible values are CREATE \| UPDATE \| DELETE)
 |===
 
-===== Sending Messages to Catalog Framework Endpoint
+== Sending Messages to Catalog Framework Endpoint
 
 .Catalog Framework Producer
 In Producer mode, the component provides the ability to supply different inputs and have the Catalog Framework perform different operations based upon the header values.  

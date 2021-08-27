@@ -39,7 +39,7 @@ As an example, one `ResourceReader` may know how to handle file-based URIs wit
 The `ResourceReader` or `Source` is responsible for locating the resource, reading its bytes, adding the binary data to a `Resource` implementation, then returning that `Resource` in a `ResourceResponse`. 
 The `ResourceReader` or `Source` is also responsible for determining the ``Resource``'s name and mime type, which it sends back in the `Resource` implementation.
 
-===== BinaryContent
+== BinaryContent
 
 `BinaryContent` is an object used as a container to store translated or transformed ${branding} components. 
 `Resource` extends `BinaryContent` and includes a `getName` method. 

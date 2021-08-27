@@ -5,7 +5,7 @@
 :summary: Creating a custom metacard validator.
 :order: 02
 
-==== Metacard Validator Definition
+== Metacard Validator Definition
 
 Metacard Validator definitions are similar to the Validators definitions. To define Metacard
 Validators, your definition file must have a `metacardvalidators` key in the root object.

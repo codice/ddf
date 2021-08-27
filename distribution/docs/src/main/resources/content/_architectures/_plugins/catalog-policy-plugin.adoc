@@ -7,11 +7,11 @@
 
 The Catalog Policy Plugin configures the attributes required for users to perform Create, Read, Update, and Delete operations on the catalog.
 
-===== Installing the Catalog Policy Plugin
+== Installing the Catalog Policy Plugin
 
 The Catalog Policy Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Catalog Policy Plugin
+== Configuring the Catalog Policy Plugin
 
 To configure the Catalog Policy Plugin:
 

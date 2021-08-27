@@ -31,7 +31,7 @@ The OGC Filter Specification has several types of filters that can be combined i
 * Spatial Operators
 * Temporal Operators
 
-==== Units of Measure
+== Units of Measure
 
 According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 09-026r1] {external-link} and http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 04-095] {external-link}, units of measure can be expressed as a URI.
 To fulfill that requirement, ${branding} utilizes the GeoTools class `org.geotools.styling.UomOgcMapping` for spatial filters requiring a standard for units of measure for scalar distances.
@@ -44,7 +44,7 @@ This class provides three options for units of measure: 
 
 ${branding} only supports FOOT and METRE since they are the most applicable to scalar distances.
 
-==== Filter Examples
+== Filter Examples
 
 The example below illustrates creating a query, and thus an OGC Filter, that does a case-insensitive search for the phrase "mission" in the entire metacard's text.
 Note that the OGC `PropertyIsLike` Filter is used for this simple contextual query.
@@ -86,7 +86,7 @@ org.opengis.filter.Filter filter = filterFactory.during( filterFactory.property(
 ${ddf-branding}.catalog.operation.QueryImpl query = new QueryImpl(filter) ;
 ----
 
-===== Contextual Searches
+=== Contextual Searches
 
 Most contextual searches can be expressed using the `PropertyIsLike` filter. The special characters that have meaning in a `PropertyIsLike` filter are the wildcard, single wildcard, and escape characters (see Example Creating-Filters-1).
 
@@ -130,7 +130,7 @@ wildcardChar, singleChar, escapeChar, isCaseSensitive)
 ${ddf-branding}.catalog.operation.QueryImpl query = new QueryImpl( filter );
 ----
 
-====== Tree View of Creating Filters 
+==== Tree View of Creating Filters 
 
 Filters used in ${branding} can always be represented in a tree diagram.
 
@@ -151,7 +151,7 @@ Filters used in ${branding} can always be represented in a tree diagram.
 \--------------------/
 ....
 
-====== XML View of Creating Filters
+==== XML View of Creating Filters
 
 Another way to view this type of Filter is through an XML model, which is shown below.
 
@@ -174,7 +174,7 @@ Another way to view this type of Filter is through an XML model, which is shown 
 
 Using the Logical Operators and `PropertyIsLike` filters, a developer can create a whole language of search phrase expressions.
 
-===== Fuzzy Operations
+=== Fuzzy Operations
 
 ${branding} only supports one custom function.
 The Filter specification does not include a fuzzy operator, so a Filter function was created to represent a fuzzy operation.
@@ -203,7 +203,7 @@ Filter fuzzyFilter = filterFactory.like(
 QueryImpl query = new QueryImpl(fuzzyFilter);
 ----
 
-==== Parsing Filters
+== Parsing Filters
 
 According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specification 04-095] {external-link}: a "(filter expression) representation can be ... parsed and then transformed into whatever target language is required to retrieve or modify object instances stored in some persistent object store."
 Filters can be thought of as the `WHERE` clause for a SQL SELECT statement to "fetch data stored in a SQL-based relational database." 
@@ -221,7 +221,7 @@ The simplest approach when using `FilterVisitor` instances is to build the app
 For instance, when given an incoming `Filter` object to be evaluated against a RDBMS, a `CatalogProvider` instance could use a `FilterVisitor` to interpret each filter operation on the `Filter` object and translate those operations into SQL.
 The `FilterVisitor` may be needed to support `Filter` functionality not currently handled by the `FilterAdapter` and `FilterDelegate` reference implementation.
 
-===== Interpreting a Filter to Create SQL
+=== Interpreting a Filter to Create SQL
 
 If the `FilterAdapter` encountered or "visited" a `PropertyIsLike` filter with its property assigned as `title` and its literal expression assigned as `mission`, the `FilterDelegate` could create the proper SQL syntax similar to title `LIKE` mission.
 
@@ -243,7 +243,7 @@ If the `FilterAdapter` encountered or "visited" a `PropertyIsLike` filter wi
 \-------------------------/
 ....
 
-===== Interpreting a Filter to Create XQuery
+=== Interpreting a Filter to Create XQuery
 
 If the `FilterAdapter` encountered an `OR` filter, such as in Figure Parsing-Filters2 and the target language was XQuery, the `FilterDelegate` could yield an expression such as 
 
@@ -279,7 +279,7 @@ ft:query(//inventory:book/@subject,'science').
 ....
 
 
-====== FilterAdapter/Delegate Process for Figure Parsing
+==== FilterAdapter/Delegate Process for Figure Parsing
 
 . `FilterAdapter` visits the `OR` filter first.
 . `OR` filter visits its children in a loop. 
@@ -293,7 +293,7 @@ ft:query(//inventory:book/@subject,'science').
 . It then collects the output of each child and sends the list of results to the `FilterDelegate OR` method.
 . The final result object will be returned from the `FilterAdapter` adapt method.
 
-====== FilterVisitor Process for Figure Parsing
+==== FilterVisitor Process for Figure Parsing
 
 . FilterVisitor visits the `OR` filter first.
 . `OR` filter visits its children in a loop. 
@@ -313,11 +313,11 @@ public visit( Or filter, Object data) {
 }
 ----
 
-==== Filter Profile
+== Filter Profile
 
 The filter profile maps filters to metacard types.
 
-===== Role of the OGC Filter
+=== Role of the OGC Filter
 
 Both Queries and Subscriptions extend the OGC GeoAPI Filter interface.
 
@@ -325,7 +325,7 @@ The Filter Builder and Adapter do not fully implement the OGC Filter Specificati
 The filter support profile contains suggested filter to metacard type mappings.
 For example, even though a Source could support a `PropertyIsGreaterThan` filter on `XML_TYPE`, it would not likely be useful.
 
-===== Catalog Filter Profile
+=== Catalog Filter Profile
 
 The following table displays the common metacard attributes with their respective types for reference.
 
@@ -389,7 +389,7 @@ The following table displays the common metacard attributes with their respectiv
 
 |===
 
-====== Comparison Operators
+==== Comparison Operators
 
 Comparison operators compare the value associated with a property name with a given Literal value.
 Endpoints and sources should try to use metacard types other than the object type.
@@ -612,7 +612,7 @@ Equivalent to SQL "like" 
 
 |===
 
-====== Logical Operators
+==== Logical Operators
 
 Logical operators apply Boolean logic to one or more child filters.
 
@@ -632,7 +632,7 @@ Logical operators apply Boolean logic to one or more child filters.
 
 |===
 
-====== Temporal Operators
+==== Temporal Operators
 
 Temporal operators compare a date associated with a property name to a given Literal date or date range.
 
@@ -687,7 +687,7 @@ Literal values can be either date instants or date periods.
 
 |===
 
-====== Spatial Operators
+==== Spatial Operators
 
 Spatial operators compare a geometry associated with a property name to a given Literal geometry. 
 

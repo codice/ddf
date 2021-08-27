@@ -13,7 +13,7 @@ A KAR file is a Karaf-specific archive format (*K*araf *AR*chive).
 It is a jar file that contains a feature descriptor file and one or more OSGi bundle jar files.
 The feature descriptor file identifies a set of bundles that need to be installed, and any dependencies on other features that may need to be installed.
 
-==== Describing Application Services
+== Describing Application Services
 
 Given the modular nature of OSGi, some applications perform operations on the services themselves.
 In order to present, identify, and manipulate the services, they need descriptive identifying information.
@@ -33,7 +33,7 @@ such as `ddf.metacards` or `ddf.platform`; while the [*component*] within a [*pr
 Note that `ddf` as a [*product*] is reserved for core features
 only and is not meant to be used during extension or integration.
 
-==== Creating a KAR File
+== Creating a KAR File
 
 The recommended method for creating a KAR file is to use the `features-maven-plugin`, which has a `create-kar` goal.
 This goal reads all of the features specified in the feature's descriptor file.
@@ -85,7 +85,7 @@ Examples of how KAR files are created for ${branding} components can be found in
 The `.kar` file generated should be deployed to the application author's maven repository.
 The URL to the application's KAR file in this Maven repository should be the installation URL that is used.
 
-==== Including Data Files in a KAR File
+== Including Data Files in a KAR File
 
 The developer may need to include data or configuration file(s) in a KAR file.
 An example of this is a properties file for the JDBC connection properties of a catalog provider.
@@ -97,7 +97,7 @@ Sub-directories under `src/main/resources` can be used, e.g., `etc/security`.
 * The Maven project's pom file should be updated to attach each `data/configuration` file as an artifact (using the `build-helper-maven-plugin`).
 * Add each `data/configuration` file to the KAR file using the `<configfile>` tag in the KAR's `features.xml` file.
 
-==== Installing a KAR File
+== Installing a KAR File
 
 When the user downloads an application by clicking on the *Installation* link, the application's KAR file is downloaded.
 To install manually, the KAR file can be placed in the `${home_directory}/deploy` directory of the running ${branding} instance. ${branding} then detects that a file with a `.kar` file extension has been placed in this monitored directory, unzips the KAR file into the `${home_directory}/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file.
@@ -109,13 +109,13 @@ To install via the ${admin-console}:
 . Select *Save Changes* to activate,
 The new application can be viewed via the ${admin-console}'s Active Applications list.
 
-===== Developing Application Configuration Modules
+=== Developing Application Configuration Modules
 
 An application within ${branding} is a collection of bundles contained in a KAR file that may or may not have configurations associated with it.
 Plugins are used to advertise applications.
 These configuration module plugins are often used to add user interface elements to make the use of the ${branding} simpler and/or more intuitive.
 
-====== Creating an Application Configuration Module
+==== Creating an Application Configuration Module
 
 This example demonstrates a plugin that allows the ${branding} to use the Admin UI.
 
@@ -160,7 +160,7 @@ public class SourcesPlugin extends AbstractApplicationPlugin {
 +
 . Create application to use this configuration.
 
-===== Including KAR Files
+=== Including KAR Files
 
 Sometimes a developer may need to include data or configuration file(s) in a KAR file.
 An example of this would be a properties file for the JDBC connection properties of a catalog provider.

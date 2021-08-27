@@ -89,7 +89,7 @@ The following types of plugins can be created:
 
 |===
 
-==== Implementing Catalog Plugins
+== Implementing Catalog Plugins
 
 The procedure for implementing any of the plugins follows a similar format:
 
@@ -115,13 +115,13 @@ It is usually preferable to take no action on non-local requests.
 Refer to the Javadoc for more information on all Requests and Responses in the `${ddf-branding-lowercase}.catalog.operation` and `${ddf-branding-lowercase}.catalog.event` packages.
 ====
 
-===== Catalog Plugin Failure Behavior
+=== Catalog Plugin Failure Behavior
 
 In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` should be thrown.
 If processing is to be explicitly stopped, a `StopProcessingException` should be thrown.
 For any other exceptions, the Catalog should "fail fast" and cancel the Operation.
 
-===== Implementing Pre-Ingest Plugins
+=== Implementing Pre-Ingest Plugins
 
 Develop a custom Pre-Ingest Plugin.
 
@@ -140,7 +140,7 @@ Develop a custom Pre-Ingest Plugin.
 *Blueprint descriptor example*
 `<service ref="SamplePreIngestPlugin" interface="ddf.catalog.plugin.PreIngestPlugin" />`
 
-===== Implementing Post-Ingest Plugins
+=== Implementing Post-Ingest Plugins
 
 Develop a custom Post-Ingest Plugin.
 
@@ -159,7 +159,7 @@ Develop a custom Post-Ingest Plugin.
 *Blueprint descriptor example*
 `<service ref="SamplePostIngestPlugin" interface="ddf.catalog.plugin.PostIngestPlugin" />`
 
-===== Implementing Pre-Query Plugins
+=== Implementing Pre-Query Plugins
 
 Develop a custom Pre-Query Plugin
 
@@ -174,7 +174,7 @@ Develop a custom Pre-Query Plugin
 . Export the service to the OSGi registry. +
 `<service ref="SamplePreQueryPlugin" interface="ddf.catalog.plugin.PreQueryPlugin" />`
 
-===== Implementing Post-Query Plugins
+=== Implementing Post-Query Plugins
 
 Develop a custom Post-Query Plugin
 
@@ -190,7 +190,7 @@ Develop a custom Post-Query Plugin
 . Export the service to the OSGi registry. +
 `<service ref="SamplePostQueryPlugin" interface="ddf.catalog.plugin.PostQueryPlugin" />`
 
-===== Implementing Pre-Delivery Plugins
+=== Implementing Pre-Delivery Plugins
 
 Develop a custom Pre-Delivery Plugin.
 
@@ -211,7 +211,7 @@ StopProcessingException;`
 *Blueprint descriptor example* +
 `<service ref="SamplePreDeliveryPlugin" interface="ddf.catalog.plugin.PreDeliveryPlugin" />`
 
-===== Implementing Pre-Subscription Plugins
+=== Implementing Pre-Subscription Plugins
 
 Develop a custom Pre-Subscription Plugin.
 
@@ -221,7 +221,7 @@ Develop a custom Pre-Subscription Plugin.
 . Implement the required method.
  * `public Subscription process(Subscription input) *throws* PluginExecutionException, StopProcessingException;`
 
-===== Implementing Pre-Resource Plugins
+=== Implementing Pre-Resource Plugins
 
 Develop a custom Pre-Resource Plugin.
 
@@ -241,7 +241,7 @@ Develop a custom Pre-Resource Plugin.
 <service ref="SamplePreResourcePlugin" interface="ddf.catalog.plugin.PreResourcePlugin" />
 ----
 
-===== Implementing Post-Resource Plugins
+=== Implementing Post-Resource Plugins
 
 Develop a custom Post-Resource Plugin.
 
@@ -262,7 +262,7 @@ Develop a custom Post-Resource Plugin.
 <]]" inter"[[SamplePostResourcePlugin" interface="ddf.catalog.plugin.PostResourcePlugin" />
 ----
 
-===== Implementing Policy Plugins
+=== Implementing Policy Plugins
 
 Develop a custom Policy Plugin.
 
@@ -283,7 +283,7 @@ Develop a custom Policy Plugin.
 *Blueprint descriptor example* +
 `<]]" inter"[[SamplePolicyPlugin" interface="ddf.catalog.plugin.PolicyPlugin" />`
 
-===== Implementing Access Plugins
+=== Implementing Access Plugins
 
 Develop a custom Access Plugin.
 

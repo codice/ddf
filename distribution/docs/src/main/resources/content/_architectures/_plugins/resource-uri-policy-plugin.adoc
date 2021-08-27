@@ -7,11 +7,11 @@
 
 The Resource URI Policy Plugin configures the attributes required for users to set the resource URI when creating a metacard or alter the resource URI when updating an existing metacard in the catalog.
 
-===== Installing the Resource URI Policy Plugin
+== Installing the Resource URI Policy Plugin
 
 The Resource URI Policy Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Resource URI Policy Plugin
+== Configuring the Resource URI Policy Plugin
 
 To configure the Resource URI Policy Plugin:
 

@@ -7,7 +7,7 @@
 
 Create custom default attribute types.
 
-==== Default Attribute Values
+== Default Attribute Values
 
 To define default attribute values, the definition file must have a `defaults` key in the root object.
 

@@ -32,7 +32,7 @@ filterFactory.literal(value))) ;
  query.setRequestsTotalResultsCount(true);
 ----
 
-==== Evaluating a query
+== Evaluating a query
 
 Every Source must be able to evaluate a Query object.
 Nevertheless, each Source could evaluate the Query differently depending on what that Source supports as to properties and query capabilities.
@@ -66,15 +66,15 @@ A developer should consult a Source's documentation for the limitations, capabil
 
 |===
 
-==== Commons-DDF Utilities
+== Commons-DDF Utilities
 
 The `commons-${ddf-branding}` bundle provides utilities and functionality commonly used across other ${branding} components, such as the endpoints and providers. 
 
-===== FuzzyFunction
+=== FuzzyFunction
 
 `${ddf-branding}.catalog.impl.filter.FuzzyFunction` class is used to indicate that a `PropertyIsLike` filter should interpret the search as a fuzzy query. 
 
-===== XPathHelper
+=== XPathHelper
 
 `${ddf-branding}.util.XPathHelper` provides convenience methods for executing XPath operations on XML.
 It also provides convenience methods for converting XML as a `String` from a `org.w3c.dom.Document` object and vice versa.

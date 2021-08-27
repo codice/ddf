@@ -36,7 +36,7 @@ The policy plugin could also be used to rename attributes. If there is only one 
  and the combination policy is union, then the attribute's values are effectively renamed to the
  destination attribute.
 
-===== Installing the Metacard Attribute Security Policy Plugin
+== Installing the Metacard Attribute Security Policy Plugin
 
 The Metacard Attribute Security Policy Plugin is installed by default with a standard installation
  in the ${ddf-catalog} application.

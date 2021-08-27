@@ -28,7 +28,7 @@ ${branding} documentation is included in the source code, so it is edited and ma
 |Properties file defining content types and other parameters.
 |===
 
-==== Editing Existing Documentation
+== Editing Existing Documentation
 
 Update existing content when code behavior changes, new capabilities are added to features, or the configuration process changes.
 Content is organized within the `content` directory in sub directories according to the audience and purpose for each document in the documentation library.
@@ -57,7 +57,7 @@ Documentation:: This is a collection of all of the individual documentation page
 
 See the https://codice.atlassian.net/wiki/spaces/DDF/pages/6291516/Documentation+Style+Guide[style guide] for more guidance on stylistic and formatting concerns.
 
-==== Adding New Documentation Content
+== Adding New Documentation Content
 
 If creating a new section is required, there are some minimal requirements for a new `.adoc` file.
 
@@ -71,14 +71,14 @@ Different sections have different headers required, but some common attributes a
 * `order`: used in sections where order needs to be enforced.
 * `summary`: brief summary of section contents. Some, but not all, summaries are included by templates.
 
-==== Creating a New Documentation Template
+== Creating a New Documentation Template
 
 To create a new, standalone documentation page, create a new template in the `templates` directory.
 Optionally, this template can `include` some of the internal templates in the `templates/build` directory, but this is not required.
 
 For guidance on using the freemarker syntax, see the https://freemarker.apache.org/docs/ref.html[Freemarker documentation] {external-link}.
 
-==== Extending Documentation in Downstream Distributions
+== Extending Documentation in Downstream Distributions
 
 By mimicking the build and directory structure of the documentation, downstream projects are able to leverage the existing documentation and insert content before and after sections of the ${branding} documentation.
 

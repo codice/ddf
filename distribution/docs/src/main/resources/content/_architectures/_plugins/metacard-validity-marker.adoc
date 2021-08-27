@@ -16,18 +16,18 @@ If an ingest did not fail, there are no errors in the ingest log, but the expect
 verify either that the ingested data is valid or that the <<_metacard_validity_filter_plugin,Metacard Validity Filter Plugin>> is configured to show warnings and/or errors.
 ====
 
-===== Related Components to the Metacard Validity Marker
+== Related Components to the Metacard Validity Marker
 
 * <<_metacard_validity_filter_plugin,Metacard Validity Filter Plugin>>.
 
-===== Installing Metacard Validity Marker
+== Installing Metacard Validity Marker
 
 This plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring Metacard Validity Marker
+== Configuring Metacard Validity Marker
 
 See <<{reference-prefix}ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin,Metacard Validity Marker Plugin configurations>> for all possible configurations.
 
-===== Using Metacard Validity Marker
+== Using Metacard Validity Marker
 
 Use this pre-ingest plugin to validate metacards against metacard validators, which can check schemas, schematron, or any other logic. 

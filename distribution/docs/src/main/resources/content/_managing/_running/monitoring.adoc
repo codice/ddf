@@ -6,46 +6,46 @@
 
 The ${branding} contains many tools to monitor system functionality, usage, and overall system health.
 
-==== Metrics Reporting
+== Metrics Reporting
 
 Metrics are exposed over a Prometheus endpoint at `/metrics`. In order to extract and store
 the metrics, a Prometheus server is required.
 
 A user interface like Grafana can be used to display metrics.
 
-==== Managing Logging
+== Managing Logging
 
 The ${branding} supports a dynamic and customizable logging system including log level, log format, log output destinations, roll over, etc.
 
-===== Configuring Logging
+=== Configuring Logging
 
 Edit the configuration file `${home_directory}/etc/org.ops4j.pax.logging.cfg]`
 
-===== ${branding} log file
+=== ${branding} log file
 
 The name and location of the log file can be changed with the following setting:
 
 `log4j.appender.out.file=${home_directory}/data/log/${branding-lowercase}.log`
 
-===== Controlling log level
+=== Controlling log level
 
 A useful way to debug and detect issues is to change the log level:
 
 `log4j.rootLogger=DEBUG, out, osgi:VmLogAppender`
 
-===== Controlling the size of the log file
+=== Controlling the size of the log file
 
 Set the maximum size of the log file before it is rolled over by editing the value of this setting:
 
 `log4j.appender.out.maxFileSize=20MB`
 
-===== Number of backup log files to keep
+=== Number of backup log files to keep
 
 Adjust the number of backup files to keep by editing the value of this setting:
 
 `log4j.appender.out.maxBackupIndex=10`
 
-===== Enabling logging of inbound and outbound SOAP messages for the ${branding} SOAP endpoints
+=== Enabling logging of inbound and outbound SOAP messages for the ${branding} SOAP endpoints
 
 By default, the ${branding} start scripts include a system property enabling logging of inbound and outbound SOAP messages.
 
@@ -55,13 +55,13 @@ In order to see the messages in the log, one must set the logging level for `org
 
 `${branding-lowercase}${at-symbol}local>log:set INFO org.apache.cxf.services`
 
-===== Logging External Resources
+=== Logging External Resources
 
 Other appenders can be selected and configured.
 
 For more detail on configuring the log file and what is logged to the console see: http://karaf.apache.org/manual/latest/#_log[Karaf Documentation: Log] {external-link}.
 
-===== Enabling HTTP Access Logging
+=== Enabling HTTP Access Logging
 
 To enable access logs for the current ${branding}, do the following:
 
@@ -101,7 +101,7 @@ This is the most popular format for access logs and can be parsed by many web se
 127.0.0.1 -  -  [14/Jan/2013:16:21:33 +0000] "GET /favicon.ico HTTP/1.1" 200 0
 ----
 
-===== Using the LogViewer
+=== Using the LogViewer
 
 * Navigate to the ${admin-console}
 * Navigate to the *System* tab

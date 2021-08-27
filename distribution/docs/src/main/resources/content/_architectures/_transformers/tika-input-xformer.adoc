@@ -23,11 +23,11 @@ This allows any registered input transformers that are more specific to a docume
 |This basic transformer can ingest many file types. See <<{metadata-prefix}all_file_formats_supported,All Formats Supported>>.
 |===
 
-===== Installing the Tika Input Transformer
+== Installing the Tika Input Transformer
 
 This transformer is installed by default with a standard installation in the ${ddf-catalog}.
 
-===== Configuring the Tika Input Transformer
+== Configuring the Tika Input Transformer
 
 The properties below describe how to configure the Tika input transformer.
 

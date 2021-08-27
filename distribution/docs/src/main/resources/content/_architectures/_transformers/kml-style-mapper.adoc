@@ -15,11 +15,11 @@ For more information on style URL's, refer to the https://developers.google.com/
 The KML Style Mapper supports all basic and extended metacard attributes.
 When a style mapping is configured, the resulting transformed KML contain a `<styleUrl>` tag pointing to that style, rather than the default KML style supplied by the `KMLTransformer`.
 
-===== Installing the KML Style Mapper
+== Installing the KML Style Mapper
 
 The KML Style Mapper is installed by default with a standard installation in the <<{reference-prefix}spatial_application_reference,${ddf-spatial} Application>> in the `spatial-kml-transformer` feature.
 
-===== Configuring the KML Style Mapper
+== Configuring the KML Style Mapper
 
 The properties below describe how to configure a style mapping.
 The configuration name is `Spatial KML Style Map Entry`.

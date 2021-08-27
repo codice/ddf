@@ -310,14 +310,14 @@ This XML file is found inside of the STS bundle and is named `ws-trust-1.4-servi
 </wsdl:definitions>
 ----
 
-==== Example Requests and Responses for SAML Assertions
+== Example Requests and Responses for SAML Assertions
 
 A client performs a RequestSecurityToken operation against the STS to receive a SAML assertion.
 The ${branding} STS offers several different ways to request a SAML assertion.
 For help in understanding the various request and response formats, samples have been provided.
 The samples are divided out into different request token types.
 
-==== BinarySecurityToken (CAS) SAML Security Token Samples
+== BinarySecurityToken (CAS) SAML Security Token Samples
 
 Most endpoints in ${branding} require the X.509 PublicKey SAML assertion.
 
@@ -537,7 +537,7 @@ A Bearer SAML assertion is automatically trusted by the endpoint.
 The client doesn't have to prove it can own that SAML assertion.
 It is the simplest way to request a SAML assertion, but many endpoints won't accept a KeyType of Bearer.
 
-==== UsernameToken Bearer SAML Security Token Sample
+== UsernameToken Bearer SAML Security Token Sample
 
 * WS-Addressing header with Action, To, and Message ID
 * Valid, non-expired timestamp
@@ -733,7 +733,7 @@ Most of the endpoints that have been used with ${branding} require a SAML v2.0 a
 This means that the SAML assertion provided by the client to a ${branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.
 This is used to prove that the client can possess the SAML assertion returned by the STS.
 
-==== X.509 PublicKey SAML Security Token Sample
+== X.509 PublicKey SAML Security Token Sample
 
 .X.509 PublicKey SAML Security Token Request
 The STS that comes with ${branding} requires the following to be in the RequestSecurityToken request in order to issue a valid SAML assertion.
