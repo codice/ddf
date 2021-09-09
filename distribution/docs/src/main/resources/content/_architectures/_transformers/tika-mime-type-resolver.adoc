@@ -13,13 +13,13 @@ This insures that any custom `MimeTypeResolvers` that may be installed will be i
 
 The `TikaMimeTypeResolver` provides the bulk of the default mime type support for ${branding}.
 
-===== Installing the Tika Mime Type Resolver
+== Installing the Tika Mime Type Resolver
 
 The `TikaMimeTypeResolver` is bundled as the `mime-tika-resolver` feature in the `mime-tika-app` application.
 
 This feature is installed by default.
 
-====== Configuring the Tika Mime Type Resolver
+== Configuring the Tika Mime Type Resolver
 
 The Tika Mime Type Resolver has no configurable properties.
 

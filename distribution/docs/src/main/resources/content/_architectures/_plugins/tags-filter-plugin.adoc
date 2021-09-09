@@ -8,15 +8,15 @@
 The Tags Filter Plugin updates queries without filters for tags, and adds a default tag of `resource`.
 For backwards compatibility, a filter will also be added to include metacards without any tags attribute.
 
-===== Related Components to Tags Filter Plugin
+== Related Components to Tags Filter Plugin
 
 None.
 
-===== Installing the Tags Filter Plugin
+== Installing the Tags Filter Plugin
 
 The Tags Filter Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Tags Filter Plugin
+== Configuring the Tags Filter Plugin
 
 The Tags Filter Plugin has no configurable properties.
 

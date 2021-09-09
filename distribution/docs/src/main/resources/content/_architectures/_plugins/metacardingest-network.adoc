@@ -9,15 +9,15 @@ The Metacard Ingest Network Plugin allows the conditional insertion of new attri
 
 For the extent of this section, a 'rule' will refer to a configured, single instance of this plugin.
 
-===== Related Components to the Metacard Ingest Network Plugin
+== Related Components to the Metacard Ingest Network Plugin
 
 * <<_client_info_plugin,Client Info Plugin>>
 
-===== Installing the Metacard Ingest Network Plugin
+== Installing the Metacard Ingest Network Plugin
 
 The Metacard Ingest Network Plugin is installed by default during a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Metacard Ingest Network Plugin
+== Configuring the Metacard Ingest Network Plugin
 
 To configure the Metacard Ingest Network Plugin:
 
@@ -58,7 +58,7 @@ security.access-groups = SJ202, SR 101, JS2201
 ----
 
 
-====== Useful Attributes
+=== Useful Attributes
 
 The following table provides some useful attributes that may commonly be set by this plugin:
 
@@ -91,7 +91,7 @@ The following table provides some useful attributes that may commonly be set by 
 |yes
 |===
 
-===== Usage Limitations of the Metacard Ingest Network Plugin
+== Usage Limitations of the Metacard Ingest Network Plugin
 
 * This plugin only works for ingest (create requests) performed over a network; data ingested via command line does not get processed by this plugin.
 * Any attribute that is already set on the metacard will not be overwritten by the plugin.

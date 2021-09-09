@@ -21,10 +21,10 @@ In an `UpdateRequest`, the same operations are performed as a `CreateRequest`, e
 
 * If no value is provided for `Metacard.ID` in the new metacard, it will be set using the `UpdateRequest` ID if applicable.
 
-===== Installing the Metacard Groomer
+== Installing the Metacard Groomer
 
 The Metacard Groomer is included in the `catalog-core-plugins` feature. It is not recommended to uninstall this feature.
 
-===== Configuring the Metacard Groomer
+== Configuring the Metacard Groomer
 
 The Metacard Groomer has no configurable properties.

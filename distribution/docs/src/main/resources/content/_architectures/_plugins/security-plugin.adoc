@@ -7,10 +7,10 @@
 
 The Security Plugin identifies the subject for an operation.
 
-===== Installing the Security Plugin
+== Installing the Security Plugin
 
 The Security Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Security Plugin
+== Configuring the Security Plugin
 
 The Security Plugin has no configurable properties.

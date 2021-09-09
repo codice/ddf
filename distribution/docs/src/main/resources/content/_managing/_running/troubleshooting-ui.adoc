@@ -4,7 +4,7 @@
 :summary: Troubleshooting UI issues.
 :order: 01
 
-==== Deleted Records Are Being Displayed In The Search UI's Search Results
+== Deleted Records Are Being Displayed In The Search UI's Search Results
 
 When queries are issued by the Search UI, the query results that are returned are also cached in an internal Solr database for faster retrieval when the same query may be issued in the future.
 As records are deleted from the catalog provider, this Solr cache is kept in sync by also deleting the same records from the cache if they exist.

@@ -4,7 +4,7 @@
 
 == ${ai.title}
 
-include::${ai.file}[]
+include::${ai.file}[leveloffset=+1]
 
 '''
 <#list architectures?sort_by("order") as architecture>
@@ -12,13 +12,13 @@ include::${ai.file}[]
 
 === ${architecture.title}
 
-include::${architecture.file}[]
+include::${architecture.file}[leveloffset=+2]
 <#list subArchitectures?sort_by("order") as subArchitecture>
 <#if (subArchitecture.status == "published") && (architecture.title?contains (subArchitecture.parent))>
 
 ==== ${subArchitecture.title}
 
-include::${subArchitecture.file}[]
+include::${subArchitecture.file}[leveloffset=+3]
 
 </#if>
 </#list>

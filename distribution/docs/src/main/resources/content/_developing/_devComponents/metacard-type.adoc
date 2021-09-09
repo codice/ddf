@@ -7,7 +7,7 @@
 
 Create custom Metacard types with Metacard Type definition files.
 
-==== Metacard Type Definition File
+== Metacard Type Definition File
 
 To define Metacard Types, the definition file must have a `metacardTypes` key in the root object.
 

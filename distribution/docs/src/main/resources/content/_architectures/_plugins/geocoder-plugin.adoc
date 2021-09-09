@@ -15,11 +15,11 @@ The GeoCoder relies on either the WebService or <<{reference-prefix}offline_gaze
 For a polygon or polygons, this plugin takes the center point of the bounding box to assign the country code.
 ====
 
-===== Installing the GeoCoder Plugin
+== Installing the GeoCoder Plugin
 
 The GeoCoder Plugin is installed by default with the ${ddf-spatial} application, when the WebService or Offline Gazetteer is started.
 
-===== Configuring the GeoCoder Plugin
+== Configuring the GeoCoder Plugin
 
 To configure the GeoCoder Plugin:
 

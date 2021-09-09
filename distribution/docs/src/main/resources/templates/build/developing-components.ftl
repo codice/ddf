@@ -8,7 +8,7 @@ Create custom implementations of ${branding} components.
 
 === ${developingComponent.title}
 
-include::${developingComponent.file}[]
+include::${developingComponent.file}[leveloffset=+2]
 
 </#if>
 </#list>

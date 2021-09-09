@@ -71,7 +71,7 @@ include::${ri.file}[]
 
 <#list startingIntros as si>
 <#if (si.status == "published")>
-include::${si.file}[]
+include::${si.file}[leveloffset=+2]
 
 </#if>
 </#list>
@@ -104,7 +104,7 @@ include::${subMaintaining.file}[leveloffset=+4]
 
 <#list monitorings?sort_by("order") as monitoring>
 <#if (monitoring.status == "published")>
-include::${monitoring.file}[]
+include::${monitoring.file}[leveloffset=+2]
 
 </#if>
 </#list>
@@ -113,7 +113,7 @@ include::${monitoring.file}[]
 
 <#list troubleshootings?sort_by("order") as troubleshooting>
 <#if (troubleshooting.status == "published")>
-include::${troubleshooting.file}[]
+include::${troubleshooting.file}[leveloffset=+2]
 
 </#if>
 </#list>

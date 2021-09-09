@@ -7,7 +7,7 @@
 
 The Metacard Backup File Storage Provider is a storage provider that will store backed-up metacards in a specified file system location.
 
-===== Installing the Metacard Backup File Storage Provider
+== Installing the Metacard Backup File Storage Provider
 
 To install the Metacard Backup File Storage Provider
 
@@ -16,7 +16,7 @@ To install the Metacard Backup File Storage Provider
 . Select the *Features* tab.
 . Install the `catalog-metacard-backup-filestorage` feature.
 
-===== Configuring the Metacard Backup File Storage Provider
+== Configuring the Metacard Backup File Storage Provider
 
 To configure the Metacard Backup File Storage Provider
 

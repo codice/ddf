@@ -17,10 +17,10 @@ The XML Input Transformer is responsible for translating an XML document into a 
 |text/xml
 |===
 
-===== Installing the XML Input Transformer
+== Installing the XML Input Transformer
 
 The XML Input Transformer is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the XML Input Transformer
+== Configuring the XML Input Transformer
 
 The XML Input Transformer has no configurable properties.

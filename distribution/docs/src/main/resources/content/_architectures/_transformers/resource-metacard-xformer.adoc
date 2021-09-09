@@ -7,15 +7,15 @@
 
 The Resource Metacard Transformer retrieves a resource associated with a metacard.
 
-===== Installing the Resource Metacard Transformer
+== Installing the Resource Metacard Transformer
 
 The Resource Metacard Transformer is installed by default in a standard installation with the ${ddf-catalog} application as the feature `catalog-transformer-resource`.
 
-===== Configuring the Resource Metacard Transformer
+== Configuring the Resource Metacard Transformer
 
 The Resource Metacard Transformer has no configurable properties.
 
-===== Using the Resource Metacard Transformer
+== Using the Resource Metacard Transformer
 
 Endpoints or other components can retrieve an instance of the Resource Metacard Transformer using its `id` resource.
 

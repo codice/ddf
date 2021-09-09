@@ -13,15 +13,15 @@ The Event Processor applies the filter criteria for each registered subscription
 
 For more information on creating subscriptions, see <<{integrating-prefix}creating_a_subscription,Creating a Subscription>>.
 
-===== Installing the Event Processor
+== Installing the Event Processor
 
 The Event Processor is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Event Processor
+== Configuring the Event Processor
 
 The Event Processor has no configurable properties.
 
-===== Usage Limitations of the Event Processor
+== Usage Limitations of the Event Processor
 
 The Standard Event processor currently broadcasts federated events and should not.
 It should only broadcast events that were generated locally, all other events should be dropped.

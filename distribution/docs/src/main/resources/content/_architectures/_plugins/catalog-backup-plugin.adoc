@@ -13,11 +13,11 @@ The Catalog Backup Plugin is used to enable data backup of the catalog and the m
 Using this plugin may impact performance negatively.
 ====
 
-===== Installing the Catalog Backup Plugin
+== Installing the Catalog Backup Plugin
 
 The Catalog Backup Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Catalog Backup Plugin
+== Configuring the Catalog Backup Plugin
 
 To configure the Catalog Backup Plugin:
 
@@ -28,7 +28,7 @@ To configure the Catalog Backup Plugin:
 
 See <<{reference-prefix}ddf.catalog.backup.CatalogBackupPlugin,Catalog Backup Plugin configurations>> for all possible configurations.
 
-===== Usage Limitations of the Catalog Backup Plugin
+== Usage Limitations of the Catalog Backup Plugin
 
 * May affect performance.
 * Must be installed prior to ingesting any content.

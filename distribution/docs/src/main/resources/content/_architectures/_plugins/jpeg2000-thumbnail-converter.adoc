@@ -7,10 +7,10 @@
 
 The JPEG2000 Thumbnail converter creates thumbnails from images ingested in jpeg2000 format.
 
-===== Installing the JPEG2000 Thumbnail Converter
+== Installing the JPEG2000 Thumbnail Converter
 
 The JPEG2000 Thumbnail Converter is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the JPEG2000 Thumbnail Converter
+== Configuring the JPEG2000 Thumbnail Converter
 
 The JPEG2000 Thumbnail Converter has no configurable properties.

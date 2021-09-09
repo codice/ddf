@@ -18,11 +18,11 @@ The PDF Input Transformer is responsible for translating a PDF document into a C
 |===
 
 
-===== Installing the PDF Input Transformer
+== Installing the PDF Input Transformer
 
 The PDF Transformer is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the PDF Input Transformer
+== Configuring the PDF Input Transformer
 
 To configure the PDF Input Transformer:
 

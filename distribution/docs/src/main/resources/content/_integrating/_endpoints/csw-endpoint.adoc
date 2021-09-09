@@ -163,7 +163,7 @@ A successful ingest will return a status of `200 OK` and `csw:TransactionRespons
 
 === CSW Endpoint Query Examples
 
-To query through the CSW Enpoint, send a `POST` request to the CSW endpoint.
+To query through the CSW Endpoint, send a `POST` request to the CSW endpoint.
 
 .CSW Endpoint Query URL
 [source,http]

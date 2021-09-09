@@ -27,11 +27,11 @@ Site information about the catalog provider and/or any federated source(s) c
 Site information includes the source's name, version, availability, and the list of unique content types currently stored in the source (e.g., NITF).
 If no local catalog provider is configured, the site information returned includes site info for the catalog framework with no content types included.
 
-===== Installing the Standard Catalog Framework
+== Installing the Standard Catalog Framework
 
 The Standard Catalog Framework is bundled as the `catalog-core-standardframework` feature and can be installed and uninstalled using the normal processes described in Configuration.
 
-===== Configuring the Standard Catalog Framework
+== Configuring the Standard Catalog Framework
 
 These are the configurable properties on the Standard Catalog Framework.
 
@@ -150,6 +150,6 @@ See <<{reference-prefix}ddf.catalog.CatalogFrameworkImpl, Catalog Standard Frame
 
 |===
 
-===== Known Issues with Standard Catalog Framework
+== Known Issues with Standard Catalog Framework
 
 None.

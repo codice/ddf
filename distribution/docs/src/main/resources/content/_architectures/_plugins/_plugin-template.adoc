@@ -7,11 +7,11 @@
 
 {description}
 
-===== Related Components to {plugin-name}
+== Related Components to {plugin-name}
 
 Replace this sentence with links to any related components, required or optional, that affect the operation of this plugin.
 
-===== Installing the {plugin-name}
+== Installing the {plugin-name}
 
 The {plugin-name} {is || is not} installed by default with a standard installation in the ${app-name} application.
 
@@ -25,11 +25,11 @@ To install the {plugin-name} from the ${admin-console}:
 . Select the *Configuration* tab.
 . Select the *{plugin-name}*.
 
-===== Configuring the {plugin-name}
+== Configuring the {plugin-name}
 
 {configuration}
 
-===== Usage Limitations of the {plugin-name}
+== Usage Limitations of the {plugin-name}
 
 Delete header if none.
 

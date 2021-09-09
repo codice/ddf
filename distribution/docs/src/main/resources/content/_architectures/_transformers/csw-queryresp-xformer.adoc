@@ -7,11 +7,11 @@
 
 The CSW Query Response Transformer transforms a query response into a http://www.opengeospatial.org/standards/cat[CSW-formatted] document.
 
-===== Installing the CSW Query Response Transformer
+== Installing the CSW Query Response Transformer
 
 The CSW Query Response Transformer is installed by default with a standard installation in the ${ddf-spatial} application.
 
-===== Configuring the CSW Query Response Transformer
+== Configuring the CSW Query Response Transformer
 
 The CSW Query Response Transformer has no configurable properties.
 

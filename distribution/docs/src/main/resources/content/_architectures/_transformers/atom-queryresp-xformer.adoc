@@ -8,15 +8,15 @@
 The Atom Query Response Transformer transforms a query response into an http://tools.ietf.org/html/rfc4287[Atom 1.0] feed.
 The Atom transformer maps a `QueryResponse` object as described in the Query Result Mapping.
 
-===== Installing the Atom Query Response Transformer
+== Installing the Atom Query Response Transformer
 
 The Atom Query Response Transformer is installed by default with a standard installation.
 
-===== Configuring the Atom Query Response Transformer
+== Configuring the Atom Query Response Transformer
 
 The Atom Query Response Transformer has no configurable properties.
 
-===== Using the Atom Query Response Transformer
+== Using the Atom Query Response Transformer
 
 Use this transformer when Atom is the preferred medium of communicating information, such as for feed readers or federation.
 An integrator could use this with an endpoint to transform query responses into an Atom feed.

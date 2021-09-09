@@ -7,7 +7,7 @@
 
 The Metacard Backup S3 Storage Provider is a storage provider that will store backed up metacards in the specified S3 bucket and key.
 
-===== Installing the Metacard S3 File Storage Provider
+== Installing the Metacard S3 File Storage Provider
 
 To install the Metacard Backup File Storage Provider
 
@@ -15,7 +15,7 @@ To install the Metacard Backup File Storage Provider
 . Select the *Features* tab.
 . Install the `catalog-metacard-backup-s3storage` feature.
 
-===== Configuring the Metacard S3 File Storage Provider
+== Configuring the Metacard S3 File Storage Provider
 
 To configure the Metacard Backup S3 Storage Provider:
 

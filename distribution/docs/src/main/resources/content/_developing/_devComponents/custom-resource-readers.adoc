@@ -10,14 +10,14 @@ A simple example is that of a File `ResourceReader`.
 It takes a file from the local file system and passes it back to ${branding}.
 New implementations can be created in order to support obtaining Resources from various Resource data stores. 
 
-==== Creating a New `ResourceReader`
+== Creating a New `ResourceReader`
 
 Complete the following procedure to create a `ResourceReader`.
 
 . Create a Java class that implements the `${ddf-branding}.catalog.resource.ResourceReader` interface.
 . Deploy the OSGi bundled packaged service to the ${branding} run-time.
 
-===== Implementing the `ResourceReader` Interface
+=== Implementing the `ResourceReader` Interface
 
 [source,java,linenums]
 ----
@@ -33,7 +33,7 @@ It is recommended to become familiar with the Java API URI class in order to pro
 Furthermore, a URI should be used according to its http://www.w3.org/Addressing/URL/uri-spec.html[specification] {external-link}.
 ====
 
-===== retrieveResource
+=== retrieveResource
 
 [source,java,linenums]
 ----
@@ -58,7 +58,7 @@ The `URLResourceReader` is an example `ResourceReader` that reads a file from a
 The `Map<String, Serializable> arguments` parameter is passed in to support any options or additional information associated with retrieving the resource.
 ====
 
-===== Implement `retrieveResource()`
+=== Implement `retrieveResource()`
 
 . Define supported schemes (e.g., file, http, etc.).
 . Check if the incoming URI matches a supported scheme. If it does not, throw `ResourceNotSupportedException`.
@@ -103,7 +103,7 @@ return ResourceResponseImpl( new ResourceImpl( new BufferedInputStream( is ), ne
 
 If the Resource cannot be found, throw a `ResourceNotFoundException`.  
 
-===== `getSupportedSchemes`
+=== `getSupportedSchemes`
 
 [source,java]
 ----
@@ -122,7 +122,7 @@ Additionally, there are other methods that are used to uniquely describe a `Reso
  The `describe` methods are straight-forward and can be implemented with guidance from the Javadoc.
 ====
 
-===== Export to OSGi Service Registry
+=== Export to OSGi Service Registry
 
 In order for the `ResourceReader` to be used by the `CatalogFramework`, it should be exported to the OSGi Service Registry as a `${ddf-branding}.catalog.resource.ResourceReader`.
 
