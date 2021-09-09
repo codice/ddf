@@ -35,7 +35,6 @@
 
     <!-- Fields -->
     <field name="_version_" type="plong" indexed="false" stored="false" docValues="true"/>
-    <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
     <field name="_text_" type="text" indexed="true" stored="false" multiValued="true"/>
 
     <field name="id_txt" type="string" indexed="true" stored="true" required="true" multiValued="false" docValues="true"/>
