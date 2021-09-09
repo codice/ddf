@@ -7,7 +7,7 @@
 
 Create custom attribute types with Attribute Type definition files.
 
-==== Attribute Type Definition File
+== Attribute Type Definition File
 
 To define Attribute Types, the definition file must have an `attributeTypes` key in the root object.
 

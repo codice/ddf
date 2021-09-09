@@ -7,10 +7,10 @@
 
 The Historian Policy Plugin protects metacard history from being edited or deleted by users without the history role (a `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role` of `system-history`).
 
-===== Installing the Historian Policy Plugin
+== Installing the Historian Policy Plugin
 
 The Historian is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Historian Policy Plugin
+== Configuring the Historian Policy Plugin
 
 The Historian Policy Plugin has no configurable properties.

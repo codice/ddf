@@ -7,10 +7,10 @@
 
 The Checksum plugin creates a unique checksum for resources input into the system to identify updated content.
 
-===== Installing the Checksum Plugin
+== Installing the Checksum Plugin
 
 The Checksum is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Checksum Plugin
+== Configuring the Checksum Plugin
 
 The Checksum Plugin has no configurable properties.

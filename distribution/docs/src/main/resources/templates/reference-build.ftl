@@ -1,6 +1,5 @@
 <#list referenceIntros?sort_by("order") as ri>
 <#if ri.status == "published">
-[{reference}]
 include::${ri.file}[]
 
 <#list references?sort_by("order") as reference>

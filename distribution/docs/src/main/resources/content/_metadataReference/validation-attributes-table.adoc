@@ -1,4 +1,4 @@
-﻿:title: Validation Attributes
+:title: Validation Attributes
 :type: subMetadataReference
 :order: 10
 :parent: Catalog Taxonomy Definitions

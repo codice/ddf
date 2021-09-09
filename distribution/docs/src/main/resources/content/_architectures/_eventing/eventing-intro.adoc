@@ -38,7 +38,7 @@ Notably, the Catalog allows event evaluation on both the previous value (if avai
 Eventing allows ${branding}s to receive events on operations (e.g. create, update, delete) based on particular queries or actions.
 Once subscribed, users will receive notifications of events such as update or create on any source.
 
-=== Eventing Components
+== Eventing Components
 
 The key components of ${branding} Eventing include:
 

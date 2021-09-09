@@ -6,7 +6,7 @@
 
 Follow the below steps to start and stop ${branding}.
 
-==== Starting from Startup Scripts
+== Starting from Startup Scripts
 
 Run one of the start scripts from a command shell to start the distribution and open a local console:
 
@@ -20,7 +20,7 @@ ${home_directory}/bin/${branding-lowercase}
 ${home_directory}/bin/${branding-lowercase}.bat
 ----
 
-==== Starting as a Background Process
+== Starting as a Background Process
 
 Alternatively, to run ${branding} as a background process, run the `start` script:
 
@@ -51,7 +51,7 @@ ${home_directory}/bin/client.bat -h <FQDN>
 Use the `-h` option followed by the name (`<FQDN>`) or IP of the host where ${branding} is running.
 ====
 
-==== Stopping ${branding}
+== Stopping ${branding}
 
 There are two options to stop a running instance:
 

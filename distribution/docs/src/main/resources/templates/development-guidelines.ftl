@@ -6,7 +6,7 @@
 
 === ${developmentGuideline.title}
 
-include::${developmentGuideline.file}[]
+include::${developmentGuideline.file}[leveloffset=+2]
 
 </#if>
 </#list>

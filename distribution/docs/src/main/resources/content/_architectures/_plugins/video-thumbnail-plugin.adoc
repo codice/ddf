@@ -16,11 +16,11 @@ This plugin uses a custom 32-bit LGPL build of https://ffmpeg.org/[FFmpeg] (a vi
 Prebuilt FFmpeg binaries are provided for Linux, Mac, and Windows only.
 ====
 
-===== Installing the Video Thumbnail Plugin
+== Installing the Video Thumbnail Plugin
 
 The Video Thumbnail Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Video Thumbnail Plugin
+== Configuring the Video Thumbnail Plugin
 
 To configure the Video Thumbnail Plugin:
 

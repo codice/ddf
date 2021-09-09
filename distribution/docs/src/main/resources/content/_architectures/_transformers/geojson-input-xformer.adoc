@@ -18,15 +18,15 @@ The GeoJSON input transformer is responsible for translating GeoJSON into a Cata
 |application/json
 |===
 
-===== Installing the GeoJSON Input Transformer
+== Installing the GeoJSON Input Transformer
 
 The GeoJSON Input Transformer is installed by default with a standard installation.
 
-===== Configuring the GeoJSON Input Transformer
+== Configuring the GeoJSON Input Transformer
 
 The GeoJSON Input Transformer has no configurable properties.
 
-===== Using the GeoJSON Input Transformer
+== Using the GeoJSON Input Transformer
 
 Using the REST Endpoint, for example, HTTP POST a GeoJSON metacard to the Catalog.
 Once the REST Endpoint receives the GeoJSON Metacard, it is converted to a Catalog metacard.
@@ -36,7 +36,7 @@ Once the REST Endpoint receives the GeoJSON Metacard, it is converted to a Catal
 curl -X POST -i -H "Content-Type: application/json" -d "${at-symbol}metacard.json" ${secure_url}/services/catalog
 ----
 
-===== Conversion to a Metacard
+== Conversion to a Metacard
 
 A http://geojson.org/geojson-spec.html#geojson-objects[GeoJSON object] consists of a single JSON object.
 This can be a geometry, a feature, or a `FeatureCollection`.
@@ -92,7 +92,7 @@ XML must be properly escaped, such as what is proper for normal JSON.
 
 Currently, only *Required Attributes* are recognized in the properties.
 
-====== Metacard Extensibility
+=== Metacard Extensibility
 
 GeoJSON supports custom, extensible properties on the incoming GeoJSON using ${branding}'s extensible metacard support.
 To have those customized attributes understood by the system, a corresponding `MetacardType` must be registered with the `MetacardTypeRegistry`.
@@ -131,7 +131,7 @@ When the GeoJSON Input Transformer gets GeoJSON with the `MetacardType` specifie
 If no `MetacardType` is specified, the GeoJSON Input Transformer will assume the default `MetacardType`.
 If an unregistered `MetacardType` is specified, an exception will be returned to the client indicating that the `MetacardType` was not found.
 
-===== Usage Limitations of the GeoJSON Input Transformer
+== Usage Limitations of the GeoJSON Input Transformer
 
 The GeoJSON Input Transformer does not handle multiple geometries.
 

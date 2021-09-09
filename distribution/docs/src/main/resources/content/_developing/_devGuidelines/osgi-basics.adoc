@@ -24,7 +24,7 @@ Bundle:: Java Archives (JARs) with special OSGi manifest entries.
 Feature:: One or more bundles that form an installable unit; defined by Apache Karaf but portable to other OSGi containers.
 Application:: A JSON file defining a collection of bundles with configurations to be displayed in the ${admin-console}.
 
-==== Packaging Capabilities as Bundles
+== Packaging Capabilities as Bundles
 
 Services and code are physically deployed to ${branding} using bundles.
 The bundles within ${branding} are created using the maven bundle plug-in.
@@ -40,9 +40,9 @@ Using Maven is not necessary to create bundles.
 Many alternative tools exist, and OSGi manifest files can also be created by hand, although hand-editing should be avoided by most developers.
 ====
 
-===== Creating a Bundle
+=== Creating a Bundle
 
-====== Bundle Development Recommendations
+==== Bundle Development Recommendations
 
 Avoid creating bundles by hand or editing a manifest file:: Many tools exist for creating bundles, notably the Maven Bundle plugin, which handle the details of OSGi configuration and automate the bundling process including generation of the manifest file.
 Always make a distinction on which imported packages are `optional` or `required`:: Requiring every package when not necessary can cause an unnecessary dependency ripple effect among bundles.
@@ -56,7 +56,7 @@ Bundles separate contract from implementation and allow for modularized developm
 For that to be effective, they must be defined and used correctly so inadvertent coupling does not occur.
 Good bundle definition and usage leads to a more flexible environment.
 
-====== Maven Bundle Plugin
+==== Maven Bundle Plugin
 
 Below is a code snippet from a Maven `pom.xml` for creating an OSGi Bundle using the Maven Bundle plugin.
 
@@ -88,7 +88,7 @@ Below is a code snippet from a Maven `pom.xml` for creating an OSGi Bundle using
 ...
 ----
 
-===== Third Party and Utility Bundles
+=== Third Party and Utility Bundles
 
 It is recommended to avoid building directly on included third party and utility bundles.
 These components do provide utility and reuse potential; however, they may be upgraded or even replaced at anytime as bug fixes and new capabilities dictate.
@@ -99,7 +99,7 @@ If building on these components, be aware of the version upgrades with each dist
 Instead, component developers should package and deliver their own dependencies to ensure future compatibility.
 For example, if re-using a bundle, the specific bundle version that you are depending on should be included in your packaged release, and the proper versions should be referenced in your bundle(s).
 
-===== Deploying a Bundle
+=== Deploying a Bundle
 
 A bundle is typically installed in one of two ways:
 
@@ -115,7 +115,7 @@ In addition, Karaf also supports exploded bundles and custom deployers (Blueprin
 Once deployed, the bundle should come up in the Active state, if all of the dependencies were properly met.
 When this occurs, the service is available to be used.
 
-===== Verifying Bundle State
+=== Verifying Bundle State
 
 To verify if a bundle is deployed and running, go to the running command console and view the status.
 

@@ -7,7 +7,7 @@
 
 ${branding} and the underlying OSGi technology can serve as a robust infrastructure for developing frameworks that complement the ${ddf-catalog}.
 
-==== Simple Catalog API Implementations
+== Simple Catalog API Implementations
 
 The Catalog API implementations, which are denoted with the suffix of `Impl` on the Java file names, have multiple purposes and uses:
 
@@ -15,7 +15,7 @@ The Catalog API implementations, which are denoted with the suffix of `Impl` o
 
 * Second, the Catalog API Implementations display the proper usage of an interface and an interface's intentions. Also, they are good code examples for future implementations. If a developer does not want to extend the simple implementations, the developer can at least have a working code reference on which to base future development.
 
-==== Use of the Whiteboard Design Pattern
+== Use of the Whiteboard Design Pattern
 
 The ${ddf-catalog} makes extensive use of the Whiteboard Design Pattern.
 Catalog Components are registered as services in the OSGi Service Registry, and the Catalog Framework or any other clients tracking the OSGi Service Registry are automatically notified by the OSGi Framework of additions and removals of relevant services.
@@ -23,7 +23,7 @@ Catalog Components are registered as services in the OSGi Service Registry, and 
 The Whiteboard Design Pattern is a common OSGi technique that is derived from a technical whitepaper provided by the OSGi Alliance in 2004.
 It is recommended to use the Whiteboard pattern over the Listener pattern in OSGi because it provides less complexity in code (both on the client and server sides), fewer deadlock possibilities than the Listener pattern, and closely models the intended usage of the OSGi framework.
 
-==== Recommendations for Framework Development
+== Recommendations for Framework Development
 
 * Provide extensibility similar to that of the ${ddf-catalog}.
 ** Provide a stable API with interfaces and simple implementations (refer to `http://www.ibm.com/developerworks/websphere/techjournal/1007_charters/1007_charters.html`).
@@ -36,7 +36,7 @@ It is recommended to use the Whiteboard pattern over the Listener pattern in OSG
 ** CXF
 ** PAX Web and Jetty
 
-==== Catalog Framework Reference
+== Catalog Framework Reference
 
 The Catalog Framework can be requested from the OSGi Service Registry.
 
@@ -46,11 +46,11 @@ The Catalog Framework can be requested from the OSGi Service Registry.
 <reference id="catalogFramework" interface="${ddf-branding}.catalog.CatalogFramework" />
 ----
 
-===== Methods
+=== Methods
 
 The `CatalogFramework` provides convenient methods to transform `Metacards` and `QueryResponses` using a reference to the `CatalogFramework`.
 
-====== Create, Update, and Delete Methods
+==== Create, Update, and Delete Methods
 
 Create, Update, and Delete (CUD) methods add, change, or remove stored metadata in the local Catalog Provider.
 
@@ -64,7 +64,7 @@ public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException
 
 CUD operations process `PolicyPlugin`, `AccessPlugin`, and `PreIngestPlugin` instances before execution and `PostIngestPlugin` instances after execution.
 
-====== Query Methods
+==== Query Methods
 
 Query methods search metadata from available Sources based on the `QueryRequest` properties and Federation Strategy.
 Sources could include Catalog Provider, Connected Sources, and Federated Sources.
@@ -77,7 +77,7 @@ public QueryResponse query(QueryRequest queryRequest, FederationStrategy strateg
 ----
 Query requests process  `PolicyPlugin`, `AccessPlugin`, and `PreQueryPlugin` instances before execution and  `PolicyPlugin`, `AccessPlugin`, and `PostQueryPlugin` instances after execution.
 
-====== Resource Methods
+==== Resource Methods
 
 Resource methods retrieve data resources from Sources.
 
@@ -90,7 +90,7 @@ public ResourceResponse getResource(ResourceRequest request, String resourceSite
 ----
 Resource requests process ``PreResourcePlugin``s before execution and ``PostResourcePlugin``s after execution.
 
-====== Source Methods
+==== Source Methods
 
 Source methods can get a list of Source identifiers or request descriptions about Sources.
 
@@ -101,7 +101,7 @@ public Set<String> getSourceIds();
 public SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest) throws SourceUnavailableException;
 ----
 
-====== Transform Methods
+==== Transform Methods
 
 Transform methods provide convenience methods for using Metacard Transformers and Query Response Transformers.
 
@@ -115,7 +115,7 @@ public BinaryContent transform(Metacard metacard, String transformerId, Map<Stri
 public BinaryContent transform(SourceResponse response, String transformerId, Map<String, Serializable> requestProperties) throws CatalogTransformerException;
 ----
 
-===== Implementing Catalog Methods
+=== Implementing Catalog Methods
 
 .Query Response Transform Example
 [source,java,linenums]
@@ -142,7 +142,7 @@ private void convert(QueryResponse queryResponse ) {
 }
 ----
 
-===== Dependency Injection
+=== Dependency Injection
 Using Blueprint or another injection framework, transformers can be injected from the OSGi Service Registry.
 
 .Blueprint Service Reference
@@ -177,7 +177,7 @@ ${ddf-branding}.catalog.transform.QueryResponseTransformer queryResponseTransfor
 BinaryContent content = queryResponseTransformer.transform(sourceSesponse, arguments);
 ----
 
-===== OSGi Service Registry
+=== OSGi Service Registry
 
 [IMPORTANT]
 ====

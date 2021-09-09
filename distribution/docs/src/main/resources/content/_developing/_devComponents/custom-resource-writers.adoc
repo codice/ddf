@@ -8,7 +8,7 @@
 A `ResourceWriter` is an object used to store or delete a `Resource`. 
 `ResourceWriter` objects should be registered within the OSGi Service Registry, so clients can retrieve an instance when they need to store a `Resource`. 
 
-==== Create a New `ResourceWriter`
+== Create a New `ResourceWriter`
 
 Complete the following procedure to create a `ResourceWriter`.
 

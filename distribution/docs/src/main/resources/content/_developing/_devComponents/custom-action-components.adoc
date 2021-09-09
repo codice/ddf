@@ -14,13 +14,13 @@ An Action Provider is required to have an ActionProvider id.
 The Action Provider must register itself in the OSGi Service Registry with the `${ddf-branding-lowercase}.action.ActionProvider` interface and must also have a service property value for `id`. 
 An action is a URL that, when invoked, provides a resource or executes intended business logic. 
 
-==== Action Component Naming Convention
+== Action Component Naming Convention
 
 For each Action, a title and description should be provided to describe what the action does.
 The recommended naming convention is to use the verb 'Get' when retrieving a portion of a metacard, such as the metadata or thumbnail, or when downloading a resource.
 The verb 'Export' or the expression 'Export as' is recommended when the metacard is being exported in a different format or presented after going some transformation.
 
-===== Action Component Taxonomy
+=== Action Component Taxonomy
 
 An Action Provider registers an `id` as a service property in the OGSi Service Registry based on the type of service or action that is provided.
 Regardless of implementation, if more than one Action Provider provides the same service, such as providing a URL to a thumbnail for a given metacard, they must both register under the same `id`.

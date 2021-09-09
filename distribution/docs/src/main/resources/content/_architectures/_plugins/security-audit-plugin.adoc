@@ -8,6 +8,6 @@
 The Security Audit Plugin is used to allow the auditing of specific metacard attributes.
 Any time a metacard attribute listed in the configuration is updated, a log will be generated in the security log.
 
-===== Installing the Security Audit Plugin
+== Installing the Security Audit Plugin
 
 The Security Audit Plugin is installed by default with a standard installation in the ${ddf-catalog} application.

@@ -5,7 +5,7 @@
 :summary: Creating a custom global attribute validator.
 :order: 02
 
-==== Global Attribute Validators File
+== Global Attribute Validators File
 
 To define Validators, the definition file must have a `validators` key in the root object.
 

@@ -3,7 +3,7 @@
 
 <#list pluginIntros?sort_by("order") as pi>
 <#if (pi.order == "00")>
-include::${pi.file}[]
+include::${pi.file}[leveloffset=+1]
 </#if>
 <#if (pi.plugintypes != "general")>
 <<${pi.link},${pi.title}>>:: ${pi.summary}
@@ -100,9 +100,9 @@ include::${pi.file}[]
 <#list pluginIntros?sort_by ("order") as pi>
 <#if pi.status == "published" && pi.order != ("00") && pi.order != ("9999")>
 
-==== ${pi.title}
+==== ${pi.title} 
 
-include::${pi.file}[]
+include::${pi.file}[leveloffset=+3]
 
 ===== Available ${pi.title}
 
@@ -128,7 +128,7 @@ Installation and configuration details listed by plugin name.
 
 ==== ${plugin.title}
 
-include::${plugin.file}[]
+include::${plugin.file}[leveloffset=+3]
 
 '''
 </#if>

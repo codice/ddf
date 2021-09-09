@@ -34,7 +34,7 @@ Plugins are additional tools to use to add additional business logic at certain 
 
 The Catalog Framework calls Catalog Plugins to process requests and responses as they enter and leave the Framework. 
 
-=== Types of Plugins
+== Types of Plugins
 
 Plugins can be designed to run before or after certain processes.
 They are often used for validation, optimization, or logging.

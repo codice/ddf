@@ -7,14 +7,14 @@
 
 The Processing Post Ingest Plugin is responsible for submitting catalog Create, Update, and Delete (CUD) requests to the <<_asynchronous_processing_framework,Processing Framework>>.
 
-===== Related Components to Processing Post-Ingest Plugin
+== Related Components to Processing Post-Ingest Plugin
 
 None.
 
-===== Installing the Processing Post-Ingest Plugin
+== Installing the Processing Post-Ingest Plugin
 
 The Processing Post-Ingest Plugin is not installed by default with a standard installation, but is installed by default when the in-memory Processing Framework is installed.
 
-===== Configuring the Processing Post-Ingest Plugin
+== Configuring the Processing Post-Ingest Plugin
 
 The Processing Post-Ingest Plugin has no configurable properties.

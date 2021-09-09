@@ -4,7 +4,6 @@
 :order: 02
 :summary: Introduction to dependency list reference.
 
-[{reference}]
 == {title}
 
 This list of ${branding} dependencies is automatically generated:

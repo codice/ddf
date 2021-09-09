@@ -62,10 +62,10 @@ Each of these user (or subject) claims will be converted to a `KeyValuePermissio
 These permission objects will be implied against the permission object generated from the metacard record.
 In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
 
-===== Installing the Filter Plugin
+== Installing the Filter Plugin
 
 The Filter Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Filter Plugin
+== Configuring the Filter Plugin
 
 The Filter Plugin has no configurable properties.

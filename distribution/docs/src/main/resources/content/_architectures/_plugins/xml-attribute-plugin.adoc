@@ -9,7 +9,7 @@ The XML Attribute Security Policy Plugin parses XML metadata contained within a 
 The configuration for the plugin contains one field for setting the XML elements that will be parsed for security attributes and the other two configurations contain the XML attributes that will be pulled off of those elements.
 The *Security Attributes (union)* field will compute the union of values for each attribute defined and the *Security Attributes (intersection)* field will compute the intersection of values for each attribute defined.
 
-===== Installing the XML Attribute Security Policy Plugin
+== Installing the XML Attribute Security Policy Plugin
 
 The XML Attribute Security Policy Plugin is installed by default with a standard installation in the ${ddf-security} application.
 

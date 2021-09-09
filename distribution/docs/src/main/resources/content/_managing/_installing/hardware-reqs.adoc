@@ -67,5 +67,6 @@ Debian 9
 Microsoft Edge +
 Firefox +
 Chrome
+|===
 
 =====

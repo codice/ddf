@@ -9,10 +9,10 @@ This post-query plugin updates the resource size attribute of each metacard in t
 
 Use this post-query plugin as a convenience to return query results with accurate resource sizes for cached products. 
 
-===== Installing the Metacard Resource Size Plugin
+== Installing the Metacard Resource Size Plugin
 
 The Metacard Resource Size Plugin is installed by default with a standard installation.
 
-===== Configuring the Metacard Resource Size Plugin
+== Configuring the Metacard Resource Size Plugin
 
 The Metacard Resource Size Plugin has no configurable properties.
