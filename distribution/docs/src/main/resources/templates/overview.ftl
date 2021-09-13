@@ -1,6 +1,6 @@
-= ${branding-expanded} Overview
+= ${branding-expanded} Executive Summary: Core Concepts and Introduction
+:title: ${branding-expanded} Introduction
 include::config.adoc[]
-:title: ${branding-expanded} Executive Summary: Core Concepts and Introduction
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: developing.adoc#_
 :integrating-prefix: documentation.adoc#_
