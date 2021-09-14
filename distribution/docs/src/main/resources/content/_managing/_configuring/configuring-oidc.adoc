@@ -6,6 +6,7 @@
 :order: 03
 
 == {title}
+(((OpenID Connect, OIDC))) (((OAuth 2.0)))
 
 To use https://openid.net/specs/openid-connect-core-1_0.html[OpenID Connect (OIDC)] and https://tools.ietf.org/html/rfc6749[OAuth 2.0],
 ${branding} needs to be connected to an external Identity Provider (IdP) which supports these protocols.

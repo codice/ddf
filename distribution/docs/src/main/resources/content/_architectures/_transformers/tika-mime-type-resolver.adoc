@@ -4,6 +4,7 @@
 :link: _tika_mime_type_resolver
 :summary: Provides support for resolving over 1300 mime types.
 
+((({title})))
 The `TikaMimeTypeResolver` is a `MimeTypeResolver` that is implemented using the https://tika.apache.org[Apache Tika] open source product.
 
 Using the Apache Tika content analysis toolkit, the `TikaMimeTypeResolver` provides support for resolving over 1300 mime types, but not all mime types yield the same quality metadata.

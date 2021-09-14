@@ -6,6 +6,7 @@
 :order: 04
 
 == {title}
+(((System Usage Message)))
 
 The Platform UI configuration contains the settings for displaying messages to users at login or in banners in the headers and footers of all pages.
 For, example this configuration can provide warnings that system usage is monitored or controlled.

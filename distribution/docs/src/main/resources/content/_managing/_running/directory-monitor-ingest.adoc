@@ -7,7 +7,7 @@
 
 == {title}
 
-The ${ddf-catalog} application contains a Content Directory Monitor feature that allows files placed in a single directory to be monitored and ingested automatically.
+The ${ddf-catalog} application contains a ((Content Directory Monitor)) feature that allows files placed in a single directory to be monitored and ingested automatically.
 For more information about configuring a directory to be monitored, see <<{managing-prefix}configuring_the_content_directory_monitor,Configuring the Content Directory Monitor>>.
 
 Files placed in the monitored directory will be ingested automatically.

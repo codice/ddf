@@ -6,7 +6,7 @@
 :plugintypes: preresource
 :order: 09
 
-Pre-Resource plugins are invoked before a request to retrieve a resource is sent to a Source. 
+((Pre-Resource plugins)) are invoked before a request to retrieve a resource is sent to a Source.
 This is an opportunity to take any action on the request, including but not limited to:
 
 * validation.

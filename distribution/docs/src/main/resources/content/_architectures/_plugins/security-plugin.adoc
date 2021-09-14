@@ -5,7 +5,7 @@
 :plugintypes: access
 :summary: Identifies the subject for an operation.
 
-The Security Plugin identifies the subject for an operation.
+The ((Security Plugin)) identifies the subject for an operation.
 
 == Installing the Security Plugin
 

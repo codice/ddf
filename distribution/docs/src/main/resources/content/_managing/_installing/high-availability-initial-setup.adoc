@@ -6,6 +6,7 @@
 :order: 10
 
 == {title}
+(((High Availability)))
 
 This section describes how to complete the initial setup of ${branding} in a <<{introduction-prefix}introduction_to_high_availability,Highly Available Cluster>>.
 

@@ -6,6 +6,7 @@
 :summary: To perform CRUD (Create, Read, Update, Delete) operations on query metacards in the catalog, work with one of these endpoints.
 
 == {title}
+((({title})))
 
 The queries endpoint enables an application to create, retrieve, update, and delete query metacards.
 

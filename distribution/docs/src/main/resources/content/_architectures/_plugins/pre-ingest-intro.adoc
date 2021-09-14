@@ -6,7 +6,7 @@
 :plugintypes: preingest
 :order: 04
 
-Pre-ingest plugins are invoked before an ingest operation is sent to the catalog.
+((Pre-ingest plugins)) are invoked before an ingest operation is sent to the catalog.
 They are not run on a query.
 This is an opportunity to take any action on the ingest request, including but not limited to:
 

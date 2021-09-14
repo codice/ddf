@@ -5,7 +5,8 @@
 :summary: Configure product cache.
 :order: 01
 
-== {title }
+== {title}
+(((Product Cache)))
 
 All caching properties are part of the <<{reference-prefix}ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings>>.
 

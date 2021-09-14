@@ -5,7 +5,7 @@
 :link: _geojson_metacard_transformer
 :summary: Translates a metacard into GeoJSON.
 
-GeoJSON Metacard Transformer translates a metacard into GeoJSON.
+((GeoJSON Metacard Transformer)) translates a metacard into GeoJSON.
 
 == Installing the GeoJSON Metacard Transformer
 

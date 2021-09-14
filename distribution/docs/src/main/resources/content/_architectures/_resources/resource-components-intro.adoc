@@ -6,7 +6,7 @@
 :order: 01
 :summary: Resource components.
 
-Resource components are used when working with resources
+((Resource components)) are used when working with resources
 
 A resource is a URI-addressable entity that is represented by a metacard.
 

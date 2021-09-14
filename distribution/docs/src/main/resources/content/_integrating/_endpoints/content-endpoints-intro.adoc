@@ -5,5 +5,6 @@
 :order: 04
 
 == {title}
+((({title})))
 
 To retrieve content from an instance of ${branding}, use one of these endpoints.

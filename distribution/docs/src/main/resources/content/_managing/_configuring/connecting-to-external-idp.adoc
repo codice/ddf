@@ -7,7 +7,7 @@
 
 == {title}
 
-To connect to an external SAML Identity Provider,
+To connect to an external ((SAML Identity Provider)),
 
 . Provide the external SAML IdP with ${branding}'s Service Provider (SP) metadata.
 The SP metadata can found at `https://<FQDN>:<PORT>/services/saml/sso/metadata`.

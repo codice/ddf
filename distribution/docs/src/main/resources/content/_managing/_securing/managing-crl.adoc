@@ -9,7 +9,7 @@
 
 * *{hardening-step}*
 
-For hardening purposes, it is recommended to implement a way to verify a Certificate Revocation List (CRL) at least daily or an Online Certificate Status Protocol (OCSP) server.
+For hardening purposes, it is recommended to implement a way to verify a ((Certificate Revocation List)) (CRL) at least daily or an ((Online Certificate Status Protocol (OCSP) server)).
 
 === Managing a Certificate Revocation List (CRL)
 A Certificate Revocation List is a collection of formerly-valid certificates that should explicitly _not_ be accepted.
@@ -148,7 +148,7 @@ Caused by: java.security.cert.CertPathValidatorException: Certificate has been r
 
 === Managing an Online Certificate Status Protocol (OCSP) Server
 
-An Online Certificate Status Protocol is a protocol used to verify the revocation status of a certificate.
+An ((Online Certificate Status Protocol)) is a protocol used to verify the revocation status of a certificate.
 An OCSP server can be queried with a certificate to verify if it is revoked.
 
 The advantage of using an OCSP Server over a CRL is the fact that a local copy of the revoked certificates is not needed.

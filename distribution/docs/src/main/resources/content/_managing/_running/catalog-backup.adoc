@@ -6,7 +6,7 @@
 
 == {title}
 
-To backup local catalog records, a Catalog Backup Plugin is available.
+To backup local catalog records, a ((Catalog Backup Plugin)) is available.
 It is not installed by default for performance reasons.
 
 See <<{developing-prefix}catalog_backup_plugin,Catalog Backup Plugin>> for installation and configuration instructions).

@@ -5,6 +5,7 @@
 :summary: Creating a custom metacard transformer.
 :order: 08
 
+(((Metacard Transformers)))
 In general, a `MetacardTransformer` is used to transform a `Metacard` into some desired format useful to the end user or as input to another process.
 Programmatically, a `MetacardTransformer` transforms a `Metacard` into a `BinaryContent` instance, which translates the `Metacard` into the desired final format.
 Metacard transformers can be used through the Catalog Framework `transform` convenience method or requested from the OSGi Service Registry by endpoints or other bundles.

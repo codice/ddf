@@ -6,6 +6,7 @@
 :order: 08
 
 == {title}
+(((Disallowing Login Without Certificates)))
 
 ${branding} can be configured to prevent login without a valid PKI certificate.
 

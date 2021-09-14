@@ -6,6 +6,7 @@
 :order: 02
 
 == {title}
+(((Alerts)))
 
 By default, ${branding} uses two services provided by Karaf Decanter for alerts that can be configured by configuration file.
 Further information on Karaf Decanter services and configurations can be found https://karaf.apache.org/documentation.html#decanter[here] {external-link}.

@@ -7,10 +7,10 @@
 :summary: Action Providers.
 
 .[[_included_action_providers]]Included Action Providers
-Download Resource ActionProvider:: Downloads a resource to the local product cache.
-IdP Logout Action Provider:: Identity Provider Logout.
-Karaf Logout Action:: Local Logout.
-LDAP Logout Action:: Ldap Logout.
-Overlay ActionProvider:: Provides a metacard URL that transforms the metacard into a geographically aligned image (suitable for overlaying on a map).
-View Metacard ActionProvider:: Provides a URL to a metacard.
-Metacard Transformer ActionProvider:: Provides a URL to a metacard that has been transformed into a specified format.
+((Download Resource ActionProvider)):: Downloads a resource to the local product cache.
+((IdP Logout Action Provider)):: Identity Provider Logout.
+((Karaf Logout Action)):: Local Logout.
+((LDAP Logout Action)):: Ldap Logout.
+((Overlay ActionProvider)):: Provides a metacard URL that transforms the metacard into a geographically aligned image (suitable for overlaying on a map).
+((View Metacard ActionProvider)):: Provides a URL to a metacard.
+((Metacard Transformer ActionProvider)):: Provides a URL to a metacard that has been transformed into a specified format.

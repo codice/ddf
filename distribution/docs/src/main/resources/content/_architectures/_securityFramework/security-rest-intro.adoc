@@ -58,7 +58,7 @@
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ....
 
-The Jetty Authenticator is the topmost handler of all requests.
+The ((Jetty Authenticator)) is the topmost handler of all requests.
 It initializes all Security Filters and runs them in order according to service ranking:
 
 . The *Web SSO Filter* reads from the web context policy manager and functions as the first decision point.
@@ -117,10 +117,10 @@ SAML IdP Architecture
 
 ....
 
-The SAML Handler is a configured handler on the Web SSO Filter just like the other handlers in the previous diagram.
-The SAML Handler and the Assertion Consumer Service are both part of the IdP client that can be used to interface with any compliant SAML 2.0 Web SSO Identity Provider.
+The ((SAML Handler)) is a configured handler on the Web SSO Filter just like the other handlers in the previous diagram.
+The SAML Handler and the ((Assertion Consumer Service)) are both part of the IdP client that can be used to interface with any compliant SAML 2.0 Web SSO Identity Provider.
 
-The Metadata Exchange happens asynchronously from any login event.
+The ((Metadata Exchange)) happens asynchronously from any login event.
 The exchange can happen via HTTP or File, or the metadata XML itself can be pasted into the configuration for the SAML client.
 The metadata contains information about what bindings are accepted by the client or server and whether or not either expects messages to be signed, etc.
 The redirect from the Assertion Consumer Service to the Endpoint will cause the client to pass back through the entire filter chain, which will get caught at the `Has Session` point of the `WebSsoFilter`.
@@ -179,7 +179,7 @@ Unauthenticated non-browser clients that pass the HTTP headers signaling that th
 +---------------------------------------------------------------------------------------------------------------------+
 ....
 
-SAML ECP can be used to authenticate a non-browser client or non-person entity (NPE).
+((SAML ECP)) can be used to authenticate a non-browser client or non-person entity (NPE).
 This method of authentication is useful when there is no human in the loop, but authentication with an IdP is still desired.
 The SAML Handler will send a PAOS (Reverse SOAP) request as an initial response back to the Secure Client, assuming the client has sent the necessary HTTP headers to declare that it supports this function.
 That response does not complete the request/response loop, but is instead caught by a SOAP intermediary, which is implemented through a CXF interceptor.

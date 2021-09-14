@@ -6,6 +6,7 @@
 :order: 03
 
 == {title}
+((({title})))
 
 The ${ddf-security} JAAS LDAP Login bundle enables authentication via an LDAP server when passed a username and password.
 

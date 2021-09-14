@@ -5,7 +5,7 @@
 :plugintypes: access
 :summary: Performs filtering on query responses as they pass through the framework.
 
-The Filter Plugin performs filtering on query responses as they pass through the framework.
+The ((Filter Plugin)) performs filtering on query responses as they pass through the framework.
 
 Each metacard result can contain security attributes that are pulled from the metadata record after being processed by a `PolicyPlugin` that populates this attribute.
 The security attribute is a Map containing a set of keys that map to lists of values.

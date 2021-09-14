@@ -9,7 +9,7 @@
 
 `ddf.security.Subject <extends> org.apache.shiro.subject.Subject`
 
-The Subject is the key object in the security framework.
+The ((Subject)) is the key object in the security framework.
 Most of the workflow and implementations revolve around creating and using a Subject.
 The Subject object in ${branding} is a class that encapsulates all information about the user performing the current operation.
 The Subject can also be used to perform permission checks to see if the calling user has acceptable permission to perform a certain action (e.g., calling a service or returning a metacard).

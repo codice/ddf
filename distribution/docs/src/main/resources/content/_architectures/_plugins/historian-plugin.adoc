@@ -5,7 +5,7 @@
 :plugintypes: policy
 :summary: Protects metacard history from being edited by users without the history role.
 
-The Historian Policy Plugin protects metacard history from being edited or deleted by users without the history role (a `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role` of `system-history`).
+The ((Historian Policy Plugin)) protects metacard history from being edited or deleted by users without the history role (a `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role` of `system-history`).
 
 == Installing the Historian Policy Plugin
 

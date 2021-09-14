@@ -30,9 +30,9 @@
 +------------------------------------------------------------+
 ....
 
-Plugins are additional tools to use to add additional business logic at certain points, depending on the type of plugin.
+((Catalog Plugins))(((Plugins))) are additional tools to use to add additional business logic at certain points, depending on the type of plugin.
 
-The Catalog Framework calls Catalog Plugins to process requests and responses as they enter and leave the Framework. 
+The Catalog Framework calls Catalog Plugins to process requests and responses as they enter and leave the Framework.
 
 == Types of Plugins
 

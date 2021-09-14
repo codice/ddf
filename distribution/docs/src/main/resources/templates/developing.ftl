@@ -15,6 +15,15 @@ include::config.adoc[]
 
 <#include "build/development-guidelines.ftl">
 
+ifdef::backend-pdf[]
+
+<<< 
+
+[index]
+== Index
+
+endif::backend-pdf[]
+
 ifdef::backend-html5[]
 
 include::${project.build.directory}/asciidoctor-ready-${project.version}/scripts.html[]

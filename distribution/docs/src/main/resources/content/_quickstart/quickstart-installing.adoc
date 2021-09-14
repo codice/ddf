@@ -17,6 +17,8 @@ For security reasons, ${branding} cannot be started from a user's home directory
 ====
 
 === Quick Install Prerequisites
+(((Quick Install Prerequisites)))
+
 .Hardware Requirements (Quick Install)
 * At least 4096MB of memory for ${branding}.
 ** This amount can be increased to support memory-intensive applications. See <<{managing-prefix}jvm_memory_configuration, Memory Considerations>>.
@@ -32,6 +34,7 @@ Prior to installing ${branding}, ensure the system time is accurate to prevent f
 ====
 
 === Quick Install of SolrCloud
+(((Quick Install of SolrCloud)))
 
 . Download a preconfigured Solr distribution http://artifacts.codice.org/service/local/repositories/releases/content/ddf/solr-distro/${ddf.version}/solr-distro-${ddf.version}-assembly.zip[zip file] {external-link}.
 . Unzip the Solr zip file.
@@ -42,6 +45,7 @@ Prior to installing ${branding}, ensure the system time is accurate to prevent f
 .. Press enter for all other prompts to accept defaults.
 
 === Quick Install of ${branding}
+(((Quick Install of ${branding})))
 
 WARNING: The ${branding} installation will not succeed unless SolrCloud is running.
 See <<_quick_install_of_solrcloud>> for instructions.
@@ -80,6 +84,7 @@ ${branding-lowercase}${at-symbol}local>
 ----
 
 === Quick Install of ${branding} on a remote headless server
+(((Quick Install of ${branding} on a remote headless server)))
 
 If ${branding} is being installed on a remote server that has no user interface, the hostname will need to be updated in the configuration files and certificates.
 

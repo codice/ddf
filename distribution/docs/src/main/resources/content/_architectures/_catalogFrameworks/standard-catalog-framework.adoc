@@ -1,16 +1,16 @@
 :title: Standard Catalog Framework
 :type: catalogFramework
 :status: published
-:summary: Reference implementation of a Catalog Framework that implements all requirements of the ${ddf-catalog} API.
+:summary: Reference implementation of a Catalog Framework that implements all requirements of the ${ddf-catalog} API.
 :link: _standard_catalog_framework
 :order: 00
 
-The Standard Catalog Framework provides the reference implementation of a Catalog Framework that implements all requirements of the ${ddf-catalog} API. 
-`CatalogFrameworkImpl` is the implementation of the ${branding} Standard Catalog Framework.
+The ((Standard Catalog Framework)) provides the reference implementation of a Catalog Framework that implements all requirements of the ${ddf-catalog} API.
+`CatalogFrameworkImpl` is the implementation of the ${branding} Standard Catalog Framework.
 
-The Standard Catalog Framework is the core class of ${branding}.
-It provides the methods for create, update, delete, and resource retrieval (CRUD) operations on the `Sources`.
-By contrast, the Fanout Catalog Framework only allows for query and resource retrieval operations, no catalog modifications, and all queries are enterprise-wide.
+The Standard Catalog Framework is the core class of ${branding}.
+It provides the methods for create, update, delete, and resource retrieval (CRUD) operations on the `Sources`.
+By contrast, the Fanout Catalog Framework only allows for query and resource retrieval operations, no catalog modifications, and all queries are enterprise-wide.
 
 Use this framework if:
 
@@ -18,18 +18,18 @@ Use this framework if:
 * queries to specific sites are required.
 * queries to only the local provider are required.
 
-It is possible to have only remote Sources configured with no local `CatalogProvider` configured and be able to execute queries to specific remote sources by specifying the site name(s) in the query request.
+It is possible to have only remote Sources configured with no local `CatalogProvider` configured and be able to execute queries to specific remote sources by specifying the site name(s) in the query request.
 
-The Standard Catalog Framework also maintains a list of `ResourceReaders` for resource retrieval operations.
-A resource reader is matched to the scheme (i.e., protocol, such as `file://`) in the URI of the resource specified in the request to be retrieved.
+The Standard Catalog Framework also maintains a list of `ResourceReaders` for resource retrieval operations.
+A resource reader is matched to the scheme (i.e., protocol, such as `file://`) in the URI of the resource specified in the request to be retrieved.
 
-Site information about the catalog provider and/or any federated source(s) can be retrieved using the Standard Catalog Framework.
+Site information about the catalog provider and/or any federated source(s) can be retrieved using the Standard Catalog Framework.
 Site information includes the source's name, version, availability, and the list of unique content types currently stored in the source (e.g., NITF).
 If no local catalog provider is configured, the site information returned includes site info for the catalog framework with no content types included.
 
 == Installing the Standard Catalog Framework
 
-The Standard Catalog Framework is bundled as the `catalog-core-standardframework` feature and can be installed and uninstalled using the normal processes described in Configuration.
+The Standard Catalog Framework is bundled as the `catalog-core-standardframework` feature and can be installed and uninstalled using the normal processes described in Configuration.
 
 == Configuring the Standard Catalog Framework
 
@@ -141,11 +141,11 @@ See <<{reference-prefix}ddf.catalog.CatalogFrameworkImpl, Catalog Standard Frame
 |true
 
 |ddf.cache.CacheManager
-| 
+|
 |false
 
 |org.osgi.service.event.EventAdmin
-| 
+|
 |false
 
 |===

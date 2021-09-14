@@ -30,10 +30,10 @@
 +------------------------------------------------------------+
 ....
 
-The Catalog provides the capability to query, create, update, and delete metacards; retrieve resources; and retrieve information about the sources in the enterprise.
+The Catalog provides the capability to query, create, update, and delete metacards; retrieve resources; and retrieve information about the sources in the enterprise.
 
 Each of these operations follow a request/response paradigm.
-The request is the input to the operation and contains all of the input parameters needed by the Catalog Framework's operation to communicate with the Sources.
+The request is the input to the operation and contains all of the input parameters needed by the Catalog Framework's operation to communicate with the Sources.
 The response is the output from the execution of the operation that is returned to the client, which contains all of the data returned by the sources.
 For each operation there is an associated request/response pair, e.g., the `QueryRequest` and `QueryResponse` pair for the Catalog Framework's query operation.
 

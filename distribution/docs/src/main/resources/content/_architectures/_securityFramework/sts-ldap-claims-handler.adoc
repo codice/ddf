@@ -7,7 +7,7 @@
 
 == {title}
 
-The ${ddf-security} LDAP Claims Handler bundle adds functionality that allows retrieval of claims from an LDAP server.
+The ((${ddf-security} LDAP Claims Handler)) bundle adds functionality that allows retrieval of claims from an LDAP server.
 
 [NOTE]
 ====

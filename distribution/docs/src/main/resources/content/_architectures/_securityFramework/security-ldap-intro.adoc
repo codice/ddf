@@ -7,6 +7,7 @@
 :summary: Security LDAP application.
 
 == {title}
+((({title})))
 
-The ${ddf-branding} LDAP application allows the user to configure either an embedded or a standalone LDAP server.
+The ${ddf-security} LDAP application allows the user to configure either an embedded or a standalone LDAP server.
 The provided features contain a default set of schemas and users loaded to help facilitate authentication and authorization testing.

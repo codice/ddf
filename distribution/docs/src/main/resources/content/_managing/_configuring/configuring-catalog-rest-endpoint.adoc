@@ -7,7 +7,7 @@
 
 == {title}
 
-The Catalog REST endpoint allows clients to perform operations on the Catalog using REST.
+The ((Catalog REST endpoint)) allows clients to perform operations on the Catalog using REST.
 
 To install the Catalog REST endpoint:
 

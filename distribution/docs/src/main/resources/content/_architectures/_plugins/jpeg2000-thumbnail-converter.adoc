@@ -5,7 +5,7 @@
 :plugintypes: postquery
 :summary: Creates thumbnails for jpeg2000 images.
 
-The JPEG2000 Thumbnail converter creates thumbnails from images ingested in jpeg2000 format.
+The ((JPEG2000 Thumbnail converter)) creates thumbnails from images ingested in jpeg2000 format.
 
 == Installing the JPEG2000 Thumbnail Converter
 

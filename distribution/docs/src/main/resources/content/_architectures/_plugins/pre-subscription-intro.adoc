@@ -6,8 +6,8 @@
 :plugintypes: presubscription
 :order: 15
 
-Pre-subscription plugins are invoked before a Subscription is activated by an Event Processor. 
-This is an opportunity to take any action on the Subscription, including but not limited to:
+((Pre-subscription plugins)) are invoked before a Subscription is activated by an Event Processor.
+This is an opportunity to take any action on the Subscription, including but not limited to:
 
 * validation.
 * logging.

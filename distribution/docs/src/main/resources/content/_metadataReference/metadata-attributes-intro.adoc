@@ -6,6 +6,7 @@
 :summary: Introduction to metadata attributes.
 
 == {title}
+(((Catalog Taxonomy)))
 
 ${branding} extracts basic metadata from the resources ingested.
 Many file types contain additional <<_file_format_specific_attributes,file format-specific metadata attributes>>.

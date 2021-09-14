@@ -5,7 +5,7 @@
 :plugintypes: preauthorization
 :summary: Injects request-specific network information into a request.
 
-The client info plugin injects request-specific network information into request properties, such as Remote IP Address, Remote Host Name, Servlet Scheme, and Servlet Context.
+The ((Client Info plugin)) injects request-specific network information into request properties, such as Remote IP Address, Remote Host Name, Servlet Scheme, and Servlet Context.
 
 == Related Components to the Client Info Plugin
 

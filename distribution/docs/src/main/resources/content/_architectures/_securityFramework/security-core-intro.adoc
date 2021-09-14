@@ -7,4 +7,4 @@
 
 == {title}
 
-The Security Core application contains all of the necessary components that are used to perform security operations (authentication, authorization, and auditing) required in the framework.
+The (((Security Core application))) contains all of the necessary components that are used to perform security operations (authentication, authorization, and auditing) required in the framework.

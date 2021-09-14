@@ -5,7 +5,7 @@
 :plugintypes: access
 :summary: Prevents a Metacard's resource URI from being overridden by an incoming UpdateRequest.
 
-The Content URI Access Plugin prevents a Metacard's resource URI from being overridden by an incoming UpdateRequest.
+The (((Content URI Access plugin))) prevents a Metacard's resource URI from being overridden by an incoming UpdateRequest.
 
 == Installing the Content URI Access Plugin
 

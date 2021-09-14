@@ -6,6 +6,7 @@
 :summary: Security Encryption commands.
 
 == {title}
+((({title})))
 
 The Security Encryption Commands bundle enhances the ${branding} system console by allowing administrators and integrators to encrypt and decrypt values directly from the console.
 

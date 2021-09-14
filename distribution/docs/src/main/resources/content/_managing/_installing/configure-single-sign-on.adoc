@@ -8,6 +8,7 @@
 .[[_configuring_sso]]Configure Single Sign On (SSO)
 ****
 Configure Single Sign On method: SAML or OIDC.
+(((Single Sign On, SSO)))
 
 .SAML SSO
 Enter the URLs for the IdP metatdata and set other options.

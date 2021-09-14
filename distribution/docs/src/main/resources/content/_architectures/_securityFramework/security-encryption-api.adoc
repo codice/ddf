@@ -6,6 +6,7 @@
 :summary: Security Encryption API.
 
 == {title}
+((({title})))
 
 The Security Encryption API bundle provides the framework for the encryption service.
 Applications that use the encryption service should use the interfaces defined within it instead of calling an implementation directly.

@@ -6,6 +6,7 @@
 :summary: Shiro realms.
 
 == {title}
+((({title})))(((Apache Shiro)))
 
 ${branding} uses https://shiro.org[Apache Shiro] {external-link} for the concept of https://shiro.apache.org/realm.html[Realms] {external-link} for Authentication and Authorization.
 Realms are components that access security data such as such as users or permissions.

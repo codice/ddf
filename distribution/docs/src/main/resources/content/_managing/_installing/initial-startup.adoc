@@ -6,6 +6,7 @@
 :order: 02
 
 == Initial Startup
+(((Initial Startup)))
 
 Run the ${branding} using the appropriate script.
 
