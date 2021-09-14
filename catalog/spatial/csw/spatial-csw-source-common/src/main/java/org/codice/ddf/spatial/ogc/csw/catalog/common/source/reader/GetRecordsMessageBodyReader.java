@@ -15,12 +15,14 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source.reader;
 
 import com.google.common.net.HttpHeaders;
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.xml.XppDriver;
+import com.thoughtworks.xstream.io.xml.QNameMap;
+import com.thoughtworks.xstream.io.xml.StaxReader;
+import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 import com.thoughtworks.xstream.io.xml.XppReader;
+import com.thoughtworks.xstream.mapper.CannotResolveClassException;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.impl.ResourceImpl;
 import java.io.ByteArrayInputStream;
@@ -39,6 +41,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.MessageBodyReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
@@ -65,7 +70,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
   private DataHolder argumentHolder;
 
   public GetRecordsMessageBodyReader(Converter converter, CswSourceConfiguration configuration) {
-    xstream = new XStream(new XppDriver());
+    xstream = new XStream(new Xpp3Driver());
     xstream.setClassLoader(this.getClass().getClassLoader());
     xstream.registerConverter(converter);
     xstream.alias(CswConstants.GET_RECORDS_RESPONSE, CswRecordCollection.class);
@@ -142,10 +147,15 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
           new XppReader(
               new InputStreamReader(inStream, StandardCharsets.UTF_8),
               XmlPullParserFactory.newInstance().newPullParser());
+
       cswRecords = (CswRecordCollection) xstream.unmarshal(reader, null, argumentHolder);
+    } catch (CannotResolveClassException cre) {
+      // This exception can happen if the XppReader encounters unexpected (but correct) namespaces
+      // prefixes
+      // In this case, attempt to use the StaxReader which is namespace aware.
+      cswRecords = unmarshalWithStaxReader(originalInputStream);
+
     } catch (XmlPullParserException e) {
-      LOGGER.debug("Unable to create XmlPullParser, and cannot parse CSW Response.", e);
-    } catch (XStreamException e) {
       // If an ExceptionReport is sent from the remote CSW site it will be sent with an
       // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.
       // Instead the ExceptionReport will come here and be treated like a GetRecords
@@ -155,16 +165,51 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
       // (with the ExceptionReport) and rethrowing it as a WebApplicatioNException,
       // which CXF will wrap as a ClientException that the CswSource catches, converts
       // to a CswException, and logs.
-      ByteArrayInputStream bis =
-          new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8));
-      ResponseBuilder responseBuilder = Response.ok(bis);
-      responseBuilder.type("text/xml");
-      Response response = responseBuilder.build();
-      throw new WebApplicationException(e, response);
+      throw new WebApplicationException(e, createResponse(originalInputStream));
     } finally {
       IOUtils.closeQuietly(inStream);
     }
     return cswRecords;
+  }
+
+  private CswRecordCollection unmarshalWithStaxReader(String originalInputStream)
+      throws IOException {
+    CswRecordCollection cswRecords;
+    XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+    xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
+
+    InputStream inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
+    XMLStreamReader xmlStreamReader = null;
+    try (InputStreamReader inputStreamReader =
+        new InputStreamReader(inStream, StandardCharsets.UTF_8)) {
+      try {
+        xmlStreamReader = xmlInputFactory.createXMLStreamReader(inputStreamReader);
+        HierarchicalStreamReader reader = new StaxReader(new QNameMap(), xmlStreamReader);
+        cswRecords = (CswRecordCollection) xstream.unmarshal(reader, null, argumentHolder);
+      } catch (XMLStreamException e) {
+        throw new WebApplicationException(e, createResponse(originalInputStream));
+      } finally {
+        IOUtils.closeQuietly(inStream);
+        try {
+          if (xmlStreamReader != null) {
+            xmlStreamReader.close();
+          }
+        } catch (XMLStreamException e) {
+          // ignore
+        }
+      }
+    }
+    return cswRecords;
+  }
+
+  private Response createResponse(String originalInputStream) {
+    ByteArrayInputStream bis =
+        new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8));
+    ResponseBuilder responseBuilder = Response.ok(bis);
+    responseBuilder.type("text/xml");
+    return responseBuilder.build();
   }
 
   /**
