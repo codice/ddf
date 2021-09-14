@@ -7,7 +7,7 @@
 
 == {title}
 
-To prevent resource shortages in the event of concurrent requests, ${branding} allows configuring Jetty ThreadPool settings to specify the minimum and maximum available threads.
+To prevent resource shortages in the event of concurrent requests, ${branding} allows configuring ((Jetty ThreadPool settings)) to specify the minimum and maximum available threads.
 
 . The settings can be changed at `etc/org.ops4j.pax.web.cfg` under Jetty Server ThreadPool Settings.
 . Specify the maximum thread amount with `org.ops4j.pax.web.server.maxThreads`

@@ -8,6 +8,7 @@
 :order: 01
 
 == Certificates (Quick Start)
+(((Quick Start Certificates)))
 
 ${branding} comes with a default keystore that contains certificates.
 This allows the distribution to be unzipped and run immediately.
@@ -31,7 +32,7 @@ This entry must be removed from the truststore before ${branding} can operate se
 
 ==== Creating New Server Keystore Entry with the CertNew Scripts
 
-To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
+To create a private key and certificate signed by the ((Demo Certificate Authority)), use the provided scripts.
 To use the scripts, run them out of the `${home_directory}/etc/certs` directory.
 
 
@@ -115,6 +116,7 @@ From ${home_directory}/etc/certs/ run:
 After this proceed to <<{quickstart-prefix}updating_settings_after_changing_certificates,Updating Settings After Changing Certificates>>, and be sure to use the IP address instead of the FQDN.
 
 === Creating Self-Signed Certificates
+(((Self-Signed Certificates)))
 
 If using the Demo CA is not desired, ${branding} supports creating self-signed certificates with a self-signed certificate authority.
 This is considered an advanced configuration.

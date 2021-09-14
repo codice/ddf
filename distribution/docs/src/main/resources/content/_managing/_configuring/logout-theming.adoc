@@ -6,6 +6,7 @@
 :order: 01
 
 == {title}
+(((Logout Page)))
 
 The logout pages is presented to users through the navigation of ${branding} and has a changeable timeout value.
 

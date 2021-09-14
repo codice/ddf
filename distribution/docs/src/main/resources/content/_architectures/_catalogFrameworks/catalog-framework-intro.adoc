@@ -30,6 +30,7 @@
 +------------------------------------------------------------+
 ....
 
+(((Catalog Framework)))
 The `CatalogFramework` is the routing mechanism between catalog components that provides integration points for the Catalog Plugins.
 An <<{integrating-prefix}endpoints, endpoint>> invokes the active Catalog Framework, which calls any configured <<{architecture-prefix}pre_query_plugins, Pre-query>> or <<{architecture-prefix}pre_ingest_plugins, Pre-ingest plug-ins>>.
 The selected <<{managing-prefix}federation_strategy, federation strategy>> calls the active <<{managing-prefix}catalog_providers, Catalog Provider>> and any connected or federated sources.
@@ -48,7 +49,7 @@ The Catalog Framework decouples clients from service implementations and provi
 == Catalog API Design
 
 The Catalog is composed of several components and an API that connects them together.
-The Catalog API is central to ${branding}'s architectural qualities of extensibility and flexibility. 
+The ((Catalog API)) is central to ${branding}'s architectural qualities of extensibility and flexibility. 
 The Catalog API consists of Java interfaces that define Catalog functionality and specify interactions between components. 
 These interfaces provide the ability for components to interact without a dependency on a particular underlying implementation, thus allowing the possibility of alternate implementations that can maintain interoperability and share developed components.
 As such, new capabilities can be developed independently, in a modular fashion, using the Catalog API interfaces and reused by other ${branding} installations.

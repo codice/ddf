@@ -6,5 +6,6 @@
 :summary: Console command reference
 
 == {title}
+(((Console command)))
 
 ${branding} provides access to a powerful ${command-console} to use to manage and configure the system.

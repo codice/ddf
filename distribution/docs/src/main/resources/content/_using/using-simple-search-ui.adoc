@@ -7,7 +7,7 @@
 
 == {title}
 
-The ${branding} Simple Search UI application provides a low-bandwidth option for searching records in the local Catalog (provider) and federated sources.
+The ${branding} ((Simple Search UI)) application provides a low-bandwidth option for searching records in the local Catalog (provider) and federated sources.
 Results are returned in HTML format.
 
 === Search

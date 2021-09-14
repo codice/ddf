@@ -9,6 +9,7 @@
 
 .Security Hardening
 ****
+(((Security Hardening)))
 To harden ${branding}, extra security precautions are required.
 
 Where available, necessary migitations to harden an installation of ${branding} are called out in the following configuration steps.

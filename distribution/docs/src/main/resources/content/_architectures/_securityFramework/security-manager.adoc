@@ -6,6 +6,7 @@
 :summary: Security Manager.
 
 == {title}
+((({title})))
 
 `ddf.security.service.SecurityManager`
 

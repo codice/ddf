@@ -5,11 +5,11 @@
 :plugintypes: postingest
 :summary: Creates, updates, and deletes subscriptions.
 
-The Event Processor creates, updates, and deletes subscriptions for event notification.
-These subscriptions optionally specify a filter criteria so that only events of interest to the subscriber are posted for notification.
+The ((Event Processor)) creates, updates, and deletes subscriptions for event notification.
+These subscriptions optionally specify a filter criteria so that only events of interest to the subscriber are posted for notification.
 
 As metacards are created, updated, and deleted, the Catalog's Event Processor is invoked (as a post-ingest plugin) for each of these events.
-The Event Processor applies the filter criteria for each registered subscription to each of these ingest events to determine if they match the criteria.
+The Event Processor applies the filter criteria for each registered subscription to each of these ingest events to determine if they match the criteria.
 
 For more information on creating subscriptions, see <<{integrating-prefix}creating_a_subscription,Creating a Subscription>>.
 

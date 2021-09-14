@@ -6,7 +6,7 @@
 
 ==== Catalog API
 
-The Catalog API is an OSGi bundle (`catalog-core-api`) that contains the Java interfaces for the Catalog components and implementation classes for the Catalog Framework, Operations, and Data components.
+The ((Catalog API)) is an OSGi bundle (`catalog-core-api`) that contains the Java interfaces for the Catalog components and implementation classes for the Catalog Framework, Operations, and Data components.
 
 ===== Catalog API Search Interfaces
 
@@ -14,7 +14,7 @@ The Catalog API includes two different search interfaces.
 
 ${ddf-ui} Application Search Interface:: The ${branding} Search UI application provides a graphic interface to return results and locate them on an interactive globe or map.
 
-SSH Search Interface:: Additionally, it is possible to use a client script to remotely access ${branding} via SSH and send console commands to search and ingest data.
+((SSH Search Interface)):: Additionally, it is possible to use a client script to remotely access ${branding} via SSH and send console commands to search and ingest data.
 
 ===== Catalog Search Result Objects
 

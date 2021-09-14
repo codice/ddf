@@ -6,6 +6,7 @@
 :summary: Security PDP AuthZ Realm.
 
 == {title}
+((({title})))
 
 The ${ddf-security} PDP AuthZ Realm exposes a realm service that makes decisions on authorization requests using the attributes stored within the metacard to determine if access should be granted.
 This realm can use XACML and will delegate decisions to an external processing engine if internal processing fails.
@@ -15,8 +16,8 @@ It is recommended to list as many attributes as possible in these sections to av
 If it is desired that all decisions be passed to the XACML processing engine, remove all of the "match-all" and "match-one" configurations.
 The configuration below provides the mapping between user attributes and the attributes being asserted - one map exists for each type of mapping (each map may contain multiple values).
 
-Match-All Mapping:: This mapping is used to guarantee that all values present in the specified metacard attribute exist in the corresponding user attribute.
-Match-One Mapping:: This mapping is used to guarantee that at least one of the values present in the specified metacard attribute exists in the corresponding user attribute.
+((Match-All Mapping)):: This mapping is used to guarantee that all values present in the specified metacard attribute exist in the corresponding user attribute.
+((Match-One Mapping)):: This mapping is used to guarantee that at least one of the values present in the specified metacard attribute exists in the corresponding user attribute.
 
 === Configuring the Security PDP AuthZ Realm
 

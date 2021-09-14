@@ -6,7 +6,7 @@
 :implements: https://www.w3.org/2001/sw/wiki/REST[REST specification] {external-link}.
 :order: 06
 
-Custom endpoints can be created, if necessary.
+((Custom endpoints)) can be created, if necessary.
 See <<{integrating-prefix}endpoint_details,Endpoints>> for descriptions of provided endpoints.
 
 Complete the following procedure to create an endpoint. 

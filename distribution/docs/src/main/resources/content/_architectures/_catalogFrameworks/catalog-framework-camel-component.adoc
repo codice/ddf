@@ -1,11 +1,11 @@
 :title: Catalog Framework Camel Component
 :type: catalogFramework
 :status: published
-:summary: Supports creating, updating, and deleting metacards using the Catalog Framework from a Camel route.
+:summary: Supports creating, updating, and deleting metacards using the Catalog Framework from a Camel route.
 :link: _catalog_framework_camel_component
 :order: 01
 
-The Catalog Framework Camel Component supports creating, updating, and deleting metacards using the Catalog Framework from a Camel route.
+The ((Catalog Framework Camel Component)) supports creating, updating, and deleting metacards using the Catalog Framework from a Camel route.
 
 .URI Format
 ----
@@ -25,12 +25,12 @@ catalog:framework
 == Sending Messages to Catalog Framework Endpoint
 
 .Catalog Framework Producer
-In Producer mode, the component provides the ability to supply different inputs and have the Catalog Framework perform different operations based upon the header values.  
+In Producer mode, the component provides the ability to supply different inputs and have the Catalog Framework perform different operations based upon the header values.
 
-For the CREATE and UPDATE operation, the message body can contain a list of metacards or a single metacard object. 
+For the CREATE and UPDATE operation, the message body can contain a list of metacards or a single metacard object.
 
 For the DELETE operation, the message body can contain a list of strings or a single string object.
-The string objects represent the IDs of metacards to be deleted. 
+The string objects represent the IDs of metacards to be deleted.
 The exchange's "in" message will be set with the affected metacards.
 In the case of a CREATE, it will be updated with the created metacards.
 In the case of the UPDATE, it will be updated with the updated metacards and with the DELETE it will contain the deleted metacards.

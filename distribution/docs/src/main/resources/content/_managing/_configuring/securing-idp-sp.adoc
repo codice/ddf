@@ -7,7 +7,7 @@
 
 == {title}
 
-The ${ddf-security} SAML handler provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external SAML IdPs (Identity Providers).
+The ((${ddf-security} SAML handler)) provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external SAML IdPs (Identity Providers).
 
 The SAML handler is used for SSO authentication purposes.
 

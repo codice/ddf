@@ -5,7 +5,7 @@
 :link: _pdf_input_transformer
 :summary: Translates a PDF document into a Catalog Metacard.
 
-The PDF Input Transformer is responsible for translating a PDF document into a Catalog Metacard.
+The ((PDF Input Transformer)) is responsible for translating a PDF document into a Catalog Metacard.
 
 .{title} Usage
 [cols="1,2m" options="header"]

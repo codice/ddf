@@ -9,7 +9,7 @@
 
 * *{hardening-step}* (if using SolrCloud/Zookeeper)
 
-Zookeeper clients cannot use secure (SSL/TLS) connections.
+((Zookeeper)) clients cannot use secure (SSL/TLS) connections.
 The configuration information that Zookeeper sends and receives is vulnerable to network sniffing.
 Any unencrypted network traffic is vulnerable to sniffing attacks.
 To use SolrCloud with Zookeeper securely, these processes must be isolated on the network, or their communications must be encrypted by other means.

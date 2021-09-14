@@ -5,7 +5,7 @@
 :link: {developing-prefix}xml_input_transformer
 :summary: Translates an XML document into a Catalog Metacard.
 
-The XML Input Transformer is responsible for translating an XML document into a Catalog Metacard.
+The ((XML Input Transformer)) is responsible for translating an XML document into a Catalog Metacard.
 
 .{title} Usage
 [cols="1,2m" options="header"]

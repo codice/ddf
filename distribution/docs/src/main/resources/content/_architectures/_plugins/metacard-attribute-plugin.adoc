@@ -5,7 +5,7 @@
 :plugintypes: policy
 :summary: Collects attributes into a security field for the metacard.
 
-The Metacard Attribute Security Policy Plugin combines existing metacard attributes to make new attributes and adds them to the metacard.
+The ((Metacard Attribute Security Policy Plugin)) combines existing metacard attributes to make new attributes and adds them to the metacard.
 For example, if a metacard has two attributes,
 `sourceattribute1` and `sourceattribute2`, the values of the two attributes could be combined into a new
  attribute, `destinationattribute1`. The `sourceattribute1` and `sourceattribute2` are the _source attributes_

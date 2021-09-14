@@ -5,7 +5,7 @@
 :link: _xml_query_response_transformer
 :summary: Translates a query response into an XML-formatted document.
 
-The XML Query Response Transformer is responsible for translating a query response into an XML-formatted document.
+The ((XML Query Response Transformer)) is responsible for translating a query response into an XML-formatted document.
 The metacard element generated is an extension of `gml:AbstractFeatureCollectionType`, which makes the output of this transformer http://www.opengeospatial.org/projects/groups/gmldwg[GML 3.1.1] compatible.
 
 == Installing the XML Query Response Transformer

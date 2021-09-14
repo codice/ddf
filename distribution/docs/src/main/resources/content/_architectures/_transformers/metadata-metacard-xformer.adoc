@@ -5,7 +5,7 @@
 :link: _metadata_metacard_transformer
 :summary: returns the `Metacard.METADATA` attribute when given a metacard.
 
-The Metadata Metacard Transformer returns the `Metacard.METADATA` attribute when given a metacard.
+The ((Metadata Metacard Transformer)) returns the `Metacard.METADATA` attribute when given a metacard.
 The MIME Type returned is `text/xml`.
 
 == Installing the Metadata Metacard Transformer

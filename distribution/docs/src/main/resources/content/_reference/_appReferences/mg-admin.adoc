@@ -5,6 +5,7 @@
 :order: 01
 
 == {title} Application Reference
+((({title})))
 
 The ${ddf-admin} Application contains components that are integral for the configuration of ${branding} applications. It contains various services and interfaces that allow administrators control over their systems and enhances administrative capabilities.
 

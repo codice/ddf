@@ -6,6 +6,7 @@
 :summary: ${ddf-ui} whitelist.
 
 == {title}
+((({title})))
 
 The following classes have been exported by the ${ddf-ui} application and are approved for use by third parties:
 

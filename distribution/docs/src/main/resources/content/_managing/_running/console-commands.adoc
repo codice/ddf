@@ -5,6 +5,7 @@
 :order: 00
 
 == {title}
+((({title})))
 
 Once the distribution has started, administrators will have access to a powerful command line console, the ${command-console}.
 This ${command-console} can be used to manage services, install new features, and manage the state of the system.

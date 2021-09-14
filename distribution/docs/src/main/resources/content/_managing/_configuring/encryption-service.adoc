@@ -7,6 +7,8 @@
 :order: 03
 
 == {title}
+((({title})))
+
 ${branding} includes an encryption service to encrypt plain text such as passwords.
 
 === Encryption Command

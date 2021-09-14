@@ -17,6 +17,7 @@ This directory will be referred to in the documentation as `${home_directory}`.
 . Set maximum storage space on the `${home_directory}/deploy` and `${home_directory}/system` directories to restrict the amount of space used by deployments.
 
 === Setting Directory Permissions
+(((Setting Directory Permissions)))
 
 * *{hardening-step}*
 

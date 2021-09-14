@@ -7,7 +7,7 @@
 
 == {title}
 
-Global configuration settings are configured via the properties file `custom.system.properties`.
+((Global configuration settings)) are configured via the properties file ((`custom.system.properties`)).
 These properties can be manually set by editing this file or set via the initial configuration from the ${admin-console}.
 
 [NOTE]

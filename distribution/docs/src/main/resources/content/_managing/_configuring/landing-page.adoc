@@ -7,7 +7,7 @@
 
 == {title}
 
-The Landing Page is the first page presented to users of ${branding}.
+The ((Landing Page)) is the first page presented to users of ${branding}.
 It is customizable to allow adding organizationally-relevant content.
 
 === Installing the Landing Page

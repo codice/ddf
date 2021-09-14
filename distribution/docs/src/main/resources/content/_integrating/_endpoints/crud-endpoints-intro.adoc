@@ -5,6 +5,7 @@
 :order: 02
 
 == {title}
+((({title})))
 
 To perform CRUD (Create, Read, Update, Delete) operations on data or metadata in the catalog, work with one of these endpoints.
 

@@ -5,7 +5,7 @@
 :plugintypes: preingest
 :summary: Modifies metacards when created or ingested according to metacard validator services.
 
-The Metacard Validity Marker Pre-Ingest plugin modifies the metacards contained in create and update requests.
+The ((Metacard Validity Marker Pre-Ingest plugin)) modifies the metacards contained in create and update requests.
 
 The plugin runs each metacard in the `CreateRequest` and `UpdateRequest` against each registered `MetacardValidator` service.
 

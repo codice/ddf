@@ -6,6 +6,7 @@
 ////
 Troubleshooting
 ////
+(((Troubleshooting)))
 
 If, after configuration, a ${branding} is not performing as expected, consult this table of common fixes and workarounds.
 

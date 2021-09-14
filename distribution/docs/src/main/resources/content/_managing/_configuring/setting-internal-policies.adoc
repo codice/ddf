@@ -6,6 +6,7 @@
 :order: 00
 
 == {title}
+(((Setting Internal Policies)))
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-security}* application.

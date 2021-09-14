@@ -5,6 +5,7 @@
 :order: 09
 
 == {title} Application Reference
+((({title})))
 
 The Security application provides authentication, authorization, and auditing services for the ${branding}.
 These services comprise both a framework that developers and integrators can extend as well as a reference implementation that meets security requirements.

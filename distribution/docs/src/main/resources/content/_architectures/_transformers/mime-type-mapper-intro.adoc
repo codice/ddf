@@ -4,7 +4,7 @@
 :link: _mime_type_mapper_intro
 :summary: Resolves file extensions to mime types and vice versa.
 
-The MimeTypeMapper is the entry point in ${branding} for resolving file extensions to mime types, and vice versa.
+The ((Mime Type Mapper)) is the entry point in ${branding} for resolving file extensions to mime types, and vice versa.
 
 `MimeTypeMappers` are used by the `ResourceReader` to determine the file extension for a given mime type in aid of retrieving a resource.
 `MimeTypeMappers` are also used by the `FileSystemProvider` in the Catalog Framework to read a file from the content file repository.

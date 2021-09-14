@@ -5,7 +5,7 @@
 :plugintypes: access
 :summary: Validates a user or subject's security attributes.
 
-The operation plugin validates the subject's security attributes to ensure they are adequate to perform the operation.
+The ((Operation plugin)) validates the subject's security attributes to ensure they are adequate to perform the operation.
 
 == Installing the Operation Plugin
 

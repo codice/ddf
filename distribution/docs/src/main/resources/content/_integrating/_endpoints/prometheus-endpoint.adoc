@@ -8,7 +8,7 @@
 
 == {title}
 
-The Prometheus endpoint provides various metrics about ${branding} such as the number of queries made
+The ((Prometheus endpoint)) provides various metrics about ${branding} such as the number of queries made
 to a specific source and counters of ingest operations.
 
 An external Prometheus server will need to be setup and configured to scrape from ${branding}. The

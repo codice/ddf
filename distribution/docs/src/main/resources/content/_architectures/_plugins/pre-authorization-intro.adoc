@@ -6,7 +6,7 @@
 :plugintypes: preauthorization
 :order: 01
 
-Pre-delivery plugins are invoked before any security rules are applied. 
+((Pre-delivery plugins)) are invoked before any security rules are applied. 
 This is an opportunity to take any action before authorization, including but not limited to:
 
 * logging.

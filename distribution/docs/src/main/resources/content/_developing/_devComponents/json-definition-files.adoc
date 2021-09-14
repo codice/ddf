@@ -4,6 +4,7 @@
 :summary: Introduction to JSON definition files.
 :order: 32
 
+(((JSON Definition Files)))
 ${branding} supports adding new attribute types, metacard types, validators, and more using json-formatted definition files.
 
 The following may be defined in a JSON definition file:

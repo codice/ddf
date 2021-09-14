@@ -5,6 +5,7 @@
 :order: 12
 
 == {title} Application Reference
+((({title})))
 
 The Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.
 
@@ -15,7 +16,7 @@ To use the ${ddf-ui} application, the following applications/features must be in
 * ${ddf-platform}
 * ${ddf-catalog}
 
-===  Installing ${ddf-ui}
+===  Installing ${ddf-ui}
 
 Install the ${ddf-ui} application through the ${admin-console}.
 

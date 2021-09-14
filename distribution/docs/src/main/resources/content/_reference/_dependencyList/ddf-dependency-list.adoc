@@ -1,4 +1,4 @@
-:title: Dependency List
+:title: Java Dependency List
 :type: reference
 :status: published
 :parent: ${ddf-branding} Dependency List
@@ -6,6 +6,7 @@
 :summary: ${ddf-branding} ${project.version} Dependency List.
 
 == {summary}
+((({title})))
 * c3p0:c3p0:jar:0.9.1.1
 * ca.juliusdavies:not-yet-commons-ssl:jar:0.3.11
 * ch.qos.logback:logback-access:jar:1.2.3

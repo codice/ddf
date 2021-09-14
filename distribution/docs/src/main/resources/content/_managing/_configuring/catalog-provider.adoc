@@ -6,6 +6,7 @@
 :order: 01
 
 == {title}
+(((Catalog Providers)))
 
 This scenario describes how to reconfigure ${branding} to use a different catalog provider.
 
