@@ -1,4 +1,5 @@
 = ${branding-expanded} Documentation: Complete Documentation
+:title: ${branding-expanded} Documentation: Complete Documentation
 include::config.adoc[]
 :architecture-prefix: _
 :developing-prefix: _
@@ -67,6 +68,7 @@ ifdef::backend-pdf[]
 [index]
 == Index
 endif::backend-pdf[]
+
 
 ifdef::backend-html5[]
 

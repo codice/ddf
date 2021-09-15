@@ -1,6 +1,6 @@
 = ${branding} User's Guide
+:title: ${branding} User's Guide
 include::config.adoc[]
-:title: Using ${catalog-ui}
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: developing.adoc#_
 :integrating-prefix: documentation.adoc#_

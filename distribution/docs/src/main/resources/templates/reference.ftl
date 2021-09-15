@@ -1,6 +1,6 @@
 = ${branding} Reference Guide
+:title: ${branding} Reference Guide
 include::config.adoc[]
-:title: Reference
 :toc: left
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: developing.adoc#_

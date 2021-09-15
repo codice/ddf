@@ -1,6 +1,6 @@
-= Integrating ${branding}
+= Integrating with ${branding}
+:title: Integrating with ${branding}
 include::config.adoc[]
-:title: Integrating ${branding}
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: developing.adoc#_
 :integrating-prefix: _

@@ -1,6 +1,6 @@
 = ${branding-expanded} Architecture
-include::config.adoc[]
 :title: ${branding-expanded} Architecture
+include::config.adoc[]
 :architecture-prefix: _
 :developing-prefix: developing.adoc#_
 :integrating-prefix: documentation.adoc#_

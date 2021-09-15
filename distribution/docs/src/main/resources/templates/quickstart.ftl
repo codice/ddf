@@ -1,6 +1,6 @@
 = ${branding-expanded}: Quick Start Guide
+:title: ${branding-expanded}: Quick Start Guide
 include::config.adoc[]
-:title: ${branding-expanded} Quick Start Guide
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: developing.adoc#_
 :integrating-prefix: documentation.adoc#_
