@@ -1,6 +1,6 @@
-= Managing
+= Managing ${branding-expanded}
+:title: Managing ${branding-expanded}
 include::config.adoc[]
-:title: Managing ${branding}
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: developing.adoc#_
 :integrating-prefix: documentation.adoc#_
