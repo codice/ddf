@@ -63,6 +63,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -211,7 +212,7 @@ public class FileSystemStorageProviderTest {
         new ByteSource() {
           @Override
           public InputStream openStream() throws IOException {
-            return IOUtils.toInputStream("Updated NITF");
+            return IOUtils.toInputStream("Updated NITF", StandardCharsets.UTF_8);
           }
         };
     ContentItem updateItem =
@@ -254,7 +255,8 @@ public class FileSystemStorageProviderTest {
         new ByteSource() {
           @Override
           public InputStream openStream() throws IOException {
-            return IOUtils.toInputStream("This data is my data, this data is your data.");
+            return IOUtils.toInputStream(
+                "This data is my data, this data is your data.", StandardCharsets.UTF_8);
           }
         };
     ContentItem contentItem =
@@ -334,7 +336,7 @@ public class FileSystemStorageProviderTest {
         new ByteSource() {
           @Override
           public InputStream openStream() throws IOException {
-            return IOUtils.toInputStream("Updated NITF");
+            return IOUtils.toInputStream("Updated NITF", StandardCharsets.UTF_8);
           }
         };
     ContentItem updateItem =
@@ -413,7 +415,7 @@ public class FileSystemStorageProviderTest {
         new ByteSource() {
           @Override
           public InputStream openStream() throws IOException {
-            return IOUtils.toInputStream("Updated NITF");
+            return IOUtils.toInputStream("Updated NITF", StandardCharsets.UTF_8);
           }
         };
     ContentItem updateItem =
@@ -440,7 +442,7 @@ public class FileSystemStorageProviderTest {
         new ByteSource() {
           @Override
           public InputStream openStream() throws IOException {
-            return IOUtils.toInputStream("q1 content");
+            return IOUtils.toInputStream("q1 content", StandardCharsets.UTF_8);
           }
         };
     final ContentItem q1ContentItem =
@@ -451,7 +453,7 @@ public class FileSystemStorageProviderTest {
         new ByteSource() {
           @Override
           public InputStream openStream() throws IOException {
-            return IOUtils.toInputStream("q2 content");
+            return IOUtils.toInputStream("q2 content", StandardCharsets.UTF_8);
           }
         };
     final ContentItem q2ContentItem =
@@ -499,7 +501,7 @@ public class FileSystemStorageProviderTest {
         new ByteSource() {
           @Override
           public InputStream openStream() throws IOException {
-            return IOUtils.toInputStream(TEST_INPUT_CONTENTS);
+            return IOUtils.toInputStream(TEST_INPUT_CONTENTS, StandardCharsets.UTF_8);
           }
         };
     Metacard metacard = mock(Metacard.class);
@@ -658,7 +660,7 @@ public class FileSystemStorageProviderTest {
         new ByteSource() {
           @Override
           public InputStream openStream() throws IOException {
-            return IOUtils.toInputStream(data);
+            return IOUtils.toInputStream(data, StandardCharsets.UTF_8);
           }
         };
     ContentItem contentItem =

@@ -21,7 +21,6 @@ import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -99,17 +98,9 @@ public class XStreamAttributeCopier {
       throw new ConversionException("Unable to create XmlPullParser, cannot parse XML.", e);
     }
 
-    try {
-      // NOTE: must specify encoding here, otherwise the platform default
-      // encoding will be used which will not always work
-      return new XppReader(
-          new InputStreamReader(
-              IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8.name())),
-          parser);
-    } catch (IOException e) {
-      LOGGER.debug("Unable create reader with UTF-8 encoding", e);
-      return new XppReader(new InputStreamReader(IOUtils.toInputStream(writer.toString())), parser);
-    }
+    return new XppReader(
+        new InputStreamReader(IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8)),
+        parser);
   }
 
   /**

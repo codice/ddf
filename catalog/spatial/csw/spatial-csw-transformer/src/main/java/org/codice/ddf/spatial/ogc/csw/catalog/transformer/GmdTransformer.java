@@ -129,6 +129,7 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
 
     xstream = new XStream(staxDriver);
     xstream.setClassLoader(this.getClass().getClassLoader());
+    xstream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     XstreamPathConverter converter = new XstreamPathConverter();
     xstream.registerConverter(converter);
     xstream.alias("MD_Metadata", XstreamPathValueTracker.class);

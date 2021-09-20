@@ -82,7 +82,7 @@ public class XStreamAttributeCopierTest {
   public void setUp() throws IOException, XmlPullParserException {
     reader =
         new XppReader(
-            new InputStreamReader(IOUtils.toInputStream(TEST_XML, StandardCharsets.UTF_8.name())),
+            new InputStreamReader(IOUtils.toInputStream(TEST_XML, StandardCharsets.UTF_8)),
             XmlPullParserFactory.newInstance().newPullParser());
   }
 

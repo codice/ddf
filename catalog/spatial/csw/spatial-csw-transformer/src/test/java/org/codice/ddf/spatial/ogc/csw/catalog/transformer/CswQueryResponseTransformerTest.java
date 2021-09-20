@@ -49,6 +49,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -370,7 +371,7 @@ public class CswQueryResponseTransformerTest {
               Metacard metacard = (Metacard) invocationOnMock.getArguments()[0];
               BinaryContentImpl bci =
                   new BinaryContentImpl(
-                      IOUtils.toInputStream(metacard.getId() + ","),
+                      IOUtils.toInputStream(metacard.getId() + ",", StandardCharsets.UTF_8),
                       new MimeType("application/xml"));
               return bci;
             });
@@ -414,7 +415,7 @@ public class CswQueryResponseTransformerTest {
               Metacard metacard = (Metacard) invocationOnMock.getArguments()[0];
               BinaryContentImpl bci =
                   new BinaryContentImpl(
-                      IOUtils.toInputStream(metacard.getId() + ","),
+                      IOUtils.toInputStream(metacard.getId() + ",", StandardCharsets.UTF_8),
                       new MimeType("application/xml"));
               return bci;
             });

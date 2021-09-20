@@ -30,10 +30,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
-import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_CONNECTED_SOURCE_FACTORY_PID;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.GMD_CSW_FEDERATED_SOURCE_FACTORY_PID;
-import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswConnectedSourceProperties;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSubscription;
@@ -42,7 +40,6 @@ import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getO
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -102,7 +99,6 @@ import org.glassfish.grizzly.http.Method;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -913,57 +909,6 @@ public class TestFederation extends AbstractIntegrationTest {
     }
   }
 
-  // TODO: Connected csw/wfs sources are broken. Ticket: DDF-1366
-  //  @Ignore
-  //  @Test
-  //  public void testConnectedSourceStatus() throws Exception {
-  //    try {
-  //      setupConnectedSources();
-  //    } catch (IOException e) {
-  //      LOGGER.error("Couldn't create connected sources", e);
-  //    }
-  //
-  //    try {
-  //      getSecurityPolicy().configureRestForBasic();
-  //
-  //      String json =
-  //          given()
-  //              .auth()
-  //              .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-  //              .header("X-Requested-With", "XMLHttpRequest")
-  //              .header("Origin", ADMIN_ALL_SOURCES_PATH.getUrl())
-  //              .when()
-  //              .get(ADMIN_ALL_SOURCES_PATH.getUrl())
-  //              .asString();
-  //
-  //      List<Map<String, Object>> sources =
-  //          with(json)
-  //              .param("name", "Csw_Connected_Source")
-  //              .get("value.findAll { source -> source.id == name}");
-  //      String connectedSourcePid =
-  //          (String)
-  //              ((ArrayList<Map<String, Object>>) (sources.get(0).get("configurations")))
-  //                  .get(0)
-  //                  .get("id");
-  //
-  //      // Test CSW Connected Source status
-  //      given()
-  //          .auth()
-  //          .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-  //          .header("X-Requested-With", "XMLHttpRequest")
-  //          .header("Origin", ADMIN_STATUS_PATH.getUrl())
-  //          .when()
-  //          .get(ADMIN_STATUS_PATH.getUrl() + connectedSourcePid)
-  //          .then()
-  //          .assertThat()
-  //          .body(containsString("\"value\":true"));
-  //
-  //    } finally {
-  //      getSecurityPolicy().configureRestForGuest();
-  //      cleanupConnectedSources();
-  //    }
-  //  }
-
   @Test
   public void testCatalogEndpointExposure() {
     // Check the service references
@@ -1425,66 +1370,6 @@ public class TestFederation extends AbstractIntegrationTest {
     }
   }
 
-  /**
-   * Tests that ddf will return the cached copy if there are no changes to the remote metacard Also
-   * tests that the file caches correctly when range headers are not supported
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testDownloadFromCacheIfAvailable() throws Exception {
-    getCatalogBundle().setupCaching(true);
-
-    try {
-      String filename = "product4.txt";
-      String metacardId = generateUniqueMetacardId();
-      String resourceData = getResourceData(metacardId);
-      Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
-
-      cswServer
-          .whenHttp()
-          .match(
-              Condition.post("/services/csw"),
-              withPostBodyContaining("GetRecords"),
-              withPostBodyContaining(metacardId))
-          .then(
-              ok(),
-              contentType("text/xml"),
-              bytesContent(getCswQueryResponse(metacardId).getBytes()));
-
-      cswServer
-          .whenHttp()
-          .match(
-              Condition.get("/services/csw"),
-              Condition.parameter("request", "GetRecordById"),
-              Condition.parameter("id", metacardId))
-          .then(getCswRetrievalHeaders(filename), response);
-
-      String restUrl =
-          REST_PATH.getUrl()
-              + "sources/"
-              + CSW_STUB_SOURCE_ID
-              + "/"
-              + metacardId
-              + "?transform=resource";
-
-      // Download product twice, should only call the stub server to download once
-      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
-
-      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
-
-      cswServer
-          .verifyHttp()
-          .times(
-              1,
-              Condition.uri("/services/csw"),
-              Condition.parameter("request", "GetRecordById"),
-              Condition.parameter("id", metacardId));
-    } finally {
-      getCatalogBundle().setupCaching(false);
-    }
-  }
-
   /** Tests that ddf will redownload a product if the remote metacard has changed */
   @Test
   public void testCacheIsUpdatedIfRemoteProductChanges() {
@@ -1541,198 +1426,6 @@ public class TestFederation extends AbstractIntegrationTest {
             Condition.uri("/services/csw"),
             Condition.parameter("request", "GetRecordById"),
             Condition.parameter("id", metacardId));
-  }
-
-  /**
-   * Tests that a product caches correctly when the download is interrupted twice and ddf uses range
-   * header requests to re-retrieve the remaining portion.
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testFileCachesCorrectlyWhenRangeHeadersAreSupported() throws Exception {
-    getCatalogBundle().setupCaching(true);
-    try {
-      String filename = "product2.txt";
-      String metacardId = generateUniqueMetacardId();
-      String resourceData = getResourceData(metacardId);
-      HeaderCapture headerCapture = new HeaderCapture();
-      Action response =
-          new ChunkedContent.ChunkedContentBuilder(resourceData)
-              .delayBetweenChunks(Duration.ofMillis(200))
-              .fail(2)
-              .allowPartialContent(headerCapture)
-              .build();
-
-      cswServer
-          .whenHttp()
-          .match(
-              Condition.post("/services/csw"),
-              withPostBodyContaining("GetRecords"),
-              withPostBodyContaining(metacardId))
-          .then(
-              ok(),
-              contentType("text/xml"),
-              bytesContent(getCswQueryResponse(metacardId).getBytes()));
-
-      cswServer
-          .whenHttp()
-          .match(
-              Condition.get("/services/csw"),
-              Condition.parameter("request", "GetRecordById"),
-              Condition.parameter("id", metacardId),
-              Condition.custom(headerCapture))
-          .then(getCswRetrievalHeaders(filename), response);
-
-      String restUrl =
-          REST_PATH.getUrl()
-              + "sources/"
-              + CSW_STUB_SOURCE_ID
-              + "/"
-              + metacardId
-              + "?transform=resource";
-
-      // Verify that the testData from the csw stub server is returned.
-      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
-
-      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
-
-      cswServer
-          .verifyHttp()
-          .atLeast(
-              3,
-              Condition.uri("/services/csw"),
-              Condition.parameter("request", "GetRecordById"),
-              Condition.parameter("id", metacardId));
-    } finally {
-      getCatalogBundle().setupCaching(false);
-    }
-  }
-
-  @Test
-  public void testCancelDownload() throws Exception {
-    try {
-      getCatalogBundle().setupCaching(true);
-      getSecurityPolicy().configureWebContextPolicy("PKI|BASIC", "PKI|BASIC", null, null);
-
-      String filename = testName + ".txt";
-      String metacardId = generateUniqueMetacardId();
-      String resourceData = getResourceData(metacardId);
-      Action response =
-          new ChunkedContent.ChunkedContentBuilder(resourceData)
-              .delayBetweenChunks(Duration.ofMillis(200))
-              .fail(0)
-              .build();
-
-      cswServer
-          .whenHttp()
-          .match(
-              Condition.post("/services/csw"),
-              withPostBodyContaining("GetRecords"),
-              withPostBodyContaining(metacardId))
-          .then(
-              ok(),
-              contentType("text/xml"),
-              bytesContent(getCswQueryResponse(metacardId).getBytes()));
-
-      cswServer
-          .whenHttp()
-          .match(
-              Condition.get("/services/csw"),
-              Condition.parameter("request", "GetRecordById"),
-              Condition.parameter("id", metacardId))
-          .then(getCswRetrievalHeaders(filename), response);
-
-      String startDownloadUrl =
-          RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl()
-              + "?source="
-              + CSW_STUB_SOURCE_ID
-              + "&metacard="
-              + metacardId;
-
-      given()
-          .auth()
-          .preemptive()
-          .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
-          .get(startDownloadUrl);
-    } finally {
-      getSecurityPolicy().configureRestForGuest();
-      getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
-      getCatalogBundle().setupCaching(false);
-    }
-  }
-
-  @Ignore
-  @Test
-  public void testFederatedDownloadProductToCacheOnlyCacheEnabled() throws Exception {
-    String fileName = testName.getMethodName() + ".txt";
-    String metacardId = ingestXmlWithProduct(fileName);
-    String productDirectory = new File(fileName).getAbsoluteFile().getParent();
-    urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
-        DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
-
-    getCatalogBundle().setupCaching(true);
-
-    String resourceDownloadEndpoint =
-        RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + CSW_SOURCE_ID + "/" + metacardId;
-
-    // Perform Test and Verify
-    when()
-        .get(resourceDownloadEndpoint)
-        .then()
-        .assertThat()
-        .contentType("text/plain")
-        .body(
-            is(
-                String.format(
-                    "The product associated with metacard [%s] from source [%s] is being downloaded to the product cache.",
-                    metacardId, CSW_SOURCE_ID)));
-    // TODO - Need to update assertion when test is re-enabled
-
-    assertThat(
-        Files.exists(
-            Paths.get(ddfHome).resolve(PRODUCT_CACHE).resolve(CSW_SOURCE_ID + "-" + metacardId)),
-        is(true));
-    assertThat(
-        Files.exists(
-            Paths.get(ddfHome)
-                .resolve(PRODUCT_CACHE)
-                .resolve(CSW_SOURCE_ID + "-" + metacardId + ".ser")),
-        is(true));
-  }
-
-  @Ignore
-  @Test
-  public void testFederatedDownloadProductToCacheOnlyCacheDisabled() throws Exception {
-    String fileName = testName.getMethodName() + ".txt";
-    String metacardId = ingestXmlWithProduct(fileName);
-    String productDirectory = new File(fileName).getAbsoluteFile().getParent();
-    urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
-        DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
-
-    getCatalogBundle().setupCaching(false);
-
-    String resourceDownloadEndpoint =
-        RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + CSW_SOURCE_ID + "/" + metacardId;
-
-    // Perform Test and Verify
-    when()
-        .get(resourceDownloadEndpoint)
-        .then()
-        .assertThat()
-        .contentType("text/plain")
-        .body(is("Caching of products is not enabled."));
-
-    assertThat(
-        Files.exists(
-            Paths.get(ddfHome).resolve(PRODUCT_CACHE).resolve(CSW_SOURCE_ID + "-" + metacardId)),
-        is(false));
-    assertThat(
-        Files.exists(
-            Paths.get(ddfHome)
-                .resolve(PRODUCT_CACHE)
-                .resolve(CSW_SOURCE_ID + "-" + metacardId + ".ser")),
-        is(false));
   }
 
   @Test
@@ -1840,130 +1533,6 @@ public class TestFederation extends AbstractIntegrationTest {
     }
   }
 
-  @Test
-  public void testSingleUserDownloadSameProductSyncAndAsync() throws Exception {
-    try {
-      getCatalogBundle().setupCaching(true);
-      getSecurityPolicy().configureWebContextPolicy("PKI|BASIC", "PKI|BASIC", null, null);
-
-      String filename = "product4.txt";
-      String metacardId = generateUniqueMetacardId();
-      String resourceData = getResourceData(metacardId);
-
-      setupStubCswResponse(filename, metacardId, resourceData);
-
-      String resourceDownloadUrlLocalhostUserSync =
-          REST_PATH.getUrl()
-              + "sources/"
-              + CSW_STUB_SOURCE_ID
-              + "/"
-              + metacardId
-              + "?transform=resource";
-
-      String resourceDownloadUrlLocalhostUserAsync =
-          RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl()
-              + "?source="
-              + CSW_STUB_SOURCE_ID
-              + "&metacard="
-              + metacardId;
-
-      // Download product via async and then sync, should only call the stub server to download
-      given()
-          .auth()
-          .preemptive()
-          .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-          .get(resourceDownloadUrlLocalhostUserAsync);
-
-      given()
-          .auth()
-          .preemptive()
-          .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-          .get(resourceDownloadUrlLocalhostUserSync);
-
-      verifyCswStubCall(1, metacardId);
-    } finally {
-      getCatalogBundle().setupCaching(false);
-      getSecurityPolicy().configureRestForGuest();
-      getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
-    }
-  }
-
-  @Test
-  public void testSingleUserDownloadSameProductAsync() throws Exception {
-    try {
-      getCatalogBundle().setupCaching(true);
-      getSecurityPolicy().configureWebContextPolicy("PKI|BASIC", "PKI|BASIC", null, null);
-
-      String filename = "product4.txt";
-      String metacardId = generateUniqueMetacardId();
-      String resourceData = getResourceData(metacardId);
-
-      setupStubCswResponse(filename, metacardId, resourceData);
-
-      String resourceDownloadUrlLocalhostUserAsync =
-          RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl()
-              + "?source="
-              + CSW_STUB_SOURCE_ID
-              + "&metacard="
-              + metacardId;
-
-      // Download product twice via async, should only call the stub server to download once
-      given()
-          .auth()
-          .preemptive()
-          .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-          .get(resourceDownloadUrlLocalhostUserAsync);
-
-      given()
-          .auth()
-          .preemptive()
-          .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-          .get(resourceDownloadUrlLocalhostUserAsync);
-
-      verifyCswStubCall(1, metacardId);
-    } finally {
-      getCatalogBundle().setupCaching(false);
-      getSecurityPolicy().configureRestForGuest();
-      getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
-    }
-  }
-
-  private void setupStubCswResponse(String filename, String metacardId, String resourceData) {
-    Action response =
-        new ChunkedContent.ChunkedContentBuilder(resourceData)
-            .delayBetweenChunks(Duration.ofMillis(0))
-            .fail(NO_RETRIES)
-            .build();
-    cswServer
-        .whenHttp()
-        .match(
-            Condition.post("/services/csw"),
-            withPostBodyContaining("GetRecords"),
-            withPostBodyContaining(metacardId))
-        .then(
-            ok(),
-            contentType("text/xml"),
-            bytesContent(getCswQueryResponse(metacardId).getBytes()));
-
-    cswServer
-        .whenHttp()
-        .match(
-            Condition.get("/services/csw"),
-            Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId))
-        .then(getCswRetrievalHeaders(filename), response);
-  }
-
-  private void verifyCswStubCall(int expectedCallCount, String metacardId) {
-    cswServer
-        .verifyHttp()
-        .times(
-            expectedCallCount,
-            Condition.uri("/services/csw"),
-            Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId));
-  }
-
   private String generateUniqueMetacardId() {
     return UUID.randomUUID().toString();
   }
@@ -2054,20 +1623,6 @@ public class TestFederation extends AbstractIntegrationTest {
           "Id {}, Event Found Ids: {}", subscriptionId, Arrays.toString(foundIds.toArray()));
     }
     return foundIds;
-  }
-
-  private void setupConnectedSources() throws IOException {
-    connectedPid =
-        getServiceManager()
-            .createManagedService(
-                CSW_CONNECTED_SOURCE_FACTORY_PID,
-                getCswConnectedSourceProperties(
-                    CONNECTED_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()))
-            .getPid();
-  }
-
-  private void cleanupConnectedSources() throws IOException {
-    getServiceManager().stopManagedService(connectedPid);
   }
 
   private String ingestXmlWithProduct(String fileName) throws IOException {

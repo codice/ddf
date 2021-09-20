@@ -64,10 +64,6 @@
                 <exclude>karaf-manual*.html</exclude>
                 <exclude>karaf-manual*.pdf</exclude>
 
-                <!-- Skipping customized libraries. -->
-                <exclude>**/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2/*</exclude>
-                <exclude>**/org/eclipse/platform/org.eclipse.osgi/3.12.100/*</exclude>
-
                 <!-- Excluding jars we don't need that have OWASP vulnerabilities -->
                 <!--
                 Pax Web includes these for Undertow support, but we don't use Undertow.
@@ -276,15 +272,6 @@
                 <include>*.xml</include>
             </includes>
             <fileMode>0644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>${setup.folder}/libraryOverrides</directory>
-            <outputDirectory>
-                /system/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2
-            </outputDirectory>
-            <includes>
-                <include>org.apache.aries.blueprint.core-1.8.2.jar</include>
-            </includes>
         </fileSet>
         <fileSet>
             <directory>${setup.folder}/solr/</directory>

@@ -404,7 +404,7 @@
 
     <feature name="catalog-transformer-xsltengine" version="${project.version}"
              description="Provides XSLT transformer engine.">
-        <feature>pax-swissbox</feature>
+        <feature dependency="true">pax-swissbox</feature>
         <bundle>mvn:ddf.catalog.transformer/service-xslt-transformer/${project.version}</bundle>
     </feature>
 

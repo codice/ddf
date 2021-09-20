@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
@@ -117,7 +118,7 @@ public class GetRecordsResponseConverterTest {
   @Test
   public void testUnmarshalGetRecordsResponseFull() {
 
-    XStream xstream = new XStream(new WstxDriver());
+    XStream xstream = createXstream(new WstxDriver());
     xstream.setClassLoader(this.getClass().getClassLoader());
 
     CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
@@ -227,7 +228,7 @@ public class GetRecordsResponseConverterTest {
   @Test
   public void testUnmarshalParseXmlNamespaces() throws XmlPullParserException {
 
-    XStream xstream = new XStream(new WstxDriver());
+    XStream xstream = createXstream(new WstxDriver());
     xstream.setClassLoader(this.getClass().getClassLoader());
 
     xstream.registerConverter(new GetRecordsResponseConverter(mockProvider));
@@ -310,7 +311,7 @@ public class GetRecordsResponseConverterTest {
 
   @Test
   public void testUnmarshalGetRecordsResponseConversionWithEmptyBoundingBox() {
-    XStream xstream = new XStream(new WstxDriver());
+    XStream xstream = createXstream(new WstxDriver());
     xstream.setClassLoader(this.getClass().getClassLoader());
 
     GetRecordsResponseConverter grrc = new GetRecordsResponseConverter(mockProvider);
@@ -689,7 +690,7 @@ public class GetRecordsResponseConverterTest {
     GetRecordsResponseConverter rrConverter =
         new GetRecordsResponseConverter(new CswTransformProvider(mockMetacardManager, null));
 
-    XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
+    XStream xstream = createXstream(new StaxDriver(new NoNameCoder()));
 
     xstream.registerConverter(rrConverter);
 
@@ -787,7 +788,7 @@ public class GetRecordsResponseConverterTest {
   private XStream createXStream(final String elementName) {
     GetRecordsResponseConverter rrConverter = new GetRecordsResponseConverter(mockProvider);
 
-    XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
+    XStream xstream = createXstream(new StaxDriver(new NoNameCoder()));
 
     xstream.registerConverter(rrConverter);
 
@@ -862,5 +863,11 @@ public class GetRecordsResponseConverterTest {
 
     context = JAXBContext.newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
     return context;
+  }
+
+  private XStream createXstream(HierarchicalStreamDriver streamDriver) {
+    XStream xstream = new XStream(streamDriver);
+    xstream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
+    return xstream;
   }
 }

@@ -40,6 +40,7 @@ import ddf.catalog.transform.MetacardTransformer;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import javax.activation.MimeType;
@@ -74,7 +75,8 @@ public class CswTransformProviderTest {
     when(mockCswRecordConverter.transform(any(Metacard.class), any(Map.class)))
         .thenReturn(
             new BinaryContentImpl(
-                IOUtils.toInputStream(getRecord()), new MimeType(MediaType.APPLICATION_XML)));
+                IOUtils.toInputStream(getRecord(), StandardCharsets.UTF_8),
+                new MimeType(MediaType.APPLICATION_XML)));
 
     StringWriter stringWriter = new StringWriter();
     HierarchicalStreamWriter writer = new WstxDriver().createWriter(stringWriter);
@@ -101,7 +103,8 @@ public class CswTransformProviderTest {
     when(mockMetacardTransformer.transform(any(Metacard.class), any(Map.class)))
         .thenReturn(
             new BinaryContentImpl(
-                IOUtils.toInputStream(getRecord()), new MimeType(MediaType.APPLICATION_XML)));
+                IOUtils.toInputStream(getRecord(), StandardCharsets.UTF_8),
+                new MimeType(MediaType.APPLICATION_XML)));
 
     StringWriter stringWriter = new StringWriter();
     HierarchicalStreamWriter writer = new WstxDriver().createWriter(stringWriter);

@@ -108,6 +108,7 @@ public class TransactionRequestConverterTest {
     new AssociationsAttributes()
         .getAttributeDescriptors().stream().forEach(d -> mockRegistry.register(d));
     xStream = new XStream(new Xpp3Driver());
+    xStream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     xStream.registerConverter(new TransactionRequestConverter(cswRecordConverter, mockRegistry));
     xStream.alias(CswConstants.CSW_TRANSACTION, CswTransactionRequest.class);
   }

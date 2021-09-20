@@ -84,4 +84,4 @@ GC_OPTS="-Xlog:gc*=info:file=${DDF_HOME}/data/log/gc.log:time,uptime,level,tags:
 
 export KARAF_OPTS="-Dfile.encoding=UTF8"
 
-export JAVA_OPTS="-Xms2g -Xmx6g -XX:+UnlockDiagnosticVMOptions -Dddf.home=${DDF_HOME} -Dddf.home.perm=${DDF_HOME}/ -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS $GC_OPTS"
+export JAVA_OPTS="-Xms2g -Xmx6g -XX:+UnlockDiagnosticVMOptions -Dddf.home=${DDF_HOME} -Dddf.home.perm=${DDF_HOME}/ -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS $GC_OPTS --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-opens java.desktop/java.awt.font=ALL-UNNAMED"

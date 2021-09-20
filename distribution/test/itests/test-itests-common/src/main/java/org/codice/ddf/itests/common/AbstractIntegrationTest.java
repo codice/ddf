@@ -130,8 +130,6 @@ public abstract class AbstractIntegrationTest {
 
   protected static final String TEST_SECURITY_LOG_LEVEL_PROPERTY = "securityLogLevel";
 
-  protected static final String KARAF_VERSION = "4.3.0";
-
   protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
 
   protected static final String CSW_SOURCE_ID = "cswSource";
@@ -499,7 +497,7 @@ public abstract class AbstractIntegrationTest {
                     .versionAsInProject()
                     .getURL(),
                 "ddf",
-                KARAF_VERSION)
+                MavenUtils.getArtifactVersion("org.apache.karaf", "karaf"))
             .unpackDirectory(UNPACK_DIRECTORY)
             .useDeployFolder(false));
   }
@@ -667,20 +665,15 @@ public abstract class AbstractIntegrationTest {
   }
 
   protected Option[] configureVmOptions() {
+    String karafVersion = MavenUtils.getArtifactVersion("org.apache.karaf", "karaf");
     return options(
-        systemProperty("pax.exam.osgi.`unresolved.fail").value("true"),
+        systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
         vmOption("--add-reads=java.xml=java.logging"),
         vmOption("--add-exports=java.base/org.apache.karaf.specs.locator=java.xml,ALL-UNNAMED"),
         vmOption("--patch-module"),
-        vmOption(
-            "java.base=lib/endorsed/org.apache.karaf.specs.locator-"
-                + System.getProperty("karafVersion", KARAF_VERSION)
-                + ".jar"),
+        vmOption("java.base=lib/endorsed/org.apache.karaf.specs.locator-" + karafVersion + ".jar"),
         vmOption("--patch-module"),
-        vmOption(
-            "java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-"
-                + System.getProperty("karafVersion", KARAF_VERSION)
-                + ".jar"),
+        vmOption("java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-" + karafVersion + ".jar"),
         vmOption("--add-opens"),
         vmOption("java.base/java.security=ALL-UNNAMED"),
         vmOption("--add-opens"),
@@ -690,17 +683,24 @@ public abstract class AbstractIntegrationTest {
         vmOption("--add-opens"),
         vmOption("java.base/java.util=ALL-UNNAMED"),
         vmOption("--add-opens"),
-        vmOption("java.base/jdk.internal.reflect=ALL-UNNAMED"),
-        vmOption("--add-opens"),
         vmOption("java.naming/javax.naming.spi=ALL-UNNAMED"),
         vmOption("--add-opens"),
         vmOption("java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED"),
+        vmOption("--add-exports=java.base/sun.net.www.protocol.file=ALL-UNNAMED"),
+        vmOption("--add-exports=java.base/sun.net.www.protocol.ftp=ALL-UNNAMED"),
         vmOption("--add-exports=java.base/sun.net.www.protocol.http=ALL-UNNAMED"),
         vmOption("--add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED"),
         vmOption("--add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED"),
+        vmOption("--add-exports=java.base/sun.net.www.content.text=ALL-UNNAMED"),
         vmOption("--add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED"),
+        vmOption("--add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED"),
         vmOption("-classpath"),
-        vmOption("lib/jdk9plus/*" + File.pathSeparator + "lib/boot/*"),
+        vmOption(
+            "lib/jdk9plus/*"
+                + File.pathSeparator
+                + "lib/boot/*"
+                + File.pathSeparator
+                + "lib/endorsed/*"),
         vmOption("-Xmx6144M"),
         // avoid integration tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),

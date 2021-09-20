@@ -46,6 +46,7 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverte
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -81,11 +82,22 @@ public class GenericFeatureConverterTest {
 
   private static final String STATES_FEATURE_TYPE = "states";
 
+  private XStream xstream;
+
+  @Before
+  public void before() {
+    xstream = new XStream(new WstxDriver());
+    allowTypes(xstream);
+  }
+
+  private void allowTypes(XStream stream) {
+    XStream.setupDefaultSecurity(stream);
+    stream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
+  }
+
   @Test
   @Ignore // DDF-733
   public void testUnmarshalSingleFeatureXmlToObject() throws Exception {
-    XStream xstream = new XStream(new WstxDriver());
-
     MetacardType metacardType = buildMetacardType();
     GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
     converter.setMetacardType(buildMetacardType());
@@ -141,7 +153,6 @@ public class GenericFeatureConverterTest {
 
   @Test
   public void testUnmarshalFeatureCollectionXmlToObject() throws Exception {
-    XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
@@ -167,7 +178,6 @@ public class GenericFeatureConverterTest {
 
   @Test
   public void testUnmarshalMultiQueryFeatureCollectionXmlToObject() throws Exception {
-    XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
@@ -202,7 +212,6 @@ public class GenericFeatureConverterTest {
 
   @Test
   public void testGeoServerLatLonSwappingForMultiPolygon() throws Exception {
-    XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
@@ -238,7 +247,6 @@ public class GenericFeatureConverterTest {
 
   @Test
   public void testGeoServerLatLonSwappingForPoint() throws Exception {
-    XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
@@ -271,7 +279,6 @@ public class GenericFeatureConverterTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testUnmarshalNoMetacardTypeRegisteredInConverter() throws Throwable {
-    XStream xstream = new XStream(new WstxDriver());
     xstream.registerConverter(new GenericFeatureConverterWfs20());
     xstream.registerConverter(new GmlGeometryConverter());
     xstream.alias(FEATURE_TYPE, Metacard.class);
@@ -287,6 +294,7 @@ public class GenericFeatureConverterTest {
   public void testMetacardCollectionToFeatureCollectionXml() {
 
     XStream xstream = new XStream(new EnhancedStaxDriver());
+    allowTypes(xstream);
 
     xstream.setMode(XStream.NO_REFERENCES);
     xstream.registerConverter(new FeatureCollectionConverterWfs20());
@@ -329,7 +337,6 @@ public class GenericFeatureConverterTest {
   @Test
   @Ignore // DDF-733
   public void testReadCdata() {
-    XStream xstream = new XStream(new WstxDriver());
     String contents = "<tag>my cdata contents</tag>";
     String xml = "<string><![CDATA[" + contents + "]]></string>";
     String results = (String) xstream.fromXML(xml);
@@ -349,7 +356,6 @@ public class GenericFeatureConverterTest {
     when(metacardMapper.getMetacardAttribute(featureProp)).thenReturn(metacardAttr);
     when(metacardMapper.getMetacardAttribute("the_geom")).thenReturn(Core.LOCATION);
 
-    XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 

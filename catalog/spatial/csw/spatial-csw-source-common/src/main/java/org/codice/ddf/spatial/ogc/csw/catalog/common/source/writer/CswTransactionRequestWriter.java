@@ -34,6 +34,7 @@ public class CswTransactionRequestWriter implements MessageBodyWriter<CswTransac
 
   public CswTransactionRequestWriter(Converter delegatingTransformer) {
     xStream = new XStream(new Xpp3Driver());
+    xStream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     xStream.registerConverter(new TransactionRequestConverter(delegatingTransformer, null));
     xStream.alias(CswConstants.CSW_TRANSACTION, CswTransactionRequest.class);
   }

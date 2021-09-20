@@ -64,6 +64,8 @@ public abstract class AbstractGmdConverter implements Converter {
 
     xstream.setClassLoader(xstream.getClass().getClassLoader());
 
+    xstream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
+
     xstream.registerConverter(this);
     getXstreamAliases().forEach(name -> xstream.alias(name, Metacard.class));
   }

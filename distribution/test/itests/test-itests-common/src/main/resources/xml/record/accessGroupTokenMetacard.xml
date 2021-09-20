@@ -37,9 +37,6 @@
     <string name="metadata-content-type">
         <value>myType</value>
     </string>
-    <string name="resource-uri">
-        <value>" + uri + "</value>
-    </string>
     <string name="security.access-groups">
       <value>ACCESS_GROUP_REPLACE_TOKEN</value>
     </string>

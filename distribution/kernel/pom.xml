@@ -40,7 +40,7 @@
         <distribution.file.name>ddf-${project.artifactId}-${project.version}
         </distribution.file.name>
         <pro-grade.version>1.1.3</pro-grade.version>
-        <org.apache.aries.version>1.1.7</org.apache.aries.version>
+        <org.apache.aries.proxy.version>1.1.10</org.apache.aries.proxy.version>
     </properties>
     <build>
         <resources>
@@ -197,25 +197,14 @@
                                     </destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.eclipse.platform</groupId>
-                                    <artifactId>org.eclipse.osgi</artifactId>
-                                    <version>${equinox.version}</version>
-                                    <outputDirectory>
-                                        ${setup.folder}/system/org/eclipse/platform/org.eclipse.osgi/${equinox.version}
-                                    </outputDirectory>
-                                    <destFileName>
-                                        org.eclipse.osgi-${equinox.version}.jar
-                                    </destFileName>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>org.apache.aries.proxy</groupId>
                                     <artifactId>org.apache.aries.proxy</artifactId>
-                                    <version>${org.apache.aries.version}</version>
+                                    <version>${org.apache.aries.proxy.version}</version>
                                     <outputDirectory>
-                                        ${setup.folder}/system/org/apache/aries/proxy/org.apache.aries.proxy/${org.apache.aries.version}
+                                        ${setup.folder}/system/org/apache/aries/proxy/org.apache.aries.proxy/${org.apache.aries.proxy.version}
                                     </outputDirectory>
                                     <destFileName>
-                                        org.apache.aries.proxy-${org.apache.aries.version}.jar
+                                        org.apache.aries.proxy-${org.apache.aries.proxy.version}.jar
                                     </destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -390,7 +379,7 @@
         <dependency>
             <groupId>org.apache.aries.proxy</groupId>
             <artifactId>org.apache.aries.proxy</artifactId>
-            <version>${org.apache.aries.version}</version>
+            <version>${org.apache.aries.proxy.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.saxon</groupId>

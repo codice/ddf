@@ -23,6 +23,7 @@ import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import org.apache.commons.io.FileUtils;
@@ -117,9 +118,11 @@ public class DavEntryTest {
   }
 
   @Test
-  public void testFile() throws IOException {
+  public void testFile() throws Exception {
     DavEntry child = entry.newChildInstance("more shenanigans.txt");
-    doReturn(IOUtils.toInputStream("test", "UTF-8")).when(mockSardine).get(child.getLocation());
+    doReturn(IOUtils.toInputStream("test", StandardCharsets.UTF_8))
+        .when(mockSardine)
+        .get(child.getLocation());
     File file = child.getFile(mockSardine);
     assertThat(FileUtils.readFileToString(file, "UTF-8"), is("test"));
     assertThat(file.getName(), is("more shenanigans.txt"));
