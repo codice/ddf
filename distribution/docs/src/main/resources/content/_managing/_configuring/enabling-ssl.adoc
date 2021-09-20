@@ -51,7 +51,7 @@ When making outbound secure connections a handshake will be done with the remote
 |The protocols that are supported when making outbound HTTPS connections
 
 |`jdk.tls.client.protocols`
-|`TLSv1.1`,`TLSv1.2`
+|`TLSv1.2`,`TLSv1.3`
 |The protocols that are supported when making inbound HTTPS connections
 
 |`jdk.tls.ephemeralDHKeySize`

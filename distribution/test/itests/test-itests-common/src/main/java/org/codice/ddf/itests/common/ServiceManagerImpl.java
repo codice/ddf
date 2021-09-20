@@ -309,6 +309,7 @@ public class ServiceManagerImpl implements ServiceManager {
     await("Waiting for bundles with prefix to be ready: " + symbolicNamePrefix)
         .atMost(FEATURES_AND_BUNDLES_TIMEOUT, TimeUnit.MILLISECONDS)
         .pollDelay(1, TimeUnit.SECONDS)
+        .pollInterval(10, TimeUnit.SECONDS)
         .until(() -> areBundlesReady(symbolicNamePrefix));
   }
 

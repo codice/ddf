@@ -47,7 +47,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -69,7 +68,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContexts;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.test.common.LoggingUtils;
@@ -436,12 +434,22 @@ public class TestSecurity extends AbstractIntegrationTest {
         .statusCode(equalTo(403));
   }
 
-  @Test
-  public void testTLSv11IsAllowed() throws Exception {
+  @Test(expected = SSLHandshakeException.class)
+  public void testTLSv10IsDisabled() throws Exception {
     String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
-    HttpClient client = createHttpClient("TLSv1.1", createBasicAuth("admin", "admin"));
+    HttpClient client = createHttpClient("TLSv1");
 
-    assertBasicAuth(client, url, 200);
+    HttpGet get = new HttpGet(url);
+    client.execute(get);
+  }
+
+  @Test(expected = SSLHandshakeException.class)
+  public void testTLSv11IsDisabled() throws Exception {
+    String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+    HttpClient client = createHttpClient("TLSv1.1");
+
+    HttpGet get = new HttpGet(url);
+    client.execute(get);
   }
 
   @Test
@@ -450,15 +458,6 @@ public class TestSecurity extends AbstractIntegrationTest {
     HttpClient client = createHttpClient("TLSv1.2", createBasicAuth("admin", "admin"));
 
     assertBasicAuth(client, url, 200);
-  }
-
-  @Test(expected = SSLHandshakeException.class)
-  public void testTLSv1IsDisabled() throws Exception {
-    String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
-    HttpClient client = createHttpClient("TLSv1");
-
-    HttpGet get = new HttpGet(url);
-    client.execute(get);
   }
 
   @Test
@@ -996,24 +995,25 @@ public class TestSecurity extends AbstractIntegrationTest {
     return credentialsProvider;
   }
 
-  private HttpClient createHttpClient(String protocol)
-      throws KeyManagementException, NoSuchAlgorithmException {
+  private HttpClient createHttpClient(String protocol) throws NoSuchAlgorithmException {
     return createHttpClient(protocol, new BasicCredentialsProvider());
   }
 
   private HttpClient createHttpClient(String protocol, CredentialsProvider credentialsProvider)
-      throws KeyManagementException, NoSuchAlgorithmException {
+      throws NoSuchAlgorithmException {
     return createHttpClient(protocol, null, credentialsProvider);
   }
 
   private HttpClient createHttpClient(
       String protocol, String[] cipherSuites, CredentialsProvider credentialsProvider)
-      throws KeyManagementException, NoSuchAlgorithmException {
-    SSLContext context = SSLContexts.custom().useProtocol(protocol).build();
+      throws NoSuchAlgorithmException {
 
     SSLConnectionSocketFactory socketFactory =
         new SSLConnectionSocketFactory(
-            context, null, cipherSuites, SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+            SSLContext.getDefault(),
+            new String[] {protocol},
+            cipherSuites,
+            SSLConnectionSocketFactory.getDefaultHostnameVerifier());
 
     return HttpClients.custom()
         .setDefaultCredentialsProvider(credentialsProvider)

@@ -197,7 +197,7 @@ public class CswTransformProvider implements Converter {
 
     StringWriter writer = new StringWriter();
     XStreamAttributeCopier.copyXml(reader, writer, namespaces);
-    return IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8.name());
+    return IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8);
   }
 
   @Override

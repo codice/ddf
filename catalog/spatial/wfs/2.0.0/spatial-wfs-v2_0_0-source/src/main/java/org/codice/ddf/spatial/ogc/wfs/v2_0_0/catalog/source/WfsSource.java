@@ -42,6 +42,7 @@ import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.ConnectException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1053,7 +1054,7 @@ public class WfsSource extends AbstractWfsSource {
 
     Resource resource =
         new ResourceImpl(
-            IOUtils.toInputStream(strBuilder.toString()),
+            IOUtils.toInputStream(strBuilder.toString(), StandardCharsets.UTF_8),
             MediaType.TEXT_HTML,
             getId() + " Resource");
 

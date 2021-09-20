@@ -17,6 +17,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 
 import java.io.File;
+import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
@@ -36,20 +37,15 @@ public class VmOptions {
   }
 
   public static Option javaModuleVmOptions() {
+    String karafVersion = MavenUtils.getArtifactVersion("org.apache.karaf", "karaf");
     return new DefaultCompositeOption(
         systemProperty("pax.exam.osgi.`unresolved.fail").value("true"),
         vmOption("--add-reads=java.xml=java.logging"),
         vmOption("--add-exports=java.base/org.apache.karaf.specs.locator=java.xml,ALL-UNNAMED"),
         vmOption("--patch-module"),
-        vmOption(
-            "java.base=lib/endorsed/org.apache.karaf.specs.locator-"
-                + System.getProperty("karafVersion", "4.3.0")
-                + ".jar"),
+        vmOption("java.base=lib/endorsed/org.apache.karaf.specs.locator-" + karafVersion + ".jar"),
         vmOption("--patch-module"),
-        vmOption(
-            "java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-"
-                + System.getProperty("karafVersion", "4.3.0")
-                + ".jar"),
+        vmOption("java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-" + karafVersion + ".jar"),
         vmOption("--add-opens"),
         vmOption("java.base/java.security=ALL-UNNAMED"),
         vmOption("--add-opens"),

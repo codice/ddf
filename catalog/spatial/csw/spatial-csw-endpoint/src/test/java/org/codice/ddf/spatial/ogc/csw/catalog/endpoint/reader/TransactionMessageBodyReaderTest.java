@@ -38,6 +38,7 @@ import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.types.Topic;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -336,7 +337,7 @@ public class TransactionMessageBodyReaderTest {
             null,
             null,
             null,
-            IOUtils.toInputStream(getInsertRequest(COUNT)));
+            IOUtils.toInputStream(getInsertRequest(COUNT), StandardCharsets.UTF_8));
     assertThat(request, notNullValue());
     assertThat(request.getInsertActions().size(), is(1));
     assertThat(request.getDeleteActions().size(), is(0));
@@ -362,7 +363,7 @@ public class TransactionMessageBodyReaderTest {
             null,
             null,
             null,
-            IOUtils.toInputStream(DELETE_REQUEST_FILTER_XML));
+            IOUtils.toInputStream(DELETE_REQUEST_FILTER_XML, StandardCharsets.UTF_8));
     assertThat(request, notNullValue());
     assertThat(request.getDeleteActions().size(), is(1));
     assertThat(request.getInsertActions().size(), is(0));
@@ -391,7 +392,7 @@ public class TransactionMessageBodyReaderTest {
             null,
             null,
             null,
-            IOUtils.toInputStream(DELETE_REQUEST_CQL_XML));
+            IOUtils.toInputStream(DELETE_REQUEST_CQL_XML, StandardCharsets.UTF_8));
     assertThat(request, notNullValue());
     assertThat(request.getDeleteActions().size(), is(1));
     assertThat(request.getInsertActions().size(), is(0));
@@ -427,7 +428,7 @@ public class TransactionMessageBodyReaderTest {
             null,
             null,
             null,
-            IOUtils.toInputStream(INSERT_AND_DELETE_REQUEST_XML));
+            IOUtils.toInputStream(INSERT_AND_DELETE_REQUEST_XML, StandardCharsets.UTF_8));
     assertThat(request, notNullValue());
     assertThat(request.getDeleteActions().size(), is(1));
     assertThat(request.getInsertActions().size(), is(1));
@@ -461,7 +462,7 @@ public class TransactionMessageBodyReaderTest {
             null,
             null,
             null,
-            IOUtils.toInputStream(UPDATE_REQUEST_BY_RECORD_XML));
+            IOUtils.toInputStream(UPDATE_REQUEST_BY_RECORD_XML, StandardCharsets.UTF_8));
 
     assertThat(request, notNullValue());
     assertThat(request.getInsertActions().size(), is(0));
@@ -500,7 +501,7 @@ public class TransactionMessageBodyReaderTest {
             null,
             null,
             null,
-            IOUtils.toInputStream(UPDATE_REQUEST_BY_CONSTRAINT_XML));
+            IOUtils.toInputStream(UPDATE_REQUEST_BY_CONSTRAINT_XML, StandardCharsets.UTF_8));
 
     assertThat(request, notNullValue());
     assertThat(request.getInsertActions().size(), is(0));
@@ -561,7 +562,7 @@ public class TransactionMessageBodyReaderTest {
             null,
             null,
             null,
-            IOUtils.toInputStream(MULTIPLE_UPDATES_REQUEST_XML));
+            IOUtils.toInputStream(MULTIPLE_UPDATES_REQUEST_XML, StandardCharsets.UTF_8));
     assertThat(request, notNullValue());
     assertThat(request.getInsertActions().size(), is(0));
     assertThat(request.getDeleteActions().size(), is(0));
@@ -619,7 +620,7 @@ public class TransactionMessageBodyReaderTest {
         null,
         null,
         null,
-        IOUtils.toInputStream(UPDATE_REQUEST_NO_RECORDPROPERTY_NAME_XML));
+        IOUtils.toInputStream(UPDATE_REQUEST_NO_RECORDPROPERTY_NAME_XML, StandardCharsets.UTF_8));
   }
 
   @Test(expected = ConversionException.class)
@@ -633,7 +634,7 @@ public class TransactionMessageBodyReaderTest {
         null,
         null,
         null,
-        IOUtils.toInputStream(UPDATE_REQUEST_NO_CONSTRAINT_XML));
+        IOUtils.toInputStream(UPDATE_REQUEST_NO_CONSTRAINT_XML, StandardCharsets.UTF_8));
   }
 
   @Test(expected = ForbiddenClassException.class)
@@ -647,7 +648,7 @@ public class TransactionMessageBodyReaderTest {
         null,
         null,
         null,
-        IOUtils.toInputStream(DYNAMIC_PROXY_SERIALIZED_XML));
+        IOUtils.toInputStream(DYNAMIC_PROXY_SERIALIZED_XML, StandardCharsets.UTF_8));
   }
 
   private String getInsertRequest(int count) {

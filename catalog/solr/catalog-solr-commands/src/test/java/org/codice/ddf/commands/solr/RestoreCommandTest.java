@@ -76,7 +76,7 @@ public class RestoreCommandTest extends SolrCommandTest {
         "https.cipherSuites",
         "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
     protocols = System.getProperty("https.protocols");
-    System.setProperty("https.protocols", "TLSv1.1, TLSv1.2");
+    System.setProperty("https.protocols", "TLSv1.2");
     System.setProperty("solr.http.url", "https://localhost:8994/solr");
     consoleOutput = new ConsoleOutput();
     consoleOutput.interceptSystemOut();

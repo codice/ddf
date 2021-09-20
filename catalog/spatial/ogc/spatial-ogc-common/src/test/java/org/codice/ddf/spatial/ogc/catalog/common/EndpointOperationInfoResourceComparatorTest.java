@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.message.Message;
@@ -242,7 +243,7 @@ public class EndpointOperationInfoResourceComparatorTest {
     when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
         .thenReturn(EndpointOperationInfoResourceComparator.HTTP_POST);
     when(mockMessage.getContent(InputStream.class))
-        .thenReturn(IOUtils.toInputStream(FIRST_OPERATION_BODY));
+        .thenReturn(IOUtils.toInputStream(FIRST_OPERATION_BODY, StandardCharsets.UTF_8));
     EndpointOperationInfoResourceComparator comparator =
         new EndpointOperationInfoResourceComparator("CSW");
     assertEquals(-1, comparator.compare(firstOperation, secondOperation, mockMessage));
@@ -253,7 +254,7 @@ public class EndpointOperationInfoResourceComparatorTest {
     when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
         .thenReturn(EndpointOperationInfoResourceComparator.HTTP_POST);
     when(mockMessage.getContent(InputStream.class))
-        .thenReturn(IOUtils.toInputStream(SECOND_OPERATION_BODY));
+        .thenReturn(IOUtils.toInputStream(SECOND_OPERATION_BODY, StandardCharsets.UTF_8));
     EndpointOperationInfoResourceComparator comparator =
         new EndpointOperationInfoResourceComparator("CSW");
     assertEquals(1, comparator.compare(firstOperation, secondOperation, mockMessage));

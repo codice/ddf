@@ -86,6 +86,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
   public CswRecordConverter(MetacardType metacardType) {
     xstream = new XStream(new Xpp3Driver());
     xstream.setClassLoader(this.getClass().getClassLoader());
+    xstream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     xstream.registerConverter(this);
     xstream.alias(CswConstants.CSW_RECORD_LOCAL_NAME, Metacard.class);
     xstream.alias(CswConstants.CSW_RECORD, Metacard.class);
@@ -220,7 +221,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             if (StringUtils.equals(CswConstants.CSW_RECORD_LOCAL_NAME, name.getLocalPart())
                 && StringUtils.equals(CswConstants.CSW_OUTPUT_SCHEMA, name.getNamespaceURI())) {
               return new BinaryContentImpl(
-                  IOUtils.toInputStream(metacard.getMetadata()), XML_MIME_TYPE);
+                  IOUtils.toInputStream(metacard.getMetadata(), StandardCharsets.UTF_8),
+                  XML_MIME_TYPE);
             }
           }
         }

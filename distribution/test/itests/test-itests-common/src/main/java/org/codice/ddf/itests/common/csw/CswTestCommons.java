@@ -202,8 +202,7 @@ public class CswTestCommons {
       throws IOException, XPathExpressionException {
     XPath xPath = XPathFactory.newInstance().newXPath();
     String idPath = "//*[local-name()='identifier']/text()";
-    InputSource xml =
-        new InputSource(IOUtils.toInputStream(response.getBody().asString(), UTF_8.name()));
+    InputSource xml = new InputSource(IOUtils.toInputStream(response.getBody().asString(), UTF_8));
     return xPath.compile(idPath).evaluate(xml);
   }
 }

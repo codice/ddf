@@ -45,6 +45,12 @@
 
         <!-- In-container depedencies -->
         <dependency>
+            <groupId>org.apache.karaf</groupId>
+            <artifactId>karaf</artifactId>
+            <version>${karaf.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
             <groupId>org.apache.karaf.bundle</groupId>
             <artifactId>org.apache.karaf.bundle.core</artifactId>
             <version>${karaf.version}</version>

@@ -67,6 +67,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
 
   public GetRecordsMessageBodyReader(Converter converter, CswSourceConfiguration configuration) {
     xstream = new XStream(new XppDriver());
+    xstream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     xstream.setClassLoader(this.getClass().getClassLoader());
     xstream.registerConverter(converter);
     xstream.alias(CswConstants.GET_RECORDS_RESPONSE, CswRecordCollection.class);

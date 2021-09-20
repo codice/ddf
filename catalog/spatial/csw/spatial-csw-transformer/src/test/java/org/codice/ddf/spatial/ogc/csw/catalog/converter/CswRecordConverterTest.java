@@ -29,6 +29,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.core.TreeUnmarshaller;
+import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.DomReader;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
@@ -61,6 +62,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -87,7 +89,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 public class CswRecordConverterTest {
@@ -162,14 +163,15 @@ public class CswRecordConverterTest {
   }
 
   @Test
-  public void testUnmarshalNoNamespaceDeclaration() throws IOException, SAXException {
-    XStream xstream = new XStream(new XppDriver());
+  public void testUnmarshalNoNamespaceDeclaration() throws Exception {
+    XStream xstream = createXstream(new XppDriver());
 
     xstream.registerConverter(converter);
 
     xstream.alias("Record", MetacardImpl.class);
     xstream.alias("csw:Record", MetacardImpl.class);
-    InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
+    InputStream is =
+        IOUtils.toInputStream(getRecordNoNamespaceDeclaration(), StandardCharsets.UTF_8);
     Metacard mc = (Metacard) xstream.fromXML(is);
 
     Metacard expectedMetacard = getTestMetacard();
@@ -184,15 +186,15 @@ public class CswRecordConverterTest {
   }
 
   @Test
-  public void testUnmarshalWriteNamespaces()
-      throws IOException, SAXException, XmlPullParserException {
-    XStream xstream = new XStream(new XppDriver());
+  public void testUnmarshalWriteNamespaces() throws Exception {
+    XStream xstream = createXstream(new XppDriver());
 
     xstream.registerConverter(converter);
 
     xstream.alias("Record", MetacardImpl.class);
     xstream.alias("csw:Record", MetacardImpl.class);
-    InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
+    InputStream is =
+        IOUtils.toInputStream(getRecordNoNamespaceDeclaration(), StandardCharsets.UTF_8);
 
     HierarchicalStreamReader reader =
         new XppReader(
@@ -234,7 +236,7 @@ public class CswRecordConverterTest {
   @Test
   public void testUnmarshalSingleCswRecordToMetacardContentTypeMapsToFormat()
       throws ParserConfigurationException, IOException, SAXException {
-    XStream xstream = new XStream(new WstxDriver());
+    XStream xstream = createXstream(new WstxDriver());
     xstream.registerConverter(converter);
     xstream.alias("csw:Record", MetacardImpl.class);
     DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -253,7 +255,7 @@ public class CswRecordConverterTest {
 
   @Test
   public void testUnmarshalCswRecordGeometryToMetacard() {
-    XStream xstream = new XStream(new WstxDriver());
+    XStream xstream = createXstream(new WstxDriver());
 
     xstream.registerConverter(converter);
 
@@ -272,7 +274,7 @@ public class CswRecordConverterTest {
    */
   @Test
   public void testUnmarshalCswRecordMultipleTitles() {
-    XStream xstream = new XStream(new WstxDriver());
+    XStream xstream = createXstream(new WstxDriver());
 
     xstream.registerConverter(converter);
 
@@ -288,7 +290,7 @@ public class CswRecordConverterTest {
 
   @Test
   public void testUnmarshalCswRecordMultipleResourceUri() {
-    XStream xstream = new XStream(new WstxDriver());
+    XStream xstream = createXstream(new WstxDriver());
 
     xstream.registerConverter(converter);
 
@@ -494,9 +496,9 @@ public class CswRecordConverterTest {
   }
 
   @Test
-  public void testInputTransformWithNoNamespaceDeclaration()
-      throws IOException, CatalogTransformerException {
-    InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
+  public void testInputTransformWithNoNamespaceDeclaration() throws Exception {
+    InputStream is =
+        IOUtils.toInputStream(getRecordNoNamespaceDeclaration(), StandardCharsets.UTF_8);
     Metacard mc = converter.transform(is);
 
     Metacard expectedMetacard = getTestMetacard();
@@ -518,10 +520,8 @@ public class CswRecordConverterTest {
   }
 
   @Test
-  public void testUnmarshalCswRecordWithProductAndThumbnail()
-      throws URISyntaxException, IOException, JAXBException, ParserConfigurationException,
-          SAXException {
-    XStream xstream = new XStream(new WstxDriver());
+  public void testUnmarshalCswRecordWithProductAndThumbnail() throws Exception {
+    XStream xstream = createXstream(new WstxDriver());
 
     xstream.registerConverter(converter);
 
@@ -541,7 +541,7 @@ public class CswRecordConverterTest {
     xstream.alias("csw:Record", MetacardImpl.class);
     DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-    Document doc = docBuilder.parse(IOUtils.toInputStream(xml));
+    Document doc = docBuilder.parse(IOUtils.toInputStream(xml, StandardCharsets.UTF_8));
     HierarchicalStreamReader reader = new DomReader(doc);
     DataHolder holder = xstream.newDataHolder();
 
@@ -774,5 +774,11 @@ public class CswRecordConverterTest {
             new MediaAttributes(),
             new TopicAttributes(),
             new AssociationsAttributes()));
+  }
+
+  private XStream createXstream(HierarchicalStreamDriver streamDriver) {
+    XStream xstream = new XStream(streamDriver);
+    xstream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
+    return xstream;
   }
 }
