@@ -18,6 +18,8 @@ import ddf.security.Subject;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import javax.servlet.http.HttpSession;
+import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.util.ThreadContextUtils;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -105,10 +107,14 @@ public class SecureWebSocketServlet extends WebSocketServlet {
         runWithUser(
             session,
             () -> {
+              String traceId = ThreadContextUtils.addTraceIdToContext();
               try {
                 ws.onMessage(session, message);
               } catch (IOException e) {
                 LOGGER.error("Failed to receive ws message.", e);
+              } finally {
+                LOGGER.trace("Removing trace ID {} from context", traceId);
+                ThreadContext.remove(ThreadContextUtils.TRACE_CONTEXT_KEY);
               }
             });
       } else {

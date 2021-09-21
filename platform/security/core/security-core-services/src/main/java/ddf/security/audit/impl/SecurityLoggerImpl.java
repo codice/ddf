@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -32,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Supplier;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.util.ThreadContextUtils;
 
 /** Class that contains utility methods for logging common security messages. */
 public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogger {
@@ -47,6 +49,8 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   private static final String SUBJECT = "Subject: ";
 
   private static final String EXTRA_ATTRIBUTES_PROP = "security.logger.extra_attributes";
+
+  public static final String TRACE_ID = "trace-id";
 
   private final SubjectOperations subjectOperations;
 
@@ -83,6 +87,14 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
 
   private void requestIpAndPortAndUserMessage(
       Subject subject, Message message, StringBuilder messageBuilder) {
+
+    String traceId = ThreadContextUtils.getTraceIdFromContext();
+    if (StringUtils.isNotEmpty(traceId)) {
+      messageBuilder.append(TRACE_ID).append(" ").append(traceId).append(" ");
+    } else {
+      messageBuilder.append(TRACE_ID).append(" ").append("none").append(" ");
+    }
+
     String user = getUser(subject);
     messageBuilder.append(SUBJECT).append(user);
     appendConditionalAttributes(subject, messageBuilder);
