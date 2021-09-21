@@ -32,6 +32,10 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-services</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
@@ -44,11 +48,6 @@
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-servlet</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

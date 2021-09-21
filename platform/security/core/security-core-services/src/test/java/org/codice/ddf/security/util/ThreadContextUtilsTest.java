@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.platform.util;
+package org.codice.ddf.security.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isEmptyOrNullString;

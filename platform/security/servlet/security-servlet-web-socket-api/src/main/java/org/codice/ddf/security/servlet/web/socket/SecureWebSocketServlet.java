@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import javax.servlet.http.HttpSession;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.platform.util.ThreadContextUtils;
+import org.codice.ddf.security.util.ThreadContextUtils;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;

@@ -33,7 +33,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Supplier;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.platform.util.ThreadContextUtils;
+import org.codice.ddf.security.util.ThreadContextUtils;
 
 /** Class that contains utility methods for logging common security messages. */
 public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogger {
