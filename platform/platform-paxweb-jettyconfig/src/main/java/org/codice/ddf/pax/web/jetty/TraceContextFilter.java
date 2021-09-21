@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.platform.filter.http.HttpFilter;
 import org.codice.ddf.platform.filter.http.HttpFilterChain;
-import org.codice.ddf.platform.util.ThreadContextUtils;
+import org.codice.ddf.security.util.ThreadContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
