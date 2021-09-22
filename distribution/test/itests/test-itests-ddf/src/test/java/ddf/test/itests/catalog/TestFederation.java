@@ -90,7 +90,6 @@ import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
 import org.codice.ddf.itests.common.restito.ChunkedContent;
-import org.codice.ddf.itests.common.restito.HeaderCapture;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.AfterExam;
@@ -1251,12 +1250,10 @@ public class TestFederation extends AbstractIntegrationTest {
     String filename = "product2.txt";
     String metacardId = generateUniqueMetacardId();
     String resourceData = getResourceData(metacardId);
-    HeaderCapture headerCapture = new HeaderCapture();
     Action response =
         new ChunkedContent.ChunkedContentBuilder(resourceData)
             .delayBetweenChunks(Duration.ofMillis(200))
             .fail(2)
-            .allowPartialContent(headerCapture)
             .build();
 
     cswServer
@@ -1275,8 +1272,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .match(
             Condition.get("/services/csw"),
             Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId),
-            Condition.custom(headerCapture))
+            Condition.parameter("id", metacardId))
         .then(getCswRetrievalHeaders(filename), response);
 
     String restUrl =

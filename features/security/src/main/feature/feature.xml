@@ -45,8 +45,8 @@
         <bundle>mvn:com.nimbusds/lang-tag/${nimbus.langtag.version}</bundle>
 
         <!-- MiniDev -->
-        <bundle>mvn:net.minidev/accessors-smart/1.2</bundle>
-        <bundle>mvn:net.minidev/json-smart/2.3</bundle>
+        <bundle>mvn:net.minidev/accessors-smart/${json-smart.version}</bundle>
+        <bundle>mvn:net.minidev/json-smart/${json-smart.version}</bundle>
 
         <!-- Miscellaneous -->
         <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>

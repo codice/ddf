@@ -20,11 +20,11 @@ import static com.xebialabs.restito.semantics.Action.header;
 import static java.lang.Thread.sleep;
 
 import com.xebialabs.restito.semantics.Action;
-import com.xebialabs.restito.semantics.Function;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.grizzly.http.server.Response;
 import org.glassfish.grizzly.http.util.HttpStatus;
@@ -46,8 +46,6 @@ public class ChunkedContent {
     private Duration delayBetweenChunks = Duration.ofMillis(0);
 
     private int numberOfFailures = 0;
-
-    private HeaderCapture headerCapture = null;
 
     /**
      * Set message.
@@ -83,24 +81,12 @@ public class ChunkedContent {
     }
 
     /**
-     * Setting this will make the Response handle range headers properly. If this isn't set, then
-     * the response will ignore range requests and return the entire message every time.
-     *
-     * @param headerCapture HeaderCapture object that contains the request's headers.
-     * @return
-     */
-    public ChunkedContentBuilder allowPartialContent(HeaderCapture headerCapture) {
-      this.headerCapture = headerCapture;
-      return this;
-    }
-
-    /**
      * Builds Action.
      *
      * @return Action constructed from builder object.
      */
     public Action build() {
-      return createChunkedContent(message, delayBetweenChunks, numberOfFailures, headerCapture);
+      return createChunkedContent(message, delayBetweenChunks, numberOfFailures);
     }
   }
 
@@ -127,27 +113,20 @@ public class ChunkedContent {
    * @param delayBetweenChunks Time to wait between sending each character of the message.
    * @param numberOfFailures Number of times to fail (simulate network disconnect) after sending the
    *     first character. Once this number is reached, the message will send successfully.
-   * @param headerCapture Object that can be called to return the request's headers.
    * @return composite action that holds the headers required for a plain text response as well as
    *     the response function itself.
    */
   private static Action createChunkedContent(
-      String responseMessage,
-      Duration delayBetweenChunks,
-      int numberOfFailures,
-      HeaderCapture headerCapture) {
+      String responseMessage, Duration delayBetweenChunks, int numberOfFailures) {
 
     Action response =
         composite(
             getChunkedResponseHeaders(),
             custom(
-                new ChunkedContentFunction(
-                    responseMessage, delayBetweenChunks, numberOfFailures, headerCapture)));
+                new ChunkedContentFunction(responseMessage, delayBetweenChunks, numberOfFailures)));
 
     // adds the Accept-Ranges header for range-header support
-    if (headerCapture != null) {
-      response = composite(getRangeSupportHeaders(), response);
-    }
+    response = composite(getRangeSupportHeaders(), response);
 
     return response;
   }
@@ -161,8 +140,6 @@ public class ChunkedContent {
     private int numberOfFailures;
 
     private int numberOfRetries;
-
-    private HeaderCapture headerCapture;
 
     /**
      * Implementation of the Function interface's apply method. This class can also be used as a
@@ -185,25 +162,16 @@ public class ChunkedContent {
      * @param messageDelay Time to wait between sending each character of the message.
      * @param numberOfFailures Number of times to fail (simulate network disconnect) after sending
      *     the first character. Once this number is reached, the message will send successfully.
-     * @param headerCapture HeaderCapture object that contains the request's headers.
      */
     private ChunkedContentFunction(
-        String responseMessage,
-        Duration messageDelay,
-        int numberOfFailures,
-        HeaderCapture headerCapture) {
+        String responseMessage, Duration messageDelay, int numberOfFailures) {
       this.responseMessage = responseMessage.toCharArray();
       this.messageDelayMs = messageDelay.toMillis();
       this.numberOfFailures = numberOfFailures;
-      this.headerCapture = headerCapture;
     }
 
     private Response respond(Response response) {
       Map<String, String> requestHeaders = Collections.emptyMap();
-      if (headerCapture != null) {
-        requestHeaders = headerCapture.getHeaders();
-        LOGGER.debug("ChunkedContentResponse: extracted request headers [{}]", requestHeaders);
-      }
 
       // if range header is present, return 206 - Partial Content status and set Content-Range
       // header if byte Offset is specified
