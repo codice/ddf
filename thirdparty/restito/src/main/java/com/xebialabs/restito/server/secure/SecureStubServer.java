@@ -18,7 +18,6 @@ import static java.util.Collections.unmodifiableList;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Stub;
 import com.xebialabs.restito.server.StubServer;
-import com.xebialabs.restito.support.behavior.Behavior;
 import com.xebialabs.restito.support.log.CallsHelper;
 import java.io.File;
 import java.io.IOException;
@@ -81,11 +80,6 @@ public class SecureStubServer extends StubServer {
   public SecureStubServer(int port, Stub... stubs) {
     this.stubs.addAll(Arrays.asList(stubs));
     simpleServer = HttpServer.createSimpleServer(null, port);
-  }
-
-  /** Creates a server based on Behavior object */
-  public SecureStubServer(Behavior behavior) {
-    this(behavior.getStubs().toArray(new Stub[behavior.getStubs().size()]));
   }
 
   /** It is possible to add a stub even after the server is started */
