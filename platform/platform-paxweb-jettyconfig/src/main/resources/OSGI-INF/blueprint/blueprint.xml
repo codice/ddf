@@ -21,6 +21,10 @@
         <bean class="org.codice.ddf.pax.web.jetty.ClientInfoFilter"/>
     </service>
 
+    <service id="traceContextFilter" interface="org.codice.ddf.platform.filter.http.HttpFilter">
+        <bean class="org.codice.ddf.pax.web.jetty.TraceContextFilter"/>
+    </service>
+
     <bean id="responseFilter" class="org.codice.ddf.pax.web.jetty.ResponseFilter">
         <cm:managed-properties
           persistent-id="org.codice.ddf.platform.response.filter.ResponseHeaderConfig"
