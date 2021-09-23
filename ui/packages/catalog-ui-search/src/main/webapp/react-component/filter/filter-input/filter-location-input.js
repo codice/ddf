@@ -192,6 +192,7 @@ class LocationInput extends React.Component {
           this.locationModel
         )
       },
+      isFormBuilder: this.props.isFormBuilder,
     }
     return (
       <LocationView

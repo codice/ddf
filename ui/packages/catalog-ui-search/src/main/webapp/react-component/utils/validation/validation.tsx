@@ -54,12 +54,20 @@ export function showErrorMessages(errors: any) {
 }
 
 export function getFilterErrors(filters: any) {
+  return _getFilterErrors(filters, false)
+}
+
+export function getSearchFormFilterErrors(filters: any) {
+  return _getFilterErrors(filters, true)
+}
+
+function _getFilterErrors(filters: any, allowEmptyGeo: boolean) {
   const errors = new Set()
   let geometryErrors = new Set<string>()
   let dateErrors = new Set<string>()
   for (let i = 0; i < filters.length; i++) {
     const filter = filters[i]
-    getGeometryErrors(filter).forEach(msg => {
+    getGeometryErrors(filter, allowEmptyGeo).forEach(msg => {
       geometryErrors.add(msg)
     })
     getDateErrors(filter).forEach(msg => {
@@ -67,16 +75,10 @@ export function getFilterErrors(filters: any) {
     })
   }
   geometryErrors.forEach(err => {
-    errors.add({
-      title: 'Invalid geometry filter',
-      body: err,
-    })
+    errors.add({ title: 'Invalid geometry filter', body: err })
   })
   dateErrors.forEach(err => {
-    errors.add({
-      title: 'Invalid date filter',
-      body: err,
-    })
+    errors.add({ title: 'Invalid date filter', body: err })
   })
   return Array.from(errors)
 }
@@ -198,11 +200,11 @@ function getDateErrors(filter: any): Set<string> {
   return errors
 }
 
-function getGeometryErrors(filter: any): Set<string> {
+function getGeometryErrors(filter: any, allowEmptyGeo: boolean): Set<string> {
   const geometry = filter.geojson && filter.geojson.geometry
   const errors = new Set<string>()
   if (!geometry) {
-    if (isGeoSearch(filter.type)) {
+    if (!allowEmptyGeo && isGeoSearch(filter.type)) {
       errors.add('Location Option must be selected')
     }
     return errors

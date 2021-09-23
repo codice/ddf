@@ -115,6 +115,7 @@ class Filter extends React.Component {
             this.setState({ value }, () => this.props.onChange(this.state))
           }}
           value={this.state.value}
+          isFormBuilder={this.props.isFormBuilder}
         />
       </Root>
     )

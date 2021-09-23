@@ -28,9 +28,10 @@ export const determineInput = (
   type,
   suggestions,
   value,
-  onChange
+  onChange,
+  isFormBuilder
 ) => {
-  const props = { value, onChange }
+  const props = { value, onChange, isFormBuilder }
   switch (comparator) {
     case 'IS EMPTY':
       return null
