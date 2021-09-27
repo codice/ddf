@@ -62,7 +62,7 @@
         <geronimo-jms2-spec-version>${geronimo-jms_2_spec.version}</geronimo-jms2-spec-version>
         <geronimo-jta-spec-version>1.1.1</geronimo-jta-spec-version>
         <camel.guava.version>19.0</camel.guava.version>
-        <cxf.jackson.version>2.9.9</cxf.jackson.version>
+        <cxf.jackson.version>2.10.1</cxf.jackson.version>
         <hikaricp-version>2.3.13</hikaricp-version>
         <httpcore4-version>4.4.10</httpcore4-version>
         <httpclient4-version>4.5.6</httpclient4-version>
