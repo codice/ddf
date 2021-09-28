@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
-<meta name="author" content="Version 2.25.1. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.26.17. Copyright (c) Codice Foundation">
 <title>DDF Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -525,92 +525,99 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.25.1. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.26.17. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_application_reference">Application Reference</a>
+<li><a href="#_application_reference">1. Application Reference</a>
 <ul class="sectlevel2">
-<li><a href="#_admin_application_reference">Admin Application Reference</a>
+<li><a href="#_admin_application_reference">1.1. Admin Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_admin_application_prerequisites">Admin Application Prerequisites</a></li>
-<li><a href="#_installing_the_admin_application">Installing the Admin Application</a></li>
-<li><a href="#_configuring_the_admin_application">Configuring the Admin Application</a></li>
+<li><a href="#_admin_application_prerequisites">1.1.1. Admin Application Prerequisites</a></li>
+<li><a href="#_installing_the_admin_application">1.1.2. Installing the Admin Application</a></li>
+<li><a href="#_configuring_the_admin_application">1.1.3. Configuring the Admin Application</a></li>
 </ul>
 </li>
-<li><a href="#_catalog_application_reference">Catalog Application Reference</a>
+<li><a href="#_catalog_application_reference">1.2. Catalog Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_catalog_application_prerequisites">Catalog Application Prerequisites</a></li>
-<li><a href="#_installing_the_catalog_application">Installing the Catalog Application</a></li>
-<li><a href="#_configuring_the_catalog_application">Configuring the Catalog Application</a></li>
+<li><a href="#_catalog_application_prerequisites">1.2.1. Catalog Application Prerequisites</a></li>
+<li><a href="#_installing_the_catalog_application">1.2.2. Installing the Catalog Application</a></li>
+<li><a href="#_configuring_the_catalog_application">1.2.3. Configuring the Catalog Application</a></li>
 </ul>
 </li>
-<li><a href="#_platform_application_reference">Platform Application Reference</a>
+<li><a href="#_platform_application_reference">1.3. Platform Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_platform_application_prerequisites">Platform Application Prerequisites</a></li>
-<li><a href="#_installing_platform">Installing Platform</a></li>
-<li><a href="#_configuring_the_platform_application">Configuring the Platform Application</a></li>
+<li><a href="#_platform_application_prerequisites">1.3.1. Platform Application Prerequisites</a></li>
+<li><a href="#_installing_platform">1.3.2. Installing Platform</a></li>
+<li><a href="#_configuring_the_platform_application">1.3.3. Configuring the Platform Application</a></li>
 </ul>
 </li>
-<li><a href="#_security_application_reference">Security Application Reference</a>
+<li><a href="#_security_application_reference">1.4. Security Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_security_prerequisites">Security Prerequisites</a></li>
-<li><a href="#_installing_security">Installing Security</a></li>
-<li><a href="#_configuring_the_security_application">Configuring the Security Application</a></li>
+<li><a href="#_security_prerequisites">1.4.1. Security Prerequisites</a></li>
+<li><a href="#_installing_security">1.4.2. Installing Security</a></li>
+<li><a href="#_configuring_the_security_application">1.4.3. Configuring the Security Application</a></li>
 </ul>
 </li>
-<li><a href="#_solr_catalog_application_reference">Solr Catalog Application Reference</a>
+<li><a href="#_solr_catalog_application_reference">1.5. Solr Catalog Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_solr_catalog_prerequisites">Solr Catalog Prerequisites</a></li>
-<li><a href="#_installing_solr_catalog">Installing Solr Catalog</a></li>
-<li><a href="#_configuring_the_solr_catalog_application">Configuring the Solr Catalog Application</a></li>
+<li><a href="#_solr_catalog_prerequisites">1.5.1. Solr Catalog Prerequisites</a></li>
+<li><a href="#_installing_solr_catalog">1.5.2. Installing Solr Catalog</a></li>
+<li><a href="#_configuring_the_solr_catalog_application">1.5.3. Configuring the Solr Catalog Application</a></li>
 </ul>
 </li>
-<li><a href="#_spatial_application_reference">Spatial Application Reference</a>
+<li><a href="#_spatial_application_reference">1.6. Spatial Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_offline_gazetteer_service">Offline Gazetteer Service</a>
+<li><a href="#_offline_gazetteer_service">1.6.1. Offline Gazetteer Service</a>
 <ul class="sectlevel4">
-<li><a href="#_spatial_gazetteer_console_commands">Spatial Gazetteer Console Commands</a></li>
+<li><a href="#_spatial_gazetteer_console_commands">1.6.1.1. Spatial Gazetteer Console Commands</a></li>
 </ul>
 </li>
-<li><a href="#_spatial_prerequisites">Spatial Prerequisites</a></li>
-<li><a href="#_installing_spatial">Installing Spatial</a></li>
-<li><a href="#_configuring_the_spatial_application">Configuring the Spatial Application</a></li>
+<li><a href="#_standalone_solr_offline_gazetteer_feature">1.6.2. Standalone Solr Offline Gazetteer Feature</a>
+<ul class="sectlevel4">
+<li><a href="#_installing_standalone_solr_offline_gazetteer">1.6.2.1. Installing Standalone Solr Offline Gazetteer</a></li>
+<li><a href="#_special_note_regarding_installation">1.6.2.2. Special Note Regarding Installation</a></li>
+<li><a href="#_building_the_suggester_index_on_standalone_solr_offline_gazetteer">1.6.2.3. Building the suggester index on Standalone Solr Offline Gazetteer</a></li>
 </ul>
 </li>
-<li><a href="#_search_ui_application_reference">Search UI Application Reference</a>
+<li><a href="#_spatial_prerequisites">1.6.3. Spatial Prerequisites</a></li>
+<li><a href="#_installing_spatial">1.6.4. Installing Spatial</a></li>
+<li><a href="#_configuring_the_spatial_application">1.6.5. Configuring the Spatial Application</a></li>
+</ul>
+</li>
+<li><a href="#_search_ui_application_reference">1.7. Search UI Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_search_ui_prerequisites">Search UI Prerequisites</a></li>
-<li><a href="#_installingsearch_ui">Installing Search UI</a></li>
-<li><a href="#_configuring_the_search_ui_application">Configuring the Search UI Application</a></li>
+<li><a href="#_search_ui_prerequisites">1.7.1. Search UI Prerequisites</a></li>
+<li><a href="#_installingsearch_ui">1.7.2. Installing Search UI</a></li>
+<li><a href="#_configuring_the_search_ui_application">1.7.3. Configuring the Search UI Application</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#_application_whitelists">Application Whitelists</a>
+<li><a href="#_application_whitelists">2. Application Whitelists</a>
 <ul class="sectlevel2">
-<li><a href="#_packages_removed_from_whitelist">Packages Removed From Whitelist</a></li>
-<li><a href="#_catalog_whitelist">Catalog Whitelist</a></li>
-<li><a href="#_platform_whitelist">Platform Whitelist</a></li>
-<li><a href="#_security_whitelist">Security Whitelist</a></li>
-<li><a href="#_solr_catalog_whitelist">Solr Catalog Whitelist</a></li>
-<li><a href="#_search_ui_whitelist">Search UI Whitelist</a></li>
+<li><a href="#_packages_removed_from_whitelist">2.1. Packages Removed From Whitelist</a></li>
+<li><a href="#_catalog_whitelist">2.2. Catalog Whitelist</a></li>
+<li><a href="#_platform_whitelist">2.3. Platform Whitelist</a></li>
+<li><a href="#_security_whitelist">2.4. Security Whitelist</a></li>
+<li><a href="#_solr_catalog_whitelist">2.5. Solr Catalog Whitelist</a></li>
+<li><a href="#_search_ui_whitelist">2.6. Search UI Whitelist</a></li>
 </ul>
 </li>
-<li><a href="#_ddf_dependency_list">DDF Dependency List</a>
+<li><a href="#_ddf_dependency_list">3. DDF Dependency List</a>
 <ul class="sectlevel2">
-<li><a href="#_ddf_2_25_1_dependency_list">DDF 2.25.1 Dependency List.</a></li>
-<li><a href="#_ddf_2_25_1_javascript_dependency_list">DDF 2.25.1 Javascript Dependency List.</a></li>
+<li><a href="#_ddf_2_26_17_dependency_list">3.1. DDF 2.26.17 Dependency List.</a></li>
+<li><a href="#_ddf_2_26_17_javascript_dependency_list">3.2. DDF 2.26.17 Javascript Dependency List.</a></li>
 </ul>
 </li>
-<li><a href="#_hardening_checklist">Hardening Checklist</a></li>
+<li><a href="#_hardening_checklist">4. Hardening Checklist</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_application_reference"><a class="anchor" href="#_application_reference"></a><a class="link" href="#_application_reference">Application Reference</a></h2>
+<h2 id="_application_reference"><a class="anchor" href="#_application_reference"></a><a class="link" href="#_application_reference">1. Application Reference</a></h2>
 <div class="sectionbody">
 <div class="exampleblock">
 <div class="content">
@@ -620,18 +627,18 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 </div>
 <div class="sect2">
-<h3 id="_admin_application_reference"><a class="anchor" href="#_admin_application_reference"></a><a class="link" href="#_admin_application_reference">Admin Application Reference</a></h3>
+<h3 id="_admin_application_reference"><a class="anchor" href="#_admin_application_reference"></a><a class="link" href="#_admin_application_reference">1.1. Admin Application Reference</a></h3>
 <div class="paragraph">
 <p>The Admin Application contains components that are integral for the configuration of DDF applications. It contains various services and interfaces that allow administrators control over their systems and enhances administrative capabilities.</p>
 </div>
 <div class="sect3">
-<h4 id="_admin_application_prerequisites"><a class="anchor" href="#_admin_application_prerequisites"></a><a class="link" href="#_admin_application_prerequisites">Admin Application Prerequisites</a></h4>
+<h4 id="_admin_application_prerequisites"><a class="anchor" href="#_admin_application_prerequisites"></a><a class="link" href="#_admin_application_prerequisites">1.1.1. Admin Application Prerequisites</a></h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_the_admin_application"><a class="anchor" href="#_installing_the_admin_application"></a><a class="link" href="#_installing_the_admin_application">Installing the Admin Application</a></h4>
+<h4 id="_installing_the_admin_application"><a class="anchor" href="#_installing_the_admin_application"></a><a class="link" href="#_installing_the_admin_application">1.1.2. Installing the Admin Application</a></h4>
 <div class="paragraph">
 <p>Install the Admin application through the Admin Console.</p>
 </div>
@@ -653,7 +660,7 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_admin_application"><a class="anchor" href="#_configuring_the_admin_application"></a><a class="link" href="#_configuring_the_admin_application">Configuring the Admin Application</a></h4>
+<h4 id="_configuring_the_admin_application"><a class="anchor" href="#_configuring_the_admin_application"></a><a class="link" href="#_configuring_the_admin_application">1.1.3. Configuring the Admin Application</a></h4>
 <div class="paragraph">
 <p>To configure the Admin Application:</p>
 </div>
@@ -804,7 +811,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </div>
 </div>
 <div class="sect2">
-<h3 id="_catalog_application_reference"><a class="anchor" href="#_catalog_application_reference"></a><a class="link" href="#_catalog_application_reference">Catalog Application Reference</a></h3>
+<h3 id="_catalog_application_reference"><a class="anchor" href="#_catalog_application_reference"></a><a class="link" href="#_catalog_application_reference">1.2. Catalog Application Reference</a></h3>
 <div class="paragraph">
 <p>The Catalog provides a framework for storing, searching, processing, and transforming information.</p>
 </div>
@@ -815,7 +822,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 <p>At the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.</p>
 </div>
 <div class="sect3">
-<h4 id="_catalog_application_prerequisites"><a class="anchor" href="#_catalog_application_prerequisites"></a><a class="link" href="#_catalog_application_prerequisites">Catalog Application Prerequisites</a></h4>
+<h4 id="_catalog_application_prerequisites"><a class="anchor" href="#_catalog_application_prerequisites"></a><a class="link" href="#_catalog_application_prerequisites">1.2.1. Catalog Application Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Catalog Application, the following applications/features must be installed:</p>
 </div>
@@ -828,7 +835,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_the_catalog_application"><a class="anchor" href="#_installing_the_catalog_application"></a><a class="link" href="#_installing_the_catalog_application">Installing the Catalog Application</a></h4>
+<h4 id="_installing_the_catalog_application"><a class="anchor" href="#_installing_the_catalog_application"></a><a class="link" href="#_installing_the_catalog_application">1.2.2. Installing the Catalog Application</a></h4>
 <div class="paragraph">
 <p>Install the Catalog application through the Admin Console.</p>
 </div>
@@ -850,7 +857,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_catalog_application"><a class="anchor" href="#_configuring_the_catalog_application"></a><a class="link" href="#_configuring_the_catalog_application">Configuring the Catalog Application</a></h4>
+<h4 id="_configuring_the_catalog_application"><a class="anchor" href="#_configuring_the_catalog_application"></a><a class="link" href="#_configuring_the_catalog_application">1.2.3. Configuring the Catalog Application</a></h4>
 <div class="paragraph">
 <p>To configure the Catalog Application:</p>
 </div>
@@ -2709,7 +2716,7 @@ The <code>pollIntervalMinutes</code> should not be set to value a which results 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_platform_application_reference"><a class="anchor" href="#_platform_application_reference"></a><a class="link" href="#_platform_application_reference">Platform Application Reference</a></h3>
+<h3 id="_platform_application_reference"><a class="anchor" href="#_platform_application_reference"></a><a class="link" href="#_platform_application_reference">1.3. Platform Application Reference</a></h3>
 <div class="paragraph">
 <p>The Platform application is considered to be a core application of the distribution.
 The Platform application provides the fundamental building blocks that the distribution needs to run.
@@ -2732,13 +2739,13 @@ These building blocks include subsets of:</p>
 <p>A <a href="managing.html#_command_scheduler">Command Scheduler</a> is also included as part of the Platform application to allow users to schedule Command Line Shell Commands.</p>
 </div>
 <div class="sect3">
-<h4 id="_platform_application_prerequisites"><a class="anchor" href="#_platform_application_prerequisites"></a><a class="link" href="#_platform_application_prerequisites">Platform Application Prerequisites</a></h4>
+<h4 id="_platform_application_prerequisites"><a class="anchor" href="#_platform_application_prerequisites"></a><a class="link" href="#_platform_application_prerequisites">1.3.1. Platform Application Prerequisites</a></h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_platform"><a class="anchor" href="#_installing_platform"></a><a class="link" href="#_installing_platform">Installing Platform</a></h4>
+<h4 id="_installing_platform"><a class="anchor" href="#_installing_platform"></a><a class="link" href="#_installing_platform">1.3.2. Installing Platform</a></h4>
 <div class="paragraph">
 <p>Install the Platform application through the Admin Console.</p>
 </div>
@@ -2760,7 +2767,7 @@ These building blocks include subsets of:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_platform_application"><a class="anchor" href="#_configuring_the_platform_application"></a><a class="link" href="#_configuring_the_platform_application">Configuring the Platform Application</a></h4>
+<h4 id="_configuring_the_platform_application"><a class="anchor" href="#_configuring_the_platform_application"></a><a class="link" href="#_configuring_the_platform_application">1.3.3. Configuring the Platform Application</a></h4>
 <div class="paragraph">
 <p>To configure the Platform Application:</p>
 </div>
@@ -3249,7 +3256,7 @@ These building blocks include subsets of:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_security_application_reference"><a class="anchor" href="#_security_application_reference"></a><a class="link" href="#_security_application_reference">Security Application Reference</a></h3>
+<h3 id="_security_application_reference"><a class="anchor" href="#_security_application_reference"></a><a class="link" href="#_security_application_reference">1.4. Security Application Reference</a></h3>
 <div class="paragraph">
 <p>The Security application provides authentication, authorization, and auditing services for the DDF.
 These services comprise both a framework that developers and integrators can extend as well as a reference implementation that meets security requirements.</p>
@@ -3275,7 +3282,7 @@ These services comprise both a framework that developers and integrators can ext
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_security_prerequisites"><a class="anchor" href="#_security_prerequisites"></a><a class="link" href="#_security_prerequisites">Security Prerequisites</a></h4>
+<h4 id="_security_prerequisites"><a class="anchor" href="#_security_prerequisites"></a><a class="link" href="#_security_prerequisites">1.4.1. Security Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Security application, the following applications/features must be installed:</p>
 </div>
@@ -3288,7 +3295,7 @@ These services comprise both a framework that developers and integrators can ext
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_security"><a class="anchor" href="#_installing_security"></a><a class="link" href="#_installing_security">Installing Security</a></h4>
+<h4 id="_installing_security"><a class="anchor" href="#_installing_security"></a><a class="link" href="#_installing_security">1.4.2. Installing Security</a></h4>
 <div class="paragraph">
 <p>Install the Security application through the Admin Console.</p>
 </div>
@@ -3310,7 +3317,7 @@ These services comprise both a framework that developers and integrators can ext
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_security_application"><a class="anchor" href="#_configuring_the_security_application"></a><a class="link" href="#_configuring_the_security_application">Configuring the Security Application</a></h4>
+<h4 id="_configuring_the_security_application"><a class="anchor" href="#_configuring_the_security_application"></a><a class="link" href="#_configuring_the_security_application">1.4.3. Configuring the Security Application</a></h4>
 <div class="paragraph">
 <p>To configure the Security Application:</p>
 </div>
@@ -4250,12 +4257,12 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_solr_catalog_application_reference"><a class="anchor" href="#_solr_catalog_application_reference"></a><a class="link" href="#_solr_catalog_application_reference">Solr Catalog Application Reference</a></h3>
+<h3 id="_solr_catalog_application_reference"><a class="anchor" href="#_solr_catalog_application_reference"></a><a class="link" href="#_solr_catalog_application_reference">1.5. Solr Catalog Application Reference</a></h3>
 <div class="paragraph">
 <p>DDF uses <a href="http://lucene.apache.org/solr/">Solr</a> for data storage, by default.</p>
 </div>
 <div class="sect3">
-<h4 id="_solr_catalog_prerequisites"><a class="anchor" href="#_solr_catalog_prerequisites"></a><a class="link" href="#_solr_catalog_prerequisites">Solr Catalog Prerequisites</a></h4>
+<h4 id="_solr_catalog_prerequisites"><a class="anchor" href="#_solr_catalog_prerequisites"></a><a class="link" href="#_solr_catalog_prerequisites">1.5.1. Solr Catalog Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Solr Catalog Application, the following apps/features must be installed:</p>
 </div>
@@ -4271,7 +4278,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_solr_catalog"><a class="anchor" href="#_installing_solr_catalog"></a><a class="link" href="#_installing_solr_catalog">Installing Solr Catalog</a></h4>
+<h4 id="_installing_solr_catalog"><a class="anchor" href="#_installing_solr_catalog"></a><a class="link" href="#_installing_solr_catalog">1.5.2. Installing Solr Catalog</a></h4>
 <div class="paragraph">
 <p>Install the Solr Catalog application through the Admin Console.</p>
 </div>
@@ -4293,7 +4300,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_solr_catalog_application"><a class="anchor" href="#_configuring_the_solr_catalog_application"></a><a class="link" href="#_configuring_the_solr_catalog_application">Configuring the Solr Catalog Application</a></h4>
+<h4 id="_configuring_the_solr_catalog_application"><a class="anchor" href="#_configuring_the_solr_catalog_application"></a><a class="link" href="#_configuring_the_solr_catalog_application">1.5.3. Configuring the Solr Catalog Application</a></h4>
 <div class="paragraph">
 <p>To configure the Solr Catalog Application:</p>
 </div>
@@ -4366,12 +4373,12 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_spatial_application_reference"><a class="anchor" href="#_spatial_application_reference"></a><a class="link" href="#_spatial_application_reference">Spatial Application Reference</a></h3>
+<h3 id="_spatial_application_reference"><a class="anchor" href="#_spatial_application_reference"></a><a class="link" href="#_spatial_application_reference">1.6. Spatial Application Reference</a></h3>
 <div class="paragraph">
 <p>The Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.</p>
 </div>
 <div class="sect3">
-<h4 id="_offline_gazetteer_service"><a class="anchor" href="#_offline_gazetteer_service"></a><a class="link" href="#_offline_gazetteer_service">Offline Gazetteer Service</a></h4>
+<h4 id="_offline_gazetteer_service"><a class="anchor" href="#_offline_gazetteer_service"></a><a class="link" href="#_offline_gazetteer_service">1.6.1. Offline Gazetteer Service</a></h4>
 <div class="paragraph">
 <p>In the Spatial Application, the <code>offline-gazetteer</code> is installed by default.
 This feature enables you to use an offline source of GeoNames data (as an alternative to the GeoNames Web service enabled by the <code>webservice-gazetteer</code> feature) to perform searches via the gazetteer search box in the Search UI.</p>
@@ -4380,7 +4387,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <p>Installing the <code>offline-gazetteer-index</code> feature will provide a small set of GeoNames data to use with the offline gazetteer. The GeoNames data is stored as metacards in the core catalog and are tagged with <code>geonames</code> and <code>gazetteer</code>. This collection of GeoNames metacards can be expanded or updated by using the <code>gazetteer:update</code> command.</p>
 </div>
 <div class="sect4">
-<h5 id="_spatial_gazetteer_console_commands"><a class="anchor" href="#_spatial_gazetteer_console_commands"></a><a class="link" href="#_spatial_gazetteer_console_commands">Spatial Gazetteer Console Commands</a></h5>
+<h5 id="_spatial_gazetteer_console_commands"><a class="anchor" href="#_spatial_gazetteer_console_commands"></a><a class="link" href="#_spatial_gazetteer_console_commands">1.6.1.1. Spatial Gazetteer Console Commands</a></h5>
 <div class="paragraph">
 <p>The <code>gazetteer</code> commands provide the ability to interact with the local GeoNames metacard collection in the core catalog. These GeoNames metacards are used by the <code>offline-gazetteer</code> feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the <code>offline-gazetteer</code> feature is installed.</p>
 </div>
@@ -4438,7 +4445,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>build-suggester-index</code></p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>Builds the Solr suggester index used for placename autocompletion in Intrigue when using the
+<p>Builds the Solr suggester index used for placename autocompletion when using the
 offline gazetteer. This index is built automatically whenever gazetteer metacards are created,
 updated, or deleted, but if those builds fail then this command can be used to attempt to build the
 index again.</p>
@@ -4449,7 +4456,65 @@ index again.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_spatial_prerequisites"><a class="anchor" href="#_spatial_prerequisites"></a><a class="link" href="#_spatial_prerequisites">Spatial Prerequisites</a></h4>
+<h4 id="_standalone_solr_offline_gazetteer_feature"><a class="anchor" href="#_standalone_solr_offline_gazetteer_feature"></a><a class="link" href="#_standalone_solr_offline_gazetteer_feature">1.6.2. Standalone Solr Offline Gazetteer Feature</a></h4>
+<div class="paragraph">
+<p>The Standalone Solr Offline Gazetteer is a reflection of the gazetteer data stored
+in the catalog but separated from other data. This allows the suggester to be separately rebuilt
+much quicker than for the entire catalog collection.</p>
+</div>
+<div class="sect4">
+<h5 id="_installing_standalone_solr_offline_gazetteer"><a class="anchor" href="#_installing_standalone_solr_offline_gazetteer"></a><a class="link" href="#_installing_standalone_solr_offline_gazetteer">1.6.2.1. Installing Standalone Solr Offline Gazetteer</a></h5>
+<div class="paragraph">
+<p>The Standalone Solr Offline Gazetteer is not installed by default but can be installed by running
+<code>feature:install catalog-solr-offline-gazetteer</code>. This will install:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The plugin that intercepts gazetteer metacard creates/updates/deletes to the catalog collection
+(and stores them in the standalone solr gazetteer collection)</p>
+</li>
+<li>
+<p>The gazetteer query service which registers the Query component that responds to requests from
+the UI gazetteer search box</p>
+</li>
+<li>
+<p>The <code>offline-solr-gazetteer:removeall</code> command which will delete all records in the gazetteer
+collection.</p>
+</li>
+<li>
+<p>The <code>offline-solr-gazetteer:synccatalog</code> command which will sync with the catalog and update all
+records in the gazetteer collection to reflect it (or add them if they are not yet
+created)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_special_note_regarding_installation"><a class="anchor" href="#_special_note_regarding_installation"></a><a class="link" href="#_special_note_regarding_installation">1.6.2.2. Special Note Regarding Installation</a></h5>
+<div class="paragraph">
+<p>If the Spatial Geocoding Offline Catalog bundle and the bundle using the Gazetteer query service
+(for example, Intrigue) are both already running, you will need to restart the bundles consuming the service
+(for example, Intrigue) in order to pick up the correct one.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_building_the_suggester_index_on_standalone_solr_offline_gazetteer"><a class="anchor" href="#_building_the_suggester_index_on_standalone_solr_offline_gazetteer"></a><a class="link" href="#_building_the_suggester_index_on_standalone_solr_offline_gazetteer">1.6.2.3. Building the suggester index on Standalone Solr Offline Gazetteer</a></h5>
+<div class="paragraph">
+<p>The suggester index will be built when any of the other methods of building the catalog gazetteer
+are run, along with on initial install. So you can run <code>gazetteer:build-suggester-index</code> or
+<code>offline-solr-gazetteer:build-suggester-index</code> to build the suggester.</p>
+</div>
+<div class="paragraph">
+<p>Another option is to send a build request via a solr client. An example of this is done through
+the Solr Dashboard after selecting the <code>gazetteer</code> collection and clicking <code>query</code>.
+Ensure that the Request-Handler (qt) is set to <code>/suggest</code> and then in the 'Extra Parameters' field
+add <code>suggest.build=true&amp;suggest.dictionary=suggestPlace&amp;suggest.q=bla</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_spatial_prerequisites"><a class="anchor" href="#_spatial_prerequisites"></a><a class="link" href="#_spatial_prerequisites">1.6.3. Spatial Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Spatial Application, the following apps/features must be installed:</p>
 </div>
@@ -4465,7 +4530,7 @@ index again.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_spatial"><a class="anchor" href="#_installing_spatial"></a><a class="link" href="#_installing_spatial">Installing Spatial</a></h4>
+<h4 id="_installing_spatial"><a class="anchor" href="#_installing_spatial"></a><a class="link" href="#_installing_spatial">1.6.4. Installing Spatial</a></h4>
 <div class="paragraph">
 <p>Install the Spatial application through the Admin Console.</p>
 </div>
@@ -4487,7 +4552,7 @@ index again.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_spatial_application"><a class="anchor" href="#_configuring_the_spatial_application"></a><a class="link" href="#_configuring_the_spatial_application">Configuring the Spatial Application</a></h4>
+<h4 id="_configuring_the_spatial_application"><a class="anchor" href="#_configuring_the_spatial_application"></a><a class="link" href="#_configuring_the_spatial_application">1.6.5. Configuring the Spatial Application</a></h4>
 <div class="paragraph">
 <p>To configure the Spatial Application:</p>
 </div>
@@ -6023,12 +6088,12 @@ index again.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_search_ui_application_reference"><a class="anchor" href="#_search_ui_application_reference"></a><a class="link" href="#_search_ui_application_reference">Search UI Application Reference</a></h3>
+<h3 id="_search_ui_application_reference"><a class="anchor" href="#_search_ui_application_reference"></a><a class="link" href="#_search_ui_application_reference">1.7. Search UI Application Reference</a></h3>
 <div class="paragraph">
 <p>The Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.</p>
 </div>
 <div class="sect3">
-<h4 id="_search_ui_prerequisites"><a class="anchor" href="#_search_ui_prerequisites"></a><a class="link" href="#_search_ui_prerequisites">Search UI Prerequisites</a></h4>
+<h4 id="_search_ui_prerequisites"><a class="anchor" href="#_search_ui_prerequisites"></a><a class="link" href="#_search_ui_prerequisites">1.7.1. Search UI Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Search UI application, the following applications/features must be installed:</p>
 </div>
@@ -6044,7 +6109,7 @@ index again.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installingsearch_ui"><a class="anchor" href="#_installingsearch_ui"></a><a class="link" href="#_installingsearch_ui">Installing Search UI</a></h4>
+<h4 id="_installingsearch_ui"><a class="anchor" href="#_installingsearch_ui"></a><a class="link" href="#_installingsearch_ui">1.7.2. Installing Search UI</a></h4>
 <div class="paragraph">
 <p>Install the Search UI application through the Admin Console.</p>
 </div>
@@ -6066,7 +6131,7 @@ index again.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_search_ui_application"><a class="anchor" href="#_configuring_the_search_ui_application"></a><a class="link" href="#_configuring_the_search_ui_application">Configuring the Search UI Application</a></h4>
+<h4 id="_configuring_the_search_ui_application"><a class="anchor" href="#_configuring_the_search_ui_application"></a><a class="link" href="#_configuring_the_search_ui_application">1.7.3. Configuring the Search UI Application</a></h4>
 <div class="paragraph">
 <p>To configure the Search UI Application:</p>
 </div>
@@ -6240,7 +6305,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultUri</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the redirect URI to use when accessing the /search URI.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${org.codice.ddf.external.context}/search/catalog/</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${org.codice.ddf.external.context}/search/simple/</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 </tbody>
@@ -6399,13 +6464,13 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect1">
-<h2 id="_application_whitelists"><a class="anchor" href="#_application_whitelists"></a><a class="link" href="#_application_whitelists">Application Whitelists</a></h2>
+<h2 id="_application_whitelists"><a class="anchor" href="#_application_whitelists"></a><a class="link" href="#_application_whitelists">2. Application Whitelists</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Within each DDF application, certain packages are exported for use by third parties.</p>
 </div>
 <div class="sect2">
-<h3 id="_packages_removed_from_whitelist"><a class="anchor" href="#_packages_removed_from_whitelist"></a><a class="link" href="#_packages_removed_from_whitelist">Packages Removed From Whitelist</a></h3>
+<h3 id="_packages_removed_from_whitelist"><a class="anchor" href="#_packages_removed_from_whitelist"></a><a class="link" href="#_packages_removed_from_whitelist">2.1. Packages Removed From Whitelist</a></h3>
 <div class="paragraph">
 <p>In the transition of the whitelist from the ambiguous package listing to the new class listing several errors were found. The packages originally listed that were removed either did not exist, contained experimental interfaces, or contained only internal implementations and should have never been included in the whitelist. The following is a list of packages that were listed in error and have been removed from the whitelist.</p>
 </div>
@@ -6649,7 +6714,7 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect2">
-<h3 id="_catalog_whitelist"><a class="anchor" href="#_catalog_whitelist"></a><a class="link" href="#_catalog_whitelist">Catalog Whitelist</a></h3>
+<h3 id="_catalog_whitelist"><a class="anchor" href="#_catalog_whitelist"></a><a class="link" href="#_catalog_whitelist">2.2. Catalog Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Catalog application and are approved for use by third parties:</p>
 </div>
@@ -7153,7 +7218,7 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect2">
-<h3 id="_platform_whitelist"><a class="anchor" href="#_platform_whitelist"></a><a class="link" href="#_platform_whitelist">Platform Whitelist</a></h3>
+<h3 id="_platform_whitelist"><a class="anchor" href="#_platform_whitelist"></a><a class="link" href="#_platform_whitelist">2.3. Platform Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Platform application and are approved for use by third parties:</p>
 </div>
@@ -7198,7 +7263,7 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect2">
-<h3 id="_security_whitelist"><a class="anchor" href="#_security_whitelist"></a><a class="link" href="#_security_whitelist">Security Whitelist</a></h3>
+<h3 id="_security_whitelist"><a class="anchor" href="#_security_whitelist"></a><a class="link" href="#_security_whitelist">2.4. Security Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Security application and are approved for use by third parties:</p>
 </div>
@@ -7348,7 +7413,7 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect2">
-<h3 id="_solr_catalog_whitelist"><a class="anchor" href="#_solr_catalog_whitelist"></a><a class="link" href="#_solr_catalog_whitelist">Solr Catalog Whitelist</a></h3>
+<h3 id="_solr_catalog_whitelist"><a class="anchor" href="#_solr_catalog_whitelist"></a><a class="link" href="#_solr_catalog_whitelist">2.5. Solr Catalog Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Solr Catalog application and are approved for use by third parties:</p>
 </div>
@@ -7357,7 +7422,7 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect2">
-<h3 id="_search_ui_whitelist"><a class="anchor" href="#_search_ui_whitelist"></a><a class="link" href="#_search_ui_whitelist">Search UI Whitelist</a></h3>
+<h3 id="_search_ui_whitelist"><a class="anchor" href="#_search_ui_whitelist"></a><a class="link" href="#_search_ui_whitelist">2.6. Search UI Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Search UI application and are approved for use by third parties:</p>
 </div>
@@ -7368,13 +7433,13 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect1">
-<h2 id="_ddf_dependency_list"><a class="anchor" href="#_ddf_dependency_list"></a><a class="link" href="#_ddf_dependency_list">DDF Dependency List</a></h2>
+<h2 id="_ddf_dependency_list"><a class="anchor" href="#_ddf_dependency_list"></a><a class="link" href="#_ddf_dependency_list">3. DDF Dependency List</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This list of DDF dependencies is automatically generated:</p>
 </div>
 <div class="sect2">
-<h3 id="_ddf_2_25_1_dependency_list"><a class="anchor" href="#_ddf_2_25_1_dependency_list"></a><a class="link" href="#_ddf_2_25_1_dependency_list">DDF 2.25.1 Dependency List.</a></h3>
+<h3 id="_ddf_2_26_17_dependency_list"><a class="anchor" href="#_ddf_2_26_17_dependency_list"></a><a class="link" href="#_ddf_2_26_17_dependency_list">3.1. DDF 2.26.17 Dependency List.</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -8392,7 +8457,7 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ddf_2_25_1_javascript_dependency_list"><a class="anchor" href="#_ddf_2_25_1_javascript_dependency_list"></a><a class="link" href="#_ddf_2_25_1_javascript_dependency_list">DDF 2.25.1 Javascript Dependency List.</a></h3>
+<h3 id="_ddf_2_26_17_javascript_dependency_list"><a class="anchor" href="#_ddf_2_26_17_javascript_dependency_list"></a><a class="link" href="#_ddf_2_26_17_javascript_dependency_list">3.2. DDF 2.26.17 Javascript Dependency List.</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -9892,7 +9957,7 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect1">
-<h2 id="_hardening_checklist"><a class="anchor" href="#_hardening_checklist"></a><a class="link" href="#_hardening_checklist">Hardening Checklist</a></h2>
+<h2 id="_hardening_checklist"><a class="anchor" href="#_hardening_checklist"></a><a class="link" href="#_hardening_checklist">4. Hardening Checklist</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The following list enumerates the required mitigations needed for hardening. It is not intended to be a step-by-step procedure.
@@ -10040,7 +10105,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-07-19 22:59:58 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2021-09-22 16:44:57 UTC
 </div>
 </div>
 </body>
