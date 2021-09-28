@@ -33,7 +33,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Supplier;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.security.util.ThreadContextUtils;
+import org.codice.ddf.security.util.ThreadContextProperties;
 
 /** Class that contains utility methods for logging common security messages. */
 public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogger {
@@ -88,7 +88,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   private void requestIpAndPortAndUserMessage(
       Subject subject, Message message, StringBuilder messageBuilder) {
 
-    String traceId = ThreadContextUtils.getTraceIdFromContext();
+    String traceId = ThreadContextProperties.getTraceId();
     if (StringUtils.isNotEmpty(traceId)) {
       messageBuilder.append(TRACE_ID).append(" ").append(traceId).append(" ");
     } else {

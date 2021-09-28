@@ -18,13 +18,13 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.shiro.util.ThreadContext;
 
-public final class ThreadContextUtils {
+public final class ThreadContextProperties {
 
   public static final String TRACE_CONTEXT_KEY = "trace-context";
 
   private static final String TRACE_ID = "trace-id";
 
-  private ThreadContextUtils() {
+  private ThreadContextProperties() {
     // as a utility this should never be constructed, hence it's private
   }
 
@@ -33,8 +33,8 @@ public final class ThreadContextUtils {
    *
    * @return traceId in ThreadContext
    */
-  public static String addTraceIdToContext() {
-    String traceId = getTraceIdFromContext();
+  public static String addTraceId() {
+    String traceId = getTraceId();
     if (traceId == null) {
       Map<String, String> traceContextMap = new HashMap<>();
       traceId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -45,7 +45,7 @@ public final class ThreadContextUtils {
   }
 
   /** @return trace-id from ThreadContext if it exists otherwise returns null */
-  public static String getTraceIdFromContext() {
+  public static String getTraceId() {
     String traceId = null;
     Map<String, String> traceContextMap =
         (Map<String, String>) ThreadContext.get(TRACE_CONTEXT_KEY);
@@ -53,5 +53,9 @@ public final class ThreadContextUtils {
       traceId = traceContextMap.get(TRACE_ID);
     }
     return traceId;
+  }
+
+  public static void removeTraceId() {
+    ThreadContext.remove(ThreadContextProperties.TRACE_CONTEXT_KEY);
   }
 }

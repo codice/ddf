@@ -14,15 +14,15 @@
 package org.codice.ddf.security.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
 
 import java.util.Map;
 import org.apache.shiro.util.ThreadContext;
 import org.junit.Test;
 
-public class ThreadContextUtilsTest {
+public class ThreadContextPropertiesTest {
 
   public static final String TRACE_CONTEXT_KEY = "trace-context";
 
@@ -30,19 +30,17 @@ public class ThreadContextUtilsTest {
 
   @Test
   public void testAddTraceContext() throws Exception {
-    try {
-      String traceId = ThreadContextUtils.addTraceIdToContext();
-      assertThatMapIsAccurate(traceId);
-      assertThat(traceId.equals(ThreadContextUtils.getTraceIdFromContext()), is(true));
-    } finally {
-      ThreadContext.remove(TRACE_CONTEXT_KEY);
-    }
+    String traceId = ThreadContextProperties.addTraceId();
+    assertThatMapIsAccurate(traceId);
+    assertThat(traceId.equals(ThreadContextProperties.getTraceId()), is(true));
+    ThreadContextProperties.removeTraceId();
+    assertThat(ThreadContextProperties.getTraceId(), nullValue());
   }
 
   @Test
   public void testGetTraceContextWhenMissing() throws Exception {
-    String traceId = ThreadContextUtils.getTraceIdFromContext();
-    assertThat(traceId, isEmptyOrNullString());
+    String traceId = ThreadContextProperties.getTraceId();
+    assertThat(traceId, is(nullValue()));
   }
 
   private void assertThatMapIsAccurate(String expectedTraceId) throws Exception {

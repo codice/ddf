@@ -19,7 +19,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 
 import java.util.Map;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.util.ThreadContext;
@@ -37,7 +36,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class TraceContextFilterTest {
-  @Mock private ServletContext mockServletContext;
 
   @Mock private HttpServletRequest mockRequest;
 

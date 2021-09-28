@@ -20,13 +20,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.platform.filter.http.HttpFilter;
 import org.codice.ddf.platform.filter.http.HttpFilterChain;
-import org.codice.ddf.security.util.ThreadContextUtils;
+import org.codice.ddf.security.util.ThreadContextProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This servlet filter inserts a trace-id nto the shiro {@link ThreadContext} so it can be forwarded
- * to useful areas of interest.
+ * This servlet filter inserts a trace-id into the shiro {@link ThreadContext} so it can be
+ * forwarded to useful areas of interest.
  *
  * <p>This filter supports but doesn't full implement the W3C Trace Context specification. Refer to
  * <a href="https://www.w3.org/TR/trace-context/">W3C Trace Context Specification</a> and
@@ -42,14 +42,14 @@ public class TraceContextFilter implements HttpFilter {
       throws IOException, ServletException {
 
     // TODO: use trace-id from traceparent HTTP header if it exists, otherwise generate our own
-    String traceId = ThreadContextUtils.addTraceIdToContext();
+    String traceId = ThreadContextProperties.addTraceId();
     LOGGER.trace("Adding traceId {} to context", traceId);
 
     try {
       filterChain.doFilter(request, response);
     } finally {
       LOGGER.trace("Removing trace ID {} from context", traceId);
-      ThreadContext.remove(ThreadContextUtils.TRACE_CONTEXT_KEY);
+      ThreadContextProperties.removeTraceId();
     }
   }
 }
