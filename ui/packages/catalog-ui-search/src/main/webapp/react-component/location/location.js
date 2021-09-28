@@ -86,11 +86,11 @@ const ErrorWrapper = styled.div`
 
 const Component = CustomElements.registerReact('location')
 const LocationInput = props => {
-  const { mode, setState } = props
+  const { mode, setState, isFormBuilder } = props
   const input = inputs[mode] || {}
   const { Component: Input = null } = input
   const locOptionError = {
-    error: input.label === undefined,
+    error: !isFormBuilder && input.label === undefined,
     message: 'Please select a Location',
   }
   return (
@@ -125,5 +125,10 @@ const LocationInput = props => {
 }
 
 module.exports = ({ state, setState, options }) => (
-  <LocationInput {...state} onDraw={options.onDraw} setState={setState} />
+  <LocationInput
+    {...state}
+    onDraw={options.onDraw}
+    setState={setState}
+    isFormBuilder={options.isFormBuilder}
+  />
 )

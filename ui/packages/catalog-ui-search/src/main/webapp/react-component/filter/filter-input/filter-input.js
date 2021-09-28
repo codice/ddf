@@ -41,12 +41,20 @@ const FilterInput = ({
   attribute,
   suggestions,
   onChange,
+  isFormBuilder,
 }) => {
   const type = getAttributeType(attribute)
   const Root = type === 'LOCATION' ? LocationRoot : BaseRoot
   return (
     <Root>
-      {determineInput(comparator, type, suggestions, value, onChange)}
+      {determineInput(
+        comparator,
+        type,
+        suggestions,
+        value,
+        onChange,
+        isFormBuilder
+      )}
     </Root>
   )
 }

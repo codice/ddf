@@ -22,7 +22,10 @@ const cql = require('../../js/cql.js')
 const store = require('../../js/store.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const properties = require('../../js/properties.js')
-import { getFilterErrors } from '../../react-component/utils/validation'
+import {
+  getFilterErrors,
+  getSearchFormFilterErrors,
+} from '../../react-component/utils/validation'
 
 import query from '../../react-component/utils/query'
 
@@ -199,13 +202,13 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   getErrorMessages() {
+    const filters = this.queryAdvanced.currentView.getFilters().filters || []
+    const filterErrors = this.options.isFormBuilder
+      ? getSearchFormFilterErrors(filters)
+      : getFilterErrors(filters)
     return this.querySettings.currentView
       .getErrorMessages()
-      .concat(
-        getFilterErrors(
-          this.queryAdvanced.currentView.getFilters().filters || []
-        )
-      )
+      .concat(filterErrors)
   },
   setDefaultTitle() {
     this.model.set('title', this.model.get('cql'))

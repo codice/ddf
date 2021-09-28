@@ -136,6 +136,12 @@ public class AttributeValueNormalizerTest {
   }
 
   @Test
+  public void testEmptyDateValueToXml() {
+    when(registry.lookup(PROPERTY_NAME)).thenReturn(Optional.of(DATE_DESCRIPTOR));
+    assertThat(normalizer.normalizeForXml(PROPERTY_NAME, ""), is(equalTo("")));
+  }
+
+  @Test
   public void testEpochDateValueToXml() {
     when(registry.lookup(eq(PROPERTY_NAME))).thenReturn(Optional.of(DATE_DESCRIPTOR));
     assertThat(

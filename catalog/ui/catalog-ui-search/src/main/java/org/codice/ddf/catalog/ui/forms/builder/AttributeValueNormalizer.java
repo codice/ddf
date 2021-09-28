@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.ui.forms.builder;
 
 import static ddf.catalog.data.AttributeType.AttributeFormat.DATE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
@@ -108,7 +109,7 @@ class AttributeValueNormalizer {
    * @throws FilterProcessingException if the provided data is not valid.
    */
   public String normalizeForXml(String property, String value) {
-    if (eitherStringIsNull(property, value)) {
+    if (eitherStringIsNull(property, value) || isBlank(value)) {
       return value;
     }
     if (!EXPECTED_ATTRIBUTE_NAME_PATTERN.matcher(property).matches()) {
