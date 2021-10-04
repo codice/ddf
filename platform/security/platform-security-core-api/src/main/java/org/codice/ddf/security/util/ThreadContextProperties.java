@@ -95,6 +95,7 @@ public final class ThreadContextProperties {
 
   /**
    * Adds the client info map to the ThreadContext
+   *
    * @param clientAddress
    * @param requestUri
    */
