@@ -17,13 +17,23 @@
 
     <!-- Global HttpFilters -->
 
-    <service id="clientInfoFilter" interface="org.codice.ddf.platform.filter.http.HttpFilter">
-        <bean class="org.codice.ddf.pax.web.jetty.ClientInfoFilter"/>
+    <bean id="clientInfoFilter" class="org.codice.ddf.pax.web.jetty.ClientInfoFilter"/>
+    <service ref="clientInfoFilter" interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="98">
+        <service-properties>
+            <entry key="osgi.http.whiteboard.filter.name" value="client-info-filter"/>
+        </service-properties>
     </service>
 
-    <service id="traceContextFilter" interface="org.codice.ddf.platform.filter.http.HttpFilter">
-        <bean class="org.codice.ddf.pax.web.jetty.TraceContextFilter"/>
+    <service ref="clientInfoFilter" interface="org.codice.ddf.platform.filter.http.HttpFilter" ranking="98"/>
+
+    <bean id="traceContextFilter" class="org.codice.ddf.pax.web.jetty.TraceContextFilter"/>
+    <service ref="traceContextFilter" interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="98">
+        <service-properties>
+            <entry key="osgi.http.whiteboard.filter.name" value="trace-context-filter"/>
+        </service-properties>
     </service>
+
+    <service ref="traceContextFilter" interface="org.codice.ddf.platform.filter.http.HttpFilter" ranking="98"/>
 
     <bean id="responseFilter" class="org.codice.ddf.pax.web.jetty.ResponseFilter">
         <cm:managed-properties

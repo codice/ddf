@@ -13,8 +13,11 @@
  */
 package ddf.security.audit.impl;
 
+import com.google.common.net.HttpHeaders;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectOperations;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.AccessController;
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +55,8 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
 
   public static final String TRACE_ID = "trace-id";
 
+  private static final String LOOPBACK_ADDRESS = "127.0.0.1";
+
   private final SubjectOperations subjectOperations;
 
   public SecurityLoggerImpl(SubjectOperations subjectOperations) {
@@ -81,47 +86,79 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
     return NO_USER;
   }
 
-  private void requestIpAndPortAndUserMessage(Message message, StringBuilder messageBuilder) {
-    requestIpAndPortAndUserMessage(null, message, messageBuilder);
+  private void appendAdditionalAttributes(Message message, StringBuilder messageBuilder) {
+    appendAdditionalAttributes(null, message, messageBuilder);
   }
 
-  private void requestIpAndPortAndUserMessage(
+  private void appendAdditionalAttributes(
       Subject subject, Message message, StringBuilder messageBuilder) {
 
     String traceId = ThreadContextProperties.getTraceId();
     if (StringUtils.isNotEmpty(traceId)) {
-      messageBuilder.append(TRACE_ID).append(" ").append(traceId).append(" ");
+      messageBuilder.append(TRACE_ID).append(" ").append(traceId).append(", ");
     } else {
-      messageBuilder.append(TRACE_ID).append(" ").append("none").append(" ");
+      messageBuilder.append(TRACE_ID).append(" ").append("none").append(", ");
     }
 
     String user = getUser(subject);
-    messageBuilder.append(SUBJECT).append(user);
+    messageBuilder.append(SUBJECT).append(user).append(", ");
     appendConditionalAttributes(subject, messageBuilder);
 
     if (message == null) {
-      messageBuilder.append(" ");
+      addIpAndPort(
+          ThreadContextProperties.getRemoteAddress(),
+          ThreadContextProperties.getRemotePort(),
+          messageBuilder);
     } else {
       HttpServletRequest servletRequest =
           (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
       // pull out the ip and port of the incoming connection so we know
       // who is trying to get access
       if (servletRequest != null) {
-        messageBuilder
-            .append(" Request IP: ")
-            .append(servletRequest.getRemoteAddr())
-            .append(", Port: ")
-            .append(servletRequest.getRemotePort())
-            .append(" ");
+        String clientIP;
+        String clientPort;
+        String xForwardedFor = servletRequest.getHeader(HttpHeaders.X_FORWARDED_FOR);
+        if (StringUtils.isNotEmpty(xForwardedFor)) {
+          // A proxy has set the client information in the x-forwarded-* headers.
+          clientIP = xForwardedFor;
+          clientPort = servletRequest.getHeader(HttpHeaders.X_FORWARDED_PORT);
+        } else {
+          // otherwise the remote_addr/remote_port headers should contain the actual client info
+          clientIP = servletRequest.getRemoteAddr();
+          clientPort = Integer.toString(servletRequest.getRemotePort());
+        }
+        addIpAndPort(clientIP, clientPort, messageBuilder);
       } else if (MessageUtils.isOutbound(message)) {
         messageBuilder
             .append(" Outbound endpoint: ")
             .append(message.get(Message.ENDPOINT_ADDRESS))
-            .append(" ");
+            .append(", ");
       }
     }
   }
 
+  private void addIpAndPort(String remoteAddress, String remotePort, StringBuilder messageBuilder) {
+    if (remoteAddress != null) {
+      try {
+        // ServletRequest#getRemoteAddr() can return a long loopback IP6 address which is less than
+        // ideal for audit logging
+        remoteAddress =
+            InetAddress.getByName(remoteAddress).isLoopbackAddress()
+                ? LOOPBACK_ADDRESS
+                : remoteAddress;
+      } catch (UnknownHostException e) {
+        // ignore
+      }
+      messageBuilder.append(" Client IP: ").append(remoteAddress);
+      if (remotePort != null) {
+        messageBuilder.append(", Port: ").append(remotePort).append(", ");
+      } else {
+        messageBuilder.append(", ");
+      }
+    } else {
+      messageBuilder.append(" ");
+    }
+  }
   /**
    * Appends any additional attributes as defined in the comma-delimited system property {@link
    * #EXTRA_ATTRIBUTES_PROP}.
@@ -132,6 +169,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   private void appendConditionalAttributes(Subject subject, StringBuilder messageBuilder) {
     String attributes = System.getProperty(EXTRA_ATTRIBUTES_PROP);
     if (attributes == null) {
+      messageBuilder.append(", ");
       return;
     }
 
@@ -143,12 +181,13 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
     for (String attribute : attributeList) {
       List<String> attributeValueList = subjectOperations.getAttribute(subject, attribute);
       if (CollectionUtils.isNotEmpty(attributeValueList)) {
-        messageBuilder.append(" ").append(attribute).append(" : ");
+        messageBuilder.append(" ").append(attribute).append(": {");
         if (attributeValueList.size() > 1) {
           messageBuilder.append(attributeValueList);
         } else {
           messageBuilder.append(attributeValueList.get(0));
         }
+        messageBuilder.append("}");
       }
     }
   }
@@ -176,8 +215,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message, Subject subject) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(
-        subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString());
   }
 
@@ -189,7 +227,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString());
   }
 
@@ -203,8 +241,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message, Subject subject, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(
-        subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), params);
   }
 
@@ -217,7 +254,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), params);
   }
 
@@ -233,8 +270,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message, Subject subject, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(
-        subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), paramSuppliers);
   }
 
@@ -249,7 +285,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), paramSuppliers);
   }
 
@@ -264,8 +300,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message, Subject subject, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(
-        subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), t);
   }
 
@@ -279,7 +314,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), t);
   }
 
@@ -292,8 +327,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message, Subject subject) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(
-        subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString());
   }
 
@@ -305,7 +339,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString());
   }
 
@@ -319,8 +353,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message, Subject subject, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(
-        subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), params);
   }
 
@@ -333,7 +366,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), params);
   }
 
@@ -349,8 +382,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message, Subject subject, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(
-        subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), paramSuppliers);
   }
 
@@ -365,7 +397,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), paramSuppliers);
   }
 
@@ -380,8 +412,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message, Subject subject, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(
-        subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(subject, PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), t);
   }
 
@@ -395,7 +426,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
-    requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), t);
   }
 }
