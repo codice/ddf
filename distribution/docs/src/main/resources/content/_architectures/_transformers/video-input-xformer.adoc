@@ -5,7 +5,7 @@
 :link: _video_input_transformer
 :summary: Creates Catalog metacards from certain video file types.
 
-The video input transformer Creates Catalog metacards from certain video file types.
+The ((Video Input transformer)) Creates Catalog metacards from certain video file types.
 Currently, it is handles MPEG-2 transport streams as well as MPEG-4, AVI, MOV, and WMV videos.
 This input transformer uses https://tika.apache.org[Apache Tika] to extract basic metadata from the video files and applies more sophisticated methods to extract more meaningful metadata from these types of video.
 

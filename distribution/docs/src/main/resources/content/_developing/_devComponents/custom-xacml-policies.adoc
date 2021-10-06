@@ -5,6 +5,7 @@
 :summary: Creating a custom metacard transformer.
 :order: 21
 
+(((XACML Policies)))
 This document assumes familiarity with the XACML schema and does not go into detail on the XACML language.
 When creating a policy, a target is used to indicate that a certain action should be run only for one type of request.
 Targets can be used on both the main policy element and any individual rules.

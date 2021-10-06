@@ -5,6 +5,7 @@
 :order: 00
 
 == {title}
+(((SSL)))
 
 In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties.
 These values are configured in the `${home_directory}/etc/custom.system.properties` file.

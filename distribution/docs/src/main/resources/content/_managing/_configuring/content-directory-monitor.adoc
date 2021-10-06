@@ -6,6 +6,7 @@
 :summary: Content Directory Monitor.
 
 == {title}
+((({title})))
 
 The Content Directory Monitor (CDM) provides the capability to easily add content and metacards into the ${ddf-catalog} by placing a file in a directory.
 

@@ -6,5 +6,6 @@
 :summary: Configuring federation.
 
 == {title}
+(((Federation)))
 
 ${branding} is able to <<{introduction-prefix}introduction_to_federation_and_sources,federate>> to other data sources, including other instances of ${branding}, with some simple configuration.

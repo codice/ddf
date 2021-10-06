@@ -8,8 +8,8 @@
 
 == {title}
 
-The Web Service Security (WSS) functionality that comes with ${branding} is integrated throughout the system.
+The ((Web Service Security))(((WSS))) (WSS) functionality that comes with ${branding} is integrated throughout the system.
 This is a central resource describing how all of the pieces work together and where they are located within the system.
 
 ${branding} comes with a *Security Framework* and *Security Services*.
-The Security Framework is the set of APIs that define the integration with the ${branding} framework and the Security Services are the reference implementations of those APIs built for a realistic end-to-end use case.
+The ((Security Framework)) is the set of APIs that define the integration with the ${branding} framework and the ((Security Services)) are the reference implementations of those APIs built for a realistic end-to-end use case.

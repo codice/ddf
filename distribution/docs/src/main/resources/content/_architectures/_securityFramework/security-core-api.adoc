@@ -6,6 +6,7 @@
 :summary: Security Core API.
 
 == {title}
+((({title})))
 
 The Security Core API contains all of the ${branding} APIs that are used to perform security operations within ${branding}.
 

@@ -6,7 +6,7 @@
 :plugintypes: prefederatedquery
 :order: 0701
 
-Pre-federated-query plugins are invoked before a federated query operation is sent to any of the Sources. 
+((Pre-federated-query plugins)) are invoked before a federated query operation is sent to any of the Sources.
 This is an opportunity to take any action on the query, including but not limited to:
 
 * validation.

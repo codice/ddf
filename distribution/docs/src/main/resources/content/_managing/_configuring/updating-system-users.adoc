@@ -6,6 +6,7 @@
 :order: 04
 
 == {title}
+((System users))
 
 By default, all system users are located in the `${home_directory}/etc/users.properties` and `${home_directory}/etc/users.attributes` files.
 The default users included in these two files are "admin" and "localhost".

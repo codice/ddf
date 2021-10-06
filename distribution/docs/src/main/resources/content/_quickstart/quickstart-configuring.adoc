@@ -8,6 +8,7 @@
 :order: 02
 
 == Configuring (Quick Start)
+(((Quick start configuration)))
 
 Set the configurations needed to run ${branding}.
 

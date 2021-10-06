@@ -7,7 +7,7 @@
 
 == {title}
 
-The CSW endpoint enables a client to search collections of descriptive information (metadata) about geospatial data and services.
+The ((CSW endpoint)) enables a client to search collections of descriptive information (metadata) about geospatial data and services.
 
 The CSW endpoint supports metadata operations only.
 

@@ -5,7 +5,7 @@
 :plugintypes: precreatestorage,preupdatestorage
 :summary: Creates a unique checksum for ingested resources.
 
-The Checksum plugin creates a unique checksum for resources input into the system to identify updated content.
+The ((Checksum plugin)) creates a unique checksum for resources input into the system to identify updated content.
 
 == Installing the Checksum Plugin
 

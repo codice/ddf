@@ -5,7 +5,7 @@
 :link: _xml_metacard_transformer
 :summary: Translates a metacard into an XML-formatted document.
 
-The XML metacard transformer is responsible for translating a metacard into an XML-formatted document.
+The ((XML metacard transformer)) is responsible for translating a metacard into an XML-formatted document.
 The metacard element that is generated is an extension of `gml:AbstractFeatureType`, which makes the output of this transformer GML 3.1.1 compatible.
 
 == Installing the XML Metacard Transformer

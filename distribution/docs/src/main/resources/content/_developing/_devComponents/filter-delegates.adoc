@@ -5,7 +5,7 @@
 :order: 18
 :summary: Creating a custom Filter Delegate.
 
-Filter Delegates help reduce the complexity of parsing OGC Filters.
+((Filter Delegates)) help reduce the complexity of parsing OGC Filters.
 The reference Filter Adapter implementation contains the necessary boilerplate visitor code and input normalization to handle commonly supported OGC Filters.
 
 == Creating a New Filter Delegate

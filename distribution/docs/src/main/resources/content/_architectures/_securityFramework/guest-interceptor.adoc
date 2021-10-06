@@ -6,8 +6,9 @@
 :summary: Guest Interceptor.
 
 == {title}
+((({title})))
 
-The goal of the `GuestInterceptor` is to allow non-secure clients (such as SOAP requests without security headers) to access secure service endpoints. 
+The goal of the `GuestInterceptor` is to allow non-secure clients (such as SOAP requests without security headers) to access secure service endpoints.
 
 All requests to secure endpoints must satisfy the WS-SecurityPolicy that is included in the WSDL.
 

@@ -5,7 +5,7 @@
 :link: _resource_metacard_transformer
 :summary: Retrieves the resource bytes of a metacard by returning the resource associated with the metacard.
 
-The Resource Metacard Transformer retrieves a resource associated with a metacard.
+The ((Resource Metacard Transformer)) retrieves a resource associated with a metacard.
 
 == Installing the Resource Metacard Transformer
 

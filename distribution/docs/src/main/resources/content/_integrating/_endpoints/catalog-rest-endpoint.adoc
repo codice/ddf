@@ -7,7 +7,7 @@
 
 == {title}
 
-The Catalog REST Endpoint allows clients to perform operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. 
+The ((Catalog REST Endpoint)) allows clients to perform operations on the Catalog using REST, a simple architectural style that performs communication using HTTP.
 
 Bulk operations are not supported: for all RESTful CRUD commands, only one metacard ID is supported in the URL.
 

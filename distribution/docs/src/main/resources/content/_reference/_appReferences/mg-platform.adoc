@@ -5,6 +5,7 @@
 :order: 06
 
 == {title} Application Reference
+((({title})))
 
 The ${ddf-platform} application is considered to be a core application of the distribution.
 The Platform application provides the fundamental building blocks that the distribution needs to run.

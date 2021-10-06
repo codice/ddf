@@ -5,7 +5,7 @@
 :order: 02
 :summary: Storing Resources.
 
-Resources are saved using a `ResourceWriter`. 
+((Resources)) are saved using a `ResourceWriter`. 
 `${ddf-branding}.catalog.resource.ResourceWriter` instances can be discovered via the OSGi Service Registry.
 Once retrieved, the `ResourceWriter` instance provides clients with a way to store resources and get a corresponding URI that can be used to subsequently retrieve the resource via a `ResourceReader`. 
 Simply invoke either of the `storeResource` methods with a resource and any potential arguments.

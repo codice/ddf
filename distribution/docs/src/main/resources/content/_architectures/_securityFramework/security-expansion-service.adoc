@@ -7,7 +7,7 @@
 
 == {title}
 
-The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to ${branding} during user attribute and metadata card processing.
+The ((Expansion Service)) and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to ${branding} during user attribute and metadata card processing.
 In addition to these two defined uses of the expansion service, developers are free to utilize the service in their own implementations.
 
 .Expansion Service Rulesets

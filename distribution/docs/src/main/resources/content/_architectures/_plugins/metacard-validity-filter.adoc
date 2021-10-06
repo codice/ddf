@@ -5,7 +5,7 @@
 :plugintypes: policy
 :summary: Determines whether to filter metacards with validation errors or warnings.
 
-The Metacard Validity Filter Plugin determines whether metacards with validation errors or warnings are filtered from query results.
+The ((Metacard Validity Filter Plugin)) determines whether metacards with validation errors or warnings are filtered from query results.
 
 == Related Components to the Metacard Validity Filter Plugin
 

@@ -6,6 +6,6 @@
 :order: 00
 :summary: Content Item.
 
-ContentItem is the domain object populated by the Storage Provider that represents the information about the content to be stored or content that has been stored in the Storage Provider.
-A ContentItem encapsulates the content's globally unique ID, mime type, and input stream (i.e., the actual content).
-The unique ID of a ContentItem will always correspond to a Metacard ID.
+((Content Item)) is the domain object populated by the Storage Provider that represents the information about the content to be stored or content that has been stored in the Storage Provider.
+A `ContentItem` encapsulates the content's globally unique ID, mime type, and input stream (i.e., the actual content).
+The unique ID of a `ContentItem` will always correspond to a Metacard ID.

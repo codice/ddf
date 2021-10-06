@@ -6,11 +6,13 @@
 :order: 06
 
 == {title}
+(((Data Access Plugins)))
 
 Configure access plugins to act upon the rules and attributes configured by the policy plugins and user attributes.
 
 
 === Configuring the Security Audit Plugin
+(((Security Audit Plugin)))
 
 The <<{architecture-prefix}security_audit_plugin,Security Audit Plugin>> audits specific metacard attributes.
 

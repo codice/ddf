@@ -9,7 +9,7 @@
 
 This section describes how to make configuration changes after the initial setup for a ${branding} in a <<{introduction-prefix}introduction_to_high_availability,Highly Available Cluster>>.
 
-In a Highly Available Cluster, configuration changes must be made on both ${branding} nodes.
+In a (((Highly Available Cluster))), configuration changes must be made on both ${branding} nodes.
 The changes can still be made in the standard ways via the <<{managing-prefix}admin_console_tutorial,Admin Console>>,
 the <<{managing-prefix}console_command_reference,Command Line>>, or the <<{managing-prefix}configuration_files, file system>>.
 

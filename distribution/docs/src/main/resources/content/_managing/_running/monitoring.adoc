@@ -4,9 +4,11 @@
 :summary: Monitoring an installed instance.
 :order: 00
 
+(((Monitoring)))
 The ${branding} contains many tools to monitor system functionality, usage, and overall system health.
 
 == Metrics Reporting
+(((Metrics Reporting)))
 
 Metrics are exposed over a Prometheus endpoint at `/metrics`. In order to extract and store
 the metrics, a Prometheus server is required.
@@ -107,7 +109,7 @@ This is the most popular format for access logs and can be parsed by many web se
 * Navigate to the *System* tab
 * Select *Logs*
 
-The LogViewer displays the most recent 500 log messages by default, but will grow to a maximum of 5000 messages.
+The ((LogViewer)) displays the most recent 500 log messages by default, but will grow to a maximum of 5000 messages.
 To view incoming logs, select the *PAUSED* button to toggle it to *LIVE* mode. Switching this back to *PAUSED* will prevent any new logs from being displayed in the LogViewer. Note that this only affects the logs displayed by the LogViewer and does not affect the underlying log.
 
 Log events can be filtered by:

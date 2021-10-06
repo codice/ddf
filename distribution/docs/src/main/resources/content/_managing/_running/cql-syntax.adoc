@@ -7,7 +7,7 @@
 
 == {title}
 
-The CQL syntax used with console commands should follow the OGC CQL format.
+The ((CQL syntax)) used with console commands should follow the OGC CQL format.
 GeoServer provides a description of the grammar and examples in this http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html[CQL Tutorial] {external-link}.
 
 .CQL Syntax Examples

@@ -15,8 +15,11 @@ include::config.adoc[]
 
 ifdef::backend-pdf[]
 
+<<< 
+
 [index]
 == Index
+
 endif::backend-pdf[]
 ifdef::backend-html5[]
 

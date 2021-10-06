@@ -5,7 +5,7 @@
 :plugintypes: postingest
 :summary: Submits catalog Create, Update, or Delete requests to the Processing Framework.
 
-The Processing Post Ingest Plugin is responsible for submitting catalog Create, Update, and Delete (CUD) requests to the <<_asynchronous_processing_framework,Processing Framework>>.
+The ((Processing Post Ingest Plugin)) is responsible for submitting catalog Create, Update, and Delete (CUD) requests to the <<_asynchronous_processing_framework,Processing Framework>>.
 
 == Related Components to Processing Post-Ingest Plugin
 

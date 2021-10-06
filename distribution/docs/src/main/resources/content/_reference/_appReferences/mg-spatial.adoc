@@ -5,6 +5,7 @@
 :order: 11
 
 == {title} Application Reference
+((({title})))
 
 The ${ddf-spatial} Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 

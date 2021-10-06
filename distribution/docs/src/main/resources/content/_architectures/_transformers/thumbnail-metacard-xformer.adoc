@@ -5,7 +5,7 @@
 :link: _thumbnail_metacard_transformer
 :summary: Retrieves the thumbnail bytes of a Metacard by returning the `Metacard.THUMBNAIL` attribute value.
 
-The Thumbnail Metacard Transformer retrieves the thumbnail bytes of a Metacard by returning the `Metacard.THUMBNAIL` attribute value.
+The ((Thumbnail Metacard Transformer)) retrieves the thumbnail bytes of a Metacard by returning the `Metacard.THUMBNAIL` attribute value.
 
 == Installing the Thumbnail Metacard Transformer
 

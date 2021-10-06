@@ -5,8 +5,8 @@
 :order: 19
 :summary: Creating a custom Query Option.
 
-The easiest way to create a Query is to use the `ddf.catalog.operation.QueryImpl` object.
-It is first necessary to create an OGC Filter object then set the Query Options after `QueryImpl` has been constructed.
+The easiest way to create a ((Query)) is to use the `ddf.catalog.operation.QueryImpl` object.
+It is first necessary to create an OGC Filter object then set the Query Options after `QueryImpl` has been constructed.
 
 .`QueryImpl` Example
 [source,java,linenums]
@@ -34,13 +34,13 @@ filterFactory.literal(value))) ;
 
 == Evaluating a query
 
-Every Source must be able to evaluate a Query object.
-Nevertheless, each Source could evaluate the Query differently depending on what that Source supports as to properties and query capabilities.
-For instance, a common property all Sources understand is id, but a Source could possibly store frequency values under the property name "frequency."
-Some Sources may not support frequency property inquiries and will
+Every Source must be able to evaluate a Query object.
+Nevertheless, each Source could evaluate the Query differently depending on what that Source supports as to properties and query capabilities.
+For instance, a common property all Sources understand is id, but a Source could possibly store frequency values under the property name "frequency."
+Some Sources may not support frequency property inquiries and will
 throw an error stating it cannot interpret the property.
 In addition, some Sources might be able to handle spatial operations, while others might not.
-A developer should consult a Source's documentation for the limitations, capabilities, and properties that a Source can support.
+A developer should consult a Source's documentation for the limitations, capabilities, and properties that a Source can support.
 
 
 .[[_query_options]]Query Options
@@ -68,14 +68,14 @@ A developer should consult a Source's documentation for the limitations, capabil
 
 == Commons-DDF Utilities
 
-The `commons-${ddf-branding}` bundle provides utilities and functionality commonly used across other ${branding} components, such as the endpoints and providers. 
+The `commons-${ddf-branding}` bundle provides utilities and functionality commonly used across other ${branding} components, such as the endpoints and providers.
 
 === FuzzyFunction
 
-`${ddf-branding}.catalog.impl.filter.FuzzyFunction` class is used to indicate that a `PropertyIsLike` filter should interpret the search as a fuzzy query. 
+`${ddf-branding}.catalog.impl.filter.FuzzyFunction` class is used to indicate that a `PropertyIsLike` filter should interpret the search as a fuzzy query.
 
 === XPathHelper
 
 `${ddf-branding}.util.XPathHelper` provides convenience methods for executing XPath operations on XML.
-It also provides convenience methods for converting XML as a `String` from a `org.w3c.dom.Document` object and vice versa.
+It also provides convenience methods for converting XML as a `String` from a `org.w3c.dom.Document` object and vice versa.
 

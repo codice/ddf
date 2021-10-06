@@ -5,7 +5,7 @@
 :plugintypes: preingest
 :summary: Modifies metacards when created or updated.
 
-The Metacard Groomer Pre-Ingest plugin makes modifications to `CreateRequest` and `UpdateRequest` metacards.
+The ((Metacard Groomer Pre-Ingest plugin)) makes modifications to `CreateRequest` and `UpdateRequest` metacards.
 
 Use this pre-ingest plugin as a convenience to apply basic rules for your metacards. 
 

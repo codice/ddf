@@ -6,6 +6,7 @@
 :order: 06
 
 == {title}
+((({title})))
 
 * *{hardening-step}*
 

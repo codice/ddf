@@ -5,7 +5,7 @@
 :link: _atom_query_response_transformer
 :summary: Transforms a query response into an http://tools.ietf.org/html/rfc4287[Atom 1.0] feed.
 
-The Atom Query Response Transformer transforms a query response into an http://tools.ietf.org/html/rfc4287[Atom 1.0] feed.
+The ((Atom Query Response Transformer)) transforms a query response into an http://tools.ietf.org/html/rfc4287[Atom 1.0] feed.
 The Atom transformer maps a `QueryResponse` object as described in the Query Result Mapping.
 
 == Installing the Atom Query Response Transformer

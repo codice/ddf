@@ -5,6 +5,7 @@
 :order: 03
 
 == {title} Application Reference
+((({title})))
 
 The ${ddf-catalog} provides a framework for storing, searching, processing, and transforming information.
 

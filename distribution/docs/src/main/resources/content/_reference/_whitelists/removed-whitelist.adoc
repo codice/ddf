@@ -6,6 +6,7 @@
 :summary: List of packages removed from the whitelist
 
 == {title}
+((({title})))
 
 In the transition of the whitelist from the ambiguous package listing to the new class listing several errors were found. The packages originally listed that were removed either did not exist, contained experimental interfaces, or contained only internal implementations and should have never been included in the whitelist. The following is a list of packages that were listed in error and have been removed from the whitelist.
 

@@ -5,7 +5,7 @@
 :order: 05
 :summary: Introduction to the Action Framework.
 
-The Action Framework was designed as a way to limit dependencies between applications (apps) in a system.
+The ((Action Framework)) was designed as a way to limit dependencies between applications (apps) in a system.
 For instance, a feature in an app, such as an Atom feed generator, might want to include an external link as part of its feed's entries.
 That feature does not have to be coupled to a REST endpoint to work, nor does it have to depend on a specific implementation to get a link.
 In reality, the feature does not identify how the link is generated, but it does identify whether the link works or does not work when retrieving the intended entry's metadata.
@@ -17,6 +17,6 @@ The Action Framework consists of two major Java interfaces in its API:
 . `ddf.action.Action`
 . `ddf.action.ActionProvider`
 
-Actions:: Specific tasks that can be performed as services.
+((Actions)):: Specific tasks that can be performed as services.
 
-Action Providers:: Lists of related actions that a service is capable of performing.
+((Action Providers)):: Lists of related actions that a service is capable of performing.

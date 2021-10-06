@@ -5,7 +5,7 @@
 :summary: Creating a custom attribute injection.
 :order: 05
 
-Attribute injections are defined attributes that will be injected into all metacard types or into specific metacard types. This capability allows metacard types to be extended with new attributes.
+((Attribute injections)) are defined attributes that will be injected into all metacard types or into specific metacard types. This capability allows metacard types to be extended with new attributes.
 
 == Attribute Injection Definition
 

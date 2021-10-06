@@ -6,6 +6,7 @@
 :order: 00
 
 == {title}
+((({title})))
 
 The ${command-console} has a command-line option for ingesting data.
 

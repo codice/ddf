@@ -9,7 +9,7 @@ Developers will build or extend the functionality of the applications. 
 ${branding} includes several extension points where external developers can add functionality to support individual use cases.
 
 ${branding} is written in Java and uses many open source libraries.
-${branding} uses OSGi to provide modularity, lifecycle management, and dynamic services.
+${branding} uses ((OSGi)) to provide modularity, lifecycle management, and dynamic services.
 OSGi services can be installed and uninstalled while ${branding} is running.
 ${branding} development typically means developing new OSGi bundles and deploying them to the running ${branding}.
 A complete description of OSGi is outside the scope of this documentation.

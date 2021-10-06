@@ -6,6 +6,7 @@
 :order: 06
 
 == {title}
+(((Data Management)))
 
 Data ingested into ${branding} has security attributes that can be mapped to users' permissions to ensure proper access.
 This section covers configurations that ensure only the appropriate data is contained in or exposed by ${branding}.

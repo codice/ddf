@@ -5,7 +5,7 @@
 :summary: Creating a custom source.
 :order: 10
 
-Sources are components that enable ${branding} to talk to back-end services.
+((Sources)) are components that enable ${branding} to talk to back-end services.
 They let ${branding} perform query and ingest operations on catalog stores and query operations on federated sources.
 
 .Source Architecture
@@ -46,13 +46,13 @@ They let ${branding} perform query and ingest operations on catalog stores and q
 There are three types of sources that can be created to perform query operations.
 All of these sources must also be able to return their availability and the list of content types currently stored in their back-end data stores.
 
-Catalog Provider:: `ddf.catalog.source.CatalogProvider` _is used to communicate with back-end storage and allows for Query and Create/Update/Delete operations._
-Federated Source:: `ddf.catalog.source.FederatedSource` _is used to communicate with remote systems and only allows query operations._
-Connected Source:: `ddf.catalog.source.ConnectedSource` _is similar to a Federated Source with the following exceptions:_
+((Catalog Provider)):: `ddf.catalog.source.CatalogProvider` _is used to communicate with back-end storage and allows for Query and Create/Update/Delete operations._
+((Federated Source)):: `ddf.catalog.source.FederatedSource` _is used to communicate with remote systems and only allows query operations._
+((Connected Source)):: `ddf.catalog.source.ConnectedSource` _is similar to a Federated Source with the following exceptions:_
 * _Queried on all local queries_
 * ``SiteName`` _is hidden (masked with the ${branding} sourceId) in query results_
 * ``SiteService`` _does not show this Source's information separate from ${branding}'s._
-Catalog Store:: `catalog.store.interface` _is used to store data._
+((Catalog Store)):: `catalog.store.interface` _is used to store data._
 
 The procedure for implementing any of the source types follows a similar format:
 

@@ -10,7 +10,7 @@
 This code is experimental. While this interface is functional and tested, it may change or be removed in a future version of the library.
 ====
 
-The *Asynchronous Processing Framework* is a way to run plugins asynchronously. Generally, plugins that take a significant amount of processing time and whose
+The ((Asynchronous Processing Framework)) is a way to run plugins asynchronously. Generally, plugins that take a significant amount of processing time and whose
 results are not immediately required are good candidates for being asynchronously processed. A *Processing Framework* can either be run on the local or
 remote system. Once the *Processing Framework* finishes processing incoming requests, it may submit ``(Create|Update|Delete)Request``s to the Catalog. The type of plugins that a *Processing Framework*
 runs are the *Post-Process Plugins*. The *Post-Process Plugins* are triggered by the *Processing Post Ingest Plugin*, which is a *Post-Ingest Plugin*. *Post-Ingest Plugins* are run after the metacard

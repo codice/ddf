@@ -5,14 +5,14 @@
 :order: 16
 :summary: Creating a custom Resource Writer.
 
-A `ResourceWriter` is an object used to store or delete a `Resource`. 
-`ResourceWriter` objects should be registered within the OSGi Service Registry, so clients can retrieve an instance when they need to store a `Resource`. 
+A ((Resource Writer)) is an object used to store or delete a `Resource`.
+`ResourceWriter` objects should be registered within the OSGi Service Registry, so clients can retrieve an instance when they need to store a `Resource`.
 
 == Create a New `ResourceWriter`
 
-Complete the following procedure to create a `ResourceWriter`.
+Complete the following procedure to create a `ResourceWriter`.
 
-. Create a Java class that implements the `${ddf-branding}.catalog.resource.ResourceWriter` interface.
+. Create a Java class that implements the `${ddf-branding}.catalog.resource.ResourceWriter` interface.
 
 .ResourceWriter Implementation Skeleton
 [source,java,linenums]
@@ -56,10 +56,10 @@ public class SampleResourceWriter implements ResourceWriter {
 ...
 ----
 
-. Deploy the OSGi bundled packaged service to the ${branding} run-time (Refer to the <<{developing-prefix}osgi_basics,OSGi Basics>> - Bundles section.)
+. Deploy the OSGi bundled packaged service to the ${branding} run-time (Refer to the <<{developing-prefix}osgi_basics,OSGi Basics>> - Bundles section.)
 
 [TIP]
 ====
 *ResourceWriter Javadoc* +
-Refer to the ${ddf-catalog} API Javadoc for more information about the methods required for implementing the interface. 
+Refer to the ${ddf-catalog} API Javadoc for more information about the methods required for implementing the interface.
 ====

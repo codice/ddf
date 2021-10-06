@@ -10,6 +10,7 @@
 Configure the data-related policy plugins to determine the accessibility of data held by ${branding}.
 
 === Configuring the Metacard Attribute Security Policy Plugin
+(((Metacard Attribute Security Policy Plugin)))
 
 The Metacard Attribute Security Policy Plugin combines existing metacard attributes to make new attributes and adds them to the metacard.
 
@@ -35,6 +36,7 @@ enter these two lines under the title **Metacard Union Attributes**
 See <<{reference-prefix}org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard Attribute Security Policy Plugin configurations>> for all possible configurations.
 
 === Configuring the Metacard Validation Marker Plugin
+(((Metacard Validation Marker Plugin)))
 
 By default, the Metacard Validation Marker Plugin will mark metacards with validation errors and warnings as they are reported by each metacard validator and then allow the ingest.
 To prevent the ingest of certain invalid metacards, the `Metacard Validity Marker` plugin can be configured to "enforce" one or more validators.
@@ -50,6 +52,7 @@ Metacards that are invalid according to an "enforced" validator will not be inge
 See <<{reference-prefix}ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin,Metacard Validity Marker Plugin configurations>> for all possible configurations.
 
 === Configuring the Metacard Validity Filter Plugin
+(((Metacard Validity Filter Plugin)))
 
 The <<{architecture-prefix}metacard_validity_filter_plugin,Metacard Validity Filter Plugin>> determines whether metacards with validation errors or warnings are filtered from query results.
 
@@ -63,6 +66,7 @@ The <<{architecture-prefix}metacard_validity_filter_plugin,Metacard Validity Fil
 See <<{reference-prefix}ddf.catalog.metacard.validation.MetacardValidityFilterPlugin,Metacard Validity Filter Plugin configurations>> for all possible configurations.
 
 === Configuring the XML Attribute Security Policy Plugin
+(((XML Attribute Security Policy Plugin)))
 
 The XML Attribute Security Policy Plugin finds security attributes contained in a metacard's metadata.
 

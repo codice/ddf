@@ -7,7 +7,7 @@
 
 == {title}
 
-The Web Context Policy Manager defines all security policies for REST endpoints within ${branding}.
+The ((Web Context Policy Manager)) defines all security policies for REST endpoints within ${branding}.
 It defines:
 
 * the type of authentication for web pages (such as /admin and /search) and endpoints (context paths that start with /services)
@@ -17,7 +17,7 @@ It defines:
 See <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager, Web Context Policy Manager Configurations>> for detailed descriptions of all fields.
 
 === Guest Access
-Guest access is a toggleable configuration.
+((Guest access)) is a toggleable configuration.
 Enabling guest access will cause all users to be assigned a guest principal for use throughout the entire system.
 The guest principal will be used either by itself or along with any other principals acquired from configured authentication types.
 
@@ -26,6 +26,7 @@ Enabling session storage allows the system to persist the user login through the
 Note that the `SAML` and `OIDC` authentication types require session storage to be enabled.
 
 === Authentication Types
+(((Authentication Types)))
 
 Through the Web Context Policy Manager, authentication types for ${branding} may be configured with the following format:
 

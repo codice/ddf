@@ -31,7 +31,7 @@
 +------------------------------------------------------------+
 ....
 
-The Eventing capability of the Catalog allows endpoints (and thus external users) to create a "standing query" and be notified when a matching metacard is created, updated, or deleted.
+The ((Eventing)) capability of the Catalog allows endpoints (and thus external users) to create a "standing query" and be notified when a matching metacard is created, updated, or deleted.
 
 Notably, the Catalog allows event evaluation on both the previous value (if available) and new value of a Metacard when an update occurs.
 
@@ -40,7 +40,7 @@ Once subscribed, users will receive notifications of events such as update or cr
 
 == Eventing Components
 
-The key components of ${branding} Eventing include:
+The key components of ${branding} Eventing include:
 
 * <<{developing-prefix}developing_subscriptions,Subscription>>
 * <<{developing-prefix}delivery_method,Delivery Method>>

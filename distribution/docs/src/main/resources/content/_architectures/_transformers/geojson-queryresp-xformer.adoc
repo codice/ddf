@@ -5,7 +5,7 @@
 :summary: Translates a query response into a GeoJSON-formatted document.
 :subtype: queryResponse
 
-The GeoJSON Query Response Transformer translates a query response into a GeoJSON-formatted document.
+The ((GeoJSON Query Response Transformer)) translates a query response into a GeoJSON-formatted document.
 
 == Installing the GeoJSON Query Response Transformer
 

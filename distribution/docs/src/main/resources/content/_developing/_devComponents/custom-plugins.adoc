@@ -5,9 +5,9 @@
 :summary: Creating a custom catalog plugin.
 :order: 11
 
-Plugins extend the functionality of the Catalog Framework by performing actions at specified times during a transaction. 
+((Catalog Plugins)) extend the functionality of the Catalog Framework by performing actions at specified times during a transaction.
 Plugin interfaces are located in the Catalog Core API.
-By implementing a plugin interface, actions can be performed at the desired time. 
+By implementing a plugin interface, actions can be performed at the desired time.
 
 The following types of plugins can be created:
 
@@ -101,7 +101,7 @@ The procedure for implementing any of the plugins follows a similar format:
 
 .. Register the plugin class as a service to OSGi registry.
 
-. Deploy to ${branding}.
+. Deploy to ${branding}.
 
 .Plugin Performance Concerns
 [NOTE]
@@ -125,7 +125,7 @@ For any other exceptions, the Catalog should "fail fast" and cancel the Operatio
 
 Develop a custom Pre-Ingest Plugin.
 
-. Create a Java class that implements `PreIngestPlugin`. +
+. Create a Java class that implements `PreIngestPlugin`. +
 `public class SamplePreIngestPlugin implements ddf.catalog.plugin.PreIngestPlugin`
 +
 . Implement the required methods. +
@@ -133,7 +133,7 @@ Develop a custom Pre-Ingest Plugin.
  * `public UpdateRequest process(UpdateRequest input) throws PluginExecutionException, StopProcessingException;`
  * `public DeleteRequest process(DeleteRequest input) throws PluginExecutionException, StopProcessingException;`
 +
-. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
 +
 . Export the service to the OSGi registry. +
@@ -144,7 +144,7 @@ Develop a custom Pre-Ingest Plugin.
 
 Develop a custom Post-Ingest Plugin.
 
-. Create a Java class that implements `PostIngestPlugin`. +
+. Create a Java class that implements `PostIngestPlugin`. +
 `public class SamplePostIngestPlugin implements ddf.catalog.plugin.PostIngestPlugin`
 
 . Implement the required methods. +
@@ -152,7 +152,7 @@ Develop a custom Post-Ingest Plugin.
  * `public UpdateResponse process(UpdateResponse input) *throws* PluginExecutionException;`
  * `public DeleteResponse process(DeleteResponse input) *throws* PluginExecutionException;`
 
-. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
 
 . Export the service to the OSGi registry. +
@@ -163,12 +163,12 @@ Develop a custom Post-Ingest Plugin.
 
 Develop a custom Pre-Query Plugin
 
-. Create a Java class that implements `PreQueryPlugin`. +
+. Create a Java class that implements `PreQueryPlugin`. +
 `public class SamplePreQueryPlugin implements ddf.catalog.plugin.PreQueryPlugin`
 
 . Implement the required method. +
 `public QueryRequest process(QueryRequest input) *throws* PluginExecutionException, StopProcessingException;`
-. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
 
 . Export the service to the OSGi registry. +
@@ -178,13 +178,13 @@ Develop a custom Pre-Query Plugin
 
 Develop a custom Post-Query Plugin
 
-. Create a Java class that implements `PostQueryPlugin`. +
+. Create a Java class that implements `PostQueryPlugin`. +
 `public class SamplePostQueryPlugin implements ddf.catalog.plugin.PostQueryPlugin`
 
 . Implement the required method. +
 `public QueryResponse process(QueryResponse input) *throws* PluginExecutionException, StopProcessingException;`
 
-. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
 
 . Export the service to the OSGi registry. +
@@ -194,7 +194,7 @@ Develop a custom Post-Query Plugin
 
 Develop a custom Pre-Delivery Plugin.
 
-. Create a Java class that implements `PreDeliveryPlugin`. +
+. Create a Java class that implements `PreDeliveryPlugin`. +
 `public class SamplePreDeliveryPlugin *implements* ddf.catalog.plugin.PreDeliveryPlugin`
 
 . Implement the required methods. +
@@ -204,7 +204,7 @@ StopProcessingException;`
  * `public Update processUpdateHit(Update update) *throws* PluginExecutionException, StopProcessingException;`
  * `public Metacard processCreate(Metacard metacard) *throws* PluginExecutionException, StopProcessingException;`
 
-. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation,ddf.catalog.event`
 
 . Export the service to the OSGi registry. +
@@ -215,7 +215,7 @@ StopProcessingException;`
 
 Develop a custom Pre-Subscription Plugin.
 
-. Create a Java class that implements `PreSubscriptionPlugin`. +
+. Create a Java class that implements `PreSubscriptionPlugin`. +
 `public class SamplePreSubscriptionPlugin *implements* ddf.catalog.plugin.PreSubscriptionPlugin`
 
 . Implement the required method.
@@ -225,13 +225,13 @@ Develop a custom Pre-Subscription Plugin.
 
 Develop a custom Pre-Resource Plugin.
 
-. Create a Java class that implements `PreResourcePlugin`.
+. Create a Java class that implements `PreResourcePlugin`.
 `public class SamplePreResourcePlugin *implements* ddf.catalog.plugin.PreResourcePlugin`
 
 . Implement the required method. +
  * `public ResourceRequest process(ResourceRequest input) *throws* PluginExecutionException, StopProcessingException;`
 
-. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
 
 . Export the service to the OSGi registry.
@@ -245,13 +245,13 @@ Develop a custom Pre-Resource Plugin.
 
 Develop a custom Post-Resource Plugin.
 
-. Create a Java class that implements `PostResourcePlugin`. +
+. Create a Java class that implements `PostResourcePlugin`. +
 `public class SamplePostResourcePlugin *implements* ddf.catalog.plugin.PostResourcePlugin`
 
 . Implement the required method. +
  * `public ResourceResponse process(ResourceResponse input) *throws* PluginExecutionException, StopProcessingException;`
 
-. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
 
 . Export the service to the OSGi registry.
@@ -266,7 +266,7 @@ Develop a custom Post-Resource Plugin.
 
 Develop a custom Policy Plugin.
 
-. Create a Java class that implements `PolicyPlugin`. +
+. Create a Java class that implements `PolicyPlugin`. +
 `public class SamplePolicyPlugin *implements* ddf.catalog.plugin.PolicyPlugin`
 
 . Implement the required methods. +
@@ -276,7 +276,7 @@ Develop a custom Policy Plugin.
  * `PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties) *throws* StopProcessingException;`
  * `PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties) *throws* StopProcessingException;`
 
-. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
+. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
 
 . Export the service to the OSGi registry.  +
@@ -287,7 +287,7 @@ Develop a custom Policy Plugin.
 
 Develop a custom Access Plugin.
 
-. Create a Java class that implements `AccessPlugin`. +
+. Create a Java class that implements `AccessPlugin`. +
 `public class SamplePostResourcePlugin *implements* ddf.catalog.plugin.AccessPlugin`
 
 . Implement the required methods. +
@@ -297,7 +297,7 @@ Develop a custom Access Plugin.
  * `QueryRequest processPreQuery(QueryRequest input) *throws* StopProcessingException;`
  * `QueryResponse processPostQuery(QueryResponse input) *throws* StopProcessingException;`
 
-. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
+. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
 
 . Export the service to the OSGi registry.  +

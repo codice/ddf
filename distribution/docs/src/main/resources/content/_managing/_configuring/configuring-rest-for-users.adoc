@@ -7,7 +7,7 @@
 
 == {title}
 
-If using REST services or connecting to REST sources, several configuration options are available.
+If using ((REST services)) or connecting to ((REST sources)), several configuration options are available.
 
 ${branding} can be configured to support an <<{managing-prefix}connecting_to_an_external_saml_identity_provider,external SAML IdP>> or no IdP at all.
 The following diagram shows the configuration options.

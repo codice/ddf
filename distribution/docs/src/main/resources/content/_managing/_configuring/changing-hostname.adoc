@@ -6,6 +6,7 @@
 :order: 02
 
 == {title}
+(((Hostname)))
 
 By default, the STS server, STS client and the rest of the services use the system property `org.codice.ddf.system.hostname` which is defaulted to 'localhost' and not to the fully qualified domain name of the ${branding} instance.
 Assuming the ${branding} instance is providing these services, the configuration must be updated to use the *fully qualified domain name* as the service provider.
