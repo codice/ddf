@@ -47,7 +47,7 @@
 |Disable Sorting
 |disableSorting
 |Boolean
-|When selected, the system will not specify sort criteria with the query.  This should only be used if the remote source is unable to handle sorting even when the capabilities states 'ImplementsSorting' is supported.
+|When selected, the system will not specify sort criteria with the query. This should only be used if the remote source is unable to handle sorting even when the capabilities states 'ImplementsSorting' is supported.
 |false
 |true
 

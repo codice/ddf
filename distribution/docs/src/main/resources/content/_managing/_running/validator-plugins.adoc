@@ -34,10 +34,10 @@ validating that they are in the past.
 * *((ISO3 Country Code Validator))*: Validates an attribute's value(s) against the ISO_3166-1 Alpha3 country codes.
 * *((Pattern Validator))*: Validates an attribute's value(s) against a regular expression.
 * *((Required Attributes Metacard Validator))*: Validates that a metacard contains certain attributes.
-- ID: *ddf.catalog.validation.impl.validator.RequiredAttributesMetacardValidator*
+- ID: `ddf.catalog.validation.impl.validator.RequiredAttributesMetacardValidator`
 * *((Duplication Validator))*: Validates metacard against the local catalog for duplicates based on configurable attributes.
-- ID: *org.codice.ddf.validator.metacard.duplication.DuplicationValidator*
+- ID: `org.codice.ddf.validator.metacard.duplication.DuplicationValidator`
 * *((Relationship Validator))*: Validates values that an attribute *must have*, *can only have*, and/or *can't have*.
-- ID: *ddf.catalog.validation.impl.validator.RelationshipValidator*
+- ID: `ddf.catalog.validation.impl.validator.RelationshipValidator`
 * *((Metacard WKT Validator))*: Validates a location metacard attribute (WKT string) against valid geometric shapes.
-- ID: *org.codice.ddf.validator.metacard.wkt.MetacardWktValidator*
+- ID: `org.codice.ddf.validator.metacard.wkt.MetacardWktValidator`

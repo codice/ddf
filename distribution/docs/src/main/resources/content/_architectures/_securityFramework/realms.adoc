@@ -92,7 +92,7 @@ Does not support the acquisition of credentials.
 
 |ddf.security.pdp.realm.AuthZRealm
 |This realm performs the authorization decision and may or may not delegate out to the external XACML processing engine. It uses the incoming permissions to create a decision.
-However, it is possible to extend this realm using the ddf.security.policy.extension.PolicyExtension interface.
+However, it is possible to extend this realm using the `ddf.security.policy.extension.PolicyExtension interface`.
 This interface allows an integrator to add additional policy information to the PDP that can't be covered via its generic matching policies.
 This approach is often easier to configure for those that are not familiar with XACML.
 
