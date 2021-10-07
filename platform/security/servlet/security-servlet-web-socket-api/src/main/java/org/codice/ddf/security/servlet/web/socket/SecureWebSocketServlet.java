@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.security.util.ThreadContextProperties;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -101,6 +103,31 @@ public class SecureWebSocketServlet extends WebSocketServlet {
       runWithUser(session, () -> ws.onError(session, ex));
     }
 
+    private void addClientInfoToContext(Session session) {
+      String clientIP;
+      String clientPort;
+      String clientHost;
+      URI requestUri = null;
+      if (session instanceof org.eclipse.jetty.websocket.common.WebSocketSession) {
+        requestUri =
+            ((org.eclipse.jetty.websocket.common.WebSocketSession) session).getRequestURI();
+      }
+      String xForwardedFor =
+          session.getUpgradeRequest().getHeader(HttpHeader.X_FORWARDED_FOR.toString());
+      if (StringUtils.isNotEmpty(xForwardedFor)) {
+        // a proxy has set the x-forwarded-* headers which indicate the actual client info
+        clientIP = xForwardedFor;
+        clientPort = session.getUpgradeRequest().getHeader(HttpHeader.X_FORWARDED_PORT.toString());
+        clientHost = session.getUpgradeRequest().getHeader(HttpHeader.X_FORWARDED_HOST.toString());
+      } else {
+        // otherwise use the remote address/port info
+        clientIP = session.getRemoteAddress().getAddress().toString();
+        clientPort = Integer.toString(session.getRemoteAddress().getPort());
+        clientHost = session.getRemoteAddress().getHostName();
+      }
+      ThreadContextProperties.addClientInfo(clientIP, clientHost, clientPort, requestUri);
+    }
+
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
       if (isUserLoggedIn()) {
@@ -108,12 +135,7 @@ public class SecureWebSocketServlet extends WebSocketServlet {
             session,
             () -> {
               ThreadContextProperties.addTraceId();
-              URI requestUri = null;
-              if (session instanceof org.eclipse.jetty.websocket.common.WebSocketSession) {
-                requestUri =
-                    ((org.eclipse.jetty.websocket.common.WebSocketSession) session).getRequestURI();
-              }
-              ThreadContextProperties.addClientInfo(session.getRemoteAddress(), requestUri);
+              addClientInfoToContext(session);
               try {
                 ws.onMessage(session, message);
               } catch (IOException e) {

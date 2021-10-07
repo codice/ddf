@@ -25,12 +25,13 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
-import java.net.InetSocketAddress;
+import com.google.common.net.HttpHeaders;
 import java.net.URI;
 import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.shiro.util.ThreadContext;
+import org.eclipse.jetty.server.Request;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -49,16 +50,25 @@ public class ThreadContextPropertiesTest {
 
   private static final String MOCK_REMOTE_ADDRESS = "127.0.0.1";
 
+  private static final String MOCK_FORWARDED_REMOTE_ADDRESS = "192.168.1.1";
+
   private static final String MOCK_REMOTE_PORT = "2222";
 
+  private static final String MOCK_FORWARDED_REMOTE_PORT = "3333";
+
   private static final String MOCK_REMOTE_HOST = "localhost";
+
+  private static final String MOCK_FORWARDED_REMOTE_HOST = "clientHost";
 
   private static final String MOCK_SCHEME = "http";
 
   private static final String MOCK_CONTEXT_PATH = "/example/path";
+
   @Mock private ServletContext mockServletContext;
 
   @Mock private HttpServletRequest mockRequest;
+
+  @Mock private Request jettyRequest;
 
   @Before
   public void setup() throws Exception {
@@ -68,6 +78,15 @@ public class ThreadContextPropertiesTest {
     when(mockRequest.getScheme()).thenReturn(MOCK_SCHEME);
     when(mockRequest.getServletContext()).thenReturn(mockServletContext);
     when(mockServletContext.getContextPath()).thenReturn(MOCK_CONTEXT_PATH);
+
+    when(jettyRequest.getHeader(HttpHeaders.X_FORWARDED_FOR.toString()))
+        .thenReturn(MOCK_FORWARDED_REMOTE_ADDRESS);
+    when(jettyRequest.getHeader(HttpHeaders.X_FORWARDED_PORT.toString()))
+        .thenReturn(MOCK_FORWARDED_REMOTE_PORT);
+    when(jettyRequest.getHeader(HttpHeaders.X_FORWARDED_HOST.toString()))
+        .thenReturn(MOCK_FORWARDED_REMOTE_HOST);
+    when(jettyRequest.getScheme()).thenReturn(MOCK_SCHEME);
+    when(jettyRequest.getServletContext()).thenReturn(mockServletContext);
   }
 
   @After
@@ -109,11 +128,18 @@ public class ThreadContextPropertiesTest {
   }
 
   @Test
+  public void testAddClientInfoServletRequestXForwardedHeaderSet() throws Exception {
+    ThreadContextProperties.addClientInfo(jettyRequest);
+    assertThatClientInfoMapIsAccurateForwardedHeaderSet();
+    ThreadContextProperties.removeClientInfo();
+    assertThatClientInfoMapIsNull();
+  }
+
+  @Test
   public void testAddClientInfoInetSocketAddressRequestURI() throws Exception {
-    InetSocketAddress inetSocketAddress =
-        new InetSocketAddress("localhost", Integer.parseInt(MOCK_REMOTE_PORT));
     URI requestUri = new URI("http", "localhost", MOCK_CONTEXT_PATH, null);
-    ThreadContextProperties.addClientInfo(inetSocketAddress, requestUri);
+    ThreadContextProperties.addClientInfo(
+        MOCK_REMOTE_ADDRESS, MOCK_REMOTE_HOST, MOCK_REMOTE_PORT, requestUri);
     assertThatClientInfoMapIsAccurate();
     ThreadContextProperties.removeClientInfo();
     assertThatClientInfoMapIsNull();
@@ -121,9 +147,8 @@ public class ThreadContextPropertiesTest {
 
   @Test
   public void testAddClientInfoNullRequestURI() throws Exception {
-    InetSocketAddress inetSocketAddress =
-        new InetSocketAddress(MOCK_REMOTE_ADDRESS, Integer.parseInt(MOCK_REMOTE_PORT));
-    ThreadContextProperties.addClientInfo(inetSocketAddress, null);
+    ThreadContextProperties.addClientInfo(
+        MOCK_REMOTE_ADDRESS, MOCK_REMOTE_HOST, MOCK_REMOTE_PORT, null);
     Map<String, String> clientInfoMap = (Map<String, String>) ThreadContext.get(CLIENT_INFO_KEY);
     Assert.assertThat(clientInfoMap, CoreMatchers.notNullValue());
     Assert.assertThat(clientInfoMap.get(SERVLET_REMOTE_ADDR), is(MOCK_REMOTE_ADDRESS));
@@ -196,6 +221,16 @@ public class ThreadContextPropertiesTest {
     Assert.assertThat(clientInfoMap.get(SERVLET_REMOTE_ADDR), is(MOCK_REMOTE_ADDRESS));
     Assert.assertThat(clientInfoMap.get(SERVLET_REMOTE_PORT), is(MOCK_REMOTE_PORT));
     Assert.assertThat(clientInfoMap.get(SERVLET_REMOTE_HOST), is(MOCK_REMOTE_HOST));
+    Assert.assertThat(clientInfoMap.get(SERVLET_SCHEME), is(MOCK_SCHEME));
+    Assert.assertThat(clientInfoMap.get(SERVLET_CONTEXT_PATH), is(MOCK_CONTEXT_PATH));
+  }
+
+  private void assertThatClientInfoMapIsAccurateForwardedHeaderSet() throws Exception {
+    Map<String, String> clientInfoMap = (Map<String, String>) ThreadContext.get(CLIENT_INFO_KEY);
+    Assert.assertThat(clientInfoMap, CoreMatchers.notNullValue());
+    Assert.assertThat(clientInfoMap.get(SERVLET_REMOTE_ADDR), is(MOCK_FORWARDED_REMOTE_ADDRESS));
+    Assert.assertThat(clientInfoMap.get(SERVLET_REMOTE_PORT), is(MOCK_FORWARDED_REMOTE_PORT));
+    Assert.assertThat(clientInfoMap.get(SERVLET_REMOTE_HOST), is(MOCK_FORWARDED_REMOTE_HOST));
     Assert.assertThat(clientInfoMap.get(SERVLET_SCHEME), is(MOCK_SCHEME));
     Assert.assertThat(clientInfoMap.get(SERVLET_CONTEXT_PATH), is(MOCK_CONTEXT_PATH));
   }

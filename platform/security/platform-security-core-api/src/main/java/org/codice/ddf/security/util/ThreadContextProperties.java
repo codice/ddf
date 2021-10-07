@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.security.util;
 
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +21,8 @@ import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import org.apache.shiro.util.ThreadContext;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.server.Request;
 
 public final class ThreadContextProperties {
 
@@ -80,32 +81,58 @@ public final class ThreadContextProperties {
   /**
    * Adds the client info map to ThreadContext. The Client Info can include the client's IP address,
    * client host, client port, and the request context path.
+   *
+   * @param request the servlet request containing the client address info
    */
   public static void addClientInfo(ServletRequest request) {
     ServletContext servletContext = request.getServletContext();
+    String clientIP = request.getRemoteAddr();
+    String clientHost = request.getRemoteHost();
+    String clientPort = Integer.toString(request.getRemotePort());
+
+    if (request instanceof Request) {
+      Request jettyRequest = (Request) request;
+      String xForwardedFor = jettyRequest.getHeader(HttpHeader.X_FORWARDED_FOR.toString());
+      /**
+       * if the "X-FORWARDED-FOR" header is set, this is a proxied request and the X-FORWARDED-*
+       * headers should contain the actual client information. Typically in this scenario, the
+       * REMOTE_ADDR/HOST/PORT headers represent the proxy which is not what we want. There is no
+       * guarantee that the proxy is setting all of these headers, but we don't want to mix up the
+       * port/host with the port/host of the proxy
+       */
+      if (xForwardedFor != null && xForwardedFor.length() > 0) {
+        clientIP = xForwardedFor;
+        clientHost = jettyRequest.getHeader(HttpHeader.X_FORWARDED_HOST.toString());
+        clientPort = jettyRequest.getHeader(HttpHeader.X_FORWARDED_PORT.toString());
+      }
+    }
     ThreadContext.put(
         CLIENT_INFO_KEY,
         createClientInfoMap(
-            request.getRemoteAddr(),
-            request.getRemoteHost(),
-            request.getRemotePort(),
+            clientIP,
+            clientHost,
+            clientPort,
             request.getScheme(),
             servletContext == null ? null : servletContext.getContextPath()));
   }
 
   /**
-   * Adds the client info map to the ThreadContext
-   *
-   * @param clientAddress
+   * @param clientIP
+   * @param clientHost
+   * @param clientPort
    * @param requestUri
    */
-  public static void addClientInfo(InetSocketAddress clientAddress, @Nullable URI requestUri) {
+  public static void addClientInfo(
+      String clientIP,
+      @Nullable String clientHost,
+      @Nullable String clientPort,
+      @Nullable URI requestUri) {
     ThreadContext.put(
         CLIENT_INFO_KEY,
         createClientInfoMap(
-            clientAddress.getAddress().getHostAddress(),
-            clientAddress.getHostName(),
-            clientAddress.getPort(),
+            clientIP,
+            clientHost,
+            clientPort,
             requestUri != null ? requestUri.getScheme() : null,
             requestUri != null ? requestUri.getPath() : null));
   }
@@ -167,14 +194,18 @@ public final class ThreadContextProperties {
 
   private static Map<String, String> createClientInfoMap(
       String remoteAddr,
-      String remoteHost,
-      int remotePort,
+      @Nullable String remoteHost,
+      @Nullable String remotePort,
       @Nullable String requestScheme,
       @Nullable String requestPath) {
     Map<String, String> clientInfoMap = new HashMap<>();
     clientInfoMap.put(SERVLET_REMOTE_ADDR, remoteAddr);
-    clientInfoMap.put(SERVLET_REMOTE_HOST, remoteHost);
-    clientInfoMap.put(SERVLET_REMOTE_PORT, Integer.toString(remotePort));
+    if(remotePort != null) {
+      clientInfoMap.put(SERVLET_REMOTE_PORT, remotePort);
+    }
+    if (remoteHost != null) {
+      clientInfoMap.put(SERVLET_REMOTE_HOST, remoteHost);
+    }
     if (requestScheme != null) {
       clientInfoMap.put(SERVLET_SCHEME, requestScheme);
     }

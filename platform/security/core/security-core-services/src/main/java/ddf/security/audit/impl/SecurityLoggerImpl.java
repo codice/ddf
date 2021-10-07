@@ -13,6 +13,7 @@
  */
 package ddf.security.audit.impl;
 
+import com.google.common.net.HttpHeaders;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectOperations;
 import java.net.InetAddress;
@@ -114,10 +115,19 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
       // pull out the ip and port of the incoming connection so we know
       // who is trying to get access
       if (servletRequest != null) {
-        addIpAndPort(
-            servletRequest.getRemoteAddr(),
-            Integer.toString(servletRequest.getRemotePort()),
-            messageBuilder);
+        String clientIP;
+        String clientPort;
+        String xForwardedFor = servletRequest.getHeader(HttpHeaders.X_FORWARDED_FOR);
+        if (StringUtils.isNotEmpty(xForwardedFor)) {
+          // A proxy has set the client information in the x-forwarded-* headers.
+          clientIP = xForwardedFor;
+          clientPort = servletRequest.getHeader(HttpHeaders.X_FORWARDED_PORT);
+        } else {
+          // otherwise the remote_addr/remote_port headers should contain the actual client info
+          clientIP = servletRequest.getRemoteAddr();
+          clientPort = Integer.toString(servletRequest.getRemotePort());
+        }
+        addIpAndPort(clientIP, clientPort, messageBuilder);
       } else if (MessageUtils.isOutbound(message)) {
         messageBuilder
             .append(" Outbound endpoint: ")
@@ -128,7 +138,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   }
 
   private void addIpAndPort(String remoteAddress, String remotePort, StringBuilder messageBuilder) {
-    if (remoteAddress != null && remotePort != null) {
+    if (remoteAddress != null) {
       try {
         // ServletRequest#getRemoteAddr() can return a long loopback IP6 address which is less than
         // ideal for audit logging
@@ -139,12 +149,12 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
       } catch (UnknownHostException e) {
         // ignore
       }
-      messageBuilder
-          .append(" Client IP: ")
-          .append(remoteAddress)
-          .append(", Port: ")
-          .append(remotePort)
-          .append(", ");
+      messageBuilder.append(" Client IP: ").append(remoteAddress);
+      if (remotePort != null) {
+        messageBuilder.append(", Port: ").append(remotePort).append(", ");
+      } else {
+        messageBuilder.append(" ");
+      }
     } else {
       messageBuilder.append(" ");
     }
