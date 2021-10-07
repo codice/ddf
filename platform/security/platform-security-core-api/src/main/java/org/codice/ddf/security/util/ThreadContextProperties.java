@@ -200,7 +200,7 @@ public final class ThreadContextProperties {
       @Nullable String requestPath) {
     Map<String, String> clientInfoMap = new HashMap<>();
     clientInfoMap.put(SERVLET_REMOTE_ADDR, remoteAddr);
-    if(remotePort != null) {
+    if (remotePort != null) {
       clientInfoMap.put(SERVLET_REMOTE_PORT, remotePort);
     }
     if (remoteHost != null) {
