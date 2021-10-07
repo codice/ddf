@@ -21,10 +21,10 @@ Use this framework if:
 It is possible to have only remote Sources configured with no local `CatalogProvider` configured and be able to execute queries to specific remote sources by specifying the site name(s) in the query request.
 
 The Standard Catalog Framework also maintains a list of `ResourceReaders` for resource retrieval operations.
-A resource reader is matched to the scheme (i.e., protocol, such as `file://`) in the URI of the resource specified in the request to be retrieved.
+A resource reader is matched to the scheme (the protocol, such as `file://`) in the URI of the resource specified in the request to be retrieved.
 
 Site information about the catalog provider and/or any federated source(s) can be retrieved using the Standard Catalog Framework.
-Site information includes the source's name, version, availability, and the list of unique content types currently stored in the source (e.g., NITF).
+Site information includes the source's name, version, availability, and the list of unique content types currently stored in the source (such as NITF).
 If no local catalog provider is configured, the site information returned includes site info for the catalog framework with no content types included.
 
 == Installing the Standard Catalog Framework

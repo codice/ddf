@@ -93,7 +93,7 @@ An example of this is a properties file for the JDBC connection properties of a 
 It is recommended that:
 
 * Any `data/configuration` files be placed under the `src/main/resources` directory of the maven project.
-Sub-directories under `src/main/resources` can be used, e.g., `etc/security`.
+Sub-directories under `src/main/resources` can be used, for example, `etc/security`.
 * The Maven project's pom file should be updated to attach each `data/configuration` file as an artifact (using the `build-helper-maven-plugin`).
 * Add each `data/configuration` file to the KAR file using the `<configfile>` tag in the KAR's `features.xml` file.
 
@@ -168,6 +168,6 @@ An example of this would be a properties file for the JDBC connection properties
 It is recommended that:
 
 * Any data/configuration files be placed under the `src/main/resources` directory of the maven project.
-(Sub-directories under `src/main/resources` can also be used, e.g., `etc/security`)
+(Sub-directories under `src/main/resources` can also be used, for example, `etc/security`)
 * The maven project's pom file should be updated to attach each data/configuration file as an artifact (using the `build-helper-maven-plugin`)
 * Add each data/configuration file to the KAR file by using the `<configfile>` tag in the KAR's `features.xml` file

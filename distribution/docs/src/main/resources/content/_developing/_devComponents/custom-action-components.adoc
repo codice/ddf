@@ -44,7 +44,7 @@ The following is a sample taxonomy:
 |Naming Convention
 
 |`catalog.data.metacard.view`
-|Provides a valid URL to view a metacard. Format of data is not specified; i.e. the representation can be in XML, JSON, or other.
+|Provides a valid URL to view a metacard. Format of data is not specified, so the representation can be in XML, JSON, or other.
 |Export as ...
 
 |`catalog.data.metacard.thumbnail`

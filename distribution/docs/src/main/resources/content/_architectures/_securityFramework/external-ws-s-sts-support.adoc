@@ -15,6 +15,6 @@ Use these auth types when connecting to a non-${branding} STS or if ignoring rea
 === Security STS Address Provider
 (((Security STS Address Provider)))
 
-This allows one to select which STS address will be used (e.g. in SOAP sources) for clients of this service.
+This allows one to select which STS address will be used (for example, in SOAP sources) for clients of this service.
 Default is off (internal).
 

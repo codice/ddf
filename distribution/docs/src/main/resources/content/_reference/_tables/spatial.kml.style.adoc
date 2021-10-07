@@ -19,7 +19,7 @@
 |Attribute Name
 |attributeName
 |String
-|The name of the Metacard Attribute to match against. e.g. title, metadata-content-type, etc
+|The name of the Metacard Attribute to match against. For example, title, metadata-content-type, etc
 |null
 |true
 
@@ -33,7 +33,7 @@
 |Style URL
 |styleUrl
 |String
-|The full qualified URL to the KML Style. e.g. http://example.com/styles#myStyle
+|The full qualified URL to the KML Style, for example, \http://example.com/styles#myStyle
 |null
 |true
 

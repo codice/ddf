@@ -77,7 +77,7 @@
 |String
 |Template specifying the S3 object key for the metacard data. The template uses handlebars syntax.
 
-Use [] to reference dotted attributes e.g. {{[attribute.name]}}.
+Use [] to reference dotted attributes, as in {{[attribute.name]}}.
 
 If you wish to include date, you would use {{dateFormat created yyyy-MM-dd}}
 |data/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml

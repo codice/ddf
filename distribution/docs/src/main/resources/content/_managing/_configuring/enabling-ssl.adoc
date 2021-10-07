@@ -20,7 +20,7 @@ The following values can be set:
 
 |`javax.net.ssl.trustStore`
 |`etc/keystores/serverTruststore.jks`
-|The java keystore that contains the trusted public certificates for Certificate Authorities (CA's) that can be used to validate SSL Connections for outbound TLS/SSL connections (e.g. HTTPS).
+|The java keystore that contains the trusted public certificates for Certificate Authorities (CAs) that can be used to validate SSL Connections for outbound TLS/SSL connections (such as HTTPS).
 When making outbound secure connections a handshake will be done with the remote secure server and the CA that is in the signing chain for the remote server's certificate must be present in the trust store for the secure connection to be successful.
 
 |`javax.net.ssl.trustStorePassword`

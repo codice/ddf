@@ -33,7 +33,7 @@
 |File Extensions to Mime Types
 |customMimeTypes
 |String
-|List of key/value pairs where key is the file extension and value is the mime type, e.g., nitf=image/nitf
+|List of key/value pairs where key is the file extension and value is the mime type, for example, `nitf=image/nitf`
 |null
 |true
 

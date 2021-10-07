@@ -35,7 +35,7 @@ The Catalog provides the capability to query, create, update, and delete metacar
 Each of these operations follow a request/response paradigm.
 The request is the input to the operation and contains all of the input parameters needed by the Catalog Framework's operation to communicate with the Sources.
 The response is the output from the execution of the operation that is returned to the client, which contains all of the data returned by the sources.
-For each operation there is an associated request/response pair, e.g., the `QueryRequest` and `QueryResponse` pair for the Catalog Framework's query operation.
+For each operation there is an associated request/response pair. For example, the `QueryRequest` and `QueryResponse` pair for the Catalog Framework's query operation.
 
 All of the request and response objects are extensible in that they can contain additional key/value properties on each request/response.
 This allows additional capability to be added without changing the Catalog API, helping to maintain backwards compatibility.

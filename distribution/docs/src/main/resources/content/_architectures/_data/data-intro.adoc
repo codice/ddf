@@ -83,7 +83,7 @@ Required attributes must be the base of all extensible metacard types.
 [WARNING]
 ====
 Not all <<{managing-prefix}catalog_providers,Catalog Providers>> support extensible metacards.
-Nevertheless, each Catalog Provider should at least have support for the default `MetacardType`; i.e., it should be able to store and query on the attributes and attribute formats specified by the default metacard type.
+Nevertheless, each Catalog Provider should at least have support for the default `MetacardType`. That is, it should be able to store and query on the attributes and attribute formats specified by the default metacard type.
 Catalog providers are neither expected nor required to store attributes that are not in a given metacard's type.
 
 Consult the documentation of the Catalog Provider in use for more information on its support of extensible metacards.

@@ -32,7 +32,7 @@ a|* Stop the management feature using the command line console: `feature:stop ma
 
 |File System Access
 |tampering, information disclosure, and denial of service
-a|Set OS File permissions under the `${home_directory}` directory (e.g. `/deploy`, `/etc`) to ensure unauthorized viewing and writing is not allowed.
+a|Set OS File permissions under the `${home_directory}` directory (for example, `/deploy` or `/etc`) to ensure unauthorized viewing and writing is not allowed.
 
  If Caching is installed:
 
@@ -65,7 +65,7 @@ To allow direct remote access to the ${branding} shell from any host, change the
 
 SSH can also be authenticated and authorized through an external Realm,
 such as LDAP. This can be accomplished by editing the `${home_directory}/etc/org.apache.karaf.shell.cfg` file and setting the
-value for `sshRealm`, e.g. to `ldap`. No restart of ${branding} is necessary after this change.
+value for `sshRealm` to the appropriate realm, such as `ldap`. No restart of ${branding} is necessary after this change.
 
 By definition, all connections over SSH will be authenticated and authorized and secure from eavesdropping.
 

@@ -33,10 +33,10 @@ mkdir new_installation
 +
 .. Use a Non-`root` User on *NIX. (Windows users skip this step)
 +
-It is recommended that the `root` user create a new install directory that can be owned by a non-`root` user (e.g., ${branding}_USER).
+It is recommended that the `root` user create a new install directory that can be owned by a non-`root` user (such as ${branding}_USER).
 This can be a new or existing user.
 This ${branding}_USER can now be used for the remaining installation instructions.
-.. Create a new group or use an existing group (e.g., ${branding}_GROUP) (Windows users skip this step)
+.. Create a new group or use an existing group (such as ${branding}_GROUP) (Windows users skip this step)
 +
 .Example: Add New Group on *NIX
 ----
