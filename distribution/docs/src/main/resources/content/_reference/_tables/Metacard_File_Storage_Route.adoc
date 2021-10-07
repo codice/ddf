@@ -37,7 +37,7 @@
 |true
 |true
 
-|Metacard Backup Output Provider(s)
+|Metacard Backup Output Providers
 |metacardOutputProviderIds
 |Comma delimited list of metacard output provider IDs.
 |Metacard Backup Provider IDs to use for this backup plugin.

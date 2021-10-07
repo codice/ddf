@@ -133,25 +133,25 @@ a|The modification date of the resource http://dublincore.org/documents/dcmi-ter
 |
 
 |[[_language]]language
-|The language(s) of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#language[Dublin Core language] {external-link}.
+|The languages of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#language[Dublin Core language] {external-link}.
 |List of Strings
-|Alpha-3 language code(s) per ISO_639-2
+|Alpha-3 language codes per ISO_639-2
 |
 
 |[[_resource.derived-uri]]resource.derived-uri
-|Catalog-specific Location(s) for accessing the resources derived from another source (for example, an overlay of a larger image). This URI is used for internal catalog requests.
+|Catalog-specific Locations for accessing the resources derived from another source (for example, an overlay of a larger image). This URI is used for internal catalog requests.
 |List of Strings
 |Valid URI per RFC 2396
 |
 
 |[[_resource.derived-download-url]]resource.derived-download-url
-|Download URL(s) for accessing the resources derived from another source (for example, an overlay of a larger image). Clients should use this URL for download requests.
+|Download URLs for accessing the resources derived from another source (for example, an overlay of a larger image). Clients should use this URL for download requests.
 |List of Strings
-|Valid URL(s) per RFC 2396
+|Valid URLs per RFC 2396
 |
 
 |[[_datatype]]datatype
-a|The generic type(s) of the resource including the http://dublincore.org/documents/dcmi-type-vocabulary/[Dublin Core terms-type] {external-link}. DCMI Type term labels are expected here as opposed to term names.
+a|The generic types of the resource including the http://dublincore.org/documents/dcmi-type-vocabulary/[Dublin Core terms-type] {external-link}. DCMI Type term labels are expected here as opposed to term names.
 |List of Strings
 |`Collection`, `Dataset`, `Event`, `Image`, `Interactive Resource`, `Moving Image`, `Physical Object`, `Service`, `Software`, `Sound`, `Still Image`, and/or `Text`
 |

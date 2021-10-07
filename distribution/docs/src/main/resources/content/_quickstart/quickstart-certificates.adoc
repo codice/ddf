@@ -19,7 +19,7 @@ To test federation using 2-way TLS, the default keystore certificates will need 
 If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.
 
 If the hostname is `localhost` or, if the hostname was changed _after_ installation, the default certificates will not allow access to the ${branding} instance from another machine over HTTPS (now the default for many services).
-The Demo Certificate Authority will need to be replaced with certificates that use the fully-qualified hostname of the server running the ${branding} instance.
+The Demo Certificate Authority will need to be replaced with certificates that use the fully qualified hostname of the server running the ${branding} instance.
 
 === Demo Certificate Authority (CA)
 

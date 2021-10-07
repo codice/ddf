@@ -11,7 +11,7 @@ The ${ddf-catalog} application contains a ((Content Directory Monitor)) feature 
 For more information about configuring a directory to be monitored, see <<{managing-prefix}configuring_the_content_directory_monitor,Configuring the Content Directory Monitor>>.
 
 Files placed in the monitored directory will be ingested automatically.
-If a file cannot be ingested, they will be moved to an automatically-created directory named `.errors`.
+If a file cannot be ingested, they will be moved to an automatically created directory named `.errors`.
 More information about the ingest operations can be found in the ingest log.
 The default location of the log is `${home_directory}/data/log/ingest_error.log`.
 Optionally, ingested files can be automatically moved to a directory called `.ingested`.

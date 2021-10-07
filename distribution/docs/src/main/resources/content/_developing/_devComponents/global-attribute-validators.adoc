@@ -70,7 +70,7 @@ The `validator` key must have a value of one of the following:
  - `enumeration`
  * `arguments`: (unlimited) [list of strings: each argument is one case-sensitive, valid enumeration value]
  - `relationship`
- * `arguments`: (4+) [attribute value or null, one of mustHave|cannotHave|canOnlyHave, target attribute name, null or target attribute value(s) as additional arguments]
+ * `arguments`: (4+) [attribute value or null, one of mustHave|cannotHave|canOnlyHave, target attribute name, null or target attribute values as additional arguments]
  - `match_any`
  * `validators`: (unlimited) [list of previously defined validators: valid if any validator succeeds]
 ====

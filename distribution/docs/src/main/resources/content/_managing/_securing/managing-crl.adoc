@@ -12,7 +12,7 @@
 For hardening purposes, it is recommended to implement a way to verify a ((Certificate Revocation List)) (CRL) at least daily or an ((Online Certificate Status Protocol (OCSP) server)).
 
 === Managing a Certificate Revocation List (CRL)
-A Certificate Revocation List is a collection of formerly-valid certificates that should explicitly _not_ be accepted.
+A Certificate Revocation List is a collection of formerly valid certificates that should explicitly _not_ be accepted.
 
 ==== Creating a CRL
 

@@ -4,7 +4,7 @@
 :operations: na
 :order: 00
 
-(((Federation))) with ${branding} is primarily accomplished through <<{integrating-prefix}endpoints,Endpoints>> accessible through http(s) requests and responses.
+(((Federation))) with ${branding} is primarily accomplished through <<{integrating-prefix}endpoints,Endpoints>> accessible through https requests and responses.
 
 [NOTE]
 ====

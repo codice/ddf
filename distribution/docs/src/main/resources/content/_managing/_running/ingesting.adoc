@@ -6,7 +6,7 @@
 
 == {title}
 
-((Ingesting)) is the process of getting metacard(s) into the Catalog Framework.
+((Ingesting)) is the process of getting metacards into the Catalog Framework.
 Ingested files are "transformed" into a neutral format that can be searched against as well as migrated to other formats and systems.
 There are multiple methods available for ingesting files into the ${branding}.
 

@@ -24,15 +24,15 @@ ingested is valid. Below is a list of the validators run against the data ingest
 
 === Validators run on ingest
 
-* *((Size Validator))*: Validates the size of an attribute's value(s).
-* *((Range Validator))*: Validates an attribute's value(s) against an *inclusive* numeric range.
-* *((Enumeration Validator))*: Validates an attribute's value(s) against a set of acceptable values.
-* *((Future Date Validator))*: Validates an attribute's value(s) against the current date and time,
+* *((Size Validator))*: Validates the size of an attribute's values.
+* *((Range Validator))*: Validates an attribute's values against an *inclusive* numeric range.
+* *((Enumeration Validator))*: Validates an attribute's values against a set of acceptable values.
+* *((Future Date Validator))*: Validates an attribute's valuess against the current date and time,
 validating that they are in the future.
-* *((Past Date Validator))*: Validates an attribute's value(s) against the current date and time,
+* *((Past Date Validator))*: Validates an attribute's values against the current date and time,
 validating that they are in the past.
-* *((ISO3 Country Code Validator))*: Validates an attribute's value(s) against the ISO_3166-1 Alpha3 country codes.
-* *((Pattern Validator))*: Validates an attribute's value(s) against a regular expression.
+* *((ISO3 Country Code Validator))*: Validates an attribute's values against the ISO_3166-1 Alpha3 country codes.
+* *((Pattern Validator))*: Validates an attribute's values against a regular expression.
 * *((Required Attributes Metacard Validator))*: Validates that a metacard contains certain attributes.
 - ID: `ddf.catalog.validation.impl.validator.RequiredAttributesMetacardValidator`
 * *((Duplication Validator))*: Validates metacard against the local catalog for duplicates based on configurable attributes.
