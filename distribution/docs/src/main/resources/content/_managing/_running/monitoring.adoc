@@ -61,7 +61,7 @@ In order to see the messages in the log, one must set the logging level for `org
 
 Other appenders can be selected and configured.
 
-For more detail on configuring the log file and what is logged to the console see: http://karaf.apache.org/manual/latest/#_log[Karaf Documentation: Log] {external-link}.
+For more detail on configuring the log file and what is logged to the console see http://karaf.apache.org/manual/latest/#_log[Log] {external-link} in the Karaf documentation.
 
 === Enabling HTTP Access Logging
 

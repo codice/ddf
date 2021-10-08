@@ -3,7 +3,7 @@
 :status: published
 :parent: ${branding} Dependency List
 :order: 01
-:summary: ${branding} ${project.version} Javascript Dependency List.
+:summary: ${branding} ${project.version} Javascript Dependency List
 
 == {summary}
 ((({title})))

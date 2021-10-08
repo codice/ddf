@@ -11,12 +11,12 @@ Follow the below steps to start and stop ${branding}.
 
 Run one of the start scripts from a command shell to start the distribution and open a local console:
 
-.Start Script: *NIX
+.Start Script (*NIX)
 ----
 ${home_directory}/bin/${branding-lowercase}
 ----
 
-.Start Script: Windows
+.Start Script (Windows)
 ----
 ${home_directory}/bin/${branding-lowercase}.bat
 ----

@@ -6,7 +6,7 @@
 
 The ${branding} applications are a collection of OSGi bundles that contain configurations to be displayed in the ${admin-console}.
 The applications are defined in the ${etc/application-definitions} directory.
-Any json file added to the ${etc/application-definitions} with name, description and bundleLocations keys will be displayed in the ${admin-console}.
+Any json file added to the ${etc/application-definitions} with name, description, and bundleLocations keys will be displayed in the ${admin-console}.
 The application will only display if one of the bundles listed in the bundleLocations key is running or there is at least 1 plugin associated with that application running.
 
 A KAR file is a Karaf-specific archive format (*K*araf *AR*chive).

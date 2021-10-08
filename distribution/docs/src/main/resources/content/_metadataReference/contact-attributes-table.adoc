@@ -7,7 +7,7 @@
 
 == {title}
 
-.Contact: Attributes in this group reflect metadata about different kinds of people/groups/units/organizations that can be associated with a metacard. *Injected by default.*
+.Contact (Attributes in this group reflect metadata about different kinds of people/groups/units/organizations that can be associated with a metacard.) *Injected by default.*
 [cols="1,2,1,1,1" options="header"]
 |===
 |Term
