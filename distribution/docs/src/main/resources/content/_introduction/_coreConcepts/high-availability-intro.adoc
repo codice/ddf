@@ -19,10 +19,10 @@ perspective or from other ${branding}s' perspectives.
 ====
 
 This setup consists of a SolrCloud instance, 2 ${branding} nodes connected to that SolrCloud, and a failover proxy that sits in front of those 2 nodes.
-One of the ${branding} nodes will be arbitrarily chosen to be the active node, and the other will be the "hot standby" node.
+One of the ${branding} nodes is arbitrarily chosen to be the active node, and the other is the "hot standby" node.
 It is called a "hot standby" node because it is ready to receive traffic even though it's not currently receiving any.
-The failover proxy will route all traffic to the active node.
-If the active node fails for any reason, the standby node will become active and the failover proxy will route all traffic to the new active node.
+The failover proxy routes all traffic to the active node.
+If the active node fails for any reason, the standby node becomes active and the failover proxy routes all traffic to the new active node.
 See the below diagrams for more detail.
 
 .Highly Available Cluster
