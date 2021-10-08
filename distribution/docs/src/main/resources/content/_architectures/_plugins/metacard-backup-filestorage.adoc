@@ -5,7 +5,7 @@
 :plugintypes: postingest
 :summary: Stores backed-up metacards.
 
-The ((Metacard Backup File Storage Provider)) is a storage provider that will store backed-up metacards in a specified file system location.
+The ((Metacard Backup File Storage Provider)) is a storage provider that stores backed-up metacards in a specified file system location.
 
 == Installing the Metacard Backup File Storage Provider
 

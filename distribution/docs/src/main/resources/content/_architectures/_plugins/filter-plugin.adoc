@@ -12,10 +12,10 @@ The security attribute is a Map containing a set of keys that map to lists of va
 The metacard is then processed by a filter plugin that creates a `KeyValueCollectionPermission` from the metacard's security attribute.
 This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.
 The decision to filter the metacard eventually relies on the installed <<_security_pdp,Policy Decision Point>> (PDP).
-The PDP that is being used returns a decision, and the metacard will either be filtered or allowed to pass through.
+The PDP that is being used returns a decision, and the metacard is either filtered or allowed to pass through.
 
 How a metacard gets filtered is left up to any number of FilterStrategy implementations that might be installed.
-Each FilterStrategy will return a result to the filter plugin that says whether or not it was able to process the metacard, along with the metacard or response itself.
+Each `FilterStrategy` returns a result to the filter plugin that says whether or not it was able to process the metacard, along with the metacard or response itself.
 This allows a metacard or entire response to be partially filtered to allow some data to pass back to the requester.
 This could also include filtering any resources sent back to a requester.
 
@@ -58,8 +58,8 @@ Each type of metacard must have its own `PolicyPlugin` that reads the metadata b
 ----
 
 In the above example, the user's claims are represented very simply and are similar to how they would actually appear in a SAML 2 assertion.
-Each of these user (or subject) claims will be converted to a `KeyValuePermission` object.
-These permission objects will be implied against the permission object generated from the metacard record.
+Each of these user (or subject) claims is converted to a `KeyValuePermission` object.
+These permission objects is implied against the permission object generated from the metacard record.
 In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
 
 == Installing the Filter Plugin

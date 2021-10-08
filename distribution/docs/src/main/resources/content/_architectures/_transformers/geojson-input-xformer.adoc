@@ -56,7 +56,7 @@ Additionally, the input transformer currently does not handle ``FeatureCollectio
 ----
 ====
 
-The following sample _will_ create a valid metacard:
+The following sample _does_ create a valid metacard:
 
 .Sample Parseable GeoJson (Point)
 [source,JSON,linenums]
@@ -127,9 +127,9 @@ If a `MetacardType` is specified on the GeoJSON input, the customized properties
 }
 ----
 
-When the GeoJSON Input Transformer gets GeoJSON with the `MetacardType` specified, it will perform a lookup in the `MetacardTypeRegistry` to obtain the specified `MetacardType` in order to understand how to parse the GeoJSON.
-If no `MetacardType` is specified, the GeoJSON Input Transformer will assume the default `MetacardType`.
-If an unregistered `MetacardType` is specified, an exception will be returned to the client indicating that the `MetacardType` was not found.
+When the GeoJSON Input Transformer gets GeoJSON with the `MetacardType` specified, it performs a lookup in the `MetacardTypeRegistry` to obtain the specified `MetacardType` in order to understand how to parse the GeoJSON.
+If no `MetacardType` is specified, the GeoJSON Input Transformer assumes the default `MetacardType`.
+If an unregistered `MetacardType` is specified, an exception is returned to the client indicating that the `MetacardType` was not found.
 
 == Usage Limitations of the GeoJSON Input Transformer
 

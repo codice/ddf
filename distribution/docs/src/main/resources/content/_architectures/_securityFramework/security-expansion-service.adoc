@@ -81,7 +81,7 @@ The examples below use the following collection of rulesets:
 
 |===
 
-It is expected that multiple instances of the expansion service will be running at the same time.
+It is expected that multiple instances of the expansion service are running at the same time.
 Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service.
 There are two pre-defined instances used by ${ddf-branding}: one for expanding user attributes and one for metacard attributes.
 

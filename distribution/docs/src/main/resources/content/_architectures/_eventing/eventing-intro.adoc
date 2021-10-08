@@ -36,7 +36,7 @@ The ((Eventing)) capability of the Catalog allows endpoints (and thus external u
 Notably, the Catalog allows event evaluation on both the previous value (if available) and new value of a Metacard when an update occurs.
 
 Eventing allows ${branding}s to receive events on operations (such as create, update, delete) based on particular queries or actions.
-Once subscribed, users will receive notifications of events such as update or create on any source.
+Once subscribed, users receive notifications of events such as update or create on any source.
 
 == Eventing Components
 

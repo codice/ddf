@@ -25,7 +25,7 @@ These are mime types not supported by the default `TikaMimeTypeResolver`.
 
 |===
 
-As a `MimeTypeResolver`, the Custom Mime Type Resolver will provide methods to map the file extension to the corresponding mime type, and vice versa.
+As a `MimeTypeResolver`, the Custom Mime Type Resolver provides methods to map the file extension to the corresponding mime type, and vice versa.
 
 == Installing the Custom Mime Type Resolver
 

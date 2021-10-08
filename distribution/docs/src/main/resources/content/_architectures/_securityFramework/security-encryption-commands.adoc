@@ -28,7 +28,7 @@ bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 
 This bundle is installed by default with the `security-encryption` feature.
 This bundle is tied specifically to the ${branding} console and can be uninstalled if not needed.
-When uninstalled, however, administrators will not be able to encrypt and decrypt data from the console.
+When uninstalled, however, administrators are not able to encrypt and decrypt data from the console.
 
 === Configuring the Security Encryption Commands
 
