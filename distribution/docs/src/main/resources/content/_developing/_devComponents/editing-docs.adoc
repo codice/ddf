@@ -41,7 +41,7 @@ Quick Start:: This section is intended for getting set up with a test, demonstra
 
 Managing:: The managing section covers "how-to" instructions to be used to install, configure, and maintain an instance of ${branding} in a production environment. This content should be aimed at system administrators. Security hardening should be integrated into these sections.
 
-Using:: This section is primarily aimed at the final end users who will be performing tasks with ${branding}. This content should guide users through common tasks and user interfaces.
+Using:: This section is primarily aimed at the final end users who perform tasks with ${branding}. This content should guide users through common tasks and user interfaces.
 
 Integrating:: This section guides developers building other projects looking to connect to new or existing instances of ${branding}.
 
@@ -98,4 +98,4 @@ By mimicking the build and directory structure of the documentation, downstream 
 Sub-directories are organized according to the documents that make up the main library.
 `images`:: any pre-existing images, such as screenshots, to be included in the documentation.
 `templates`:: template files used to create documentation artifacts.
-A `build` sub-directory holds the templates that will not be standalone documents to render specific sections.
+A `build` sub-directory holds the templates that are not standalone documents to render specific sections.

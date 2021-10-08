@@ -43,8 +43,8 @@ The attributes `stored`, `indexed`, `tokenized`, and `multivalued` must be inclu
 ====
 `stored`:: If true, the value of the attribute should be stored in the underlying datastore. Some attributes may only be indexed or used in transit and do not need to be persisted.
 `indexed`:: If true, then the value of the attribute should be included in the datastore's index and therefore be part of query evaluation.
-`tokenized`:: Only applicable to STRING_TYPE attributes, if true then stopwords and punctuation will be stripped prior to storing and/or indexing. If false, only an exact string will match.
-`multi-valued`:: If true, then the attribute values will be Lists of the attribute type rather than single values.
+`tokenized`:: Only applicable to STRING_TYPE attributes, if true then stopwords and punctuation are stripped prior to storing and/or indexing. If false, only an exact string matches.
+`multi-valued`:: If true, then the attribute values are Lists of the attribute type rather than single values.
 ====
 
 The `type` attribute must also be included and must have one of the allowed values:

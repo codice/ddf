@@ -53,7 +53,7 @@ public interface ClaimsHandler {
 }
 ----
 +
-.  Expose the new claims handler as an OSGi service under the `org.apache.cxf.sts.claims.ClaimsHandler` interface.
+. Expose the new claims handler as an OSGi service under the `org.apache.cxf.sts.claims.ClaimsHandler` interface.
 +
 [source,xml,linenums]
 ----
@@ -542,7 +542,7 @@ It is the simplest way to request a SAML assertion, but many endpoints won't acc
 
 * WS-Addressing header with Action, To, and Message ID
 * Valid, non-expired timestamp
-* Username Token containing a username and password that the STS will authenticate
+* Username Token containing a username and password that the STS authenticates
 * Issued over HTTPS
 * KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer
 * Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc. If the SAML assertion needs those attributes, the `RequestSecurityToken` must specify which ones to include.
@@ -598,7 +598,7 @@ This is the response from the STS containing the SAML assertion to be used in su
 The `saml2:Assertion` block contains the entire SAML assertion.
 
 The `Signature` block contains a signature from the STS's private key.
-The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.
+The endpoint receiving the SAML assertion verifies that it trusts the signer and ensure that the message wasn't tampered with.
 
 The `AttributeStatement` block contains all the Claims requested.
 
@@ -729,7 +729,7 @@ HM0dPfiQLQ99ElWkv/0=</ds:X509Certificate>
 
 In order to obtain a SAML assertion to use in secure communication to ${branding}, a `RequestSecurityToken` (RST) request has to be made to the STS.
 
-An endpoint's policy will specify the type of security token needed.
+An endpoint's policy specifies the type of security token needed.
 Most of the endpoints that have been used with ${branding} require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.
 This means that the SAML assertion provided by the client to a ${branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.
 This is used to prove that the client can possess the SAML assertion returned by the STS.
@@ -745,7 +745,7 @@ See the request block below for an example of how these components should be pop
 * Issued over HTTPS
 * TokenType of http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
 * KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey
-* X509 Certificate as the Proof of Possession or POP.  This needs to be the certificate of the client that will be both requesting the SAML assertion and using the SAML assertion to issue a query
+* X509 Certificate as the Proof of Possession or POP. This needs to be the certificate of the client that is both requesting the SAML assertion and using the SAML assertion to issue a query
 * Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc. If the SAML assertion needs those attributes, the RequestSecurityToken must specify which ones to include.
 ** UsernameToken: If Claims are required, the RequestSecurityToken security header must contain a UsernameToken element with a username and password.
 
@@ -831,7 +831,7 @@ This is the response from the STS containing the SAML assertion to be used in su
 The `saml2:Assertion` block contains the entire SAML assertion.
 
 The `Signature` block contains a signature from the STS's private key.
-The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.
+The endpoint receiving the SAML assertion verifies that it trusts the signer and ensure that the message wasn't tampered with.
 
 The `SubjectConfirmation` block contains the client's public key, so the server can verify that the client has permission to hold this SAML assertion.
 The `AttributeStatement` block contains all of the claims requested.

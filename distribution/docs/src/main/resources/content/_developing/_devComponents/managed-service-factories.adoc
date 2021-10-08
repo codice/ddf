@@ -12,9 +12,9 @@ For instance, assuming that the Managed Service Factory PID is `org.codice.ddf.f
 
 The unique identifiers used in the file names have no impact on the order in which the configuration files are processed.
 No specific processing order should be assumed.
-Also, a new service will be created and configured every time a configuration file matching the Managed Service Factory PID is added to the directory, regardless of the _unique id_ used.
+Also, a new service is created and configured every time a configuration file matching the Managed Service Factory PID is added to the directory, regardless of the _unique id_ used.
 
-Any `service.factoryPid` and `service.pid` values in these `.config` files will be overridden by the values parsed from the file name, so `.config` files should not contain these properties.
+Any `service.factoryPid` and `service.pid` values in these `.config` files are overridden by the values parsed from the file name, so `.config` files should not contain these properties.
 
 == File Format
 
@@ -129,7 +129,7 @@ sizes=D[ \
 * Surrounding the equal signs (`=`) with spaces for properties is optional.
 // TODO DDF-3291 Upgrade Felix and remove .config file spaces work-around
 Because there is a known issue when using OPS4J Pax Exam 4.11.0 and modifying `.config` files that include spaces, all default `.config` files that may be modified in OPS4J Pax Exam 4.11.0 tests should not include spaces.
-* Boolean values will default to `false` if any value other than `true` is provided.
+* Boolean values default to `false` if any value other than `true` is provided.
 * Float values must be representated in the IEEE 754 floating-point "single format" bit layout, preserving Not-a-Number (NaN) values.
 For example, `F"1093140480"` corresponds to `F"10.5"`.
 See the documentation for https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html#parseInt(java.lang.String)[`java.lang.Integer#parseInt(java.lang.String)`] and https://docs.oracle.com/javase/7/docs/api/java/lang/Float.html#intBitsToFloat(int)[`java.lang.Float#intBitsToFloat(int)`] for more details.

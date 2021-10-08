@@ -46,7 +46,7 @@ Many alternative tools exist, and OSGi manifest files can also be created by han
 
 Avoid creating bundles by hand or editing a manifest file:: Many tools exist for creating bundles, notably the Maven Bundle plugin, which handle the details of OSGi configuration and automate the bundling process including generation of the manifest file.
 Always make a distinction on which imported packages are `optional` or `required`:: Requiring every package when not necessary can cause an unnecessary dependency ripple effect among bundles.
-Embedding is an implementation detail:: Using the `Embed-Dependency` instruction provided by the `maven-bundle-plugin` will insert the specified jars into the target archive and add them to the `Bundle-ClassPath`. These jars and their contained packages/classes are not for public consumption; they are for the internal implementation of this service implementation only.
+Embedding is an implementation detail:: Using the `Embed-Dependency` instruction provided by the `maven-bundle-plugin` inserts the specified jar(s) into the target archive and adds them to the `Bundle-ClassPath`. These jars and their contained packages/classes are not for public consumption; they are for the internal implementation of this service implementation only.
 Bundles should never be embedded:: Bundles expose service implementations; they do not provide arbitrary classes to be used by other bundles.
 Bundles should expose service implementations:: This is the corollary to the previous rule. Bundles should not be created when arbitrary concrete classes are being extracted to a library. In that case, a library/jar is the appropriate module packaging type.
 Bundles should generally _only_ export service packages:: If there are packages internal to a bundle that comprise its implementation but not its public manifestation of the API, they should be excluded from export and kept as private packages.
@@ -109,8 +109,8 @@ A bundle is typically installed in one of two ways:
 The fastest way to deploy a created bundle during development is to copy it to the `/deploy` directory of a running ${branding}.
 This directory checks for new bundles and deploys them immediately.
 According to Karaf documentation, "Karaf supports hot deployment of OSGi bundles by monitoring JAR files inside the `[home]/deploy` directory.
-Each time a JAR is copied in this folder, it will be installed inside the runtime.
-It can be updated or deleted and changes will be handled automatically.
+Each time a JAR is copied in this folder, it is installed inside the runtime.
+It can be updated or deleted and changes are handled automatically.
 In addition, Karaf also supports exploded bundles and custom deployers (Blueprint and Spring DM are included by default)."
 Once deployed, the bundle should come up in the Active state, if all of the dependencies were properly met.
 When this occurs, the service is available to be used.

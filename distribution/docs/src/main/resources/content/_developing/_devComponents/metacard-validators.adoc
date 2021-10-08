@@ -19,7 +19,7 @@ Validators, your definition file must have a `metacardvalidators` key in the roo
 ----
 
 The value of `metacardvalidators` is a list of maps, where each map contains a key that is the name
-of the metacard type the corresponding validators will apply to. Its value is a list of maps of the
+of the metacard type the corresponding validators apply to. Its value is a list of maps of the
 validator configuration parameters that specify which validators to configure for the given metacard
 type.
 

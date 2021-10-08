@@ -20,7 +20,7 @@ Additional components can be created and added to ${branding} to identify specif
 
 In the examples below, the policy has specified targets for the above type of calls.
 For the Filtering code, the target was set for "filter", and the Service validation code targets were geared toward two services: `query` and `LocalSiteName`.
-In a production environment, these actions for service authorization will generally be full URNs that are described within the SOAP WSDL.
+In a production environment, these actions for service authorization generally are full URNs that are described within the SOAP WSDL.
 
 == XACML Policy Attributes
 
