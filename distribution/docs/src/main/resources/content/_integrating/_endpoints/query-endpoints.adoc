@@ -48,7 +48,7 @@ To create a query metacard through the queries endpoint, send a `POST` request t
 }
 ----
 
-A successful create request will return a status of `201 CREATED`.
+A successful create request returns a status of `201 CREATED`.
 
 .Queries Endpoint Create Success Response Body
 [source,json,linenums]
@@ -78,7 +78,7 @@ A successful create request will return a status of `201 CREATED`.
 }
 ----
 
-An unsuccessful create request will return a status of `500 SERVER ERROR`.
+An unsuccessful create request returns a status of `500 SERVER ERROR`.
 
 .Queries Endpoint Create Failure Response Body
 [source,json,linenums]
@@ -134,7 +134,7 @@ To retrieve a query metacard through the queries endpoint, send a `GET` request 
 
 |===
 
-A successful retrieval request will return a status of `200 OK`.
+A successful retrieval request returns a status of `200 OK`.
 
 === Queries Endpoint Retrieve All Fuzzy Examples
 
@@ -146,7 +146,7 @@ To retrieve all query metacards based on some text based value through the queri
 https://<HOSTNAME>:<PORT>/search/catalog/internal/queries?text=<VALUE>
 ----
 
-A fuzzy search will only be performed against the `title`, `modified`, `owner`, and `description` attributes.
+A fuzzy search is only performed against the `title`, `modified`, `owner`, and `description` attributes.
 
 === Queries Endpoint Retrieve Examples
 
@@ -158,7 +158,7 @@ https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/<ID>
 
 To retrieve a specific query metacard through the queries endpoint, send a `GET` request to the queries endpoint with an id.
 
-A successful retrieval request will return a status of `200 OK`.
+A successful retrieval request returns a status of `200 OK`.
 
 .Query Endpoint Not Found Response Body
 [source,json,linenums]
@@ -168,7 +168,7 @@ A successful retrieval request will return a status of `200 OK`.
 }
 ----
 
-An unsuccessful retrieval request will return a status of `404 NOT FOUND`.
+An unsuccessful retrieval request returns a status of `404 NOT FOUND`.
 
 === Queries Endpoint Update Examples
 
@@ -198,7 +198,7 @@ To update a specific query metacard through the queries endpoint, send a `PUT` r
 }
 ----
 
-A successful update request will return a status of `200 OK`.
+A successful update request returns a status of `200 OK`.
 
 .Update Query Request Response Body
 [source,json,linenums]
@@ -228,7 +228,7 @@ A successful update request will return a status of `200 OK`.
 }
 ----
 
-An unsuccessful update request will return a status of `404 NOT FOUND`.
+An unsuccessful update request returns a status of `404 NOT FOUND`.
 
 .Update Query Unsuccessful Response Body
 [source,json,linenums]
@@ -249,9 +249,9 @@ https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/<ID>
 
 To delete a specific query metacard through the queries endpoint, send a `GET` request to the queries endpoint with an id.
 
-A successful deletion request will return a status of `204 NO CONTENT`.
+A successful deletion request returns a status of `204 NO CONTENT`.
 
-An unsuccessful deletion request will return a status of `404 NOT FOUND`.
+An unsuccessful deletion request returns a status of `404 NOT FOUND`.
 
 .Delete Query Not Found Response Body
 [source,json,linenums]

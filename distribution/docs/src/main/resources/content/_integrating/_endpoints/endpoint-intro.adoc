@@ -8,6 +8,6 @@
 
 [NOTE]
 ====
-Not all installations will expose all available endpoints. Check with ${branding} administrator to confirm availability of these endpoints.
+Not all installations expose all available endpoints. Check with ${branding} administrator to confirm availability of these endpoints.
 ====
 

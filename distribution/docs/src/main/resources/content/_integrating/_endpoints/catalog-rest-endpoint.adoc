@@ -69,19 +69,19 @@ Content-Type:
 ----
 
 The `create` and `update` methods both support the multipart mime format.
-If only a single attachment exists, it will be interpreted as a resource to be parsed, which will result in a metacard and resource being stored in the system.
+If only a single attachment exists, it is interpreted as a resource to be parsed, which results in a metacard and resource being stored in the system.
 
-If multiple attachments exist, then the REST endpoint will assume that one attachment is the actual resource (attachment should be named `parse.resource`) and the other attachments are overrides of metacard attributes (attachment names should follow metacard attribute names).
+If multiple attachments exist, then the REST endpoint assumes that one attachment is the actual resource (attachment should be named `parse.resource`) and the other attachments are overrides of metacard attributes (attachment names should follow metacard attribute names).
 In the case of the metadata attribute, it is possible to also have the system transform that metadata and use the results of that to override the metacard that would be generated from the resource (attachment should be named `parse.metadata`).
 
 .Create Success
-If the ingest is successful, a status of `201 Created` will be returned, along with the Metacard ID in the header of the response.
+If the ingest is successful, a status of `201 Created` is returned, along with the Metacard ID in the header of the response.
 
 .Request with Non-XML Data
 [NOTE]
 ====
 If a request with non-XML data is sent to the Catalog REST endpoint,
-the metacard will be created but the resource will be stored in the `metadata` field.
+the metacard is created but the resource is stored in the `metadata` field.
 This could affect discoverability.
 ====
 
@@ -108,7 +108,7 @@ The `read` operation can be used to retrieve metadata in different formats.
 
 . Send a `GET` request to the endpoint.
 . Optionally add a `transform` query parameter to the end of the URL with the transformer to be used (such as `transform=kml`).
-By default, the response body will include the XML representation of the Metacard.
+By default, the response body includes the XML representation of the Metacard.
 
 .Read Request URL
 [source,javascript]
@@ -116,7 +116,7 @@ By default, the response body will include the XML representation of the Metacar
 https://<FQDN>:<PORT>/services/catalog/<metacardId>
 ----
 
-If successful, a status of `200 OK` will be returned, along with the content of the metacard requested.
+If successful, a status of `200 OK` is returned, along with the content of the metacard requested.
 
 .Read Success Response Example
 [source,javascript,linenums]
