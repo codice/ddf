@@ -153,7 +153,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
       if (remotePort != null) {
         messageBuilder.append(", Port: ").append(remotePort).append(", ");
       } else {
-        messageBuilder.append(" ");
+        messageBuilder.append(", ");
       }
     } else {
       messageBuilder.append(" ");
