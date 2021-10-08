@@ -28,7 +28,7 @@ None.
 
 ==== ${catalogFramework.title}
 
-include::${catalogFramework.file}[]
+include::${catalogFramework.file}[leveloffset=+3]
 
 </#if>
 </#list>

@@ -7,10 +7,10 @@
 
 The Content URI Access Plugin prevents a Metacard's resource URI from being overridden by an incoming UpdateRequest.
 
-===== Installing the Content URI Access Plugin
+== Installing the Content URI Access Plugin
 
 The Content URI Access Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Content URI Access Plugin
+== Configuring the Content URI Access Plugin
 
 The Content URI Access Plugin has no configurable properties.

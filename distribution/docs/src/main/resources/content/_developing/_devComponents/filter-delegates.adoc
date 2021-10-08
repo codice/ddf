@@ -8,12 +8,12 @@
 Filter Delegates help reduce the complexity of parsing OGC Filters.
 The reference Filter Adapter implementation contains the necessary boilerplate visitor code and input normalization to handle commonly supported OGC Filters.
 
-==== Creating a New Filter Delegate
+== Creating a New Filter Delegate
 
 A Filter Delegate contains the logic that converts normalized filter input into a form that the target data source can handle.
 Delegate methods will be called in a depth first order as the Filter Adapter visits filter nodes.
 
-===== Implementing the Filter Delegate
+=== Implementing the Filter Delegate
 
 . Create a Java class extending `FilterDelegate`. +
 `public class ExampleDelegate extends ${ddf-branding}.catalog.filter.FilterDelegate<ExampleReturnObjectType> {`
@@ -24,12 +24,12 @@ Delegate methods will be called in a depth first order as the Filter Adapter vis
 A code example of a Filter Delegate can be found in `${ddf-branding}.catalog.filter.proxy.adapter.test` of the `filter-proxy` bundle.
 ====
 
-===== Throwing Exceptions
+=== Throwing Exceptions
 
 Filter delegate methods can throw `UnsupportedOperationException` run-time exceptions.
 The `GeotoolsFilterAdapterImpl` will catch and re-throw these exceptions as `UnsupportedQueryExceptions`.
 
-===== Using the Filter Adapter
+=== Using the Filter Adapter
 
 The FilterAdapter can be requested from the OSGi registry.
 
@@ -59,7 +59,7 @@ public ${ddf-branding}.catalog.operation.QueryResponse query(${ddf-branding}.cat
 Import the ${ddf-catalog} API Filter package and the reference implementation package of the Filter Adapter in the bundle manifest (in addition to any other required packages). +
 `Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.filter, ${ddf-branding}.catalog.source`
 
-===== Filter Support
+=== Filter Support
 
 Not all OGC Filters are exposed at this time.
 If demand for further OGC Filter functionality is requested, it can be added to the Filter Adapter and Delegate so sources can support more complex filters.

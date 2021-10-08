@@ -1,4 +1,4 @@
-[{reference}]
+
 == Application Reference
 
 ====

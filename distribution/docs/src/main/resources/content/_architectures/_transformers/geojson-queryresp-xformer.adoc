@@ -7,11 +7,11 @@
 
 The GeoJSON Query Response Transformer translates a query response into a GeoJSON-formatted document.
 
-===== Installing the GeoJSON Query Response Transformer
+== Installing the GeoJSON Query Response Transformer
 
 The GeoJSON Query Response Transformer is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the GeoJSON Query Response Transformer
+== Configuring the GeoJSON Query Response Transformer
 
 The GeoJSON Query Response Transformer has no configurable properties.
 

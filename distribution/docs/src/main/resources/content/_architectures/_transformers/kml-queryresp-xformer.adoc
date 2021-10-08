@@ -9,15 +9,15 @@ The KML Query Response Transformer translates a query response into a KML-format
 The KML will contain an HTML description for each metacard that will display in the pop-up bubble in Google Earth.
 The HTML contains links to the full metadata view as well as the resource.
 
-===== Installing the KML Query Response Transformer
+== Installing the KML Query Response Transformer
 
 The `spatial-kml-transformer` feature is installed by default in the ${ddf-spatial} Application.
 
-===== Configuring the KML Query Response Transformer
+== Configuring the KML Query Response Transformer
 
 The KML Query Response Transformer has no configurable properties.
 
-===== Using the KML Query Response Transformer
+== Using the KML Query Response Transformer
 
 Using the OpenSearch Endpoint, for example, query with the format option set to the KML shortname: `kml`.
 

@@ -63,7 +63,7 @@ Availability and configuration details of available transformers.
 
 ==== ${transformer.title}
 
-include::${transformer.file}[]
+include::${transformer.file}[leveloffset=+3]
 
 </#if>
 </#list>
@@ -93,7 +93,7 @@ None.
 
 ==== ${mimeTypeMapper.title}
 
-include::${mimeTypeMapper.file}[]
+include::${mimeTypeMapper.file}[leveloffset=+3]
 
 </#if>
 </#list>
@@ -124,7 +124,7 @@ None.
 
 ==== ${mimeTypeResolver.title}
 
-include::${mimeTypeResolver.file}[]
+include::${mimeTypeResolver.file}[leveloffset=+3]
 
 </#if>
 </#list>

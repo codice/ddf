@@ -17,7 +17,7 @@ The fluent API is best accessed using an IDE that supports code-completion.
 For additional details, refer to the [Catalog API Javadoc].
 ====
 
-==== Boolean Operators
+== Boolean Operators
 
 Filters use a number of boolean operators.
 
@@ -27,7 +27,7 @@ Filters use a number of boolean operators.
 
 `FilterBuilder.not(Filter filter)`:: creates a new Filter that requires the provided Filter must not match (Boolean NOT).
 
-==== Attribute
+== Attribute
 
 Filters can be based on specific attributes.
 

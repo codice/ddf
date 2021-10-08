@@ -9,7 +9,7 @@ In general, a `MetacardTransformer` is used to transform a `Metacard` into some 
 Programmatically, a `MetacardTransformer` transforms a `Metacard` into a `BinaryContent` instance, which translates the `Metacard` into the desired final format.
 Metacard transformers can be used through the Catalog Framework `transform` convenience method or requested from the OSGi Service Registry by endpoints or other bundles.
 
-==== Creating a New Metacard Transformer
+== Creating a New Metacard Transformer
 
 Existing metacard transformers are written as Java classes, and these steps walk through the steps to create a custom metacard transformer.
 

@@ -45,7 +45,7 @@ The Catalog Framework then invokes <<{architecture-prefix}catalog_plugins,Catal
 
 The Catalog Framework decouples clients from service implementations and provides integration points for Catalog Plugins and convenience methods for Endpoint developers.
 
-=== Catalog API Design
+== Catalog API Design
 
 The Catalog is composed of several components and an API that connects them together.
 The Catalog API is central to ${branding}'s architectural qualities of extensibility and flexibility. 
@@ -53,12 +53,12 @@ The Catalog API consists of Java interfaces that define Catalog functionality an
 These interfaces provide the ability for components to interact without a dependency on a particular underlying implementation, thus allowing the possibility of alternate implementations that can maintain interoperability and share developed components.
 As such, new capabilities can be developed independently, in a modular fashion, using the Catalog API interfaces and reused by other ${branding} installations.
 
-==== Ensuring Compatibility
+=== Ensuring Compatibility
 
 The Catalog API will evolve, but great care is taken to retain backwards compatibility with developed components.
 Compatibility is reflected in version numbers.
 
-==== Catalog Framework Sequence Diagrams
+=== Catalog Framework Sequence Diagrams
 
 Because the Catalog Framework plays a central role to Catalog functionality, it interacts with many different Catalog components.
 To illustrate these relationships, high-level sequence diagrams with notional class names are provided below.
@@ -105,7 +105,7 @@ Note that a `CatalogProvider` must be present for any ingest requests to be succ
 This process is similar for updating catalog entries, with update requests calling the `update(UpdateRequest)` methods on the Endpoint, `CatalogFramework`, and Catalog Provider.
 Similarly, for deletion of catalog entries, the delete requests call the `delete(DeleteRequest)` methods on the `Endpoint`, `CatalogFramework`, and `CatalogProvider`.
 
-===== Error Handling
+==== Error Handling
 
 Any ingest attempts that fail inside the Catalog Framework (whether the failure comes from the Catalog Framework itself, pre-ingest plugin failures, or issues with the Catalog Provider) will be logged to a separate log file for ease of error handling.
 The file is located at `${home_directory}/data/log/ingest_error.log` and will log the Metacards that fail, their ID and Title name, and the stack trace associated with their failure.
@@ -122,7 +122,7 @@ log:set
 ----
 ====
 
-===== Query
+==== Query
 
 .Query Request Data Flow
 [ditaa,query_request,png]
@@ -163,7 +163,7 @@ Optional PreQuery and PostQuery Catalog Plugins may be invoked by the `CatalogFr
 If a `CatalogProvider` is not configured and no other remote Sources are configured, a fault will be returned.
 It is possible to have only remote Sources configured and no local `CatalogProvider` configured and be able to execute queries to specific remote Sources by specifying the site name(s) in the query request.
 
-===== Product Caching
+==== Product Caching
 
 The Catalog Framework optionally provides caching of products, so future requests to retrieve the same product will be serviced much quicker.
 If caching is enabled, each time a retrieve product request is received, the Catalog Framework will look in its cache (default location `${home_directory}/data/product-cache`) to see if the product has been cached locally.
@@ -180,6 +180,6 @@ If the Catalog Framework is unable to retrieve the product, an error message is 
 If the admin has enabled the *Always Cache When Canceled* option, caching of the product will occur even if the client cancels the product retrieval so that future requests will be serviced quickly.
 Otherwise, caching is canceled if the user cancels the product download.
 
-===== Product Download Status
+==== Product Download Status
 
 As part of the caching of products, the Catalog Framework also posts events to the OSGi notification framework. Information includes when the product download started, whether the download is retrying or failed (after the number of retrieval attempts configured for product caching has been exhausted), and when the download completes. These events are retrieved by the Search UI and presented to the user who initiated the download.

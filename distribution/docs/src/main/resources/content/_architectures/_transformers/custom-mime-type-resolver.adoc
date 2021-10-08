@@ -26,14 +26,14 @@ These are mime types not supported by the default `TikaMimeTypeResolver`.
 
 As a `MimeTypeResolver`, the Custom Mime Type Resolver will provide methods to map the file extension to the corresponding mime type, and vice versa.
 
-===== Installing the Custom Mime Type Resolver
+== Installing the Custom Mime Type Resolver
 
 One Custom Mime Type Resolver is configured and installed for the `image/nitf` mime type.
 This custom resolver is bundled in the `mime-core-app` application and is part of the `mime-core` feature.
 
 Additional Custom Mime Type Resolvers can be added for other custom mime types.
 
-====== Configuring the Custom Mime Type Resolver
+== Configuring the Custom Mime Type Resolver
 
 The configurable properties for the Custom Mime Type Resolver are accessed from the *MIME Custom Types* configuration in the ${admin-console}.
 

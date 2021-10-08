@@ -5,6 +5,6 @@
 :project: ${branding}
 :order: 05
 
-==== {title}
+== {title}
 
 Refer to https://lucene.apache.org/solr/guide/${solr.docs.version}/taking-solr-to-production.html[Taking Solr to Production] {external-link} in the Solr documentation for configuring Solr as a Windows or init.d service.

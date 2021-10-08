@@ -7,10 +7,10 @@
 
 The operation plugin validates the subject's security attributes to ensure they are adequate to perform the operation.
 
-===== Installing the Operation Plugin
+== Installing the Operation Plugin
 
 The Operation Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the Operation Plugin
+== Configuring the Operation Plugin
 
 The Operation Plugin has no configurable properties.
