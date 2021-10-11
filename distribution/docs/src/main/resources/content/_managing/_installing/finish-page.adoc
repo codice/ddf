@@ -7,11 +7,11 @@
 
 .Finished Page
 ****
-Upon successful startup, the *Finish* page will redirect to the ${admin-console} to begin further configuration, ingest, or federation.
+Upon successful startup, the *Finish* page redirects to the ${admin-console} to begin further configuration, ingest, or federation.
 
 [NOTE]
 ====
-The redirect will only work if the certificates are configured in the browser. +
+The redirect only works if the certificates are configured in the browser. +
 Otherwise the redirect link must be used.
 ====
 

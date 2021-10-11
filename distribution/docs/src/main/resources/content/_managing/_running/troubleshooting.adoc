@@ -53,9 +53,9 @@ a|Restart ${branding}.
 . Start up ${branding}:
 `./${branding-lowercase}`
 
-|Distribution Will Not Start
+|Distribution Does Not Start
 
-${branding} will not start when calling the start script defined during installation.
+${branding} does not start when calling the start script defined during installation.
 |Complete the following procedure.
 
 . Verify that Java is correctly installed.

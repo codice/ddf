@@ -29,7 +29,7 @@ The subscriptions commands are installed when the Catalog application is install
 
 .subscriptions:list Command Usage Examples
 Note that no arguments are required for the `subscriptions:list` command.
-If no argument is provided, all subscriptions will be listed.
+If no argument is provided, all subscriptions are listed.
 A count of the subscriptions found matching the list command's search phrase (or LDAP filter) is displayed first followed by each subscription's ID.
 
 .List All Subscriptions
@@ -119,9 +119,9 @@ my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notifi
 
 .subscriptions:delete Command Usage
 The arguments for the `subscriptions:delete` command are the same as for the `list` command, except that a search phrase or LDAP filter must be specified.
-If one of these is not specified an error will be displayed.
-When the `delete` command is executed it will display each subscription ID it is deleting.
-If a subscription matches the search phrase but cannot be deleted, a message in red will be displayed with the ID.
+If one of these is not specified, an error is displayed.
+When the `delete` command is executed, it displays each subscription ID it is deleting.
+If a subscription matches the search phrase but cannot be deleted, a message in red is displayed with the ID.
 After all matching subscriptions are processed, a summary line is displayed indicating how many subscriptions were deleted out of how many matching subscriptions were found.
 
 .Delete a Specific Subscription Using Its Exact ID

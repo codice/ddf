@@ -52,10 +52,10 @@ If you want to change the location of your systems security backup log from the 
 
 * edit `${home_directory}/security/configurations.policy`
 ** find "Security-Hardening: Backup Log File Permissions"
-** below `grant codeBase "file:/pax-logging-log4j2"` add the path to the directory containing the new log file you will create in the next step.
+** below `grant codeBase "file:/pax-logging-log4j2"` add the path to the directory containing the new log file created in the next step.
 * edit `${home_directory}/etc/log4j2.xml`
 ** find the entry for the `securityBackup` appender. (see example)
-** change value of `filename` and prefix of `filePattern` to the name/path of the desired failover security logs
+** change value of `filename` and prefix of `filePattern` to the name/path of the desired failover security logs.
 
 .`securityBackup` Appender Before
 [source,xml,linenums]
@@ -75,6 +75,6 @@ If you want to change the location of your systems security backup log from the 
 
 [WARNING]
 ====
-If the system is unable to write to the `security.log` file on system startup, fallback logging will be unavailable.
+If the system is unable to write to the `security.log` file on system startup, fallback logging is unavailable.
 Verify that the `security.log` file is properly configured and contains logs before configuring a fall back.
 ====

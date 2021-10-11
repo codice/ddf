@@ -7,9 +7,9 @@
 
 == {title}
 
-When configured, text searches in Solr will utilize synonyms when attempting to match text within the catalog.
+When configured, text searches in Solr utilize synonyms when attempting to match text within the catalog.
 Synonyms are used during keyword/anyText searches as well as when searching on specific text attributes when using the `like` / `contains` operator.
-Text searches using the `equality` / `exact match` operator will not utilize synonyms.
+Text searches using the `equality` / `exact match` operator do not utilize synonyms.
 
 Solr utilizes a `synonyms.txt` file which exists for each Solr core.
 Synonym matching is most pertinent to metacards which are contained within 2 cores: `catalog` and `metacard_cache`.

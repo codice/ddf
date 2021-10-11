@@ -26,7 +26,7 @@ or <<{managing-prefix}wfs_2_0_source,WFS v2.0.0 Source>> for more information ab
 .Converting a WFS Feature
 In order to expose WFS features to ${branding} clients, the WFS feature must be converted into the common data format of the ${branding}, a metacard.
 The OGC package contains a `GenericFeatureConverter` that attempts to populate mandatory metacard fields with properties from the WFS feature XML.
-All properties will be mapped directly to new attributes in the metacard.
+All properties are mapped directly to new attributes in the metacard.
 However, the `GenericFeatureConverter` may not be able to populate the default metacard fields with properties from the feature XML.
 
 .Creating a Custom Converter

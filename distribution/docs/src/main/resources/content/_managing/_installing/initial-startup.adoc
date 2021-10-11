@@ -87,7 +87,7 @@ During ${branding} installation, the major directories and files shown in the ta
 |Log file that records user interactions with the system for auditing purposes.
 
 |`deploy`
-|Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon ${branding} installation)
+|Hot-deploy directory – KARs and bundles added to this directory are hot-deployed (Empty upon ${branding} installation)
 
 |`documentation`
 |HTML and PDF copies of ${branding} documentation.

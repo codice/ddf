@@ -90,7 +90,7 @@ If multiple point radius searches are encountered, each point radius is converte
 |Pulled from the query if it is a bounding-box query. +
  +
 Or else, calculated from the query if it is a single geometry or polygon query and the <<{reference-prefix}shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
-NOTE: Converting a polygon that crosses the antimeridian to a bounding box will produce an incorrect bounding box. +
+NOTE: Converting a polygon that crosses the antimeridian to a bounding box produces an incorrect bounding box. +
 //TODO DDF-3742
  +
 Or else, calculated from the query if it is a geometry collection and the <<{reference-prefix}shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.

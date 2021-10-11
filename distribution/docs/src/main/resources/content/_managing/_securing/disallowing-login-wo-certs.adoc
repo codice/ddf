@@ -14,7 +14,7 @@ ${branding} can be configured to prevent login without a valid PKI certificate.
 * Select *${ddf-security}*.
 * Select *Web Context Policy Manager*.
 * Add a policy for each context requiring restriction.
-** For example, just configuring `PKI` as the authentication type for web pages will disallow login without certificates to ${branding}.
+** For example, just configuring `PKI` as the authentication type for web pages  disallows login without certificates to ${branding}.
 * Click *Save*.
 
 [NOTE]

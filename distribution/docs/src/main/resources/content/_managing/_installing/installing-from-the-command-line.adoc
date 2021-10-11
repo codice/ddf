@@ -25,5 +25,5 @@ The certificates must be set up manually as described in <<{managing-prefix}mana
 
 [NOTE]
 ====
-The system will need to be restarted after changing any of these settings.
+The system needs to be restarted after changing any of these settings.
 ====

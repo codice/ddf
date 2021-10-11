@@ -43,11 +43,11 @@ See <<{reference-prefix}Confluence_Federated_Source, Confluence Federated Source
 
 [IMPORTANT]
 ====
-If an additional attribute is not part of the Confluence metacard type or <<{developing-prefix}attribute_injection_definition,injected>>, the attribute will not be added to the metacard.
+If an additional attribute is not part of the Confluence metacard type or <<{developing-prefix}attribute_injection_definition,injected>>, the attribute is not added to the metacard.
 ====
 
 .Usage Limitations of the Confluence Federated Source
-Most of the fields that can be queried on Confluence have some sort of restriction on them. Most of the fields do not support the `like` aka `~` operation so the source will convert `like` queries to `equal` queries for attributes that don't support `like`. If the source receives a query with attributes it doesn't understand, it will just ignore them. If the query doesn't contain any attributes that map to Confluence search attributes, an empty result set will be returned.
+Most of the fields that can be queried on Confluence have some sort of restriction on them. Most of the fields do not support the `like` aka `~` operation so the source converts `like` queries to `equal` queries for attributes that don't support `like`. If the source receives a query with attributes it doesn't understand, it just ignores them. If the query doesn't contain any attributes that map to Confluence search attributes, an empty result set is returned.
 
-Depending on your version of Confluence, when downloading attachments you might get redirected to a different download URL. The default URLResourceReader configuration allows redirects, but if the option was disabled in the past, the download will fail. This can be fixed by re-enabling redirects in the `URLResourceReader` <<{developing-prefix}configuring_the_url_resource_reader,configuration>>.
+Depending on your version of Confluence, when downloading attachments you might get redirected to a different download URL. The default `URLResourceReader` configuration allows redirects, but if the option was disabled in the past, the download fails. This can be fixed by re-enabling redirects in the `URLResourceReader` <<{developing-prefix}configuring_the_url_resource_reader,configuration>>.
 

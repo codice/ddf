@@ -8,6 +8,6 @@
 == {title}
 
 To set up a ((XACML policy)), place the desired XACML policy in the `<distribution root>/etc/pdp/policies` directory and update the included `access-policy.xml` to include the new policy.
-This is the directory in which the PDP will look for XACML policies every 60 seconds.
+This is the directory in which the PDP looks for XACML policies every 60 seconds.
 
 See <<{developing-prefix}developing_xacml_policies,Developing XACML Policies>> for more information about custom XACML policies.

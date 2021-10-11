@@ -11,13 +11,13 @@
 The logout pages is presented to users through the navigation of ${branding} and has a changeable timeout value.
 
 . Navigate to the *${admin-console}*.
-. Select *${ddf-security}* Application.
+. Select *${ddf-security}* Application.
 . Select *Configuration* tab.
 . Select *Logout Page*.
 
 The customizable feature of the logout page is the *Logout Page Time Out*. This is the time limit the IDP
-client will wait for a user to click log out on the logout page. Any requests that take longer than this
-time for the user to submit will be rejected.
+client waits for a user to click log out on the logout page. Any requests that take longer than this
+time for the user to submit are rejected.
 
 . *Default value*: 3600000 (milliseconds)
 

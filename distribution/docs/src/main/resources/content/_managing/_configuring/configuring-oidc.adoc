@@ -32,8 +32,8 @@ Once connected, the Web Context Policy Manager needs to be updated. to do so,
 === OAuth 2.0
 
 OAuth 2.0 is an authorization protocol and ${branding} can use it when federating.
-When a user queries a source that is configured to use this protocol, ${branding} will forward the user's information (access token) with the request.
-If a source can be configured to use OAuth 2.0, `OAuth 2.0` will appear as an option under `Authentication Type` in the source's configuration.
+When a user queries a source that is configured to use this protocol, ${branding}  forwards the user's information (access token) with the request.
+If a source can be configured to use OAuth 2.0, `OAuth 2.0` appears as an option under `Authentication Type` in the source's configuration.
 
 To configure a source to use OAuth 2.0, under the source's configuration,
 

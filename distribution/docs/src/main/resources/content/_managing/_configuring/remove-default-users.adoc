@@ -11,7 +11,7 @@
 * *{hardening-step}*
 
 The default security configuration uses a property file located at `${home_directory}/etc/users.properties` to store users and passwords.
-A hardened system will remove this file and manage all users externally, via an LDAP server or by other means.
+A hardened system removes this file and manage all users externally, via an LDAP server or by other means.
 
 .Default Users are an Insecure Default
 [NOTE]

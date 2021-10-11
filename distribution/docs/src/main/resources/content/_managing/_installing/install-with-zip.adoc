@@ -17,7 +17,7 @@ To install the ${branding} distribution zip, perform the following:
 
 . Download the ${branding} {download-url}[zip file] {external-link}.
 . After the <<{managing-prefix}installation_prerequisites,prerequisites>> have been met, change the current directory to the desired install directory, creating a new directory if desired.
-This will be referred to as `${home_directory}`.
+This is referred to as `${home_directory}`.
 +
 .Windows Pathname Warning
 [WARNING]
@@ -100,5 +100,5 @@ Instead, use the java jar command line utility to unzip the distribution (see ex
 ----
 
 The unzipping process may take time to complete.
-The command prompt will stop responding to input during this time.
+The command prompt stops responding to input during this time.
 ====

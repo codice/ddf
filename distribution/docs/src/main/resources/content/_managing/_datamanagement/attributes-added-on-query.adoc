@@ -7,4 +7,4 @@
 
 == {title}
 
-Metacards resulting from a query will undergo <<{managing-prefix}attributes_added_by_attribute_injection,Attribute Injection>>, then have their <<{managing-prefix}attributes_added_by_attribute_overrides_query,Attributes Overridden>>.
+Metacards resulting from a query undergo <<{managing-prefix}attributes_added_by_attribute_injection,Attribute Injection>>, then have their <<{managing-prefix}attributes_added_by_attribute_overrides_query,Attributes Overridden>>.

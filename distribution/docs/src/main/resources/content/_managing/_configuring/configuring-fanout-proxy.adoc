@@ -19,6 +19,6 @@ All queries are enterprise queries and no catalog provider needs to be configure
 . Save changes.
 
 ${branding} is now operating as a fanout proxy.
-Only queries and resource retrieval requests will be allowed.
-All queries will be federated.
-Create, update, and delete requests will not be allowed, even if a Catalog Provider was configured prior to the reconfiguration as a fanout.
+Only queries and resource retrieval requests are allowed.
+All queries are federated.
+Create, update, and delete requests are not allowed, even if a Catalog Provider was configured prior to the reconfiguration as a fanout.
