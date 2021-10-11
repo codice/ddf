@@ -19,7 +19,7 @@
 |SAML NameID Policy
 |usernameAttributeList
 |String
-|List of attributes that are considered for replacing the username of the logged in user. If any of these attributes match any of the attributes within the SecurityAssertion, the value of the first matching attribute will be used as the username. (Does not apply when NameIDFormat is of the following: X509, persistent, kerberos or unspecified, and the username is not empty).
+|List of attributes that are considered for replacing the username of the logged in user. If any of these attributes match any of the attributes within the SecurityAssertion, the value of the first matching attribute is used as the username. (Does not apply when NameIDFormat is of the following: X509, persistent, kerberos or unspecified, and the username is not empty).
 |http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier, uid
 |true
 

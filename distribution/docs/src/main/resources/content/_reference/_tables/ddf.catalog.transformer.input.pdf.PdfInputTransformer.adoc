@@ -20,7 +20,7 @@
 |Use PDF Title
 |usePdfTitleAsTitle
 |Boolean
-|Use the PDF's metadata to determine the metacard title. If this is not enabled, the metacard title will be the file name.
+|Use the PDF's metadata to determine the metacard title. If this is not enabled, the metacard title is the file name.
 |false
 |true
 

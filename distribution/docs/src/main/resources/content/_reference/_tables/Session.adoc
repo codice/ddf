@@ -19,7 +19,7 @@
 |Session Timeout (in minutes)
 |expirationTime
 |Integer
-|Specifies the length of inactivity (in minutes) between client requests before the servlet container will invalidate the session (this applies to all client sessions).
+|Specifies the length of inactivity (in minutes) between client requests before the servlet container invalidates the session (this applies to all client sessions).
 This value must be 2 minutes or greater, as users are warned when only 1 minute remains. If a value of less than 2 minutes is used, the timeout is set to the default time of 31 minutes.
 
 See also <<_ddf.platform.ui.config,Platform UI Config>>.

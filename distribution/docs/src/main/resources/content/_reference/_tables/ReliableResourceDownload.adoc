@@ -18,10 +18,10 @@
 |Product Cache Directory
 |productCacheDirectory
 |String
-|Directory where retrieved products will be cached for faster, future retrieval.
+|Directory where retrieved products are cached for faster, future retrieval.
 If a directory path is specified with directories that do not exist,
-Product Download feature will attempt to create those directories.
-Without configuration, the product cache directory is ${home_directory}/data/product-cache. If a relative path is provided it will be relative to the ${home_directory}. It is recommended to enter an absolute directory path such as /opt/product-cache in Linux or C:\product-cache in Windows.
+Product Download feature attempts to create those directories.
+Without configuration, the product cache directory is ${home_directory}/data/product-cache. If a relative path is provided it must be relative to the ${home_directory}. It is recommended to enter an absolute directory path such as /opt/product-cache in Linux or C:\product-cache in Windows.
 |
 |false
 

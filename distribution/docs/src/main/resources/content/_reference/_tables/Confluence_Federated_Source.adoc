@@ -74,14 +74,14 @@
 |Confluence Spaces
 |confluenceSpaces
 |String cardinality=1000
-|The confluence spaces to include/exclude from searches. If no spaces are specified, all visible spaces will be searched.
+|The confluence spaces to include/exclude from searches. If no spaces are specified, all visible spaces are searched.
 |
 |No
 
 |Attribute Overrides
 |additionalAttributes
 |String cardinality=100
-|Attribute Overrides - Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the results comming from this source. If an attribute is specified here, it will overwrite the metacard’s attribute that was created from the Confluence source. The format should be 'key=value'. The maximum allowed size of an attribute override is 65,535 bytes. All attributes in the <<{metadata-prefix}catalog_taxonomy_definitions, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
+|Attribute Overrides - Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the results comming from this source. If an attribute is specified here, it overwrites the metacard’s attribute that was created from the Confluence source. The format should be 'key=value'. The maximum allowed size of an attribute override is 65,535 bytes. All attributes in the <<{metadata-prefix}catalog_taxonomy_definitions, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
 |
 |No
 
