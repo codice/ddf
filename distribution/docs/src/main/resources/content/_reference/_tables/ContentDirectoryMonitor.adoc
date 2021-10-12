@@ -33,7 +33,7 @@
 |ReadLock Time Interval
 |readLockIntervalMilliseconds
 |Integer
-|Specifies the time to wait (in milliseconds) before acquiring a lock on a file in the monitored directory.  This interval is used for sleeping between attempts to acquire the read lock on a file to be ingested.  The default value of 100 milliseconds is recommended.
+|Specifies the time to wait (in milliseconds) before acquiring a lock on a file in the monitored directory. This interval is used for sleeping between attempts to acquire the read lock on a file to be ingested. The default value of 100 milliseconds is recommended.
 |100
 |true
 

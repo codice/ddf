@@ -47,7 +47,7 @@ Provides a list of environment variables.
 |Provides the various fields of a metacard for inspection.
 
 |catalog:latest
-|Retrieves the latest records from the Catalog based on the Core.METACARD_MODIFIED date.
+|Retrieves the latest records from the Catalog based on the `Core.METACARD_MODIFIED` date.
 
 |catalog:range
 |Searches by the given range arguments (exclusively).

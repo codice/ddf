@@ -37,22 +37,23 @@ The selected <<{managing-prefix}federation_strategy, federation strategy>> calls
 Then, any Post-query or Post-ingest plug-ins are invoked.
 Finally, the appropriate response is returned to the calling endpoint.
 
-The Catalog Framework wires all Catalog components together.
+The Catalog Framework wires all Catalog components together.
 
-It is responsible for routing Catalog requests and responses to the appropriate target. 
+It is responsible for routing Catalog requests and responses to the appropriate target.
 
-<<{integrating-prefix}endpoints,Endpoints>> send Catalog requests to the Catalog Framework.
-The Catalog Framework then invokes <<{architecture-prefix}catalog_plugins,Catalog Plugins>>, <<{architecture-prefix}transformers,Transformers>>, and <<{architecture-prefix}resources,Resource Components>> as needed before sending requests to the intended destination, such as one or more <<{managing-prefix}connecting_to_sources,Sources>>. 
+<<{integrating-prefix}endpoints,Endpoints>> send Catalog requests to the Catalog Framework.
+The Catalog Framework then invokes <<{architecture-prefix}catalog_plugins,Catalog Plugins>>, <<{architecture-prefix}transformers,Transformers>>, and <<{architecture-prefix}resources,Resource Components>> as needed before sending requests to the intended destination, such as one or more <<{managing-prefix}connecting_to_sources,Sources>>.
 
-The Catalog Framework decouples clients from service implementations and provides integration points for Catalog Plugins and convenience methods for Endpoint developers.
+The Catalog Framework decouples clients from service implementations and provides integration points for Catalog Plugins and convenience methods for Endpoint developers.
 
 == Catalog API Design
 
 The Catalog is composed of several components and an API that connects them together.
-The ((Catalog API)) is central to ${branding}'s architectural qualities of extensibility and flexibility. 
-The Catalog API consists of Java interfaces that define Catalog functionality and specify interactions between components. 
+The ((Catalog API)) is central to ${branding}'s architectural qualities of extensibility and flexibility.
+The Catalog API consists of Java interfaces that define Catalog functionality and specify interactions between components.
+
 These interfaces provide the ability for components to interact without a dependency on a particular underlying implementation, thus allowing the possibility of alternate implementations that can maintain interoperability and share developed components.
-As such, new capabilities can be developed independently, in a modular fashion, using the Catalog API interfaces and reused by other ${branding} installations.
+As such, new capabilities can be developed independently, in a modular fashion, using the Catalog API interfaces and reused by other ${branding} installations.
 
 === Ensuring Compatibility
 
@@ -100,7 +101,7 @@ These examples are for illustrative purposes only and do not necessarily represe
 The Ingest Service Endpoint, the Catalog Framework, and the Catalog Provider are key components of the Reference Implementation.
 The Endpoint bundle implements a Web service that allows clients to create, update, and delete metacards.
 The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
-The `CatalogFramework` routes the request through optional `PreIngest` and `PostIngest` Catalog Plugins, which may modify the ingest request/response before/after the Catalog Provider executes the ingest request and provides the response. 
+The `CatalogFramework` routes the request through optional `PreIngest` and `PostIngest` Catalog Plugins, which may modify the ingest request/response before/after the Catalog Provider executes the ingest request and provides the response.
 Note that a `CatalogProvider` must be present for any ingest requests to be successfully processed, otherwise a fault is returned.
 
 This process is similar for updating catalog entries, with update requests calling the `update(UpdateRequest)` methods on the Endpoint, `CatalogFramework`, and Catalog Provider.
@@ -108,7 +109,7 @@ Similarly, for deletion of catalog entries, the delete requests call the `delete
 
 ==== Error Handling
 
-Any ingest attempts that fail inside the Catalog Framework (whether the failure comes from the Catalog Framework itself, pre-ingest plugin failures, or issues with the Catalog Provider) will be logged to a separate log file for ease of error handling.
+Any ingest attempts that fail inside the Catalog Framework (whether the failure comes from the Catalog Framework itself, pre-ingest plugin failures, or issues with the Catalog Provider) will be logged to a separate log file for ease of error handling.
 The file is located at `${home_directory}/data/log/ingest_error.log` and will log the Metacards that fail, their ID and Title name, and the stack trace associated with their failure.
 By default, successful ingest attempts are not logged.
 However, that functionality can be achieved by setting the log level of the `ingestLogger` to DEBUG (note that enabling DEBUG can cause a non-trivial performance hit).
@@ -158,11 +159,11 @@ log:set
 
 The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a query request as well.
 The Endpoint bundle contains a Web service that exposes the interface to query for `Metacards`.
-The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
+The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
 The `CatalogFramework` relies on the `CatalogProvider` to execute the actual query.
 Optional PreQuery and PostQuery Catalog Plugins may be invoked by the `CatalogFramework` to modify the query request/response prior to the Catalog Provider processing the query request and providing the query response.
-If a `CatalogProvider` is not configured, and no other remote Sources are configured, a fault is returned.
 It is possible to have only remote Sources configured and no local `CatalogProvider` configured and be able to execute queries to specific remote Sources by specifying the site names in the query request.
+It is possible to have only remote Sources configured and no local `CatalogProvider` configured and be able to execute queries to specific remote Sources by specifying the site name(s) in the query request.
 
 ==== Product Caching
 
@@ -171,7 +172,7 @@ If caching is enabled, each time a retrieve product request is received, the Cat
 If it has, the product is retrieved from the local site and returned to the client, providing a much quicker turnaround because remote product retrieval and network traffic was avoided.
 If the requested product is not in the cache, the product is retrieved from the Source (local or remote) and cached locally while returning the product to the client.
 The caching to a local file of the product and the streaming of the product to the client are done simultaneously so that the client does not have to wait for the caching to complete before receiving the product.
-If errors are detected during the caching, caching of the product will be abandoned, and the product will be returned to the client. 
+If errors are detected during the caching, caching of the product will be abandoned, and the product will be returned to the client.
 
 The Catalog Framework attempts to detect any network problems during the product retrieval, for example, long pauses where no bytes are read implying a network connection was dropped.
 (The amount of time defined as a "long pause" is configurable, with the default value being five seconds.)
@@ -183,4 +184,4 @@ Otherwise, caching is canceled if the user cancels the product download.
 
 ==== Product Download Status
 
-As part of the caching of products, the Catalog Framework also posts events to the OSGi notification framework. Information includes when the product download started, whether the download is retrying or failed (after the number of retrieval attempts configured for product caching has been exhausted), and when the download completes. These events are retrieved by the Search UI and presented to the user who initiated the download.
+As part of the caching of products, the Catalog Framework also posts events to the OSGi notification framework. Information includes when the product download started, whether the download is retrying or failed (after the number of retrieval attempts configured for product caching has been exhausted), and when the download completes. These events are retrieved by the Search UI and presented to the user who initiated the download.
