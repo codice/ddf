@@ -132,13 +132,13 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
       return cswRecords;
     }
 
-    // Save original input stream for any exception message that might need to be
+    // Save original response for any exception message that might need to be
     // created
-    String originalInputStream = IOUtils.toString(inStream, StandardCharsets.UTF_8);
+    String originalCswResponse = IOUtils.toString(inStream, StandardCharsets.UTF_8);
     LOGGER.debug(
-        "Converting to CswRecordCollection: \n {}", LogSanitizer.sanitize(originalInputStream));
+        "Converting to CswRecordCollection: \n {}", LogSanitizer.sanitize(originalCswResponse));
 
-    cswRecords = unmarshalWithStaxReader(originalInputStream);
+    cswRecords = unmarshalWithStaxReader(originalCswResponse);
     return cswRecords;
   }
 
@@ -167,9 +167,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
       // (with the ExceptionReport) and rethrowing it as a WebApplicatioNException,
       // which CXF will wrap as a ClientException that the CswSource catches, converts
       // to a CswException, and logs.
-      LOGGER.error("Error unmarshalling CSW response.", e);
-      throw new WebApplicationException(
-          "Error reading response from CSW server.", createResponse(originalInputStream));
+      throw new WebApplicationException(e, createResponse(originalInputStream));
     } finally {
       IOUtils.closeQuietly(inStream);
       try {
@@ -183,10 +181,10 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     return cswRecords;
   }
 
-  private Response createResponse(String originalInputStream) {
+  private Response createResponse(String originalCswResponse) {
     ResponseBuilder responseBuilder;
     try (ByteArrayInputStream bis =
-        new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8))) {
+        new ByteArrayInputStream(originalCswResponse.getBytes(StandardCharsets.UTF_8))) {
       responseBuilder = Response.ok(bis);
     } catch (IOException e) {
       responseBuilder = Response.ok();

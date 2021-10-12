@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source.reader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -168,9 +169,8 @@ public class GetRecordsMessageBodyReaderTest {
       cswRecords = reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
     }
     List<Metacard> metacards = cswRecords.getCswRecords();
-    assertThat(metacards.size(), is(3));
+    assertThat(metacards, hasSize(3));
     assertThat(metacards.get(0).getMetacardType().getName(), is("csw:Record"));
-    assertThat(metacards.get(0).getAttribute(Core.TITLE), is(notNullValue()));
     assertThat(metacards.get(0).getTitle(), containsString("title"));
   }
 
@@ -214,7 +214,6 @@ public class GetRecordsMessageBodyReaderTest {
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards.size(), is(3));
     assertThat(metacards.get(0).getMetacardType().getName(), is("csw:Record"));
-    assertThat(metacards.get(0).getAttribute(Core.TITLE), is(notNullValue()));
     assertThat(metacards.get(0).getTitle(), containsString("title"));
   }
 
