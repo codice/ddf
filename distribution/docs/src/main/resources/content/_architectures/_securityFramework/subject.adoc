@@ -16,7 +16,7 @@ The Subject can also be used to perform permission checks to see if the calling 
 This class was made ${branding}-specific because the Shiro interface cannot be added to the Query Request property map.
 
 .Implementations of Subject:
-[cols="2" options="header"]
+[cols="1m,1" options="header"]
 |===
 
 |Classname

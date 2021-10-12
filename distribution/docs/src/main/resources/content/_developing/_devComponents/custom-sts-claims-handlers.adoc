@@ -746,7 +746,7 @@ See the request block below for an example of how these components should be pop
 * TokenType of http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
 * KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey
 * X509 Certificate as the Proof of Possession or POP.  This needs to be the certificate of the client that will be both requesting the SAML assertion and using the SAML assertion to issue a query
-* Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc.  If the SAML assertion needs those attributes, the RequestSecurityToken must specify which ones to include.
+* Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc. If the SAML assertion needs those attributes, the RequestSecurityToken must specify which ones to include.
 ** UsernameToken: If Claims are required, the RequestSecurityToken security header must contain a UsernameToken element with a username and password.
 
 .X.509 PublicKey SAML Security Token Sample Request

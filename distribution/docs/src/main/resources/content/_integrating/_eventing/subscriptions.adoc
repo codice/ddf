@@ -19,9 +19,9 @@ A Subscription itself is a series of events during which various plugins or tran
 
 === Evaluation
 
-* When a metacard matching the subscription is created, updated, or deleted in any Source, each Pre-Delivery Plugin will be invoked.
+* When a metacard matching the subscription is created, updated, or deleted in any Source, each Pre-Delivery Plugin will be invoked.
 
-* If the delivery is not rejected, the associated Delivery Method callback will be invoked.
+* If the delivery is not rejected, the associated Delivery Method callback will be invoked.
 
 === Update Evaluation
 
@@ -29,10 +29,10 @@ Notably, the Catalog allows event evaluation on both the previous value (if avai
 
 === Durability
 
-Subscription durability is not provided by the Event Processor.
+Subscription durability is not provided by the Event Processor.
 Thus, all subscriptions are transient and will not be recreated in the event of a system restart.
-It is the responsibility of Endpoints using subscriptions to persist and re-establish the subscription on startup.
-This decision was made for the sake of simplicity, flexibility, and the inability of the Event Processor to recreate a fully-configured Delivery Method without being overly restrictive.
+It is the responsibility of Endpoints using subscriptions to persist and re-establish the subscription on startup.
+This decision was made for the sake of simplicity, flexibility, and the inability of the Event Processor to recreate a fully-configured Delivery Method without being overly restrictive.
 
 [IMPORTANT]
 ====
@@ -45,57 +45,57 @@ Certain endpoints, however, can persist the subscriptions on their own and recre
 == Creating a Subscription
 
 Currently, the Catalog reference implementation does not contain a subscription endpoint.
-Therefore, an endpoint that exposes a web service interface to create, update, and delete subscriptions would provide a client's subscription filtering criteria to be used by Catalog's Event Processor to determine which events are of interest to the client.
+Therefore, an endpoint that exposes a web service interface to create, update, and delete subscriptions would provide a client's subscription filtering criteria to be used by Catalog's Event Processor to determine which events are of interest to the client.
 The endpoint client also provides the callback URL of the event consumer to be called when an event matching the subscription's criteria is found.
-This callback to the event consumer is made by a Delivery Method implementation that the client provides when the subscription is created. 
-Whenever an event occurs in the Catalog matching the subscription, the Delivery Method implementation will be called by the Event Processor. 
-The Delivery Method will, in turn, send the event notification out to the event consumer. 
-As part of the subscription creation process, the Catalog verifies that the event consumer at the specified callback URL is available to receive callbacks.
+This callback to the event consumer is made by a Delivery Method implementation that the client provides when the subscription is created.
+Whenever an event occurs in the Catalog matching the subscription, the Delivery Method implementation will be called by the Event Processor.
+The Delivery Method will, in turn, send the event notification out to the event consumer.
+As part of the subscription creation process, the Catalog verifies that the event consumer at the specified callback URL is available to receive callbacks.
 Therefore, the client must ensure the event consumer is running prior to creating the subscription.
-The Catalog completes the subscription creation by executing any pre-subscription Catalog Plugins, and then registering the subscription with the OSGi Service Registry.
-The Catalog does not persist subscriptions by default.
+The Catalog completes the subscription creation by executing any pre-subscription Catalog Plugins, and then registering the subscription with the OSGi Service Registry.
+The Catalog does not persist subscriptions by default.
 
 === Event Processing and Notification
 
-If an event matches a subscription's criteria, any pre-delivery plugins that are installed are invoked, the subscription's `DeliveryMethod` is retrieved, and its operation corresponding to the type of ingest event is invoked. 
+If an event matches a subscription's criteria, any pre-delivery plugins that are installed are invoked, the subscription's `DeliveryMethod` is retrieved, and its operation corresponding to the type of ingest event is invoked.
 For example, the `DeliveryMethod` `created()` function is called when a metacard is created.
 The `DeliveryMethod` operations subsequently invoke the corresponding operation in the client's event consumer service, which is specified by the callback URL provided when the `DeliveryMethod` was created.
 An internal subscription tracker monitors the OSGi registry, looking for subscriptions to be added (or deleted).
 When it detects a subscription being added, it informs the Event Processor, which sets up the subscription's filtering and is responsible for posting event notifications to the subscriber when events satisfying their criteria are met.
 
-The Standard Event Processor is an implementation of the Event Processor and provides the ability to create/delete subscriptions.
-Events are generated by the ${ddf-catalog}Framework as metacards are created/updated/deleted and the Standard Event Processor is called since it is also a Post-Ingest Plugin.
-The Standard Event Processor checks each event against each subscription's criteria.
+The Standard Event Processor is an implementation of the Event Processor and provides the ability to create/delete subscriptions.
+Events are generated by the ${ddf-catalog}Framework as metacards are created/updated/deleted and the Standard Event Processor is called since it is also a Post-Ingest Plugin.
+The Standard Event Processor checks each event against each subscription's criteria.
 
-When an event matches a subscription's criteria the Standard Event Processor:
+When an event matches a subscription's criteria the Standard Event Processor:
 
-* invokes each pre-delivery plugin on the metacard in the event.
-* invokes the `DeliveryMethod` operation corresponding to the type of event being processed, e.g., `created()` operation for the creation of a metacard.
+* invokes each pre-delivery plugin on the metacard in the event.
+* invokes the `DeliveryMethod` operation corresponding to the type of event being processed, e.g., `created()` operation for the creation of a metacard.
 
 .Available Event Processor
 * <<{architecture-prefix}event_processor,Standard Event Processor>>
 
 ==== Using ${branding} Implementation
 
-If applicable, the implementation of `Subscription` that comes with ${branding} should be used.
-It is available at `ddf.catalog.event.impl.SubscriptionImpl` and offers a constructor that takes in all of the necessary objects.
-Specifically, all that is needed is a `Filter`, `DeliveryMethod`, `Set<String>` of source IDs, and a `boolean` for enterprise.
+If applicable, the implementation of `Subscription` that comes with ${branding} should be used.
+It is available at `ddf.catalog.event.impl.SubscriptionImpl` and offers a constructor that takes in all of the necessary objects.
+Specifically, all that is needed is a `Filter`, `DeliveryMethod`, `Set<String>` of source IDs, and a `boolean` for enterprise.
 
-The following is an example code stub showing how to create a new instance of Subscription using the ${branding} implementation. 
+The following is an example code stub showing how to create a new instance of Subscription using the ${branding} implementation.
 
 .Creating a Subscription
 [source,java,linenums]
 ----
 // Create a new filter using an imported FilterBuilder
 Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text("*");
- 
+
 // Create a implementation of DeliveryMethod
 DeliveryMethod deliveryMethod = new MyCustomDeliveryMethod();
- 
+
 // Create a set of source ids
 // This set is empty as the subscription is not specific to any sources
 Set<String> sourceIds = new HashSet<String>();
- 
+
 // Set the isEnterprise boolean value
 // This subscription example should notifications from all sources (not just local)
 boolean isEnterprise = true;
