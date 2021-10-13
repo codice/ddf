@@ -1,6 +1,6 @@
 = Developing ${branding} Components: Developer's Guide
+:title: Developing ${branding} Components: Developer's Guide
 include::config.adoc[]
-:title: Developing ${branding} Components
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: _
 :integrating-prefix: documentation.adoc#_
