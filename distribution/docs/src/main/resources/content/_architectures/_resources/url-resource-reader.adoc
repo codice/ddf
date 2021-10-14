@@ -5,9 +5,10 @@
 :order: 00
 :summary: URL Resource Reader.
 
-The `URLResourceReader` is an implementation of `ResourceReader` which is included in the ${branding} Catalog. 
-It obtains a resource given an http, https, or file-based URL. 
-The `URLResourceReader` will connect to the provided Resource URL and read the resource's bytes into an `InputStream`.  
+((({title})))
+The `URLResourceReader` is an implementation of `ResourceReader` which is included in the ${branding} Catalog.
+It obtains a resource given an http, https, or file-based URL.
+The `URLResourceReader` will connect to the provided Resource URL and read the resource's bytes into an `InputStream`.
 
 [WARNING]
 ====
@@ -18,7 +19,7 @@ For example, if path `/my/valid/path` is configured in the ``URLResourceReader``
 
 == Installing the URL Resource Reader
 
-The `URLResourceReader` is installed by default with a standard installation in the ${ddf-catalog} application.
+The `URLResourceReader` is installed by default with a standard installation in the ${ddf-catalog} application.
 
 == Configuring Permissions for the URL Resource Reader
 
@@ -51,10 +52,10 @@ See <<{reference-prefix}ddf.catalog.resource.impl.URLResourceReader,URL Resource
 
 == Using the URL Resource Reader
 
-`URLResourceReader` will be used by the Catalog Framework to obtain a resource whose metacard is cataloged in the local data store.
-This particular `ResourceReader` will be chosen by the `CatalogFramework` if the requested resource's URL has a protocol of `http`, `https`, or `file`.  
+`URLResourceReader` will be used by the Catalog Framework to obtain a resource whose metacard is cataloged in the local data store.
+This particular `ResourceReader` will be chosen by the `CatalogFramework` if the requested resource's URL has a protocol of `http`, `https`, or `file`.
 
-For example, requesting a resource with the following URL will make the Catalog Framework invoke the `URLResourceReader` for retrieval.
+For example, requesting a resource with the following URL will make the Catalog Framework invoke the `URLResourceReader` for retrieval.
 
 .Example
 [source,http]
@@ -62,7 +63,7 @@ For example, requesting a resource with the following URL will make the Catalog
 file:///home/users/${ddf-branding}_user/data/example.txt
 ----
 
-If a resource was requested with the URL `udp://123.45.67.89:80/SampleResourceStream`, the `URLResourceReader` would _not_ be invoked.
+If a resource was requested with the URL `udp://123.45.67.89:80/SampleResourceStream`, the `URLResourceReader` would _not_ be invoked.
 
 .Supported Schemes:
 * http

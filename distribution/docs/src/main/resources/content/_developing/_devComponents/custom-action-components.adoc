@@ -5,14 +5,14 @@
 :order: 19
 :summary: Creating a custom Action Component.
 
-To provide a service, such as a link to a metacard, the `ActionProvider` interface should be implemented.
-An `ActionProvider` essentially provides a List of `Actions` when given input that it can recognize and handle.
-For instance, if a REST endpoint ActionProvider was given a metacard, it could provide a link based on the metacard's ID. 
+To provide a service, such as a link to a metacard, the `ActionProvider` interface should be implemented.
+An `ActionProvider` essentially provides a List of `Actions` when given input that it can recognize and handle.
+For instance, if a REST endpoint ActionProvider was given a metacard, it could provide a link based on the metacard's ID.
 An Action Provider performs an action when given a subject that it understands.
-If it does not understand the subject or does not know how to handle the given input, it will return `Collections.emptyList()`.
+If it does not understand the subject or does not know how to handle the given input, it will return `Collections.emptyList()`.
 An Action Provider is required to have an ActionProvider id.
-The Action Provider must register itself in the OSGi Service Registry with the `${ddf-branding-lowercase}.action.ActionProvider` interface and must also have a service property value for `id`. 
-An action is a URL that, when invoked, provides a resource or executes intended business logic. 
+The Action Provider must register itself in the OSGi Service Registry with the `${ddf-branding-lowercase}.action.ActionProvider` interface and must also have a service property value for `id`.
+An action is a URL that, when invoked, provides a resource or executes intended business logic.
 
 == Action Component Naming Convention
 
@@ -22,14 +22,14 @@ The verb 'Export' or the expression 'Export as' is recommended when the metacard
 
 === Action Component Taxonomy
 
-An Action Provider registers an `id` as a service property in the OGSi Service Registry based on the type of service or action that is provided.
-Regardless of implementation, if more than one Action Provider provides the same service, such as providing a URL to a thumbnail for a given metacard, they must both register under the same `id`.
-Therefore, Action Provider implementers must follow an Action Taxonomy. 
+An Action Provider registers an `id` as a service property in the OGSi Service Registry based on the type of service or action that is provided.
+Regardless of implementation, if more than one Action Provider provides the same service, such as providing a URL to a thumbnail for a given metacard, they must both register under the same `id`.
+Therefore, Action Provider implementers must follow an Action Taxonomy.
 
 
-The following is a sample taxonomy: 
+The following is a sample taxonomy:
 
-. `catalog.data.metacard` shall be the grouping that represents Actions on a Catalog metacard.
+. `catalog.data.metacard` shall be the grouping that represents Actions on a Catalog metacard.
 .. `catalog.data.metacard.view`
 .. `catalog.data.metacard.thumbnail`
 .. `catalog.data.metacard.html`

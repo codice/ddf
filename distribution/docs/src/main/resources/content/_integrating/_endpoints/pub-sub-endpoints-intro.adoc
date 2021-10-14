@@ -5,6 +5,7 @@
 :order: 05
 
 == {title}
+((({title})))
 
 These endpoints provide publication and subscription services to allow notifications when certain events happen within ${branding}.
 

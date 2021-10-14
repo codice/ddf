@@ -5,6 +5,7 @@
 :order: 10
 
 == {title} Application Reference
+((({title})))
 
 {branding} uses http://lucene.apache.org/solr/[Solr] for data storage, by default.
 

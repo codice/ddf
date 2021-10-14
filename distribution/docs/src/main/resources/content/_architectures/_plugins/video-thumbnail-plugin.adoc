@@ -5,7 +5,7 @@
 :plugintypes: postcreatestorage, postupdatestorage
 :summary: Generates thumbnails for video files.
 
-The Video Thumbnail Plugin provides the ability to generate thumbnails for video files stored in the Content Repository.
+The ((Video Thumbnail Plugin)) provides the ability to generate thumbnails for video files stored in the Content Repository.
 
 It is an implementation of both the `PostCreateStoragePlugin` and `PostUpdateStoragePlugin` interfaces. When installed, it is invoked by the Catalog Framework immediately after a content item has been created or updated by the Storage Provider.
 

@@ -7,6 +7,7 @@
 
 == Global Attribute Validators File
 
+(((Global Attribute Validators)))
 To define Validators, the definition file must have a `validators` key in the root object.
 
 [source,json]

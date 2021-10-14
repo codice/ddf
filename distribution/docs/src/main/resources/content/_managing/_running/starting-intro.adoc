@@ -4,6 +4,7 @@
 :summary: Starting and stopping an instance.
 :order: 01
 
+(((Startup)))
 Follow the below steps to start and stop ${branding}.
 
 == Starting from Startup Scripts

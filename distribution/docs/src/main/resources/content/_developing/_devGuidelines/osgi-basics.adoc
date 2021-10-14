@@ -4,7 +4,7 @@
 :summary: Using OSGi within ${branding}.
 :order: 01
 
-${branding} runs on top of an OSGi framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure.
+${branding} runs on top of an ((OSGi)) framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure.
 The items within the dotted line represent the standard ${branding} components.
 
 ${branding} is a customized and branded distribution of http://karaf.apache.org/[Apache Karaf] {external-link}.
@@ -28,7 +28,7 @@ Application:: A JSON file defining a collection of bundles with configurations t
 
 Services and code are physically deployed to ${branding} using bundles.
 The bundles within ${branding} are created using the maven bundle plug-in.
-Bundles are Java JAR files that have additional metadata in the `MANIFEST.MF` that is relevant to an OSGi container.
+((Bundles)) are Java JAR files that have additional metadata in the `MANIFEST.MF` that is relevant to an OSGi container.
 
 The best resource for learning about the structure and headers in the manifest definition is in section 3.6 of the https://osgi.org/download/r5/osgi.core-5.0.0.pdf[OSGi Core Specification] {external-link}.
 The bundles within ${branding} are created using the http://felix.apache.org/documentation/subprojects/apache-felix-maven-bundle-plugin-bnd.html[maven bundle plug-in] {external-link}, which uses the http://bnd.bndtools.org/[BND tool] {external-link}.

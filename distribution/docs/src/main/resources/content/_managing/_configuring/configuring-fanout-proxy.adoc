@@ -6,6 +6,7 @@
 :order: 01
 
 == {title}
+(((Fanout Proxy)))
 
 Optionally, configure ${branding} as a fanout proxy such that only queries and resource retrieval requests are processed and create/update/delete requests are rejected.
 All queries are enterprise queries and no catalog provider needs to be configured.

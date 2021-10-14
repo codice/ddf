@@ -6,4 +6,4 @@
 :plugintypes: postingest
 :order: 05
 
-Post-ingest plugins are invoked after data has been created, updated, or deleted in a Catalog Provider.
+((Post-ingest plugins)) are invoked after data has been created, updated, or deleted in a Catalog Provider.

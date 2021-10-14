@@ -6,6 +6,7 @@
 :summary: Introduction to catalog taxonomy appendix.
 
 == {title}
+((({title})))
 
 To facilitate data sharing while maximizing the usefulness of metadata, the attributes on resources are normalized into a common taxonomy that maps to attributes in the desired output format.
 

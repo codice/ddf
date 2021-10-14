@@ -6,6 +6,7 @@
 :order: 03
 
 == {title}
+((({title})))
 
 The lifecycle of ${branding} and Solr processes can be managed by the operating
 system. The ${branding} documentation provides instructions to install

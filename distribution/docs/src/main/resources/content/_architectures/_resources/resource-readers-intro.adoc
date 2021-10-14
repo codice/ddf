@@ -6,7 +6,7 @@
 :order: 02
 :summary: Resource Readers.
 
-A resource reader retrieves resources associated with metacards via URIs.
+A ((Resource Reader)) retrieves resources associated with metacards via URIs.
 Each resource reader must know how to interpret the resource's URI and how to interact with the data store to retrieve the resource.
 
 There can be multiple resource readers in a Catalog instance.

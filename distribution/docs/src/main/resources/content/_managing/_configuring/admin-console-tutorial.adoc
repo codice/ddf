@@ -7,7 +7,7 @@
 
 == {title}
 
-The ${admin-console} is the centralized location for administering the system.
+The ((${admin-console})) is the centralized location for administering the system.
 The ${admin-console} allows an administrator to configure and tailor system services and properties.
 The default address for the ${admin-console} is \${secure_url}/admin.
 

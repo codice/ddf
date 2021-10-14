@@ -6,6 +6,7 @@
 :order: 06
 
 == {title}
+((({title})))
 
 .[[_store_command_descriptions]]Persistence Store Command Descriptions
 [cols="2m,6"]

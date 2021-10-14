@@ -6,6 +6,7 @@
 :order: 03
 
 == {title}
+(((Hardening Checklist)))
 
 The following list enumerates the required mitigations needed for hardening. It is not intended to be a step-by-step procedure.
 To harden a new system, perform configuration as <<{managing-prefix}configuring,documented>>.

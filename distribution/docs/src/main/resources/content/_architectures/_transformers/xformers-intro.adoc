@@ -28,7 +28,7 @@
 +------------------------------------------------------------+
 ....
 
-Transformers transform data to and from various formats.
+((Transformers)) transform data to and from various formats.
 Transformers are categorized by when they are invoked and used.
 The <<{architecture-prefix}types_of_transformers,existing types>> are <<{architecture-prefix}available_input_transformers,Input transformers>>, <<{architecture-prefix}available_metacard_transformers,Metacard transformers>>, and <<{architecture-prefix}available_query_response_transformers,Query Response transformers>>.
 Additionally, XSLT transformers are provided to aid in developing custom, lightweight Metacard and Query Response transformers.

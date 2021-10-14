@@ -6,4 +6,4 @@
 :plugintypes: postupdatestorage
 :order: 14
 
-Post-Update storage plugins are invoked immediately after an item is updated in the content repository.
+((Post-Update storage plugins)) are invoked immediately after an item is updated in the content repository.

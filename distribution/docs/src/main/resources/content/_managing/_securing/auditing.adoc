@@ -10,7 +10,7 @@
 
 * *{hardening-step}*
 
-Audit logging captures security-specific system events for monitoring and review.
+((Audit logging)) captures security-specific system events for monitoring and review.
 ${branding} provides an <<{developing-prefix}security_logging_plugin,Audit Plugin>> that logs all catalog transactions to the `security.log`.
 Information captured includes user identity, query information, and resources retrieved.
 

@@ -5,6 +5,7 @@
 :order: 00
 
 == Hardware Requirements
+(((Hardware Requirements)))
 
 ======
 

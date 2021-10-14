@@ -5,7 +5,7 @@
 :order: 32
 :summary: Creating a custom Subscription.
 
-Subscriptions represent "standing queries" in the Catalog.
+((Subscriptions)) represent "standing queries" in the Catalog.
 Like a query, subscriptions are based on the OGC Filter specification.
 
 == Subscription Lifecycle
@@ -14,8 +14,8 @@ A Subscription itself is a series of events during which various plugins or tran
 
 === Creation
 
-* Subscriptions are created directly with the <<{architecture-prefix}event_processor,Event Processor>> or declaratively through use of the Whiteboard Design Pattern.
-* The Event Processor will invoke each Pre-Subscription Plugin and, if the subscription is not rejected, the subscription will be activated.
+* Subscriptions are created directly with the<<{architecture-prefix}event_processor,Event Processor>> or declaratively through use of the Whiteboard Design Pattern.
+* The Event Processor will invoke each Pre-Subscription Plugin and, if the subscription is not rejected, the subscription will be activated.
 
 === Evaluation
 

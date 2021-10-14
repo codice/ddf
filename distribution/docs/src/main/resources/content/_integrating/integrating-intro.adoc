@@ -3,6 +3,7 @@
 :status: published
 :summary: Introduction to Integrating sections.
 
+(((Integrating)))
 ${branding} is structured to enable flexible integration with external clients and into larger component systems.
 
 If integrating with an existing installation of ${branding}, continue to the following sections on endpoints and data/metadata management.

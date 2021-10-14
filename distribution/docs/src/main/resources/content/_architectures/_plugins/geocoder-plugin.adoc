@@ -5,7 +5,7 @@
 :plugintypes: preingest
 :summary: Populates the `Location.COUNTRY_CODE` attribute if the Metacard has an associated location.
 
-The GeoCoder Plugin is a pre-ingest plugin that is responsible for populating the Metacard's `Location.COUNTRY_CODE` attribute if the Metacard has an associated location.
+The ((GeoCoder plugin)) is a pre-ingest plugin that is responsible for populating the Metacard's `Location.COUNTRY_CODE` attribute if the Metacard has an associated location.
 If there is a valid country code for the Metacard, it will be in ISO 3166-1 alpha-3 format.
 If the metacard's country code is already populated, the plugin will *not* override it.
 The GeoCoder relies on either the WebService or <<{reference-prefix}offline_gazetteer_service,Offline Gazetteer>> to retrieve country code information.

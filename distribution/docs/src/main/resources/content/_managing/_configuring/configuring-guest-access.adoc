@@ -6,6 +6,7 @@
 :order: 00
 
 == {title}
+(((Guest Access)))
 
 Unauthenticated access to a secured ${branding} system is provided by the *Guest* user.
 By default, ${branding} allows guest access.

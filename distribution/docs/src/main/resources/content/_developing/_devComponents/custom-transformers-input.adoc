@@ -5,6 +5,7 @@
 :summary: Creating a custom input transformer.
 :order: 07
 
+(((Input Transformers)))
 ${branding} supports the creation of custom <<{architecture-prefix}types_of_transformers,input transformers>> for use cases not covered by the included implementations.
 
 .Creating a custom input Transformer:

@@ -5,14 +5,15 @@
 :order: 03
 :summary: Introduction to Queries.
 
-Clients use `ddf.catalog.operation.Query` objects to describe which metacards are needed from <<{introduction-prefix}introduction_to_federation_and_sources,Sources>>. 
+((({title})))
+Clients use `ddf.catalog.operation.Query` objects to describe which metacards are needed from <<{introduction-prefix}introduction_to_federation_and_sources,Sources>>.
 
-Query objects have two major components:
+Query objects have two major components:
 
 * <<{architecture-prefix}filters,Filters>>
 * <<{developing-prefix}query_options,Query Options>>
 
-A Source uses the Filter criteria constraints to find the requested set of metacards within its domain of metacards.
-The Query Options are used to further restrict the Filter's set of requested metacards.
+A Source uses the Filter criteria constraints to find the requested set of metacards within its domain of metacards.
+The Query Options are used to further restrict the Filter's set of requested metacards.
 
 

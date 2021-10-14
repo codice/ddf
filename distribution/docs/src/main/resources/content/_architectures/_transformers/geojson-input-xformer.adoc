@@ -5,7 +5,7 @@
 :link: _geojson_input_transformer
 :summary: Translates GeoJSON into a Catalog metacard.
 
-The GeoJSON input transformer is responsible for translating GeoJSON into a Catalog metacard.
+The ((GeoJSON input transformer)) is responsible for translating GeoJSON into a Catalog metacard.
 
 
 .{title} Usage

@@ -6,6 +6,7 @@
 :summary: Security Encryption implementation.
 
 == {title}
+((({title})))
 
 The Security Encryption Implementation bundle contains all of the service implementations for the Encryption Framework and exports those implementations as services to the OSGi service registry.
 

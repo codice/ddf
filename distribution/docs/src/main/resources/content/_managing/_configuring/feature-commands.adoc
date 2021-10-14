@@ -6,6 +6,7 @@
 :summary: Managing features from the ${command-console}.
 
 == {title}
+((({title})))
 
 Individual features can also be added via the ${command-console}.
 

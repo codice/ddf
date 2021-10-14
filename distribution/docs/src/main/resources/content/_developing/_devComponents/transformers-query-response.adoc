@@ -5,8 +5,8 @@
 :summary: Creating a custom query response transformer.
 :order: 09
 
-A `QueryResponseTransformer` is used to transform a List of Results from a `SourceResponse`.
-Query Response Transformers can be used through the Catalog transform convenience method or requested from the OSGi Service Registry by endpoints or other bundles.
+A Query Response Transformer is used to transform a List of Results from a `SourceResponse`.
+((Query Response Transformers)) can be used through the Catalog transform convenience method or requested from the OSGi Service Registry by endpoints or other bundles.
 
 . Create a new Java class that implements `ddf.catalog.transform.QueryResponseTransformer`. +
 `public class SampleResponseTransformer implements ddf.catalog.transform.QueryResponseTransformer`

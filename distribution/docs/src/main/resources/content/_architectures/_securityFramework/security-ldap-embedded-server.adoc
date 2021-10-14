@@ -6,6 +6,7 @@
 :summary: Embedded LDAP server.
 
 == {title}
+((({title})))
 
 ${branding} includes an embedded LDAP server (OpenDJ) for testing and demonstration purposes.
 

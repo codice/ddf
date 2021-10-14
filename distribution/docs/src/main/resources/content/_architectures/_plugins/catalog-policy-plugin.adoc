@@ -5,7 +5,7 @@
 :plugintypes: policy
 :summary: Configures user attributes required for catalog operations.
 
-The Catalog Policy Plugin configures the attributes required for users to perform Create, Read, Update, and Delete operations on the catalog.
+The ((Catalog Policy Plugin)) configures the attributes required for users to perform Create, Read, Update, and Delete operations on the catalog.
 
 == Installing the Catalog Policy Plugin
 

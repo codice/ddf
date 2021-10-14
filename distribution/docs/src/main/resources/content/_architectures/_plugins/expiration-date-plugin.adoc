@@ -5,7 +5,7 @@
 :plugintypes: preingest
 :summary: Adds or updates expiration dates for the resource.
 
-The Expiration Date plugin adds or updates expiration dates which can be used later for archiving old data.
+The ((Expiration Date plugin)) adds or updates expiration dates which can be used later for archiving old data.
 
 == Installing the Expiration Date Pre-Ingest Plugin
 

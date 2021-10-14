@@ -5,7 +5,7 @@
 :plugintypes: postingest
 :summary: Enables backup of the catalog and its metacards.
 
-The Catalog Backup Plugin is used to enable data backup of the catalog and the metacards it contains.
+The ((Catalog Backup Plugin)) is used to enable data backup of the catalog and the metacards it contains.
 
 .Catalog Backup Plugin Considerations
 [WARNING]

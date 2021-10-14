@@ -6,25 +6,26 @@
 :summary: Connecting to sources.
 
 == {title}
+(((Sources)))
 
 A *source* is a system consisting of a catalog containing Metacards.
 
-Catalog sources are used to connect Catalog components to data sources, local and remote.
+((Catalog sources)) are used to connect Catalog components to data sources, local and remote.
 Sources act as proxies to the actual external data sources, e.g., a RDBMS database or a NoSQL database.
 
 .Types of Sources
-Remote Source:: Read-only data sources that support query operations but cannot be used to create, update, or delete metacards.
+((Remote Source)):: Read-only data sources that support query operations but cannot be used to create, update, or delete metacards.
 
-[[_federated_source]]Federated Sources:: A federated source is a remote source that can be included in federated queries by request or as part of an enterprise query. Federated sources support query and site information operations only. Catalog modification operations, such as create, update, and delete, are not allowed.
+[[_federated_source]]((Federated Sources)):: A federated source is a remote source that can be included in federated queries by request or as part of an enterprise query. Federated sources support query and site information operations only. Catalog modification operations, such as create, update, and delete, are not allowed.
 Federated sources also expose an event service, which allows the Catalog Framework to subscribe to event notifications when metacards are created, updated, and deleted.
 +
 ${ddf-catalog} instances can also be federated to each other.
 Therefore, a ${ddf-catalog} can also act as a federated source to another ${ddf-catalog}.
 
-[[_connected_sources]]Connected Sources:: A Connected Source is a local or remote source that is always included in every local and enterprise query, but is hidden from being queried individually. A connected source's identifier is removed in all query results by replacing it with ${branding}'s source identifier. The Catalog Framework does not reveal a connected source as a separate source when returning source information responses.
+[[_connected_sources]]((Connected Sources)):: A Connected Source is a local or remote source that is always included in every local and enterprise query, but is hidden from being queried individually. A connected source's identifier is removed in all query results by replacing it with ${branding}'s source identifier. The Catalog Framework does not reveal a connected source as a separate source when returning source information responses.
 
-[[_catalog_providers]]Catalog Providers:: A Catalog Provider is used to interact with data providers, such as files systems or databases, to query, create, update, or delete data. The provider also translates between ${branding} objects and native data formats.
+[[_catalog_providers]]((Catalog Providers)):: A Catalog Provider is used to interact with data providers, such as files systems or databases, to query, create, update, or delete data. The provider also translates between ${branding} objects and native data formats.
 +
 All sources, including federated source and connected source, support queries, but a Catalog provider also allows metacards to be created, updated, and deleted. A Catalog provider typically connects to an external application or a storage system (e.g., a database), acting as a proxy for all catalog operations.
 
-[[_catalog_stores]]Catalog Stores:: A Catalog Store is an editable store that is either local or remote.
+[[_catalog_stores]]((Catalog Stores)):: A Catalog Store is an editable store that is either local or remote.

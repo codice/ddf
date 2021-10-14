@@ -6,4 +6,4 @@
 :plugintypes: precreatestorage
 :order: 11
 
-Pre-Create storage plugins are invoked immediately before an item is created in the content repository.
+((Pre-Create storage plugins)) are invoked immediately before an item is created in the content repository.

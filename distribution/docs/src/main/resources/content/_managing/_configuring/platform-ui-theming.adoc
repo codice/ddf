@@ -6,6 +6,7 @@
 :order: 02
 
 == {title}
+((({title})))
 
 The Platform UI Configuration allows for the customization of attributes of all pages within ${branding}.
 It contains settings to display messages to users at login or in banners in the headers and footers of all pages,

@@ -4,6 +4,7 @@
 :link: _custom_mime_type_resolver
 :summary: The Custom Mime Type Resolver is a `MimeTypeResolver` that defines the custom mime types that ${branding} will support.
 
+((({title})))
 These are mime types not supported by the default `TikaMimeTypeResolver`.
 
 .Custom Mime Type Resolver Default Supported Mime Types

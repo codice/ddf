@@ -5,7 +5,7 @@
 :plugintypes: preingest, postingest, prequery, postquery, prefederatedquery, postfederatedquery, preresource, postresource, precreatestorage, preupdatestorage, postcreatestorage, postupdatestorage
 :summary: Logs operations to the security log.
 
-The Security Logging Plugin logs operations to the security log.
+The ((Security Logging Plugin)) logs operations to the security log.
 
 == Installing Security Logging Plugin
 

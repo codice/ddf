@@ -6,6 +6,7 @@
 :order: 02
 
 == {title}
+((({title})))
 
 .[[_solr_command_descriptions]]Solr Command Descriptions
 [cols="1m,9a" options="header"]

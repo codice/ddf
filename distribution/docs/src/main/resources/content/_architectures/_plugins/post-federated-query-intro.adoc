@@ -6,7 +6,7 @@
 :plugintypes: postfederatedquery
 :order: 0801
 
-Post-federated-query plugins are invoked after a federated query has been executed successfully, but before the response is returned to the endpoint. 
+((Post-federated-query plugins)) are invoked after a federated query has been executed successfully, but before the response is returned to the endpoint.
 This is an opportunity to take any action on the query response, including but not limited to:
 
 * logging.
