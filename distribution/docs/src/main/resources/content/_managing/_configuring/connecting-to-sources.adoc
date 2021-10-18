@@ -11,7 +11,7 @@
 A *source* is a system consisting of a catalog containing Metacards.
 
 ((Catalog sources)) are used to connect Catalog components to data sources, local and remote.
-Sources act as proxies to the actual external data sources, e.g., a RDBMS database or a NoSQL database.
+Sources act as proxies to the actual external data sources, such as an RDBMS database or a NoSQL database.
 
 .Types of Sources
 ((Remote Source)):: Read-only data sources that support query operations but cannot be used to create, update, or delete metacards.
@@ -26,6 +26,6 @@ Therefore, a ${ddf-catalog} can also act as a federated source to another ${ddf-
 
 [[_catalog_providers]]((Catalog Providers)):: A Catalog Provider is used to interact with data providers, such as files systems or databases, to query, create, update, or delete data. The provider also translates between ${branding} objects and native data formats.
 +
-All sources, including federated source and connected source, support queries, but a Catalog provider also allows metacards to be created, updated, and deleted. A Catalog provider typically connects to an external application or a storage system (e.g., a database), acting as a proxy for all catalog operations.
+All sources, including federated source and connected source, support queries, but a Catalog provider also allows metacards to be created, updated, and deleted. A Catalog provider typically connects to an external application or a storage system (such as a database), acting as a proxy for all catalog operations.
 
 [[_catalog_stores]]((Catalog Stores)):: A Catalog Store is an editable store that is either local or remote.

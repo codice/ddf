@@ -12,7 +12,7 @@ Below are steps listing all of the changes that ${branding} requires to run on I
 
 . In the IE11 `Settings` > `Compatibility View Settings` dialog, un-check `Display intranet sites in Compatibility View`.
 . In the `Settings` > `Internet Options` > `Security` tab, `Local intranet` zone:
-.. Click the `Sites` > `Advanced` button, add the current host name to the list, e.g., https://windows-host-name.domain.edu, and close the dialog.
+.. Click the `Sites` > `Advanced` button, add the current host name to the list, such as \https://windows-host-name.domain.edu, and close the dialog.
 .. Make sure the security level for the `Local intranet` zone is set to `Medium-low` in `Custom level...`.
 ... `Enable Protected Mode` is checked by default, but it may need to be disabled if the above changes do not fully resolve access issues.
 . Restart the browser.

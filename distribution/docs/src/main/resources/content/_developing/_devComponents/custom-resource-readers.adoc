@@ -60,7 +60,7 @@ The `Map<String, Serializable> arguments` parameter is passed in to support any 
 
 === Implement `retrieveResource()`
 
-. Define supported schemes (e.g., file, http, etc.).
+. Define supported schemes (such as file, http, etc.).
 . Check if the incoming URI matches a supported scheme. If it does not, throw `ResourceNotSupportedException`.
 
 .Example:

@@ -78,7 +78,7 @@ Provides a list of environment variables.
 .catalog:dump Options
 The `catalog:dump` command provides selective export of metacards based on date ranges.
 The `--created-after` and `--created-before` options allow filtering on the date and time that the metacard was created, while `--modified-after` and `--modified-before` options allow filtering on the date and time that the metacard was last modified (which is the created date if no other modifications were made).
-These date ranges are exclusive (i.e., if the date and time match exactly, the metacard will not be included).
+These date ranges are exclusive (that is, if the date and time match exactly, the metacard will not be included).
 [[_date_filtering_options]]The date filtering options (`--created-after`, `--created-before`, `--modified-after`, and `--modified-before`) can be used in any combination, with the export result including only metacards that match all of the provided conditions.
 
 If no date filtering options are provided, created and modified dates are ignored, so that all metacards match.

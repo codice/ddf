@@ -57,7 +57,7 @@ The following attribute values are not allowed:
 
 * `null`
 * `""`
-* a non-String (e.g. `100`, `false`)
+* a non-String (for example, `100` or `false`)
 * an array including any of the above
 * `[]`
 

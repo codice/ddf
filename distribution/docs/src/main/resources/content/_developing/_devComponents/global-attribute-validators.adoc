@@ -46,7 +46,7 @@ Each object in the list of validators is the validator name and list of argument
 
 [WARNING]
 ====
-The value of the `arguments` key must always be an array of strings, even for numeric arguments, e.g. `["1", "10"]`
+The value of the `arguments` key must always be an array of strings, even for numeric arguments, for example, `["1", "10"]`
 
 ====
 

@@ -78,7 +78,7 @@ This can be caused when another ${branding} is not properly shut down.
 |Perform one or all of the following recommended solutions, as necessary.
 
 * Wait for proper shutdown of ${branding} prior to starting a new instance.
-* Verify running java.exe are not ${branding} (e.g., kill/close if necessary).
+* Verify running java.exe are not ${branding} (and use kill/close commands, if necessary).
 * Utilize automated start/stop scripts to run ${branding} as a service.
 
 2+^|*Troubleshooting TLS/SSL Connectivity*
