@@ -75,7 +75,7 @@
 |Additional Links
 |links
 |String
-|Additional links to be displayed on the landing page. Use the format <text>,<link> (e.g. `example`, `http://www.example.com`). Empty entries are ignored.
+|Additional links to be displayed on the landing page. Use the format <text>,<link> (such as `example,http://www.example.com`). Empty entries are ignored.
 |
 |yes
 |===

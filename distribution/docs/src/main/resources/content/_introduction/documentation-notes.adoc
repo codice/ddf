@@ -28,7 +28,7 @@ Integrators will use the existing applications to support their external framewo
 
 Developers::
 <<{developing-prefix}developing,Developing>> |
-Developers will build or extend the functionality of the applications. 
+Developers will build or extend the functionality of the applications.
 
 === Documentation Conventions
 
@@ -46,14 +46,14 @@ Example: `ddf.catalog.CatalogFramework`
 
 ==== Hyperlinks
 
-Some hyperlinks (e.g., `/admin`) within the documentation assume a locally running installation of ${ddf-branding}. 
+Some hyperlinks (such as `/admin`) within the documentation assume a locally running installation of ${ddf-branding}.
 Simply change the hostname if accessing a remote host.
 
 Hyperlinks that take the user away from the ${branding} documentation are marked with an `external link` ({external-link}) icon. 
 
 === Support
 
-Questions about ${ddf-branding} should be posted to the https://groups.google.com/d/forum/ddf-users[ddf-users forum] {external-link} or https://groups.google.com/d/forum/ddf-developers[ddf-developers forum] {external-link}, where they will be responded to quickly by a member of the ${ddf-branding} team.
+Questions about ${ddf-branding} should be posted to the https://groups.google.com/d/forum/ddf-users[ddf-users forum] {external-link} or https://groups.google.com/d/forum/ddf-developers[ddf-developers forum] {external-link}, where they will be responded to quickly by a member of the ${ddf-branding} team.
 
 ====  Documentation Updates
 

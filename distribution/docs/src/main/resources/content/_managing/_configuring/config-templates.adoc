@@ -12,7 +12,7 @@ A template file is provided for some configurable ${branding} items so that they
 The following steps define the procedure for configuring a new source or feature using a `config` file:
 
 . Copy/rename the provided template file in the ``etc/templates` directory to the `etc` directory. (Refer to the table above to determine correct template.)
-.. Not required, but a good practice is to change the instance name (e.g., `OpenSearchSource.1.config`) of the file to something identifiable (`OpenSearchSource.remote-site-1.config`).
+.. While not required, a good practice is to change the instance name (such as `OpenSearchSource.1.config`) of the file to something identifiable (`OpenSearchSource.remote-site-1.config`).
 . Edit the copied file to etc with the settings for the configuration. (Refer to the table above to determine the configurable properties).
 .. Consult the inline comments in the file for guidance on what to modify.
 

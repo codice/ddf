@@ -10,7 +10,7 @@
 
 ((Metacard filtering)) is performed by the <<{developing-prefix}filter_plugin,Filter Plugin>> after a query has been performed, but before the results are returned to the requestor.
 
-Each metacard result will contain security attributes that are populated by the CatalogFramework based on the PolicyPlugins (Not provided! You must create your own plugin for your specific metadata!) that populates this attribute.
+Each metacard result will contain security attributes that are populated by the CatalogFramework based on the PolicyPlugins that populates this attribute. (These plugins are NOT provided by default. You must create your own plugin for your specific metadata)
 The security attribute is a HashMap containing a set of keys that map to lists of values.
 The metacard is then processed by a filter plugin that creates a `KeyValueCollectionPermission` from the metacard's security attribute.
 This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.

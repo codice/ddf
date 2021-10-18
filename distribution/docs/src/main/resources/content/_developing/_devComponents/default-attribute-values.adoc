@@ -38,16 +38,16 @@ The value corresponding to the `attribute` key is the name of the attribute to w
 
 [NOTE]
 ====
-The attribute's default value must be of the same type as the attribute, but it has to be written as a string (i.e., enclosed in quotation marks) in the JSON file.
+The attribute's default value must be of the same type as the attribute, but it has to be written as a string (enclosed in quotation marks) in the JSON file.
 
-Dates must be UTC datetimes in the ISO 8601 format, i.e., `yyyy-MM-ddTHH:mm:ssZ`
+Dates must be UTC datetimes in the ISO 8601 format, `yyyy-MM-ddTHH:mm:ssZ`
 ====
 
 The `metacardTypes` key is optional. If it is left out, then the default attribute value will be applied to every metacard that has that attribute. It can be thought of as a 'global' default value. If the `metacardTypes` key is included, then its value must be a list of strings where each string is the name of a metacard type. In this case, the default attribute value will be applied only to metacards that match one of the types given in the list.
 
 [NOTE]
 ====
-In the event that an attribute has a 'global' default value as well as a default value for a specific metacard type, the default value for the specific metacard type will be applied (i.e., the more specific default value wins).
+In the event that an attribute has a 'global' default value as well as a default value for a specific metacard type, the default value for the specific metacard type will be applied (the more specific default value wins).
 ====
 
 Example:

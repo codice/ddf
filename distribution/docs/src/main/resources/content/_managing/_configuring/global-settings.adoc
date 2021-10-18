@@ -317,7 +317,7 @@ The interval is measured in seconds.
 |String
 |Files uploaded with these bad file extensions will have their file names sanitized before being saved
 
-E.g. sample_file.exe will be renamed to sample_file.bin upon ingest
+For example, `sample_file.exe` will be renamed to `sample_file.bin` upon ingest
 |.exe,
 .jsp,
 .html,
@@ -394,9 +394,9 @@ E.g. sample_file.exe will be renamed to sample_file.bin upon ingest
 |File names flagged as potentially dangerous to the host system or external clients
 |bad.files
 |String
-|Files uploaded with these bad file names will have their file names sanitized before being saved
+|Files uploaded with these bad file names will have their file names sanitized before being saved.
 
-E.g. crossdomain.xml will be renamed to file.bin upon ingest
+For example, `crossdomain.xml` will be renamed to `file.bin` upon ingest
 |crossdomain.xml,
 clientaccesspolicy.xml,
 .htaccess,

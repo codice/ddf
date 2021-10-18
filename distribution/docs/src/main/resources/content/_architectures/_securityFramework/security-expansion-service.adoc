@@ -45,7 +45,7 @@ The result is returned to the caller.
 |===
 
 .Included Expansions
-Note that the rules listed for each key are processed in order, so they may build upon each other, i.e., a new value from the new replacement string may be expanded by a subsequent rule.
+Note that the rules listed for each key are processed in order, so they may build upon each other. That is, a new value from the new replacement string may be expanded by a subsequent rule.
 In the example `Location:Goodyear` would expand to `Goodyear AZ USA` and `Title:VP-Sales` would expand to `VP-Sales VP Sales`.
 
 To use the expansion service, modify the following two files within the `${home_directory}/etc/pdp` directory:
