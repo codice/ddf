@@ -53,7 +53,7 @@ Bundle fragments are distinguished from other bundles in the command line consol
 Bundle fragments remain in the *Resolved* state and can never move to the *Active* state.
 ====
 
-.Example: Bundle Fragment in the Command Line Console
+.Example Bundle Fragment in the Command Line Console
 ----
 96 | Resolved |  80 | 2.10.0.SNAPSHOT | DDF :: Platform :: PaxWeb :: Jetty Config, Hosts: 90
 ----

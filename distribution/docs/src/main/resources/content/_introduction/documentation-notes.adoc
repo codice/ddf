@@ -24,7 +24,7 @@ Use this section to navigate the various user interfaces available in ${branding
 
 Integrators::
 <<{integrating-prefix}integrating,Integrating>> |
-Integrators will use the existing applications to support their external frameworks. This section will provide details for finding, accessing and using the components of ${branding}.
+Integrators will use the existing applications to support their external frameworks. This section will provide details for finding, accessing, and using the components of ${branding}.
 
 Developers::
 <<{developing-prefix}developing,Developing>> |

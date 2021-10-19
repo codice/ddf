@@ -7,7 +7,7 @@
 
 == {title}
 
-.History: Attributes in this group describe the history/versioning of the metacard. *Injected by default.*
+.History (Attributes in this group describe the history/versioning of the metacard.) *Injected by default.*
 [cols="1,2,1,1,1" options="header"]
 |===
 |Term

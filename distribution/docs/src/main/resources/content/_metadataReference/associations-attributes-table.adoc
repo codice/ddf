@@ -7,7 +7,7 @@
 
 == {title}
 
-.Associations: Attributes in this group represent associations between resources. *Injected by default.*
+.Associations (Attributes in this group represent associations between resources.) *Injected by default.*
 [cols="1,2,1,1,1" options="header"]
 |===
 

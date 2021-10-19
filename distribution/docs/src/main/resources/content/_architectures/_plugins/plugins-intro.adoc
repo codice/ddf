@@ -4,7 +4,7 @@
 :plugintypes: general
 :order: 00
 
-.Catalog Architecture: Catalog Plugins
+.Catalog Architecture Catalog Plugins
 [ditaa, catalog_architecture_plugins, png,${image-width}]
 ....
 +------------------------------------------------------------+

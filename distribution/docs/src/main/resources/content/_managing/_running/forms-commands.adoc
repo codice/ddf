@@ -8,7 +8,7 @@
 == {title}
 
 ((System search)) provide a way to execute queries with pre-defined templates and search criteria. System search forms are loaded
-via the system and are read-only. This command allows an administrator to ingest, modify or remove system search forms within the system.
+via the system and are read-only. This command allows an administrator to ingest, modify, or remove system search forms within the system.
 
 .Loading Forms With Defaults
 ----

@@ -9,7 +9,7 @@
 
 == {title}
 
-(((Quick start guide)))This quick tutorial will enable install, configuring and using a basic instance of ${branding}.
+(((Quick start guide)))This quick tutorial will enable installation, configuration, and usage of a basic instance of ${branding}.
 
 [NOTE]
 ====
