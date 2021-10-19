@@ -31,4 +31,4 @@ Temporal searches can use the `created` or `modified` date attributes.
 Datatype Search:: A datatype search is used to search for metadata based on the datatype of the resource.
 Wildcards (*) can be used in both the datatype and version fields.
 Metadata that matches any of the datatypes (and associated versions if specified) will be returned.
-If a version is not specified, then all metadata records for the specified datatype(s) regardless of version will be returned.
+If a version is not specified, then all metadata records for the specified datatypes regardless of version will be returned.

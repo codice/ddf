@@ -25,4 +25,4 @@ Attribute overrides are available for the following ingest methods:
 .. *Confluence Connected Source*.
 .. *Confluence Federated Source*.
 . Select *Attribute Overrides*.
-. Enter the key-value pair for the attribute to override and the value(s) to set.
+. Enter the key-value pair for the attribute to override and the values to set.

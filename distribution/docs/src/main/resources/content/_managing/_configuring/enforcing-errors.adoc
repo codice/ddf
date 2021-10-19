@@ -13,6 +13,6 @@ Prevent data with errors or warnings from being ingested at all.
 . Select the *${ddf-catalog}* application.
 . Select *Configuration*.
 . Select *Metacard Validation Marker Plugin*.
-. Enter *ID* of validator(s) to enforce.
+. Enter *ID* of each validator to enforce.
 . Select *Enforce errors* to prevent ingest for errors.
 . Select *Enforce warnings* to prevent ingest for warnings.

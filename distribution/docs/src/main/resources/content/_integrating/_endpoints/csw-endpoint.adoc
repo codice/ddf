@@ -198,7 +198,7 @@ Optionally, set the `ElementSetName` to determine how much detail to return.
 
 * Brief: the least possible detail.
 * Summary: (Default)
-* Full:  All metadata elements for the record(s).
+* Full:  All metadata elements for the records.
 
 Within the `Constraint` element, define the query as an OSG or CQL filter.
 
