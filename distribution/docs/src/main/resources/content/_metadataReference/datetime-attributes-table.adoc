@@ -17,13 +17,13 @@
 |Example Value
  
 |[[_datetime.start]]datetime.start
-|Start time(s) for the resource.
+|Start times for the resource.
 |List of Dates
 | 
 | 
 
 |[[_datetime.end]]datetime.end
-|End time(s) for the resource.
+|End times for the resource.
 |List of Dates
 | 
 | 

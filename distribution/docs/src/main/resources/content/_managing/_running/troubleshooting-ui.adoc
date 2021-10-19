@@ -26,7 +26,7 @@ https://{FQDN}:{PORT}/solr/metacard_cache/update?stream.body=<delete><query>*:*<
 ----
 https://{FQDN}:{PORT}/solr/metacard_cache/update?stream.body=<delete><query>original_id_txt:50ffd32b21254c8a90c15fccfb98f139</query></delete>&commit=true
 ----
-* To delete record(s) in the Solr cache using a query on a field in the record(s) - in this example, the `title_txt` field is being used with wildcards to search for any records with word remote in the title:
+* To delete records in the Solr cache using a query on a field in the records - in this example, the `title_txt` field is being used with wildcards to search for any records with word remote in the title:
 
 .Deletion of records in Solr query cache using search criteria
 ----

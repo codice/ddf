@@ -31,8 +31,8 @@ Notably, the Catalog allows event evaluation on both the previous value (if avai
 
 Subscription durability is not provided by the Event Processor.
 Thus, all subscriptions are transient and will not be recreated in the event of a system restart.
-It is the responsibility of Endpoints using subscriptions to persist and re-establish the subscription on startup.
-This decision was made for the sake of simplicity, flexibility, and the inability of the Event Processor to recreate a fully-configured Delivery Method without being overly restrictive.
+It is the responsibility of Endpoints using subscriptions to persist and re-establish the subscription on startup.
+This decision was made for the sake of simplicity and flexibility, and due to the inability of the Event Processor to recreate a fully configured Delivery Method without being overly restrictive.
 
 [IMPORTANT]
 ====
