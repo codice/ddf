@@ -20,7 +20,7 @@ For security reasons, ${branding} cannot be started from a user's home directory
 (((Quick Install Prerequisites)))
 
 .Hardware Requirements (Quick Install)
-* At least 4096&nbsp;MB of memory for ${branding}.
+* At least 4096 MB of memory for ${branding}.
 ** This amount can be increased to support memory-intensive applications. See <<{managing-prefix}jvm_memory_configuration, Memory Considerations>>.
 
 .Java Requirements (Quick Install)

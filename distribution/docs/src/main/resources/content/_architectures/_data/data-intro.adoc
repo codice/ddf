@@ -90,7 +90,7 @@ Consult the documentation of the Catalog Provider in use for more information on
 ====
 
 Often, the `BASIC_METACARD` `MetacardType` does not provide all the functionality or attributes necessary for a specific task.
-For performance or convenience purposes, it may be necessary to create custom attributes even if others are be aware of those attributes.
+For performance or convenience purposes, it may be necessary to create custom attributes even if others are not aware of those attributes.
 One example could be if a user wanted to optimize a search for a date field that did not fit the definition of `CREATED`, `MODIFIED`, `EXPIRATION`, or `EFFECTIVE`.
 The user could create an additional `java.util.Date` attribute in order to query the attribute separately.
 

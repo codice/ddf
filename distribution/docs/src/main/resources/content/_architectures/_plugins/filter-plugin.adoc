@@ -59,7 +59,7 @@ Each type of metacard must have its own `PolicyPlugin` that reads the metadata b
 
 In the above example, the user's claims are represented very simply and are similar to how they would actually appear in a SAML 2 assertion.
 Each of these user (or subject) claims is converted to a `KeyValuePermission` object.
-These permission objects is implied against the permission object generated from the metacard record.
+These permission objects are implied against the permission object generated from the metacard record.
 In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
 
 == Installing the Filter Plugin
