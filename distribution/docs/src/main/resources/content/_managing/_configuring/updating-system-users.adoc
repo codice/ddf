@@ -9,7 +9,7 @@
 ((System users))
 
 By default, all system users are located in the `${home_directory}/etc/users.properties` and `${home_directory}/etc/users.attributes` files.
-The default users included in these two files are "admin" and "localhost".
+The default users included in these two files are `admin` and `localhost`.
 The `users.properties` file contains username, password, and role information; while the `users.attributes` file is used to mix in additional attributes.
 The `users.properties` file must also contain the user corresponding to the fully qualified domain name (FQDN) of the system where ${branding} is running.
 This FQDN user represents this host system internally when making decisions about what operations the system is capable of performing.
@@ -36,9 +36,9 @@ The `users.attributes` file uses a JSON format as shown below:
 }
 ----
 
-For this example, the "admin" user ends up with two additional claims of "test" and "test1" with values of "testValue" and [ "testing1", "testing2", "testing3" ] respectively.
-Also, any host matching the regex ".*host.*" would end up with the claim "reg" with the single value of "ex".
-The "localhost" user would have no additional attributes mixed in.
+For this example, the `"admin"` user ends up with two additional claims of `"test"` and `"test1"` with values of `"testValue"` and `[ "testing1", "testing2", "testing3" ]` respectively.
+Also, any host matching the regex `".*host.*"` would end up with the claim `"reg"` with the single value of `"ex"`.
+The `"localhost"` user would have no additional attributes mixed in.
 
 [WARNING]
 ====

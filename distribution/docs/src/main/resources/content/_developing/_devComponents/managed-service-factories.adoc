@@ -24,7 +24,7 @@ The type associated with a property must match the type attribute used in the co
 The following table shows the format to use for each property type supported.
 
 .Property Formats
-[cols="1,2,3" options="header"]
+[cols="1,2m,3m" options="header"]
 |===
 |Type
 |Format (see details below for variations)

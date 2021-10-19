@@ -14,7 +14,7 @@ The `security:encrypt` command allows plain text to be encrypted using AES for e
 It uses randomly generated keys and associated data that are created when the system is installed, and can be found in the `${home_directory}/etc/keysets` directory.
 This is useful when displaying password fields in a GUI.
 
-Below is an example of the security:encrypt command used to encrypt the plain text "myPasswordToEncrypt".
+Below is an example of the `security:encrypt` command used to encrypt the plain text `"myPasswordToEncrypt"`.
 The output, `bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=`, is the encrypted value.
 
 [source%nowrap.java]

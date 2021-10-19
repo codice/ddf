@@ -395,7 +395,7 @@ For example, `sample_file.exe` is renamed to `sample_file.bin` upon ingest
 |String
 |Files uploaded with these bad file names have their file names sanitized before being saved
 
-For example, `crossdomain.xml` will be renamed to `file.bin` upon ingest
+For example, `crossdomain.xml` is renamed to `file.bin` upon ingest
 
 |crossdomain.xml,
 clientaccesspolicy.xml,

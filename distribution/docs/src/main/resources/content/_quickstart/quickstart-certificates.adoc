@@ -19,7 +19,7 @@ To test federation using 2-way TLS, the default keystore certificates needs to b
 If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user is prompted to upload new trust/key stores.
 
 If the hostname is `localhost` or, if the hostname was changed _after_ installation, the default certificates do not allow access to the ${branding} instance from another machine over HTTPS (now the default for many services).
-The Demo Certificate Authority needs to be replaced with certificates that use the fully-qualified hostname of the server running the ${branding} instance.
+The Demo Certificate Authority needs to be replaced with certificates that use the fully qualified hostname of the server running the ${branding} instance.
 
 === Demo Certificate Authority (CA)
 
@@ -45,9 +45,9 @@ For *NIX, use the `CertNew.sh` script.
 
 where:
 
-* `<cn>` represents a fully qualified common name (such as "<FQDN>", where <FQDN> could be something like cluster.yoyo.com)
-* `<dn>` represents a distinguished name as a comma-delimited string (such as "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>")
-* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (such as "DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+* `<cn>` represents a fully qualified common name (such as `"<FQDN>"`, where `<FQDN>` could be something like `cluster.yoyo.com`)
+* `<dn>` represents a distinguished name as a comma-delimited string (such as `"c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`)
+* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (such as `"DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"`). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
 ** `email` - email subject
 ** `URI` - uniformed resource identifier
 ** `RID` - registered id
@@ -66,9 +66,9 @@ For Windows, use the `CertNew.cmd` script.
 
 where:
 
-* `<cn>` represents a fully qualified common name (such as"<FQDN>", where <FQDN> could be something like cluster.yoyo.com)
-* `<dn>` represents a distinguished name as a comma-delimited string (such as "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>")
-* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (such as "DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+* `<cn>` represents a fully qualified common name (such as `"<FQDN>"`, where `<FQDN>` could be something like `cluster.yoyo.com`)
+* `<dn>` represents a distinguished name as a comma-delimited string (such as `"c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`)
+* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (such as `"DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"`). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
 ** `email` - email subject
 ** `URI` - uniformed resource identifier
 ** `RID` - registered id

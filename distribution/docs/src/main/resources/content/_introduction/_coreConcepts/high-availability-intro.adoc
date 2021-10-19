@@ -13,7 +13,7 @@ In a Highly Available Cluster, ${branding} has failover capabilities when a ${br
 
 [NOTE]
 ====
-The word "node", from a High Availability perspective, is one of the two ${branding} systems running within the Highly Available Cluster.
+The word "node," from a High Availability perspective, describes one of the two ${branding} systems running within the Highly Available Cluster.
 Though there are multiple systems running with the Highly Available Cluster, it is still considered a single ${branding} from a user's
 perspective or from other ${branding}s' perspectives.
 ====

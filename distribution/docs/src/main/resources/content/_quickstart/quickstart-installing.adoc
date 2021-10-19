@@ -20,7 +20,7 @@ For security reasons, ${branding} cannot be started from a user's home directory
 (((Quick Install Prerequisites)))
 
 .Hardware Requirements (Quick Install)
-* At least 4096MB of memory for ${branding}.
+* At least 4096&nbsp;MB of memory for ${branding}.
 ** This amount can be increased to support memory-intensive applications. See <<{managing-prefix}jvm_memory_configuration, Memory Considerations>>.
 
 .Java Requirements (Quick Install)
@@ -96,7 +96,7 @@ Do not replace _all_ instances of `localhost`, only those specified.
 .Configuring with a new hostname
 . Update the ${home_directory}/etc/custom.system.properties file. The entry `org.codice.ddf.system.hostname=localhost` should be updated to `org.codice.ddf.system.hostname=<HOSTNAME>`.
 . Update the ${home_directory}/etc/users.properties file. Change the `localhost=localhost[...]` entry to <HOSTNAME>=<HOSTNAME>. (Keep the rest of the line as is.)
-. Update the ${home_directory}/etc/users.attributes file. Change the "localhost" entry to "<HOSTNAME>".
+. Update the ${home_directory}/etc/users.attributes file. Change the `"localhost"` entry to `"<HOSTNAME>"`.
 . From the console go to ${home_directory}/etc/certs and run the appropriate script.
 .. *NIX: `sh CertNew.sh -cn <hostname> -san "DNS:<hostname>"`.
 .. Windows: `CertNew -cn <hostname> -san "DNS:<hostname>"`.
@@ -104,8 +104,8 @@ Do not replace _all_ instances of `localhost`, only those specified.
 
 .Configuring with an IP address
 . Update the ${home_directory}/etc/custom.system.properties file. The entry `org.codice.ddf.system.hostname=localhost` should be updated to `org.codice.ddf.system.hostname=<IP>`.
-. Update the ${home_directory}/etc/users.properties file. Change the `localhost=localhost[...]` entry to <IP>=<IP>. (Keep the rest of the line as is.)
-. Update the ${home_directory}/etc/users.attributes file. Change the "localhost" entry to "<IP>".
+. Update the ${home_directory}/etc/users.properties file. Change the `localhost=localhost[...]` entry to `<IP>=<IP>`. (Keep the rest of the line as is.)
+. Update the ${home_directory}/etc/users.attributes file. Change the `"localhost"` entry to `"<IP>"`.
 . From the console go to ${home_directory}/etc/certs and run the appropriate script.
 .. *NIX: `sh CertNew.sh -cn <IP> -san "IP:<IP>"`.
 .. Windows: `CertNew -cn <IP> -san "IP:<IP>"`.
