@@ -7,7 +7,7 @@
 
 .[[_configuring_sso]]Configure Single Sign On (SSO)
 ****
-Configure Single Sign On method: SAML or OIDC.
+Configure Single Sign On method for SAML or OIDC.
 (((Single Sign On, SSO)))
 
 .SAML SSO

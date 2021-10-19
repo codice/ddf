@@ -26,7 +26,7 @@ Do not use spaces in directory or file names of the `${home_directory}` path.
 For example, do not install in the default `Program Files` directory.
 ====
 +
-.Example: Create a Directory (Windows and *NIX)
+.Example Create a Directory (Windows and *NIX)
 ----
 mkdir new_installation
 ----
@@ -38,12 +38,12 @@ This can be a new or existing user.
 This ${branding}_USER can now be used for the remaining installation instructions.
 .. Create a new group or use an existing group (such as ${branding}_GROUP) (Windows users skip this step)
 +
-.Example: Add New Group on *NIX
+.Example Add New Group on *NIX
 ----
 groupadd ${branding}_GROUP
 ----
 +
-.Example: Switch User on *NIX
+.Example Switch User on *NIX
 ----
 chown ${branding}_USER:${branding}_GROUP new_installation
 

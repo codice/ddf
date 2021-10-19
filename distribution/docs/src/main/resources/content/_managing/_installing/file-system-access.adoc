@@ -73,7 +73,7 @@ Set directory permissions to protect the ${branding} from unauthorized access.
 The amount of memory allocated to the Java Virtual Machine host ${branding} by the operating
 system can be increased by updating the `setenv` script:
 
-.Setenv Scripts: *NIX
+.Setenv Scripts (*NIX)
 ----
 ${home_directory}/bin/setenv
 Update the JAVA_OPTS -Xmx value
@@ -81,7 +81,7 @@ ${home_directory}/bin/setenv-wrapper.conf
 Update the wrapper.java.additional -Xmx value
 ----
 
-.Setenv Scripts: Windows
+.Setenv Scripts (Windows)
 ----
 ${home_directory}/bin/setenv.bat
 Update the JAVA_OPTS -Xmx value
@@ -96,7 +96,7 @@ By default, ${branding} prevents connections to JMX because the system is more s
  is not enabled. However, many monitoring tools require a JMX connection to the Java Virtual
  Machine. To enable JMX, update the setenv script:
 
-.Setenv Scripts: *NIX
+.Setenv Scripts (*NIX)
 ----
 ${home_directory}/bin/setenv
 Remove -XX:+DisableAttachMechanism from JAVA_OPTS
@@ -104,7 +104,7 @@ ${home_directory}/bin/setenv-wrapper.conf
 Comment out the -XX:+DisableAttachMechanism line and re-number remainder lines appropriately
 ----
 
-.Setenv Scripts: Windows
+.Setenv Scripts (Windows)
 ----
 ${home_directory}/bin/setenv.bat
 Remove -XX:+DisableAttachMechanism from JAVA_OPTS

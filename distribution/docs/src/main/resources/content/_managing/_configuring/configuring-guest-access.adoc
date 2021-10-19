@@ -32,7 +32,7 @@ Only authorized users are then allowed to continue to the Search UI page.
 === Allowing Guest User Access
 
 Guest authentication must be enabled and configured to allow guest users.
-Once the guest user is configured, redaction and filtering of metadata is done for the guest user the same way it is done for normal users.
+Once the guest user is configured, the redaction and filtering of metadata is done for the guest user the same way it is done for normal users.
 
 To enable guest authentication for a context, use the <<{managing-prefix}configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration to select *Allow Guest Access*.
 

@@ -25,7 +25,7 @@ For security reasons, ${branding} cannot be started from a user's home directory
 
 .Java Requirements (Quick Install)
 
-Follow the instructions outlined here: <<{managing-prefix}java_requirements, Java Requirements>>.
+Follow the instructions outlined in <<{managing-prefix}java_requirements, Java Requirements>>.
 
 .Check System Time
 [WARNING]
@@ -60,7 +60,7 @@ The Windows Zip implementation, which is invoked when a user double-clicks on a 
 This is a consequence of its inability to process long file paths.
 Instead, use the java jar command line utility to unzip the distribution (see example below) or use a third party utility such as 7-Zip.
 
-Note: If and only if a JDK is installed, the jar command may be used; otherwise, another archiving utility that does not have issue with long paths should be installed
+NOTE: If and only if a JDK is installed, the jar command may be used; otherwise, another archiving utility that does not have issue with long paths should be installed
 
 .Use Java to Unzip in Windows(Replace `<PATH_TO_JAVA>` with correct path `and <JAVA_VERSION>` with current version.)
 ----

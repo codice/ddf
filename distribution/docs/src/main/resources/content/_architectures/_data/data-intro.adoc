@@ -4,7 +4,7 @@
 :summary: Introduction to data and metadata sections.
 :order: 00
 
-.Catalog Architecture Diagram: Data
+.Catalog Architecture Diagram Data
 [ditaa, catalog_architecture_data, png, ${image-width}]
 ....
 +------------------------------------------------------------+
@@ -136,8 +136,8 @@ The following blueprint snippet shows how to inject that service into another co
 
 The reference to this service can then be used to register new `MetacardTypes` or to lookup existing ones.
 
-Typically, new `MetacardTypes` will be registered by `CatalogProviders` or sources indicating they know how to persist, index, and query attributes from that type.
-Typically, Endpoints or `InputTransformers` will use the lookup functionality to access a `MetacardType` based on a parameter in the incoming metadata.
+New `MetacardTypes` are typically registered by `CatalogProviders` or sources indicating they know how to persist, index, and query attributes from that type.
+Endpoints or `InputTransformers` typically use the lookup functionality to access a `MetacardType` based on a parameter in the incoming metadata.
 Once the appropriate `MetacardType` is discovered and obtained from the registry, the component will know how to translate incoming raw metadata into a ${branding} Metacard.
 
 === Attributes

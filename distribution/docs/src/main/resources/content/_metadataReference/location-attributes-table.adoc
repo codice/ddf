@@ -7,7 +7,7 @@
 
 == {title}
 
-.Location: Attributes in this group reflect location aspects about the resource. *Injected by default.*
+.Location (Attributes in this group reflect location aspects about the resource.) *Injected by default.*
 [cols="1,2,1,1,1" options="header"]
 |===
 |Term

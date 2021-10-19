@@ -105,7 +105,7 @@ If the hostname is changed during the install to something other than `localhost
 |Internal HTTPS Port
 |org.codice.ddf.system.httpsPort
 |String
-|The https port that the system uses.
+a|The https port that the system uses.
 
 NOTE: This *DOES* change the port the system runs on.
 |8993
@@ -114,7 +114,7 @@ NOTE: This *DOES* change the port the system runs on.
 |Internal HTTP Port
 |org.codice.ddf.system.HttpPort
 |String
-|The http port that the system uses.
+a|The http port that the system uses.
 
 NOTE: This *DOES* change the port the system runs on.
 |8181
@@ -123,7 +123,7 @@ NOTE: This *DOES* change the port the system runs on.
 |Internal Default Port
 |org.codice.ddf.system.port
 |String
-|The default port that the system uses. This should match either the above http or https port.
+a|The default port that the system uses. This should match either the above http or https port.
 
 NOTE: This *DOES* change the port the system runs on.
 |8993
@@ -150,8 +150,7 @@ a|The hostname or IP address used to advertise the system. Do not enter `localho
 
 If the hostname is changed during the install to something other than `localhost` a new keystore and truststore must be provided. See <<{managing-prefix}managing_keystores_and_certificates,Managing Keystores and Certificates>> for details.
 
-NOTE:
-Does not change the address the system runs on.
+NOTE: Does not change the address the system runs on.
 
 |localhost
 |Yes
@@ -159,7 +158,7 @@ Does not change the address the system runs on.
 |HTTPS Port
 |org.codice.ddf.external.httpsPort
 |String
-|The https port used to advertise the system.
+a|The https port used to advertise the system.
 
 NOTE: This does not change the port the system runs on.
 |8993
@@ -168,7 +167,7 @@ NOTE: This does not change the port the system runs on.
 |External HTTP Port
 |org.codice.ddf.external.httpPort
 |String
-|The http port used to advertise the system.
+a|The http port used to advertise the system.
 
 NOTE: This does not change the port the system runs on.
 |8181
@@ -177,7 +176,7 @@ NOTE: This does not change the port the system runs on.
 |External Default Port
 |org.codice.ddf.external.port
 |String
-|The default port used to advertise the system. This should match either the above http or https port.
+a|The default port used to advertise the system. This should match either the above http or https port.
 
 NOTE: Does not change the port the system runs on.
 |8993
