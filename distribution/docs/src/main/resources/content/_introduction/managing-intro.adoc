@@ -3,5 +3,5 @@
 :status: published
 :priority: 1
 
-Administrators will be installing, maintaining, and supporting existing applications.
+Administrators install, maintain, and support existing applications.
 Use this section to prepare, install, configure, run, and monitor a ${branding}.

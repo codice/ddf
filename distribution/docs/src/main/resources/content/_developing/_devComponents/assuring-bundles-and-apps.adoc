@@ -11,7 +11,7 @@ ${branding} Artifacts in the JAR file format (such as bundles or KAR files) can 
 
 To work with Java signatures, a keystore/truststore is required.
 For testing or trial purposes ${branding} can sign and validate using a self-signed certificate, generated with the keytool utility.
-In an actuall installation, a certificate issued from a trusted Certificate Authority will be used.
+In an actual installation, a certificate issued from a trusted Certificate Authority is used.
 
 Additional documentation on keytool can be found at http://docs.oracle.com/javase/6/docs/technotes/tools/windows/keytool.html[Keytool home] {external-link}.
 

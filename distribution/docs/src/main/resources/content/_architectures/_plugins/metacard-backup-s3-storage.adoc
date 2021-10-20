@@ -5,7 +5,7 @@
 :plugintypes: postingest
 :summary: Stores backed-up metacards in a specified S3 bucket and key.
 
-The ((Metacard Backup S3 Storage Provider)) is a storage provider that will store backed up metacards in the specified ((S3)) bucket and key.
+The ((Metacard Backup S3 Storage Provider)) is a storage provider that stores backed up metacards in the specified ((S3)) bucket and key.
 
 == Installing the Metacard S3 File Storage Provider
 

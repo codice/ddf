@@ -10,10 +10,10 @@
 Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.
 
 Within the `${home_directory}`, a directory is created named ${branding-lowercase}-${project.version}.
-This directory will be referred to in the documentation as `${home_directory}`.
+This directory is referred to in the documentation as `${home_directory}`.
 
 . Do not assume the deployment is from a trusted source; verify its origination.
-. Check the available storage space on the system to ensure the deployment will not exceed the available space.
+. Check the available storage space on the system to ensure the deployment does not exceed the available space.
 . Set maximum storage space on the `${home_directory}/deploy` and `${home_directory}/system` directories to restrict the amount of space used by deployments.
 
 === Setting Directory Permissions

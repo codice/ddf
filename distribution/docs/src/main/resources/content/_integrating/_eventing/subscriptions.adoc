@@ -15,13 +15,13 @@ A Subscription itself is a series of events during which various plugins or tran
 === Creation
 
 * Subscriptions are created directly with the<<{architecture-prefix}event_processor,Event Processor>> or declaratively through use of the Whiteboard Design Pattern.
-* The Event Processor will invoke each Pre-Subscription Plugin and, if the subscription is not rejected, the subscription will be activated.
+* The Event Processor invokes each Pre-Subscription Plugin and, if the subscription is not rejected, the subscription is activated.
 
 === Evaluation
 
-* When a metacard matching the subscription is created, updated, or deleted in any Source, each Pre-Delivery Plugin will be invoked.
+* When a metacard matching the subscription is created, updated, or deleted in any Source, each Pre-Delivery Plugin is invoked.
 
-* If the delivery is not rejected, the associated Delivery Method callback will be invoked.
+* If the delivery is not rejected, the associated Delivery Method callback is invoked.
 
 === Update Evaluation
 
@@ -30,7 +30,8 @@ Notably, the Catalog allows event evaluation on both the previous value (if avai
 === Durability
 
 Subscription durability is not provided by the Event Processor.
-Thus, all subscriptions are transient and will not be recreated in the event of a system restart.
+Thus, all subscriptions are transient and not recreated in the event of a system restart.
+
 It is the responsibility of Endpoints using subscriptions to persist and re-establish the subscription on startup.
 
 This decision was made for the sake of simplicity, flexibility, and the inability of the Event Processor to recreate a fully configured Delivery Method without being overly restrictive.
@@ -49,8 +50,8 @@ Currently, the Catalog reference implementation does not contain a subscription 
 Therefore, an endpoint that exposes a web service interface to create, update, and delete subscriptions would provide a client's subscription filtering criteria to be used by Catalog's Event Processor to determine which events are of interest to the client.
 The endpoint client also provides the callback URL of the event consumer to be called when an event matching the subscription's criteria is found.
 This callback to the event consumer is made by a Delivery Method implementation that the client provides when the subscription is created.
-Whenever an event occurs in the Catalog matching the subscription, the Delivery Method implementation will be called by the Event Processor.
-The Delivery Method will, in turn, send the event notification out to the event consumer.
+Whenever an event occurs in the Catalog matching the subscription, the Delivery Method implementation is called by the Event Processor.
+The Delivery Method, in turn, sends the event notification out to the event consumer.
 As part of the subscription creation process, the Catalog verifies that the event consumer at the specified callback URL is available to receive callbacks.
 Therefore, the client must ensure the event consumer is running prior to creating the subscription.
 The Catalog completes the subscription creation by executing any pre-subscription Catalog Plugins, and then registering the subscription with the OSGi Service Registry.

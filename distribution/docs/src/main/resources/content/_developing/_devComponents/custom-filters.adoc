@@ -284,14 +284,14 @@ ft:query(//inventory:book/@subject,'science').
 . `FilterAdapter` visits the `OR` filter first.
 . `OR` filter visits its children in a loop.
 . The first child in the loop that is encountered is the LHS `PropertyIsLike`.
-. The `FilterAdapter` will call the `FilterDelegate` `PropertyIsLike` method with the LHS property and literal.
+. The `FilterAdapter` calls the `FilterDelegate` `PropertyIsLike` method with the LHS property and literal.
 . The LHS `PropertyIsLike` delegate method builds the XQuery syntax that makes sense for this particular underlying object store. In this case, the _subject_ property is specific to this XML database, and the business logic maps the _subject_ property to its index at `//inventory:book/@subject` Note that `ft:query` in this instance is a custom XQuery module for this specific XML database that does full text searches.
 . The `FilterAdapter` then moves back to the `OR` filter, which visits its second child.
-. The `FilterAdapter` will call the `FilterDelegate` `PropertyIsLike` method with the RHS property and literal.
+. The `FilterAdapter` calls the `FilterDelegate` `PropertyIsLike` method with the RHS property and literal.
 . The RHS `PropertyIsLike` delegate method builds the XQuery syntax that makes sense for this particular underlying object store. In this case, the _subject_ property is specific to this XML database, and the business logic maps the _subject_ property to its index at `//inventory:book/@subject` Note that `ft:query` in this instance is a custom XQuery module for this specific XML database that does full text searches.
 . The `FilterAdapter` then moves back to its `OR` Filter which is now done with its children.
 . It then collects the output of each child and sends the list of results to the `FilterDelegate OR` method.
-. The final result object will be returned from the `FilterAdapter` adapt method.
+. The final result object is returned from the `FilterAdapter` adapt method.
 
 ==== FilterVisitor Process for Figure Parsing
 
@@ -394,7 +394,7 @@ The following table displays the common metacard attributes with their respectiv
 Comparison operators compare the value associated with a property name with a given Literal value.
 Endpoints and sources should try to use metacard types other than the object type.
 The object type only supports backwards compatibility with `java.net.URI`.
-Endpoints that send other objects will not be supported by standard sources.
+Endpoints that send other objects are not supported by standard sources.
 The following table maps the metacard types to supported comparison operators.
 
 .Metacard Types to Comparison Operators

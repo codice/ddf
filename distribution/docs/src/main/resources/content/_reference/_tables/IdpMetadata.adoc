@@ -24,7 +24,7 @@
 |Perform User-Agent Check
 |userAgentCheck
 |Boolean
-|If selected, this will allow clients that do not support ECP and are not browsers to fall back to PKI, BASIC, and potentially GUEST authentication, if enabled.
+|If selected, this allows clients that do not support ECP and are not browsers to fall back to PKI, BASIC, and potentially GUEST authentication, if enabled.
 |true
 
 |===

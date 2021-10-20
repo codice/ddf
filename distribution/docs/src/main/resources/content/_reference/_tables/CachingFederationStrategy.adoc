@@ -19,7 +19,7 @@
 |Maximum start index
 |maxStartIndex
 |Integer
-|Sets a limit on the number of results this sorted federation strategy can handle from each federated source. A large start index in conjunction with several federated sources could yield a large result set, which the sorted federation strategy has a limited ability to do. The admin can make a rough calculation to decide what maximum start index to use based on the amount of memory in the system, the amount of  federated sources, the number of threads, and the expected amount of query results requested  ( (average # of threads) * (maximum # of federated sources) * (maxStartIndex + maximumQueryResults) ) must fit into the allocated memory of  the running distribution. This field will be removed when sorted federation strategy has the ability to sort a larger amount of results.
+|Sets a limit on the number of results this sorted federation strategy can handle from each federated source. A large start index in conjunction with several federated sources could yield a large result set, which the sorted federation strategy has a limited ability to do. The admin can make a rough calculation to decide what maximum start index to use based on the amount of memory in the system, the amount of federated sources, the number of threads, and the expected amount of query results requested  ( (average # of threads) * (maximum # of federated sources) * (maxStartIndex + maximumQueryResults) ) must fit into the allocated memory of the running distribution. This field may be deprecated and removed when sorted federation strategy has the ability to sort a larger amount of results.
 |50000
 |true
 
@@ -33,7 +33,7 @@
 |Expiration Age
 |expirationAgeInMinutes
 |Long
-|The number of minutes a document will remain in the cache before it will expire. Default is 7 days.
+|The number of minutes a document remains in the cache before it expires . Default is 7 days.
 |10080
 |true
 

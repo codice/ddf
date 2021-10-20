@@ -28,8 +28,8 @@ Configure the Guest Interceptor from the ${admin-console}:
 . Select the *Configuration* tab.
 . Select the *Guest Claims Configuration* configuration.
 . Select the `+` next to Attributes to add a new attribute.
-. Add any additional attributes that will apply to every user.
+. Add any additional attributes that apply to every user.
 . Select *Save changes*.
 
 Once these configurations have been added, the GuestInterceptor is ready for use.
-Both secure and non-secure requests will be accepted by all secure ${branding} service endpoints.
+Both secure and non-secure requests are accepted by all secure ${branding} service endpoints.

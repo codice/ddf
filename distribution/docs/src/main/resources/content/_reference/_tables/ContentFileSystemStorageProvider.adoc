@@ -19,7 +19,7 @@
 |Content Repository File Path
 |baseContentDirectory
 |String
-|Specifies the directory to use for the content repository. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist, File System Provider will attempt to create them.
+|Specifies the directory to use for the content repository. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist, File System Provider attempts to create them.
 |${home_directory}/data/content/store
 |true
 

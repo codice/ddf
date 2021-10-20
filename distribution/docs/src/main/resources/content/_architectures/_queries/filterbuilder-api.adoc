@@ -9,7 +9,7 @@
 To avoid the complexities of working with the Filter interface directly and implementing the ${branding} Profile of the Filter specification, the ${ddf-catalog} includes an API, primarily in `${ddf-branding}.filter`, to build Filters using a fluent API.
 
 To use the `FilterBuilder` API, an instance of `${ddf-branding}.filter.FilterBuilder` should be used via the OSGi registry.
-Typically, this will be injected via a dependency injection framework.
+Typically, this is injected via a dependency injection framework.
 Once an instance of `FilterBuilder` is available, methods can be called to create and combine Filters.
 
 [TIP]

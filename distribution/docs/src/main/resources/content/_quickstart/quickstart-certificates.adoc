@@ -14,12 +14,12 @@ ${branding} comes with a default keystore that contains certificates.
 This allows the distribution to be unzipped and run immediately.
 If these certificates are sufficient for testing purposes, proceed to <<{quickstart-prefix}configuring_quick_start,Configuring (Quick Start)>>.
 
-To test federation using 2-way TLS, the default keystore certificates will need to be replaced, using either the included <<{quickstart-prefix}demo_certificate_authority_ca,Demo Certificate Authority>> or by <<{quickstart-prefix}creating_self_signed_certificates,Creating Self-signed Certificates>>.
+To test federation using 2-way TLS, the default keystore certificates needs to be replaced, using either the included <<{quickstart-prefix}demo_certificate_authority_ca,Demo Certificate Authority>> or by <<{quickstart-prefix}creating_self_signed_certificates,Creating Self-signed Certificates>>.
 
-If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.
+If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user is prompted to upload new trust/key stores.
 
-If the hostname is `localhost` or, if the hostname was changed _after_ installation, the default certificates will not allow access to the ${branding} instance from another machine over HTTPS (now the default for many services).
-The Demo Certificate Authority will need to be replaced with certificates that use the fully qualified hostname of the server running the ${branding} instance.
+If the hostname is `localhost` or, if the hostname was changed _after_ installation, the default certificates do not allow access to the ${branding} instance from another machine over HTTPS (now the default for many services).
+The Demo Certificate Authority needs to be replaced with certificates that use the fully qualified hostname of the server running the ${branding} instance.
 
 === Demo Certificate Authority (CA)
 
@@ -45,9 +45,9 @@ For *NIX, use the `CertNew.sh` script.
 
 where:
 
-* `<cn>` represents a fully qualified common name (such as "<FQDN>", where <FQDN> could be something like cluster.yoyo.com)
-* `<dn>` represents a distinguished name as a comma-delimited string (such as "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>")
-* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (such as "DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+* `<cn>` represents a fully qualified common name (such as `"<FQDN>"`, where `<FQDN>` could be something like `cluster.yoyo.com`)
+* `<dn>` represents a distinguished name as a comma-delimited string (such as `"c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`)
+* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (such as `"DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"`). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
 ** `email` - email subject
 ** `URI` - uniformed resource identifier
 ** `RID` - registered id
@@ -66,9 +66,9 @@ For Windows, use the `CertNew.cmd` script.
 
 where:
 
-* `<cn>` represents a fully qualified common name (such as"<FQDN>", where <FQDN> could be something like cluster.yoyo.com)
-* `<dn>` represents a distinguished name as a comma-delimited string (such as "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>")
-* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (such as "DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+* `<cn>` represents a fully qualified common name (such as `"<FQDN>"`, where `<FQDN>` could be something like `cluster.yoyo.com`)
+* `<dn>` represents a distinguished name as a comma-delimited string (such as `"c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`)
+* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (such as `"DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"`). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
 ** `email` - email subject
 ** `URI` - uniformed resource identifier
 ** `RID` - registered id
@@ -82,7 +82,7 @@ The `CertNew` scripts:
 * Create a new entry in the server keystore.
 * Use the hostname as the fully qualified domain name (FQDN) when creating the certificate.
 * Adds the specified subject alternative names if any.
-* Use the Demo Certificate Authority to sign the certificate so that it will be trusted by the default configuration.
+* Use the Demo Certificate Authority to sign the certificate so that it is trusted by the default configuration.
 
 To install a certificate signed by a different Certificate Authority, see <<{managing-prefix}managing_keystores,Managing Keystores>>.
 
@@ -95,9 +95,9 @@ If the server's fully qualified domain name is not recognized, the name may need
 
 ==== Dealing with Lack of DNS
 
-In some cases DNS may not be available and the system will need to be configured to work with IP addresses.
+In some cases DNS may not be available, and the system needs to be configured to work with IP addresses.
 
-Options can be given to the CertNew Scripts to generate certs that will work in this scenario.
+Options can be given to the `CertNew` Scripts to generate certs that work in this scenario.
 
 .*NIX
 ****
@@ -150,11 +150,11 @@ The following steps demonstrate signing a certificate for the `tokenissuer` user
 . Sign the certificate by the CA. +
 `$> openssl ca -out tokenissuer.crt -infiles tokenissuer.req`
 
-These certificates will be used during system configuration to replace the default certificates.
+These certificates are used during system configuration to replace the default certificates.
 
 === Updating Settings After Changing Certificates
 
-After changing the certificates it will be necessary to update the system user and the `org.codice.ddf.system.hostname` property with the value of either the FQDN or the IP.
+After changing the certificates, it is necessary to update the system user and the `org.codice.ddf.system.hostname` property with the value of either the FQDN or the IP.
 
 FQDNs should be used wherever possible. In the absence of DNS, however, IP addresses can be used.
 

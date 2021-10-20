@@ -38,15 +38,15 @@ See <<{reference-prefix}org.codice.ddf.catalog.security.policy.metacard.Metacard
 === Configuring the Metacard Validation Marker Plugin
 (((Metacard Validation Marker Plugin)))
 
-By default, the Metacard Validation Marker Plugin will mark metacards with validation errors and warnings as they are reported by each metacard validator and then allow the ingest.
+By default, the Metacard Validation Marker Plugin marks metacards with validation errors and warnings as they are reported by each metacard validator and then allows the ingest.
 To prevent the ingest of certain invalid metacards, the `Metacard Validity Marker` plugin can be configured to "enforce" one or more validators.
-Metacards that are invalid according to an "enforced" validator will not be ingested.
+Metacards that are invalid according to an "enforced" validator are not ingested.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
 . Select the *Configuration* tab.
 . Select the *Metacard Validity Marker Plugin*.
-.. If desired, enter the ID of any metacard validator to enforce. This will prevent ingest of metacards that fail validation.
+.. If desired, enter the ID of any metacard validator to enforce. This prevents ingest of metacards that fail validation.
 .. If desired, check *Enforce Errors* or *Enforce Warnings*, or both.
 
 See <<{reference-prefix}ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin,Metacard Validity Marker Plugin configurations>> for all possible configurations.

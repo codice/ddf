@@ -86,7 +86,7 @@ use the `typeName` attribute in the `csw:Insert` element
 ----
 
 To receive a copy of the metacard in the response, specify `verboseResponse="true"` in the `csw:Transaction`.
-The `InsertResult` element of the response will hold the metacard information added to the catalog.
+The `InsertResult` element of the response holds the metacard information added to the catalog.
 
 [source,xml]
 ----
@@ -110,7 +110,7 @@ The `InsertResult` element of the response will hold the metacard information ad
 </csw:Transaction>
 ----
 
-A successful ingest will return a status of `200 OK` and `csw:TransactionResponse`.
+A successful ingest returns a status of `200 OK` and `csw:TransactionResponse`.
 
 .Sample XML Transaction `Insert` Response
 [source,xml]
@@ -296,11 +296,11 @@ Within the `Constraint` element, define the query as an OSG or CQL filter.
 .Querying a Specific Source with the CSW Endpoint
 To query a `Specific Source`, specify a query for a `source-id`.
 To find a valid `source-id` , send a <<{integrating-prefix}csw_endpoint_get_capabilities_examples,Get Capabilities>> request.
-Configured sources will be listed in the `FederatedCatalogs` section of the response.
+Configured sources are listed in the `FederatedCatalogs` section of the response.
 
 [NOTE]
 ====
-The `DistributedSearch` element must be specific with a `hopCount` greater than 1 to identify it as a federated query, otherwise the ``source-id``'s will be ignored.
+The `DistributedSearch` element must be specific with a `hopCount` greater than 1 to identify it as a federated query, otherwise the ``source-id``'s is ignored.
 ====
 
 .Querying a Specific Source Sample Request
@@ -851,7 +851,7 @@ Within the `csw:Transaction` element, use the `csw:RecordProperty` to update ind
 
 Use the `Name` element to specify the name of the record property to be updated and set
 the `Value` element to the value to update in the record.
-The values in the `Update` will completely replace those that are already in the record.
+The values in the `Update` completely replace those that are already in the record.
 
 [source,xml,linenums]
 ----
@@ -1040,9 +1040,9 @@ but it subscribes to a search and sends events to a `ResponseHandler` endpoint a
 the `GetRecords` request used in the subscription.
 The `ResponseHandler` must use the https protocol and receive a HEAD request to poll for availability and
 POST/PUT/DELETE requests for creation, updates, and deletions.
-The response to a `GetRecords` request on the subscription url will be an acknowledgement containing the original
+The response to a `GetRecords` request on the subscription url is an acknowledgement containing the original
 `GetRecords` request and a `requestId`.
-The client will be assigned a `requestId` (URN).
+The client is assigned a `requestId` (URN).
 
 A Subscription listens for events from federated sources if the `DistributedSearch` element is present and the catalog is a member of a federation.
 
@@ -1299,7 +1299,7 @@ The constraint can be either an OGC or CQL filter.
 
 The `GetCapabilities` operation describes the operations the catalog supports and the URLs used to access those operations.
 The CSW endpoint supports both `HTTP GET` and `HTTP POST` requests for the `GetCapabilities` operation.
-The response to either request will always be a `csw:Capabilities` XML document.
+The response to either request is always a `csw:Capabilities` XML document.
 This XML document is defined by the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema] {external-link}.
 
 .CSW Endpoint `GetCapabilities` URL for GET request

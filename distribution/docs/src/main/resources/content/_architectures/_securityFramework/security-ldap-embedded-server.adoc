@@ -40,17 +40,17 @@ Configure the Embedded LDAP from the ${admin-console}:
 |Description
 
 |LDAP Port
-|Sets the port for LDAP (plaintext and startTLS). 0 will disable the port.
+|Sets the port for LDAP (plaintext and startTLS). 0 disables the port.
 
 |LDAPS Port
-|Sets the port for LDAPS. 0 will disable the port.
+|Sets the port for LDAPS. 0 disables the port.
 
 |Base LDIF File
 |Location on the server for a LDIF file.
-This file will be loaded into the LDAP and overwrite any existing entries.
+This file is loaded into the LDAP and overwrites any existing entries.
 This option should be used when updating the default groups/users with a new LDIF file for testing.
 The LDIF file being loaded may contain any LDAP entries (schemas, users, groups, etc.).
-If the location is left blank, the default base LDIF file will be used that comes with ${branding}.
+If the location is left blank, the default base LDIF file included with ${branding} is used.
 
 |===
 
@@ -230,12 +230,12 @@ The default schemas loaded into the LDAP instance are the same defaults that com
 === Starting and Stopping the Embedded LDAP
 
 The embedded LDAP application installs a feature with the name `ldap-embedded`.
-Installing and uninstalling this feature will start and stop the embedded LDAP server.
-This will also install a fresh instance of the server each time.
+Installing and uninstalling this feature starts and stops the embedded LDAP server.
+This also installs a fresh instance of the server each time.
 If changes need to persist, stop then start the `embedded-ldap-opendj` bundle (rather than installing/uninstalling the feature).
 
 All settings, configurations, and changes made to the embedded LDAP instances are persisted across ${branding} restarts.
-If ${branding} is stopped while the LDAP feature is installed and started, it will automatically restart with the saved settings on the next ${branding} start.
+If ${branding} is stopped while the LDAP feature is installed and started, it automatically restarts with the saved settings on the next ${branding} start.
 
 === Limitations of the Embedded LDAP
 

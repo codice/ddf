@@ -11,7 +11,7 @@
 The ((Prometheus endpoint)) provides various metrics about ${branding} such as the number of queries made
 to a specific source and counters of ingest operations.
 
-An external Prometheus server will need to be setup and configured to scrape from ${branding}. The
+An external Prometheus server must be set up and configured to scrape from ${branding}. The
 endpoint is exposed at:
 
 .Prometheus URL

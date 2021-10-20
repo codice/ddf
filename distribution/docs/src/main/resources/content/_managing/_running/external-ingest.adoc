@@ -25,9 +25,9 @@ Where: +
 *-X* specifies the type of HTTP operation. For this example, it is necessary to POST (ingest) data to the server. +
 *-d* specifies the data sent in the POST request. The `${at-symbol}` character is necessary to specify that the data is a file. +
 
-The last parameter is the URL of the server that will receive the data.
+The last parameter is the URL of the server receiving the data.
 
-This should return a response similar to the following (the actual catalog ID in the id and Location URL fields will be different):
+This should return a response similar to the following (the actual catalog ID in the id and Location URL fields are different):
 
 .Sample Response
 [source,http,linenums]
@@ -40,7 +40,7 @@ Location: ${secure_url}/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b
 Server: Jetty(7.5.4.v20111024)
 ----
 
-. Use a web browser to verify a file was successfully ingested. Enter the URL returned in the response's HTTP header in a web browser. For instance in our example, it was `/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b`. The browser will display the catalog entry as XML in the browser.
+. Use a web browser to verify a file was successfully ingested. Enter the URL returned in the response's HTTP header in a web browser. For instance in the example, it was `/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b`. The browser displays the catalog entry as XML in the browser.
 . Verify the catalog entry exists by executing a query via the OpenSearch endpoint.
 . Enter the following URL in a browser `/services/catalog/query?q=${branding-lowercase}`. A single result, in Atom format, should be returned.
 

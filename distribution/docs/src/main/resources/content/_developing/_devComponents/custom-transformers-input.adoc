@@ -137,10 +137,10 @@ Alternatively, make an Apache Camel route in a blueprint file and deploy it usin
 Follow this design pattern for compatibility:
 
 .From
-When using *from*, `catalog:inputtransformer?id=text/xml`, an Input Transformer will be created and registered in the OSGi registry with an id of `text/xml`.
+When using *from*, `catalog:inputtransformer?id=text/xml`, an Input Transformer is created and registered in the OSGi registry with an id of `text/xml`.
 
 .To
-When using *to*, `catalog:inputtransformer?id=text/xml`, an Input Transformer with an id matching text/xml will be discovered from the OSGi registry and invoked.
+When using *to*, `catalog:inputtransformer?id=text/xml`, an Input Transformer with an id matching text/xml is discovered from the OSGi registry and invoked.
 
 .InputTransformer Message Formats
 [cols="3,2,1m" optiona="header"]
@@ -163,7 +163,7 @@ When using *to*, `catalog:inputtransformer?id=text/xml`, an Input Transformer wi
 [TIP]
 ====
 Its always a good idea to wrap the `mimeType` value with the RAW parameter as shown in the example above.
-This will ensure that the value is taken exactly as is, and is especially useful when you are using special characters.
+This ensures that the value is taken exactly as is, and is especially useful when you are using special characters.
 ====
 
 .InputTransformer Creation Example
@@ -196,4 +196,4 @@ An example of using an Apache Camel route to define an `InputTransformer` in a b
 == Input Transformer Boot Service Flag
 
 The `org.codice.ddf.platform.bootflag.BootServiceFlag` service with a service property of `id=inputTransformerBootFlag` is used to indicate certain Input Transformers are ready in the system.
-Adding an Input Transformers ID to a new or existing JSON file under `${home_directory}/etc/transformers` will cause the service to wait for an Input Transformer with the given ID.
+Adding an Input Transformers ID to a new or existing JSON file under `${home_directory}/etc/transformers` causes the service to wait for an Input Transformer with the given ID.

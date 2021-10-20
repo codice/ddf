@@ -16,5 +16,5 @@ If no mapping is found for the file extension, `null` is returned for the mime t
 Similarly, the `MimeTypeMapper` accesses each `MimeTypeResolver` according to its priority until the provided mime type is successfully mapped to its corresponding file extension.
 If no mapping is found for the mime type, `null` is returned for the file extension.
 
-For files with no file extension, the MimeTypeMapper will attempt to determine the mime type from the contents of the file.
-If it is unsuccessful, the file will be ingested as a binary file.
+For files with no file extension, the MimeTypeMapper attempts to determine the mime type from the contents of the file.
+If it is unsuccessful, the file is ingested as a binary file.

@@ -19,7 +19,7 @@ has been ingested into the Catalog. This feature is uninstalled by default.
 [WARNING]
 ====
 The *Processing Framework* does not support partial updates to the Catalog. This means that if any changes are made to a metacard in the Catalog between the time
-asynchronous processing starts and ends, those changes will be overwritten by the *ProcessingFramework* updates sent back to the Catalog. This feature should be used with caution.
+asynchronous processing starts and ends, those changes are overwritten by the *ProcessingFramework* updates sent back to the Catalog. This feature should be used with caution.
 ====
 
 .Processing Framework Architecture
@@ -141,7 +141,7 @@ A `ProcessRequest` contains a list of ``ProcessItem``s for the `ProcessingFramew
 should mark the `ProcessRequest` as already been processed, so that it does not process it again.
 
 .PostProcessPlugin
-The `PostProcessPlugin` is a plugin that will be run by the `ProcessingFramework`. It is capable of processing ``ProcessCreateItem``s, ``ProcessUpdateItem``s, and ``ProcessDeleteItem``s.
+The `PostProcessPlugin` is a plugin that is run by the `ProcessingFramework`. It is capable of processing ``ProcessCreateItem``s, ``ProcessUpdateItem``s, and ``ProcessDeleteItem``s.
 
 .ProcessItem
 [WARNING]

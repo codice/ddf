@@ -11,7 +11,7 @@
 === Running as a Service with Automatic Start on System Boot
 
 Because ${branding} is built on top of Apache Karaf, ${branding} can use the Karaf Wrapper to run ${branding} as a service and enable automatic startup and shutdown.
-When ${branding} is started using Karaf Wrapper, new `wrapper.log` and `wrapper.log.n` (where n goes from 1 to 5 by default) log files will be generated to include wrapper and console specific information.
+When ${branding} is started using Karaf Wrapper, new `wrapper.log` and `wrapper.log.n` (where n goes from 1 to 5 by default) log files are generated to include wrapper and console specific information.
 
 [WARNING]
 ====

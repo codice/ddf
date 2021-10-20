@@ -19,7 +19,7 @@
 |SAML Assertion Lifetime
 |lifetime
 |Long
-|Set the number of seconds that an issued SAML assertion will be good for.
+|Set the number of seconds that an issued SAML assertion is valid.
 |1800
 |true
 

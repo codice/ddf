@@ -215,7 +215,7 @@ The OpenSearch Endpoint can also use these additional parameters to refine queri
 |`<sborder>` is optional but has a value of `asc` or `desc` (default is `desc`).
 However, when `<sbfield>` is `relevance`, `<sborder>` must be `desc`.
 
-Sorting by `date` will sort the results by the <<{metadata-prefix}effective,`effective`>> date.
+Sorting by `date` sorts the results by the <<{metadata-prefix}effective,`effective`>> date.
 
 default: `relevance:desc`
 
@@ -224,7 +224,7 @@ default: `relevance:desc`
 |Integer >= 0
 |Maximum # of results to return.
 
-If `count` is also specified, the `count` value will take precedence over the `maxResults` value.
+If `count` is also specified, the `count` value takes precedence over the `maxResults` value.
 
 default: `1000`
 

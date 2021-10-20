@@ -64,7 +64,7 @@ If no credentials are found, it supports the acquisition of basic credentials on
 
 |org.codice.ddf.security.handler.pki.PKIHandler
 |Handler for PKI based authentication.
-X509 chain will be extracted from the HTTP request.
+X509 chain is extracted from the HTTP request.
 
 |org.codice.security.idp.client.IdpHandler
 |Handler for IdP/SAML based authentication.
@@ -105,5 +105,5 @@ This approach is often easier to configure for those that are not familiar with 
 ====
 An update was made to the IdpHandler to pass SAML assertions through the Authorization HTTP header.
 Cookies _are_ still accepted and processed to maintain legacy federation compatibility, but assertions are sent in the header on outbound requests.
-While a machine's identity will still federate between versions, a user's identity will ONLY be federated when a ${branding} version 2.7.x server communicates with a ${branding} version 2.8.x+ server, or between two servers whose versions are 2.8.x or higher.
+While a machine's identity still federates between versions, a user's identity is ONLY federated when a ${branding} version 2.7.x server communicates with a ${branding} version 2.8.x+ server, or between two servers whose versions are 2.8.x or higher.
 ====

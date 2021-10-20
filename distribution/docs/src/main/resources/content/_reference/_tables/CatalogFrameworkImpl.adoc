@@ -34,7 +34,7 @@
 |Fanout tag blacklist
 |fanoutTagBlacklist
 |String
-|Ingest operations with tags in this list will be rejected.
+|Ingest operations with tags in this list are rejected.
 |
 |true
 

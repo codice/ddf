@@ -7,7 +7,7 @@
 
 The ((Metacard Ingest Network Plugin)) allows the conditional insertion of new attributes on metacards during ingest based on network information from the ingest request; including IP address and hostname.
 
-For the extent of this section, a 'rule' will refer to a configured, single instance of this plugin.
+For the extent of this section, a 'rule' refers to a configured, single instance of this plugin.
 
 == Related Components to the Metacard Ingest Network Plugin
 
@@ -30,10 +30,10 @@ See <<{reference-prefix}org.codice.ddf.catalog.plugin.metacard.MetacardIngestNet
 
 Multiple instances of the plugin can be configured by clicking on its configuration title within the configuration tab of the ${ddf-catalog} app.
 Each instance represents a conditional statement, or a 'rule', that gets evaluated for each ingest request.
-For any request that meets the configured criteria of a rule, that rule will attempt to transform its list of key-value pairs to become new attributes on all metacards in that request.
+For any request that meets the configured criteria of a rule, that rule attempts to transform its list of key-value pairs to become new attributes on all metacards in that request.
 
-The rule is divided into two fields: "Criteria" and "Expected Value".
-The "Criteria" field features a drop-down list containing the four elements for which equality can be tested:
+The rule is divided into two fields: `"Criteria"` and `"Expected Value"`.
+The `"Criteria"` field features a drop-down list containing the four elements for which equality can be tested:
 
 * IP Address of where the ingest request came from
 * Host Name of where the ingest request came from
@@ -41,7 +41,7 @@ The "Criteria" field features a drop-down list containing the four elements for 
 * Context Path that the ingest request arrived on, for example, _/services/catalog_
 
 In order for a rule to evaluate to true and the attributes be applied, the value in the "Expected Value" field must be an exact match to the actual value of the selected criteria.
-For example, if the selected criteria is "IP Address" with an expected value of "192.168.0.1", the rule only evaluates to true for ingest requests coming from "192.168.0.1" and nowhere else.
+For example, if the selected criteria is `"IP Address"` with an expected value of `"192.168.0.1"`, the rule only evaluates to true for ingest requests coming from `"192.168.0.1"` and nowhere else.
 
 .Check for IPv6
 IMPORTANT: Verify your system's IP configuration. Rules using "IP Address" may need to be written in IPv6 format.
@@ -94,5 +94,5 @@ The following table provides some useful attributes that may commonly be set by 
 == Usage Limitations of the Metacard Ingest Network Plugin
 
 * This plugin only works for ingest (create requests) performed over a network; data ingested via command line does not get processed by this plugin.
-* Any attribute that is already set on the metacard will not be overwritten by the plugin.
-* The order of execution is not guaranteed. For any rule configuration where two or more rules add different values for the same attribute, it is undefined what the final value for that attribute will be in the case where more than one of those rules evaluates to true.
+* Any attribute that is already set on the metacard is not overwritten by the plugin.
+* The order of execution is not guaranteed. For any rule configuration where two or more rules add different values for the same attribute, it is undetermined which provides the final value for that attribute.

@@ -42,10 +42,10 @@ See <<{reference-prefix}Wfs_v1_1_0_Federated_Source,WFS v.1.1 Federated Source c
 .WFS URL
 The WFS URL must match the endpoint for the service being used.
 The type of service and version are added automatically, so they do not need to be included.
-Some servers will throw an exception if they are included twice, so do not include those.
+Some servers throw an exception if they are included twice, so do not include those.
 
 The syntax depends on the server.
-However, in most cases, the syntax will be everything before the `?` character in the URL that corresponds to the `GetCapabilities` query.
+However, in most cases, the syntax is everything before the `?` character in the URL that corresponds to the `GetCapabilities` query.
 
 .Example GeoServer 2.12.1 Syntax
 ----
@@ -58,4 +58,4 @@ In this case, the WFS URL would be: `http://www.example.org:8080/geoserver/wfs`
 The WFS v1.1.0 Source supports mapping metacard attributes to WFS feature properties for queries (GetFeature requests) to the WFS server.
 The source uses a `MetacardMapper` service to determine how to map a given metacard attribute in a query to a feature property the WFS server understands.
 It looks for a `MetacardMapper` whose `getFeatureType()` matches the feature type being queried.
-Any `MetacardMapper` service implementation will work, but ${branding} provides one in the ${ddf-spatial} application called <<{reference-prefix}org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper,Metacard to WFS Feature Map>>.
+Any `MetacardMapper` service implementation can be used, but ${branding} provides one in the ${ddf-spatial} application called <<{reference-prefix}org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper,Metacard to WFS Feature Map>>.

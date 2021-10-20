@@ -18,8 +18,8 @@ ingested is valid. Below is a list of the validators run against the data ingest
 . Select the *System* tab.
 . Select the *Configuration* tab.
 . Select *Metacard Validation Marker Plugin*.
-.. If *Enforce errors* is checked, these validators below will be run on ingest.
-.. If *Enforce errors* is not checked, these validators below will *not* be run on ingest.
+.. If *Enforce errors* is checked, these validators below are run on ingest.
+.. If *Enforce errors* is not checked, these validators below are *not* run on ingest.
 ====
 
 === Validators run on ingest

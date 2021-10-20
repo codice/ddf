@@ -47,7 +47,7 @@
 |Announcements
 |announcements
 |String
-|Announcements that will be displayed on the landing page.
+|Announcements to display on the landing page.
 |null
 |true
 

@@ -36,8 +36,8 @@ Searching the catalog involves three basic steps:
 .. For contextual search, optionally set the `fuzzy` flag to `true` or `false` (the default value for the `Metadata Catalog` `fuzzy` flag is `true`, while the `portal` default value is `false`).
 .. For contextual search, optionally set the `caseSensitive` flag to true (the default is that `caseSensitive` flag is NOT set and queries are not case sensitive).
 Doing so enables case sensitive matching on the search criteria.
-For example, if `caseSensitive` is set to true and the phrase is “Baghdad” then only metadata containing “Baghdad” with the same matching case will be returned.
-Words such as “baghdad”, “BAGHDAD”,  and “baghDad” will not be returned because they do not match the exact case of the search term.
+For example, if `caseSensitive` is set to true and the phrase is “Baghdad” then only metadata containing “Baghdad” with the same matching case is returned.
+Words such as “baghdad”, “BAGHDAD”,  and “baghDad” are not returned because they do not match the exact case of the search term.
 . Issue a search.
 . Examine the results.
 
@@ -76,7 +76,7 @@ There are three policies available.
 
 |===
 
-If no sort policy is defined for a particular search, the temporal policy will automatically be applied.
+If no sort policy is defined for a particular search, the temporal policy is automatically applied.
 
 
 ===== Product Retrieval

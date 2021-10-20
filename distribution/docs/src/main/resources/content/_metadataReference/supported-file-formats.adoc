@@ -14,7 +14,7 @@ Many of these file types support additional <<_file_format_specific_attributes,f
 
 [NOTE]
 ====
-These attributes will be available in all the specified file formats; however, values will only be present if present in the original document/resource.
+These attributes are available in all the specified file formats; however, values are only present if present in the original document/resource.
 ====
 
 These attributes are supported by any file type ingested into ${branding}:
