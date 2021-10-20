@@ -12,7 +12,7 @@ The ((${ddf-security} LDAP Claims Handler)) bundle adds functionality that allow
 [NOTE]
 ====
 All claims handlers are queried for user attributes regardless of realm.
-This means that two different users with the same username in different LDAP servers will end up with both of their claims in each of their individual assertions.
+This means that two different users with the same username in different LDAP servers end up with both of their claims in each of their individual assertions.
 ====
 
 === Installing Security LDAP Claims Handler

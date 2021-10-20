@@ -39,10 +39,10 @@ See <<{reference-prefix}Wfs_v2_0_0_Federated_Source,WFS v.2.0 Federated source c
 .WFS URL
 The WFS URL must match the endpoint for the service being used.
 The type of service and version is added automatically, so they do not need to be included.
-Some servers will throw an exception if they are included twice, so do not include those.
+Some servers throw an exception if they are included twice, so do not include those.
 
 The syntax depends on the server.
-However, in most cases, the syntax will be everything before the `?` character in the URL that corresponds to the `GetCapabilities` query.
+However, in most cases, the syntax is everything before the `?` character in the URL that corresponds to the `GetCapabilities` query.
 
 .Example GeoServer 2.5 Syntax
 ----
@@ -78,8 +78,8 @@ There are two ways to configure the `MetacardMapper`:
 .Example WFS MetacardMapper Configuration
 The following shows how to configure the `MetacardMapper` to be used with the sample data provided with GeoServer.
 This configuration shows a custom mapping for the feature type ‘states’.
-For the given type, we are taking the feature property ‘STATE_NAME’ and mapping it to the metacard attribute ‘title’.
-In this particular case, since we mapped the state name to title in the metacard, it will now be fully searchable.
+For the given type, the feature property ‘STATE_NAME’ is mapped to the metacard attribute ‘title’.
+In this particular case, since the state name is mapped to title in the metacard, it is now fully searchable.
 
 .Example `MetacardMapper` Configuration Within a `feature.xml` file:
 [source,xml,linenums]

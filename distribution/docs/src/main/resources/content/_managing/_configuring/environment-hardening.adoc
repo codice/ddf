@@ -67,12 +67,11 @@ SSH can also be authenticated and authorized through an external Realm,
 such as LDAP. This can be accomplished by editing the `${home_directory}/etc/org.apache.karaf.shell.cfg` file and setting the
 value for `sshRealm` to the appropriate realm, such as `ldap`. No restart of ${branding} is necessary after this change.
 
-By definition, all connections over SSH will be authenticated and authorized and secure from eavesdropping.
+By definition, all connections over SSH are authenticated and authorized and secure from eavesdropping.
 
 [WARNING]
 ====
-Enabling SSH will expose your file system such that any user with access to your ${branding} shell will
-have read/write/execute access to all directories and files accessible to your installation user.
+Enabling SSH exposes your file system because any user with access to your ${branding} shell has read/write/execute access to all directories and files accessible to your installation user.
 
 *Because of this, SSH is not recommended in a secure environment and should be turned off
 in a fully hardened system.*
@@ -91,7 +90,7 @@ Setting this configuration may break compatibility to legacy systems that do not
 
 [WARNING]
 ====
-Setting this configuration will require a certificate to be installed in the browser.
+Setting this configuration requires a certificate to be installed in the browser.
 ====
 
 |Session Inactivity Timeout

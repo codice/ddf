@@ -5,10 +5,10 @@
 :order: 01
 :summary: Retrieving Resource Options.
 
-Options can be specified on a retrieve resource request made through any of the supporting endpoint. 
-To specify an option for a retrieve resource request, the endpoint needs to first instantiate a `ResourceRequestByProductUri` or a `ResourceRequestById`. 
-Both of these `ResourceRequest` implementations allow a `Map` of properties to be specified. 
-Put the specified option into the `Map` under the key `RESOURCE_OPTION`.  
+Options can be specified on a retrieve resource request made through any of the supporting endpoint.
+To specify an option for a retrieve resource request, the endpoint needs to first instantiate a `ResourceRequestByProductUri` or a `ResourceRequestById`.
+Both of these `ResourceRequest` implementations allow a `Map` of properties to be specified.
+Put the specified option into the `Map` under the key `RESOURCE_OPTION`.
 
 .Retrieve Resource with Options
 [source,java,linenums]
@@ -18,9 +18,9 @@ properties.put("RESOURCE_OPTION", "OptionA");
 ResourceRequestById resourceRequest = new ResourceRequestById("0123456789abcdef0123456789abcdef", properties);
 ----
 
-Depending on the support that the `ResourceReader` or `Source` provides for options, the `properties` `Map` will be checked for the `RESOURCE_OPTION` entry. 
-If that entry is found, the option will be handled. 
-If the `ResourceReader` or `Source` does not support options, that entry will be ignored.
+Depending on the support that the `ResourceReader` or `Source` provides for options, the `properties` `Map` is checked for the `RESOURCE_OPTION` entry.
+If that entry is found, the option is handled.
+If the `ResourceReader` or `Source` does not support options, that entry is ignored.
 
-A new `ResourceReader` or `Source` implementation can be created to support options in a way that is most appropriate. 
-Since the option is passed through the catalog framework as a property, the `ResourceReader` or `Source` will have access to that option as long as the endpoint supports options.
+A new `ResourceReader` or `Source` implementation can be created to support options in a way that is most appropriate.
+Since the option is passed through the catalog framework as a property, the `ResourceReader` or `Source` has access to that option as long as the endpoint supports options.

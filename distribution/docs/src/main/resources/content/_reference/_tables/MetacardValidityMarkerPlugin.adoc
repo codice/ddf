@@ -19,7 +19,7 @@
 |Enforced Validators
 |enforcedMetacardValidators
 |String
-|ID of Metacard Validator to enforce. Metacards that fail these validators will NOT be ingested.
+|ID of Metacard Validator to enforce. Metacards that fail these validators are NOT ingested.
 |false
 
 |Enforce errors

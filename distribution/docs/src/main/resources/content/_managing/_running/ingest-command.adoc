@@ -21,7 +21,7 @@ The syntax for the ingest command is
 `ingest -t <transformer type> <file path>`
 
 Select the `<transformer type>` based on the type of files ingested.
-Metadata will be extracted if it exists in a format compatible with the transformer.
+Metadata is extracted if it exists in a format compatible with the transformer.
 The default transformer is the <<{developing-prefix}xml_input_transformer,XML input transformer>>, which supports the metadata schema `catalog:metacard`.
 To see a list of all transformers currently installed, and the file types supported by each, run the `catalog:transformers` command.
 

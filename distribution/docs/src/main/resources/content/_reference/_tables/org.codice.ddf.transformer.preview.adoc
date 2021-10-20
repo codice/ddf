@@ -27,7 +27,7 @@
 |Element Names to Preview
 |previewElements
 |String
-|Specify element names to preview from XML.  Will take the text content of the first available element for preview. Note: This list will not be used unless Preview From Metadata is enabled.
+|Specify element names to preview from XML. Takes the text content of the first available element for preview. Note: This list is not used unless Preview From Metadata is enabled.
 |text,TEXT
 |true
 |===

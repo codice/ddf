@@ -6,6 +6,6 @@
 
 Capabilities that need to function in a Highly Available Cluster should have one of the two below properties.
 
-((Stateless)):: Stateless capabilities will function in an Highly Available Cluster because no synchronization between ${branding} nodes is necessary.
+((Stateless)):: Stateless capabilities function in a Highly Available Cluster because no synchronization between ${branding} nodes is necessary.
 ((Common storage)):: If a capability must store data or share state with another node, then the data or shared state must be accessible to all nodes in the Highly Available Cluster.
 For example, the Catalog's storage provider must be accessible to all ${branding} nodes.

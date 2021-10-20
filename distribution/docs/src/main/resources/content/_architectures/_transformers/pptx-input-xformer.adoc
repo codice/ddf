@@ -8,7 +8,7 @@
 The ((PPTX Input Transformer)) translates ((Microsoft PowerPoint)) (OOXML only) documents into Catalog Metacards, using https://tika.apache.org/[Apache Tika] for basic metadata and https://poi.apache.org/[Apache POI] for thumbnail creation.
 The PPTX Input Transformer ingests PPTX documents into the ${branding} Content Repository and the Metadata Catalog, and adds a thumbnail of the first page in the PPTX document.
 
-The PPTX Input Transformer will take precedence over the Tika Input Transformer for PPTX documents.
+The PPTX Input Transformer takes precedence over the Tika Input Transformer for PPTX documents.
 
 .{title} Usage
 [cols="1,2m" options="header"]

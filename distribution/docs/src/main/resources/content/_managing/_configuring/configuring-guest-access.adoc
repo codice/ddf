@@ -14,13 +14,13 @@ By default, ${branding} allows guest access.
 Because ${branding} does not know the identity of a Guest user, it cannot assign security attributes to the Guest.
 The administrator must configure the attributes and values (the "claims") to be assigned to Guests.
 The Guest Claims become the default minimum attributes for every user, both authenticated and unauthenticated.
-Even if a user claim is more restrictive, the guest claim will grant access, so ensure the guest claim is only as permissive as necessary.
+Even if a user claim is more restrictive, the guest claim grants access, so ensure the guest claim is only as permissive as necessary.
 
 The *Guest* user is uniquely identified with a Principal name of the format `Guest@UID`. The unique
 identifier is assigned to a Guest based on its source IP address and is cached so that subsequent
-Guest accesses from the same IP address within a 30-minute window will get the same unique identifier.
+Guest accesses from the same IP address within a 30-minute window get the same unique identifier.
 To support administrators' need to track the source IP Address for a given Guest user, the IP Address
-and unique identifier mapping will be audited in the security log.
+and unique identifier mapping are audited in the security log.
 
 * Make sure that all the default logical names for locations of the security services are defined.
 

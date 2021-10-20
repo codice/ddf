@@ -15,11 +15,11 @@ Writing these types of scripts are specific to the administrator's operating sys
 The administrator can also create a Command Schedule, which currently requires only two fields.
 The Command Scheduler only runs when the container is running, so there is no need to verify if the container is up.
 In addition, when the container is restarted, the commands are rescheduled and executed again.
-A command will be repeatedly executed indefinitely according to the configured interval until the container is shutdown or the Scheduled Command is deleted.
+A command is repeatedly executed indefinitely according to the configured interval until the container is shutdown or the Scheduled Command is deleted.
 
 [NOTE]
 ====
-There will be further attempts to execute the command according to the configured interval even if an attempt fails.
+Further attempts are made to execute the command according to the configured interval even if an attempt fails.
 See the log for details about failures.
 ====
 
@@ -31,14 +31,14 @@ Configure the Command Scheduler to execute a command at specific intervals.
 . Select the *${ddf-platform}* application.
 . Click on the *Configuration* tab.
 . Select *Platform Command Scheduler*.
-. Enter the command or commands to be executed in the *Command* text field. Commands can be separated by a semicolon and will execute in order from left to right.
+. Enter the command or commands to be executed in the *Command* text field. Commands can be separated by a semicolon and execute in order from left to right.
 . Enter an interval in the *Interval* field. This can either be a Quartz Cron expression or a positive integer (seconds) (e.x. `0 0 0 1/1 * ? *` or `12`).
 . Select the interval type in the *Interval Type* drop-down.
 . Click the *Save changes* button.
 
 [NOTE]
 ====
-Scheduling commands will be delayed by 1 minute to allow time for bundles to load when ${branding} is starting up.
+Scheduling commands are delayed by 1 minute to allow time for bundles to load when ${branding} is starting up.
 ====
 
 === Updating a Scheduled Command
@@ -55,7 +55,7 @@ Scheduled commands have the following syntax: `${ddf-branding-lowercase}.platfor
 
 === Output of Scheduled Commands
 
-Commands that normally write out to the console will write out to the log.
+Commands that normally write out to the console write out to the log.
 For example, if an `echo "Hello World"` command is set to run every five seconds, the log contains the following:
 
 .Sample Command Output in the Log

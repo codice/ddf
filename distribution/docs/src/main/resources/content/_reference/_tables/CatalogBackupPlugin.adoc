@@ -26,7 +26,7 @@
 |Subdirectory levels
 |subDirLevels
 |Integer
-|Number of subdirectory levels to create. Two characters from the ID will be used to name each subdirectory level.
+|Number of subdirectory levels to create. Two characters from the ID are used to name each subdirectory level.
 |2
 |true
 

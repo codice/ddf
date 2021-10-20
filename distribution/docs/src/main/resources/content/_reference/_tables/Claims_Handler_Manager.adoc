@@ -67,7 +67,7 @@
 |Override User Certificate DN
 |overrideCertDn
 |Boolean
-|When checked, this setting will ignore the DN of a user and instead use the LDAP Base User DN value.
+|When checked, this setting ignores the DN of a user and instead uses the LDAP Base User DN value.
 |`false`
 |true
 

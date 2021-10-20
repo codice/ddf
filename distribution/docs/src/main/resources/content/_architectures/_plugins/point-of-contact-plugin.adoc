@@ -5,9 +5,9 @@
 :plugintypes: policy
 :summary: Adds a policy if Point of Contact is updated.
 
-The ((Point of Contact Policy Plugin)) is a PreUpdate plugin that will check if the point-of-contact attribute has changed.
+The ((Point of Contact Policy Plugin)) is a PreUpdate plugin that checks if the point-of-contact attribute has changed.
 If it does, then it adds a policy to that metacard’s policy map that cannot be implied.
-This will deny such an update request, which essentially makes the point-of-contact attribute read-only.
+This denies such an update request, which essentially makes the point-of-contact attribute read-only.
 
 == Related Components to Point of Contact Policy Plugin
 

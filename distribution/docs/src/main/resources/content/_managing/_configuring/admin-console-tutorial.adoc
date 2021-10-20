@@ -58,7 +58,7 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 .Transitive Dependencies
 [NOTE]
 ====
-Features may have dependencies on other features and will auto-install them as needed.
+Features may have dependencies on other features and auto-install them as needed.
 ====
 
 In the ${admin-console}, Features are found on the *Features* tab of the *System* tab.
@@ -68,8 +68,8 @@ In the ${admin-console}, Features are found on the *Features* tab of the *System
 . Select the *Features* tab.
 . Uninstalled features are shown with a *play* arrow under the *Actions* column.
 .. Select the *play* arrow for the desired feature.
-.. The *Status* will change from *Uninstalled* to *Installed*.
+.. The *Status* changes from *Uninstalled* to *Installed*.
 . Installed features are shown with a *stop* icon under the *Actions* column.
 .. Select the *stop* icon for the desired feature.
-.. The *Status* will change from *Installed* to *Uninstalled*.
+.. The *Status* changes from *Installed* to *Uninstalled*.
 

@@ -11,13 +11,13 @@ The reference Filter Adapter implementation contains the necessary boilerplate v
 == Creating a New Filter Delegate
 
 A Filter Delegate contains the logic that converts normalized filter input into a form that the target data source can handle.
-Delegate methods will be called in a depth first order as the Filter Adapter visits filter nodes.
+Delegate methods are called in a depth-first order as the Filter Adapter visits filter nodes.
 
 === Implementing the Filter Delegate
 
 . Create a Java class extending `FilterDelegate`. +
 `public class ExampleDelegate extends ${ddf-branding}.catalog.filter.FilterDelegate<ExampleReturnObjectType> {`
-. `FilterDelegate` will throw an appropriate exception for all methods not implemented. Refer to the ${branding} JavaDoc for more details about what is expected of each `FilterDelegate` method.
+. `FilterDelegate` throws an appropriate exception for all methods not implemented. Refer to the ${branding} JavaDoc for more details about what is expected of each `FilterDelegate` method.
 
 [NOTE]
 ====
@@ -27,7 +27,7 @@ A code example of a Filter Delegate can be found in `${ddf-branding}.catalog.fil
 === Throwing Exceptions
 
 Filter delegate methods can throw `UnsupportedOperationException` run-time exceptions.
-The `GeotoolsFilterAdapterImpl` will catch and re-throw these exceptions as `UnsupportedQueryExceptions`.
+The `GeotoolsFilterAdapterImpl` catches and re-throws these exceptions as `UnsupportedQueryExceptions`.
 
 === Using the Filter Adapter
 

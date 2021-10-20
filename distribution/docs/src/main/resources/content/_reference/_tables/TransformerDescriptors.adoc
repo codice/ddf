@@ -19,14 +19,14 @@
 |Metacard Transformer Blacklist
 |blackListedMetacardTransformerIds
 |String
-|The IDs of all Metacard Transformers services that will not show up as export actions in the UI. Every ID in this set will remove that transformer as an export option in the UI.
+|The IDs of all Metacard Transformers services that do not show up as export actions in the UI. Every ID in this set removes that transformer as an export option in the UI.
 |[]
 |false
 
 |Query Response Transformer Blacklist
 |blackListedQueryResponseTransformerIds
 |String
-|The IDs of all Query Response Transformers services that will not show up as export actions in the UI. Every ID in this set will remove that transformer as an export option in the UI.
+|The IDs of all Query Response Transformers services that do not show up as export actions in the UI. Every ID in this set removes that transformer as an export option in the UI.
 |[`zipCompression`]
 |false
 

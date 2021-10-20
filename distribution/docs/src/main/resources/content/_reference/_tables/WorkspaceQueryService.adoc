@@ -27,7 +27,7 @@
 |queryTimeInterval
 |Integer
 |Set the Relative Time Search (past X minutes up to 24 hours).
-Note: This will query for results from the interval to the time the query is sent out.
+Note: This queries for results from the interval to the time the query is sent out.
 |1440
 |true
 

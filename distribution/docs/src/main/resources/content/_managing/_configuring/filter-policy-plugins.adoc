@@ -9,4 +9,4 @@
 
 Several ((Policy Plugins)) for catalog filtering exist currently, <<{developing-prefix}metacard_attribute_security_policy_plugin,Metacard Attribute Security Policy Plugin>> and <<{developing-prefix}xml_attribute_security_policy_plugin,XML Attribute Security Policy Plugin>>.
 These Policy Plugin implementations allow an administrator to easily add filtering capabilities to some standard Metacard types for all ${ddf-catalog} operations.
-These plugins will place policy information on the Metacard itself that allows the <<{developing-prefix}filter_plugin,Filter Plugin>> to restrict unauthorized users from viewing content they are not allowed to view.
+These plugins place policy information on the Metacard itself that allows the <<{developing-prefix}filter_plugin,Filter Plugin>> to restrict unauthorized users from viewing content they are not allowed to view.

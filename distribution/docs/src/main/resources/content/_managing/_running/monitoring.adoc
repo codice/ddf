@@ -90,7 +90,7 @@ To enable access logs for the current ${branding}, do the following:
   </Get>
 ----
 
-Change the location of the logs to the desired location. In the settings above, location will default to data/log (same place where the log is located).
+Change the location of the logs to the desired location. In the settings above, location defaults to `data/log` (same place where the log is located).
 
 The log is using _National Center for Supercomputing Association Applications (NCSA)_ or Common format (hence the class 'NCSARequestLog').
 This is the most popular format for access logs and can be parsed by many web server analytics tools. Here is a sample output:
@@ -109,13 +109,13 @@ This is the most popular format for access logs and can be parsed by many web se
 * Navigate to the *System* tab
 * Select *Logs*
 
-The ((LogViewer)) displays the most recent 500 log messages by default, but will grow to a maximum of 5000 messages.
-To view incoming logs, select the *PAUSED* button to toggle it to *LIVE* mode. Switching this back to *PAUSED* will prevent any new logs from being displayed in the LogViewer. Note that this only affects the logs displayed by the LogViewer and does not affect the underlying log.
+The ((LogViewer)) displays the most recent 500 log messages by default, but can grow to a maximum of 5000 messages.
+To view incoming logs, select the *PAUSED* button to toggle it to *LIVE* mode. Switching this back to *PAUSED* prevents any new logs from being displayed in the LogViewer. Note that this only affects the logs displayed by the LogViewer and does not affect the underlying log.
 
 Log events can be filtered by:
 
 * Log level (`ERROR`, `WARNING`, etc).
-** The LogViewer will display at the currently configured log level for the Karaf logs.
+** The LogViewer displays at the currently configured log level for the Karaf logs.
 *** See <<{managing-prefix}controlling_log_level, Controlling Log Level>> to change log level.
 * Log message text.
 * Bundle generating the message.
@@ -123,7 +123,7 @@ Log events can be filtered by:
 [WARNING]
 ====
 It is not recommended to use the LogViewer if the system logger is set to a low reporting level such as `TRACE`.
-The volume of messages logged will exceed the polling rate, and incoming logs may be missed.
+The volume of messages logged may exceed the polling rate, and incoming logs may be missed.
 
 The actual logs being polled by the LogViewer can still be accessed at `${home_directory}/data/log`
 ====

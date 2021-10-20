@@ -7,7 +7,7 @@
 == {title}
 (((SSL)))
 
-In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties.
+In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers, configuration may need to be updated with keystores and security properties.
 These values are configured in the `${home_directory}/etc/custom.system.properties` file.
 The following values can be set:
 
@@ -21,7 +21,7 @@ The following values can be set:
 |`javax.net.ssl.trustStore`
 |`etc/keystores/serverTruststore.jks`
 |The java keystore that contains the trusted public certificates for Certificate Authorities (CAs) that can be used to validate SSL Connections for outbound TLS/SSL connections (such as HTTPS).
-When making outbound secure connections a handshake will be done with the remote secure server and the CA that is in the signing chain for the remote server's certificate must be present in the trust store for the secure connection to be successful.
+When making outbound secure connections a handshake is done with the remote secure server and the CA in the signing chain for the remote server's certificate must be present in the trust store for the secure connection to be successful.
 
 |`javax.net.ssl.trustStorePassword`
 |`changeit`

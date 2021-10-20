@@ -132,7 +132,7 @@ NOTE: This *DOES* change the port the system runs on.
 |Internal Root Context
 |org.codice.ddf.system.rootContext
 |String
-|The base or root context that services will be made available under.
+|The base or root context that services are made available under.
 |/services
 |Yes
 
@@ -185,7 +185,7 @@ NOTE: Does not change the port the system runs on.
 |External Root Context
 |org.codice.ddf.external.context
 |String
-|The base or root context that services will be advertised under.
+|The base or root context that services are advertised under.
 |/services
 |Yes
 
@@ -266,7 +266,7 @@ TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 |Allow Basic Auth Over Http
 |org.codice.allowBasicAuthOverHttp
 |Boolean
-|Set to true to allow Basic Auth credentials to be sent over HTTP unsecurely. This should only be done in a test environment. These events will be audited.
+|Set to true to allow Basic Auth credentials to be sent over HTTP unsecurely. This should only be done in a test environment. These events are audited.
 |false
 |Yes
 
@@ -314,9 +314,9 @@ The interval is measured in seconds.
 |File extensions flagged as potentially dangerous to the host system or external clients
 |bad.file.extensions
 |String
-|Files uploaded with these bad file extensions will have their file names sanitized before being saved
+|Files uploaded with these bad file extensions have their file names sanitized before being saved.
 
-For example, `sample_file.exe` will be renamed to `sample_file.bin` upon ingest
+For example, `sample_file.exe` is renamed to `sample_file.bin` upon ingest.
 |.exe,
 .jsp,
 .html,
@@ -393,9 +393,10 @@ For example, `sample_file.exe` will be renamed to `sample_file.bin` upon ingest
 |File names flagged as potentially dangerous to the host system or external clients
 |bad.files
 |String
-|Files uploaded with these bad file names will have their file names sanitized before being saved.
+|Files uploaded with these bad file names have their file names sanitized before being saved
 
-For example, `crossdomain.xml` will be renamed to `file.bin` upon ingest
+For example, `crossdomain.xml` is renamed to `file.bin` upon ingest
+
 |crossdomain.xml,
 clientaccesspolicy.xml,
 .htaccess,
@@ -414,7 +415,7 @@ robots.txt
 |Mime types flagged as potentially dangerous to external clients
 |bad.mime.types
 |String
-|Files uploaded with these mime types will be rejected from the upload
+|Files uploaded with these mime types are rejected from the upload
 |text/html,
 text/javascript,
 text/x-javascript,
@@ -427,7 +428,7 @@ application/x-msmetafile
 |File names flagged as potentially dangerous to external clients
 |ignore.files
 |String
-|Files uploaded with these file names will be rejected from the upload
+|Files uploaded with these file names are rejected from the upload
 |.DS_Store,
 Thumbs.db
 |Yes
@@ -514,7 +515,7 @@ For example, the url for the local csw service (\${secure_url}/services/csw) cou
 ${variable-prefix}org.codice.ddf.system.protocol}${variable-prefix}org.codice.ddf.system.hostname}:${variable-prefix}org.codice.ddf.system.port}${variable-prefix}org.codice.ddf.system.rootContext}/csw
 ----
 
-This variable version is more verbose, but will not need to be changed if the system `host`, `port` or `root` context changes.
+This variable version is more verbose, but does not need to be changed if the system `host`, `port` or `root` context changes.
 
 [WARNING]
 ====

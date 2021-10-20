@@ -19,9 +19,9 @@ Set the configurations needed to run ${branding}.
 .. Click start to begin the setup process.
 .. Configure <<{managing-prefix}guest_interceptor,guest claims attributes>> or use defaults.
 ... See <<{managing-prefix}configuring_guest_access,Configuring Guest Access>> for more information about the Guest user.
-... *All users will be automatically granted these permissions.*
-... *Guest users will not be able to ingest data with more restrictive markings than the guest claims.*
-... *Any data ingested that has more restrictive markings than these guest claims will not be visible to Guest users.*
+... *All users are automatically granted these permissions.*
+... *Guest users are not able to ingest data with more restrictive markings than the guest claims.*
+... *Any data ingested that has more restrictive markings than these guest claims is not visible to Guest users.*
 .. Select *Standard Installation*.
 ... This step may take several minutes to complete.
 .. On the System Configuration page, configure any port or protocol changes desired and add any keystores/truststores needed.

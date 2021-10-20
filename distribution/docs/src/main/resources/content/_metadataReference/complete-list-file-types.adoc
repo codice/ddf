@@ -13,7 +13,7 @@ If adding or removing items, be sure to add or subtract empty cells at the end o
 
 .Supported File Types
 Using the various input transformers, ${branding} supports ingest of the following MIME types.
-While ingest is possible for these files, metadata will be limited unless otherwise noted.
+While ingest is possible for these files, metadata is limited unless otherwise noted.
 
 .Application File Types
 [cols="3"]

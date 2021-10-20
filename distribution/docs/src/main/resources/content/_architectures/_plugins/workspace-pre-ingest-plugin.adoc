@@ -5,7 +5,7 @@
 :plugintypes: preingest
 :summary: Verifies that a workspace has an associated email to enable sharing.
 
-The ((Workspace Pre-Ingest Plugin)) verifies that a workspace has an associated email to enable sharing and assigns that email as "owner".
+The ((Workspace Pre-Ingest Plugin)) verifies that a workspace has an associated email to enable sharing and assigns that email as `"owner"`.
 
 == Related Components to The Workspace Pre-Ingest Plugin
 

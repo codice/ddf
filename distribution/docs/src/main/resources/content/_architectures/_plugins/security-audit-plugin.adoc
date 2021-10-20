@@ -6,7 +6,7 @@
 :summary: Audits specific metacard attributes.
 
 The ((Security Audit Plugin)) is used to allow the auditing of specific metacard attributes.
-Any time a metacard attribute listed in the configuration is updated, a log will be generated in the security log.
+Any time a metacard attribute listed in the configuration is updated, a log entry is generated in the security log.
 
 == Installing the Security Audit Plugin
 

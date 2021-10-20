@@ -25,7 +25,7 @@ For example, if the source attributes `sourceattribute1` and `sourceattribute2` 
 `destinationattribute1 = MASK, VESSEL, WIRE, SACK`
 
 The other way to combine attributes is use the values common to all of the attributes.
-This is called the intersection. Using our previous example, the **intersection** of
+This is called the intersection. Using the previous example, the **intersection** of
 `sourceattribute1` and `sourceattribute2` would create the new attribute `destinationattribute1`
 
 `destinationattribute1 = MASK`

@@ -32,4 +32,4 @@ Once the definition file is ready to be deployed, put the definition file `<file
 Definition files can be added, updated, and/or deleted in the `etc/definitions` folder.
 The changes are applied dynamically and no restart is required.
 
-If a definition file is removed from the `etc/definitions` folder, the changes that were applied by that file will be undone.
+If a definition file is removed from the `etc/definitions` folder, the changes that were applied by that file are undone.

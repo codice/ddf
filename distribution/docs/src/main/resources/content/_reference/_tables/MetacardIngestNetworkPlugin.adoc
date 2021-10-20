@@ -19,7 +19,7 @@
 |Criteria
 |criteriaKey
 |String
-|Specifies the criteria for the test of equality; which value will be tested? IP Address? Hostname?
+|Specifies the criteria for the test of equality; which value is tested? IP Address? Hostname?
 |remoteAddr
 |true
 

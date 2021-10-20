@@ -37,8 +37,7 @@ filterFactory.literal(value))) ;
 Every Source must be able to evaluate a Query object.
 Nevertheless, each Source could evaluate the Query differently depending on what that Source supports as to properties and query capabilities.
 For instance, a common property all Sources understand is id, but a Source could possibly store frequency values under the property name "frequency."
-Some Sources may not support frequency property inquiries and will
-throw an error stating it cannot interpret the property.
+Some Sources may not support frequency property inquiries and throw an error stating it cannot interpret the property.
 In addition, some Sources might be able to handle spatial operations, while others might not.
 A developer should consult a Source's documentation for the limitations, capabilities, and properties that a Source can support.
 
@@ -62,7 +61,7 @@ A developer should consult a Source's documentation for the limitations, capabil
 |Determines whether the total number of results should be returned.
 
 |`TimeoutMillis`
-|The amount of time in milliseconds before the query is to be abandoned. If a zero or negative timeout is set, the catalog framework will default to a value configurable via the Admin UI under Catalog -> Configuration -> Query Operations.
+|The amount of time in milliseconds before the query is to be abandoned. If a zero or negative timeout is set, the catalog framework defaults to a value configurable via the Admin UI under Catalog -> Configuration -> Query Operations.
 
 |===
 

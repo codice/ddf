@@ -19,21 +19,21 @@
 |XML Elements:
 |xmlElements
 |String
-|XML elements within the metadata that will be searched for security attributes. If these elements contain matching attributes, the values of the attributes will be combined.
+|XML elements within the metadata that are searched for security attributes. If these elements contain matching attributes, the values of the attributes are combined.
 |
 |true
 
 |Security Attributes (union):
 |securityAttributeUnions
 |String
-|Security Attributes. These attributes, if they exist on any of the XML elements listed above, will have their values extracted and the union of all of the values will be saved to the metacard. For example: if element1 and element2 both contain the attribute 'attr' and that attribute has values X,Y and X,Z, respectively, then the final result will be the union of those values: X,Y,Z. The X,Y,Z value will be the value that is placed within the security attribute on the metacard.
+|Security Attributes. These attributes, if they exist on any of the XML elements listed above, have their values extracted and the union of all of the values is saved to the metacard. For example: if element1 and element2 both contain the attribute 'attr' and that attribute has values X,Y and X,Z, respectively, then the final result is the union of those values: X,Y,Z. The X,Y,Z value is the value that is placed within the security attribute on the metacard.
 |
 |false
 
 |Security Attributes (intersection):
 |securityAttributeIntersections
 |String
-|Security Attributes. These attributes, if they exist on any of the XML elements listed above, will have their values extracted and the intersection of all of the values will be saved to the metacard. For example: if element1 and element2 both contain the attribute 'attr' and that attribute has values X,Y and X,Z, respectively, then the final result will be the intersection of those values: X. The X value will be the value that is placed within the security attribute on the metacard.
+|Security Attributes. These attributes, if they exist on any of the XML elements listed above, have their values extracted and the intersection of all of the values is saved to the metacard. For example: if element1 and element2 both contain the attribute 'attr' and that attribute has values X,Y and X,Z, respectively, then the final result is the intersection of those values: X. The X value is the value that is placed within the security attribute on the metacard.
 |null
 |false
 

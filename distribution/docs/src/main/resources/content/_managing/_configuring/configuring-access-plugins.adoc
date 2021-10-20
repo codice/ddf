@@ -23,7 +23,7 @@ To configure the Security Audit Plugin:
 . Select *Configuration* tab.
 . Select *Security Audit Plugin*.
 
-Add the desired metacard attributes that will be audited when modified.
+Add the desired metacard attributes that are audited when modified.
 
 See <<{reference-prefix}org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin,Security Audit Plugin configurations>> for all possible configurations.
 
