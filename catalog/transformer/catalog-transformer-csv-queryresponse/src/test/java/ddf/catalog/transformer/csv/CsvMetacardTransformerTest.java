@@ -95,8 +95,20 @@ public class CsvMetacardTransformerTest {
     }
   }
 
+  @Test
+  public void testNoColumnInfo() throws Exception {
+    BinaryContent binaryContent = transformer.transform(normalMC, new HashMap<>());
+    assertThat(binaryContent.getMimeType().toString(), is("text/csv"));
+
+    List<String> attributes = Arrays.asList(new String(binaryContent.getByteArray()).split("\r\n"));
+    List<String> attNames = Arrays.asList(attributes.get(0).split(","));
+    List<String> attValues = Arrays.asList(attributes.get(1).split(","));
+    assertThat(attNames.size(), is(4));
+    assertThat(attValues.size(), is(4));
+  }
+
   private Metacard buildMetacard() {
-    MetacardType metacardType = new MetacardTypeImpl("", ATTRIBUTE_DESCRIPTORS);
+    MetacardType metacardType = new MetacardTypeImpl("test", ATTRIBUTE_DESCRIPTORS);
     Metacard metacard = new MetacardImpl(metacardType);
     for (Attribute attribute : ATTRIBUTES) {
       metacard.setAttribute(attribute);

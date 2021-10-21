@@ -24,6 +24,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transformer.csv.common.CsvTransformer;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,9 +56,13 @@ public class CsvMetacardTransformer implements MetacardTransformer {
         arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY) != null
             ? (String) arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY)
             : "";
-    List<String> attributes = Arrays.asList((attributeString).split(","));
+    List<String> attributes =
+        Arrays.asList((attributeString).split(",")).stream()
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
     List<AttributeDescriptor> allAttributes =
-        new ArrayList<AttributeDescriptor>(metacard.getMetacardType().getAttributeDescriptors());
+        new ArrayList(
+            CsvTransformer.getAllCsvAttributeDescriptors(Collections.singletonList(metacard)));
     List<AttributeDescriptor> descriptors =
         CollectionUtils.isEmpty(attributes)
             ? allAttributes
