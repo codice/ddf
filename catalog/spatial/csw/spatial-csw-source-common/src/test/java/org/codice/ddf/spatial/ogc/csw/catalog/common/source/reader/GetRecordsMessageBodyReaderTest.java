@@ -15,11 +15,14 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source.reader;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -30,7 +33,14 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.Resource;
 import ddf.security.encryption.EncryptionService;
@@ -39,9 +49,12 @@ import ddf.security.permission.impl.PermissionsImpl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -51,6 +64,9 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -79,14 +95,15 @@ public class GetRecordsMessageBodyReaderTest {
     config.putMetacardCswMapping(Core.RESOURCE_URI, CswConstants.CSW_SOURCE);
 
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
-    InputStream is =
-        GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/getRecordsResponse.xml");
-    MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-
     ArgumentCaptor<UnmarshallingContext> captor =
         ArgumentCaptor.forClass(UnmarshallingContext.class);
 
-    reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+    try (InputStream is =
+        GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/getRecordsResponse.xml")) {
+      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+
+      reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+    }
 
     // Verify the context arguments were set correctly
     verify(mockProvider, times(1)).unmarshal(any(HierarchicalStreamReader.class), captor.capture());
@@ -116,38 +133,88 @@ public class GetRecordsMessageBodyReaderTest {
   }
 
   @Test
-  public void testFullThread() throws Exception {
-    List<Metacard> inputMetacards = new ArrayList<>();
-    MetacardImpl metacard = new MetacardImpl();
-    metacard.setId("metacard1");
-    metacard.setTitle("title1");
-    inputMetacards.add(metacard);
+  public void testFullThreadCswRecordCollection() throws Exception {
+    Metacard metacard = createMetacard();
+    List<Metacard> inputMetacards = Collections.singletonList(metacard);
     CswRecordCollection collection = new CswRecordCollection();
     collection.setCswRecords(inputMetacards);
-    when(mockProvider.unmarshal(any(), any())).thenReturn(collection);
 
-    CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
-    Map<String, String> mappings = new HashMap<>();
-    mappings.put(Core.CREATED, "dateSubmitted");
-    mappings.put(Metacard.EFFECTIVE, "created");
-    mappings.put(Core.MODIFIED, "modified");
-    mappings.put(Metacard.CONTENT_TYPE, "type");
-    config.setMetacardCswMappings(mappings);
-    config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-    config.setCswAxisOrder(CswAxisOrder.LAT_LON);
-    config.putMetacardCswMapping(Core.THUMBNAIL, CswConstants.CSW_REFERENCES);
-    config.putMetacardCswMapping(Core.RESOURCE_URI, CswConstants.CSW_SOURCE);
+    MetacardType cswMetacardType =
+        new MetacardTypeImpl(
+            CswConstants.CSW_METACARD_TYPE_NAME,
+            Arrays.asList(
+                new ContactAttributes(),
+                new LocationAttributes(),
+                new MediaAttributes(),
+                new TopicAttributes(),
+                new AssociationsAttributes()));
 
-    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
-    InputStream is =
-        GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/getRecordsResponse.xml");
-    MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+    CswRecordConverter recordConverter = new CswRecordConverter(cswMetacardType);
+    TransformerManager mockInputManager = mock(TransformerManager.class);
+    when(mockInputManager.getTransformerByProperty(anyString(), anyString()))
+        .thenReturn(recordConverter);
+    CswTransformProvider metacardProvider = new CswTransformProvider(null, mockInputManager);
+    GetRecordsResponseConverter provider = new GetRecordsResponseConverter(metacardProvider);
 
-    CswRecordCollection cswRecords =
-        reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+    CswSourceConfiguration config = createConfig();
 
+    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(provider, config);
+    CswRecordCollection cswRecords = null;
+
+    try (InputStream is =
+        GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/getRecordsResponse.xml")) {
+
+      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+
+      cswRecords = reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+    }
     List<Metacard> metacards = cswRecords.getCswRecords();
-    assertThat(metacards, contains(metacard));
+    assertThat(metacards, hasSize(3));
+    assertThat(metacards.get(0).getMetacardType().getName(), is("csw:Record"));
+    assertThat(metacards.get(0).getTitle(), containsString("title"));
+  }
+
+  @Test
+  public void testFullThreadCswRecordCollectionAltPrefixes() throws Exception {
+    Metacard metacard = createMetacard();
+    List<Metacard> inputMetacards = Collections.singletonList(metacard);
+    CswRecordCollection collection = new CswRecordCollection();
+    collection.setCswRecords(inputMetacards);
+
+    MetacardType cswMetacardType =
+        new MetacardTypeImpl(
+            CswConstants.CSW_METACARD_TYPE_NAME,
+            Arrays.asList(
+                new ContactAttributes(),
+                new LocationAttributes(),
+                new MediaAttributes(),
+                new TopicAttributes(),
+                new AssociationsAttributes()));
+
+    CswRecordConverter recordConverter = new CswRecordConverter(cswMetacardType);
+    TransformerManager mockInputManager = mock(TransformerManager.class);
+    when(mockInputManager.getTransformerByProperty(anyString(), anyString()))
+        .thenReturn(recordConverter);
+    CswTransformProvider metacardProvider = new CswTransformProvider(null, mockInputManager);
+    GetRecordsResponseConverter provider = new GetRecordsResponseConverter(metacardProvider);
+
+    CswSourceConfiguration config = createConfig();
+
+    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(provider, config);
+    CswRecordCollection cswRecords = null;
+
+    try (InputStream is =
+        GetRecordsMessageBodyReaderTest.class.getResourceAsStream(
+            "/getRecordsResponse-alt-prefixes.xml")) {
+
+      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+
+      cswRecords = reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+    }
+    List<Metacard> metacards = cswRecords.getCswRecords();
+    assertThat(metacards.size(), is(3));
+    assertThat(metacards.get(0).getMetacardType().getName(), is("csw:Record"));
+    assertThat(metacards.get(0).getTitle(), containsString("title"));
   }
 
   // verifies UTF-8 encoding configured properly when XML includes foreign text with special
@@ -165,12 +232,13 @@ public class GetRecordsMessageBodyReaderTest {
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
 
-    InputStream is =
+    CswRecordCollection cswRecords = null;
+    try (InputStream is =
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream(
-            "/geomaticsGetRecordsResponse.xml");
-    MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-    CswRecordCollection cswRecords =
-        reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+            "/geomaticsGetRecordsResponse.xml")) {
+      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+      cswRecords = reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+    }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards, contains(metacard));
   }
@@ -184,16 +252,18 @@ public class GetRecordsMessageBodyReaderTest {
 
     String sampleData = "SampleData";
     byte[] data = sampleData.getBytes();
-    ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data);
-    MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-    httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
-    httpHeaders.add(
-        HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
-    MediaType mediaType = new MediaType("text", "plain");
+    CswRecordCollection cswRecords = null;
+    try (ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data)) {
+      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+      httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
+      httpHeaders.add(
+          HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
+      MediaType mediaType = new MediaType("text", "plain");
 
-    CswRecordCollection cswRecords =
-        reader.readFrom(
-            CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
+      cswRecords =
+          reader.readFrom(
+              CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
+    }
 
     Resource resource = cswRecords.getResource();
     assertThat(resource, notNullValue());
@@ -211,19 +281,21 @@ public class GetRecordsMessageBodyReaderTest {
 
     String sampleData = "SampleData";
     byte[] data = sampleData.getBytes();
-    ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data);
-    MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-    httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
-    httpHeaders.add(
-        HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
-    httpHeaders.add(
-        HttpHeaders.CONTENT_RANGE,
-        String.format("bytes 1-%d/%d", sampleData.length() - 1, sampleData.length()));
-    MediaType mediaType = new MediaType("text", "plain");
+    CswRecordCollection cswRecords = null;
+    try (ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data)) {
+      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+      httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
+      httpHeaders.add(
+          HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
+      httpHeaders.add(
+          HttpHeaders.CONTENT_RANGE,
+          String.format("bytes 1-%d/%d", sampleData.length() - 1, sampleData.length()));
+      MediaType mediaType = new MediaType("text", "plain");
 
-    CswRecordCollection cswRecords =
-        reader.readFrom(
-            CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
+      cswRecords =
+          reader.readFrom(
+              CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
+    }
 
     Resource resource = cswRecords.getResource();
 
@@ -247,16 +319,18 @@ public class GetRecordsMessageBodyReaderTest {
 
     String sampleData = "SampleData";
     byte[] data = sampleData.getBytes();
-    ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data);
-    MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-    httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
-    httpHeaders.add(
-        HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
-    MediaType mediaType = new MediaType("text", "plain");
+    CswRecordCollection cswRecords = null;
+    try (ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data)) {
+      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+      httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
+      httpHeaders.add(
+          HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
+      MediaType mediaType = new MediaType("text", "plain");
 
-    CswRecordCollection cswRecords =
-        reader.readFrom(
-            CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
+      cswRecords =
+          reader.readFrom(
+              CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
+    }
 
     Resource resource = cswRecords.getResource();
 
@@ -270,5 +344,40 @@ public class GetRecordsMessageBodyReaderTest {
     // the number
     // of bytes that was attempted to be skipped, the stream must be aligned there instead.
     assertThat(resource.getByteArray(), is(data));
+  }
+
+  @Test(expected = WebApplicationException.class)
+  public void testExceptionReport() throws Exception {
+    GetRecordsMessageBodyReader reader =
+        new GetRecordsMessageBodyReader(
+            mockProvider, new CswSourceConfiguration(encryptionService, permissions));
+
+    try (InputStream is =
+        GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/exceptionReport.xml")) {
+      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+      reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+    }
+  }
+
+  private Metacard createMetacard() {
+    MetacardImpl metacard = new MetacardImpl();
+    metacard.setId("metacard1");
+    metacard.setTitle("title1");
+    return metacard;
+  }
+
+  private CswSourceConfiguration createConfig() {
+    CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
+    Map<String, String> mappings = new HashMap<>();
+    mappings.put(Core.CREATED, "dateSubmitted");
+    mappings.put(Metacard.EFFECTIVE, "created");
+    mappings.put(Core.MODIFIED, "modified");
+    mappings.put(Metacard.CONTENT_TYPE, "type");
+    config.setMetacardCswMappings(mappings);
+    config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+    config.setCswAxisOrder(CswAxisOrder.LAT_LON);
+    config.putMetacardCswMapping(Core.THUMBNAIL, CswConstants.CSW_REFERENCES);
+    config.putMetacardCswMapping(Core.RESOURCE_URI, CswConstants.CSW_SOURCE);
+    return config;
   }
 }
