@@ -22,7 +22,8 @@ To harden a new system, perform configuration as <<{managing-prefix}configuring,
 * [ ] <<{managing-prefix}configuring_guest_access,Configure Guest User Authentication>>
 * [ ] <<{managing-prefix}hiding_errors_and_warnings_from_users_based_on_role, Create unique user role>>
 * [ ] <<{managing-prefix}restricting_access_to_admin_console, Restricting Access to ${admin-console}>>
-* [ ] <<{managing-prefix}restricting_feature_app_service_and_configuration_access, Restrict Feature, App, Service, and Configuration Access>>
+* [ ] <<{managing-prefix}restricting_access_to_features_apps_services_and_configurations, Restricting Access to Features, Apps, Services, and Configurations
+>>
 * [ ] <<{managing-prefix}removing_default_users,Remove Default Users>>
 * [ ] <<{managing-prefix}hardening_solr,Harden Solr>>
 * [ ] <<{managing-prefix}environment_hardening,Environment Hardening>>
