@@ -47,7 +47,7 @@
 |Attribute Overrides
 |attributeOverrides
 |String
-|Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the content monitor. If an attribute is specified here, it overwrited the metacard's attribute that was created from the content directory. The format should be 'key=value'. The maximum allowed size of an attribute override is 65,535 bytes. All attributes in the <<{metadata-prefix}catalog_taxonomy_definitions, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
+|Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the content monitor. If an attribute is specified here, it overwrites the metacard's attribute that was created from the content directory. The format should be 'key=value'. The maximum allowed size of an attribute override is 65,535 bytes. All attributes in the <<{metadata-prefix}catalog_taxonomy_definitions, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
 |null
 |false
 
