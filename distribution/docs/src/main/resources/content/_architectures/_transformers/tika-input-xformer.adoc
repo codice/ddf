@@ -7,7 +7,7 @@
 
 The ((Tika Input Transformer)) is the default input transformer responsible for translating Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into Catalog records.
 This input transformer utilizes https://tika.apache.org[Apache Tika] to provide basic support for these mime types.
-The metadata common to all these document types, e.g., creation date, author, last modified date, etc., is extracted and used to create the catalog record.
+The metadata common to all these document types, such as creation date, author, last modified date, etc., is extracted and used to create the catalog record.
 The Tika Input Transformer's main purpose is to ingest these types of content into the Metadata Catalog.
 
 The Tika input transformer is most basic input transformer and the last to be invoked.

@@ -45,5 +45,5 @@ To configure a source to use OAuth 2.0, under the source's configuration,
 
 [NOTE]
 ====
-If the system ${branding} is federating with is a ${branding}, the ${branding} receiving the federated request should be connected to an external IdP and have `/services` protected by that IdP (i.e. have /service=OIDC`).
+If ${branding} is federating with another ${branding}, the ${branding} receiving the federated request should be connected to an external IdP and have `/services` protected by that IdP (that is, have `/service=OIDC`).
 ====

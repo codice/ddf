@@ -173,7 +173,7 @@ If the requested product is not in the cache, the product is retrieved from the 
 The caching to a local file of the product and the streaming of the product to the client are done simultaneously so that the client does not have to wait for the caching to complete before receiving the product.
 If errors are detected during the caching, caching of the product will be abandoned, and the product will be returned to the client. 
 
-The Catalog Framework attempts to detect any network problems during the product retrieval, e.g., long pauses where no bytes are read implying a network connection was dropped.
+The Catalog Framework attempts to detect any network problems during the product retrieval, for example, long pauses where no bytes are read implying a network connection was dropped.
 (The amount of time defined as a "long pause" is configurable, with the default value being five seconds.)
 The Catalog Framework will attempt to retrieve the product up to a configurable number of times (default = three), waiting for a configurable amount of time (default = 10 seconds) between each attempt, trying to successfully retrieve the product.
 If the Catalog Framework is unable to retrieve the product, an error message is returned to the client.

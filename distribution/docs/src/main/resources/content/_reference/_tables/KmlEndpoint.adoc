@@ -19,7 +19,7 @@
 |Style Document
 |styleUrl
 |String
-|KML Document containing custom styling. This will be served up by the KmlEndpoint. (e.g. file:///path/to/kml/style/doc.kml)
+|KML Document containing custom styling. This will be served up by the KmlEndpoint. (for example, \file:///path/to/kml/style/doc.kml)
 |
 |false
 

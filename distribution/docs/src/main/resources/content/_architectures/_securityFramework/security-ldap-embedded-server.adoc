@@ -99,7 +99,7 @@ The Embedded LDAP application contains an LDAP server (OpenDJ version 2.6.2) tha
 
 |`testuser2`
 |`password2`
-| 
+|
 |General test user for authentication
 
 |`nromanova`
@@ -229,8 +229,8 @@ The default schemas loaded into the LDAP instance are the same defaults that com
 
 === Starting and Stopping the Embedded LDAP
 
-The embedded LDAP application installs a feature with the name `ldap-embedded`.
-Installing and uninstalling this feature will start and stop the embedded LDAP server.
+The embedded LDAP application installs a feature with the name `ldap-embedded`.
+Installing and uninstalling this feature will start and stop the embedded LDAP server.
 This will also install a fresh instance of the server each time.
 If changes need to persist, stop then start the `embedded-ldap-opendj` bundle (rather than installing/uninstalling the feature).
 
@@ -241,7 +241,7 @@ If ${branding} is stopped while the LDAP feature is installed and started, it wi
 
 Current limitations for the embedded LDAP instances include:
 
-* Inability to store the LDAP files/storage outside of the ${branding} installation directory. This results in any LDAP data (i.e., LDAP user information) being lost when the `ldap-embedded` feature is uninstalled.
+* Inability to store the LDAP files/storage outside of the ${branding} installation directory. This results in any LDAP data (that is, LDAP user information) being lost when the `ldap-embedded` feature is uninstalled.
 * Cannot be run standalone from ${branding}. In order to run `embedded-ldap`, the ${branding} must be started.
 
 === External Links for the Embedded LDAP
@@ -260,11 +260,11 @@ Download https://backstage.forgerock.com/downloads/OpenDJ/OpenDJ%20Enterprise/2.
 
 === Using the Admin Tools
 
-The admin tools are located in `<opendj-installation>/bat` for Windows and `<opendj-installation>/bin` for `*nix`. 
+The admin tools are located in `<opendj-installation>/bat` for Windows and `<opendj-installation>/bin` for `*nix`.
 These tools can be used to administer both local and remote LDAP servers by setting the *host* and *port* parameters appropriately.
 
 
-In this example, the user *Bruce Banner (uid=bbanner)* is disabled using the *manage-account* command on Windows.
+In this example, the user *Bruce Banner (uid=bbanner)* is disabled using the *manage-account* command on Windows.
 Run *manage-account --help* for usage instructions.
 
 .Example Commands for Disabling/Enabling a User's Account
@@ -329,7 +329,7 @@ Account Is Disabled:  false
 ----
 
 
-Notice `Account Is Disabled: false` in the listing.
+Notice `Account Is Disabled: false` in the listing.
 
 .Verifying an Account is Enabled
 ----

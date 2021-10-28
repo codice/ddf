@@ -163,7 +163,7 @@ default: `5000`
 |`polygon`
 |`polygon`
 |Comma-delimited list of lat/lon (`EPSG:4326 (WGS84)` decimal degrees) pairs, in clockwise order around the polygon, where the last point is the same as the first in order to close the polygon.
-(e.g. `-80,-170,0,-170,80,-170,80,170,0,170,-80,170,-80,-170`)
+(for example, `-80,-170,0,-170,80,-170,80,170,0,170,-80,170,-80,-170`)
 |According to the OpenSearch Geo Specification this is *deprecated*. Use the `geometry` parameter instead.
 
 |`box`
@@ -242,12 +242,12 @@ default: `300000` (5 minutes)
 
 |`type`
 |`type`
-|Any valid datatype (e.g. `Text`)
+|Any valid datatype (such as `Text`)
 |Specifies the type of data to search for.
 
 |`version`
 |`version`
-|Comma-delimited list of strings (e.g. 20,30)
+|Comma-delimited list of strings (such as 20,30)
 |Version values for which to search.
 
 |===

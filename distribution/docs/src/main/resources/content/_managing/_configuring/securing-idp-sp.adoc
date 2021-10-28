@@ -27,7 +27,7 @@ The Web SSO bundles are installed by default with the ${ddf-security} applicatio
 .. An HTTPS URL (https://)
 .. A file URL (file:)
 .. An XML block to refer to desired metadata
-... (e.g., \${secure_url}/services/idp/login/metadata)
+... (for example, \${secure_url}/services/idp/login/metadata)
 
 .SAML 2.0 Web SSO Client (SP) example.xml
 [source,xml,linenums]
