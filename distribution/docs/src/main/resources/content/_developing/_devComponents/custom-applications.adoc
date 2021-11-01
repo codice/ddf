@@ -87,7 +87,7 @@ The URL to the application's KAR file in this Maven repository should be the ins
 
 == Including Data Files in a KAR File
 
-The developer may need to include data or configuration file(s) in a KAR file.
+The developer may need to include data or configuration files in a KAR file.
 An example of this is a properties file for the JDBC connection properties of a catalog provider.
 
 It is recommended that:
@@ -100,7 +100,7 @@ Sub-directories under `src/main/resources` can be used, for example, `etc/securi
 == Installing a KAR File
 
 When the user downloads an application by clicking on the *Installation* link, the application's KAR file is downloaded.
-To install manually, the KAR file can be placed in the `${home_directory}/deploy` directory of the running ${branding} instance. ${branding} then detects that a file with a `.kar` file extension has been placed in this monitored directory, unzips the KAR file into the `${home_directory}/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file.
+To install manually, the KAR file can be placed in the `${home_directory}/deploy` directory of the running ${branding} instance. ${branding} then detects that a file with a `.kar` file extension has been placed in this monitored directory, unzips the KAR file into the `${home_directory}/system` directory, and installs the bundles listed in the KAR file's feature descriptor file.
 To install via the ${admin-console}:
 . Navigate to the *${admin-console}*.
 . Select *Manage* button.
@@ -162,7 +162,7 @@ public class SourcesPlugin extends AbstractApplicationPlugin {
 
 === Including KAR Files
 
-Sometimes a developer may need to include data or configuration file(s) in a KAR file.
+Sometimes a developer may need to include data or configuration files in a KAR file.
 An example of this would be a properties file for the JDBC connection properties of a catalog provider.
 
 It is recommended that:
