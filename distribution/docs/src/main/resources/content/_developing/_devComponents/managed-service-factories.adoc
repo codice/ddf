@@ -132,10 +132,10 @@ Because there is a known issue when using OPS4J Pax Exam 4.11.0 and modifying `.
 * Boolean values will default to `false` if any value other than `true` is provided.
 * Float values must be representated in the IEEE 754 floating-point "single format" bit layout, preserving Not-a-Number (NaN) values.
 For example, `F"1093140480"` corresponds to `F"10.5"`.
-See the documentation for https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html#parseInt(java.lang.String)[java.lang.Integer#parseInt(java.lang.String)] and https://docs.oracle.com/javase/7/docs/api/java/lang/Float.html#intBitsToFloat(int)[java.lang.Float#intBitsToFloat(int)] for more details.
+See the documentation for https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html#parseInt(java.lang.String)[`java.lang.Integer#parseInt(java.lang.String)`] and https://docs.oracle.com/javase/7/docs/api/java/lang/Float.html#intBitsToFloat(int)[`java.lang.Float#intBitsToFloat(int)`] for more details.
 * Double values must be represented in the IEEE 754 floating-point "double format" bit layout, preserving Not-a-Number (NaN) values.
 For example, `D"4636745974857667812"` corresponds to `D"100.1234"`.
-See the documentation for https://docs.oracle.com/javase/7/docs/api/java/lang/Long.html#parseLong(java.lang.String)[java.lang.Long#parseLong(java.lang.String)] and https://docs.oracle.com/javase/7/docs/api/java/lang/Double.html#longBitsToDouble(long)[java.lang.Double#longBitsToDouble] for more details.
+See the documentation for https://docs.oracle.com/javase/7/docs/api/java/lang/Long.html#parseLong(java.lang.String)[`java.lang.Long#parseLong(java.lang.String)`] and https://docs.oracle.com/javase/7/docs/api/java/lang/Double.html#longBitsToDouble(long)[`java.lang.Double#longBitsToDouble`] for more details.
 
 ====
 

@@ -9,7 +9,7 @@
 A ((Resource Reader)) retrieves resources associated with metacards via URIs.
 Each resource reader must know how to interpret the resource's URI and how to interact with the data store to retrieve the resource.
 
-There can be multiple resource readers in a Catalog instance.
-The `Catalog Framework` selects the appropriate resource reader based on the scheme of the resource's URI. 
+There can be multiple resource readers in a Catalog instance.
+The `Catalog Framework` selects the appropriate resource reader based on the scheme of the resource's URI.
 
-In order to make a resource reader available to the Catalog Framework, it must be exported to the OSGi Service Registry as a `${ddf-branding}.catalog.resource.ResourceReader`. 
+In order to make a resource reader available to the Catalog Framework, it must be exported to the OSGi Service Registry as a `${ddf-branding}.catalog.resource.ResourceReader`.

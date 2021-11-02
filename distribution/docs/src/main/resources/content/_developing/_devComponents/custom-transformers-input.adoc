@@ -9,7 +9,7 @@
 ${branding} supports the creation of custom <<{architecture-prefix}types_of_transformers,input transformers>> for use cases not covered by the included implementations.
 
 .Creating a custom input Transformer:
-. Create a new Java class that implements ddf.catalog.transform.InputTransformer. +
+. Create a new Java class that implements `ddf.catalog.transform.InputTransformer`. +
 `public class SampleInputTransformer implements ddf.catalog.transform.InputTransformer`
 . Implement the transform methods. +
 `public Metacard transform(InputStream input) throws IOException, CatalogTransformerException` +
