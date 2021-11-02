@@ -19,6 +19,7 @@ const _ = require('underscore')
 const _debounce = require('lodash/debounce')
 const wkx = require('wkx')
 const metacardDefinitions = require('../../singletons/metacard-definitions.js')
+const Common = require('../../../js/Common')
 
 const GeometryView = Marionette.ItemView.extend({
   template: false,
@@ -78,24 +79,6 @@ const GeometryView = Marionette.ItemView.extend({
       this.stopListening(this.options.clusterCollection)
     }
   },
-  adjustPoints(type, coordinates) {
-    coordinates.forEach((coord, index) => {
-      if (index + 1 < coordinates.length) {
-        const east = Number(coordinates[index + 1][0])
-        const west = Number(coordinates[index][0])
-        if (east - west < -180) {
-          coordinates[index + 1][0] = east + 360
-        } else if (east - west > 180) {
-          coordinates[index][0] = west + 360
-        }
-      }
-    })
-    // If the geo is a polygon, ensure that the first and last coordinate are the same
-    if (type.includes('Polygon')) {
-      coordinates[0][0] = coordinates[coordinates.length - 1][0]
-    }
-    return coordinates
-  },
   handleGeometry(geometry) {
     switch (geometry.type) {
       case 'Point':
@@ -103,22 +86,19 @@ const GeometryView = Marionette.ItemView.extend({
         break
       case 'Polygon':
         geometry.coordinates.forEach(polygon => {
-          polygon = this.adjustPoints(geometry.type, polygon)
+          Common.adjustPointsForDatelineCrossing(polygon)
           this.handlePoint(polygon[0])
           this.handleLine(polygon)
         })
         break
       case 'LineString':
-        geometry.coordinates = this.adjustPoints(
-          geometry.type,
-          geometry.coordinates
-        )
+        Common.adjustPointsForDatelineCrossing(geometry.coordinates)
         this.handlePoint(geometry.coordinates[0])
         this.handleLine(geometry.coordinates)
         break
       case 'MultiLineString':
         geometry.coordinates.forEach(line => {
-          line = this.adjustPoints(geometry.type, line)
+          Common.adjustPointsForDatelineCrossing(line)
           this.handlePoint(line[0])
           this.handleLine(line)
         })
@@ -131,7 +111,7 @@ const GeometryView = Marionette.ItemView.extend({
       case 'MultiPolygon':
         geometry.coordinates.forEach(multipolygon => {
           multipolygon.forEach(polygon => {
-            polygon = this.adjustPoints(geometry.type, polygon)
+            Common.adjustPointsForDatelineCrossing(polygon)
             this.handlePoint(polygon[0])
             this.handleLine(polygon)
           })

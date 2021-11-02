@@ -17,6 +17,7 @@ const Marionette = require('marionette')
 const Backbone = require('backbone')
 const ol = require('openlayers')
 const _ = require('underscore')
+const Common = require('../Common')
 const properties = require('../properties.js')
 const wreqr = require('../wreqr.js')
 const NotificationView = require('./notification.view')
@@ -148,24 +149,9 @@ Draw.PolygonView = Marionette.View.extend({
 
   adjustPoints(geometries) {
     // Structure of geometries is [geometry, geometry, ... ]
-    geometries.forEach((geometry, outerIndex) => {
-      // Structure of geometry is [coordinatePair, coordinatePair, ... ]
-      geometry.forEach((coordinatePair, innerIndex) => {
-        // Structure of coordinatePair is [x, y]
-        if (innerIndex + 1 < geometry.length) {
-          const east = Number(geometry[innerIndex + 1][0])
-          const west = Number(geometry[innerIndex][0])
-          if (east - west < -180) {
-            geometries[outerIndex][innerIndex + 1][0] = east + 360
-          } else if (east - west > 180) {
-            geometries[outerIndex][innerIndex][0] = west + 360
-          }
-        }
-      })
-      // Ensure that the first and last coordinate are the same
-      geometries[outerIndex][0][0] =
-        geometries[outerIndex][geometry.length - 1][0]
-    })
+    geometries.forEach(geometry =>
+      Common.adjustPointsForDatelineCrossing(geometry)
+    )
     return geometries
   },
 
