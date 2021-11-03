@@ -24,6 +24,7 @@ const DrawingController = require('./drawing.controller')
 const olUtils = require('../OpenLayersGeometryUtils')
 const DistanceUtils = require('../DistanceUtils.js')
 import { validateGeo } from '../../react-component/utils/validation'
+import Common from '../Common'
 
 function translateFromOpenlayersCoordinates(coords) {
   const coordinates = []
@@ -84,18 +85,12 @@ Draw.LineView = Marionette.View.extend({
 
   adjustPoints(coordinates) {
     // Structure of coordinates is [x, y, x, y, ... ]
-    coordinates.forEach((coord, index) => {
-      if (index + 2 < coordinates.length) {
-        const east = Number(coordinates[index + 2])
-        const west = Number(coordinates[index])
-        if (east - west < -180) {
-          coordinates[index + 2] = east + 360
-        } else if (east - west > 180) {
-          coordinates[index] = west + 360
-        }
-      }
-    })
-    return coordinates
+    const coordinatePairs = []
+    for (var i = 0; i < coordinates.length - 1; i += 2) {
+      coordinatePairs.push([coordinates[i], coordinates[i + 1]])
+    }
+    Common.adjustPointsForDatelineCrossing(coordinatePairs)
+    return coordinatePairs.flat()
   },
 
   modelToPolygon(model) {

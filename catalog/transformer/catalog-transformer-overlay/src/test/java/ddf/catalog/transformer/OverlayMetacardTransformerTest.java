@@ -20,11 +20,11 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import com.vividsolutions.jts.io.ParseException;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,6 +40,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.locationtech.jts.io.ParseException;
 
 public class OverlayMetacardTransformerTest {
   private OverlayMetacardTransformer transformer;
@@ -52,7 +53,18 @@ public class OverlayMetacardTransformerTest {
         (metacard, arguments) -> {
           try (final InputStream inputStream =
               getClass().getClassLoader().getResourceAsStream("flower.jpg")) {
-            return Optional.ofNullable(ImageIO.read(inputStream));
+            return Optional.ofNullable(ImageIO.read(inputStream))
+                .map(
+                    image -> {
+                      // Add a 5x5 red square to the upper-left corner so we can check whether the
+                      // image is rotated correctly
+                      for (int x = 0; x < 5; ++x) {
+                        for (int y = 0; y < 5; ++y) {
+                          image.setRGB(x, y, Color.RED.getRGB());
+                        }
+                      }
+                      return image;
+                    });
           } catch (IOException e) {
             return Optional.empty();
           }
@@ -92,6 +104,58 @@ public class OverlayMetacardTransformerTest {
     // We can only make these assertions because we are rotating a square image
     assertThat(overlayImage.getWidth(), greaterThan(originalImage.getHeight()));
     assertThat(overlayImage.getHeight(), greaterThan(originalImage.getHeight()));
+  }
+
+  @Test
+  public void testOverlayCrossesDateline() throws Exception {
+    final MetacardImpl metacard = getMetacard();
+    metacard.setLocation("POLYGON ((179 1, -179 1, -179 -1, 179 -1, 179 1))");
+    final BinaryContent content = transform(metacard, null);
+
+    final BufferedImage originalImage = getImage(getImageBytes());
+    final BufferedImage overlayImage = getImage(content.getByteArray());
+
+    // Verifies the image was not stretched by going the wrong way around the globe
+    assertThat(overlayImage.getWidth(), is(originalImage.getHeight()));
+    assertThat(overlayImage.getHeight(), is(originalImage.getHeight()));
+  }
+
+  @Test
+  public void testNormalizeOrientation() throws Exception {
+    final MetacardImpl metacard = getMetacard();
+    metacard.setLocation("POLYGON ((1 0, 0 0, 0 1, 1 1, 1 0))");
+    final BinaryContent content = transform(metacard, null);
+
+    final BufferedImage overlay = getImage(content.getByteArray());
+    final Color lowerRightColor =
+        new Color(overlay.getRGB(overlay.getWidth() - 1, overlay.getHeight() - 1));
+    assertThat(lowerRightColor, is(Color.RED));
+
+    transformer.setNormalizeOrientation(true);
+    final BinaryContent normalizedContent = transform(metacard, null);
+
+    final BufferedImage normalizedOverlay = getImage(normalizedContent.getByteArray());
+    final Color upperLeftColor = new Color(normalizedOverlay.getRGB(0, 0));
+    assertThat(upperLeftColor, is(Color.RED));
+  }
+
+  @Test
+  public void testNormalizeOrientationOverDateline() throws Exception {
+    final MetacardImpl metacard = getMetacard();
+    metacard.setLocation("POLYGON ((-179 -1, -179 1, 179 1, 179 -1, -179 -1))");
+    final BinaryContent content = transform(metacard, null);
+
+    final BufferedImage overlay = getImage(content.getByteArray());
+    final Color lowerRightColor =
+        new Color(overlay.getRGB(overlay.getWidth() - 1, overlay.getHeight() - 1));
+    assertThat(lowerRightColor, is(Color.RED));
+
+    transformer.setNormalizeOrientation(true);
+    final BinaryContent normalizedContent = transform(metacard, null);
+
+    final BufferedImage normalizedOverlay = getImage(normalizedContent.getByteArray());
+    final Color upperLeftColor = new Color(normalizedOverlay.getRGB(0, 0));
+    assertThat(upperLeftColor, is(Color.RED));
   }
 
   @Test(expected = CatalogTransformerException.class)

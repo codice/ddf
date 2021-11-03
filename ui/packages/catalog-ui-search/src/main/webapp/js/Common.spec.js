@@ -56,6 +56,47 @@ describe('Common', () => {
       expect(results.length).to.equal(3)
     })
   })
+  describe('adjustPointsForDatelineCrossing', () => {
+    it('A rectangle whose edges are parallel to the latitude and longitude lines', () => {
+      const coordinates = [[175, 5], [-175, 5], [-175, -5], [175, -5], [175, 5]]
+      Common.adjustPointsForDatelineCrossing(coordinates)
+      expect(coordinates).to.eql([
+        [175, 5],
+        [185, 5],
+        [185, -5],
+        [175, -5],
+        [175, 5],
+      ])
+    })
+    it('A rectangle whose edges are not parallel to the latitude and longitude lines', () => {
+      const coordinates = [[176, 0], [179, 5], [-178, 0], [179, -5], [176, 0]]
+      Common.adjustPointsForDatelineCrossing(coordinates)
+      expect(coordinates).to.eql([
+        [176, 0],
+        [179, 5],
+        [182, 0],
+        [179, -5],
+        [176, 0],
+      ])
+    })
+    it('A counterclockwise rectangle', () => {
+      const coordinates = [
+        [-179, -1],
+        [-177, 0],
+        [-179, 1],
+        [179, 0],
+        [-179, -1],
+      ]
+      Common.adjustPointsForDatelineCrossing(coordinates)
+      expect(coordinates).to.eql([
+        [181, -1],
+        [183, 0],
+        [181, 1],
+        [179, 0],
+        [181, -1],
+      ])
+    })
+  })
   describe('generateUUID', () => {
     it('has dashes', () => {
       const uuid = Common.generateUUID({ useHyphensInUuid: true })

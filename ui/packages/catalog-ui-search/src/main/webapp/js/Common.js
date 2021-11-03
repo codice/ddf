@@ -274,4 +274,22 @@ module.exports = {
       this.wrapMapCoordinates(lat, [-90, 90]),
     ])
   },
+  adjustPointsForDatelineCrossing(coordinates) {
+    // Structure of coordinates is [coordinatePair, coordinatePair, ... ]
+    var crossesDateline = false
+    for (var i = 0; i < coordinates.length - 1; ++i) {
+      const lon1 = coordinates[i][0]
+      const lon2 = coordinates[i + 1][0]
+      if (Math.abs(lon1 - lon2) > 180) {
+        crossesDateline = true
+        break
+      }
+    }
+
+    if (crossesDateline) {
+      coordinates
+        .filter(coordPair => coordPair[0] < 0)
+        .forEach(coordPair => (coordPair[0] = coordPair[0] + 360))
+    }
+  },
 }

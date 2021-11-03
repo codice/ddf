@@ -19,6 +19,7 @@ import plugin from 'plugins/map.openlayers.js'
 
 const $ = require('jquery')
 const _ = require('underscore')
+const Common = require('../../../../js/Common')
 const Map = require('../map')
 const utility = require('./utility')
 const DrawingUtility = require('../DrawingUtility')
@@ -296,6 +297,8 @@ const OpenlayersMap = extension =>
 
         const coords = model.getPoints('location')
         const array = _.map(coords, coord => convertPointCoordinate(coord))
+
+        Common.adjustPointsForDatelineCrossing(array)
 
         const polygon = new Openlayers.geom.Polygon([array])
         const extent = polygon.getExtent()

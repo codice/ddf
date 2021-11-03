@@ -13,12 +13,13 @@
  */
 package ddf.catalog.transformer;
 
+import static ddf.catalog.transformer.GeometryUtils.adjustForDateline;
 import static ddf.catalog.transformer.GeometryUtils.canHandleGeometry;
+import static ddf.catalog.transformer.GeometryUtils.crossesDateline;
+import static ddf.catalog.transformer.GeometryUtils.normalizePolygon;
 import static ddf.catalog.transformer.GeometryUtils.parseGeometry;
 
 import com.jhlabs.image.PerspectiveFilter;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
@@ -42,6 +43,9 @@ import javax.imageio.ImageIO;
 import org.apache.commons.lang.Validate;
 import org.la4j.Vector;
 import org.la4j.vector.dense.BasicVector;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 
 public class OverlayMetacardTransformer implements MetacardTransformer {
   private static final String PNG = "png";
@@ -58,6 +62,8 @@ public class OverlayMetacardTransformer implements MetacardTransformer {
 
   private final BiFunction<Metacard, Map<String, Serializable>, Optional<BufferedImage>>
       imageSupplier;
+
+  private boolean normalizeOrientation;
 
   public OverlayMetacardTransformer(
       BiFunction<Metacard, Map<String, Serializable>, Optional<BufferedImage>> imageSupplier) {
@@ -92,9 +98,14 @@ public class OverlayMetacardTransformer implements MetacardTransformer {
       throw new CatalogTransformerException("The Image boundary is not a rectangle");
     }
 
-    final Coordinate[] coordinates = geometry.getCoordinates();
+    if (crossesDateline(geometry)) {
+      adjustForDateline(geometry);
+    }
 
-    List<Vector> boundary = new ArrayList<>();
+    final Coordinate[] coordinates =
+        (normalizeOrientation ? normalizePolygon((Polygon) geometry) : geometry).getCoordinates();
+
+    final List<Vector> boundary = new ArrayList<>();
 
     // Using indices rather than for-each because the first coordinate is duplicated.
     for (int i = 0; i < 4; i++) {
@@ -182,5 +193,9 @@ public class OverlayMetacardTransformer implements MetacardTransformer {
     boundingBox.add(new BasicVector(new double[] {maxLon, minLat}));
 
     return boundingBox;
+  }
+
+  public void setNormalizeOrientation(final boolean normalizeOrientation) {
+    this.normalizeOrientation = normalizeOrientation;
   }
 }
