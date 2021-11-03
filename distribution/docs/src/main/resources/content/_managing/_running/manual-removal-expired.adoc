@@ -30,7 +30,7 @@ The `--expired` option is to remove only expired records.
 
 [IMPORTANT]
 ====
-If the `--expired` option is omitted, then all records will be removed from the Catalog.
+If the `--expired` option is omitted, then all records are removed from the Catalog.
 ====
 
 The Catalog Command is convenient for removing records but it is not guaranteed to be fast or efficient. Additionally, certain configurations for archiving Catalog records can dramatically slow the process. If efficiency and speed are desired, interact directly with the catalog storage provider to delete records.

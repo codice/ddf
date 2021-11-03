@@ -5,7 +5,7 @@
 :summary: Creating a custom attribute injection.
 :order: 05
 
-((Attribute injections)) are defined attributes that will be injected into all metacard types or into specific metacard types. This capability allows metacard types to be extended with new attributes.
+((Attribute injections)) are defined attributes that are injected into all metacard types or into specific metacard types. This capability allows metacard types to be extended with new attributes.
 
 == Attribute Injection Definition
 
@@ -37,10 +37,10 @@ The value of `inject` is simply a list of objects where each object contains the
 The value corresponding to the `attribute` key is the name of the attribute to inject.
 
 The `metacardTypes` key is optional.
-If it is left out, then the attribute will be injected into every metacard type.
+If it is left out, then the attribute is injected into every metacard type.
 In that case it can be thought of as a 'global' attribute injection.
 If the `metacardTypes` key is included, then its value must be a list of strings where each string is the name of a metacard type.
-In this case, the attribute will be injected only into metacard types that match one of the types given in the list.
+In this case, the attribute is injected only into metacard types that match one of the types given in the list.
 
 .Global and Specific Inject Values
 [source,json]

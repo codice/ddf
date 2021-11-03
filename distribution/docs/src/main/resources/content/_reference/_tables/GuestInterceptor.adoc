@@ -19,7 +19,7 @@
 |Deny Guest Access
 |guestAccessDenied
 |Boolean
-|If set to true, no guest access will be allowed via this guest interceptor. If set to false, this interceptor will generate guest tokens for incoming requests that lack a WS-Security header.
+|If set to true, no guest access is allowed via this guest interceptor. If set to false, this interceptor generates guest tokens for incoming requests that lack a WS-Security header.
 |false
 |false
 

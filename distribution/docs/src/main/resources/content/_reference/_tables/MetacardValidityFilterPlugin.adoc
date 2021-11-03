@@ -19,7 +19,7 @@
 |Attribute map
 |attributeMap
 |String
-|Mapping of Metacard SECURITY attribute to user attribute. Users with this role will always receive metacards with errors and/or warnings.
+|Mapping of Metacard SECURITY attribute to user attribute. Users with this role always receive metacards with errors and/or warnings.
 |invalid-state=localhost-data-manager
 |false
 

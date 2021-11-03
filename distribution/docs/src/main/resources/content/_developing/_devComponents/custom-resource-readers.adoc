@@ -43,9 +43,9 @@ public ResourceResponse retrieveResource( URI uri, Map<String, Serializable> arg
 This method is the main entry to the `ResourceReader`.
 It is used to retrieve a `Resource` and send it back to the caller (generally the `CatalogFramework`).
 Information needed to obtain the entry is contained in the `URI` reference.
-The URI Scheme will need to match a scheme specified in the `getSupportedSchemes` method.
+The URI Scheme needs to match a scheme specified in the `getSupportedSchemes` method.
 This is how the CatalogFramework determines which `ResourceReader` implementation to use.
-If there are multiple `ResourceReaders` supporting the same scheme, these `ResourceReaders` will be invoked iteratively.
+If there are multiple `ResourceReaders` supporting the same scheme, these `ResourceReaders` are invoked iteratively.
 Invocation of the `ResourceReaders` stops once one of them returns a `Resource`.
 
 Arguments are also passed in.
@@ -73,7 +73,7 @@ if ( !uri.getScheme().equals("http") )
 ----
 
 . Implement the business logic.
-. For example, the `URLResourceReader` will obtain the resource through a connection:
+. For example, the `URLResourceReader` obtains the resource through a connection:
 
 [source,java,linenums]
 ----

@@ -14,7 +14,7 @@ This introduction section is intended to give a high-level overview of the conce
 
 Administrators::
 <<{managing-prefix}managing,Managing>> |
-Administrators will be installing, maintaining, and supporting existing applications.
+Administrators install, maintain, and support existing applications.
 Use this section to <<{managing-prefix}installation_prerequisites,prepare>>, <<{managing-prefix}installing,install>>, <<{managing-prefix}configuring,configure>>, <<{managing-prefix}running,run>>, and <<{managing-prefix}monitoring,monitor>> ${branding}.
 
 Users::
@@ -24,11 +24,11 @@ Use this section to navigate the various user interfaces available in ${branding
 
 Integrators::
 <<{integrating-prefix}integrating,Integrating>> |
-Integrators will use the existing applications to support their external frameworks. This section will provide details for finding, accessing, and using the components of ${branding}.
+Integrators use the existing applications to support their external frameworks. This section provides details for finding, accessing, and using the components of ${branding}.
 
 Developers::
 <<{developing-prefix}developing,Developing>> |
-Developers will build or extend the functionality of the applications.
+Developers build or extend the functionality of the applications.
 
 === Documentation Conventions
 
@@ -53,7 +53,7 @@ Hyperlinks that take the user away from the ${branding} documentation are marked
 
 === Support
 
-Questions about ${ddf-branding} should be posted to the https://groups.google.com/d/forum/ddf-users[ddf-users forum] {external-link} or https://groups.google.com/d/forum/ddf-developers[ddf-developers forum] {external-link}, where they will be responded to quickly by a member of the ${ddf-branding} team.
+Questions about ${ddf-branding} should be posted to the https://groups.google.com/d/forum/ddf-users[ddf-users forum] {external-link} or https://groups.google.com/d/forum/ddf-developers[ddf-developers forum] {external-link}, to be responded to quickly by a member of the ${ddf-branding} team.
 
 ====  Documentation Updates
 

@@ -17,7 +17,7 @@ A <<{integrating-prefix}metacard_type,Metacard Type>> indicates the attributes a
 Attribute values can only be set/modified if the attribute exists in the metacard's metacard type.
 
 Attributes are initially injected with blank values.
-However, if an attempt is made to inject an attribute that already exists, the attribute will retain the original value.
+However, if an attempt is made to inject an attribute that already exists, the attribute retains the original value.
 ====
 
 See <<{metadata-prefix}catalog_taxonomy_definitions,Catalog Taxonomy Definitions>> for a list of attributes injected by default. +

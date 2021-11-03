@@ -9,11 +9,11 @@
 ((System users))
 
 By default, all system users are located in the `${home_directory}/etc/users.properties` and `${home_directory}/etc/users.attributes` files.
-The default users included in these two files are "admin" and "localhost".
+The default users included in these two files are `admin` and `localhost`.
 The `users.properties` file contains username, password, and role information; while the `users.attributes` file is used to mix in additional attributes.
 The `users.properties` file must also contain the user corresponding to the fully qualified domain name (FQDN) of the system where ${branding} is running.
 This FQDN user represents this host system internally when making decisions about what operations the system is capable of performing.
-For example, when performing a ${branding} Catalog Ingest, the system's attributes will be checked against any security attributes present on the metacard, prior to ingest, to determine whether or not the system should be allowed to ingest that metacard.
+For example, when performing a ${branding} Catalog Ingest, the system's attributes are checked against any security attributes present on the metacard, prior to ingest, to determine whether or not the system should be allowed to ingest that metacard.
 
 Additionally, the `users.attributes` file can contain user entries in a regex format.
 This allows an administrator to mix in attributes for external systems that match a particular regex pattern.
@@ -36,19 +36,19 @@ The `users.attributes` file uses a JSON format as shown below:
 }
 ----
 
-For this example, the "admin" user will end up with two additional claims of "test" and "test1" with values of "testValue" and [ "testing1", "testing2", "testing3" ] respectively.
-Also, any host matching the regex ".*host.*" would end up with the claim "reg" with the single value of "ex".
-The "localhost" user would have no additional attributes mixed in.
+For this example, the `"admin"` user ends up with two additional claims of `"test"` and `"test1"` with values of `"testValue"` and `[ "testing1", "testing2", "testing3" ]` respectively.
+Also, any host matching the regex `".*host.*"` would end up with the claim `"reg"` with the single value of `"ex"`.
+The `"localhost"` user would have no additional attributes mixed in.
 
 [WARNING]
 ====
-It is possible for a regex in `users.attributes` to match users as well as a system, so verify that the regex pattern's scope will not be too great when using this feature.
+It is possible for a regex in `users.attributes` to match users as well as a system, so verify that the regex pattern's scope is not too great when using this feature.
 ====
 
 [WARNING]
 ====
-If your data will contain security markings, and these markings are being parsed out into the metacard security attributes via a PolicyPlugin, then the FQDN user *MUST* be updated with attributes that would grant the privileges to ingest that data.
-Failure to update the FQDN user with sufficient attributes will result in an error being returned for any ingest request.
+If your data contains security markings, and these markings are being parsed out into the metacard security attributes via a PolicyPlugin, then the FQDN user *MUST* be updated with attributes that would grant the privileges to ingest that data.
+Failure to update the FQDN user with sufficient attributes results in an error being returned for any ingest request.
 ====
 
 [WARNING]
@@ -61,5 +61,5 @@ The following attribute values are not allowed:
 * an array including any of the above
 * `[]`
 
-Additionally, attribute names should not be repeated, and the order that the attributes are defined and the order of values within an array will be ignored.
+Additionally, attribute names should not be repeated, and the order that the attributes are defined and the order of values within an array is ignored.
 ====

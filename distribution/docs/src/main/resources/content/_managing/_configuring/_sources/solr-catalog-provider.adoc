@@ -65,7 +65,7 @@ Configuration shared between Solr Server instances is managed by Zookeeper.
 ====
 A minimum of three Zookeeper nodes required.
 Three Zookeeper nodes are needed to form a quorum.
-A three Zookeeper ensemble allows for a single server to fail and the service will still be available.
+A three Zookeeper ensemble allows for a single server to fail and the service to still be available.
 More Zookeeper nodes can be added to achieve greater fault tolerance. The total number of nodes must always be an odd number.
 See https://lucene.apache.org/solr/guide/${solr.docs.version}/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble[
 Setting Up an External Zoo Keeper Ensemble] for more information.

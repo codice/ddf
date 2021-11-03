@@ -31,9 +31,9 @@ For the CREATE and UPDATE operation, the message body can contain a list of meta
 
 For the DELETE operation, the message body can contain a list of strings or a single string object.
 The string objects represent the IDs of metacards to be deleted.
-The exchange's "in" message will be set with the affected metacards.
-In the case of a CREATE, it will be updated with the created metacards.
-In the case of the UPDATE, it will be updated with the updated metacards and with the DELETE it will contain the deleted metacards.
+The exchange's "in" message is set with the affected metacards.
+In the case of a CREATE, it is updated with the created metacards.
+In the case of the UPDATE, it is updated with the updated metacards and with the DELETE it contains the deleted metacards.
 
 .Catalog Framework Camel Component Operations
 [cols="2,2,3" options="header"]
@@ -60,7 +60,7 @@ In the case of the UPDATE, it will be updated with the updated metacards and wit
 [NOTE]
 ====
 If there is an exception thrown while the route is being executed, a
-FrameworkProducerException will be thrown causing the route to fail
+`FrameworkProducerException` is thrown causing the route to fail
 with a CamelExecutionException.
 ====
 

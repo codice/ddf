@@ -64,16 +64,16 @@ It initializes all Security Filters and runs them in order according to service 
 . The *Web SSO Filter* reads from the web context policy manager and functions as the first decision point.
 If the request is from a whitelisted context, no further authentication is needed and the request skips through the rest of the security filters to the desired endpoint.
 
-If the context is not on the whitelist, the filter will first attempt to pull authentication information off of the session.
-If authentication information cannot be found on the session, the filter will then attempt to get an authentication handler for the context.
+If the context is not on the whitelist, the filter first attempts to pull authentication information off of the session.
+If authentication information cannot be found on the session, the filter then attempts to get an authentication handler for the context.
 The filter loops through all configured context handlers until one signals that it has found authentication information that it can use to build a token.
 This configuration can be changed by modifying the web context policy manager configuration.
-If unable to resolve the context, the filter will return an authentication error and the process stops.
+If unable to resolve the context, the filter returns an authentication error and the process stops.
 If a handler is successfully found, an auth token is assigned and the request continues to the login filter.
 
 . The *Login Filter* receives an authentication token and returns a subject.
 To retrieve the subject, the authentication token is sent through Shiro to the configured authenticating realms.
-The realms will take the authentication token and attempt to return authentication info to the Shiro framework in order to put together a subject.
+The realms takes the authentication token and attempts to return authentication info to the Shiro framework in order to put together a subject.
 
 . If the Subject is returned, the request moves to the *AuthZ Filter* to check permissions on the user.
 If the user has the correct permissions to access that web context, the request can hit the endpoint.
@@ -123,8 +123,8 @@ The SAML Handler and the ((Assertion Consumer Service)) are both part of the IdP
 The ((Metadata Exchange)) happens asynchronously from any login event.
 The exchange can happen via HTTP or File, or the metadata XML itself can be pasted into the configuration for the SAML client.
 The metadata contains information about what bindings are accepted by the client or server and whether or not either expects messages to be signed, etc.
-The redirect from the Assertion Consumer Service to the Endpoint will cause the client to pass back through the entire filter chain, which will get caught at the `Has Session` point of the `WebSsoFilter`.
-The request will proceed through the rest of the filters as any other connection would in the previous diagram.
+The redirect from the Assertion Consumer Service to the Endpoint causes the client to pass back through the entire filter chain, which gets caught at the `Has Session` point of the `WebSsoFilter`.
+The request proceeds through the rest of the filters as any other connection would in the previous diagram.
 
 Unauthenticated non-browser clients that pass the HTTP headers signaling that they understand SAML ECP can authenticate via that mechanism as explained below.
 
@@ -181,11 +181,11 @@ Unauthenticated non-browser clients that pass the HTTP headers signaling that th
 
 ((SAML ECP)) can be used to authenticate a non-browser client or non-person entity (NPE).
 This method of authentication is useful when there is no human in the loop, but authentication with an IdP is still desired.
-The SAML Handler will send a PAOS (Reverse SOAP) request as an initial response back to the Secure Client, assuming the client has sent the necessary HTTP headers to declare that it supports this function.
+The SAML Handler sends a PAOS (Reverse SOAP) request as an initial response back to the Secure Client, assuming the client has sent the necessary HTTP headers to declare that it supports this function.
 That response does not complete the request/response loop, but is instead caught by a SOAP intermediary, which is implemented through a CXF interceptor.
 The PAOS response contains an `<AuthNRequest>` request message, which is intended to be rerouted to a SAML IdP via SOAP.
-The SOAP intermediary will then contact an IdP (selection of the IdP is not covered by the spec).
-The IdP will either reject the login attempt, or issue a Signed `<Response>` that is to be delivered to the Assertion Consumer Service by the intermediary.
+The SOAP intermediary then contacts an IdP (selection of the IdP is not covered by the spec).
+The IdP either rejects the login attempt, or issues a Signed `<Response>` that is to be delivered to the Assertion Consumer Service by the intermediary.
 The method of logging into the IdP is not covered by the spec and is up to the implementation.
 The SP is then signaled to supply the originally requested resource, assuming the signed Response message is valid and the user has permission to view the resource.
 

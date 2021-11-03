@@ -23,7 +23,7 @@ A template file is provided for some configurable ${branding} items so that they
 
 [WARNING]
 ====
-If the ${admin-console} is enabled again, all of the configuration done via `.config` files will be loaded and displayed.
+If the ${admin-console} is enabled again, all of the configuration done via `.config` files is loaded and displayed.
 However, note that the name of the `.config` file is not used in the ${admin-console}.
 Rather, a universally unique identifier (UUID) is added when the ${branding} item was created and displays this UUID in the console (for example, `OpenSearchSource.112f298e-26a5-4094-befc-79728f216b9b`)
 ====

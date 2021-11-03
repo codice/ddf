@@ -13,14 +13,14 @@ These are the basic requirements to set up the environment to run a ${branding}.
 
 [WARNING]
 ====
-For security reasons, ${branding} cannot be started from a user's home directory. If attempted, the system will automatically shut down.
+For security reasons, ${branding} cannot be started from a user's home directory. If attempted, the system automatically shuts down.
 ====
 
 === Quick Install Prerequisites
 (((Quick Install Prerequisites)))
 
 .Hardware Requirements (Quick Install)
-* At least 4096MB of memory for ${branding}.
+* At least 4096&nbsp;MB of memory for ${branding}.
 ** This amount can be increased to support memory-intensive applications. See <<{managing-prefix}jvm_memory_configuration, Memory Considerations>>.
 
 .Java Requirements (Quick Install)
@@ -47,7 +47,7 @@ Prior to installing ${branding}, ensure the system time is accurate to prevent f
 === Quick Install of ${branding}
 (((Quick Install of ${branding})))
 
-WARNING: The ${branding} installation will not succeed unless SolrCloud is running.
+WARNING: The ${branding} installation cannot succeed unless SolrCloud is running.
 See <<_quick_install_of_solrcloud>> for instructions.
 
 . Download the ${branding} {download-url}[zip file] {external-link}.
@@ -68,14 +68,14 @@ NOTE: If and only if a JDK is installed, the jar command may be used; otherwise,
 ----
 ====
 +
-. This will create an installation directory, which is typically created with the name and version of the application.
-This installation directory will be referred to as `${home_directory}`.
+. This creates an installation directory, which is typically created with the name and version of the application.
+This installation directory is referred to as `${home_directory}`.
 (Substitute the actual directory name.)
 . Edit `${home_directory}/etc/custom.system.properties` and update `solr.cloud.zookeeper=localhost:2181` to `solr.cloud.zookeeper=localhost:9994`
 . Start ${branding} by running the `${home_directory}/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
 . Startup may take a few minutes.
 .. Optionally, a `system:wait-for-ready` command (aliased to `wfr`) can be used to wait for startup to complete.
-. The ${command-console} will display.
+. The ${command-console} displays.
 
 .${command-console} Prompt
 ----
@@ -86,7 +86,7 @@ ${branding-lowercase}${at-symbol}local>
 === Quick Install of ${branding} on a remote headless server
 (((Quick Install of ${branding} on a remote headless server)))
 
-If ${branding} is being installed on a remote server that has no user interface, the hostname will need to be updated in the configuration files and certificates.
+If ${branding} is being installed on a remote server that has no user interface, the hostname must be updated in the configuration files and certificates.
 
 [NOTE]
 ====
@@ -96,7 +96,7 @@ Do not replace _all_ instances of `localhost`, only those specified.
 .Configuring with a new hostname
 . Update the ${home_directory}/etc/custom.system.properties file. The entry `org.codice.ddf.system.hostname=localhost` should be updated to `org.codice.ddf.system.hostname=<HOSTNAME>`.
 . Update the ${home_directory}/etc/users.properties file. Change the `localhost=localhost[...]` entry to <HOSTNAME>=<HOSTNAME>. (Keep the rest of the line as is.)
-. Update the ${home_directory}/etc/users.attributes file. Change the "localhost" entry to "<HOSTNAME>".
+. Update the ${home_directory}/etc/users.attributes file. Change the `"localhost"` entry to `"<HOSTNAME>"`.
 . From the console go to ${home_directory}/etc/certs and run the appropriate script.
 .. *NIX: `sh CertNew.sh -cn <hostname> -san "DNS:<hostname>"`.
 .. Windows: `CertNew -cn <hostname> -san "DNS:<hostname>"`.
@@ -104,8 +104,8 @@ Do not replace _all_ instances of `localhost`, only those specified.
 
 .Configuring with an IP address
 . Update the ${home_directory}/etc/custom.system.properties file. The entry `org.codice.ddf.system.hostname=localhost` should be updated to `org.codice.ddf.system.hostname=<IP>`.
-. Update the ${home_directory}/etc/users.properties file. Change the `localhost=localhost[...]` entry to <IP>=<IP>. (Keep the rest of the line as is.)
-. Update the ${home_directory}/etc/users.attributes file. Change the "localhost" entry to "<IP>".
+. Update the ${home_directory}/etc/users.properties file. Change the `localhost=localhost[...]` entry to `<IP>=<IP>`. (Keep the rest of the line as is.)
+. Update the ${home_directory}/etc/users.attributes file. Change the `"localhost"` entry to `"<IP>"`.
 . From the console go to ${home_directory}/etc/certs and run the appropriate script.
 .. *NIX: `sh CertNew.sh -cn <IP> -san "IP:<IP>"`.
 .. Windows: `CertNew -cn <IP> -san "IP:<IP>"`.

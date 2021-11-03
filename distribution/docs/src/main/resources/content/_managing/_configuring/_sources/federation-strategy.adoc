@@ -7,11 +7,11 @@
 
 == {title}
 
-A federation strategy federates a query to all of the Remote Sources in the query's list, processes the results in a unique way, and then returns the results to the client. 
-For example, implementations can choose to halt processing until all results return and then perform a mass sort or return the results back to the client as soon as they are received back from a Federated Source.
+A federation strategy federates a query to all of the Remote Sources in the query's list, processes the results in a unique way, and then returns the results to the client.
+For example, implementations can choose to halt processing until all results return and then perform a mass sort or return the results back to the client as soon as they are received back from a Federated Source.
 
-An endpoint can optionally specify the federation strategy to use when it invokes the query operation.
-Otherwise, the Catalog provides a default federation strategy that will be used: the Catalog Federation Strategy.
+An endpoint can optionally specify the federation strategy to use when it invokes the query operation.
+Otherwise, the Catalog provides a default federation strategy to use: the Catalog Federation Strategy.
 
 === Configuring Federation Strategy
 

@@ -6,8 +6,8 @@
 
 The ${branding} applications are a collection of OSGi bundles that contain configurations to be displayed in the ${admin-console}.
 The applications are defined in the ${etc/application-definitions} directory.
-Any json file added to the ${etc/application-definitions} with name, description, and bundleLocations keys will be displayed in the ${admin-console}.
-The application will only display if one of the bundles listed in the bundleLocations key is running or there is at least 1 plugin associated with that application running.
+Any json file added to the ${etc/application-definitions} with name, description, and bundleLocations keys is displayed in the ${admin-console}.
+The application only displays if one of the bundles listed in the bundleLocations key is running or there is at least 1 plugin associated with that application running.
 
 A KAR file is a Karaf-specific archive format (*K*araf *AR*chive).
 It is a jar file that contains a feature descriptor file and one or more OSGi bundle jar files.
@@ -17,8 +17,7 @@ The feature descriptor file identifies a set of bundles that need to be installe
 
 Given the modular nature of OSGi, some applications perform operations on the services themselves.
 In order to present, identify, and manipulate the services, they need descriptive identifying information.
-Any service that implements the `Describable` interface in `org.codice.ddf.platform.services.common` will
-have an obligation to provide this information.
+Any service that implements the `Describable` interface in `org.codice.ddf.platform.services.common` must provide this information.
 The relevant fields are as follows:
 
 ID:: a unique identifier for the service

@@ -9,7 +9,7 @@
 
 == {title}
 
-(((Quick start guide)))This quick tutorial will enable installation, configuration, and usage of a basic instance of ${branding}.
+(((Quick start guide)))This quick tutorial enables installation, configuration, and usage of a basic instance of ${branding}.
 
 [NOTE]
 ====
@@ -17,7 +17,7 @@ This tutorial is intended for setting up a test, demonstration, or trial install
 For complete installation and configuration steps, see <<{managing-prefix}installing,Installing>>.
 ====
 
-These steps will demonstrate:
+These steps demonstrate:
 
 - [*] <<{quickstart-prefix}quick_install_prerequisites,Prerequisites>>.
 - [*] <<{quickstart-prefix}quick_install_of_solrcloud,Quick Install of SolrCloud>>.

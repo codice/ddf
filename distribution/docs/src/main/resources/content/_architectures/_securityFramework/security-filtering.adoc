@@ -10,16 +10,17 @@
 
 ((Metacard filtering)) is performed by the <<{developing-prefix}filter_plugin,Filter Plugin>> after a query has been performed, but before the results are returned to the requestor.
 
-Each metacard result will contain security attributes that are populated by the CatalogFramework based on the PolicyPlugins that populates this attribute. (These plugins are NOT provided by default. You must create your own plugin for your specific metadata)
+Each metacard result contains security attributes that are populated by the
+CatalogFramework based on the PolicyPlugins that populates this attribute. (These plugins are NOT provided by default. You must create your own plugin for your specific metadata)
 The security attribute is a HashMap containing a set of keys that map to lists of values.
 The metacard is then processed by a filter plugin that creates a `KeyValueCollectionPermission` from the metacard's security attribute.
 This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.
 The decision to filter the metacard eventually relies on the PDP (`feature:install security-pdp-authz`).
-The PDP returns a decision, and the metacard will either be filtered or allowed to pass through.
+The PDP returns a decision, and the metacard is either filtered or allowed to pass through.
 
 The security attributes populated on the metacard are completely dependent on the type of the metacard.
 Each type of metacard must have its own PolicyPlugin that reads the metadata being returned and returns the metacard's security attribute.
-If the subject permissions are missing during filtering, all resources will be filtered.
+If the subject permissions are missing during filtering, all resources are filtered.
 
 .Example (represented as simple XML for ease of understanding):
 [source,xml,linenums]
@@ -57,8 +58,8 @@ If the subject permissions are missing during filtering, all resources will be f
 ----
 
 In the above example, the user's claims are represented very simply and are similar to how they would actually appear in a SAML 2 assertion.
-Each of these user (or subject) claims will be converted to a KeyValuePermission object.
-These permission objects will be implied against the permission object generated from the metacard record.
+Each of these user (or subject) claims are converted to a `KeyValuePermission` object.
+These permission objects are implied against the permission object generated from the metacard record.
 In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
 
 To enable filtering on a new type of record, implement a PolicyPlugin that is able to read the string metadata contained within the metacard record.
