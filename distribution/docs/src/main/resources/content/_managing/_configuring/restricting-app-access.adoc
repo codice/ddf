@@ -1,30 +1,12 @@
-:title: Restricting Access to ${admin-console}
+:title: Restricting Access to Features, Apps, Services, and Configurations
 :type: configuration
 :status: published
 :parent: Configuring User Access
-:summary: Restricting User Access to ${admin-console}
-:order: 05
+:summary: Restricting User Access to Features, Apps, Services, and Configurations
+:order: 051
 
 == {title}
 ((({title})))
-
-* *{hardening-step}*
-
-If you have integrated ${branding} with your existing security infrastructure, then you may want to limit access to parts of the ${branding} based on user roles/groups.
-
-Limit access to the ${admin-console} to those users who need access.
-To set access restrictions on the ${admin-console}, consult the organization's security architecture to identify specific realms, authentication methods, and roles required.
-
-. Navigate to the *${admin-console}*.
-. Select the *${ddf-security}* application.
-. Select the *Configuration* tab.
-. Select the *Web Context Policy Manager*.
-.. A dialogue allows you to edit ${branding} access restrictions.
-.. If your infrastructure supports multiple <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager,authentication methods>>, you may specify them here.
-.. Role requirements may be enforced by configuring the <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager,required attributes>> for a given context.
-.. The <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager,white listed contexts>> allows child contexts to be excluded from the authentication constraints of their parents.
-
-=== Restricting Feature, App, Service, and Configuration Access
 
 * *{hardening-step}*
 

@@ -1,0 +1,38 @@
+:title: Adding New User Roles
+:type: quickStart
+:level: section
+:section: quickStart
+:parent: Quick Start Tutorial
+:status: published
+:summary: Adding new user roles for limiting access to specific contexts
+:order: 03
+
+== {title}
+((({title})))
+
+Users or user groups can be customized to enable or restrict access to specific certain system functions.
+Define a custom role and assign it to users who need specific access.
+
+For an example, limit the replication admin view to users with a `sr_analyst` role.
+
+.Define a new role
+. Navigate to the ${admin-console}.
+. Navigate to the ${ddf-security} app.
+. Navigate to the *Configuration* tab.
+. Select the *Web Context Policy Manager* Configuration.
+. Select *Required Attributes*.
+. Define the contexts to be restricted.
+.. Enter `<CONTEXT>={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=<ROLE_NAME>`
+... For example, enter `/admin/replication={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=sr_analyst}`
+... Select the *+* sign to add another required attribute.
+... Enter `/admin/hub/graphql={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=sr_analyst}`
+
+.Assign the new role to users
+. Add the new role (`sr_analyst`) to selected users in the `users.properties` file. Add the role to the line of each chosen user.
+.. For example, `user1=password,sr_analyst`
+. Restart Alliance to apply the changes.
+.. `/app/bin/stop`
+.. `/app/bin/start`
+
+In the example given, the `/admin/replication` context is only accessible to users with the `sr_analyst` role.
+Other roles can be designated as needed by substituting the `<CONTEXT>` and the `<ROLE_NAME>` as needed.
