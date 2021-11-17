@@ -62,7 +62,7 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
      - Role and Attribute based access control
      - Attribute based filtering for searches performed throughout the system
      - Federated identity through metadata catalog
- * Search user interface
+ * Search user interface [DDF UI (https://github.com/codice/ddf-ui)
     - 3D WebGL map based on Cesium
     - 2D map based on OpenLayers 3
     - USNG/MGRS grid support
