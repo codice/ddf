@@ -26,6 +26,7 @@
     <modules>
         <module>micrometer-bundle</module>
         <module>micrometer-prometheus-bundle</module>
+        <module>opentelemetry-api-bundle</module>
         <module>metrics-prometheus-endpoint</module>
         <module>metrics-system-reporter</module>
         <module>metrics-servlet-filter</module>

@@ -133,7 +133,11 @@
         <feature>metrics-micrometer</feature>
         <bundle>mvn:io.prometheus/simpleclient/${micrometer.prometheus-client.version}</bundle>
         <bundle>mvn:io.prometheus/simpleclient_common/${micrometer.prometheus-client.version}</bundle>
+        <bundle>mvn:io.prometheus/simpleclient_tracer_otel_agent/${micrometer.prometheus-client.version}</bundle>
+        <bundle>mvn:io.prometheus/simpleclient_tracer_otel/${micrometer.prometheus-client.version}</bundle>
+        <bundle>mvn:io.prometheus/simpleclient_tracer_common/${micrometer.prometheus-client.version}</bundle>
         <bundle>mvn:org.codice.ddf.metrics/micrometer-prometheus-bundle/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.metrics/opentelemetry-api-bundle/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.metrics/metrics-prometheus-endpoint/${project.version}</bundle>
     </feature>
 
