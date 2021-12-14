@@ -486,7 +486,7 @@ public class TikaInputTransformerTest {
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getMetadata(),
-        containsString("<meta name=\"xmpDM:artist\" content=\"Test Artist\" />"));
+        containsString("<meta name=\"dc:title\" content=\"Test Title\" />"));
     assertThat(metacard.getContentTypeName(), is("audio/mp4"));
     assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(SOUND));
   }
@@ -500,7 +500,7 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertThat(metacard.getCreatedDate(), nullValue());
-    assertThat(metacard.getModifiedDate(), nullValue());
+    assertThat(convertDate(metacard.getModifiedDate()), is("2014-07-19 17:15:29 UTC"));
   }
 
   @Test
