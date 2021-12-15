@@ -24,7 +24,7 @@ import java.io.UncheckedIOException;
 import java.util.Collections;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.file.GenericFileEndpoint;
+import org.apache.camel.component.file.FileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.component.file.GenericFileProcessStrategy;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -53,7 +53,7 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
   private FileSystemPersistenceProvider productToMetacardIdMap;
 
   DurableWebDavFileConsumer(
-      GenericFileEndpoint<File> endpoint,
+      FileEndpoint endpoint,
       String remaining,
       Processor processor,
       GenericFileOperations<File> operations,
@@ -120,7 +120,7 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
       final File davFile = getDavFile(entry);
 
       Exchange exchange =
-          new ExchangeHelper(davFile, endpoint)
+          new ExchangeHelper(davFile, (FileEndpoint) endpoint)
               .addHeader(CATALOG_OPERATION_HEADER_KEY, "CREATE")
               .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(entry.getLocation()))
               .addHeader(Core.RESOURCE_URI, entry.getLocation())
@@ -151,7 +151,7 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
       final File davFile = getDavFile(entry);
 
       Exchange exchange =
-          new ExchangeHelper(davFile, endpoint)
+          new ExchangeHelper(davFile, (FileEndpoint) endpoint)
               .addHeader(CATALOG_OPERATION_HEADER_KEY, "UPDATE")
               .addHeader("org.codice.ddf.camel.transformer.MetacardUpdateId", metacardId)
               .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(entry.getLocation()))
@@ -186,7 +186,7 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
       }
 
       Exchange exchange =
-          new ExchangeHelper(null, endpoint)
+          new ExchangeHelper(null, (FileEndpoint) endpoint)
               .addHeader(CATALOG_OPERATION_HEADER_KEY, "DELETE")
               .setBody(Collections.singletonList(metacardId))
               .addSynchronization(new DeletionSynchronization(referenceKey, productToMetacardIdMap))

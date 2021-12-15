@@ -31,7 +31,7 @@ public class MetacardBackupS3StorageTest {
 
   private static final String BUCKET = "s3-bucket";
 
-  private static final String ENDPOINT = "test.amazonaws.com";
+  private static final String ENDPOINT = "https://test.amazonaws.com";
 
   private static final String REGION = "test-region-1";
 
@@ -70,7 +70,7 @@ public class MetacardBackupS3StorageTest {
     String accessKey = "newAccessKey";
     String secretKey = "newSecretKey";
     String bucket = "new-bucket";
-    String endpoint = "endpoint.amazonaws.com";
+    String endpoint = "https://test.amazonaws.com";
     String region = "region-test-1";
     String cannedAcl = "PublicRead";
 

@@ -71,7 +71,7 @@ public class MetacardTransformerProducerTest {
         .thenReturn(transformerReferences);
     when(mockBundleContext.getService(any())).thenReturn(mockTransformer);
     when(mockExchange.getIn()).thenReturn(mockMessage);
-    when(mockExchange.getOut()).thenReturn(mockMessage);
+    when(mockExchange.getMessage()).thenReturn(mockMessage);
     when(mockMessage.getBody()).thenReturn(mockMetacard);
     when(mockMessage.getHeader(any(String.class), any(Class.class)))
         .thenReturn(TEST_TRANSFORMER_ID);

@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.content.monitor;
 
 import java.io.File;
 import java.util.Map;
+import org.apache.camel.component.file.FileEndpoint;
 import org.apache.camel.component.file.GenericFileComponent;
 import org.apache.camel.component.file.GenericFileConfiguration;
 import org.apache.camel.component.file.GenericFileEndpoint;
@@ -24,8 +25,8 @@ import org.apache.commons.lang.StringUtils;
 public class DurableFileComponent extends GenericFileComponent<File> {
 
   @Override
-  protected GenericFileEndpoint<File> buildFileEndpoint(
-      String uri, String remaining, Map parameters) throws Exception {
+  protected FileEndpoint buildFileEndpoint(String uri, String remaining, Map parameters)
+      throws Exception {
     // the starting directory must be a static (not containing dynamic expressions)
     if (StringHelper.hasStartToken(remaining, "simple")) {
       throw new IllegalArgumentException(

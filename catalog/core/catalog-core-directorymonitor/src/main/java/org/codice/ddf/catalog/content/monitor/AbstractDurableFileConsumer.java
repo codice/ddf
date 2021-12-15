@@ -23,9 +23,9 @@ import org.apache.camel.Exchange;
 import org.apache.camel.ExtendedExchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
+import org.apache.camel.component.file.FileConsumer;
+import org.apache.camel.component.file.FileEndpoint;
 import org.apache.camel.component.file.GenericFile;
-import org.apache.camel.component.file.GenericFileConsumer;
-import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.component.file.GenericFileProcessStrategy;
 import org.apache.camel.spi.Synchronization;
@@ -33,7 +33,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<File> {
+public abstract class AbstractDurableFileConsumer extends FileConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
@@ -45,7 +45,7 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
   private String remaining;
 
   AbstractDurableFileConsumer(
-      GenericFileEndpoint<File> endpoint,
+      FileEndpoint endpoint,
       String remaining,
       Processor processor,
       GenericFileOperations<File> operations,
@@ -60,7 +60,7 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
   }
 
   @Override
-  protected boolean isMatched(GenericFile file, String doneFileName, List files) {
+  protected boolean isMatched(GenericFile<File> file, String doneFileName, File[] files) {
     return false;
   }
 
@@ -94,7 +94,7 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
      * @param file the file to populate the {@link GenericFile}
      * @param endpoint the consumer's endpoint
      */
-    public ExchangeHelper(File file, GenericFileEndpoint<File> endpoint) {
+    public ExchangeHelper(File file, FileEndpoint endpoint) {
       GenericFile<File> genericFile = new GenericFile<>();
       genericFile.setEndpointPath(endpoint.getConfiguration().getDirectory());
 

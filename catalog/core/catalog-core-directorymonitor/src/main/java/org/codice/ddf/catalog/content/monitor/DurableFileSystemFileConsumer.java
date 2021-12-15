@@ -17,7 +17,7 @@ import static ddf.catalog.Constants.CDM_LOGGER_NAME;
 
 import java.io.File;
 import org.apache.camel.Processor;
-import org.apache.camel.component.file.GenericFileEndpoint;
+import org.apache.camel.component.file.FileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.component.file.GenericFileProcessStrategy;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -34,7 +34,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
   private AsyncFileAlterationObserver observer;
 
   DurableFileSystemFileConsumer(
-      GenericFileEndpoint<File> endpoint,
+      FileEndpoint endpoint,
       String remaining,
       Processor processor,
       GenericFileOperations<File> operations,
