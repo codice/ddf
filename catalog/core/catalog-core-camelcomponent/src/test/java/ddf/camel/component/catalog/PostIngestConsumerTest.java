@@ -24,9 +24,13 @@ import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.UpdateResponse;
 import java.util.Dictionary;
+import org.apache.camel.CamelContext;
+import org.apache.camel.Consumer;
 import org.apache.camel.Exchange;
+import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
+import org.apache.camel.spi.ExchangeFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
@@ -53,6 +57,12 @@ public class PostIngestConsumerTest {
 
   private BundleContext mockBundleContext = mock(BundleContext.class);
 
+  private CamelContext camelContext = mock(CamelContext.class);
+
+  private ExtendedCamelContext extendedCamelContext = mock(ExtendedCamelContext.class);
+
+  private ExchangeFactory exchangeFactory = mock(ExchangeFactory.class);
+
   private PostIngestConsumer postIngestConsumer;
 
   @Before
@@ -66,6 +76,12 @@ public class PostIngestConsumerTest {
         .thenReturn(mockRegistration);
     when(mockEndpoint.createExchange()).thenReturn(mockExchange);
     when(mockExchange.getIn()).thenReturn(mockMessage);
+
+    when(mockEndpoint.getCamelContext()).thenReturn(camelContext);
+    when(camelContext.adapt(ExtendedCamelContext.class)).thenReturn(extendedCamelContext);
+    when(extendedCamelContext.getExchangeFactory()).thenReturn(exchangeFactory);
+    when(exchangeFactory.newExchangeFactory(any(Consumer.class))).thenReturn(exchangeFactory);
+
     postIngestConsumer = new PostIngestConsumer(mockEndpoint, mockProcessor);
   }
 

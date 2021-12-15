@@ -138,7 +138,7 @@ public class TransformerConsumer extends DefaultConsumer {
       LOGGER.debug("AFTER process(exchange)");
 
       // Entire route has completed - get the output from the last node in the route.
-      content = exchange.getOut().getBody(objClass);
+      content = exchange.getMessage().getBody(objClass);
 
       // Result should be a BinaryContent - getBody(BinaryContent) will return null if it
       // isn't

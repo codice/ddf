@@ -20,7 +20,6 @@ import java.io.File;
 import java.util.Collections;
 import javax.validation.constraints.NotNull;
 import org.apache.camel.Exchange;
-import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.spi.Synchronization;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -88,7 +87,7 @@ public class DurableFileAlterationListener
     }
 
     Exchange exchange =
-        new ExchangeHelper(file, (GenericFileEndpoint) consumer.getEndpoint())
+        new ExchangeHelper(file, consumer.getEndpoint())
             .addHeader(OPERATION_HEADER, CATALOG_UPDATE)
             .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(file.getName()))
             .addHeader(Core.RESOURCE_URI, fileUri)
@@ -110,7 +109,7 @@ public class DurableFileAlterationListener
     String fileUri = file.toURI().toASCIIString();
 
     Exchange exchange =
-        new ExchangeHelper(file, (GenericFileEndpoint) consumer.getEndpoint())
+        new ExchangeHelper(file, consumer.getEndpoint())
             .addHeader(OPERATION_HEADER, "CREATE")
             .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(file.getName()))
             .addHeader(Core.RESOURCE_URI, fileUri)
@@ -134,7 +133,7 @@ public class DurableFileAlterationListener
     }
 
     Exchange exchange =
-        new ExchangeHelper(file, (GenericFileEndpoint) consumer.getEndpoint())
+        new ExchangeHelper(file, consumer.getEndpoint())
             .setBody(Collections.singletonList(metacardId))
             .addHeader(OPERATION_HEADER, CATALOG_DELETE)
             .addSynchronization(new DeletionSynchronization(referenceKey, productToMetacardIdMap))

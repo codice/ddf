@@ -47,9 +47,9 @@
         - For certain dependencies used elsewhere in DDF, substitute the version from the root pom
           so the versions match throughout the system.
         -->
-        <aws-java-sdk-bundle-version>1.11.714_1</aws-java-sdk-bundle-version>
+        <aws-sdk-v2-bundle-version>2.17.29_1</aws-sdk-v2-bundle-version>
         <c3p0-bundle-version>${c3p0.version}_1</c3p0-bundle-version>
-        <caffeine-version>2.8.8</caffeine-version>
+        <caffeine-version>2.9.2</caffeine-version>
         <commons-codec-version>${commons-codec.version}</commons-codec-version>
         <hikaricp-version>2.4.13</hikaricp-version>
         <httpclient4-version>4.5.13</httpclient4-version>

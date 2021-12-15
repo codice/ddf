@@ -13,24 +13,37 @@
  */
 package org.codice.ddf.catalog.plugin.metacard.backup.storage.s3storage;
 
-import com.amazonaws.services.s3.AmazonS3;
+import java.util.ArrayList;
 import org.apache.camel.Header;
-import org.apache.camel.component.aws.s3.S3Constants;
+import org.apache.camel.component.aws2.s3.AWS2S3Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 public class DeleteBean {
   private static final Logger LOGGER = LoggerFactory.getLogger(DeleteBean.class);
   private String s3Bucket;
-  private AmazonS3 s3Client;
+  private S3Client s3Client;
 
-  public DeleteBean(AmazonS3 s3Client, String s3Bucket) {
+  public DeleteBean(S3Client s3Client, String s3Bucket) {
     this.s3Client = s3Client;
     this.s3Bucket = s3Bucket;
   }
 
-  public void delete(@Header(S3Constants.KEY) String s3Key) {
+  public void delete(@Header(AWS2S3Constants.KEY) String s3Key) {
     LOGGER.trace("Deleting: {} / {}", s3Bucket, s3Key);
-    s3Client.deleteObject(s3Bucket, s3Key);
+
+    ArrayList<ObjectIdentifier> toDelete = new ArrayList<>();
+    toDelete.add(ObjectIdentifier.builder().key(s3Key).build());
+
+    DeleteObjectsRequest deleteRequest =
+        DeleteObjectsRequest.builder()
+            .bucket(s3Bucket)
+            .delete(Delete.builder().objects(toDelete).build())
+            .build();
+    s3Client.deleteObjects(deleteRequest);
   }
 }

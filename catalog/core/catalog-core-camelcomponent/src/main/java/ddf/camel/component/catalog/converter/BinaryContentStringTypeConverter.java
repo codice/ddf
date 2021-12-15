@@ -39,7 +39,7 @@ public class BinaryContentStringTypeConverter extends TypeConverterSupport {
   @Override
   public <T> T convertTo(Class<T> type, Exchange exchange, Object value) {
 
-    String mimeTypeString = exchange.getOut().getHeader(HttpHeaders.CONTENT_TYPE, String.class);
+    String mimeTypeString = exchange.getMessage().getHeader(HttpHeaders.CONTENT_TYPE, String.class);
     if (null == mimeTypeString) {
       mimeTypeString = MediaType.TEXT_PLAIN;
     }
@@ -53,7 +53,8 @@ public class BinaryContentStringTypeConverter extends TypeConverterSupport {
     T result = null;
     try {
       result =
-          type.cast(new BinaryContentImpl(exchange.getOut().getBody(InputStream.class), mimeType));
+          type.cast(
+              new BinaryContentImpl(exchange.getMessage().getBody(InputStream.class), mimeType));
     } catch (ClassCastException e) {
       LOGGER.debug("Failed to create BinaryContent", e);
     }

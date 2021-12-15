@@ -16,20 +16,14 @@ package org.codice.ddf.catalog.plugin.metacard.backup.storage.s3storage;
 import static org.apache.camel.builder.PredicateBuilder.and;
 import static org.apache.camel.builder.PredicateBuilder.not;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import ddf.camel.component.catalog.ingest.PostIngestConsumer;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.camel.CamelContext;
-import org.apache.camel.component.aws.s3.S3Constants;
+import org.apache.camel.component.aws2.s3.AWS2S3Constants;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultRegistry;
 import org.apache.camel.support.SimpleRegistry;
@@ -39,6 +33,12 @@ import org.codice.ddf.catalog.plugin.metacard.backup.common.MetacardTemplate;
 import org.codice.ddf.catalog.plugin.metacard.backup.common.ResponseMetacardActionSplitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 
 /**
  * Creates a camel route for storing metacards from post-ingest in Amazon S3. This route will
@@ -83,7 +83,7 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
 
   private MetacardTemplate metacardTemplate = null;
 
-  private AmazonS3 s3Client = null;
+  private S3Client s3Client = null;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardS3StorageRoute.class);
 
@@ -193,7 +193,7 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
         .setHeader(
             METACARD_BACKUP_KEEP_DELETED_RTE_PROP,
             simple(String.valueOf(keepDeletedMetacards), Boolean.class))
-        .setHeader(S3Constants.KEY, method(metacardTemplate, "applyTemplate(${body})"))
+        .setHeader(AWS2S3Constants.KEY, method(metacardTemplate, "applyTemplate(${body})"))
         .choice()
         .when(
             and(
@@ -207,8 +207,8 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
         .stop()
         .otherwise()
         .to("catalog:metacardtransformer")
-        .setHeader(S3Constants.CANNED_ACL, simple(s3CannedAclName))
-        .setHeader(S3Constants.CONTENT_LENGTH, simple("${body.length}"))
+        .setHeader(AWS2S3Constants.CANNED_ACL, simple(s3CannedAclName))
+        .setHeader(AWS2S3Constants.CONTENT_LENGTH, simple("${body.length}"))
         .to(s3Uri);
     routeIds.add(route2Id);
 
@@ -277,19 +277,17 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
     options.append(key).append("=").append(value);
   }
 
-  private AmazonS3 getS3Client() {
-    AwsClientBuilder.EndpointConfiguration endpointConfiguration =
-        new AwsClientBuilder.EndpointConfiguration(s3Endpoint, getS3Region());
+  private S3Client getS3Client() {
+    Region region = Region.of(getS3Region());
     if (StringUtils.isNotBlank(s3AccessKey)) {
-      AWSCredentials awsCredentials = new BasicAWSCredentials(s3AccessKey, s3SecretKey);
-      AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(awsCredentials);
-      return AmazonS3ClientBuilder.standard()
-          .withCredentials(credentialsProvider)
-          .withEndpointConfiguration(endpointConfiguration)
+      AwsCredentials awsCredentials = AwsBasicCredentials.create(s3AccessKey, s3SecretKey);
+      AwsCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(awsCredentials);
+      return S3Client.builder()
+          .credentialsProvider(credentialsProvider)
+          .endpointOverride(URI.create(s3Endpoint))
+          .region(region)
           .build();
     }
-    return AmazonS3ClientBuilder.standard()
-        .withEndpointConfiguration(endpointConfiguration)
-        .build();
+    return S3Client.builder().endpointOverride(URI.create(s3Endpoint)).region(region).build();
   }
 }

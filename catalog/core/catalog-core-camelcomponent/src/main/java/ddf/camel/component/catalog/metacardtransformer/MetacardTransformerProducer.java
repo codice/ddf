@@ -65,7 +65,7 @@ public class MetacardTransformerProducer extends DefaultProducer {
 
     if (incomingData instanceof Metacard) {
       Metacard metacard = (Metacard) incomingData;
-      exchange.getOut().setHeader(METACARD_HEADER, metacard);
+      exchange.getMessage().setHeader(METACARD_HEADER, metacard);
       if (transformerId != null) {
         in.removeHeader(TRANSFORMER_ID);
         MetacardTransformer transformer = lookupTransformerReference(transformerId);
@@ -78,12 +78,12 @@ public class MetacardTransformerProducer extends DefaultProducer {
     }
 
     // Set the response output to the Metacard from the transformation
-    exchange.getOut().setHeaders(in.getHeaders());
+    exchange.getMessage().setHeaders(in.getHeaders());
 
     if (transformedData != null) {
-      exchange.getOut().setBody(transformedData.getByteArray());
+      exchange.getMessage().setBody(transformedData.getByteArray());
     } else {
-      exchange.getOut().setBody(null);
+      exchange.getMessage().setBody(null);
     }
   }
 

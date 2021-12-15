@@ -18,12 +18,11 @@ import static ddf.catalog.Constants.CDM_LOGGER_NAME;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.component.file.FileConsumer;
+import org.apache.camel.component.file.FileEndpoint;
 import org.apache.camel.component.file.GenericFile;
-import org.apache.camel.component.file.GenericFileConsumer;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperationFailedException;
 import org.apache.camel.component.file.GenericFileOperations;
@@ -45,7 +44,7 @@ import org.slf4j.LoggerFactory;
     syntax = "durable:directoryName",
     consumerClass = AbstractDurableFileConsumer.class,
     label = "codice,file")
-public class DurableFileEndpoint extends GenericFileEndpoint<File> {
+public class DurableFileEndpoint extends FileEndpoint {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
@@ -67,7 +66,7 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
   // No need for try-with-resource closure handled by calling method
   @SuppressWarnings("squid:S2095")
   @Override
-  public GenericFileConsumer<File> createConsumer(Processor processor) throws Exception {
+  public FileConsumer createConsumer(Processor processor) throws Exception {
     ObjectHelper.notNull(file, "file");
 
     if (isDav) {
@@ -219,13 +218,13 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
     }
 
     @Override
-    public List<File> listFiles() throws GenericFileOperationFailedException {
-      return Collections.emptyList();
+    public File[] listFiles() throws GenericFileOperationFailedException {
+      return new File[0];
     }
 
     @Override
-    public List<File> listFiles(String path) throws GenericFileOperationFailedException {
-      return Collections.emptyList();
+    public File[] listFiles(String path) throws GenericFileOperationFailedException {
+      return new File[0];
     }
   }
 }
