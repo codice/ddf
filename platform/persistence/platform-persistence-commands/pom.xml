@@ -51,6 +51,12 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -84,17 +90,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.30</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.30</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.31</minimum>
                                         </limit>
 
                                     </limits>
