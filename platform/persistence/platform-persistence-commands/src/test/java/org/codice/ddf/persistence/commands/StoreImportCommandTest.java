@@ -58,6 +58,8 @@ public class StoreImportCommandTest {
     assertThat(items, hasSize(1));
 
     final Map<String, Object> item = items.get(0);
+    // test_bin in the JSON is the string "foobar" base64-encoded. These are the ASCII byte values
+    // of those characters.
     assertThat(item, hasEntry("test_bin", new byte[] {102, 111, 111, 98, 97, 114}));
     assertThat(item, hasEntry("test_tdt", new Date(1639676820000L)));
     assertThat(item, hasEntry("test_lng", 1L));
