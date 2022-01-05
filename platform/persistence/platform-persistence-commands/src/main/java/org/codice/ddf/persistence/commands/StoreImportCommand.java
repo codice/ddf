@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.persistence.commands;
 
+import static java.util.stream.Collectors.toList;
 import static org.codice.ddf.persistence.PersistentItem.BINARY_SUFFIX;
 import static org.codice.ddf.persistence.PersistentItem.DATE_SUFFIX;
 import static org.codice.ddf.persistence.PersistentItem.INT_SUFFIX;
@@ -36,6 +37,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +110,7 @@ public class StoreImportCommand extends AbstractStoreCommand {
 
   private Map<String, Object> processFile(File file) {
 
-    Map<String, String> jsonResult;
+    Map<String, Object> jsonResult;
     try {
       jsonResult = gson.fromJson(new FileReader(file), Map.class);
     } catch (FileNotFoundException e) {
@@ -121,11 +123,23 @@ public class StoreImportCommand extends AbstractStoreCommand {
 
     Map<String, Object> result = new HashMap<>();
 
-    for (String key : jsonResult.keySet()) {
-      String attributeType = extractTypeSuffix(key);
-      Object value = getValue(attributeType, jsonResult.get(key));
-      if (value != null) {
-        result.put(key, value);
+    for (final Map.Entry<String, Object> jsonEntry : jsonResult.entrySet()) {
+      final String key = jsonEntry.getKey();
+      final String attributeType = extractTypeSuffix(key);
+      final Object jsonValue = jsonEntry.getValue();
+      if (jsonValue instanceof Collection) {
+        final List<Object> converted =
+            ((Collection<?>) jsonValue)
+                .stream()
+                .map(value -> getValue(attributeType, value))
+                .filter(Objects::nonNull)
+                .collect(toList());
+        result.put(key, converted);
+      } else {
+        final Object value = getValue(attributeType, jsonValue);
+        if (value != null) {
+          result.put(key, value);
+        }
       }
     }
 
@@ -166,30 +180,31 @@ public class StoreImportCommand extends AbstractStoreCommand {
    * Convert the string value to its given type
    *
    * @param attributeType attribute type
-   * @param stringValue value of the attribute
-   * @return the attribute value as its coverted object type
+   * @param value value of the attribute
+   * @return the attribute value as its converted object type
    */
-  private Object getValue(String attributeType, String stringValue) {
+  private Object getValue(String attributeType, Object value) {
     if (attributeType == null) {
       return null;
     }
     switch (attributeType.toLowerCase()) {
       case BINARY_SUFFIX:
-        return Base64.getDecoder().decode(stringValue);
+        return Base64.getDecoder().decode((String) value);
       case DATE_SUFFIX:
         try {
-          return formatter.parse(stringValue);
+          return formatter.parse((String) value);
         } catch (ParseException e) {
-          console.println("Failed to parse date: " + stringValue);
+          console.println("Failed to parse date: " + value);
           return null;
         }
       case LONG_SUFFIX:
-        return Long.valueOf(stringValue);
+        // GSON parses all numbers as doubles
+        return ((Double) value).longValue();
       case INT_SUFFIX:
-        return Integer.valueOf(stringValue);
+        return ((Double) value).intValue();
       case TEXT_SUFFIX:
       case XML_SUFFIX:
-        return stringValue;
+        return value;
       default:
         return null;
     }

@@ -1,0 +1,12 @@
+{
+  "test_bin": "Zm9vYmFy",
+  "test_tdt": "Thu, 16 Dec 2021 11:47:00 CST",
+  "test_lng": 1,
+  "test_int": 2,
+  "test_txt": "Some text",
+  "test_xml": "<xml>test</xml>",
+  "test_arr_lng": [
+    3,
+    4
+  ]
+}
