@@ -176,9 +176,6 @@ public class JettyAuthenticatorTest {
     dictionary.put("init." + param2Key, param2Value);
     final SecurityFilter securityFilter = registerSecurityFilter(dictionary);
 
-    // when
-    when((servletRequest).getSession()).thenReturn(httpSession);
-    when(httpSession.getServletContext()).thenReturn(servletContext);
     jettyAuthenticator.validateRequest(servletRequest, mock(ServletResponse.class), false);
 
     // then
@@ -219,9 +216,6 @@ public class JettyAuthenticatorTest {
     dictionary.put(anotherServiceProperty, "anotherServicePropertyValue");
     final SecurityFilter securityFilter = registerSecurityFilter(dictionary);
 
-    // when
-    when((servletRequest).getSession()).thenReturn(httpSession);
-    when(httpSession.getServletContext()).thenReturn(servletContext);
     jettyAuthenticator.validateRequest(servletRequest, mock(ServletResponse.class), false);
 
     // then

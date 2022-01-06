@@ -22,6 +22,11 @@
     <artifactId>platform-paxweb-jettyconfig</artifactId>
     <name>DDF :: Platform :: PaxWeb :: Jetty Config</name>
     <packaging>bundle</packaging>
+    <properties>
+        <mockito.version>2.8.47</mockito.version>
+        <byte-buddy.version>1.6.14</byte-buddy.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -91,6 +96,33 @@
             <groupId>org.springframework.osgi</groupId>
             <artifactId>spring-osgi-mock</artifactId>
             <version>${spring-osgi.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- Mockito runtime dependency -->
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- Mockito runtime dependency -->
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- Mockito runtime dependency -->
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
+            <version>${objenesis.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

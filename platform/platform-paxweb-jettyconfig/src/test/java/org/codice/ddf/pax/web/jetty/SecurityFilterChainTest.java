@@ -30,9 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Tests the proxy filter chain class. */
-public class ProxyFilterChainTest {
+public class SecurityFilterChainTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProxyFilterChainTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SecurityFilterChainTest.class);
 
   /**
    * Tests that all of the filters are properly called.
@@ -42,7 +42,7 @@ public class ProxyFilterChainTest {
    */
   @Test
   public void testDoFilter() throws IOException, ServletException, AuthenticationException {
-    ProxyFilterChain proxyChain = new ProxyFilterChain();
+    SecurityFilterChain proxyChain = new SecurityFilterChain();
     SecurityFilter filter1 = createMockSecurityFilter("filter1");
     SecurityFilter filter2 = createMockSecurityFilter("filter2");
     SecurityFilter filter3 = createMockSecurityFilter("filter3");
@@ -71,7 +71,7 @@ public class ProxyFilterChainTest {
    */
   @Test(expected = IllegalStateException.class)
   public void testAddFilterAfterDo() throws IOException, AuthenticationException {
-    ProxyFilterChain proxyChain = new ProxyFilterChain();
+    SecurityFilterChain proxyChain = new SecurityFilterChain();
     SecurityFilter filter1 = mock(SecurityFilter.class);
     proxyChain.doFilter(mock(ServletRequest.class), mock(ServletResponse.class));
     proxyChain.addSecurityFilter(filter1);
@@ -86,7 +86,7 @@ public class ProxyFilterChainTest {
    */
   @Test(expected = IllegalStateException.class)
   public void testAddFiltersAfterDo() throws IOException, AuthenticationException {
-    ProxyFilterChain proxyChain = new ProxyFilterChain();
+    SecurityFilterChain proxyChain = new SecurityFilterChain();
     SecurityFilter filter2 = mock(SecurityFilter.class);
     SecurityFilter filter3 = mock(SecurityFilter.class);
     proxyChain.doFilter(mock(ServletRequest.class), mock(ServletResponse.class));

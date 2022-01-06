@@ -23,6 +23,13 @@
         <argument ref="securityJavaSubjectThreadFactory"/>
     </bean>
 
+    <reference-list id="filterList" availability="optional" interface="javax.servlet.Filter" />
+
+    <bean id="delegateServletFilter"
+          class="org.codice.ddf.pax.web.jetty.DelegateServletFilter">
+        <argument ref="filterList"/>
+    </bean>
+
     <bean id="filterInjector" class="org.codice.ddf.pax.web.jetty.FilterInjector" init-method="init"
           destroy-method="destroy">
         <argument type="java.util.List">
@@ -30,9 +37,9 @@
                 <bean class="org.codice.ddf.pax.web.jetty.ClientInfoFilter"/>
                 <ref component-id="responseFilter"/>
                 <bean class="org.codice.ddf.pax.web.jetty.SecurityJavaSubjectFilter"/>
+                <ref component-id="delegateServletFilter"/>
             </list>
         </argument>
-        <argument ref="filterList" />
         <argument ref="executor"/>
     </bean>
 
@@ -43,7 +50,5 @@
     </bean>
 
     <service interface="org.osgi.framework.hooks.service.EventListenerHook" ref="filterInjector"/>
-
-    <reference-list id="filterList" availability="optional" interface="javax.servlet.Filter" />
 
 </blueprint>
