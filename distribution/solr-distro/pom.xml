@@ -76,7 +76,7 @@
                             </url>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
-                            <sha512>29f948c0d6d60116263378e839135edea2069c87dc9bd796ebe421e1a662aba9ad5b46cfa514f0729d8bca6b237e9e98d7468fc3247388cf37f56623e2409f6f</sha512>
+                            <sha512>085f6fce67326ffdcca965854e25f720849bc3e0dc7e4fac5fa0b550d42af188b10e2b799039a50d00fcc84c364d294572ceb5ecdfa21eb28df331ab881a3689</sha512>
                             <checkSignature>true</checkSignature>
                         </configuration>
                     </execution>
