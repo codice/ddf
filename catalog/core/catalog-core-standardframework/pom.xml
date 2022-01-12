@@ -297,11 +297,12 @@
             <version>${org.slf4j.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <scope>test</scope>
-        </dependency>
+            <version>${log4j.version}</version>
+        </dependency-->
         <dependency>
             <groupId>ddf.mime.core</groupId>
             <artifactId>mime-core-impl</artifactId>

@@ -174,7 +174,7 @@
         <javax.inject.bundle.version>${javax.inject.version}_2</javax.inject.bundle.version>
         <commons.fileupload.version>1.3.2</commons.fileupload.version>
 
-        <pax.url.version>2.5.2</pax.url.version>
+        <pax.url.version>2.6.1</pax.url.version>
     </properties>
 
     <build>

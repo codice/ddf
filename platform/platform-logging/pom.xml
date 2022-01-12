@@ -28,6 +28,7 @@
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
             <scope>provided</scope>
+            <version>${pax.logging.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
