@@ -138,7 +138,7 @@ public class BrandingRegistryImpl implements BrandingRegistry {
       if (assignableTo
           && event.getType() == ServiceEvent.UNREGISTERING
           && service instanceof BrandingPlugin) {
-        brandingPlugins.remove(service);
+        brandingPlugins.remove(serviceReference);
       }
     }
   }
