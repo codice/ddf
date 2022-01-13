@@ -234,18 +234,6 @@ public class StaticStsProperties extends StaticSTSProperties {
   }
 
   /**
-   * Set the String corresponding to the signature Properties class
-   *
-   * @param signaturePropertiesFile the String corresponding to the signature properties file
-   * @deprecated
-   */
-  @Deprecated
-  @Override
-  public void setSignaturePropertiesFile(String signaturePropertiesFile) {
-    setSignatureCryptoProperties(signaturePropertiesFile);
-  }
-
-  /**
    * Set the Object corresponding to the signature Properties class. It can be a String
    * corresponding to a filename, a Properties object, or a URL.
    *
@@ -296,18 +284,6 @@ public class StaticStsProperties extends StaticSTSProperties {
   @Override
   public void setEncryptionCrypto(Crypto encryptionCrypto) {
     this.encryptionCrypto = encryptionCrypto;
-  }
-
-  /**
-   * Set the String corresponding to the encryption Properties class
-   *
-   * @param encryptionPropertiesFile the String corresponding to the encryption properties file
-   * @deprecated
-   */
-  @Deprecated
-  @Override
-  public void setEncryptionPropertiesFile(String encryptionPropertiesFile) {
-    setEncryptionCryptoProperties(encryptionPropertiesFile);
   }
 
   /**
