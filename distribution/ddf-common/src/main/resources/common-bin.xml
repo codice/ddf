@@ -384,15 +384,15 @@
             </includes>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>system/org/ops4j/pax/logging/pax-logging-log4j2/${pax-logging.version}</outputDirectory>
+            <outputDirectory>system/org/ops4j/pax/logging/pax-logging-log4j2/${pax.logging.version}</outputDirectory>
             <includes>
-                <include>org.ops4j.pax.logging:pax-logging-log4j2:jar:${pax-logging.version}</include>
+                <include>org.ops4j.pax.logging:pax-logging-log4j2:jar:${pax.logging.version}</include>
             </includes>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>system/org/ops4j/pax/logging/pax-logging-api/${pax-logging.version}</outputDirectory>
+            <outputDirectory>system/org/ops4j/pax/logging/pax-logging-api/${pax.logging.version}</outputDirectory>
             <includes>
-                <include>org.ops4j.pax.logging:pax-logging-api:jar:${pax-logging.version}</include>
+                <include>org.ops4j.pax.logging:pax-logging-api:jar:${pax.logging.version}</include>
             </includes>
         </dependencySet>
     </dependencySets>
