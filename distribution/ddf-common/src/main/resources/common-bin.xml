@@ -96,6 +96,7 @@
                 and introduces vulnerability CVE-2016-4970.
                 -->
                 <exclude>**/org/ops4j/pax/transx/pax-transx-tm-narayana/**/*</exclude>
+                <exclude>**/org/ops4j/pax/logging/**/*</exclude>
             </excludes>
         </fileSet>
 
@@ -380,6 +381,18 @@
                 <include>
                     org.apache.aries.proxy:org.apache.aries.proxy:jar:${org.apache.aries.version}
                 </include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>system/org/ops4j/pax/logging/pax-logging-log4j2/${pax.logging.version}</outputDirectory>
+            <includes>
+                <include>org.ops4j.pax.logging:pax-logging-log4j2:jar:${pax.logging.version}</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>system/org/ops4j/pax/logging/pax-logging-api/${pax.logging.version}</outputDirectory>
+            <includes>
+                <include>org.ops4j.pax.logging:pax-logging-api:jar:${pax.logging.version}</include>
             </includes>
         </dependencySet>
     </dependencySets>

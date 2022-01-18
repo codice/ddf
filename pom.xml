@@ -135,6 +135,7 @@
         <mockito-core.version>2.8.47</mockito-core.version>
         <mockito-all.version>1.10.19</mockito-all.version>
         <pax.exam.version>4.13.2.CODICE</pax.exam.version>
+        <pax.logging.version>1.11.13</pax.logging.version>
         <pax.url.version>2.6.1</pax.url.version>
         <pax.transx.version>0.4.1</pax.transx.version>
         <pax.web.version>7.2.11</pax.web.version>
@@ -245,7 +246,7 @@
         <karaf.version>4.2.6</karaf.version>
         <la4j.version>0.6.0</la4j.version>
         <log4j.version>1.2.17</log4j.version>
-        <apache-log4j.version>2.11.2</apache-log4j.version>
+        <apache-log4j.version>2.17.1</apache-log4j.version>
         <logback.classic.version>1.2.3</logback.classic.version>
         <logback.version>1.2.3</logback.version>
         <lucene.version>7.7.2</lucene.version>
@@ -295,7 +296,7 @@
         <solr.httpclient.version>4.5.12</solr.httpclient.version>
         <solr.httpcore.version>4.4.13</solr.httpcore.version>
         <solr.httpmime.version>4.5.12</solr.httpmime.version>
-        <solr.log4j.version>2.13.2</solr.log4j.version>
+        <solr.log4j.version>2.17.1</solr.log4j.version>
         <solr.zookeeper.version>3.6.2</solr.zookeeper.version>
         <solr.spatial4j.version>0.7</solr.spatial4j.version>
 
