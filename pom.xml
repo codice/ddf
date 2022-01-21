@@ -292,7 +292,7 @@
         <servicemix-json-1.1.spec.version>2.9.0</servicemix-json-1.1.spec.version>
         <servicemix.specs.version>2.9.0</servicemix.specs.version>
         <servlet-api.version>3.1.0</servlet-api.version>
-        <solr.version>8.8.1</solr.version>
+        <solr.version>8.11.1</solr.version>
         <solr.httpclient.version>4.5.12</solr.httpclient.version>
         <solr.httpcore.version>4.4.13</solr.httpcore.version>
         <solr.httpmime.version>4.5.12</solr.httpmime.version>
