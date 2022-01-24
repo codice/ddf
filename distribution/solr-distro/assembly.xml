@@ -44,6 +44,18 @@
             </includes>
             <outputDirectory>/security</outputDirectory>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.apache.logging.log4j:log4j-core</include>
+            </includes>
+            <outputDirectory>/server/lib/ext</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.apache.logging.log4j:log4j-core</include>
+            </includes>
+            <outputDirectory>/contrib/prometheus-exporter/lib</outputDirectory>
+        </dependencySet>
     </dependencySets>
     <fileSets>
         <!-- The order of the <fileSet> elements is important. The assembly plugin will not
@@ -72,6 +84,9 @@
         <fileSet>
             <directory>${project.build.directory}/solr-${solr.version}</directory>
             <outputDirectory>/</outputDirectory>
+            <excludes>
+                <exclude>**/log4j-core-2.16.0.jar*</exclude>
+            </excludes>
         </fileSet>
     </fileSets>
 </assembly>
