@@ -223,8 +223,6 @@
 * org.codehaus.groovy:groovy-all:jar:2.4.7
 * org.codehaus.jackson:jackson-mapper-asl:jar:1.9.13
 * org.codice.countrycode:converter:jar:0.1.6
-* org.codice.geowebcache:geowebcache-server-standalone:war:0.7.0
-* org.codice.geowebcache:geowebcache-server-standalone:xml:geowebcache:0.7.0
 * org.codice.httpproxy:proxy-camel-route:jar:2.14.0
 * org.codice.httpproxy:proxy-camel-servlet:jar:2.14.0
 * org.codice.opendj.embedded:opendj-embedded-app:xml:features:1.3.3

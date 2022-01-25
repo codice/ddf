@@ -177,7 +177,6 @@
         <module>csw</module>
         <module>registry</module>
         <module>geocoding</module>
-        <module>geowebcache</module>
         <module>spatial-commands</module>
         <module>spatial-app</module>
     </modules>
