@@ -1,5 +1,0 @@
-{
-  "name": "geowebcache-app",
-  "description": "The GeoWebCache application provides tile caching and tile service aggregation.::GeoWebCache",
-  "bundleLocations": []
-}
