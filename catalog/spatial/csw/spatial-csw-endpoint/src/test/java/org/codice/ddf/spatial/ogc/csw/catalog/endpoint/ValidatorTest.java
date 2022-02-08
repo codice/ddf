@@ -46,7 +46,7 @@ public class ValidatorTest {
 
   private static final String VALID_PREFIX_LOCAL_TYPE = VALID_PREFIX + ":" + VALID_TYPE;
 
-  private Validator validator;
+  private ValidatorImpl validator;
 
   TransformerManager transformerManager;
 
@@ -57,7 +57,7 @@ public class ValidatorTest {
     QName[] qname = {new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME)};
     qNameList = Arrays.asList(qname);
     transformerManager = mock(TransformerManager.class);
-    validator = new Validator();
+    validator = new ValidatorImpl();
 
     QueryFilterTransformerProvider transformerProvider = mock(QueryFilterTransformerProvider.class);
     QueryFilterTransformer transformer = mock(QueryFilterTransformer.class);

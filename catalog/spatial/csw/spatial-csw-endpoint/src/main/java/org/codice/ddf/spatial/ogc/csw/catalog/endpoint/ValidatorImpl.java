@@ -24,9 +24,10 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.Validator;
 
 /** Validator provides methods to validate Requests for CSW 2.0.2 */
-public class Validator {
+public class ValidatorImpl implements Validator {
 
   private static final List<String> ELEMENT_NAMES = Arrays.asList("brief", "summary", "full");
 
@@ -37,12 +38,7 @@ public class Validator {
 
   private QueryFilterTransformerProvider queryFilterTransformerProvider;
 
-  /**
-   * Verifies that that if types are passed, then they are fully qualified
-   *
-   * @param types List of QNames representing types
-   */
-  public void validateFullyQualifiedTypes(List<QName> types) throws CswException {
+  @Override public void validateFullyQualifiedTypes(List<QName> types) throws CswException {
     for (QName type : types) {
       if (StringUtils.isBlank(type.getNamespaceURI())) {
         throw new CswException(
@@ -102,7 +98,7 @@ public class Validator {
     }
   }
 
-  public void validateOutputSchema(String schema, TransformerManager schemaTransformerManager)
+  @Override public void validateOutputSchema(String schema, TransformerManager schemaTransformerManager)
       throws CswException {
     if (schema == null
         || schemaTransformerManager.getTransformerBySchema(schema) != null
@@ -112,7 +108,7 @@ public class Validator {
     throw createUnknownSchemaException(schema);
   }
 
-  public void validateVersion(String versions) throws CswException {
+  @Override public void validateVersion(String versions) throws CswException {
     if (!versions.contains(CswConstants.VERSION_2_0_2)) {
       throw new CswException(
           "Version(s) "
@@ -124,7 +120,7 @@ public class Validator {
     }
   }
 
-  public void validateOutputFormat(String format, TransformerManager mimeTypeTransformerManager)
+  @Override public void validateOutputFormat(String format, TransformerManager mimeTypeTransformerManager)
       throws CswException {
     if (!StringUtils.isEmpty(format)) {
       if (!(DEFAULT_OUTPUT_FORMAT.equals(format)
@@ -139,7 +135,7 @@ public class Validator {
     }
   }
 
-  public void validateSchemaLanguage(String schemaLanguage) throws CswException {
+  @Override public void validateSchemaLanguage(String schemaLanguage) throws CswException {
     if (!StringUtils.isEmpty(schemaLanguage)) {
       if (!CswConstants.VALID_SCHEMA_LANGUAGES.contains(schemaLanguage)) {
         throw new CswException(
@@ -207,7 +203,7 @@ public class Validator {
         "OutputSchema");
   }
 
-  public void setQueryFilterTransformerProvider(
+  @Override public void setQueryFilterTransformerProvider(
       QueryFilterTransformerProvider queryFilterTransformerHelper) {
     this.queryFilterTransformerProvider = queryFilterTransformerHelper;
   }

@@ -280,7 +280,7 @@ public class CswEndpoint implements Csw {
 
   private CapabilitiesType capabilitiesType;
 
-  private Validator validator;
+  private ValidatorImpl validator;
 
   private CswQueryFactory queryFactory;
 
@@ -295,7 +295,7 @@ public class CswEndpoint implements Csw {
       TransformerManager schemaManager,
       TransformerManager inputManager,
       CswActionTransformerProvider cswActionTransformerProvider,
-      Validator validator,
+      ValidatorImpl validator,
       CswQueryFactory queryFactory,
       CswXmlBinding cswXmlBinding) {
     LOGGER.trace("Entering: CSW Endpoint constructor.");

@@ -152,7 +152,7 @@
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
     <bean id="validator"
-      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.Validator">
+      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.ValidatorImpl">
         <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
     </bean>
 

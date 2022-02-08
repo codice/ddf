@@ -149,6 +149,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImp
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
 import org.junit.Test;
 import org.locationtech.jts.io.ParseException;
 import org.mockito.ArgumentCaptor;
@@ -230,13 +231,16 @@ public class CswEndpointTest {
 
   private static QueryResponseTransformer mockTransformer = mock(QueryResponseTransformer.class);
 
+  private static CswXmlBinding cswXmlBinding = mock(CswXmlBinding.class);
+
   private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
 
   private static final long RESULT_COUNT = 10;
 
   private static final long TOTAL_COUNT = 10;
 
-  private Validator validator = mock(Validator.class);
+  private ValidatorImpl validator = mock(ValidatorImpl.class);
+
 
   private DeleteResponse deleteResponse = mock(DeleteResponse.class);
 
@@ -2244,7 +2248,7 @@ public class CswEndpointTest {
         TransformerManager schemaManager,
         TransformerManager inputManager,
         CswActionTransformerProvider cswActionTransformerProvider,
-        Validator validator,
+        ValidatorImpl validator,
         CswQueryFactory queryFactory,
         Bundle bundle) {
       super(
@@ -2254,7 +2258,9 @@ public class CswEndpointTest {
           inputManager,
           cswActionTransformerProvider,
           validator,
-          queryFactory);
+          queryFactory,
+              cswXmlBinding
+              );
       this.bundle = bundle;
     }
 

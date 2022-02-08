@@ -28,7 +28,7 @@ public interface CswQueryFactory {
 
   QueryRequest getQuery(GetRecordsType request) throws CswException;
 
-  QueryRequest getQuery(QueryConstraintType constraint, String typeName) throws Exception;
+  QueryRequest getQuery(QueryConstraintType constraint, String typeName) throws CswException;
 
   QueryRequest updateQueryRequestTags(QueryRequest queryRequest, String schema)
       throws UnsupportedQueryException;

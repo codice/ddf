@@ -66,6 +66,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionImpl;
 import org.junit.Before;
 import org.junit.Rule;
@@ -99,7 +100,7 @@ public class CswSubscriptionEndpointTest {
 
   private TransformerManager mockSchemaManager;
 
-  private Validator validator;
+  private ValidatorImpl validator;
 
   private CswQueryFactory queryFactory;
 
@@ -132,6 +133,8 @@ public class CswSubscriptionEndpointTest {
   private EventProcessor eventProcessor;
 
   private TransformerManager mockInputManager;
+
+  private CswXmlBinding cswXmlBinding;
 
   File systemKeystoreFile = null;
 
@@ -171,10 +174,11 @@ public class CswSubscriptionEndpointTest {
 
     eventProcessor = mock(EventProcessor.class);
     mockInputManager = mock(TransformerManager.class);
+    cswXmlBinding = mock(CswXmlBinding.class);
     mockContext = mock(BundleContext.class);
     mockMimeTypeManager = mock(TransformerManager.class);
     mockSchemaManager = mock(TransformerManager.class);
-    validator = mock(Validator.class);
+    validator = mock(ValidatorImpl.class);
     queryFactory = mock(CswQueryFactoryImpl.class);
     query = mock(QueryRequest.class);
     when(queryFactory.getQuery(any(GetRecordsType.class))).thenReturn(query);
@@ -240,7 +244,8 @@ public class CswSubscriptionEndpointTest {
             queryFactory,
             mockContext,
             clientBuilderFactory,
-            security);
+            security,
+            cswXmlBinding);
   }
 
   @Test
@@ -481,15 +486,16 @@ public class CswSubscriptionEndpointTest {
     private final BundleContext bundleContext;
 
     public CswSubscriptionEndpointStub(
-        EventProcessor eventProcessor,
-        TransformerManager mimeTypeTransformerManager,
-        TransformerManager schemaTransformerManager,
-        TransformerManager inputTransformerManager,
-        Validator validator,
-        CswQueryFactory queryFactory,
-        BundleContext context,
-        ClientBuilderFactory clientBuilderFactory,
-        Security security) {
+            EventProcessor eventProcessor,
+            TransformerManager mimeTypeTransformerManager,
+            TransformerManager schemaTransformerManager,
+            TransformerManager inputTransformerManager,
+            ValidatorImpl validator,
+            CswQueryFactory queryFactory,
+            BundleContext context,
+            ClientBuilderFactory clientBuilderFactory,
+            Security security,
+            CswXmlBinding cswXmlBinding) {
       super(
           eventProcessor,
           mimeTypeTransformerManager,
@@ -498,7 +504,8 @@ public class CswSubscriptionEndpointTest {
           validator,
           queryFactory,
           clientBuilderFactory,
-          security);
+          security,
+          cswXmlBinding);
       this.bundleContext = context;
     }
 

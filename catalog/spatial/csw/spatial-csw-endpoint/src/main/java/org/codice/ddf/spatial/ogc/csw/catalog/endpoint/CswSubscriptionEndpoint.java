@@ -104,7 +104,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
   private final ObjectFactory objectFactory = new ObjectFactory();
 
-  private final Validator validator;
+  private final ValidatorImpl validator;
 
   private final CswQueryFactory queryFactory;
 
@@ -124,7 +124,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       TransformerManager mimeTypeTransformerManager,
       TransformerManager schemaTransformerManager,
       TransformerManager inputTransformerManager,
-      Validator validator,
+      ValidatorImpl validator,
       CswQueryFactory queryFactory,
       ClientBuilderFactory clientBuilderFactory,
       Security security,
