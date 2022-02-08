@@ -31,7 +31,6 @@ import ddf.catalog.transform.QueryFilterTransformerProvider;
 import ddf.security.permission.Permissions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -42,11 +41,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -58,8 +54,10 @@ import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.PropertyIsFuzzyFunction;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.SourceIdFilterVisitor;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.SourceIdFilterVisitor;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
@@ -73,18 +71,15 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /** CswQueryFactory provides utility methods for creating a {@link QueryRequest} */
-public class CswQueryFactory {
+public class CswQueryFactoryImpl implements CswQueryFactory {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CswQueryFactory.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CswQueryFactoryImpl.class);
 
   private static final Configuration PARSER_CONFIG =
       new org.geotools.filter.v1_1.OGCConfiguration();
-
-  private static JAXBContext jaxBContext;
 
   private final FilterBuilder builder;
 
@@ -99,30 +94,22 @@ public class CswQueryFactory {
   private QueryFilterTransformerProvider queryFilterTransformerProvider;
 
   private Permissions permissions;
+  private final CswXmlBinding cswXmlBinding;
 
-  public CswQueryFactory(
+  public CswQueryFactoryImpl(
       CswRecordMap cswRecordMap,
       FilterBuilder filterBuilder,
       FilterAdapter adapter,
-      Permissions permissions) {
+      Permissions permissions,
+      CswXmlBinding cswXmlBinding) {
     this.cswRecordMap = cswRecordMap;
     this.builder = filterBuilder;
     this.adapter = adapter;
     this.permissions = permissions;
+    this.cswXmlBinding = cswXmlBinding;
   }
 
-  public static synchronized JAXBContext getJaxBContext() throws JAXBException {
-    if (jaxBContext == null) {
-
-      jaxBContext =
-          JAXBContext.newInstance(
-              "net.opengis.cat.csw.v_2_0_2:"
-                  + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0",
-              CswQueryFactory.class.getClassLoader());
-    }
-    return jaxBContext;
-  }
-
+  @Override
   public QueryRequest getQueryById(List<String> ids) {
     List<Filter> filters =
         ids.stream()
@@ -133,6 +120,7 @@ public class CswQueryFactory {
     return new QueryRequestImpl(new QueryImpl(anyOfFilter), false);
   }
 
+  @Override
   public QueryRequest getQuery(GetRecordsType request) throws CswException {
 
     QueryType query = (QueryType) request.getAbstractQuery().getValue();
@@ -166,6 +154,7 @@ public class CswQueryFactory {
     return transformQuery(queryRequest, query.getTypeNames());
   }
 
+  @Override
   public QueryRequest getQuery(QueryConstraintType constraint, String typeName)
       throws CswException {
     Filter filter = buildFilter(constraint);
@@ -352,28 +341,20 @@ public class CswQueryFactory {
     InputStream inputStream;
 
     try {
-      inputStream = marshalJaxB(element);
+      ByteArrayOutputStream os = new ByteArrayOutputStream();
+      cswXmlBinding.marshal(element, os);
+      ByteArrayInputStream input = new ByteArrayInputStream(os.toByteArray());
+      IOUtils.closeQuietly(os);
+
+      inputStream = input;
       return parser.parse(inputStream);
-    } catch (JAXBException
-        | IOException
-        | SAXException
-        | ParserConfigurationException
-        | RuntimeException e) {
+    } catch (Exception e) {
       throw new CswException(
           String.format(
               "Failed to parse Element: (%s): %s", e.getClass().getSimpleName(), e.getMessage()),
           CswConstants.INVALID_PARAMETER_VALUE,
           null);
     }
-  }
-
-  private InputStream marshalJaxB(JAXBElement<?> filterElement) throws JAXBException {
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    getJaxBContext().createMarshaller().marshal(filterElement, os);
-    ByteArrayInputStream input = new ByteArrayInputStream(os.toByteArray());
-    IOUtils.closeQuietly(os);
-
-    return input;
   }
 
   private Filter parseFilter(FilterType filterType) throws CswException {
@@ -432,6 +413,7 @@ public class CswQueryFactory {
     return request;
   }
 
+  @Override
   public QueryRequest updateQueryRequestTags(QueryRequest queryRequest, String schema)
       throws UnsupportedQueryException {
     QueryRequest newRequest = queryRequest;
@@ -463,6 +445,7 @@ public class CswQueryFactory {
     return newRequest;
   }
 
+  @Override
   public void setSchemaToTagsMapping(String[] schemaToTagsMappingStrings) {
     if (schemaToTagsMappingStrings != null) {
       schemaToTagsMapping.clear();
@@ -471,10 +454,12 @@ public class CswQueryFactory {
     }
   }
 
+  @Override
   public void setAttributeRegistry(AttributeRegistry attributeRegistry) {
     this.attributeRegistry = attributeRegistry;
   }
 
+  @Override
   public void setQueryFilterTransformerProvider(
       QueryFilterTransformerProvider queryFilterTransformerProvider) {
     this.queryFilterTransformerProvider = queryFilterTransformerProvider;

@@ -26,8 +26,24 @@
     <dependencies>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-csw-action</artifactId>
-            <version>2.28.0-SNAPSHOT</version>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-osgi</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

@@ -92,7 +92,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -144,6 +143,7 @@ import org.apache.shiro.subject.Subject;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.XMLUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformerProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
@@ -158,7 +158,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
-import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformerProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
@@ -273,6 +274,7 @@ public class CswEndpoint implements Csw {
   private final TransformerManager inputTransformerManager;
 
   private final CswActionTransformerProvider cswActionTransformerProvider;
+  private final CswXmlBinding cswXmlBinding;
 
   private CatalogFramework framework;
 
@@ -294,7 +296,8 @@ public class CswEndpoint implements Csw {
       TransformerManager inputManager,
       CswActionTransformerProvider cswActionTransformerProvider,
       Validator validator,
-      CswQueryFactory queryFactory) {
+      CswQueryFactory queryFactory,
+      CswXmlBinding cswXmlBinding) {
     LOGGER.trace("Entering: CSW Endpoint constructor.");
     this.framework = ddf;
     this.mimeTypeTransformerManager = mimeTypeManager;
@@ -303,6 +306,7 @@ public class CswEndpoint implements Csw {
     this.cswActionTransformerProvider = cswActionTransformerProvider;
     this.validator = validator;
     this.queryFactory = queryFactory;
+    this.cswXmlBinding = cswXmlBinding;
     LOGGER.trace("Exiting: CSW Endpoint constructor.");
   }
 
@@ -733,8 +737,7 @@ public class CswEndpoint implements Csw {
     return result;
   }
 
-  private int deleteRecords(DeleteAction deleteAction)
-      throws CswException, UnsupportedQueryException {
+  private int deleteRecords(DeleteAction deleteAction) throws Exception {
 
     final DeleteAction transformDeleteAction = transformDeleteAction(deleteAction);
 
@@ -833,9 +836,7 @@ public class CswEndpoint implements Csw {
         .orElse(updateAction);
   }
 
-  private int updateRecords(Subject subject, UpdateAction updateAction)
-      throws CswException, FederationException, IngestException, SourceUnavailableException,
-          UnsupportedQueryException {
+  private int updateRecords(Subject subject, UpdateAction updateAction) throws Exception {
 
     updateAction = transformUpdateAction(updateAction);
 
@@ -1101,11 +1102,8 @@ public class CswEndpoint implements Csw {
       try {
         Writer writer = new StringWriter();
         try {
-          Marshaller marshaller = CswQueryFactory.getJaxBContext().createMarshaller();
-          marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
           JAXBElement<GetRecordsType> jaxbElement = new ObjectFactory().createGetRecords(request);
-          marshaller.marshal(jaxbElement, writer);
+          cswXmlBinding.marshall(jaxbElement, writer);
         } catch (JAXBException e) {
           LOGGER.debug("Unable to marshall {} to XML", GetRecordsType.class, e);
         }
@@ -1129,8 +1127,8 @@ public class CswEndpoint implements Csw {
 
     if (ResultType.HITS.equals(request.getResultType())
         || ResultType.RESULTS.equals(request.getResultType())) {
-      QueryRequest queryRequest = queryFactory.getQuery(request);
       try {
+        QueryRequest queryRequest = queryFactory.getQuery(request);
         queryRequest = queryFactory.updateQueryRequestTags(queryRequest, request.getOutputSchema());
 
         LOGGER.debug("Attempting to execute paged query: {}", queryRequest);
@@ -1159,7 +1157,7 @@ public class CswEndpoint implements Csw {
         QueryResponse queryResponse = new QueryResponseImpl(queryRequest, resultList, totalHits);
 
         response.setSourceResponse(queryResponse);
-      } catch (UnsupportedQueryException | CatalogQueryException e) {
+      } catch (Exception e) {
         LOGGER.debug("Unable to query", e);
         throw new CswException(e);
       }

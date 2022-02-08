@@ -13,6 +13,19 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import ch.qos.logback.classic.Level;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.EventProcessor;
@@ -23,6 +36,15 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.List;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBElement;
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
@@ -43,6 +65,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionImpl;
 import org.junit.Before;
 import org.junit.Rule;
@@ -57,29 +80,6 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
-
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBElement;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.List;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class CswSubscriptionEndpointTest {
   private static final ch.qos.logback.classic.Logger CSW_LOGGER =
@@ -175,7 +175,7 @@ public class CswSubscriptionEndpointTest {
     mockMimeTypeManager = mock(TransformerManager.class);
     mockSchemaManager = mock(TransformerManager.class);
     validator = mock(Validator.class);
-    queryFactory = mock(CswQueryFactory.class);
+    queryFactory = mock(CswQueryFactoryImpl.class);
     query = mock(QueryRequest.class);
     when(queryFactory.getQuery(any(GetRecordsType.class))).thenReturn(query);
 

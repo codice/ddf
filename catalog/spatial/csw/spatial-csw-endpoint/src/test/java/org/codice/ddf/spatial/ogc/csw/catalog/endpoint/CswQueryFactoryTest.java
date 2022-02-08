@@ -86,9 +86,11 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.styling.UomOgcMapping;
@@ -253,9 +255,11 @@ public class CswQueryFactoryTest {
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
     FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
     CswRecordMap cswRecordMap = new MetacardCswRecordMap();
+    CswXmlBinding cswXmlBinding = mock(CswXmlBinding.class);
 
     queryFactory =
-        new CswQueryFactory(cswRecordMap, filterBuilder, filterAdapter, new PermissionsImpl());
+        new CswQueryFactoryImpl(
+            cswRecordMap, filterBuilder, filterAdapter, new PermissionsImpl(), cswXmlBinding);
 
     AttributeRegistryImpl attributeRegistry = new AttributeRegistryImpl();
     attributeRegistry.registerMetacardType(getCswMetacardType());
@@ -279,9 +283,7 @@ public class CswQueryFactoryTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testPostGetRecordsDistributedSearchNotSet()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsDistributedSearchNotSet() throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     QueryRequest queryRequest = queryFactory.getQuery(grr);
@@ -291,9 +293,7 @@ public class CswQueryFactoryTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testPostGetRecordsDistributedSearchSetToOne()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsDistributedSearchSetToOne() throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     DistributedSearchType distributedSearch = new DistributedSearchType();
@@ -308,9 +308,7 @@ public class CswQueryFactoryTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testPostGetRecordsDistributedSearchSetToTen()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsDistributedSearchSetToTen() throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     DistributedSearchType distributedSearch = new DistributedSearchType();
@@ -325,9 +323,7 @@ public class CswQueryFactoryTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testPostGetRecordsDistributedSearchSpecificSources()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsDistributedSearchSpecificSources() throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     DistributedSearchType distributedSearch = new DistributedSearchType();
@@ -356,9 +352,7 @@ public class CswQueryFactoryTest {
   }
 
   @Test
-  public void testPostGetRecordsContextualCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsContextualCQLQuery() throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     QueryType query = new QueryType();
@@ -387,9 +381,7 @@ public class CswQueryFactoryTest {
   }
 
   @Test
-  public void testPostGetRecordsValidSort()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsValidSort() throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     grr.setResultType(ResultType.RESULTS);
@@ -417,9 +409,7 @@ public class CswQueryFactoryTest {
   }
 
   @Test
-  public void testPostGetRecordsFunctionCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsFunctionCQLQuery() throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     QueryType query = new QueryType();
@@ -454,176 +444,130 @@ public class CswQueryFactoryTest {
   }
 
   @Test
-  public void testPostGetRecordsSpatialEqualsCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialEqualsCQLQuery() throws Exception {
     cqlSpatialQuery(Equals.class, CQL_SPATIAL_EQUALS_QUERY);
   }
 
   @Test
-  public void testPostGetRecordsSpatialDisjointCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialDisjointCQLQuery() throws Exception {
     cqlSpatialQuery(Disjoint.class, CQL_SPATIAL_DISJOINT_QUERY);
   }
 
   @Test
-  public void testPostGetRecordsSpatialIntersectsCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialIntersectsCQLQuery() throws Exception {
     cqlSpatialQuery(Intersects.class, CQL_SPATIAL_INTERSECTS_QUERY);
   }
 
   @Test
-  public void testPostGetRecordsSpatialTouchesCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialTouchesCQLQuery() throws Exception {
     cqlSpatialQuery(Touches.class, CQL_SPATIAL_TOUCHES_QUERY);
   }
 
   @Test
-  public void testPostGetRecordsSpatialCrossesCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialCrossesCQLQuery() throws Exception {
     cqlSpatialQuery(Crosses.class, CQL_SPATIAL_CROSSES_QUERY);
   }
 
   @Test
-  public void testPostGetRecordsSpatialWithinCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialWithinCQLQuery() throws Exception {
     cqlSpatialQuery(Within.class, CQL_SPATIAL_WITHIN_QUERY);
   }
 
   @Test
-  public void testPostGetRecordsSpatialContainsCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialContainsCQLQuery() throws Exception {
     cqlSpatialQuery(Contains.class, CQL_SPATIAL_CONTAINS_QUERY);
   }
 
   @Test
-  public void testPostGetRecordsSpatialOverlapsCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialOverlapsCQLQuery() throws Exception {
     cqlSpatialQuery(Overlaps.class, CQL_SPATIAL_OVERLAPS_QUERY);
   }
 
   @Test
-  public void testPostGetRecordsSpatialDWithinCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialDWithinCQLQuery() throws Exception {
     cqlSpatialRelativeQuery(DWithin.class, CQL_SPATIAL_DWITHIN_QUERY);
   }
 
   @Test
-  public void testPostGetRecordsSpatialBeyondCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialBeyondCQLQuery() throws Exception {
     cqlSpatialRelativeQuery(Beyond.class, CQL_SPATIAL_BEYOND_QUERY);
   }
 
   @Test
-  public void testPostGetRecordsSpatialEqualsOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialEqualsOgcFilter() throws Exception {
     BinarySpatialOpType op = createBinarySpatialOpType();
 
     ogcSpatialQuery(Equals.class, filterObjectFactory.createEquals(op));
   }
 
   @Test
-  public void testPostGetRecordsSpatialDisjointOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialDisjointOgcFilter() throws Exception {
     BinarySpatialOpType op = createBinarySpatialOpType();
     ogcSpatialQuery(Disjoint.class, filterObjectFactory.createDisjoint(op));
   }
 
   @Test
-  public void testPostGetRecordsSpatialIntersectsOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialIntersectsOgcFilter() throws Exception {
     BinarySpatialOpType op = createBinarySpatialOpType();
     ogcSpatialQuery(Intersects.class, filterObjectFactory.createIntersects(op));
   }
 
   @Test
-  public void testPostGetRecordsSpatialTouchesOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialTouchesOgcFilter() throws Exception {
     BinarySpatialOpType op = createBinarySpatialOpType();
     ogcSpatialQuery(Touches.class, filterObjectFactory.createTouches(op));
   }
 
   @Test
-  public void testPostGetRecordsSpatialCrossesOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialCrossesOgcFilter() throws Exception {
     BinarySpatialOpType op = createBinarySpatialOpType();
     ogcSpatialQuery(Crosses.class, filterObjectFactory.createCrosses(op));
   }
 
   @Test
-  public void testPostGetRecordsSpatialWithinOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialWithinOgcFilter() throws Exception {
     BinarySpatialOpType op = createBinarySpatialOpType();
     ogcSpatialQuery(Within.class, filterObjectFactory.createWithin(op));
   }
 
   @Test
-  public void testPostGetRecordsSpatialContainsOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialContainsOgcFilter() throws Exception {
     BinarySpatialOpType op = createBinarySpatialOpType();
     ogcSpatialQuery(Contains.class, filterObjectFactory.createContains(op));
   }
 
   @Test
-  public void testPostGetRecordsSpatialOverlapsOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialOverlapsOgcFilter() throws Exception {
     BinarySpatialOpType op = createBinarySpatialOpType();
     ogcSpatialQuery(Overlaps.class, filterObjectFactory.createOverlaps(op));
   }
 
   @Test
-  public void testPostGetRecordsSpatialDWithinOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialDWithinOgcFilter() throws Exception {
     DistanceBufferType op = createDistanceBufferType();
     ogcSpatialRelativeQuery(DWithin.class, filterObjectFactory.createDWithin(op));
   }
 
   @Test
-  public void testPostGetRecordsSpatialBeyondOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsSpatialBeyondOgcFilter() throws Exception {
     DistanceBufferType op = createDistanceBufferType();
     ogcSpatialRelativeQuery(Beyond.class, filterObjectFactory.createBeyond(op));
   }
 
   @Test
-  public void testGetGetRecordsSpatialDWithinOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testGetGetRecordsSpatialDWithinOgcFilter() throws Exception {
     String constraint = createDistanceBufferQuery("DWithin");
     ogcSpatialRelativeQuery(DWithin.class, constraint);
   }
 
   @Test
-  public void testGetGetRecordsSpatialBeyondOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testGetGetRecordsSpatialBeyondOgcFilter() throws Exception {
     String constraint = createDistanceBufferQuery("Beyond");
     ogcSpatialRelativeQuery(Beyond.class, constraint);
   }
 
   @Test
-  public void testPostGetRecordsTemporalPropertyIsLessOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsTemporalPropertyIsLessOgcFilter() throws Exception {
     BinaryComparisonOpType op =
         createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED, TIMESTAMP);
     ogcTemporalQuery(Core.CREATED, filterObjectFactory.createPropertyIsLessThan(op), Before.class);
@@ -633,9 +577,7 @@ public class CswQueryFactoryTest {
       "TODO: the functions this test tests has been augmented to play well with the limited capabilities of the Solr provider.  "
           + "These tests and the functions they test should be reenabled and refactored after DDF-311 is addressed")
   @Test
-  public void testPostGetRecordsTemporalPropertyIsLessOrEqualOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsTemporalPropertyIsLessOrEqualOgcFilter() throws Exception {
     BinaryComparisonOpType op =
         createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED, TIMESTAMP);
     ogcOrdTemporalQuery(filterObjectFactory.createPropertyIsLessThanOrEqualTo(op));
@@ -645,9 +587,7 @@ public class CswQueryFactoryTest {
       "TODO: the functions this test tests has been augmented to play well with the limited capabilities of the Solr provider.  "
           + "These tests and the functions they test should be reenabled and refactored after DDF-311 is addressed")
   @Test
-  public void testPostGetRecordsTemporalPropertyIsGreaterOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsTemporalPropertyIsGreaterOgcFilter() throws Exception {
     BinaryComparisonOpType op =
         createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED, TIMESTAMP);
     ogcTemporalQuery(
@@ -658,9 +598,7 @@ public class CswQueryFactoryTest {
       "TODO: the functions this test tests has been augmented to play well with the limited capabilities of the Solr provider.  "
           + "These tests and the functions they test should be reenabled and refactored after DDF-311 is addressed")
   @Test
-  public void testPostGetRecordsTemporalPropertyIsGreaterOrEqualOgcFilter()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsTemporalPropertyIsGreaterOrEqualOgcFilter() throws Exception {
     BinaryComparisonOpType op =
         createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED, TIMESTAMP);
     ogcOrdTemporalQuery(filterObjectFactory.createPropertyIsGreaterThanOrEqualTo(op));
@@ -668,9 +606,7 @@ public class CswQueryFactoryTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testPostGetRecordsTemporalBeforeCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsTemporalBeforeCQLQuery() throws Exception {
 
     String[] cqlTextValues =
         new String[] {CswConstants.CSW_NO_PREFIX_CREATED, CQL_BEFORE, TIMESTAMP};
@@ -680,9 +616,7 @@ public class CswQueryFactoryTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testPostGetRecordsTemporalAfterCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsTemporalAfterCQLQuery() throws Exception {
 
     String[] cqlTextValues = new String[] {CswConstants.CSW_ISSUED, CQL_AFTER, TIMESTAMP};
     String cqlText = StringUtils.join(cqlTextValues, " ");
@@ -691,9 +625,7 @@ public class CswQueryFactoryTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testPostGetRecordsTemporalDuringCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsTemporalDuringCQLQuery() throws Exception {
 
     String[] cqlTextValues =
         new String[] {CswConstants.CSW_DATE_ACCEPTED, CQL_DURING, TIMESTAMP, "/", DURATION};
@@ -703,9 +635,7 @@ public class CswQueryFactoryTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testPostGetRecordsTemporalBeforeOrDuringCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsTemporalBeforeOrDuringCQLQuery() throws Exception {
 
     String[] cqlTextValues =
         new String[] {CswConstants.CSW_DATE, CQL_BEFORE_OR_DURING, TIMESTAMP, "/", DURATION};
@@ -715,9 +645,7 @@ public class CswQueryFactoryTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testPostGetRecordsTemporalAfterOrDuringCQLQuery()
-      throws CswException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException {
+  public void testPostGetRecordsTemporalAfterOrDuringCQLQuery() throws Exception {
 
     String[] cqlTextValues =
         new String[] {CswConstants.CSW_VALID, CQL_DURING_OR_AFTER, TIMESTAMP, "/", DURATION};
@@ -745,7 +673,7 @@ public class CswQueryFactoryTest {
   }
 
   @Test
-  public void testMultipleQueryFilterTransformers() throws CswException {
+  public void testMultipleQueryFilterTransformers() throws Exception {
     List<String> namespaces = Arrays.asList("{namespace}one", "{namespace}two");
 
     QueryConstraintType constraint = mock(QueryConstraintType.class);
@@ -772,8 +700,7 @@ public class CswQueryFactoryTest {
    * @throws CswException
    */
   private <N extends BinarySpatialOperator> void cqlSpatialQuery(Class<N> clz, String cql)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-          CswException {
+      throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     QueryType query = new QueryType();
@@ -813,8 +740,7 @@ public class CswQueryFactoryTest {
    * @throws CswException
    */
   private <N extends DistanceBufferOperator> void cqlSpatialRelativeQuery(Class<N> clz, String cql)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-          CswException {
+      throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     QueryType query = new QueryType();
@@ -958,9 +884,7 @@ public class CswQueryFactoryTest {
    * @throws CswException
    */
   private <N extends DistanceBufferOperator> void ogcSpatialRelativeQuery(
-      Class<N> clz, String constraint)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-          CswException {
+      Class<N> clz, String constraint) throws Exception {
     GetRecordsRequest grr = createDefaultGetRecordsRequest();
 
     grr.setConstraintLanguage("FILTER");
@@ -990,9 +914,7 @@ public class CswQueryFactoryTest {
    * @throws CswException
    */
   private <N extends DistanceBufferOperator> void ogcSpatialRelativeQuery(
-      Class<N> clz, JAXBElement<DistanceBufferType> spatialOps)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-          CswException {
+      Class<N> clz, JAXBElement<DistanceBufferType> spatialOps) throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     QueryType query = new QueryType();
@@ -1034,9 +956,7 @@ public class CswQueryFactoryTest {
    * @throws CswException
    */
   private <N extends BinarySpatialOperator> void ogcSpatialQuery(
-      Class<N> clz, JAXBElement<BinarySpatialOpType> spatialOps)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-          CswException {
+      Class<N> clz, JAXBElement<BinarySpatialOpType> spatialOps) throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     QueryType query = new QueryType();
@@ -1082,8 +1002,7 @@ public class CswQueryFactoryTest {
   @SuppressWarnings("unchecked")
   private <N extends BinaryTemporalOperator> void ogcTemporalQuery(
       String expectedAttr, JAXBElement<BinaryComparisonOpType> temporalOps, Class<N> clz)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-          CswException {
+      throws Exception {
     Filter filter = generateTemporalFilter(temporalOps);
 
     assertThat(filter, instanceOf(clz));
@@ -1105,8 +1024,7 @@ public class CswQueryFactoryTest {
    */
   @SuppressWarnings("unchecked")
   private void ogcOrdTemporalQuery(JAXBElement<BinaryComparisonOpType> temporalOps)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-          CswException {
+      throws Exception {
     Filter filter = generateTemporalFilter(temporalOps);
 
     assertThat(filter, instanceOf(Or.class));
@@ -1124,8 +1042,7 @@ public class CswQueryFactoryTest {
   }
 
   private Filter generateTemporalFilter(JAXBElement<BinaryComparisonOpType> temporalOps)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-          CswException {
+      throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     QueryType query = new QueryType();
@@ -1150,9 +1067,7 @@ public class CswQueryFactoryTest {
 
   @SuppressWarnings("unchecked")
   private <N extends BinaryTemporalOperator> void cqlTemporalQuery(
-      String expectedAttr, String cqlSpatialDwithinQuery, Class<N>[] classes)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-          CswException {
+      String expectedAttr, String cqlSpatialDwithinQuery, Class<N>[] classes) throws Exception {
     GetRecordsType grr = createDefaultPostRecordsRequest();
 
     QueryType query = new QueryType();

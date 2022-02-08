@@ -130,6 +130,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformerProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -147,7 +148,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImp
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
-import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformerProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.junit.Test;
 import org.locationtech.jts.io.ParseException;
 import org.mockito.ArgumentCaptor;
@@ -241,7 +242,7 @@ public class CswEndpointTest {
 
   private List<QueryResponse> queryResponseBatch;
 
-  private CswQueryFactory queryFactory = mock(CswQueryFactory.class);
+  private CswQueryFactory queryFactory = mock(CswQueryFactoryImpl.class);
 
   @org.junit.Before
   public void setUpBeforeClass()

@@ -159,7 +159,7 @@
     <bean id="metacardCswRecordMap" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap"/>
 
     <bean id="cswFilterFactory"
-      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory">
+      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryImpl">
         <argument ref="metacardCswRecordMap"/>
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>
@@ -173,6 +173,9 @@
         <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
     </bean>
 
+    <bean id="cswXmlBinding"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding"/>
+
     <bean id="CswSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint"
         init-method="init" destroy-method="destroy">
         <argument ref="catalogFramework"/>
@@ -182,6 +185,7 @@
         <argument ref="cswActionTransformerProvider"/>
         <argument ref="validator"/>
         <argument ref="cswFilterFactory"/>
+        <argument ref="cswXmlBinding"/>
     </bean>
 
     <bean id="ddf.catalog.endpoint.csw" class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
@@ -232,6 +236,7 @@
         <argument ref="security"/>
     </bean>
 
+
     <service ref="ddf.catalog.endpoint.csw" interface="ddf.catalog.endpoint.CatalogEndpoint"/>
 
     <jaxrs:server id="CswService" address="/csw">
@@ -251,10 +256,11 @@
     </jaxrs:server>
 
     <cm:managed-service-factory id="cswSubscriptionFactory" factory-pid="CSW_Subscription"
-                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactoryImpl" >
+                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" >
         <cm:managed-component
                 class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactoryImpl" init-method="restore">
             <argument ref="CswSubscriptionSvc"/>
+            <argument ref="cswXmlBinding"/>
             <property name="filterXml" value=""/>
             <property name="subscriptionId" value=""/>
             <property name="deliveryMethodUrl" value=""/>

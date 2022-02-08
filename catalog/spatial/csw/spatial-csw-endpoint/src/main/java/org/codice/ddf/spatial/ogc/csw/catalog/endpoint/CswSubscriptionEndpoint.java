@@ -65,6 +65,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactoryImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionImpl;
 import org.osgi.framework.BundleContext;
@@ -114,6 +116,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
   private Map<String, ServiceRegistration<Subscription>> registeredSubscriptions = new HashMap<>();
 
   private Security security;
+  private final CswXmlBinding cswXmlBinding;
 
   public CswSubscriptionEndpoint(
       EventProcessor eventProcessor,
@@ -123,7 +126,8 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       Validator validator,
       CswQueryFactory queryFactory,
       ClientBuilderFactory clientBuilderFactory,
-      Security security) {
+      Security security,
+      CswXmlBinding cswXmlBinding) {
     this.eventProcessor = eventProcessor;
     this.mimeTypeTransformerManager = mimeTypeTransformerManager;
     this.schemaTransformerManager = schemaTransformerManager;
@@ -132,6 +136,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     this.queryFactory = queryFactory;
     this.clientBuilderFactory = clientBuilderFactory;
     this.security = security;
+    this.cswXmlBinding = cswXmlBinding;
 
     try {
       this.datatypeFactory = DatatypeFactory.newInstance();
@@ -205,6 +210,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     if (!hasSubscription(requestId)) {
       return Response.status(Response.Status.NOT_FOUND).build();
     }
+
     return createOrUpdateSubscription(request, requestId);
   }
 
@@ -553,9 +559,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
     try {
       StringWriter sw = new StringWriter();
-      CswQueryFactory.getJaxBContext()
-          .createMarshaller()
-          .marshal(objectFactory.createGetRecords(subscription.getOriginalRequest()), sw);
+      cswXmlBinding.marshal(objectFactory.createGetRecords(subscription.getOriginalRequest()), sw);
       String filterXml = sw.toString();
       ConfigurationAdmin configAdmin = getConfigAdmin();
       // Store filter XML, deliveryMethod URL, this endpoint's factory PID, and subscription ID into

@@ -26,6 +26,7 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscriptionConfigFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,6 +35,8 @@ public class CswSubscriptionConfigFactoryTest {
   private CswSubscriptionEndpoint subscriptionService;
 
   private CswSubscriptionConfigFactory cswSubscriptionConfigFactory;
+
+  private CswXmlBinding cswXmlBinding;
 
   private static final String DELIVERY_URL = "http://localhost:8993/test";
 
@@ -45,7 +48,9 @@ public class CswSubscriptionConfigFactoryTest {
   public void setup() throws Exception {
 
     subscriptionService = mock(CswSubscriptionEndpoint.class);
-    cswSubscriptionConfigFactory = new CswSubscriptionConfigFactoryImpl(subscriptionService);
+    cswXmlBinding = mock(CswXmlBinding.class);
+    cswSubscriptionConfigFactory =
+        new CswSubscriptionConfigFactoryImpl(subscriptionService, cswXmlBinding);
     filterXml =
         IOUtils.toString(
             CswSubscriptionConfigFactoryTest.class.getResourceAsStream("/GetRecords.xml"), "UTF-8");
