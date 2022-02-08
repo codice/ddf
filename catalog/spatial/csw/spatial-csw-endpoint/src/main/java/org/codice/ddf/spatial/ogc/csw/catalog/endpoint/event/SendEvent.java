@@ -320,7 +320,8 @@ public class SendEvent implements DeliveryMethod, Pingable {
   }
 
   List<AccessPlugin> getAccessPlugins() throws InvalidSyntaxException {
-    BundleContext bundleContext = FrameworkUtil.getBundle(CswSubscription.class).getBundleContext();
+    BundleContext bundleContext =
+        FrameworkUtil.getBundle(CswSubscriptionImpl.class).getBundleContext();
     Collection<ServiceReference<AccessPlugin>> serviceCollection =
         bundleContext.getServiceReferences(AccessPlugin.class, null);
     return serviceCollection.stream().map(bundleContext::getService).collect(Collectors.toList());

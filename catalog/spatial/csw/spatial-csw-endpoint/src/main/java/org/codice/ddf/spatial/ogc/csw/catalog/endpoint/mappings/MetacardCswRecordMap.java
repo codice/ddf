@@ -15,7 +15,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
 import org.xml.sax.helpers.NamespaceSupport;
 
 public class MetacardCswRecordMap implements CswRecordMap {

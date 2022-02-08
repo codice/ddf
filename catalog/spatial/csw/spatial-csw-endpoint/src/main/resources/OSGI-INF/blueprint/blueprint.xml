@@ -120,7 +120,7 @@
       class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.impl.CswActionTransformerProviderImpl"/>
 
     <reference-list id="cswActionTransformers"
-      interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformer"
+      interface="org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformer"
       availability="optional">
         <reference-listener bind-method="bind"
           unbind-method="unbind"
@@ -251,9 +251,9 @@
     </jaxrs:server>
 
     <cm:managed-service-factory id="cswSubscriptionFactory" factory-pid="CSW_Subscription"
-                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" >
+                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactoryImpl" >
         <cm:managed-component
-                class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" init-method="restore">
+                class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactoryImpl" init-method="restore">
             <argument ref="CswSubscriptionSvc"/>
             <property name="filterXml" value=""/>
             <property name="subscriptionId" value=""/>

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
+package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
 
 import org.xml.sax.helpers.NamespaceSupport;
 

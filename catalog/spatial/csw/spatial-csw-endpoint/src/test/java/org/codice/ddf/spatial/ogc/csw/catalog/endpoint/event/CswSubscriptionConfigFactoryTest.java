@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscriptionConfigFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,7 +45,7 @@ public class CswSubscriptionConfigFactoryTest {
   public void setup() throws Exception {
 
     subscriptionService = mock(CswSubscriptionEndpoint.class);
-    cswSubscriptionConfigFactory = new CswSubscriptionConfigFactory(subscriptionService);
+    cswSubscriptionConfigFactory = new CswSubscriptionConfigFactoryImpl(subscriptionService);
     filterXml =
         IOUtils.toString(
             CswSubscriptionConfigFactoryTest.class.getResourceAsStream("/GetRecords.xml"), "UTF-8");

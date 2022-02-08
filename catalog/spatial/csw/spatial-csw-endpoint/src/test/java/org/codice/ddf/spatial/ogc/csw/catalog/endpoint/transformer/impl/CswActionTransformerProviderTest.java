@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.Optional;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformer;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformer;
 import org.junit.Before;
 import org.junit.Test;
 

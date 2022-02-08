@@ -26,13 +26,15 @@ import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscriptionConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class CswSubscriptionConfigFactory {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CswSubscriptionConfigFactory.class);
+public class CswSubscriptionConfigFactoryImpl implements CswSubscriptionConfigFactory {
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(CswSubscriptionConfigFactoryImpl.class);
 
   /**
    * The ManagedServiceFactory PID for the subscription's callback web service adapter, used to
@@ -56,10 +58,11 @@ public class CswSubscriptionConfigFactory {
 
   private String deliveryMethodUrl;
 
-  public CswSubscriptionConfigFactory(CswSubscriptionEndpoint subscriptionService) {
+  public CswSubscriptionConfigFactoryImpl(CswSubscriptionEndpoint subscriptionService) {
     this.subscriptionService = subscriptionService;
   }
 
+  @Override
   public void restore() {
     try (StringReader sr = new StringReader(filterXml)) {
       SAXParserFactory spf = XMLUtils.getInstance().getSecureSAXParserFactory();
@@ -82,14 +85,17 @@ public class CswSubscriptionConfigFactory {
     }
   }
 
+  @Override
   public void setFilterXml(String filterXml) {
     this.filterXml = filterXml;
   }
 
+  @Override
   public void setSubscriptionId(String subscriptionId) {
     this.subscriptionId = subscriptionId;
   }
 
+  @Override
   public void setDeliveryMethodUrl(String deliveryMethodUrl) {
     this.deliveryMethodUrl = deliveryMethodUrl;
   }

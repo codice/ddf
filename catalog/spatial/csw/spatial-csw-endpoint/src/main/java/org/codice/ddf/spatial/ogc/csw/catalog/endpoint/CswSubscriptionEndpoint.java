@@ -65,8 +65,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscription;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactoryImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionImpl;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -155,7 +155,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
   public Response deleteRecordsSubscription(@PathParam("requestId") String requestId)
       throws CswException {
 
-    CswSubscription subscription = deleteCswSubscription(requestId);
+    CswSubscriptionImpl subscription = deleteCswSubscription(requestId);
     if (subscription == null) {
       return Response.status(Response.Status.NOT_FOUND).build();
     }
@@ -176,7 +176,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
   @Produces({MediaType.WILDCARD})
   public Response getRecordsSubscription(@PathParam("requestId") String requestId) {
 
-    CswSubscription subscription = getSubscription(requestId);
+    CswSubscriptionImpl subscription = getSubscription(requestId);
     if (subscription == null) {
       return Response.status(Response.Status.NOT_FOUND).build();
     }
@@ -409,22 +409,22 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     return subscriptionId;
   }
 
-  private synchronized CswSubscription getSubscription(String subscriptionId) {
+  private synchronized CswSubscriptionImpl getSubscription(String subscriptionId) {
     ServiceRegistration sr = registeredSubscriptions.get(subscriptionId);
     if (sr == null) {
       return null;
     }
-    return (CswSubscription) getBundleContext().getService(sr.getReference());
+    return (CswSubscriptionImpl) getBundleContext().getService(sr.getReference());
   }
 
-  public CswSubscription createSubscription(GetRecordsType request) throws CswException {
+  public CswSubscriptionImpl createSubscription(GetRecordsType request) throws CswException {
     QueryRequest query = queryFactory.getQuery(request);
     // if it is an empty query we need to create a filterless subscription
     if (((QueryType) request.getAbstractQuery().getValue()).getConstraint() == null) {
-      return CswSubscription.getFilterlessSubscription(
+      return CswSubscriptionImpl.getFilterlessSubscription(
           mimeTypeTransformerManager, request, query, clientBuilderFactory, security);
     }
-    return new CswSubscription(
+    return new CswSubscriptionImpl(
         mimeTypeTransformerManager, request, query, clientBuilderFactory, security);
   }
 
@@ -452,7 +452,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       LOGGER.debug("Delete existing subscription {} for re-creation", subscriptionUuid);
       deleteCswSubscription(subscriptionUuid);
     }
-    CswSubscription sub = createSubscription(request);
+    CswSubscriptionImpl sub = createSubscription(request);
 
     Dictionary<String, String> props = new DictionaryMap<>();
     props.put("subscription-id", subscriptionUuid);
@@ -491,7 +491,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     }
   }
 
-  private synchronized CswSubscription deleteCswSubscription(String subscriptionId)
+  private synchronized CswSubscriptionImpl deleteCswSubscription(String subscriptionId)
       throws CswException {
     String methodName = "deleteCswSubscription";
     LogSanitizer logSanitizedId = LogSanitizer.sanitize(subscriptionId);
@@ -503,7 +503,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
           "Unable to delete subscription because subscription ID is null or empty");
     }
 
-    CswSubscription subscription = getSubscription(subscriptionId);
+    CswSubscriptionImpl subscription = getSubscription(subscriptionId);
     try {
       LOGGER.debug("Removing (unregistering) subscription: {}", logSanitizedId);
       ServiceRegistration sr = registeredSubscriptions.remove(subscriptionId);
@@ -547,7 +547,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
    * values the client originally provided.
    */
   private void persistSubscription(
-      CswSubscription subscription, String deliveryMethodUrl, String subscriptionUuid) {
+      CswSubscriptionImpl subscription, String deliveryMethodUrl, String subscriptionUuid) {
     String methodName = "persistSubscription";
     LOGGER.trace(ENTERING_STR, methodName);
 
@@ -562,13 +562,14 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       // OSGi CongiAdmin
       if (filterXml != null && configAdmin != null) {
         Configuration config =
-            configAdmin.createFactoryConfiguration(CswSubscriptionConfigFactory.FACTORY_PID, null);
+            configAdmin.createFactoryConfiguration(
+                CswSubscriptionConfigFactoryImpl.FACTORY_PID, null);
 
         Dictionary<String, String> props = new DictionaryMap<>();
-        props.put(CswSubscriptionConfigFactory.SUBSCRIPTION_ID, subscriptionUuid);
-        props.put(CswSubscriptionConfigFactory.FILTER_XML, filterXml);
-        props.put(CswSubscriptionConfigFactory.DELIVERY_METHOD_URL, deliveryMethodUrl);
-        props.put(CswSubscriptionConfigFactory.SUBSCRIPTION_UUID, subscriptionUuid);
+        props.put(CswSubscriptionConfigFactoryImpl.SUBSCRIPTION_ID, subscriptionUuid);
+        props.put(CswSubscriptionConfigFactoryImpl.FILTER_XML, filterXml);
+        props.put(CswSubscriptionConfigFactoryImpl.DELIVERY_METHOD_URL, deliveryMethodUrl);
+        props.put(CswSubscriptionConfigFactoryImpl.SUBSCRIPTION_UUID, subscriptionUuid);
 
         LOGGER.debug("Done adding persisting subscription to ConfigAdmin");
 

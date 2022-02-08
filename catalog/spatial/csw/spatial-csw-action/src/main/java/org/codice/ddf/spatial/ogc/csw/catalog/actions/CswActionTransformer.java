@@ -11,25 +11,24 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
+package org.codice.ddf.spatial.ogc.csw.catalog.actions;
 
 import java.util.Set;
-import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 
 /**
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  *
  * <p>A CswActionTransformer is used to modify CSW transactions before they are run. Specifically,
- * it modifies {@link UpdateAction}, {@link DeleteAction}, and {@link InsertAction} objects before
- * they are processed by the framework.
+ * it modifies {@link org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction}, {@link
+ * org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction}, and {@link
+ * org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction} objects before they are processed by
+ * the framework.
  */
 public interface CswActionTransformer {
 
   /**
-   * Transforms an {@link UpdateAction}.
+   * Transforms an {@link org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction}.
    *
    * @param updateAction the UpdateAction to transform.
    * @return the transformed UpdateAction.
@@ -37,7 +36,7 @@ public interface CswActionTransformer {
   UpdateAction transform(UpdateAction updateAction);
 
   /**
-   * Transforms a {@link DeleteAction}.
+   * Transforms a {@link org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction}.
    *
    * @param deleteAction the DeleteAction to transform.
    * @return the transformed DeleteAction.
@@ -45,7 +44,7 @@ public interface CswActionTransformer {
   DeleteAction transform(DeleteAction deleteAction);
 
   /**
-   * Transforms an {@link InsertAction}.
+   * Transforms an {@link org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction}.
    *
    * @param insertAction the InsertAction to transform.
    * @return the transformed InsertAction.

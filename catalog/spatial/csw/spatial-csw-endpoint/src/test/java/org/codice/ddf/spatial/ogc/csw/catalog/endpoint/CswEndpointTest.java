@@ -147,7 +147,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImp
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformerProvider;
 import org.junit.Test;
 import org.locationtech.jts.io.ParseException;
 import org.mockito.ArgumentCaptor;

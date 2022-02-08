@@ -20,8 +20,8 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformer;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformer;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

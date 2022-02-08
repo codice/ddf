@@ -23,11 +23,12 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.opengis.filter.Filter;
 
-public class CswSubscription extends SubscriptionImpl {
+public class CswSubscriptionImpl extends SubscriptionImpl
+    implements ddf.catalog.event.Subscription {
 
   private GetRecordsType originalRequest;
 
-  private CswSubscription(
+  private CswSubscriptionImpl(
       GetRecordsType request,
       Filter filter,
       SendEvent sendEvent,
@@ -37,7 +38,7 @@ public class CswSubscription extends SubscriptionImpl {
     this.originalRequest = request;
   }
 
-  public CswSubscription(
+  public CswSubscriptionImpl(
       TransformerManager mimeTypeTransformerManager,
       GetRecordsType request,
       QueryRequest query,
@@ -52,14 +53,14 @@ public class CswSubscription extends SubscriptionImpl {
         query.isEnterprise());
   }
 
-  public static CswSubscription getFilterlessSubscription(
+  public static CswSubscriptionImpl getFilterlessSubscription(
       TransformerManager mimeTypeTransformerManager,
       GetRecordsType request,
       QueryRequest query,
       ClientBuilderFactory clientBuilderFactory,
       Security security)
       throws CswException {
-    return new CswSubscription(
+    return new CswSubscriptionImpl(
         request,
         Filter.INCLUDE,
         new SendEvent(mimeTypeTransformerManager, request, query, clientBuilderFactory, security),
