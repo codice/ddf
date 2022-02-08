@@ -24,6 +24,12 @@
     <name>DDF :: Spatial :: CSW :: Source :: Common</name>
     <dependencies>
         <dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>gml-v_3_2_1-schema</artifactId>
+            <version>1.1.0</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
         </dependency>
@@ -73,11 +79,11 @@
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jvnet.ogc</groupId>
-            <artifactId>gml-v_3_1_1-schema</artifactId>
-            <version>${gml-v_3_1_1-schema.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.jvnet.ogc</groupId>-->
+<!--            <artifactId>gml-v_3_1_1-schema</artifactId>-->
+<!--            <version>${gml-v_3_1_1-schema.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>ows-v_1_0_0-schema</artifactId>

@@ -1103,7 +1103,7 @@ public class CswEndpoint implements Csw {
         Writer writer = new StringWriter();
         try {
           JAXBElement<GetRecordsType> jaxbElement = new ObjectFactory().createGetRecords(request);
-          cswXmlBinding.marshall(jaxbElement, writer);
+          cswXmlBinding.marshallWriter(jaxbElement, writer);
         } catch (JAXBException e) {
           LOGGER.debug("Unable to marshall {} to XML", GetRecordsType.class, e);
         }

@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -558,8 +559,9 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     LOGGER.trace(ENTERING_STR, methodName);
 
     try {
-      StringWriter sw = new StringWriter();
-      cswXmlBinding.marshal(objectFactory.createGetRecords(subscription.getOriginalRequest()), sw);
+      Writer sw = new StringWriter();
+      cswXmlBinding.marshallWriter(
+          objectFactory.createGetRecords(subscription.getOriginalRequest()), sw);
       String filterXml = sw.toString();
       ConfigurationAdmin configAdmin = getConfigAdmin();
       // Store filter XML, deliveryMethod URL, this endpoint's factory PID, and subscription ID into

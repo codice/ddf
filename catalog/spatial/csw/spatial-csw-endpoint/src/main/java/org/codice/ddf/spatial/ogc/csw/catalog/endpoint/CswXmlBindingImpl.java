@@ -14,7 +14,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
 import java.io.OutputStream;
-import java.io.StringReader;
+import java.io.Reader;
 import java.io.Writer;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -28,10 +28,11 @@ import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
 import org.xml.sax.InputSource;
 
+@SuppressWarnings("unused")
 public class CswXmlBindingImpl implements CswXmlBinding {
 
-  private final JAXBContext jaxBContext;
-  private final SAXParserFactory saxParserFactory;
+  final JAXBContext jaxBContext;
+  final SAXParserFactory saxParserFactory;
 
   @SuppressWarnings("unused")
   public CswXmlBindingImpl() throws JAXBException {
@@ -45,23 +46,23 @@ public class CswXmlBindingImpl implements CswXmlBinding {
   }
 
   @Override
-  public Unmarshaller createUnmarshaller() throws Exception {
+  public Unmarshaller createUnmarshaller() throws JAXBException {
     return jaxBContext.createUnmarshaller();
   }
 
   @Override
-  public Object unmarshal(Source source) throws Exception {
+  public Object unmarshal(Source source) throws JAXBException {
     return createUnmarshaller().unmarshal(source);
   }
 
   @Override
-  public Object unmarshal(StringReader reader) throws Exception {
+  public Object unmarshal(Reader reader) throws Exception {
     Source xmlSource =
         new SAXSource(saxParserFactory.newSAXParser().getXMLReader(), new InputSource(reader));
     return unmarshal(xmlSource);
   }
 
-  Marshaller createMarshaller() throws Exception {
+  Marshaller createMarshaller() throws JAXBException {
     Marshaller marshaller = jaxBContext.createMarshaller();
     marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
@@ -69,12 +70,15 @@ public class CswXmlBindingImpl implements CswXmlBinding {
   }
 
   @Override
-  public void marshall(Object obj, Writer w) throws Exception {
+  public void marshallWriter(Object obj, Writer w) throws JAXBException {
+    // Because of the interfaces they implement, Writer and OutputStream
+    // cannot be overloaded in method signatures. Therefore this
+    // method has the word "writer" in it.
     createMarshaller().marshal(obj, w);
   }
 
   @Override
-  public void marshal(Object obj, OutputStream os) throws Exception {
+  public void marshal(Object obj, OutputStream os) throws JAXBException {
     createMarshaller().marshal(obj, os);
   }
 }

@@ -14,18 +14,19 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
 
 import java.io.OutputStream;
-import java.io.StringReader;
+import java.io.Reader;
 import java.io.Writer;
+import javax.xml.bind.JAXBException;
 import javax.xml.transform.Source;
 
 public interface CswXmlBinding {
-  javax.xml.bind.Unmarshaller createUnmarshaller() throws Exception;
+  javax.xml.bind.Unmarshaller createUnmarshaller() throws JAXBException;
 
-  Object unmarshal(Source source) throws Exception;
+  Object unmarshal(Source source) throws JAXBException;
 
-  Object unmarshal(StringReader reader) throws Exception;
+  Object unmarshal(Reader reader) throws Exception;
 
-  void marshall(Object obj, Writer w) throws Exception;
+  void marshallWriter(Object obj, Writer w) throws JAXBException;
 
-  void marshal(Object obj, OutputStream os) throws Exception;
+  void marshal(Object obj, OutputStream os) throws JAXBException;
 }
