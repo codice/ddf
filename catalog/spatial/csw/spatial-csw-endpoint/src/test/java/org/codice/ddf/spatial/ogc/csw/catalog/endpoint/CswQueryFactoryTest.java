@@ -83,7 +83,7 @@ import net.opengis.gml.v_3_1_1.CoordType;
 import net.opengis.gml.v_3_1_1.LinearRingType;
 import net.opengis.gml.v_3_1_1.PolygonType;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.temp.GetRecordsRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.GetRecordsRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;

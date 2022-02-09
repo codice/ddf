@@ -61,7 +61,7 @@ import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
 import org.codice.ddf.cxf.oauth.OAuthSecurity;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.security.jaxrs.SamlSecurity;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.temp.GetRecordsRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.GetRecordsRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;

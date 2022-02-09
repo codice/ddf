@@ -16,11 +16,13 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.converter;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.junit.Test;
 
-public class DefaultCswRecordMapTest {
+public class MetacardCswRecordMapTest {
 
-  TestCswRecordMap cswRecordMap = new TestCswRecordMap();
+  CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
   @Test
   public void testNamespacePrefixedQueriesWithoutXpath() {

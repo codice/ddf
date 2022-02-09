@@ -139,7 +139,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.temp.GetRecordsRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.GetRecordsRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;

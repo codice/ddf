@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.common.temp;
+package org.codice.ddf.spatial.ogc.csw.catalog.common.transformer;
 
 import java.io.StringReader;
 import java.math.BigInteger;
