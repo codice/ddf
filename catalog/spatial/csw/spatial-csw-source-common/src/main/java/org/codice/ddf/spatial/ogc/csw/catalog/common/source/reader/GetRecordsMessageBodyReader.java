@@ -99,7 +99,6 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     return CswRecordCollectionImpl.class.isAssignableFrom(type);
   }
 
-  @Override
   public CswRecordCollection readFrom(
       Class<CswRecordCollection> type,
       Type genericType,

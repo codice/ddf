@@ -61,14 +61,15 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -81,6 +82,8 @@ public class GetRecordsMessageBodyReaderTest {
 
   private Permissions permissions = new PermissionsImpl();
 
+  private CswRecordMap cswRecordMap = new MetacardCswRecordMap();
+
   @Before
   public void setUp() {
     when(mockProvider.canConvert(any(Class.class))).thenReturn(true);
@@ -88,9 +91,9 @@ public class GetRecordsMessageBodyReaderTest {
 
   @Test
   public void testConfigurationArguments() throws Exception {
-
+    CswRecordMap cswRecordMap = new MetacardCswRecordMap();
     CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
-    config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
+    config.setMetacardCswMappings(cswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     config.setCswAxisOrder(CswAxisOrder.LAT_LON);
     config.putMetacardCswMapping(Core.THUMBNAIL, CswConstants.CSW_REFERENCES);
@@ -103,8 +106,7 @@ public class GetRecordsMessageBodyReaderTest {
     try (InputStream is =
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/getRecordsResponse.xml")) {
       MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-
-      reader.readFrom(CswRecordCollectionImpl.class, null, null, null, httpHeaders, is);
+      reader.readFrom(null, null, null, null, httpHeaders, is);
     }
 
     // Verify the context arguments were set correctly
@@ -168,8 +170,7 @@ public class GetRecordsMessageBodyReaderTest {
 
       MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
 
-      cswRecords =
-          reader.readFrom(CswRecordCollectionImpl.class, null, null, null, httpHeaders, is);
+      cswRecords = reader.readFrom(null, null, null, null, httpHeaders, is);
     }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards, hasSize(3));
@@ -212,8 +213,7 @@ public class GetRecordsMessageBodyReaderTest {
 
       MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
 
-      cswRecords =
-          reader.readFrom(CswRecordCollectionImpl.class, null, null, null, httpHeaders, is);
+      cswRecords = reader.readFrom(null, null, null, null, httpHeaders, is);
     }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards.size(), is(3));
@@ -232,7 +232,7 @@ public class GetRecordsMessageBodyReaderTest {
     collection.setCswRecords(inputMetacards);
     when(mockProvider.unmarshal(any(), any())).thenReturn(collection);
     CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
-    config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
+    config.setMetacardCswMappings(cswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
 
@@ -241,8 +241,7 @@ public class GetRecordsMessageBodyReaderTest {
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream(
             "/geomaticsGetRecordsResponse.xml")) {
       MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-      cswRecords =
-          reader.readFrom(CswRecordCollectionImpl.class, null, null, null, httpHeaders, is);
+      cswRecords = reader.readFrom(null, null, null, null, httpHeaders, is);
     }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards, contains(metacard));
@@ -251,7 +250,7 @@ public class GetRecordsMessageBodyReaderTest {
   @Test
   public void testReadProductData() throws Exception {
     CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
-    config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
+    config.setMetacardCswMappings(cswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
 
@@ -265,9 +264,7 @@ public class GetRecordsMessageBodyReaderTest {
           HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
       MediaType mediaType = new MediaType("text", "plain");
 
-      cswRecords =
-          reader.readFrom(
-              CswRecordCollectionImpl.class, null, null, mediaType, httpHeaders, dataInputStream);
+      cswRecords = reader.readFrom(null, null, null, mediaType, httpHeaders, dataInputStream);
     }
 
     Resource resource = cswRecords.getResource();
@@ -280,7 +277,7 @@ public class GetRecordsMessageBodyReaderTest {
   @Test
   public void testPartialContentResponseHandling() throws Exception {
     CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
-    config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
+    config.setMetacardCswMappings(cswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
 
@@ -297,9 +294,7 @@ public class GetRecordsMessageBodyReaderTest {
           String.format("bytes 1-%d/%d", sampleData.length() - 1, sampleData.length()));
       MediaType mediaType = new MediaType("text", "plain");
 
-      cswRecords =
-          reader.readFrom(
-              CswRecordCollectionImpl.class, null, null, mediaType, httpHeaders, dataInputStream);
+      cswRecords = reader.readFrom(null, null, null, mediaType, httpHeaders, dataInputStream);
     }
 
     Resource resource = cswRecords.getResource();
@@ -318,7 +313,7 @@ public class GetRecordsMessageBodyReaderTest {
   @Test
   public void testPartialContentNotSupportedHandling() throws Exception {
     CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
-    config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
+    config.setMetacardCswMappings(cswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
 
@@ -332,9 +327,7 @@ public class GetRecordsMessageBodyReaderTest {
           HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
       MediaType mediaType = new MediaType("text", "plain");
 
-      cswRecords =
-          reader.readFrom(
-              CswRecordCollectionImpl.class, null, null, mediaType, httpHeaders, dataInputStream);
+      cswRecords = reader.readFrom(null, null, null, mediaType, httpHeaders, dataInputStream);
     }
 
     Resource resource = cswRecords.getResource();
@@ -360,7 +353,7 @@ public class GetRecordsMessageBodyReaderTest {
     try (InputStream is =
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/exceptionReport.xml")) {
       MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-      reader.readFrom(CswRecordCollectionImpl.class, null, null, null, httpHeaders, is);
+      reader.readFrom(null, null, null, null, httpHeaders, is);
     }
   }
 

@@ -11,18 +11,17 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.common.converter;
+package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.converter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.junit.Test;
 
 public class MetacardCswRecordMapTest {
 
-  CswRecordMap cswRecordMap = new MetacardCswRecordMap();
+  MetacardCswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
   @Test
   public void testNamespacePrefixedQueriesWithoutXpath() {

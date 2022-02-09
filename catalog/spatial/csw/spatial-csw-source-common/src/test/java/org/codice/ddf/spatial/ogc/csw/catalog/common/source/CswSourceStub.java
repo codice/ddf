@@ -27,7 +27,7 @@ import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscribe;
 import org.osgi.framework.BundleContext;
 
 public class CswSourceStub extends AbstractCswSource {
