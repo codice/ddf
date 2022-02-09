@@ -71,11 +71,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -295,7 +296,7 @@ public class TestCswSourceBase {
     Csw mockCsw = mock(Csw.class);
     InputStream stream = getClass().getResourceAsStream("/getCapabilities.xml");
     CapabilitiesType capabilities = parseXml(stream);
-    when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(capabilities);
+    when(mockCsw.getCapabilities(any(GetCapabilitiesRequestImpl.class))).thenReturn(capabilities);
 
     CswRecordCollection collection = generateCswCollection("/getBriefRecordsResponse.xml");
     when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
@@ -339,7 +340,7 @@ public class TestCswSourceBase {
         }
       }
     }
-    CswRecordCollection collection = new CswRecordCollection();
+    CswRecordCollection collection = new CswRecordCollectionImpl();
     collection.setCswRecords(cswRecords);
     collection.setNumberOfRecordsMatched(
         records.getSearchResults().getNumberOfRecordsMatched().intValue());
@@ -396,7 +397,8 @@ public class TestCswSourceBase {
     when(mockCapabilities.getVersion()).thenReturn(cswVersion);
     when(mockCapabilities.getServiceIdentification()).thenReturn(mockServiceIdentification);
     when(mockCapabilities.getServiceIdentification()).thenReturn(mockServiceIdentification);
-    when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilities);
+    when(mockCsw.getCapabilities(any(GetCapabilitiesRequestImpl.class)))
+        .thenReturn(mockCapabilities);
 
     FilterCapabilities mockFilterCapabilities = mock(FilterCapabilities.class);
     when(mockCapabilities.getFilterCapabilities()).thenReturn(mockFilterCapabilities);
@@ -486,7 +488,7 @@ public class TestCswSourceBase {
       when(searchResults.getNumberOfRecordsReturned())
           .thenReturn(BigInteger.valueOf(numRecordsReturned));
 
-      CswRecordCollection mockCswRecordCollection = mock(CswRecordCollection.class);
+      CswRecordCollection mockCswRecordCollection = mock(CswRecordCollectionImpl.class);
 
       when(mockCswRecordCollection.getCswRecords()).thenReturn(metacards);
 

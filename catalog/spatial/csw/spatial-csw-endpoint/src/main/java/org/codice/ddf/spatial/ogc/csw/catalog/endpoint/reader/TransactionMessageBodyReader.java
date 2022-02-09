@@ -30,10 +30,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.TransactionRequestConverter;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 
 @Provider
 @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
@@ -54,7 +55,7 @@ public class TransactionMessageBodyReader implements MessageBodyReader<CswTransa
   @Override
   public boolean isReadable(
       Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return CswTransactionRequest.class.isAssignableFrom(type);
+    return CswTransactionRequestImpl.class.isAssignableFrom(type);
   }
 
   @Override
@@ -72,9 +73,9 @@ public class TransactionMessageBodyReader implements MessageBodyReader<CswTransa
         new TransactionRequestConverter(cswRecordConverter, registry);
     transactionRequestConverter.setCswRecordConverter(new CswRecordConverter(metacardType));
     xStream.registerConverter(transactionRequestConverter);
-    xStream.allowTypeHierarchy(CswTransactionRequest.class);
-    xStream.alias("csw:" + CswConstants.TRANSACTION, CswTransactionRequest.class);
-    xStream.alias(CswConstants.TRANSACTION, CswTransactionRequest.class);
+    xStream.allowTypeHierarchy(CswTransactionRequestImpl.class);
+    xStream.alias("csw:" + CswConstants.TRANSACTION, CswTransactionRequestImpl.class);
+    xStream.alias(CswConstants.TRANSACTION, CswTransactionRequestImpl.class);
     return (CswTransactionRequest) xStream.fromXML(inputStream);
   }
 }

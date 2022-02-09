@@ -37,14 +37,16 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * CswRecordCollectionMessageBodyWriter generates an xml response for a {@link CswRecordCollection}
+ * CswRecordCollectionMessageBodyWriter generates an xml response for a {@link
+ * CswRecordCollectionImpl}
  */
 @Provider
 public class CswRecordCollectionMessageBodyWriter
@@ -78,7 +80,7 @@ public class CswRecordCollectionMessageBodyWriter
   @Override
   public boolean isWriteable(
       Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return CswRecordCollection.class.isAssignableFrom(type);
+    return CswRecordCollectionImpl.class.isAssignableFrom(type);
   }
 
   @Override

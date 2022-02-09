@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.transaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
@@ -23,7 +24,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
  * Represents a single CSW transaction request that can contain multiple insert, update, and delete
  * actions.
  */
-public class CswTransactionRequest {
+public class CswTransactionRequestImpl implements CswTransactionRequest {
 
   private String version;
 
@@ -37,38 +38,47 @@ public class CswTransactionRequest {
 
   private final List<UpdateAction> updateActions = new ArrayList<>();
 
+  @Override
   public String getVersion() {
     return version;
   }
 
+  @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
+  @Override
   public String getService() {
     return service;
   }
 
+  @Override
   public void setService(String service) {
     this.service = service;
   }
 
+  @Override
   public boolean isVerbose() {
     return verbose;
   }
 
+  @Override
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
   }
 
+  @Override
   public List<InsertAction> getInsertActions() {
     return insertActions;
   }
 
+  @Override
   public List<DeleteAction> getDeleteActions() {
     return deleteActions;
   }
 
+  @Override
   public List<UpdateAction> getUpdateActions() {
     return updateActions;
   }

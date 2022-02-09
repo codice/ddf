@@ -47,10 +47,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,12 +73,12 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     xstream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     xstream.setClassLoader(this.getClass().getClassLoader());
     xstream.registerConverter(converter);
-    xstream.alias(CswConstants.GET_RECORDS_RESPONSE, CswRecordCollection.class);
+    xstream.alias(CswConstants.GET_RECORDS_RESPONSE, CswRecordCollectionImpl.class);
     xstream.alias(
         CswConstants.CSW_NAMESPACE_PREFIX
             + CswConstants.NAMESPACE_DELIMITER
             + CswConstants.GET_RECORDS_RESPONSE,
-        CswRecordCollection.class);
+        CswRecordCollectionImpl.class);
     buildArguments(configuration);
   }
 
@@ -88,14 +89,14 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     argumentHolder.put(CswConstants.AXIS_ORDER_PROPERTY, configuration.getCswAxisOrder());
     argumentHolder.put(Core.RESOURCE_URI, configuration.getMetacardMapping(Core.RESOURCE_URI));
     argumentHolder.put(Core.THUMBNAIL, configuration.getMetacardMapping(Core.THUMBNAIL));
-    argumentHolder.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManager.SCHEMA);
+    argumentHolder.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManagerImpl.SCHEMA);
     argumentHolder.put(CswConstants.TRANSFORMER_LOOKUP_VALUE, configuration.getOutputSchema());
   }
 
   @Override
   public boolean isReadable(
       Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return CswRecordCollection.class.isAssignableFrom(type);
+    return CswRecordCollectionImpl.class.isAssignableFrom(type);
   }
 
   @Override
@@ -126,7 +127,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
         httpHeaders.getFirst(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER);
     if (productRetrievalHeader != null && productRetrievalHeader.equalsIgnoreCase("TRUE")) {
       String fileName = handleContentDispositionHeader(httpHeaders);
-      cswRecords = new CswRecordCollection();
+      cswRecords = new CswRecordCollectionImpl();
       cswRecords.setResource(new ResourceImpl(inStream, mediaType.toString(), fileName));
       cswRecords.setResourceProperties(resourceProperties);
       return cswRecords;

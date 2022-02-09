@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,37 +28,43 @@ import org.slf4j.LoggerFactory;
  * JAX-RS Parameter Bean Class for a CSW request. The member variables will be automatically
  * injected by the JAX-RS annotations. This serves as a parent class to all other CSW requests.
  */
-public class CswRequest {
+public class CswRequestImpl implements CswRequest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CswRequest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CswRequestImpl.class);
 
   private String request;
 
   private String service;
 
-  public CswRequest() {}
+  private String version;
 
-  public CswRequest(String request) {
+  public CswRequestImpl() {}
+
+  public CswRequestImpl(String request) {
     this.request = request;
   }
 
-  public CswRequest(String service, String request) {
+  public CswRequestImpl(String service, String request) {
     this.service = service;
     this.request = request;
   }
 
+  @Override
   public String getRequest() {
     return request;
   }
 
+  @Override
   public void setRequest(String request) {
     this.request = request;
   }
 
+  @Override
   public String getService() {
     return service;
   }
 
+  @Override
   public void setService(String service) {
     this.service = service;
   }
@@ -87,6 +96,7 @@ public class CswRequest {
     return qNames;
   }
 
+  @Override
   public Map<String, String> parseNamespaces(String namespaces) throws CswException {
     Map<String, String> namespaceMap = new HashMap<String, String>();
     if (namespaces == null) {
@@ -120,6 +130,16 @@ public class CswRequest {
     }
 
     return namespaceMap;
+  }
+
+  @Override
+  public String getVersion() {
+    return version;
+  }
+
+  @Override
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   private CswException createInvalidNamespaceFormatException(final String namespaces) {

@@ -64,23 +64,27 @@ import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
 import net.opengis.filter.v_1_1_0.FilterType;
 import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.security.Security;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.Csw;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
 
 public abstract class AbstractCswStore extends AbstractCswSource implements CatalogStore {
 
   protected TransformerManager schemaTransformerManager;
+
+  protected CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
   protected MessageBodyWriter<CswTransactionRequest> cswTransactionWriter;
 
@@ -291,7 +295,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
         deleteType.setConstraint(queryConstraintType);
 
         DeleteAction deleteAction =
-            new DeleteActionImpl(deleteType, DefaultCswRecordMap.getPrefixToUriMapping());
+            new DeleteActionImpl(deleteType, cswRecordMap.getPrefixToUriMapping());
         transactionRequest.getDeleteActions().add(deleteAction);
       } catch (UnsupportedQueryException e) {
         throw new IngestException("Unsupported Query.", e);
@@ -360,7 +364,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
   }
 
   private CswTransactionRequest getTransactionRequest() {
-    CswTransactionRequest transactionRequest = new CswTransactionRequest();
+    CswTransactionRequest transactionRequest = new CswTransactionRequestImpl();
     transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
     transactionRequest.setService(CswConstants.CSW);
     transactionRequest.setVerbose(true);

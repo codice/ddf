@@ -19,8 +19,8 @@ import java.util.Set;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.security.Security;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.opengis.filter.Filter;
 
 public class CswSubscriptionImpl extends SubscriptionImpl

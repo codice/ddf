@@ -13,11 +13,14 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetCapabilitiesRequest;
+
 /**
  * JAX-RS Parameter Bean Class for the GetCapabilities request. The member variables will be
  * automatically injected by the JAX-RS annotations.
  */
-public class GetCapabilitiesRequest extends CswRequest {
+public class GetCapabilitiesRequestImpl extends CswRequestImpl implements GetCapabilitiesRequest {
 
   // The following parameters are optional for the GetCapabilities Request
   private String acceptVersions;
@@ -28,43 +31,51 @@ public class GetCapabilitiesRequest extends CswRequest {
 
   private String acceptFormats;
 
-  public GetCapabilitiesRequest() {
+  public GetCapabilitiesRequestImpl() {
     super(CswConstants.GET_CAPABILITIES);
   }
 
-  public GetCapabilitiesRequest(String service) {
+  public GetCapabilitiesRequestImpl(String service) {
     this();
     setService(service);
   }
 
+  @Override
   public String getAcceptVersions() {
     return acceptVersions;
   }
 
+  @Override
   public void setAcceptVersions(String acceptVersions) {
     this.acceptVersions = acceptVersions;
   }
 
+  @Override
   public String getSections() {
     return sections;
   }
 
+  @Override
   public void setSections(String sections) {
     this.sections = sections;
   }
 
+  @Override
   public String getUpdateSequence() {
     return updateSequence;
   }
 
+  @Override
   public void setUpdateSequence(String updateSequence) {
     this.updateSequence = updateSequence;
   }
 
+  @Override
   public String getAcceptFormats() {
     return acceptFormats;
   }
 
+  @Override
   public void setAcceptFormats(String acceptFormats) {
     this.acceptFormats = acceptFormats;
   }

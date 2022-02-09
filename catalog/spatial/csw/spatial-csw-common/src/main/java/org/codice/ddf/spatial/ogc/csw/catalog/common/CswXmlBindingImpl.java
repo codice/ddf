@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
+package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import java.io.OutputStream;
 import java.io.Reader;

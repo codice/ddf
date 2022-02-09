@@ -61,11 +61,13 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
@@ -119,6 +121,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
   private static final String REQUEST_ID_QNAME = CSW_PREFIX + REQUEST_ID_NODE_NAME;
 
   private TransformerManager metacardTransformerManager;
+
+  private CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
   private ThreadPoolExecutor queryExecutor;
 
@@ -174,8 +178,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
       writer.startNode(RECORDS_RESPONSE_QNAME);
     }
 
-    for (Map.Entry<String, String> entry :
-        DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping().entrySet()) {
+    for (Map.Entry<String, String> entry : cswRecordMap.getPrefixToUriMapping().entrySet()) {
       writer.addAttribute(XML_PREFIX + entry.getKey(), entry.getValue());
     }
 
@@ -355,7 +358,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
   private CswRecordCollection buildCollection(
       SourceResponse sourceResponse, Map<String, Serializable> arguments) {
 
-    CswRecordCollection recordCollection = new CswRecordCollection();
+    CswRecordCollection recordCollection = new CswRecordCollectionImpl();
 
     recordCollection.setNumberOfRecordsMatched(sourceResponse.getHits());
     recordCollection.setNumberOfRecordsReturned(sourceResponse.getResults().size());

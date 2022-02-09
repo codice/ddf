@@ -131,25 +131,31 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformerProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.temp.GetRecordsRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordByIdRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.junit.Test;
 import org.locationtech.jts.io.ParseException;
 import org.mockito.ArgumentCaptor;
@@ -220,11 +226,11 @@ public class CswEndpointTest {
 
   private static CatalogFramework catalogFramework = mock(CatalogFramework.class);
 
-  private static TransformerManager mockMimeTypeManager = mock(TransformerManager.class);
+  private static TransformerManager mockMimeTypeManager = mock(TransformerManagerImpl.class);
 
-  private static TransformerManager mockSchemaManager = mock(TransformerManager.class);
+  private static TransformerManager mockSchemaManager = mock(TransformerManagerImpl.class);
 
-  private static TransformerManager mockInputManager = mock(TransformerManager.class);
+  private static TransformerManager mockInputManager = mock(TransformerManagerImpl.class);
 
   private static CswActionTransformerProvider mockCswActionTransformerProvider =
       mock(CswActionTransformerProvider.class);
@@ -241,10 +247,11 @@ public class CswEndpointTest {
 
   private ValidatorImpl validator = mock(ValidatorImpl.class);
 
-
   private DeleteResponse deleteResponse = mock(DeleteResponse.class);
 
   private List<QueryResponse> queryResponseBatch;
+
+  private MetacardCswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
   private CswQueryFactory queryFactory = mock(CswQueryFactoryImpl.class);
 
@@ -754,7 +761,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordRequestSingleTypePassed() {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     LOGGER.info("Resource directory is {}", this.getClass().getResource(".").getPath());
     DescribeRecordResponseType drrt = null;
@@ -818,7 +825,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordRequestNoTypesPassed() {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     LOGGER.info("Resource directory is {}", this.getClass().getResource(".").getPath());
     when(mockSchemaManager.getTransformerSchemaForId(VALID_PREFIX_LOCAL_TYPE))
         .thenReturn(CswConstants.CSW_OUTPUT_SCHEMA);
@@ -876,7 +883,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordRequestMultipleTypes() {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw:test");
     DescribeRecordResponseType drrt = null;
 
@@ -918,7 +925,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordRequestInvalidType() throws CswException {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + "," + VALID_PREFIX + ":" + BAD_TYPE);
     DescribeRecordResponseType response = csw.describeRecord(drr);
 
@@ -942,7 +949,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordSingleTypeSingleNamespaceNoPrefixes() {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_TYPE);
     drr.setNamespace("xmlns(" + CswConstants.CSW_OUTPUT_SCHEMA + ")");
     when(mockSchemaManager.getTransformerSchemaForId(VALID_TYPE))
@@ -963,7 +970,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordSingleTypeSingleNamespaceNoPrefixesBadType() throws CswException {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(BAD_TYPE);
     drr.setNamespace("xmlns(" + CswConstants.CSW_OUTPUT_SCHEMA + ")");
 
@@ -974,7 +981,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordMultipleTypesMultipleNamespacesNominal() {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw:test");
     drr.setNamespace("xmlns(" + VALID_PREFIX + "=" + CswConstants.CSW_OUTPUT_SCHEMA + ")");
     DescribeRecordResponseType drrt = null;
@@ -991,7 +998,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordMultipleTypesMultipleNamespacesMultiplePrefixes() {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw2:test4");
     drr.setNamespace(
         "xmlns("
@@ -1020,7 +1027,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordMultipleTypesMultipleNamespacesMultiplePrefixesMismatchedPrefix() {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw3:test4");
     drr.setNamespace(
         "xmlns("
@@ -1047,7 +1054,7 @@ public class CswEndpointTest {
 
   @Test(expected = CswException.class)
   public void testDescribeRecordUsePrefixNoNamespace() throws CswException {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     drr.setNamespace(null);
     csw.describeRecord(drr);
@@ -1055,7 +1062,7 @@ public class CswEndpointTest {
 
   @Test(expected = CswException.class)
   public void testDescribeRecordOnlyLocalPart() throws CswException {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_TYPE);
     drr.setNamespace(null);
     csw.describeRecord(drr);
@@ -1063,7 +1070,7 @@ public class CswEndpointTest {
 
   @Test(expected = CswException.class)
   public void testDescribeRecordOnlyLocalPartMultipleTypes() throws CswException {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_TYPE + ",test,test2");
     drr.setNamespace(null);
     csw.describeRecord(drr);
@@ -1071,7 +1078,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordValidOutputFormat() {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     drr.setOutputFormat(CswConstants.OUTPUT_FORMAT_XML);
     DescribeRecordResponseType drrt = null;
@@ -1088,7 +1095,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordValidSchemaLanguage() {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     drr.setSchemaLanguage(CswConstants.SCHEMA_LANGUAGE_X_SCHEMA);
     when(mockSchemaManager.getTransformerSchemaForId(VALID_PREFIX_LOCAL_TYPE))
@@ -1331,7 +1338,7 @@ public class CswEndpointTest {
   public void testGetRecordById()
       throws CswException, FederationException, SourceUnavailableException,
           UnsupportedQueryException {
-    final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+    final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequestImpl();
     getRecordByIdRequest.setId("123");
     getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_XML);
     getRecordByIdRequest.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
@@ -1378,7 +1385,7 @@ public class CswEndpointTest {
   @Test
   public void testRetrieveProductGetRecordById()
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException, CswException {
-    final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+    final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequestImpl();
     getRecordByIdRequest.setId("123");
     getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
     getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
@@ -1392,7 +1399,7 @@ public class CswEndpointTest {
   @Test
   public void testRetrieveProductGetRecordByIdWithRange()
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException, CswException {
-    final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+    final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequestImpl();
     getRecordByIdRequest.setId("123");
     getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
     getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
@@ -1405,7 +1412,7 @@ public class CswEndpointTest {
   @Test(expected = CswException.class)
   public void testRetrieveProductGetRecordByIdWithInvalidRangeHeader()
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException, CswException {
-    final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+    final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequestImpl();
     getRecordByIdRequest.setId("123");
     getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
     getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
@@ -1554,7 +1561,7 @@ public class CswEndpointTest {
 
   @Test(expected = CswException.class)
   public void testGetRecordByIdWithNoId() throws CswException {
-    final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+    final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequestImpl();
     getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_XML);
     getRecordByIdRequest.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
 
@@ -1572,7 +1579,7 @@ public class CswEndpointTest {
 
   @Test(expected = CswException.class)
   public void testGetUnknownService() throws CswException {
-    CswRequest request = new CswRequest();
+    CswRequest request = new CswRequestImpl();
     csw.unknownService(request);
   }
 
@@ -1583,7 +1590,7 @@ public class CswEndpointTest {
 
   @Test(expected = CswException.class)
   public void testGetUnknownOperation() throws CswException {
-    CswRequest request = new CswRequest();
+    CswRequest request = new CswRequestImpl();
     csw.unknownOperation(request);
   }
 
@@ -1685,7 +1692,7 @@ public class CswEndpointTest {
   @Test
   public void testIngestTransaction()
       throws CswException, SourceUnavailableException, FederationException, IngestException {
-    CswTransactionRequest request = new CswTransactionRequest();
+    CswTransactionRequest request = new CswTransactionRequestImpl();
     request
         .getInsertActions()
         .add(new InsertActionImpl(CswConstants.CSW_TYPE, null, Arrays.asList(new MetacardImpl())));
@@ -1708,7 +1715,7 @@ public class CswEndpointTest {
   @Test
   public void testIngestVerboseTransaction()
       throws CswException, SourceUnavailableException, FederationException, IngestException {
-    CswTransactionRequest request = new CswTransactionRequest();
+    CswTransactionRequest request = new CswTransactionRequestImpl();
     request
         .getInsertActions()
         .add(new InsertActionImpl(CswConstants.CSW_TYPE, null, Arrays.asList(new MetacardImpl())));
@@ -1761,9 +1768,9 @@ public class CswEndpointTest {
                 });
 
     DeleteAction deleteAction =
-        new DeleteActionImpl(deleteType, DefaultCswRecordMap.getPrefixToUriMapping());
+        new DeleteActionImpl(deleteType, cswRecordMap.getPrefixToUriMapping());
 
-    CswTransactionRequest deleteRequest = new CswTransactionRequest();
+    CswTransactionRequest deleteRequest = new CswTransactionRequestImpl();
     deleteRequest.getDeleteActions().add(deleteAction);
     deleteRequest.setVersion(CswConstants.VERSION_2_0_2);
     deleteRequest.setService(CswConstants.CSW);
@@ -1810,9 +1817,9 @@ public class CswEndpointTest {
         .thenAnswer((Answer<DeleteResponse>) invocation -> deleteResponse);
 
     DeleteAction deleteAction =
-        new DeleteActionImpl(deleteType, DefaultCswRecordMap.getPrefixToUriMapping());
+        new DeleteActionImpl(deleteType, cswRecordMap.getPrefixToUriMapping());
 
-    CswTransactionRequest deleteRequest = new CswTransactionRequest();
+    CswTransactionRequest deleteRequest = new CswTransactionRequestImpl();
     deleteRequest.getDeleteActions().add(deleteAction);
 
     TransactionResponseType response = csw.transaction(deleteRequest);
@@ -1835,7 +1842,7 @@ public class CswEndpointTest {
     updatedMetacard.setId("123");
     UpdateAction updateAction = new UpdateActionImpl(updatedMetacard, CswConstants.CSW_RECORD, "");
 
-    CswTransactionRequest transactionRequest = new CswTransactionRequest();
+    CswTransactionRequest transactionRequest = new CswTransactionRequestImpl();
     transactionRequest.getUpdateActions().add(updateAction);
     transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
     transactionRequest.setService(CswConstants.CSW);
@@ -1910,9 +1917,9 @@ public class CswEndpointTest {
             CswConstants.CSW_RECORD,
             "",
             constraint,
-            DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping());
+            cswRecordMap.getPrefixToUriMapping());
 
-    CswTransactionRequest updateRequest = new CswTransactionRequest();
+    CswTransactionRequest updateRequest = new CswTransactionRequestImpl();
     updateRequest.getUpdateActions().add(updateAction);
     updateRequest.setVersion(CswConstants.VERSION_2_0_2);
     updateRequest.setService(CswConstants.CSW);
@@ -1960,7 +1967,7 @@ public class CswEndpointTest {
    * @return Vanilla GetCapabilitiesRequest object
    */
   private GetCapabilitiesRequest createDefaultGetCapabilitiesRequest() {
-    GetCapabilitiesRequest gcr = new GetCapabilitiesRequest();
+    GetCapabilitiesRequest gcr = new GetCapabilitiesRequestImpl();
     gcr.setService(CswConstants.CSW);
     gcr.setAcceptVersions(CswConstants.VERSION_2_0_2);
     gcr.setRequest(CswConstants.GET_CAPABILITIES);
@@ -1972,8 +1979,8 @@ public class CswEndpointTest {
    *
    * @return Vanilla DescribeRecordRequest object
    */
-  private DescribeRecordRequest createDefaultDescribeRecordRequest() {
-    DescribeRecordRequest drr = new DescribeRecordRequest();
+  private DescribeRecordRequestImpl createDefaultDescribeRecordRequest() {
+    DescribeRecordRequestImpl drr = new DescribeRecordRequestImpl();
     drr.setService(CswConstants.CSW);
     drr.setVersion(CswConstants.VERSION_2_0_2);
     drr.setRequest(CswConstants.DESCRIBE_RECORD);
@@ -1987,7 +1994,7 @@ public class CswEndpointTest {
    * @return Vanilla valid GetRecordsRequest object
    */
   private GetRecordsRequest createDefaultGetRecordsRequest() {
-    GetRecordsRequest grr = new GetRecordsRequest();
+    GetRecordsRequest grr = new GetRecordsRequestImpl();
     grr.setService(CswConstants.CSW);
     grr.setVersion(CswConstants.VERSION_2_0_2);
     grr.setRequest(CswConstants.GET_RECORDS);
@@ -2259,8 +2266,7 @@ public class CswEndpointTest {
           cswActionTransformerProvider,
           validator,
           queryFactory,
-              cswXmlBinding
-              );
+          cswXmlBinding);
       this.bundle = bundle;
     }
 

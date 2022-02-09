@@ -19,8 +19,8 @@ import javax.ws.rs.ext.ExceptionMapper;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import net.opengis.ows.v_1_0_0.ExceptionType;
 import org.apache.commons.lang3.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

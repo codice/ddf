@@ -13,10 +13,10 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
-import java.util.ArrayList;
 import java.util.List;
 import org.geotools.feature.NameImpl;
+import org.geotools.filter.FunctionFactory;
+import org.geotools.filter.function.DefaultFunctionFactory;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
@@ -28,11 +28,12 @@ import org.opengis.filter.expression.Literal;
  * custom functions. This allows for DDF to extend the OGC Filter 1.1.0 schema and pass along the
  * extension changes to Geotools via a service loader .
  */
-public class ExtendedGeotoolsFunctionFactory extends GeoToolsFunctionFactory {
+public class ExtendedGeotoolsFunctionFactoryImpl extends DefaultFunctionFactory
+    implements FunctionFactory {
 
   @Override
   public List<FunctionName> getFunctionNames() {
-    List<FunctionName> functionNames = new ArrayList<>(super.getFunctionNames());
+    List<FunctionName> functionNames = super.getFunctionNames();
     functionNames.add(PropertyIsFuzzyFunction.FUNCTION_NAME);
     return functionNames;
   }

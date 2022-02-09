@@ -11,9 +11,8 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.common;
+package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
 
-import com.google.common.net.HttpHeaders;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -226,9 +225,9 @@ public final class CswConstants {
 
   public static final String BYTES_TO_SKIP = "BytesToSkip";
 
-  public static final String RANGE_HEADER = HttpHeaders.RANGE;
+  public static final String RANGE_HEADER = "Range";
 
-  public static final String ACCEPT_RANGES_HEADER = HttpHeaders.ACCEPT_RANGES;
+  public static final String ACCEPT_RANGES_HEADER = "Accept-Ranges";
 
   /*
    * typeName vs typeNames: typeName applies to DescribeRecord, where typeNames applies to

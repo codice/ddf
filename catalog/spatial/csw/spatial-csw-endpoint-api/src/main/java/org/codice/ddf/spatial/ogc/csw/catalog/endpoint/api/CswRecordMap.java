@@ -14,6 +14,11 @@
 
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.xml.namespace.QName;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /** Maps property names from a CSW query to catalog taxonomy */
@@ -59,4 +64,28 @@ public interface CswRecordMap {
    * @return True if the property name has a corresponding catalog taxonomy attribute.
    */
   boolean hasProperty(String propertyName);
+
+  default boolean hasDefaultMetacardFieldFor(String name) {
+    return false;
+  }
+
+  default String getDefaultMetacardFieldFor(QName cswField) {
+    return cswField.getLocalPart();
+  }
+
+  default String getDefaultMetacardFieldFor(String name) {
+    return name;
+  }
+
+  default List<QName> getCswFieldsFor(String metacardField) {
+    return Collections.emptyList();
+  }
+
+  default Map<String, String> getCswToMetacardAttributeNames() {
+    return new HashMap<>();
+  }
+
+  Map<String, String> getPrefixToUriMapping();
+
+  String getDefaultMetacardFieldForPrefixedString(String name);
 }

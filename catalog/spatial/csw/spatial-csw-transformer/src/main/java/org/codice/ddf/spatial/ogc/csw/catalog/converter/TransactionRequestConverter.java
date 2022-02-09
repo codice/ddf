@@ -44,17 +44,19 @@ import javax.xml.stream.XMLStreamReader;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 
 public class TransactionRequestConverter implements Converter {
   private static JAXBContext jaxBContext;
@@ -62,6 +64,8 @@ public class TransactionRequestConverter implements Converter {
   private Converter delegatingTransformer;
 
   private CswRecordConverter cswRecordConverter;
+
+  private CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
   private AttributeRegistry registry;
 
@@ -81,7 +85,7 @@ public class TransactionRequestConverter implements Converter {
   @Override
   public void marshal(
       Object o, HierarchicalStreamWriter writer, MarshallingContext marshallingContext) {
-    if (o == null || !CswTransactionRequest.class.isAssignableFrom(o.getClass())) {
+    if (o == null || !CswTransactionRequestImpl.class.isAssignableFrom(o.getClass())) {
       return;
     }
     CswTransactionRequest request = (CswTransactionRequest) o;
@@ -98,7 +102,7 @@ public class TransactionRequestConverter implements Converter {
     for (InsertAction insertAction : request.getInsertActions()) {
       writer.startNode(CswConstants.CSW_TRANSACTION_INSERT_NODE);
       writer.addAttribute(CswConstants.TYPE_NAME_PARAMETER, insertAction.getTypeName());
-      marshallingContext.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManager.ID);
+      marshallingContext.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManagerImpl.ID);
       marshallingContext.put(CswConstants.TRANSFORMER_LOOKUP_VALUE, insertAction.getTypeName());
       for (Metacard metacard : insertAction.getRecords()) {
         marshallingContext.convertAnother(metacard, delegatingTransformer);
@@ -108,7 +112,7 @@ public class TransactionRequestConverter implements Converter {
     for (UpdateAction updateAction : request.getUpdateActions()) {
       writer.startNode(CswConstants.CSW_TRANSACTION_UPDATE_NODE);
       writer.addAttribute(CswConstants.TYPE_NAME_PARAMETER, updateAction.getTypeName());
-      marshallingContext.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManager.ID);
+      marshallingContext.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManagerImpl.ID);
       marshallingContext.put(CswConstants.TRANSFORMER_LOOKUP_VALUE, updateAction.getTypeName());
       marshallingContext.convertAnother(updateAction.getMetacard(), delegatingTransformer);
 
@@ -130,7 +134,7 @@ public class TransactionRequestConverter implements Converter {
 
   @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-    CswTransactionRequest cswTransactionRequest = new CswTransactionRequest();
+    CswTransactionRequest cswTransactionRequest = new CswTransactionRequestImpl();
 
     cswTransactionRequest.setVersion(reader.getAttribute(CswConstants.VERSION));
     cswTransactionRequest.setService(reader.getAttribute(CswConstants.SERVICE));
@@ -148,7 +152,7 @@ public class TransactionRequestConverter implements Converter {
                 reader.getAttribute(CswConstants.TYPE_NAME_PARAMETER), CswConstants.CSW_RECORD);
         String handle =
             StringUtils.defaultIfEmpty(reader.getAttribute(CswConstants.HANDLE_PARAMETER), "");
-        context.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManager.ID);
+        context.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManagerImpl.ID);
         context.put(CswConstants.TRANSFORMER_LOOKUP_VALUE, typeName);
         List<Metacard> metacards = new ArrayList<>();
         // Loop through the individual records to be inserted, converting each into a Metacard
@@ -231,7 +235,7 @@ public class TransactionRequestConverter implements Converter {
         // Move back up to the <RecordProperty>.
         reader.moveUp();
 
-        String attrName = DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(cswField);
+        String attrName = cswRecordMap.getDefaultMetacardFieldForPrefixedString(cswField);
         cswRecordProperties.put(attrName, null);
         // Is there a <Value>?
         while (reader.hasMoreChildren()) {
@@ -286,7 +290,7 @@ public class TransactionRequestConverter implements Converter {
         // For any CSW attributes that map to basic metacard attributes (e.g. title,
         // modified date, etc.), update the basic metacard attributes as well.
         Map<String, String> cswToMetacardAttributeNames =
-            DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames();
+            cswRecordMap.getCswToMetacardAttributeNames();
         Map<String, Serializable> cswRecordPropertiesWithMetacardAttributes =
             new HashMap<>(cswRecordProperties);
 
@@ -319,7 +323,7 @@ public class TransactionRequestConverter implements Converter {
         throw new ConversionException("Missing Parameter Value: missing a Constraint.");
       }
     } else {
-      context.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManager.ID);
+      context.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManagerImpl.ID);
       context.put(CswConstants.TRANSFORMER_LOOKUP_VALUE, typeName);
       Metacard metacard =
           (Metacard) context.convertAnother(null, MetacardImpl.class, delegatingTransformer);
@@ -427,11 +431,11 @@ public class TransactionRequestConverter implements Converter {
       return prefixToUriMappings;
     }
 
-    return DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping();
+    return cswRecordMap.getPrefixToUriMapping();
   }
 
   @Override
   public boolean canConvert(Class aClass) {
-    return CswTransactionRequest.class.isAssignableFrom(aClass);
+    return CswTransactionRequestImpl.class.isAssignableFrom(aClass);
   }
 }

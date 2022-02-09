@@ -39,14 +39,15 @@ import java.util.Arrays;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
@@ -110,13 +111,13 @@ public class TransactionRequestConverterTest {
     xStream = new XStream(new Xpp3Driver());
     xStream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     xStream.registerConverter(new TransactionRequestConverter(cswRecordConverter, mockRegistry));
-    xStream.alias(CswConstants.CSW_TRANSACTION, CswTransactionRequest.class);
+    xStream.alias(CswConstants.CSW_TRANSACTION, CswTransactionRequestImpl.class);
   }
 
   @Test
   public void testValidInsertMarshal() throws SAXException, IOException, XpathException {
 
-    CswTransactionRequest transactionRequest = new CswTransactionRequest();
+    CswTransactionRequest transactionRequest = new CswTransactionRequestImpl();
 
     MetacardImpl metacard = new MetacardImpl();
     metacard.setId(METACARD_ID);
@@ -137,7 +138,7 @@ public class TransactionRequestConverterTest {
   @Test
   public void testValidUpdateMarshal() throws SAXException, IOException, XpathException {
 
-    CswTransactionRequest transactionRequest = new CswTransactionRequest();
+    CswTransactionRequest transactionRequest = new CswTransactionRequestImpl();
 
     MetacardImpl metacard = new MetacardImpl();
     metacard.setId(METACARD_ID);
@@ -156,7 +157,7 @@ public class TransactionRequestConverterTest {
   @Test
   public void testValidDeleteMarshal() throws SAXException, IOException, XpathException {
 
-    CswTransactionRequest transactionRequest = new CswTransactionRequest();
+    CswTransactionRequest transactionRequest = new CswTransactionRequestImpl();
 
     MetacardImpl metacard = new MetacardImpl();
     metacard.setId(METACARD_ID);
@@ -177,7 +178,7 @@ public class TransactionRequestConverterTest {
 
   @Test
   public void testMultipleOperations() throws Exception {
-    CswTransactionRequest transactionRequest = new CswTransactionRequest();
+    CswTransactionRequest transactionRequest = new CswTransactionRequestImpl();
 
     MetacardImpl metacard = new MetacardImpl();
     metacard.setId(METACARD_ID);

@@ -26,8 +26,9 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.DefaultCswRecordMap;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /**
@@ -36,19 +37,118 @@ import org.xml.sax.helpers.NamespaceSupport;
  * fields for a CSW field as a {@link QName} or just a local name as a {@link String}. If a mapped
  * value isn't found, then the input value is used as the mapped value.
  */
-public class DefaultCswRecordMap {
-  private static final Map<QName, String> CSW_RECORD_QNAME_MAPPING;
+public class DefaultCswRecordMapImpl implements DefaultCswRecordMap {
+  Map<QName, String> cswRecordQnameMapping;
 
-  private static final Map<String, String> CSW_RECORD_LOCAL_NAME_MAPPING;
+  Map<String, String> cswRecordLocalNameMapping;
 
-  private static final Map<String, List<QName>> METACARD_MAPPING;
+  Map<String, List<QName>> metacardMapping;
 
-  private static final Map<String, String> PREFIX_TO_URI_MAPPING;
+  Map<String, String> prefixToUriMapping;
 
-  private static final DefaultCswRecordMap MAPPING;
+  Map<String, String> localNameMap = new CaseInsensitiveMap();
+  Map<QName, String> qNameMap = new HashMap<>();
 
-  static {
-    Map<String, String> localNameMap = new CaseInsensitiveMap();
+  @Override
+  public Map<String, String> getCswToMetacardAttributeNames() {
+    return cswRecordLocalNameMapping;
+  }
+
+  @Override
+  public String getDefaultMetacardFieldFor(QName cswField) {
+    if (cswRecordQnameMapping.containsKey(cswField)) {
+      return cswRecordQnameMapping.get(cswField);
+    }
+
+    return getDefaultMetacardFieldFor(cswField.getLocalPart());
+  }
+
+  @Override
+  public boolean hasDefaultMetacardFieldFor(QName cswField) {
+    return cswRecordQnameMapping.containsKey(cswField);
+  }
+
+  @Override
+  public boolean hasDefaultMetacardFieldFor(String cswField) {
+    return cswRecordLocalNameMapping.containsKey(cswField);
+  }
+
+  @Override
+  public String getDefaultMetacardFieldFor(String cswField) {
+    if (cswRecordLocalNameMapping.containsKey(cswField)) {
+      return cswRecordLocalNameMapping.get(cswField);
+    }
+
+    return cswField;
+  }
+
+  @Override
+  public boolean hasDefaultMetacardFieldForPrefixedString(String name) {
+    return hasDefaultMetacardFieldForPrefixedString(name, null);
+  }
+
+  @Override
+  public boolean hasDefaultMetacardFieldForPrefixedString(
+      String propertyName, NamespaceSupport namespaceSupport) {
+    if (propertyName.contains(":") && !isXpathPropertyName(propertyName)) {
+      String prefix = propertyName.substring(0, propertyName.indexOf(':'));
+      String localName = propertyName.substring(propertyName.indexOf(':') + 1);
+      if (namespaceSupport != null && namespaceSupport.getURI(prefix) != null) {
+        String uri = namespaceSupport.getURI(prefix);
+        QName qname = new QName(uri, localName, prefix);
+        return hasDefaultMetacardFieldFor(qname);
+      } else {
+        return hasDefaultMetacardFieldFor(localName);
+      }
+    } else {
+      return hasDefaultMetacardFieldFor(propertyName);
+    }
+  }
+
+  private boolean isXpathPropertyName(String propertyName) {
+    return propertyName.contains("/") || propertyName.contains("@");
+  }
+
+  @Override
+  public String getDefaultMetacardFieldForPrefixedString(String name) {
+    return getDefaultMetacardFieldForPrefixedString(name, null);
+  }
+
+  @Override
+  public String getDefaultMetacardFieldForPrefixedString(
+      String propertyName, NamespaceSupport namespaceSupport) {
+    String name;
+
+    if (propertyName.contains(":") && !isXpathPropertyName(propertyName)) {
+      String prefix = propertyName.substring(0, propertyName.indexOf(':'));
+      String localName = propertyName.substring(propertyName.indexOf(':') + 1);
+      if (namespaceSupport != null && namespaceSupport.getURI(prefix) != null) {
+        String uri = namespaceSupport.getURI(prefix);
+        QName qname = new QName(uri, localName, prefix);
+        name = getDefaultMetacardFieldFor(qname);
+      } else {
+        name = getDefaultMetacardFieldFor(localName);
+      }
+    } else {
+      name = getDefaultMetacardFieldFor(propertyName);
+    }
+    return name;
+  }
+
+  @Override
+  public List<QName> getCswFieldsFor(String metacardField) {
+    if (metacardMapping.containsKey(metacardField)) {
+      return metacardMapping.get(metacardField);
+    }
+    return Arrays.asList(new QName(metacardField));
+  }
+
+  @Override
+  public Map<String, String> getPrefixToUriMapping() {
+    return prefixToUriMapping;
+  }
+
+  void initialize() {
 
     localNameMap.put(CswConstants.ANY_TEXT, Metacard.ANY_TEXT);
     localNameMap.put(CswConstants.CSW_NO_PREFIX_MODIFIED, Core.MODIFIED);
@@ -92,9 +192,8 @@ public class DefaultCswRecordMap {
     localNameMap.put(GmdConstants.GMD_TYPE, Core.DATATYPE);
     localNameMap.put(GmdConstants.GMD_TYPE, Metacard.CONTENT_TYPE);
 
-    CSW_RECORD_LOCAL_NAME_MAPPING = Collections.unmodifiableMap(localNameMap);
+    cswRecordLocalNameMapping = Collections.unmodifiableMap(localNameMap);
 
-    Map<QName, String> qNameMap = new HashMap<>();
     qNameMap.put(CswConstants.CSW_IDENTIFIER_QNAME, Core.ID);
     qNameMap.put(CswConstants.CSW_BIBLIOGRAPHIC_CITATION_QNAME, Core.ID);
     qNameMap.put(CswConstants.CSW_SOURCE_QNAME, Core.RESOURCE_URI);
@@ -133,7 +232,7 @@ public class DefaultCswRecordMap {
     qNameMap.put(GmdConstants.GMD_TYPE_QNAME, Core.DATATYPE);
     qNameMap.put(GmdConstants.GMD_TYPE_QNAME, Metacard.CONTENT_TYPE);
 
-    CSW_RECORD_QNAME_MAPPING = Collections.unmodifiableMap(qNameMap);
+    cswRecordQnameMapping = Collections.unmodifiableMap(qNameMap);
 
     Map<String, List<QName>> metacardMap = new HashMap<>();
     metacardMap.put(
@@ -220,7 +319,7 @@ public class DefaultCswRecordMap {
 
     metacardMap.put(Core.DATATYPE, Arrays.asList(GmdConstants.GMD_TYPE_QNAME));
 
-    METACARD_MAPPING = Collections.unmodifiableMap(metacardMap);
+    metacardMapping = Collections.unmodifiableMap(metacardMap);
 
     Map<String, String> prefixMapping = new HashMap<>();
 
@@ -235,103 +334,6 @@ public class DefaultCswRecordMap {
     prefixMapping.put(
         CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX, CswConstants.DUBLIN_CORE_TERMS_SCHEMA);
 
-    PREFIX_TO_URI_MAPPING = Collections.unmodifiableMap(prefixMapping);
-
-    MAPPING = new DefaultCswRecordMap();
-  }
-
-  private DefaultCswRecordMap() {}
-
-  public static DefaultCswRecordMap getDefaultCswRecordMap() {
-    return MAPPING;
-  }
-
-  /** NOTE: This is a {@link CaseInsensitiveMap}. */
-  public static Map<String, String> getCswToMetacardAttributeNames() {
-    return CSW_RECORD_LOCAL_NAME_MAPPING;
-  }
-
-  public static String getDefaultMetacardFieldFor(QName cswField) {
-    if (CSW_RECORD_QNAME_MAPPING.containsKey(cswField)) {
-      return CSW_RECORD_QNAME_MAPPING.get(cswField);
-    }
-
-    return getDefaultMetacardFieldFor(cswField.getLocalPart());
-  }
-
-  public static boolean hasDefaultMetacardFieldFor(QName cswField) {
-    return CSW_RECORD_QNAME_MAPPING.containsKey(cswField);
-  }
-
-  public static boolean hasDefaultMetacardFieldFor(String cswField) {
-    return CSW_RECORD_LOCAL_NAME_MAPPING.containsKey(cswField);
-  }
-
-  public static String getDefaultMetacardFieldFor(String cswField) {
-    if (CSW_RECORD_LOCAL_NAME_MAPPING.containsKey(cswField)) {
-      return CSW_RECORD_LOCAL_NAME_MAPPING.get(cswField);
-    }
-
-    return cswField;
-  }
-
-  public static boolean hasDefaultMetacardFieldForPrefixedString(String name) {
-    return hasDefaultMetacardFieldForPrefixedString(name, null);
-  }
-
-  public static boolean hasDefaultMetacardFieldForPrefixedString(
-      String propertyName, NamespaceSupport namespaceSupport) {
-    if (propertyName.contains(":") && !isXpathPropertyName(propertyName)) {
-      String prefix = propertyName.substring(0, propertyName.indexOf(':'));
-      String localName = propertyName.substring(propertyName.indexOf(':') + 1);
-      if (namespaceSupport != null && namespaceSupport.getURI(prefix) != null) {
-        String uri = namespaceSupport.getURI(prefix);
-        QName qname = new QName(uri, localName, prefix);
-        return hasDefaultMetacardFieldFor(qname);
-      } else {
-        return hasDefaultMetacardFieldFor(localName);
-      }
-    } else {
-      return hasDefaultMetacardFieldFor(propertyName);
-    }
-  }
-
-  private static boolean isXpathPropertyName(String propertyName) {
-    return propertyName.contains("/") || propertyName.contains("@");
-  }
-
-  public static String getDefaultMetacardFieldForPrefixedString(String name) {
-    return getDefaultMetacardFieldForPrefixedString(name, null);
-  }
-
-  public static String getDefaultMetacardFieldForPrefixedString(
-      String propertyName, NamespaceSupport namespaceSupport) {
-    String name;
-
-    if (propertyName.contains(":") && !isXpathPropertyName(propertyName)) {
-      String prefix = propertyName.substring(0, propertyName.indexOf(':'));
-      String localName = propertyName.substring(propertyName.indexOf(':') + 1);
-      if (namespaceSupport != null && namespaceSupport.getURI(prefix) != null) {
-        String uri = namespaceSupport.getURI(prefix);
-        QName qname = new QName(uri, localName, prefix);
-        name = getDefaultMetacardFieldFor(qname);
-      } else {
-        name = getDefaultMetacardFieldFor(localName);
-      }
-    } else {
-      name = getDefaultMetacardFieldFor(propertyName);
-    }
-    return name;
-  }
-
-  public static List<QName> getCswFieldsFor(String metacardField) {
-    if (METACARD_MAPPING.containsKey(metacardField)) {
-      return METACARD_MAPPING.get(metacardField);
-    }
-    return Arrays.asList(new QName(metacardField));
-  }
-
-  public static Map<String, String> getPrefixToUriMapping() {
-    return PREFIX_TO_URI_MAPPING;
+    prefixToUriMapping = Collections.unmodifiableMap(prefixMapping);
   }
 }

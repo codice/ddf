@@ -20,7 +20,6 @@ import ddf.catalog.transform.QueryFilterTransformerProvider;
 import java.util.List;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 
 public interface CswQueryFactory {
 

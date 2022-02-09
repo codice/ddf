@@ -66,9 +66,10 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.hamcrest.core.IsEqual;
 import org.junit.Before;
 import org.junit.Rule;
@@ -104,7 +105,7 @@ public class CswQueryResponseTransformerTest {
 
   @Before
   public void before() {
-    mockTransformerManager = mock(TransformerManager.class);
+    mockTransformerManager = mock(TransformerManagerImpl.class);
     mockPrintWriterProvider = mock(PrintWriterProvider.class);
     mockPrintWriter = mock(PrintWriter.class);
     mockMetacardTransformer = mock(MetacardTransformer.class);

@@ -23,14 +23,15 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.util.List;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Converts a {@link org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection} into a
- * {@link net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType} with CSW records
+ * Converts a {@link CswRecordCollectionImpl} into a {@link
+ * net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType} with CSW records
  */
 public class GetRecordsResponseConverter implements Converter {
 
@@ -50,7 +51,7 @@ public class GetRecordsResponseConverter implements Converter {
 
   @Override
   public boolean canConvert(Class type) {
-    boolean canConvert = CswRecordCollection.class.isAssignableFrom(type);
+    boolean canConvert = CswRecordCollectionImpl.class.isAssignableFrom(type);
     LOGGER.debug("Can convert? {}", canConvert);
     return canConvert;
   }
@@ -86,7 +87,7 @@ public class GetRecordsResponseConverter implements Converter {
       throw new ConversionException(
           "Unable to locate Converter for outputSchema: " + CswConstants.CSW_OUTPUT_SCHEMA);
     }
-    CswRecordCollection cswRecords = new CswRecordCollection();
+    CswRecordCollection cswRecords = new CswRecordCollectionImpl();
     List<Metacard> metacards = cswRecords.getCswRecords();
 
     XStreamAttributeCopier.copyXmlNamespaceDeclarationsIntoContext(reader, context);

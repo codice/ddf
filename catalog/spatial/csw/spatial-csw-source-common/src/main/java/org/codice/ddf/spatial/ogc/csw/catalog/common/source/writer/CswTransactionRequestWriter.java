@@ -24,9 +24,10 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.TransactionRequestConverter;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 
 public class CswTransactionRequestWriter implements MessageBodyWriter<CswTransactionRequest> {
 
@@ -36,13 +37,13 @@ public class CswTransactionRequestWriter implements MessageBodyWriter<CswTransac
     xStream = new XStream(new Xpp3Driver());
     xStream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     xStream.registerConverter(new TransactionRequestConverter(delegatingTransformer, null));
-    xStream.alias(CswConstants.CSW_TRANSACTION, CswTransactionRequest.class);
+    xStream.alias(CswConstants.CSW_TRANSACTION, CswTransactionRequestImpl.class);
   }
 
   @Override
   public boolean isWriteable(
       Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-    return CswTransactionRequest.class.isAssignableFrom(aClass);
+    return CswTransactionRequestImpl.class.isAssignableFrom(aClass);
   }
 
   @Override

@@ -81,10 +81,10 @@
             <artifactId>spatial-csw-action</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api-impl</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ddf.catalog.core</groupId>-->
+<!--            <artifactId>catalog-core-api-impl</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
@@ -110,9 +110,14 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-ogc-common</artifactId>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ddf.catalog.core</groupId>-->
+<!--            <artifactId>catalog-core-commons</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-commons</artifactId>
+            <artifactId>catalog-core-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.security</groupId>
@@ -158,10 +163,10 @@
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-urlresourcereader</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ddf.catalog.core</groupId>-->
+<!--            <artifactId>catalog-core-urlresourcereader</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
@@ -185,6 +190,11 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-endpoint-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

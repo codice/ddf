@@ -30,9 +30,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import javax.xml.namespace.QName;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.ExtendedGeotoolsFunctionFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.ExtendedGeotoolsFunctionFactoryImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryTest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.geotools.feature.NameImpl;
@@ -273,7 +273,8 @@ public class CswRecordMapperFilterVisitorTest {
   @Test
   public void testVisitPropertyIsEqualToFunction() {
     Expression val = factory.literal(true);
-    ExtendedGeotoolsFunctionFactory geotoolsFunctionFactory = new ExtendedGeotoolsFunctionFactory();
+    ExtendedGeotoolsFunctionFactoryImpl geotoolsFunctionFactory =
+        new ExtendedGeotoolsFunctionFactoryImpl();
     Function function =
         geotoolsFunctionFactory.function(
             "proximity",

@@ -49,10 +49,11 @@ import org.codice.ddf.cxf.client.ClientBuilder;
 import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.security.Security;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscribe;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -218,7 +219,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
           Arrays.asList(metacards).stream().map(ResultImpl::new).collect(Collectors.toList());
 
       QueryResponse queryResponse = new QueryResponseImpl(query, results, true, metacards.length);
-      CswRecordCollection recordCollection = new CswRecordCollection();
+      CswRecordCollection recordCollection = new CswRecordCollectionImpl();
 
       recordCollection.setElementName(elementName);
       recordCollection.setElementSetType(elementSetType);

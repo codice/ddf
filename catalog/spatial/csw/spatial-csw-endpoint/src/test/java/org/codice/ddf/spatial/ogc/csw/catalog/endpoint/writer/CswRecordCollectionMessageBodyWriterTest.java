@@ -48,15 +48,17 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 public class CswRecordCollectionMessageBodyWriterTest {
 
-  private TransformerManager mockManager = mock(TransformerManager.class);
+  private TransformerManager mockManager = mock(TransformerManagerImpl.class);
 
   private QueryResponseTransformer mockTransformer = mock(QueryResponseTransformer.class);
 
@@ -183,7 +185,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     MultivaluedMap<String, Object> httpHeaders = new MultivaluedHashMap<>();
 
     Resource resource = new ResourceImpl(productData, mimeType, "ResourceName");
-    CswRecordCollection collection = new CswRecordCollection();
+    CswRecordCollection collection = new CswRecordCollectionImpl();
     collection.setMimeType(mimeType.toString());
     collection.setResource(resource);
     collection.setOutputSchema(
@@ -196,7 +198,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
   }
 
   private CswRecordCollection createCswRecordCollection(int resultCount) {
-    CswRecordCollection collection = new CswRecordCollection();
+    CswRecordCollection collection = new CswRecordCollectionImpl();
     collection.setCswRecords(createMetacardList(resultCount));
     return collection;
   }

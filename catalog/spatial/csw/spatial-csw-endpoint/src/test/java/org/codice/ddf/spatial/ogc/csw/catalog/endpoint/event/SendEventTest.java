@@ -49,10 +49,11 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.security.Security;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscribe;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -108,7 +109,7 @@ public class SendEventTest {
     elementSetNameType.setValue(ElementSetType.BRIEF);
     queryType.setElementSetName(elementSetNameType);
     request.setAbstractQuery(objectFactory.createAbstractQuery(queryType));
-    transformerManager = mock(TransformerManager.class);
+    transformerManager = mock(TransformerManagerImpl.class);
     transformer = mock(QueryResponseTransformer.class);
     binaryContent = mock(BinaryContent.class);
     when(transformerManager.getTransformerBySchema(

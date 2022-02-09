@@ -51,9 +51,10 @@ import net.opengis.filter.v_1_1_0.FilterType;
 import net.opengis.filter.v_1_1_0.SortByType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.ExtendedGeotoolsFunctionFactoryImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.PropertyIsFuzzyFunction;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
@@ -193,8 +194,8 @@ public class CswQueryFactoryImpl implements CswQueryFactory {
 
   /**
    * Transforms the filter if it contains a custom function from the {@link
-   * org.codice.ddf.spatial.ogc.csw.catalog.common.ExtendedGeotoolsFunctionFactory}. If the filter
-   * does not contain a custom function then the original filter is returned.
+   * ExtendedGeotoolsFunctionFactoryImpl}. If the filter does not contain a custom function then the
+   * original filter is returned.
    *
    * @param filter
    * @return

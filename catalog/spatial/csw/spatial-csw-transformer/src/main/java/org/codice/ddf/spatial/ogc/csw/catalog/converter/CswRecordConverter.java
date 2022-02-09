@@ -58,8 +58,9 @@ import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +75,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
   private static XMLInputFactory factory;
 
   private MetacardType metacardType;
+
+  private CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
   static {
     factory = XMLInputFactory.newInstance();
@@ -138,8 +141,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
   @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     Map<String, String> cswAttrMap =
-        new CaseInsensitiveMap(
-            DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
+        new CaseInsensitiveMap(cswRecordMap.getCswToMetacardAttributeNames());
     Object mappingObj = context.get(CswConstants.CSW_MAPPING);
 
     if (mappingObj instanceof Map<?, ?>) {

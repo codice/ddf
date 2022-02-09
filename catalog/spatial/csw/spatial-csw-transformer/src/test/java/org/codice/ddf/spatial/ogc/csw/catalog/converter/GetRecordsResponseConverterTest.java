@@ -76,10 +76,12 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.io.IOUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
@@ -104,7 +106,7 @@ public class GetRecordsResponseConverterTest {
 
   private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
 
-  private TransformerManager mockInputManager = mock(TransformerManager.class);
+  private TransformerManager mockInputManager = mock(TransformerManagerImpl.class);
 
   @Before
   public void setUp() {
@@ -127,7 +129,7 @@ public class GetRecordsResponseConverterTest {
         .thenReturn(new CswRecordConverter(CswRecordConverterTest.getCswMetacardType()));
 
     xstream.registerConverter(new GetRecordsResponseConverter(provider));
-    xstream.alias("GetRecordsResponse", CswRecordCollection.class);
+    xstream.alias("GetRecordsResponse", CswRecordCollectionImpl.class);
 
     String xml =
         "<csw:GetRecordsResponse xmlns:csw=\"http://www.opengis.net/cat/csw\">\r\n"
@@ -232,7 +234,7 @@ public class GetRecordsResponseConverterTest {
     xstream.setClassLoader(this.getClass().getClassLoader());
 
     xstream.registerConverter(new GetRecordsResponseConverter(mockProvider));
-    xstream.alias("csw:GetRecordsResponse", CswRecordCollection.class);
+    xstream.alias("csw:GetRecordsResponse", CswRecordCollectionImpl.class);
 
     String xml =
         "<?xml version='1.0' encoding='UTF-8'?>"
@@ -316,7 +318,7 @@ public class GetRecordsResponseConverterTest {
 
     GetRecordsResponseConverter grrc = new GetRecordsResponseConverter(mockProvider);
     xstream.registerConverter(grrc);
-    xstream.alias("GetRecordsResponse", CswRecordCollection.class);
+    xstream.alias("GetRecordsResponse", CswRecordCollectionImpl.class);
 
     String xml =
         "<csw:GetRecordsResponse xmlns:csw=\"http://www.opengis.net/cat/csw\">\r\n"
@@ -684,7 +686,7 @@ public class GetRecordsResponseConverterTest {
       throws UnsupportedEncodingException, JAXBException {
     final int totalResults = 5;
 
-    TransformerManager mockMetacardManager = mock(TransformerManager.class);
+    TransformerManager mockMetacardManager = mock(TransformerManagerImpl.class);
     when(mockMetacardManager.getTransformerBySchema(anyString()))
         .thenReturn(new CswRecordConverter(CswRecordConverterTest.getCswMetacardType()));
     GetRecordsResponseConverter rrConverter =
@@ -698,7 +700,7 @@ public class GetRecordsResponseConverterTest {
         CswConstants.CSW_NAMESPACE_PREFIX
             + CswConstants.NAMESPACE_DELIMITER
             + CswConstants.GET_RECORDS_RESPONSE,
-        CswRecordCollection.class);
+        CswRecordCollectionImpl.class);
 
     GetRecordsType getRecords = new GetRecordsType();
     QueryType query = new QueryType();
@@ -794,12 +796,12 @@ public class GetRecordsResponseConverterTest {
 
     xstream.alias(
         CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER + elementName,
-        CswRecordCollection.class);
+        CswRecordCollectionImpl.class);
     return xstream;
   }
 
   private CswRecordCollection createCswRecordCollection(GetRecordsType request, int resultCount) {
-    CswRecordCollection collection = new CswRecordCollection();
+    CswRecordCollection collection = new CswRecordCollectionImpl();
 
     int first = 1;
     int last = 2;

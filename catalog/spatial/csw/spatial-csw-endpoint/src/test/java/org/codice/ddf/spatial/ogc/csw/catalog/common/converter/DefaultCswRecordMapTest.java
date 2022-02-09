@@ -20,23 +20,24 @@ import org.junit.Test;
 
 public class DefaultCswRecordMapTest {
 
+  TestCswRecordMap cswRecordMap = new TestCswRecordMap();
+
   @Test
   public void testNamespacePrefixedQueriesWithoutXpath() {
     String propertyNameWihoutXpath = "dc:title";
     String propertyNameWihoutNamespace = "title";
 
     assertThat(
-        DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyNameWihoutXpath),
+        cswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyNameWihoutXpath),
         is("title"));
     assertThat(
-        DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyNameWihoutNamespace),
+        cswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyNameWihoutNamespace),
         is("title"));
 
     assertThat(
-        DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyNameWihoutXpath),
-        is(true));
+        cswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyNameWihoutXpath), is(true));
     assertThat(
-        DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyNameWihoutNamespace),
+        cswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyNameWihoutNamespace),
         is(true));
   }
 
@@ -46,20 +47,17 @@ public class DefaultCswRecordMapTest {
     String propertyNameXpathWithoutNamespace = "/Record/title";
 
     assertThat(
-        DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyNameWithXpath),
+        cswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyNameWithXpath),
         is("/csw:Record/dc:title"));
     assertThat(
-        DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(
-            propertyNameXpathWithoutNamespace),
+        cswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyNameXpathWithoutNamespace),
         is("/Record/title"));
 
     // Sortby does not support Xpath
     assertThat(
-        DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyNameWithXpath),
-        is(false));
+        cswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyNameWithXpath), is(false));
     assertThat(
-        DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(
-            propertyNameXpathWithoutNamespace),
+        cswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyNameXpathWithoutNamespace),
         is(false));
   }
 }

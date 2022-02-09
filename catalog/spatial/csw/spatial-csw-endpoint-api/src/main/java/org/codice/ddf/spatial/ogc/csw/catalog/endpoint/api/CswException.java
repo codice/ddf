@@ -11,9 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.common;
-
-import java.net.HttpURLConnection;
+package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
 
 /**
  * The exception thrown when an exception response is returned by the remote CSW service.
@@ -24,7 +22,7 @@ public class CswException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
-  private int httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
+  private int httpStatus = 400;
 
   private String exceptionCode = null;
 

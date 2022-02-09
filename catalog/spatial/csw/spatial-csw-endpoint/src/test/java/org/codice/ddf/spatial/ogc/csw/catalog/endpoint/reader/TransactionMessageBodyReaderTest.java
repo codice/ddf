@@ -46,13 +46,14 @@ import java.util.Map;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.filter.v_1_1_0.FilterType;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryTest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -286,7 +287,7 @@ public class TransactionMessageBodyReaderTest {
 
   private static final String DYNAMIC_PROXY_SERIALIZED_XML =
       "<dynamic-proxy>  \n"
-          + "            <interface>org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest</interface>  \n"
+          + "            <interface>org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest</interface>  \n"
           + "            <handler class=\"java.beans.EventHandler\">  \n"
           + "                <target class=\"java.lang.ProcessBuilder\">\n"
           + "                    <command><string>/bin/sh</string><string>-c</string><string>'''+ echo ThisShouldntWork +'''</string></command>\n"
@@ -316,7 +317,7 @@ public class TransactionMessageBodyReaderTest {
     TransactionMessageBodyReader reader =
         new TransactionMessageBodyReader(
             cswRecordConverter, CswQueryFactoryTest.getCswMetacardType(), registry);
-    assertThat(reader.isReadable(CswTransactionRequest.class, null, null, null), is(true));
+    assertThat(reader.isReadable(CswTransactionRequestImpl.class, null, null, null), is(true));
     assertThat(reader.isReadable(Object.class, null, null, null), is(false));
   }
 
@@ -332,7 +333,7 @@ public class TransactionMessageBodyReaderTest {
             mockConverter, CswQueryFactoryTest.getCswMetacardType(), registry);
     CswTransactionRequest request =
         reader.readFrom(
-            CswTransactionRequest.class,
+            CswTransactionRequestImpl.class,
             null,
             null,
             null,
@@ -358,7 +359,7 @@ public class TransactionMessageBodyReaderTest {
             mock(Converter.class), CswQueryFactoryTest.getCswMetacardType(), registry);
     CswTransactionRequest request =
         reader.readFrom(
-            CswTransactionRequest.class,
+            CswTransactionRequestImpl.class,
             null,
             null,
             null,
@@ -387,7 +388,7 @@ public class TransactionMessageBodyReaderTest {
             mock(Converter.class), CswQueryFactoryTest.getCswMetacardType(), registry);
     CswTransactionRequest request =
         reader.readFrom(
-            CswTransactionRequest.class,
+            CswTransactionRequestImpl.class,
             null,
             null,
             null,
@@ -423,7 +424,7 @@ public class TransactionMessageBodyReaderTest {
 
     CswTransactionRequest request =
         reader.readFrom(
-            CswTransactionRequest.class,
+            CswTransactionRequestImpl.class,
             null,
             null,
             null,
@@ -457,7 +458,7 @@ public class TransactionMessageBodyReaderTest {
             cswRecordConverter, CswQueryFactoryTest.getCswMetacardType(), registry);
     CswTransactionRequest request =
         reader.readFrom(
-            CswTransactionRequest.class,
+            CswTransactionRequestImpl.class,
             null,
             null,
             null,
@@ -496,7 +497,7 @@ public class TransactionMessageBodyReaderTest {
             mock(Converter.class), CswQueryFactoryTest.getCswMetacardType(), registry);
     CswTransactionRequest request =
         reader.readFrom(
-            CswTransactionRequest.class,
+            CswTransactionRequestImpl.class,
             null,
             null,
             null,
@@ -557,7 +558,7 @@ public class TransactionMessageBodyReaderTest {
             cswRecordConverter, CswQueryFactoryTest.getCswMetacardType(), registry);
     CswTransactionRequest request =
         reader.readFrom(
-            CswTransactionRequest.class,
+            CswTransactionRequestImpl.class,
             null,
             null,
             null,
@@ -615,7 +616,7 @@ public class TransactionMessageBodyReaderTest {
         new TransactionMessageBodyReader(
             mock(Converter.class), CswQueryFactoryTest.getCswMetacardType(), registry);
     reader.readFrom(
-        CswTransactionRequest.class,
+        CswTransactionRequestImpl.class,
         null,
         null,
         null,
@@ -629,7 +630,7 @@ public class TransactionMessageBodyReaderTest {
         new TransactionMessageBodyReader(
             mock(Converter.class), CswQueryFactoryTest.getCswMetacardType(), registry);
     reader.readFrom(
-        CswTransactionRequest.class,
+        CswTransactionRequestImpl.class,
         null,
         null,
         null,
@@ -643,7 +644,7 @@ public class TransactionMessageBodyReaderTest {
         new TransactionMessageBodyReader(
             mock(Converter.class), CswQueryFactoryTest.getCswMetacardType(), registry);
     reader.readFrom(
-        CswTransactionRequest.class,
+        CswTransactionRequestImpl.class,
         null,
         null,
         null,

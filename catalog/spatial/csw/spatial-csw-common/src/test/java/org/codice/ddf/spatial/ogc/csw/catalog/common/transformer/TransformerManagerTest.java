@@ -53,7 +53,7 @@ public class TransformerManagerTest {
 
   private static BundleContext mockContext = mock(BundleContext.class);
 
-  private static class MockTransformerManager extends TransformerManager {
+  private static class MockTransformerManager extends TransformerManagerImpl {
     public MockTransformerManager(List<ServiceReference> serviceReferences) {
       super(serviceReferences);
     }
@@ -73,27 +73,29 @@ public class TransformerManagerTest {
     when(serviceRefA.getPropertyKeys())
         .thenReturn(
             new String[] {
-              TransformerManager.ID,
-              TransformerManager.SCHEMA,
-              TransformerManager.MIME_TYPE,
-              TransformerManager.SCHEMA_LOCATION
+              TransformerManagerImpl.ID,
+              TransformerManagerImpl.SCHEMA,
+              TransformerManagerImpl.MIME_TYPE,
+              TransformerManagerImpl.SCHEMA_LOCATION
             });
-    when(serviceRefA.getProperty(TransformerManager.ID)).thenReturn(ID_A);
-    when(serviceRefA.getProperty(TransformerManager.MIME_TYPE)).thenReturn(MIME_TYPE_A);
-    when(serviceRefA.getProperty(TransformerManager.SCHEMA)).thenReturn(SCHEMA_A);
-    when(serviceRefA.getProperty(TransformerManager.SCHEMA_LOCATION)).thenReturn(SCHEMA_LOCATION_A);
+    when(serviceRefA.getProperty(TransformerManagerImpl.ID)).thenReturn(ID_A);
+    when(serviceRefA.getProperty(TransformerManagerImpl.MIME_TYPE)).thenReturn(MIME_TYPE_A);
+    when(serviceRefA.getProperty(TransformerManagerImpl.SCHEMA)).thenReturn(SCHEMA_A);
+    when(serviceRefA.getProperty(TransformerManagerImpl.SCHEMA_LOCATION))
+        .thenReturn(SCHEMA_LOCATION_A);
     when(serviceRefB.getPropertyKeys())
         .thenReturn(
             new String[] {
-              TransformerManager.ID,
-              TransformerManager.SCHEMA,
-              TransformerManager.MIME_TYPE,
-              TransformerManager.SCHEMA_LOCATION
+              TransformerManagerImpl.ID,
+              TransformerManagerImpl.SCHEMA,
+              TransformerManagerImpl.MIME_TYPE,
+              TransformerManagerImpl.SCHEMA_LOCATION
             });
-    when(serviceRefB.getProperty(TransformerManager.ID)).thenReturn(ID_B);
-    when(serviceRefB.getProperty(TransformerManager.MIME_TYPE)).thenReturn(MIME_TYPE_B);
-    when(serviceRefB.getProperty(TransformerManager.SCHEMA)).thenReturn(SCHEMA_B);
-    when(serviceRefB.getProperty(TransformerManager.SCHEMA_LOCATION)).thenReturn(SCHEMA_LOCATION_B);
+    when(serviceRefB.getProperty(TransformerManagerImpl.ID)).thenReturn(ID_B);
+    when(serviceRefB.getProperty(TransformerManagerImpl.MIME_TYPE)).thenReturn(MIME_TYPE_B);
+    when(serviceRefB.getProperty(TransformerManagerImpl.SCHEMA)).thenReturn(SCHEMA_B);
+    when(serviceRefB.getProperty(TransformerManagerImpl.SCHEMA_LOCATION))
+        .thenReturn(SCHEMA_LOCATION_B);
     serviceReferences.add(serviceRefA);
     serviceReferences.add(serviceRefB);
 

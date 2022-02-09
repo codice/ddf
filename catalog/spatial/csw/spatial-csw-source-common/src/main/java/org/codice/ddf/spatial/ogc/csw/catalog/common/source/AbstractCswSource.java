@@ -126,17 +126,19 @@ import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.reader.GetRecordsMessageBodyReader;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.Csw;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscribe;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordByIdRequest;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -1011,7 +1013,7 @@ public abstract class AbstractCswSource extends MaskableImpl
       throws ResourceNotFoundException {
     Subject subject = (Subject) requestProperties.get(SecurityConstants.SECURITY_SUBJECT);
     Csw csw = (subject != null) ? factory.getClientForSubject(subject) : factory.getClient();
-    GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+    GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequestImpl();
     getRecordByIdRequest.setService(CswConstants.CSW);
     getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
     getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
@@ -1538,7 +1540,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     try {
       LOGGER.debug("Doing getCapabilities() call for CSW");
-      GetCapabilitiesRequest request = new GetCapabilitiesRequest(CswConstants.CSW);
+      GetCapabilitiesRequest request = new GetCapabilitiesRequestImpl(CswConstants.CSW);
       request.setAcceptVersions(CswConstants.VERSION_2_0_2 + "," + CswConstants.VERSION_2_0_1);
       caps = csw.getCapabilities(request);
     } catch (CswException cswe) {
@@ -1598,8 +1600,8 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   /**
    * Parses the getRecords {@link Operation} to understand the capabilities of the
-   * org.codice.ddf.spatial.ogc.csw.catalog.common.Csw Server. A sample GetRecords Operation may
-   * look like this:
+   * org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.Csw Server. A sample GetRecords Operation
+   * may look like this:
    *
    * <p>
    *
@@ -1638,8 +1640,8 @@ public abstract class AbstractCswSource extends MaskableImpl
    *   </ows:Operation>
    * </pre>
    *
-   * @param capabilitiesType The capabilities the org.codice.ddf.spatial.ogc.csw.catalog.common.Csw
-   *     Server supports
+   * @param capabilitiesType The capabilities the
+   *     org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.Csw Server supports
    */
   private void readGetRecordsOperation(CapabilitiesType capabilitiesType) {
     OperationsMetadata operationsMetadata = capabilitiesType.getOperationsMetadata();

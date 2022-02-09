@@ -83,12 +83,13 @@ import net.opengis.gml.v_3_1_1.CoordType;
 import net.opengis.gml.v_3_1_1.LinearRingType;
 import net.opengis.gml.v_3_1_1.PolygonType;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.temp.GetRecordsRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
 import org.geotools.filter.AttributeExpressionImpl;
@@ -1107,7 +1108,7 @@ public class CswQueryFactoryTest {
    * @return Vanilla valid GetRecordsRequest object
    */
   private GetRecordsRequest createDefaultGetRecordsRequest() {
-    GetRecordsRequest grr = new GetRecordsRequest();
+    GetRecordsRequest grr = new GetRecordsRequestImpl();
     grr.setService(CswConstants.CSW);
     grr.setVersion(CswConstants.VERSION_2_0_2);
     grr.setRequest(CswConstants.GET_RECORDS);

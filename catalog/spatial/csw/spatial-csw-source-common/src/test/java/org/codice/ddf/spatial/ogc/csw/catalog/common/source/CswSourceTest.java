@@ -92,13 +92,14 @@ import org.codice.ddf.security.impl.Security;
 import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
 import org.custommonkey.xmlunit.Diff;
 import org.geotools.filter.FilterFactoryImpl;
 import org.joda.time.DateTime;
@@ -899,7 +900,7 @@ public class CswSourceTest extends TestCswSourceBase {
       throws CswException, UnsupportedQueryException, SecurityServiceException {
     // Setup
     CapabilitiesType mockCapabilitiesType = mock(CapabilitiesType.class);
-    when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
+    when(mockCsw.getCapabilities(any(GetCapabilitiesRequestImpl.class)))
         .thenReturn(mockCapabilitiesType);
 
     AbstractCswSource cswSource = getCswSource(mockCsw, mockContext);
@@ -1267,7 +1268,7 @@ public class CswSourceTest extends TestCswSourceBase {
   public void testCreateResults() throws SecurityServiceException {
     AbstractCswSource cswSource =
         getCswSource(mockCsw, mockContext, null, null, null, encryptionService, permissions);
-    CswRecordCollection recordCollection = new CswRecordCollection();
+    CswRecordCollection recordCollection = new CswRecordCollectionImpl();
     final int total = 2;
     List<Metacard> metacards = new ArrayList<>(total);
     for (int i = 0; i <= total; i++) {
@@ -1352,10 +1353,11 @@ public class CswSourceTest extends TestCswSourceBase {
       throws CswException, ResourceNotFoundException, IOException, ResourceNotSupportedException,
           URISyntaxException {
     Csw csw = createMockCsw();
-    CswRecordCollection collection = mock(CswRecordCollection.class);
+    CswRecordCollection collection = mock(CswRecordCollectionImpl.class);
     Resource resource = mock(Resource.class);
     when(collection.getResource()).thenReturn(resource);
-    when(csw.getRecordById(any(GetRecordByIdRequest.class), anyString())).thenReturn(collection);
+    when(csw.getRecordById(any(GetRecordByIdRequestImpl.class), anyString()))
+        .thenReturn(collection);
     AbstractCswSource cswSource =
         getCswSource(csw, mockContext, null, null, null, null, permissions);
     ResourceReader reader = mock(ResourceReader.class);
@@ -1367,7 +1369,7 @@ public class CswSourceTest extends TestCswSourceBase {
     props.put(Core.ID, "ID");
     cswSource.retrieveResource(new URI("http://example.com/resource"), props);
     // Verify
-    verify(csw, times(1)).getRecordById(any(GetRecordByIdRequest.class), any(String.class));
+    verify(csw, times(1)).getRecordById(any(GetRecordByIdRequestImpl.class), any(String.class));
   }
 
   @Test(expected = ResourceNotFoundException.class)
@@ -1375,10 +1377,11 @@ public class CswSourceTest extends TestCswSourceBase {
       throws CswException, ResourceNotFoundException, IOException, ResourceNotSupportedException,
           URISyntaxException {
     Csw csw = createMockCsw();
-    CswRecordCollection collection = mock(CswRecordCollection.class);
+    CswRecordCollection collection = mock(CswRecordCollectionImpl.class);
     Resource resource = mock(Resource.class);
     when(collection.getResource()).thenReturn(resource);
-    when(csw.getRecordById(any(GetRecordByIdRequest.class), anyString())).thenReturn(collection);
+    when(csw.getRecordById(any(GetRecordByIdRequestImpl.class), anyString()))
+        .thenReturn(collection);
     AbstractCswSource cswSource =
         getCswSource(csw, mockContext, null, null, null, null, permissions);
     ResourceReader reader = mock(ResourceReader.class);

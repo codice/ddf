@@ -13,70 +13,69 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordByIdRequest;
+
 /**
- * JAX-RS Parameter Bean Class for the DescribeRecord request. The member variables will be
+ * JAX-RS Parameter Bean Class for the GetRecordById request. The member variables will be
  * automatically injected by the JAX-RS annotations.
  */
-public class DescribeRecordRequest extends CswRequest {
+public class GetRecordByIdRequestImpl extends CswRequestImpl implements GetRecordByIdRequest {
 
-  private String version;
+  private String id;
 
-  private String namespace;
-
-  // The following parameters are optional for the DescribeRecord Request
-  private String typeName;
+  private String elementSetName;
 
   private String outputFormat;
 
-  private String schemaLanguage;
+  private String outputSchema;
 
-  public DescribeRecordRequest() {
-    super(CswConstants.DESCRIBE_RECORD);
+  public GetRecordByIdRequestImpl() {
+    super(CswConstants.GET_RECORD_BY_ID);
   }
 
-  public DescribeRecordRequest(String service, String version) {
+  public GetRecordByIdRequestImpl(String service) {
     this();
     setService(service);
-    setVersion(version);
   }
 
-  public String getVersion() {
-    return version;
+  @Override
+  public String getId() {
+    return id;
   }
 
-  public void setVersion(String version) {
-    this.version = version;
+  @Override
+  public void setId(String id) {
+    this.id = id;
   }
 
-  public String getNamespace() {
-    return namespace;
+  @Override
+  public String getElementSetName() {
+    return elementSetName;
   }
 
-  public void setNamespace(String namespace) {
-    this.namespace = namespace;
+  @Override
+  public void setElementSetName(String elementSetName) {
+    this.elementSetName = elementSetName;
   }
 
-  public String getTypeName() {
-    return typeName;
-  }
-
-  public void setTypeName(String typeName) {
-    this.typeName = typeName;
-  }
-
+  @Override
   public String getOutputFormat() {
     return outputFormat;
   }
 
+  @Override
   public void setOutputFormat(String outputFormat) {
     this.outputFormat = outputFormat;
   }
 
-  public String getSchemaLanguage() {
-    return schemaLanguage;
+  @Override
+  public String getOutputSchema() {
+    return outputSchema;
   }
 
-  public void setSchemaLanguage(String schemaLanguage) {
-    this.schemaLanguage = schemaLanguage;
+  @Override
+  public void setOutputSchema(String outputSchema) {
+    this.outputSchema = outputSchema;
   }
 }

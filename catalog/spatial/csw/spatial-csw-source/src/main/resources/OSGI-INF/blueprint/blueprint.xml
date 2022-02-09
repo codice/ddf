@@ -49,7 +49,7 @@
 
 
     <bean id="metacardTransformerManager"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager">
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl">
         <argument ref="metacardTransformers"/>
     </bean>
     <bean id="cswTransactionWriter"

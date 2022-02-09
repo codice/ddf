@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -24,9 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Maintains a list of available Transformers and their properties. */
-public class TransformerManager {
+public class TransformerManagerImpl implements TransformerManager {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TransformerManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TransformerManagerImpl.class);
 
   public static final String MIME_TYPE = "mime-type";
 
@@ -38,22 +39,26 @@ public class TransformerManager {
 
   private final List<ServiceReference> serviceRefs;
 
-  public TransformerManager(List<ServiceReference> serviceReferences) {
+  public TransformerManagerImpl(List<ServiceReference> serviceReferences) {
     this.serviceRefs = serviceReferences;
   }
 
+  @Override
   public List<String> getAvailableMimeTypes() {
     return getAvailableProperty(MIME_TYPE);
   }
 
+  @Override
   public List<String> getAvailableSchemas() {
     return getAvailableProperty(SCHEMA);
   }
 
+  @Override
   public List<String> getAvailableIds() {
     return getAvailableProperty(ID);
   }
 
+  @Override
   public String getTransformerIdForSchema(String schema) {
 
     List<Map<String, Object>> properties = getRelatedTransformerProperties(SCHEMA, schema);
@@ -63,6 +68,7 @@ public class TransformerManager {
     return "";
   }
 
+  @Override
   public String getTransformerSchemaForId(String id) {
     List<Map<String, Object>> properties = getRelatedTransformerProperties(ID, id);
     if (!properties.isEmpty()) {
@@ -71,6 +77,7 @@ public class TransformerManager {
     return "";
   }
 
+  @Override
   public String getTransformerSchemaLocationForId(String id) {
 
     List<Map<String, Object>> properties = getRelatedTransformerProperties(ID, id);
@@ -80,6 +87,7 @@ public class TransformerManager {
     return "";
   }
 
+  @Override
   public List<String> getAvailableProperty(String propertyName) {
     List<String> properties = new ArrayList<String>();
 
@@ -92,18 +100,22 @@ public class TransformerManager {
     return properties;
   }
 
+  @Override
   public <T> T getTransformerBySchema(String schema) {
     return getTransformerByProperty(SCHEMA, schema);
   }
 
+  @Override
   public <T> T getTransformerByMimeType(String mimeType) {
     return getTransformerByProperty(MIME_TYPE, mimeType);
   }
 
+  @Override
   public <T> T getTransformerById(String id) {
     return getTransformerByProperty(ID, id);
   }
 
+  @Override
   public <T> T getTransformerByProperty(String property, String value) {
     if (value == null) {
       return null;
@@ -124,13 +136,7 @@ public class TransformerManager {
     return null;
   }
 
-  /**
-   * Returns a list of property maps for transformers that match the given property and value
-   *
-   * @param property The transformer property name
-   * @param value The value of the transformer property to match
-   * @return List of property maps for the matching transformers
-   */
+  @Override
   public List<Map<String, Object>> getRelatedTransformerProperties(String property, String value) {
     List<Map<String, Object>> properties = new ArrayList<>();
     for (ServiceReference serviceRef : serviceRefs) {

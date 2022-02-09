@@ -61,12 +61,14 @@ import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
 import org.codice.ddf.cxf.oauth.OAuthSecurity;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.security.jaxrs.SamlSecurity;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.temp.GetRecordsRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionImpl;
 import org.junit.Before;
 import org.junit.Rule;
@@ -173,11 +175,11 @@ public class CswSubscriptionEndpointTest {
     System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, password);
 
     eventProcessor = mock(EventProcessor.class);
-    mockInputManager = mock(TransformerManager.class);
+    mockInputManager = mock(TransformerManagerImpl.class);
     cswXmlBinding = mock(CswXmlBinding.class);
     mockContext = mock(BundleContext.class);
-    mockMimeTypeManager = mock(TransformerManager.class);
-    mockSchemaManager = mock(TransformerManager.class);
+    mockMimeTypeManager = mock(TransformerManagerImpl.class);
+    mockSchemaManager = mock(TransformerManagerImpl.class);
     validator = mock(ValidatorImpl.class);
     queryFactory = mock(CswQueryFactoryImpl.class);
     query = mock(QueryRequest.class);
@@ -362,7 +364,7 @@ public class CswSubscriptionEndpointTest {
   }
 
   private GetRecordsRequest createDefaultGetRecordsRequest() {
-    GetRecordsRequest grr = new GetRecordsRequest();
+    GetRecordsRequest grr = new GetRecordsRequestImpl();
     grr.setRequestId(subscriptionId);
     grr.setResponseHandler(RESPONSE_HANDLER_URL);
     grr.setService(CswConstants.CSW);
@@ -486,16 +488,16 @@ public class CswSubscriptionEndpointTest {
     private final BundleContext bundleContext;
 
     public CswSubscriptionEndpointStub(
-            EventProcessor eventProcessor,
-            TransformerManager mimeTypeTransformerManager,
-            TransformerManager schemaTransformerManager,
-            TransformerManager inputTransformerManager,
-            ValidatorImpl validator,
-            CswQueryFactory queryFactory,
-            BundleContext context,
-            ClientBuilderFactory clientBuilderFactory,
-            Security security,
-            CswXmlBinding cswXmlBinding) {
+        EventProcessor eventProcessor,
+        TransformerManager mimeTypeTransformerManager,
+        TransformerManager schemaTransformerManager,
+        TransformerManager inputTransformerManager,
+        ValidatorImpl validator,
+        CswQueryFactory queryFactory,
+        BundleContext context,
+        ClientBuilderFactory clientBuilderFactory,
+        Security security,
+        CswXmlBinding cswXmlBinding) {
       super(
           eventProcessor,
           mimeTypeTransformerManager,

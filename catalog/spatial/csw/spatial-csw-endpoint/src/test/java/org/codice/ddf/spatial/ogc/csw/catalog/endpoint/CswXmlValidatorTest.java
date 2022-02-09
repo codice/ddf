@@ -28,14 +28,15 @@ import java.util.Optional;
 import javax.xml.namespace.QName;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ValidatorTest {
+public class CswXmlValidatorTest {
 
   private static final String OCTET_STREAM_OUTPUT_SCHEMA =
       "http://www.iana.org/assignments/media-types/application/octet-stream";
@@ -56,7 +57,7 @@ public class ValidatorTest {
   public void setUp() throws Exception {
     QName[] qname = {new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME)};
     qNameList = Arrays.asList(qname);
-    transformerManager = mock(TransformerManager.class);
+    transformerManager = mock(TransformerManagerImpl.class);
     validator = new ValidatorImpl();
 
     QueryFilterTransformerProvider transformerProvider = mock(QueryFilterTransformerProvider.class);
@@ -135,7 +136,7 @@ public class ValidatorTest {
 
   @Test
   public void testValidateTypeNameToNamespaceMappings() throws Exception {
-    DescribeRecordRequest drr = createDefaultDescribeRecordRequest(VALID_PREFIX);
+    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest(VALID_PREFIX);
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     drr.setOutputFormat(CswConstants.OUTPUT_FORMAT_XML);
     Map<String, String> namespacePrefixToUriMappings = drr.parseNamespaces(drr.getNamespace());
@@ -201,8 +202,8 @@ public class ValidatorTest {
    *
    * @return Vanilla DescribeRecordRequest object
    */
-  private DescribeRecordRequest createDefaultDescribeRecordRequest(String prefix) {
-    DescribeRecordRequest drr = new DescribeRecordRequest();
+  private DescribeRecordRequestImpl createDefaultDescribeRecordRequest(String prefix) {
+    DescribeRecordRequestImpl drr = new DescribeRecordRequestImpl();
     drr.setService(CswConstants.CSW);
     drr.setVersion(CswConstants.VERSION_2_0_2);
     drr.setRequest(CswConstants.DESCRIBE_RECORD);

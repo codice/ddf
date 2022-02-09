@@ -40,8 +40,8 @@ import java.util.Iterator;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParser;
@@ -72,8 +72,7 @@ public class CswTransformProvider implements Converter {
    * @param o - metacard to transform.
    * @param writer - writes the XML.
    * @param context - the marshalling context. Should contain a map entry for {@link
-   *     org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants#TRANSFORMER_LOOKUP_KEY} {@link
-   *     org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants#TRANSFORMER_LOOKUP_VALUE} to
+   *     CswConstants#TRANSFORMER_LOOKUP_KEY} {@link CswConstants#TRANSFORMER_LOOKUP_VALUE} to
    *     identify which transformer to use. Also contains properties for any arguments to provide
    *     the transformer.
    */

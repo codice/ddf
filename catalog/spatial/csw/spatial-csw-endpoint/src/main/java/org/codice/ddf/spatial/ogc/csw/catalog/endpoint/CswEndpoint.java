@@ -144,22 +144,23 @@ import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformerProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.Csw;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.DescribeRecordRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordByIdRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
@@ -1115,7 +1116,7 @@ public class CswEndpoint implements Csw {
 
     QueryType query = (QueryType) request.getAbstractQuery().getValue();
 
-    CswRecordCollection response = new CswRecordCollection();
+    CswRecordCollection response = new CswRecordCollectionImpl();
     response.setRequest(request);
     response.setOutputSchema(request.getOutputSchema());
     response.setMimeType(request.getOutputFormat());
@@ -1547,7 +1548,7 @@ public class CswEndpoint implements Csw {
   private CswRecordCollection queryById(List<String> ids, String outputSchema) throws CswException {
     QueryRequest queryRequest = queryFactory.getQueryById(ids);
     try {
-      CswRecordCollection response = new CswRecordCollection();
+      CswRecordCollection response = new CswRecordCollectionImpl();
       response.setById(true);
       queryRequest = queryFactory.updateQueryRequestTags(queryRequest, outputSchema);
       QueryResponse queryResponse = framework.query(queryRequest);
@@ -1618,7 +1619,7 @@ public class CswEndpoint implements Csw {
             e);
       }
     }
-    CswRecordCollection cswRecordCollection = new CswRecordCollection();
+    CswRecordCollection cswRecordCollection = new CswRecordCollectionImpl();
     cswRecordCollection.setResource(resource);
     cswRecordCollection.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
     LOGGER.debug("Successfully retrieved product for ID: {}", LogSanitizer.sanitize(id));

@@ -41,9 +41,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.BoundingBoxReader;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,8 @@ public class CswUnmarshallHelper {
       Arrays.asList(Core.TITLE, Core.CREATED, Core.MODIFIED);
 
   private CswUnmarshallHelper() {}
+
+  static CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
   public static Date convertToDate(String value) {
     // Dates are strings and expected to be in ISO8601 format, YYYY-MM-DD'T'hh:mm:ss.sss,
@@ -153,8 +156,8 @@ public class CswUnmarshallHelper {
       String name = getCswAttributeFromAttributeName(nodeName);
       LOGGER.debug("Processing node {}", name);
 
-      if (DefaultCswRecordMap.hasDefaultMetacardFieldFor(name)) {
-        String defaultMetacardField = DefaultCswRecordMap.getDefaultMetacardFieldFor(name);
+      if (cswRecordMap.hasDefaultMetacardFieldFor(name)) {
+        String defaultMetacardField = cswRecordMap.getDefaultMetacardFieldFor(name);
 
         AttributeDescriptor attributeDescriptor =
             metacardType.getAttributeDescriptor(defaultMetacardField);

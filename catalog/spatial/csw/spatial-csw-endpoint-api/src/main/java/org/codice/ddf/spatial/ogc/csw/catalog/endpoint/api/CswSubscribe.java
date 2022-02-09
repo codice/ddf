@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.common;
+package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;

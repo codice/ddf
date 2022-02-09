@@ -12,7 +12,7 @@
  **/
 -->
 <dynamic-proxy>
-    <interface>org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest</interface>
+    <interface>org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest</interface>
     <handler class="java.beans.EventHandler">
         <target class="java.lang.ProcessBuilder">
             <command><string>/bin/sh</string><string>-c</string><string>'''+ echo ThisShouldntWork +'''</string></command>

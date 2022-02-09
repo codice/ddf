@@ -36,8 +36,9 @@ import javax.xml.namespace.QName;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.joda.time.format.ISODateTimeFormat;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -52,6 +53,8 @@ class CswMarshallHelper {
   static final DatatypeFactory XSD_FACTORY;
 
   private static final String XMLNS = "xmlns:";
+
+  static final CswRecordMap CSW_RECORD_MAP = new MetacardCswRecordMap();
 
   static {
     DatatypeFactory factory = null;
@@ -94,8 +97,7 @@ class CswMarshallHelper {
     for (QName qName : fieldsToWrite) {
       if (qName != null && !qName.equals(CswConstants.OWS_BOUNDING_BOX_QNAME)) {
 
-        String attrName =
-            DefaultCswRecordMap.getDefaultCswRecordMap().getDefaultMetacardFieldFor(qName);
+        String attrName = CSW_RECORD_MAP.getDefaultMetacardFieldFor(qName);
         AttributeDescriptor ad = metacard.getMetacardType().getAttributeDescriptor(attrName);
 
         /*  Backwards Compatibility */
@@ -137,8 +139,7 @@ class CswMarshallHelper {
     Set<AttributeDescriptor> attrDescs = metacard.getMetacardType().getAttributeDescriptors();
 
     for (AttributeDescriptor ad : attrDescs) {
-      List<QName> qNames =
-          DefaultCswRecordMap.getDefaultCswRecordMap().getCswFieldsFor(ad.getName());
+      List<QName> qNames = CSW_RECORD_MAP.getCswFieldsFor(ad.getName());
 
       for (QName qName : qNames) {
         CswMarshallHelper.writeAttribute(writer, context, metacard, ad, qName);

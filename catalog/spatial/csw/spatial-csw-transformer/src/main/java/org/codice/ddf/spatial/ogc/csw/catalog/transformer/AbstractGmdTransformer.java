@@ -32,9 +32,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.apache.commons.collections.MapUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 
 public class AbstractGmdTransformer implements MetacardTransformer {
 

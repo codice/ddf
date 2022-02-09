@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.not;
 import java.io.ByteArrayInputStream;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
 import org.junit.Test;
 
 public class CswResponseExceptionMapperTest {

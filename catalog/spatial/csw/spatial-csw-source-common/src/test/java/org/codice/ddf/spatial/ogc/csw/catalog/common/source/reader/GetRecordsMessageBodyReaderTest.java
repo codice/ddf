@@ -59,14 +59,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -102,7 +104,7 @@ public class GetRecordsMessageBodyReaderTest {
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/getRecordsResponse.xml")) {
       MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
 
-      reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+      reader.readFrom(CswRecordCollectionImpl.class, null, null, null, httpHeaders, is);
     }
 
     // Verify the context arguments were set correctly
@@ -126,7 +128,7 @@ public class GetRecordsMessageBodyReaderTest {
         context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
 
     assertThat(context.get(CswConstants.TRANSFORMER_LOOKUP_KEY), instanceOf(String.class));
-    assertThat(context.get(CswConstants.TRANSFORMER_LOOKUP_KEY), is(TransformerManager.SCHEMA));
+    assertThat(context.get(CswConstants.TRANSFORMER_LOOKUP_KEY), is(TransformerManagerImpl.SCHEMA));
     assertThat(context.get(CswConstants.TRANSFORMER_LOOKUP_VALUE), instanceOf(String.class));
     assertThat(
         context.get(CswConstants.TRANSFORMER_LOOKUP_VALUE), is(CswConstants.CSW_OUTPUT_SCHEMA));
@@ -136,7 +138,7 @@ public class GetRecordsMessageBodyReaderTest {
   public void testFullThreadCswRecordCollection() throws Exception {
     Metacard metacard = createMetacard();
     List<Metacard> inputMetacards = Collections.singletonList(metacard);
-    CswRecordCollection collection = new CswRecordCollection();
+    CswRecordCollection collection = new CswRecordCollectionImpl();
     collection.setCswRecords(inputMetacards);
 
     MetacardType cswMetacardType =
@@ -150,7 +152,7 @@ public class GetRecordsMessageBodyReaderTest {
                 new AssociationsAttributes()));
 
     CswRecordConverter recordConverter = new CswRecordConverter(cswMetacardType);
-    TransformerManager mockInputManager = mock(TransformerManager.class);
+    TransformerManager mockInputManager = mock(TransformerManagerImpl.class);
     when(mockInputManager.getTransformerByProperty(anyString(), anyString()))
         .thenReturn(recordConverter);
     CswTransformProvider metacardProvider = new CswTransformProvider(null, mockInputManager);
@@ -166,7 +168,8 @@ public class GetRecordsMessageBodyReaderTest {
 
       MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
 
-      cswRecords = reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+      cswRecords =
+          reader.readFrom(CswRecordCollectionImpl.class, null, null, null, httpHeaders, is);
     }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards, hasSize(3));
@@ -178,7 +181,7 @@ public class GetRecordsMessageBodyReaderTest {
   public void testFullThreadCswRecordCollectionAltPrefixes() throws Exception {
     Metacard metacard = createMetacard();
     List<Metacard> inputMetacards = Collections.singletonList(metacard);
-    CswRecordCollection collection = new CswRecordCollection();
+    CswRecordCollection collection = new CswRecordCollectionImpl();
     collection.setCswRecords(inputMetacards);
 
     MetacardType cswMetacardType =
@@ -192,7 +195,7 @@ public class GetRecordsMessageBodyReaderTest {
                 new AssociationsAttributes()));
 
     CswRecordConverter recordConverter = new CswRecordConverter(cswMetacardType);
-    TransformerManager mockInputManager = mock(TransformerManager.class);
+    TransformerManager mockInputManager = mock(TransformerManagerImpl.class);
     when(mockInputManager.getTransformerByProperty(anyString(), anyString()))
         .thenReturn(recordConverter);
     CswTransformProvider metacardProvider = new CswTransformProvider(null, mockInputManager);
@@ -209,7 +212,8 @@ public class GetRecordsMessageBodyReaderTest {
 
       MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
 
-      cswRecords = reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+      cswRecords =
+          reader.readFrom(CswRecordCollectionImpl.class, null, null, null, httpHeaders, is);
     }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards.size(), is(3));
@@ -224,7 +228,7 @@ public class GetRecordsMessageBodyReaderTest {
     List<Metacard> inputMetacards = new ArrayList<>();
     MetacardImpl metacard = new MetacardImpl();
     inputMetacards.add(metacard);
-    CswRecordCollection collection = new CswRecordCollection();
+    CswRecordCollection collection = new CswRecordCollectionImpl();
     collection.setCswRecords(inputMetacards);
     when(mockProvider.unmarshal(any(), any())).thenReturn(collection);
     CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
@@ -237,7 +241,8 @@ public class GetRecordsMessageBodyReaderTest {
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream(
             "/geomaticsGetRecordsResponse.xml")) {
       MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-      cswRecords = reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+      cswRecords =
+          reader.readFrom(CswRecordCollectionImpl.class, null, null, null, httpHeaders, is);
     }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards, contains(metacard));
@@ -262,7 +267,7 @@ public class GetRecordsMessageBodyReaderTest {
 
       cswRecords =
           reader.readFrom(
-              CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
+              CswRecordCollectionImpl.class, null, null, mediaType, httpHeaders, dataInputStream);
     }
 
     Resource resource = cswRecords.getResource();
@@ -294,7 +299,7 @@ public class GetRecordsMessageBodyReaderTest {
 
       cswRecords =
           reader.readFrom(
-              CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
+              CswRecordCollectionImpl.class, null, null, mediaType, httpHeaders, dataInputStream);
     }
 
     Resource resource = cswRecords.getResource();
@@ -329,7 +334,7 @@ public class GetRecordsMessageBodyReaderTest {
 
       cswRecords =
           reader.readFrom(
-              CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
+              CswRecordCollectionImpl.class, null, null, mediaType, httpHeaders, dataInputStream);
     }
 
     Resource resource = cswRecords.getResource();
@@ -355,7 +360,7 @@ public class GetRecordsMessageBodyReaderTest {
     try (InputStream is =
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/exceptionReport.xml")) {
       MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-      reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+      reader.readFrom(CswRecordCollectionImpl.class, null, null, null, httpHeaders, is);
     }
   }
 

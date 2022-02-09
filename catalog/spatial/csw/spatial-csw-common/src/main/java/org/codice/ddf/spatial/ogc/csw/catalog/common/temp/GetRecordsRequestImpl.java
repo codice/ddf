@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.common;
+package org.codice.ddf.spatial.ogc.csw.catalog.common.temp;
 
 import java.io.StringReader;
 import java.math.BigInteger;
@@ -40,6 +40,11 @@ import net.opengis.filter.v_1_1_0.SortOrderType;
 import net.opengis.filter.v_1_1_0.SortPropertyType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRequestImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordsRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,9 +52,9 @@ import org.slf4j.LoggerFactory;
  * JAX-RS Parameter Bean Class for the GetRecords request. The member variables will be
  * automatically injected by the JAX-RS annotations.
  */
-public class GetRecordsRequest extends CswRequest {
+public class GetRecordsRequestImpl extends CswRequestImpl implements GetRecordsRequest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsRequest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsRequestImpl.class);
 
   private static final JAXBContext JAX_BCONTEXT;
 
@@ -112,161 +117,187 @@ public class GetRecordsRequest extends CswRequest {
 
   private String responseHandler;
 
-  public GetRecordsRequest() {
+  public GetRecordsRequestImpl() {
     super(CswConstants.GET_RECORDS);
   }
 
-  public GetRecordsRequest(String service, String version) {
+  public GetRecordsRequestImpl(String service, String version) {
     this();
     setService(service);
     setVersion(version);
   }
 
+  @Override
   public String getVersion() {
     return version;
   }
 
+  @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
+  @Override
   public String getRequestId() {
     return requestId;
   }
 
+  @Override
   public void setRequestId(String requestId) {
     this.requestId = requestId;
   }
 
+  @Override
   public String getNamespace() {
     return namespace;
   }
 
+  @Override
   public void setNamespace(String namespace) {
     this.namespace = namespace;
   }
 
+  @Override
   public String getResultType() {
     return resultType;
   }
 
+  @Override
   public void setResultType(String resultType) {
     this.resultType = resultType;
   }
 
+  @Override
   public String getOutputFormat() {
     return outputFormat;
   }
 
+  @Override
   public void setOutputFormat(String outputFormat) {
     this.outputFormat = outputFormat;
   }
 
+  @Override
   public String getOutputSchema() {
     return outputSchema;
   }
 
+  @Override
   public void setOutputSchema(String outputSchema) {
     this.outputSchema = outputSchema;
   }
 
+  @Override
   public BigInteger getStartPosition() {
     return startPosition;
   }
 
+  @Override
   public void setStartPosition(BigInteger startPosition) {
     this.startPosition = startPosition;
   }
 
+  @Override
   public BigInteger getMaxRecords() {
     return maxRecords;
   }
 
+  @Override
   public void setMaxRecords(BigInteger maxRecords) {
     this.maxRecords = maxRecords;
   }
 
+  @Override
   public String getTypeNames() {
     return typeNames;
   }
 
+  @Override
   public void setTypeNames(String typeNames) {
     this.typeNames = typeNames;
   }
 
+  @Override
   public String getElementName() {
     return elementName;
   }
 
+  @Override
   public void setElementName(String elementName) {
     this.elementName = elementName;
   }
 
+  @Override
   public String getElementSetName() {
     return elementSetName;
   }
 
+  @Override
   public void setElementSetName(String elementSetName) {
     this.elementSetName = elementSetName;
   }
 
+  @Override
   public String getConstraintLanguage() {
     return constraintLanguage;
   }
 
+  @Override
   public void setConstraintLanguage(String constraintLanguage) {
     this.constraintLanguage = constraintLanguage;
   }
 
+  @Override
   public String getConstraint() {
     return constraint;
   }
 
+  @Override
   public void setConstraint(String constraint) {
     this.constraint = constraint;
   }
 
+  @Override
   public String getSortBy() {
     return sortBy;
   }
 
+  @Override
   public void setSortBy(String sortBy) {
     this.sortBy = sortBy;
   }
 
+  @Override
   public Boolean getDistributedSearch() {
     return distributedSearch;
   }
 
+  @Override
   public void setDistributedSearch(Boolean distributedSearch) {
     this.distributedSearch = distributedSearch;
   }
 
+  @Override
   public BigInteger getHopCount() {
     return hopCount;
   }
 
+  @Override
   public void setHopCount(BigInteger hopCount) {
     this.hopCount = hopCount;
   }
 
+  @Override
   public String getResponseHandler() {
     return responseHandler;
   }
 
+  @Override
   public void setResponseHandler(String responseHandler) {
     this.responseHandler = responseHandler;
   }
 
-  /**
-   * Convert the KVP values into a GetRecordsType, validates format of fields and enumeration
-   * constraints required to meet the schema requirements of the GetRecordsType. No further
-   * validation is done at this point
-   *
-   * @return GetRecordsType representation of this key-value representation
-   * @throws CswException An exception when some field cannot be converted to the equivalent
-   *     GetRecordsType value
-   */
+  @Override
   public GetRecordsType get202RecordsType() throws CswException {
     GetRecordsType getRecords = new GetRecordsType();
 
