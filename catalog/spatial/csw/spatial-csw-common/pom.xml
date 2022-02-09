@@ -196,5 +196,9 @@
             <artifactId>spatial-csw-endpoint-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
+        </dependency>
     </dependencies>
 </project>
