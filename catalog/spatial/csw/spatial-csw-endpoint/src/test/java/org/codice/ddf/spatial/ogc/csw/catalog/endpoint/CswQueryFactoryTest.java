@@ -61,6 +61,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
@@ -83,6 +84,7 @@ import net.opengis.gml.v_3_1_1.CoordType;
 import net.opengis.gml.v_3_1_1.LinearRingType;
 import net.opengis.gml.v_3_1_1.PolygonType;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlBindingImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.GetRecordsRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
@@ -252,11 +254,11 @@ public class CswQueryFactoryTest {
   @org.junit.Before
   public void setUp()
       throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
-          FederationException, ParseException, IngestException {
+          FederationException, ParseException, IngestException, JAXBException {
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
     FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
     CswRecordMap cswRecordMap = new MetacardCswRecordMap();
-    CswXmlBinding cswXmlBinding = mock(CswXmlBinding.class);
+    CswXmlBinding cswXmlBinding = new CswXmlBindingImpl();
 
     queryFactory =
         new CswQueryFactoryImpl(
@@ -272,7 +274,7 @@ public class CswQueryFactoryTest {
 
     queryFilterTransformerProvider = mock(QueryFilterTransformerProvider.class);
     QueryFilterTransformer cswQueryFilter =
-        new CswQueryFilterTransformer(new MetacardCswRecordMap(), attributeRegistry);
+        new CswQueryFilterTransformer(cswRecordMap, attributeRegistry);
     when(queryFilterTransformerProvider.getTransformer(
             new QName(CswConstants.CSW_OUTPUT_SCHEMA, "Record")))
         .thenReturn(Optional.of(cswQueryFilter));

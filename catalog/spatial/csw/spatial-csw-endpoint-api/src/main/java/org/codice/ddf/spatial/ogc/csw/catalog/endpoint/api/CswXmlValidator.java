@@ -15,7 +15,9 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
 
 import ddf.catalog.transform.QueryFilterTransformerProvider;
 import java.util.List;
+import java.util.Map;
 import javax.xml.namespace.QName;
+import net.opengis.cat.csw.v_2_0_2.QueryType;
 
 public interface CswXmlValidator {
   /**
@@ -35,6 +37,14 @@ public interface CswXmlValidator {
 
   void validateSchemaLanguage(String schemaLanguage) throws CswException;
 
+  void validateTypeNameToNamespaceMappings(
+      String typeNames, String namespaces, Map<String, String> namespacePrefixToUriMappings)
+      throws CswException;
+
   void setQueryFilterTransformerProvider(
       QueryFilterTransformerProvider queryFilterTransformerHelper);
+
+  void validateTypes(List<QName> types, String version) throws CswException;
+
+  void validateElementNames(QueryType query) throws CswException;
 }

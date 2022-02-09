@@ -156,6 +156,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlValidator;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordByIdRequest;
@@ -281,7 +282,7 @@ public class CswEndpoint implements Csw {
 
   private CapabilitiesType capabilitiesType;
 
-  private ValidatorImpl validator;
+  private CswXmlValidator validator;
 
   private CswQueryFactory queryFactory;
 
@@ -296,7 +297,7 @@ public class CswEndpoint implements Csw {
       TransformerManager schemaManager,
       TransformerManager inputManager,
       CswActionTransformerProvider cswActionTransformerProvider,
-      ValidatorImpl validator,
+      CswXmlValidator validator,
       CswQueryFactory queryFactory,
       CswXmlBinding cswXmlBinding) {
     LOGGER.trace("Entering: CSW Endpoint constructor.");

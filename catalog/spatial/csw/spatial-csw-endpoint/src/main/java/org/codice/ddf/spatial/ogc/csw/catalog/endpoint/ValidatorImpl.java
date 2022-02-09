@@ -56,7 +56,7 @@ public class ValidatorImpl implements CswXmlValidator {
    * @param types List of QNames representing types
    * @param version the specified version of the types
    */
-  void validateTypes(List<QName> types, String version) throws CswException {
+  public void validateTypes(List<QName> types, String version) throws CswException {
     if (types == null || types.size() == 0) {
       // No type at all is valid, just return
       return;
@@ -75,7 +75,7 @@ public class ValidatorImpl implements CswXmlValidator {
    *
    * @param query QueryType to be validated
    */
-  void validateElementNames(QueryType query) throws CswException {
+  public void validateElementNames(QueryType query) throws CswException {
 
     if (query.isSetElementSetName() && query.isSetElementName()) {
       throw new CswException(
@@ -162,6 +162,7 @@ public class ValidatorImpl implements CswXmlValidator {
    *     value=http://www.opengis.net/cat/csw/2.0.2
    * @throws CswException
    */
+  @Override
   public void validateTypeNameToNamespaceMappings(
       String typeNames, String namespaces, Map<String, String> namespacePrefixToUriMappings)
       throws CswException {

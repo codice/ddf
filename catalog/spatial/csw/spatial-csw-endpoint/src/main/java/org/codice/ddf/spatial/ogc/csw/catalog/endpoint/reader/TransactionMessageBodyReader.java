@@ -55,7 +55,7 @@ public class TransactionMessageBodyReader implements MessageBodyReader<CswTransa
   @Override
   public boolean isReadable(
       Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return CswTransactionRequestImpl.class.isAssignableFrom(type);
+    return CswTransactionRequest.class.isAssignableFrom(type);
   }
 
   @Override

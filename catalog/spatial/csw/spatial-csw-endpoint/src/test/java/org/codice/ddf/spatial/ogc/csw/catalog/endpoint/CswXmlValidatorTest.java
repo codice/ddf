@@ -32,6 +32,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlValidator;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +49,7 @@ public class CswXmlValidatorTest {
 
   private static final String VALID_PREFIX_LOCAL_TYPE = VALID_PREFIX + ":" + VALID_TYPE;
 
-  private ValidatorImpl validator;
+  private CswXmlValidator validator;
 
   TransformerManager transformerManager;
 
@@ -136,7 +138,7 @@ public class CswXmlValidatorTest {
 
   @Test
   public void testValidateTypeNameToNamespaceMappings() throws Exception {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest(VALID_PREFIX);
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest(VALID_PREFIX);
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     drr.setOutputFormat(CswConstants.OUTPUT_FORMAT_XML);
     Map<String, String> namespacePrefixToUriMappings = drr.parseNamespaces(drr.getNamespace());
@@ -202,8 +204,8 @@ public class CswXmlValidatorTest {
    *
    * @return Vanilla DescribeRecordRequest object
    */
-  private DescribeRecordRequestImpl createDefaultDescribeRecordRequest(String prefix) {
-    DescribeRecordRequestImpl drr = new DescribeRecordRequestImpl();
+  private DescribeRecordRequest createDefaultDescribeRecordRequest(String prefix) {
+    DescribeRecordRequest drr = new DescribeRecordRequestImpl();
     drr.setService(CswConstants.CSW);
     drr.setVersion(CswConstants.VERSION_2_0_2);
     drr.setRequest(CswConstants.DESCRIBE_RECORD);

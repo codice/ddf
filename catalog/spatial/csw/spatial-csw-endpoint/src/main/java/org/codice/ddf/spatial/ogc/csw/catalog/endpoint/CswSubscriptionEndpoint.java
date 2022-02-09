@@ -66,6 +66,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlValidator;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactoryImpl;
@@ -104,7 +105,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
   private final ObjectFactory objectFactory = new ObjectFactory();
 
-  private final ValidatorImpl validator;
+  private final CswXmlValidator validator;
 
   private final CswQueryFactory queryFactory;
 
@@ -124,7 +125,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       TransformerManager mimeTypeTransformerManager,
       TransformerManager schemaTransformerManager,
       TransformerManager inputTransformerManager,
-      ValidatorImpl validator,
+      CswXmlValidator validator,
       CswQueryFactory queryFactory,
       ClientBuilderFactory clientBuilderFactory,
       Security security,

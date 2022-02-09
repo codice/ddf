@@ -67,6 +67,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlValidator;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionImpl;
@@ -102,7 +103,7 @@ public class CswSubscriptionEndpointTest {
 
   private TransformerManager mockSchemaManager;
 
-  private ValidatorImpl validator;
+  private CswXmlValidator validator;
 
   private CswQueryFactory queryFactory;
 
@@ -126,7 +127,7 @@ public class CswSubscriptionEndpointTest {
 
   private static final String FILTER_STR = "filter serialized to a string";
 
-  private CswSubscriptionImpl subscription;
+  private Subscription subscription;
 
   String subscriptionId = "urn:uuid:1234";
 
@@ -492,7 +493,7 @@ public class CswSubscriptionEndpointTest {
         TransformerManager mimeTypeTransformerManager,
         TransformerManager schemaTransformerManager,
         TransformerManager inputTransformerManager,
-        ValidatorImpl validator,
+        CswXmlValidator validator,
         CswQueryFactory queryFactory,
         BundleContext context,
         ClientBuilderFactory clientBuilderFactory,

@@ -316,7 +316,7 @@ public class TransactionMessageBodyReaderTest {
     TransactionMessageBodyReader reader =
         new TransactionMessageBodyReader(
             cswRecordConverter, CswQueryFactoryTest.getCswMetacardType(), registry);
-    assertThat(reader.isReadable(null, null, null, null), is(true));
+    assertThat(reader.isReadable(CswTransactionRequest.class, null, null, null), is(true));
     assertThat(reader.isReadable(Object.class, null, null, null), is(false));
   }
 

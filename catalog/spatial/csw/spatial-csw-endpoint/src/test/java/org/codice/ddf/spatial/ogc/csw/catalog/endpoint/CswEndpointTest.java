@@ -151,6 +151,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlValidator;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordByIdRequest;
@@ -246,7 +247,7 @@ public class CswEndpointTest {
 
   private static final long TOTAL_COUNT = 10;
 
-  private ValidatorImpl validator = mock(ValidatorImpl.class);
+  private CswXmlValidator validator = mock(CswXmlValidator.class);
 
   private DeleteResponse deleteResponse = mock(DeleteResponse.class);
 
@@ -2256,7 +2257,7 @@ public class CswEndpointTest {
         TransformerManager schemaManager,
         TransformerManager inputManager,
         CswActionTransformerProvider cswActionTransformerProvider,
-        ValidatorImpl validator,
+        CswXmlValidator validator,
         CswQueryFactory queryFactory,
         Bundle bundle) {
       super(

@@ -13,10 +13,9 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
+import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
 import java.util.ArrayList;
 import java.util.List;
-
-import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.FunctionFactory;
 import org.opengis.feature.type.Name;

@@ -39,7 +39,6 @@ import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.FunctionFactory;
-import org.geotools.filter.function.DefaultFunctionFactory;
 import org.geotools.referencing.CRS;
 import org.geotools.styling.UomOgcMapping;
 import org.hamcrest.Matchers;
@@ -275,8 +274,7 @@ public class CswRecordMapperFilterVisitorTest {
   @Test
   public void testVisitPropertyIsEqualToFunction() {
     Expression val = factory.literal(true);
-    FunctionFactory geotoolsFunctionFactory =
-        new ExtendedGeotoolsFunctionFactoryImpl();
+    FunctionFactory geotoolsFunctionFactory = new ExtendedGeotoolsFunctionFactoryImpl();
     Function function =
         geotoolsFunctionFactory.function(
             "proximity",
