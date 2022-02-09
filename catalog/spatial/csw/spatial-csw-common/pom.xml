@@ -43,7 +43,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.42</minimum>
+                                            <minimum>0.17</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
@@ -84,10 +84,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api-impl</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
         </dependency>
@@ -99,10 +95,10 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.glassfish.jaxb</groupId>-->
+<!--            <artifactId>jaxb-runtime</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-ogc-common</artifactId>
@@ -160,10 +156,6 @@
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>ddf.catalog.core</groupId>-->
-        <!--            <artifactId>catalog-core-urlresourcereader</artifactId>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
@@ -193,9 +185,5 @@
             <artifactId>spatial-csw-endpoint-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>ddf.catalog.core</groupId>-->
-        <!--            <artifactId>catalog-core-commons</artifactId>-->
-        <!--        </dependency>-->
     </dependencies>
 </project>
