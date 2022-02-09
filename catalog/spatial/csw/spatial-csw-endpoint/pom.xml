@@ -25,11 +25,6 @@
     <dependencies>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-csw-action</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-csw-endpoint-api</artifactId>
             <version>${project.version}</version>
         </dependency>
