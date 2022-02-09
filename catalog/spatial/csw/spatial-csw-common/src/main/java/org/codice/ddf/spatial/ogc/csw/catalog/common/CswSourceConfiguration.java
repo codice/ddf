@@ -169,11 +169,6 @@ public class CswSourceConfiguration {
     this.oauthFlow = oauthFlow;
   }
 
-  public void setMetacardCswMappings(Map<String, String> mapping) {
-    this.metacardCswMappings.clear();
-    this.metacardCswMappings.putAll(mapping);
-  }
-
   public void putMetacardCswMapping(String key, String value) {
     this.metacardCswMappings.put(key, value);
   }
@@ -196,12 +191,17 @@ public class CswSourceConfiguration {
     return newMap;
   }
 
-  public void setCswAxisOrder(CswAxisOrder cswAxisOrder) {
-    this.cswAxisOrder = cswAxisOrder;
+  public void setMetacardCswMappings(Map<String, String> mapping) {
+    this.metacardCswMappings.clear();
+    this.metacardCswMappings.putAll(mapping);
   }
 
   public CswAxisOrder getCswAxisOrder() {
     return this.cswAxisOrder;
+  }
+
+  public void setCswAxisOrder(CswAxisOrder cswAxisOrder) {
+    this.cswAxisOrder = cswAxisOrder;
   }
 
   public boolean isSetUsePosList() {

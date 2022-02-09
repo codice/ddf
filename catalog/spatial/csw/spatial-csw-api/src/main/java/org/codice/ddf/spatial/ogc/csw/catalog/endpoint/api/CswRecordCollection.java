@@ -97,11 +97,11 @@ public interface CswRecordCollection {
 
   void setDoWriteNamespaces(boolean doWriteNamespaces);
 
-  void setResource(Resource resource);
-
   Resource getResource();
 
-  void setResourceProperties(Map<String, Serializable> resourceProperties);
+  void setResource(Resource resource);
 
   Map<String, Serializable> getResourceProperties();
+
+  void setResourceProperties(Map<String, Serializable> resourceProperties);
 }

@@ -20,14 +20,16 @@
 
     <dc:coverage></dc:coverage>
     <dct:spatial>
-        <gml:Polygon gml:srsName="EPSG:4326" gml:srsDimension="2"
+        <gml:Polygon gml:srsName="EPSG:4326"
+                     gml:srsDimension="2"
                      gml:uomLabels="degrees degrees">
             <gml:exterior>
                 <gml:LinearRing>
                     <gml:posList>33.716944444444444 51.70333333333333 33.71666666666667
                         51.740833333333335 33.73166666666667 51.740833333333335
                         33.731944444444444 51.70333333333333 33.716944444444444
-                        51.70333333333333</gml:posList>
+                        51.70333333333333
+                    </gml:posList>
                 </gml:LinearRing>
             </gml:exterior>
         </gml:Polygon>
@@ -49,7 +51,8 @@
     <dc:title>04Jan28070916</dc:title>
     <dct:alternative></dct:alternative>
     <dc:type>IMAGE-PRODUCT</dc:type>
-    <ows:BoundingBox crs="EPSG:4326" dimensions="2">
+    <ows:BoundingBox crs="EPSG:4326"
+                     dimensions="2">
         <ows:LowerCorner>33.73166666666667 51.70333333333333</ows:LowerCorner>
         <ows:UpperCorner>33.716944444444444 51.740833333333335</ows:UpperCorner>
     </ows:BoundingBox>

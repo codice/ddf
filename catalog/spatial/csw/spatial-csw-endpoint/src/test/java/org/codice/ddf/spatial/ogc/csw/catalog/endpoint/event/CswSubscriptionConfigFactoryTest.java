@@ -33,16 +33,11 @@ import org.junit.Test;
 
 public class CswSubscriptionConfigFactoryTest {
 
-  private CswSubscriptionEndpoint subscriptionService;
-
-  private CswSubscriptionConfigFactory cswSubscriptionConfigFactory;
-
-  private CswXmlBinding cswXmlBinding;
-
   private static final String DELIVERY_URL = "http://localhost:8993/test";
-
   private static final String SUBSCRIPTION_ID = "bc9c7957-17d6-465e-ba0b-40e1c46725ff";
-
+  private CswSubscriptionEndpoint subscriptionService;
+  private CswSubscriptionConfigFactory cswSubscriptionConfigFactory;
+  private CswXmlBinding cswXmlBinding;
   private String filterXml;
 
   @Before

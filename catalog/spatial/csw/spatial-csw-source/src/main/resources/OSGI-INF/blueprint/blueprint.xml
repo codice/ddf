@@ -12,38 +12,55 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
     <!-- Get reference to Filter Adapter implementation -->
-    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
-    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
-    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
-    <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
+    <reference id="filterAdapter"
+               interface="ddf.catalog.filter.FilterAdapter"/>
+    <reference id="filterBuilder"
+               interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="mimeTypeMapper"
+               interface="ddf.mime.MimeTypeMapper"/>
+    <reference id="resourceReader"
+               interface="ddf.catalog.resource.ResourceReader"
                filter="(shortname=URLResourceReader)"/>
-    <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
-    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
-    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
-    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
-    <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
-    <reference id="security" interface="org.codice.ddf.security.Security" />
-    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
+    <reference id="cswTransformProvider"
+               interface="com.thoughtworks.xstream.converters.Converter"/>
+    <reference id="securityManager"
+               interface="ddf.security.service.SecurityManager"/>
+    <reference id="clientBuilderFactory"
+               interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
+    <reference id="encryptionService"
+               interface="ddf.security.encryption.EncryptionService"/>
+    <reference id="queryFilterTransformerProvider"
+               interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
+    <reference id="security"
+               interface="org.codice.ddf.security.Security"/>
+    <reference id="permissions"
+               interface="ddf.security.permission.Permissions"/>
 
-    <bean id="metacardTypes" class="org.codice.ddf.platform.util.SortedServiceList"/>
-    <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
-        <reference-listener ref="metacardTypes" bind-method="bindPlugin"
+    <bean id="metacardTypes"
+          class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <reference-list id="metacardTypeList"
+                    interface="ddf.catalog.data.MetacardType">
+        <reference-listener ref="metacardTypes"
+                            bind-method="bindPlugin"
                             unbind-method="unbindPlugin"/>
     </reference-list>
 
-    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
-    <reference-list id="metacardTransformerList" member-type="service-reference"
+    <bean id="metacardTransformers"
+          class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="metacardTransformerList"
+                    member-type="service-reference"
                     interface="ddf.catalog.transform.MetacardTransformer">
-        <reference-listener bind-method="bindService" unbind-method="unbindService"
+        <reference-listener bind-method="bindService"
+                            unbind-method="unbindService"
                             ref="metacardTransformers"/>
     </reference-list>
 
@@ -57,228 +74,350 @@
         <argument ref="cswTransformProvider"/>
     </bean>
 
-    <cm:managed-service-factory
-            id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
-            factory-pid="Csw_Federated_Source">
+    <cm:managed-service-factory id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
+                                factory-pid="Csw_Federated_Source">
         <interfaces>
             <value>ddf.catalog.source.FederatedSource</value>
             <value>ddf.catalog.source.OAuthFederatedSource</value>
         </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
-                              init-method="init" destroy-method="destroy">
-            <property name="context" ref="blueprintBundleContext"/>
-            <property name="filterBuilder" ref="filterBuilder"/>
-            <property name="filterAdapter" ref="filterAdapter"/>
-            <property name="cswUrl" value=""/>
-            <property name="id" value=""/>
-            <property name="authenticationType" value="none"/>
-            <property name="username" value=""/>
-            <property name="password" value=""/>
-            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
-            <property name="oauthClientId" value="ddf-client"/>
-            <property name="oauthClientSecret" value="secret"/>
-            <property name="oauthFlow" value="code"/>
-            <property name="disableCnCheck" value="false"/>
-            <property name="coordinateOrder" value="LON_LAT"/>
-            <property name="usePosList" value="false"/>
+                              init-method="init"
+                              destroy-method="destroy">
+            <property name="context"
+                      ref="blueprintBundleContext"/>
+            <property name="filterBuilder"
+                      ref="filterBuilder"/>
+            <property name="filterAdapter"
+                      ref="filterAdapter"/>
+            <property name="cswUrl"
+                      value=""/>
+            <property name="id"
+                      value=""/>
+            <property name="authenticationType"
+                      value="none"/>
+            <property name="username"
+                      value=""/>
+            <property name="password"
+                      value=""/>
+            <property name="oauthDiscoveryUrl"
+                      value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId"
+                      value="ddf-client"/>
+            <property name="oauthClientSecret"
+                      value="secret"/>
+            <property name="oauthFlow"
+                      value="code"/>
+            <property name="disableCnCheck"
+                      value="false"/>
+            <property name="coordinateOrder"
+                      value="LON_LAT"/>
+            <property name="usePosList"
+                      value="false"/>
             <property name="metacardMappings">
                 <list/>
             </property>
-            <property name="pollInterval" value="5"/>
-            <property name="resourceReader" ref="resourceReader"/>
-            <property name="outputSchema" value=""/>
-            <property name="queryTypeName" value=""/>
-            <property name="queryTypeNamespace" value=""/>
+            <property name="pollInterval"
+                      value="5"/>
+            <property name="resourceReader"
+                      ref="resourceReader"/>
+            <property name="outputSchema"
+                      value=""/>
+            <property name="queryTypeName"
+                      value=""/>
+            <property name="queryTypeNamespace"
+                      value=""/>
             <property name="cswTransformConverter">
                 <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter">
                     <argument ref="cswTransformProvider"/>
                 </bean>
             </property>
-            <property name="cswQueryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
-            <property name="isCqlForced" value="false"/>
-            <property name="forceSpatialFilter" value="NO_FILTER"/>
-            <property name="connectionTimeout" value="30000"/>
-            <property name="receiveTimeout" value="60000"/>
-            <property name="securityManager" ref="securityManager"/>
-            <property name="metacardTypes" ref="metacardTypes"/>
-            <property name="eventServiceAddress" value=""/>
-            <property name="registerForEvents" value="false"/>
+            <property name="cswQueryFilterTransformerProvider"
+                      ref="queryFilterTransformerProvider"/>
+            <property name="isCqlForced"
+                      value="false"/>
+            <property name="forceSpatialFilter"
+                      value="NO_FILTER"/>
+            <property name="connectionTimeout"
+                      value="30000"/>
+            <property name="receiveTimeout"
+                      value="60000"/>
+            <property name="securityManager"
+                      ref="securityManager"/>
+            <property name="metacardTypes"
+                      ref="metacardTypes"/>
+            <property name="eventServiceAddress"
+                      value=""/>
+            <property name="registerForEvents"
+                      value="false"/>
             <argument ref="encryptionService"/>
             <argument ref="clientBuilderFactory"/>
-            <argument ref="security" />
+            <argument ref="security"/>
             <argument ref="permissions"/>
-            <cm:managed-properties persistent-id="" update-strategy="component-managed"
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 
-    <cm:managed-service-factory
-            id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederationProfileSource.id"
-            factory-pid="Csw_Federation_Profile_Source">
+    <cm:managed-service-factory id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederationProfileSource.id"
+                                factory-pid="Csw_Federation_Profile_Source">
         <interfaces>
             <value>ddf.catalog.source.FederatedSource</value>
             <value>ddf.catalog.source.OAuthFederatedSource</value>
         </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
-                              init-method="init" destroy-method="destroy">
+                              init-method="init"
+                              destroy-method="destroy">
             <!-- These are the only configurable properties -->
-            <property name="cswUrl" value=""/>
-            <property name="id" value=""/>
-            <property name="authenticationType" value="none"/>
-            <property name="username" value=""/>
-            <property name="password" value=""/>
-            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
-            <property name="oauthClientId" value="ddf-client"/>
-            <property name="oauthClientSecret" value="secret"/>
-            <property name="oauthFlow" value="code"/>
-            <property name="eventServiceAddress" value=""/>
-            <property name="registerForEvents" value="false"/>
+            <property name="cswUrl"
+                      value=""/>
+            <property name="id"
+                      value=""/>
+            <property name="authenticationType"
+                      value="none"/>
+            <property name="username"
+                      value=""/>
+            <property name="password"
+                      value=""/>
+            <property name="oauthDiscoveryUrl"
+                      value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId"
+                      value="ddf-client"/>
+            <property name="oauthClientSecret"
+                      value="secret"/>
+            <property name="oauthFlow"
+                      value="code"/>
+            <property name="eventServiceAddress"
+                      value=""/>
+            <property name="registerForEvents"
+                      value="false"/>
 
             <!-- These are defaulted for convenience -->
-            <property name="context" ref="blueprintBundleContext"/>
-            <property name="filterBuilder" ref="filterBuilder"/>
-            <property name="filterAdapter" ref="filterAdapter"/>
-            <property name="disableCnCheck" value="false"/>
-            <property name="coordinateOrder" value="LON_LAT"/>
-            <property name="usePosList" value="false"/>
+            <property name="context"
+                      ref="blueprintBundleContext"/>
+            <property name="filterBuilder"
+                      ref="filterBuilder"/>
+            <property name="filterAdapter"
+                      ref="filterAdapter"/>
+            <property name="disableCnCheck"
+                      value="false"/>
+            <property name="coordinateOrder"
+                      value="LON_LAT"/>
+            <property name="usePosList"
+                      value="false"/>
             <property name="metacardMappings">
                 <list/>
             </property>
-            <property name="pollInterval" value="5"/>
-            <property name="resourceReader" ref="resourceReader"/>
-            <property name="outputSchema" value="urn:catalog:metacard"/>
-            <property name="queryTypeName" value="csw:Record"/>
-            <property name="queryTypeNamespace" value="http://www.opengis.net/cat/csw/2.0.2"/>
+            <property name="pollInterval"
+                      value="5"/>
+            <property name="resourceReader"
+                      ref="resourceReader"/>
+            <property name="outputSchema"
+                      value="urn:catalog:metacard"/>
+            <property name="queryTypeName"
+                      value="csw:Record"/>
+            <property name="queryTypeNamespace"
+                      value="http://www.opengis.net/cat/csw/2.0.2"/>
             <property name="cswTransformConverter">
                 <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter">
                     <argument ref="cswTransformProvider"/>
                 </bean>
             </property>
-            <property name="cswQueryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
-            <property name="isCqlForced" value="false"/>
-            <property name="forceSpatialFilter" value="NO_FILTER"/>
-            <property name="connectionTimeout" value="30000"/>
-            <property name="receiveTimeout" value="60000"/>
-            <property name="securityManager" ref="securityManager"/>
-            <property name="metacardTypes" ref="metacardTypes"/>
+            <property name="cswQueryFilterTransformerProvider"
+                      ref="queryFilterTransformerProvider"/>
+            <property name="isCqlForced"
+                      value="false"/>
+            <property name="forceSpatialFilter"
+                      value="NO_FILTER"/>
+            <property name="connectionTimeout"
+                      value="30000"/>
+            <property name="receiveTimeout"
+                      value="60000"/>
+            <property name="securityManager"
+                      ref="securityManager"/>
+            <property name="metacardTypes"
+                      ref="metacardTypes"/>
             <argument ref="encryptionService"/>
             <argument ref="clientBuilderFactory"/>
-            <argument ref="security" />
+            <argument ref="security"/>
             <argument ref="permissions"/>
-            <cm:managed-properties persistent-id="" update-strategy="component-managed"
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 
-    <cm:managed-service-factory
-            id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.gmd"
-            factory-pid="Gmd_Csw_Federated_Source">
+    <cm:managed-service-factory id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.gmd"
+                                factory-pid="Gmd_Csw_Federated_Source">
         <interfaces>
             <value>ddf.catalog.source.FederatedSource</value>
             <value>ddf.catalog.source.OAuthFederatedSource</value>
         </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
-                              init-method="init" destroy-method="destroy">
-            <property name="context" ref="blueprintBundleContext"/>
-            <property name="filterBuilder" ref="filterBuilder"/>
-            <property name="filterAdapter" ref="filterAdapter"/>
-            <property name="cswUrl" value=""/>
-            <property name="id" value=""/>
-            <property name="authenticationType" value="none"/>
-            <property name="username" value=""/>
-            <property name="password" value=""/>
-            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
-            <property name="oauthClientId" value="ddf-client"/>
-            <property name="oauthClientSecret" value="secret"/>
-            <property name="oauthFlow" value="code"/>
-            <property name="disableCnCheck" value="false"/>
-            <property name="coordinateOrder" value="LON_LAT"/>
-            <property name="usePosList" value="false"/>
+                              init-method="init"
+                              destroy-method="destroy">
+            <property name="context"
+                      ref="blueprintBundleContext"/>
+            <property name="filterBuilder"
+                      ref="filterBuilder"/>
+            <property name="filterAdapter"
+                      ref="filterAdapter"/>
+            <property name="cswUrl"
+                      value=""/>
+            <property name="id"
+                      value=""/>
+            <property name="authenticationType"
+                      value="none"/>
+            <property name="username"
+                      value=""/>
+            <property name="password"
+                      value=""/>
+            <property name="oauthDiscoveryUrl"
+                      value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId"
+                      value="ddf-client"/>
+            <property name="oauthClientSecret"
+                      value="secret"/>
+            <property name="oauthFlow"
+                      value="code"/>
+            <property name="disableCnCheck"
+                      value="false"/>
+            <property name="coordinateOrder"
+                      value="LON_LAT"/>
+            <property name="usePosList"
+                      value="false"/>
             <property name="metacardMappings">
                 <list/>
             </property>
-            <property name="pollInterval" value="5"/>
-            <property name="resourceReader" ref="resourceReader"/>
-            <property name="outputSchema" value=""/>
-            <property name="queryTypeName" value=""/>
-            <property name="queryTypeNamespace" value=""/>
+            <property name="pollInterval"
+                      value="5"/>
+            <property name="resourceReader"
+                      ref="resourceReader"/>
+            <property name="outputSchema"
+                      value=""/>
+            <property name="queryTypeName"
+                      value=""/>
+            <property name="queryTypeNamespace"
+                      value=""/>
             <property name="cswTransformConverter">
                 <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter">
                     <argument ref="cswTransformProvider"/>
                 </bean>
             </property>
-            <property name="cswQueryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
-            <property name="isCqlForced" value="false"/>
-            <property name="forceSpatialFilter" value="NO_FILTER"/>
-            <property name="connectionTimeout" value="30000"/>
-            <property name="receiveTimeout" value="60000"/>
-            <property name="securityManager" ref="securityManager"/>
-            <property name="metacardTypes" ref="metacardTypes"/>
-            <property name="eventServiceAddress" value=""/>
-            <property name="registerForEvents" value="false"/>
+            <property name="cswQueryFilterTransformerProvider"
+                      ref="queryFilterTransformerProvider"/>
+            <property name="isCqlForced"
+                      value="false"/>
+            <property name="forceSpatialFilter"
+                      value="NO_FILTER"/>
+            <property name="connectionTimeout"
+                      value="30000"/>
+            <property name="receiveTimeout"
+                      value="60000"/>
+            <property name="securityManager"
+                      ref="securityManager"/>
+            <property name="metacardTypes"
+                      ref="metacardTypes"/>
+            <property name="eventServiceAddress"
+                      value=""/>
+            <property name="registerForEvents"
+                      value="false"/>
             <argument ref="encryptionService"/>
             <argument ref="clientBuilderFactory"/>
-            <argument ref="security" />
+            <argument ref="security"/>
             <argument ref="permissions"/>
-            <cm:managed-properties persistent-id="" update-strategy="component-managed"
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 
-    <cm:managed-service-factory
-            id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswTransactionalFederatedSource.id"
-            factory-pid="Csw_Transactional_Federated_Source">
+    <cm:managed-service-factory id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswTransactionalFederatedSource.id"
+                                factory-pid="Csw_Transactional_Federated_Source">
         <interfaces>
             <value>ddf.catalog.source.FederatedSource</value>
             <value>ddf.catalog.source.OAuthFederatedSource</value>
         </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.TransactionalCswStoreImpl"
-                              init-method="init" destroy-method="destroy">
-            <property name="context" ref="blueprintBundleContext"/>
-            <property name="filterBuilder" ref="filterBuilder"/>
-            <property name="filterAdapter" ref="filterAdapter"/>
-            <property name="cswUrl" value=""/>
-            <property name="id" value=""/>
-            <property name="authenticationType" value="none"/>
-            <property name="username" value=""/>
-            <property name="password" value=""/>
-            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
-            <property name="oauthClientId" value="ddf-client"/>
-            <property name="oauthClientSecret" value="secret"/>
-            <property name="oauthFlow" value="code"/>
-            <property name="disableCnCheck" value="false"/>
-            <property name="coordinateOrder" value="LON_LAT"/>
-            <property name="usePosList" value="false"/>
+                              init-method="init"
+                              destroy-method="destroy">
+            <property name="context"
+                      ref="blueprintBundleContext"/>
+            <property name="filterBuilder"
+                      ref="filterBuilder"/>
+            <property name="filterAdapter"
+                      ref="filterAdapter"/>
+            <property name="cswUrl"
+                      value=""/>
+            <property name="id"
+                      value=""/>
+            <property name="authenticationType"
+                      value="none"/>
+            <property name="username"
+                      value=""/>
+            <property name="password"
+                      value=""/>
+            <property name="oauthDiscoveryUrl"
+                      value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId"
+                      value="ddf-client"/>
+            <property name="oauthClientSecret"
+                      value="secret"/>
+            <property name="oauthFlow"
+                      value="code"/>
+            <property name="disableCnCheck"
+                      value="false"/>
+            <property name="coordinateOrder"
+                      value="LON_LAT"/>
+            <property name="usePosList"
+                      value="false"/>
             <property name="metacardMappings">
                 <list/>
             </property>
-            <property name="pollInterval" value="5"/>
-            <property name="resourceReader" ref="resourceReader"/>
-            <property name="outputSchema" value="urn:catalog:metacard"/>
-            <property name="queryTypeName" value=""/>
-            <property name="queryTypeNamespace" value=""/>
+            <property name="pollInterval"
+                      value="5"/>
+            <property name="resourceReader"
+                      ref="resourceReader"/>
+            <property name="outputSchema"
+                      value="urn:catalog:metacard"/>
+            <property name="queryTypeName"
+                      value=""/>
+            <property name="queryTypeNamespace"
+                      value=""/>
             <property name="cswTransformConverter">
                 <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter">
                     <argument ref="cswTransformProvider"/>
                 </bean>
             </property>
-            <property name="cswQueryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
-            <property name="isCqlForced" value="false"/>
-            <property name="forceSpatialFilter" value="NO_FILTER"/>
-            <property name="connectionTimeout" value="30000"/>
-            <property name="receiveTimeout" value="60000"/>
-            <property name="securityManager" ref="securityManager"/>
-            <property name="metacardTypes" ref="metacardTypes"/>
-            <property name="eventServiceAddress" value=""/>
-            <property name="registerForEvents" value="false"/>
+            <property name="cswQueryFilterTransformerProvider"
+                      ref="queryFilterTransformerProvider"/>
+            <property name="isCqlForced"
+                      value="false"/>
+            <property name="forceSpatialFilter"
+                      value="NO_FILTER"/>
+            <property name="connectionTimeout"
+                      value="30000"/>
+            <property name="receiveTimeout"
+                      value="60000"/>
+            <property name="securityManager"
+                      ref="securityManager"/>
+            <property name="metacardTypes"
+                      ref="metacardTypes"/>
+            <property name="eventServiceAddress"
+                      value=""/>
+            <property name="registerForEvents"
+                      value="false"/>
             <argument ref="encryptionService"/>
             <argument ref="clientBuilderFactory"/>
-            <argument ref="security" />
+            <argument ref="security"/>
             <argument ref="permissions"/>
             <!-- CSW Store Properties -->
-            <property name="schemaTransformerManager" ref="metacardTransformerManager"/>
-            <property name="cswTransactionWriter" ref="cswTransactionWriter"/>
-            <cm:managed-properties persistent-id="" update-strategy="component-managed"
+            <property name="schemaTransformerManager"
+                      ref="metacardTransformerManager"/>
+            <property name="cswTransactionWriter"
+                      ref="cswTransactionWriter"/>
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
     </cm:managed-service-factory>

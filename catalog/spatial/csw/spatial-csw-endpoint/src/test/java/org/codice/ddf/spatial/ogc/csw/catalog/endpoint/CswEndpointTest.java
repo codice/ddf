@@ -217,36 +217,21 @@ public class CswEndpointTest {
   private static final String SAMPLE_NAME_SPACE = "http://example.com/services/csw";
 
   private static final String USER_ID = "testUser";
-
+  private static final long RESULT_COUNT = 10;
+  private static final long TOTAL_COUNT = 10;
   private static UriInfo mockUriInfo = mock(UriInfo.class);
-
   private static Bundle mockBundle = mock(Bundle.class);
-
   private static BundleContext mockBundleContext = mock(BundleContext.class);
-
   private static CswEndpoint csw;
-
   private static CatalogFramework catalogFramework = mock(CatalogFramework.class);
-
   private static TransformerManager mockMimeTypeManager = mock(TransformerManagerImpl.class);
-
   private static TransformerManager mockSchemaManager = mock(TransformerManagerImpl.class);
-
   private static TransformerManager mockInputManager = mock(TransformerManagerImpl.class);
-
   private static CswActionTransformerProvider mockCswActionTransformerProvider =
       mock(CswActionTransformerProvider.class);
-
   private static QueryResponseTransformer mockTransformer = mock(QueryResponseTransformer.class);
-
   private static CswXmlBinding cswXmlBinding = mock(CswXmlBinding.class);
-
   private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
-
-  private static final long RESULT_COUNT = 10;
-
-  private static final long TOTAL_COUNT = 10;
-
   private CswXmlValidator validator = mock(CswXmlValidator.class);
 
   private DeleteResponse deleteResponse = mock(DeleteResponse.class);

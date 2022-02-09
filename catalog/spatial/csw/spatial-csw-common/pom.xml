@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
@@ -81,10 +83,10 @@
             <artifactId>spatial-csw-action</artifactId>
             <version>${project.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>ddf.catalog.core</groupId>-->
-<!--            <artifactId>catalog-core-api-impl</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+        </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
@@ -92,11 +94,6 @@
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>${joda-time.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -110,10 +107,10 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-ogc-common</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>ddf.catalog.core</groupId>-->
-<!--            <artifactId>catalog-core-commons</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
+        </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
@@ -163,10 +160,10 @@
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>ddf.catalog.core</groupId>-->
-<!--            <artifactId>catalog-core-urlresourcereader</artifactId>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>ddf.catalog.core</groupId>-->
+        <!--            <artifactId>catalog-core-urlresourcereader</artifactId>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
@@ -196,9 +193,9 @@
             <artifactId>spatial-csw-endpoint-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-commons</artifactId>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>ddf.catalog.core</groupId>-->
+        <!--            <artifactId>catalog-core-commons</artifactId>-->
+        <!--        </dependency>-->
     </dependencies>
 </project>

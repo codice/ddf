@@ -12,8 +12,8 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>csw</artifactId>
@@ -25,11 +25,11 @@
     <packaging>bundle</packaging>
     <name>DDF :: Spatial :: CSW :: Endpoint :: API</name>
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.codice.ddf.spatial</groupId>-->
-<!--            <artifactId>spatial-csw-common</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.codice.ddf.spatial</groupId>-->
+        <!--            <artifactId>spatial-csw-common</artifactId>-->
+        <!--            <version>${project.version}</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
@@ -58,47 +58,47 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>maven-bundle-plugin</artifactId>
-            <extensions>true</extensions>
-            <configuration>
-                <instructions>
-                    <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                    <Export-Package>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>
                             org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api
-<!--                        org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer,-->
-<!--                        org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings-->
-                    </Export-Package>
-<!--                    <Import-Package>-->
-<!--                        net.opengis.cat.csw.v_2_0_2;version="[2.8,3)",-->
-<!--                        net.opengis.cat.csw.v_2_0_2.dc.elements;version="[2.8,3)",-->
-<!--                        net.opengis.filter.v_1_1_0;version="[2.8,3)",-->
-<!--                        net.opengis.gml.v_3_1_1;version="[2.8,3)",-->
-<!--                        net.opengis.ows.v_1_0_0;version="[2.8,3)",-->
-<!--                        ddf.security.permission,-->
-<!--                        org.apache.commons.logging; version="[1.1.0,2.0.0)",-->
-<!--                        org.codice.ddf.spatial.ogc.csw.catalog.actions,-->
-<!--                        *-->
-<!--                    </Import-Package>-->
-<!--                    <Embed-Dependency>-->
-<!--                        spatial-ogc-common,-->
-<!--                        spatial-csw-common,-->
-<!--                        spatial-csw-transformer,-->
-<!--                        catalog-core-api-impl,-->
-<!--                        geospatial,-->
-<!--                        commons-lang3-->
-<!--                    </Embed-Dependency>-->
-<!--                    <Private-Package>-->
-<!--                        org.codice.ddf.spatial.ogc.csw.catalog.endpoint.*-->
-<!--                    </Private-Package>-->
-                </instructions>
-            </configuration>
-        </plugin>
-    </plugins>
-</build>
+                            <!--                        org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer,-->
+                            <!--                        org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings-->
+                        </Export-Package>
+                        <!--                    <Import-Package>-->
+                        <!--                        net.opengis.cat.csw.v_2_0_2;version="[2.8,3)",-->
+                        <!--                        net.opengis.cat.csw.v_2_0_2.dc.elements;version="[2.8,3)",-->
+                        <!--                        net.opengis.filter.v_1_1_0;version="[2.8,3)",-->
+                        <!--                        net.opengis.gml.v_3_1_1;version="[2.8,3)",-->
+                        <!--                        net.opengis.ows.v_1_0_0;version="[2.8,3)",-->
+                        <!--                        ddf.security.permission,-->
+                        <!--                        org.apache.commons.logging; version="[1.1.0,2.0.0)",-->
+                        <!--                        org.codice.ddf.spatial.ogc.csw.catalog.actions,-->
+                        <!--                        *-->
+                        <!--                    </Import-Package>-->
+                        <!--                    <Embed-Dependency>-->
+                        <!--                        spatial-ogc-common,-->
+                        <!--                        spatial-csw-common,-->
+                        <!--                        spatial-csw-transformer,-->
+                        <!--                        catalog-core-api-impl,-->
+                        <!--                        geospatial,-->
+                        <!--                        commons-lang3-->
+                        <!--                    </Embed-Dependency>-->
+                        <!--                    <Private-Package>-->
+                        <!--                        org.codice.ddf.spatial.ogc.csw.catalog.endpoint.*-->
+                        <!--                    </Private-Package>-->
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>

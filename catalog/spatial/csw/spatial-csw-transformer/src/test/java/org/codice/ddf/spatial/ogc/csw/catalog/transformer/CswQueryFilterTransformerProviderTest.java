@@ -31,14 +31,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 public class CswQueryFilterTransformerProviderTest extends CswQueryFilterTransformerProvider {
-  private BundleContext bundleContext = mock(BundleContext.class);
-
   private static final String NAMESPACE = "{namespace}test";
-
   private static final String TYPE_NAME = "typeName";
-
   private static final String ID_KEY = "id";
-
+  private BundleContext bundleContext = mock(BundleContext.class);
   private QueryFilterTransformer transformer;
 
   private ServiceReference<QueryFilterTransformer> serviceReference;

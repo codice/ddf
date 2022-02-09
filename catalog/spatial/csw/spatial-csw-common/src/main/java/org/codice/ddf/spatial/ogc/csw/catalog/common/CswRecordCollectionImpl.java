@@ -196,22 +196,22 @@ public class CswRecordCollectionImpl implements CswRecordCollection {
   }
 
   @Override
-  public void setResource(Resource resource) {
-    this.resource = resource;
-  }
-
-  @Override
   public Resource getResource() {
     return resource;
   }
 
   @Override
-  public void setResourceProperties(Map<String, Serializable> resourceProperties) {
-    this.resourceProperties = resourceProperties;
+  public void setResource(Resource resource) {
+    this.resource = resource;
   }
 
   @Override
   public Map<String, Serializable> getResourceProperties() {
     return this.resourceProperties;
+  }
+
+  @Override
+  public void setResourceProperties(Map<String, Serializable> resourceProperties) {
+    this.resourceProperties = resourceProperties;
   }
 }

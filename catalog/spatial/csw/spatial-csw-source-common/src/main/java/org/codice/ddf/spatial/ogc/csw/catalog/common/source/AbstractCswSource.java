@@ -220,10 +220,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
   }
 
-  private Security security;
-
   protected final ClientBuilderFactory clientBuilderFactory;
-
   protected String configurationPid;
   protected CswSourceConfiguration cswSourceConfiguration;
   protected CswFilterDelegate cswFilterDelegate;
@@ -241,6 +238,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   protected List<String> jaxbElementClassNames = new ArrayList<>();
   protected Map<String, String> jaxbElementClassMap = new HashMap<>();
   protected String filterlessSubscriptionId = null;
+  private Security security;
   private EncryptionService encryptionService;
   private Set<SourceMonitor> sourceMonitors = new HashSet<>();
   private Map<String, ContentType> contentTypes = new ConcurrentHashMap<>();

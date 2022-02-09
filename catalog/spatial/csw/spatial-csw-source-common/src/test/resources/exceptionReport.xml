@@ -12,10 +12,13 @@
  *
  **/
 -->
-<ExceptionReport xmlns="http://www.opengis.net/ows" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://schemas.opengis.net/ows/1.1.0/owsExceptionReport.xsd" version="1.0.0" language="en">
-  <Exception exceptionCode="ServerError" locator="service">
-    <ExceptionText>ServerError</ExceptionText>
-  </Exception>
+<ExceptionReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns="http://www.opengis.net/ows"
+                 version="1.0.0"
+                 language="en">
+    <Exception exceptionCode="ServerError"
+               locator="service">
+        <ExceptionText>ServerError</ExceptionText>
+    </Exception>
 </ExceptionReport>
 

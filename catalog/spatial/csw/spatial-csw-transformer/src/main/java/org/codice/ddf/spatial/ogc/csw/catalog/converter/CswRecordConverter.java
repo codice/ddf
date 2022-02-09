@@ -69,14 +69,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
   public static final MimeType XML_MIME_TYPE = setXmlMimeType();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswRecordConverter.class);
-
-  private XStream xstream;
-
   private static XMLInputFactory factory;
-
-  private MetacardType metacardType;
-
-  private CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
   static {
     factory = XMLInputFactory.newInstance();
@@ -86,6 +79,10 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
   }
 
+  private XStream xstream;
+  private MetacardType metacardType;
+  private CswRecordMap cswRecordMap = new MetacardCswRecordMap();
+
   public CswRecordConverter(MetacardType metacardType) {
     xstream = new XStream(new Xpp3Driver());
     xstream.setClassLoader(this.getClass().getClassLoader());
@@ -94,6 +91,39 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     xstream.alias(CswConstants.CSW_RECORD_LOCAL_NAME, Metacard.class);
     xstream.alias(CswConstants.CSW_RECORD, Metacard.class);
     this.metacardType = getMetacardTypeWithBackwardsCompatibility(metacardType);
+  }
+
+  /**
+   * Converts properties in CSW records that overlap with same name as a basic Metacard attribute,
+   * e.g., title. This conversion method is needed mainly because CSW records express all dates as
+   * strings, whereas MetacardImpl expresses them as java.util.Date types.
+   *
+   * @param attributeFormat the format of the attribute to be converted
+   * @param value the value to be converted
+   * @return the value that was extracted from {@code reader} and is of the type described by {@code
+   *     attributeFormat}
+   */
+  public static Serializable convertStringValueToMetacardValue(
+      AttributeType.AttributeFormat attributeFormat, String value) {
+    return CswUnmarshallHelper.convertStringValueToMetacardValue(attributeFormat, value);
+  }
+
+  /**
+   * Converts an attribute name to the csw:Record attribute it corresponds to.
+   *
+   * @param attributeName the name of the attribute
+   * @return the name of the csw:Record attribute that this attribute name corresponds to
+   */
+  public static String getCswAttributeFromAttributeName(String attributeName) {
+    return CswUnmarshallHelper.getCswAttributeFromAttributeName(attributeName);
+  }
+
+  private static MimeType setXmlMimeType() {
+    try {
+      return new MimeType(com.google.common.net.MediaType.APPLICATION_XML_UTF_8.toString());
+    } catch (MimeTypeParseException e) {
+      return new MimeType();
+    }
   }
 
   @Override
@@ -270,21 +300,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
   }
 
   /**
-   * Converts properties in CSW records that overlap with same name as a basic Metacard attribute,
-   * e.g., title. This conversion method is needed mainly because CSW records express all dates as
-   * strings, whereas MetacardImpl expresses them as java.util.Date types.
-   *
-   * @param attributeFormat the format of the attribute to be converted
-   * @param value the value to be converted
-   * @return the value that was extracted from {@code reader} and is of the type described by {@code
-   *     attributeFormat}
-   */
-  public static Serializable convertStringValueToMetacardValue(
-      AttributeType.AttributeFormat attributeFormat, String value) {
-    return CswUnmarshallHelper.convertStringValueToMetacardValue(attributeFormat, value);
-  }
-
-  /**
    * Takes a CSW attribute as a name and value and returns an {@link Attribute} whose value is
    * {@code cswAttributeValue} converted to the type of the attribute {@code metacardAttributeName}
    * in a {@link Metacard}.
@@ -304,16 +319,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
   }
 
   /**
-   * Converts an attribute name to the csw:Record attribute it corresponds to.
-   *
-   * @param attributeName the name of the attribute
-   * @return the name of the csw:Record attribute that this attribute name corresponds to
-   */
-  public static String getCswAttributeFromAttributeName(String attributeName) {
-    return CswUnmarshallHelper.getCswAttributeFromAttributeName(attributeName);
-  }
-
-  /**
    * Adds the Effective Date and Content Type fields to the new taxonomy metacard for backwards
    * compatibility
    *
@@ -326,13 +331,5 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Metacard.EFFECTIVE),
             MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Metacard.CONTENT_TYPE));
     return new MetacardTypeImpl(metacardType.getName(), metacardType, additionalDescriptors);
-  }
-
-  private static MimeType setXmlMimeType() {
-    try {
-      return new MimeType(com.google.common.net.MediaType.APPLICATION_XML_UTF_8.toString());
-    } catch (MimeTypeParseException e) {
-      return new MimeType();
-    }
   }
 }

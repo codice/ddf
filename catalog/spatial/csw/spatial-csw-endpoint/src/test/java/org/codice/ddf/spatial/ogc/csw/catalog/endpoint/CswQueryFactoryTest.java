@@ -156,13 +156,10 @@ public class CswQueryFactoryTest {
 
   private static final String CQL_CONTEXTUAL_LIKE_QUERY =
       CONTEXTUAL_TEST_ATTRIBUTE + " Like '" + CQL_CONTEXTUAL_PATTERN + "'";
-
-  private static final String CQL_CONTEXTUAL_FUNCTION_QUERY =
-      "proximity('" + CONTEXTUAL_TEST_ATTRIBUTE + "', 1,'" + CQL_CONTEXTUAL_PATTERN + "')=true";
-
   private static final String CQL_FEDERATED_QUERY =
       "\"source-id\" = 'source1' AND " + CQL_CONTEXTUAL_LIKE_QUERY;
-
+  private static final String CQL_CONTEXTUAL_FUNCTION_QUERY =
+      "proximity('" + CONTEXTUAL_TEST_ATTRIBUTE + "', 1,'" + CQL_CONTEXTUAL_PATTERN + "')=true";
   private static final String CQL_SPATIAL_EQUALS_QUERY =
       "equals(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
 

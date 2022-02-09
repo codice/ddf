@@ -51,18 +51,9 @@ import org.xml.sax.SAXException;
 public class GmdConverterTest {
 
   private static final transient Logger LOGGER = LoggerFactory.getLogger(GmdConverterTest.class);
-
-  private static GregorianCalendar createdDate;
-
-  private static GregorianCalendar modifiedDate;
-
-  private static GregorianCalendar effectiveDate;
-
   private static final String RESOURCE_DOWNLOAD_URL =
       "http://example.com/source/id?transform=resource";
-
   private static final String RESOURCE_URI = "content:123";
-
   private static final String POLYGON_LOCATION =
       "POLYGON ((117.6552810668945 -30.92013931274414, 117.661361694336 -30.92383384704589, 117.6666412353516 -30.93005561828613, "
           + "117.6663589477539 -30.93280601501464, 117.6594467163086 -30.93186187744141, 117.6541137695312 -30.93780517578125, "
@@ -70,6 +61,9 @@ public class GmdConverterTest {
           + "117.6355285644531 -30.92874908447266, 117.6326370239258 -30.92138862609864, 117.6395568847656 -30.92236137390137, "
           + "117.6433029174805 -30.91708374023438, 117.6454467773437 -30.91711044311523, 117.6484985351563 -30.92061042785645, "
           + "117.6504135131836 -30.92061042785645, 117.6504440307617 -30.91638946533203, 117.6552810668945 -30.92013931274414))";
+  private static GregorianCalendar createdDate;
+  private static GregorianCalendar modifiedDate;
+  private static GregorianCalendar effectiveDate;
 
   @BeforeClass
   public static void setup() {

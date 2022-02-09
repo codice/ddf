@@ -94,59 +94,32 @@ public class CswSubscriptionEndpointTest {
   private static final String VALID_TYPES = "csw:Record,csw:Record";
 
   private static final String METACARD_SCHEMA = "urn:catalog:metacard";
-
-  private static BundleContext mockContext;
-
-  CswSubscriptionEndpoint cswSubscriptionEndpoint;
-
-  private TransformerManager mockMimeTypeManager;
-
-  private TransformerManager mockSchemaManager;
-
-  private CswXmlValidator validator;
-
-  private CswQueryFactory queryFactory;
-
-  private QueryRequest query;
-
-  private ServiceRegistration serviceRegistration;
-
-  private ServiceReference subscriptionReference;
-
-  private Bundle bundle;
-
-  private Filter osgiFilter;
-
-  private ServiceReference configAdminRef;
-
-  private ConfigurationAdmin configAdmin;
-
-  private Configuration config;
-
-  private Long bundleId = 42L;
-
   private static final String FILTER_STR = "filter serialized to a string";
-
-  private Subscription subscription;
-
-  String subscriptionId = "urn:uuid:1234";
-
-  private GetRecordsRequest defaultRequest;
-
-  private EventProcessor eventProcessor;
-
-  private TransformerManager mockInputManager;
-
-  private CswXmlBinding cswXmlBinding;
-
-  File systemKeystoreFile = null;
-
-  File systemTruststoreFile = null;
-
-  String password = "changeit";
-
+  private static BundleContext mockContext;
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
+  CswSubscriptionEndpoint cswSubscriptionEndpoint;
+  String subscriptionId = "urn:uuid:1234";
+  File systemKeystoreFile = null;
+  File systemTruststoreFile = null;
+  String password = "changeit";
+  private TransformerManager mockMimeTypeManager;
+  private TransformerManager mockSchemaManager;
+  private CswXmlValidator validator;
+  private CswQueryFactory queryFactory;
+  private QueryRequest query;
+  private ServiceRegistration serviceRegistration;
+  private ServiceReference subscriptionReference;
+  private Bundle bundle;
+  private Filter osgiFilter;
+  private ServiceReference configAdminRef;
+  private ConfigurationAdmin configAdmin;
+  private Configuration config;
+  private Long bundleId = 42L;
+  private Subscription subscription;
+  private GetRecordsRequest defaultRequest;
+  private EventProcessor eventProcessor;
+  private TransformerManager mockInputManager;
+  private CswXmlBinding cswXmlBinding;
   private ClientBuilderFactory clientBuilderFactory;
 
   private Security security;

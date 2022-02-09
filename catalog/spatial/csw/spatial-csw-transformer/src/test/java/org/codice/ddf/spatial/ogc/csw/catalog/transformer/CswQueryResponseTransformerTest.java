@@ -79,29 +79,18 @@ import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
 
 public class CswQueryResponseTransformerTest {
-  private CswQueryResponseTransformer transformer;
-
-  private Filter filter = mock(Filter.class);
-
-  private TransformerManager mockTransformerManager;
-
-  private PrintWriterProvider mockPrintWriterProvider;
-
-  private PrintWriter mockPrintWriter;
-
-  private MetacardTransformer mockMetacardTransformer;
-
-  private Query mockQuery;
-
-  private SourceResponse mockSourceResponse;
-
-  private QueryRequest mockQueryRequest;
-
-  private Map<String, Serializable> mockArguments;
-
-  private List<Result> mockResults;
-
   @Rule public ExpectedException thrown = ExpectedException.none();
+  private CswQueryResponseTransformer transformer;
+  private Filter filter = mock(Filter.class);
+  private TransformerManager mockTransformerManager;
+  private PrintWriterProvider mockPrintWriterProvider;
+  private PrintWriter mockPrintWriter;
+  private MetacardTransformer mockMetacardTransformer;
+  private Query mockQuery;
+  private SourceResponse mockSourceResponse;
+  private QueryRequest mockQueryRequest;
+  private Map<String, Serializable> mockArguments;
+  private List<Result> mockResults;
 
   @Before
   public void before() {

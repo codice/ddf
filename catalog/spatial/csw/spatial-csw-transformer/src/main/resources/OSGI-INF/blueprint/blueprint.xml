@@ -14,8 +14,9 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="gmdMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
-        <argument value="gmdMetacardType" />
+    <bean id="gmdMetacardType"
+          class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="gmdMetacardType"/>
         <argument>
             <list>
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
@@ -29,8 +30,9 @@
         </argument>
     </bean>
 
-    <bean id="cswMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
-        <argument value="cswMetacardType" />
+    <bean id="cswMetacardType"
+          class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="cswMetacardType"/>
         <argument>
             <list>
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
@@ -43,82 +45,108 @@
         </argument>
     </bean>
 
-    <service ref="cswMetacardType" interface="ddf.catalog.data.MetacardType" >
+    <service ref="cswMetacardType"
+             interface="ddf.catalog.data.MetacardType">
         <service-properties>
-            <entry key="name" value="csw:Record" />
+            <entry key="name"
+                   value="csw:Record"/>
         </service-properties>
     </service>
 
-    <service ref="gmdMetacardType" interface="ddf.catalog.data.MetacardType" >
+    <service ref="gmdMetacardType"
+             interface="ddf.catalog.data.MetacardType">
         <service-properties>
-            <entry key="name" value="gmd:MD_Metadata" />
+            <entry key="name"
+                   value="gmd:MD_Metadata"/>
         </service-properties>
     </service>
 
-    <reference id="resourceActionProvider" interface="ddf.action.ActionProvider"
+    <reference id="resourceActionProvider"
+               interface="ddf.action.ActionProvider"
                filter="id=catalog.data.metacard.resource"/>
 
-    <reference id="writerProvider" interface="ddf.catalog.transformer.api.PrintWriterProvider"
+    <reference id="writerProvider"
+               interface="ddf.catalog.transformer.api.PrintWriterProvider"
                filter="(id=print.writer.provider)"/>
 
 
-    <bean id="cswRecordConverter" class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter">
-        <argument ref="cswMetacardType" />
+    <bean id="cswRecordConverter"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter">
+        <argument ref="cswMetacardType"/>
     </bean>
 
     <!-- Register the Transformers -->
-    <service ref="cswRecordConverter" interface="ddf.catalog.transform.InputTransformer">
+    <service ref="cswRecordConverter"
+             interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
-            <entry key="id" value="csw:Record"/>
-            <entry key="mime-type" >
+            <entry key="id"
+                   value="csw:Record"/>
+            <entry key="mime-type">
                 <list>
                     <value>text/xml</value>
                     <value>application/xml</value>
                 </list>
             </entry>
-            <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
+            <entry key="schema"
+                   value="http://www.opengis.net/cat/csw/2.0.2"/>
         </service-properties>
     </service>
 
-    <service ref="cswRecordConverter" interface="ddf.catalog.transform.MetacardTransformer">
+    <service ref="cswRecordConverter"
+             interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
-            <entry key="id" value="csw:Record"/>
-            <entry key="mime-type" >
+            <entry key="id"
+                   value="csw:Record"/>
+            <entry key="mime-type">
                 <list>
                     <value>text/xml</value>
                     <value>application/xml</value>
                 </list>
             </entry>
-            <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
-            <entry key="schema-location" value="csw/2.0.2/record.xsd"/>
-            <entry key="displayName" value="CSW Record XML"/>
+            <entry key="schema"
+                   value="http://www.opengis.net/cat/csw/2.0.2"/>
+            <entry key="schema-location"
+                   value="csw/2.0.2/record.xsd"/>
+            <entry key="displayName"
+                   value="CSW Record XML"/>
         </service-properties>
     </service>
 
-    <service ref="gmdInputTransformerTranformer" interface="ddf.catalog.transform.InputTransformer">
+    <service ref="gmdInputTransformerTranformer"
+             interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
-            <entry key="id" value="gmd:MD_Metadata"/>
-            <entry key="mime-type" >
+            <entry key="id"
+                   value="gmd:MD_Metadata"/>
+            <entry key="mime-type">
                 <list>
                     <value>text/xml</value>
                     <value>application/xml</value>
                 </list>
             </entry>
-            <entry key="schema" value="http://www.isotc211.org/2005/gmd"/>
+            <entry key="schema"
+                   value="http://www.isotc211.org/2005/gmd"/>
         </service-properties>
     </service>
 
-    <service ref="gmdInputTransformerTranformer" interface="ddf.catalog.transform.MetacardTransformer">
+    <service ref="gmdInputTransformerTranformer"
+             interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
-            <entry key="id" value="gmd:MD_Metadata"/>
-            <entry key="mime-type" value="text/xml"/>
-            <entry key="schema" value="http://www.isotc211.org/2005/gmd"/>
-            <entry key="schema-location" value="gmd/record_gmd.xsd"/>
-            <entry key="displayName" value="GMD Metadata"/>
+            <entry key="id"
+                   value="gmd:MD_Metadata"/>
+            <entry key="mime-type"
+                   value="text/xml"/>
+            <entry key="schema"
+                   value="http://www.isotc211.org/2005/gmd"/>
+            <entry key="schema-location"
+                   value="gmd/record_gmd.xsd"/>
+            <entry key="displayName"
+                   value="GMD Metadata"/>
         </service-properties>
     </service>
 
-    <bean id="gmdInputTransformerTranformer" class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer" destroy-method="destroy">
+    <bean id="gmdInputTransformerTranformer"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer"
+          destroy-method="destroy">
         <argument ref="gmdMetacardType"/>
     </bean>
 
@@ -134,10 +162,13 @@
     </bean>
 
 
-    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
-    <reference-list id="metacardTransformerList" member-type="service-reference"
+    <bean id="metacardTransformers"
+          class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="metacardTransformerList"
+                    member-type="service-reference"
                     interface="ddf.catalog.transform.MetacardTransformer">
-        <reference-listener bind-method="bindService" unbind-method="unbindService"
+        <reference-listener bind-method="bindService"
+                            unbind-method="unbindService"
                             ref="metacardTransformers"/>
     </reference-list>
 
@@ -147,30 +178,35 @@
         <argument ref="inputTransformers"/>
     </bean>
 
-    <bean id="inputTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
-    <reference-list id="inputTransformerList" member-type="service-reference"
+    <bean id="inputTransformers"
+          class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="inputTransformerList"
+                    member-type="service-reference"
                     interface="ddf.catalog.transform.InputTransformer">
-        <reference-listener bind-method="bindService" unbind-method="unbindService"
+        <reference-listener bind-method="bindService"
+                            unbind-method="unbindService"
                             ref="inputTransformers"/>
     </reference-list>
 
     <!-- QueryFilterTransformerProvider -->
     <bean id="cswQueryFilterTransformerProvider"
-      class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswQueryFilterTransformerProvider"/>
+          class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswQueryFilterTransformerProvider"/>
 
     <reference-list id="queryFilterTransformerList"
-      interface="ddf.catalog.transform.QueryFilterTransformer"
-      member-type="service-reference"
-      availability="optional">
+                    interface="ddf.catalog.transform.QueryFilterTransformer"
+                    member-type="service-reference"
+                    availability="optional">
         <reference-listener bind-method="bind"
-          unbind-method="unbind"
-          ref="cswQueryFilterTransformerProvider"/>
+                            unbind-method="unbind"
+                            ref="cswQueryFilterTransformerProvider"/>
     </reference-list>
 
-    <service ref="cswQueryFilterTransformerProvider" id="cswQueryFilterTransformerProviderService"
-      interface="ddf.catalog.transform.QueryFilterTransformerProvider">
+    <service ref="cswQueryFilterTransformerProvider"
+             id="cswQueryFilterTransformerProviderService"
+             interface="ddf.catalog.transform.QueryFilterTransformerProvider">
         <service-properties>
-            <entry key="id" value="cswFilter" />
+            <entry key="id"
+                   value="cswFilter"/>
         </service-properties>
     </service>
 
@@ -182,31 +218,37 @@
         <argument ref="inputTransformerManager"/>
     </bean>
 
-    <service ref="cswTransformProvider" id="CswTransformProvider"
+    <service ref="cswTransformProvider"
+             id="CswTransformProvider"
              interface="com.thoughtworks.xstream.converters.Converter">
         <service-properties>
-            <entry key="id" value="csw" />
+            <entry key="id"
+                   value="csw"/>
         </service-properties>
     </service>
 
     <service ref="CswQueryResponseTransformer"
              interface="ddf.catalog.transform.QueryResponseTransformer">
         <service-properties>
-            <entry key="id" value="csw:Record"/>
-            <entry key="mime-type" >
+            <entry key="id"
+                   value="csw:Record"/>
+            <entry key="mime-type">
                 <list>
                     <value>text/xml</value>
                     <value>application/xml</value>
                 </list>
             </entry>
-            <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
-            <entry key="displayName" value="CSW Record XML"/>
+            <entry key="schema"
+                   value="http://www.opengis.net/cat/csw/2.0.2"/>
+            <entry key="displayName"
+                   value="CSW Record XML"/>
         </service-properties>
     </service>
 
     <bean id="CswQueryResponseTransformer"
           class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswQueryResponseTransformer"
-          init-method="init" destroy-method="destroy">
+          init-method="init"
+          destroy-method="destroy">
         <argument ref="metacardTransformerManager"/>
         <argument ref="writerProvider"/>
     </bean>

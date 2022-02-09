@@ -27,16 +27,11 @@ import org.slf4j.LoggerFactory;
 /** Maintains a list of available Transformers and their properties. */
 public class TransformerManagerImpl implements TransformerManager {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TransformerManagerImpl.class);
-
   public static final String MIME_TYPE = "mime-type";
-
   public static final String SCHEMA = "schema";
-
   public static final String SCHEMA_LOCATION = "schema-location";
-
   public static final String ID = "id";
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(TransformerManagerImpl.class);
   private final List<ServiceReference> serviceRefs;
 
   public TransformerManagerImpl(List<ServiceReference> serviceReferences) {

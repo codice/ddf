@@ -68,14 +68,10 @@ import org.slf4j.LoggerFactory;
  */
 public class SendEvent implements DeliveryMethod, Pingable {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SendEvent.class);
-
-  private static final int MAX_RETRY_COUNT = 16;
-
   public static final double JITTER_PERCENT = 0.25;
-
   public static final long DEFAULT_PING_PERIOD = TimeUnit.MINUTES.toMillis(30L);
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(SendEvent.class);
+  private static final int MAX_RETRY_COUNT = 16;
   private final URL callbackUrl;
 
   private final String outputSchema;
@@ -91,20 +87,13 @@ public class SendEvent implements DeliveryMethod, Pingable {
   private final ResultType resultType;
 
   private final QueryRequest query;
-
-  private String ip;
-
-  private volatile long lastPing = System.currentTimeMillis() - DEFAULT_PING_PERIOD;
-
-  private AtomicInteger retryCount = new AtomicInteger();
-
   private final Random random = new Random();
-
   Security security;
-
   volatile Subject subject;
-
   SecureCxfClientFactory<CswSubscribe> cxfClientFactory;
+  private String ip;
+  private volatile long lastPing = System.currentTimeMillis() - DEFAULT_PING_PERIOD;
+  private AtomicInteger retryCount = new AtomicInteger();
 
   public SendEvent(
       TransformerManager transformerManager,

@@ -14,14 +14,18 @@
 -->
 <blueprint xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+           xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
-    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
-    <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
-    <reference id="security" interface="org.codice.ddf.security.Security" />
-    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
+    <reference id="clientBuilderFactory"
+               interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
+    <reference id="queryFilterTransformerProvider"
+               interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
+    <reference id="security"
+               interface="org.codice.ddf.security.Security"/>
+    <reference id="permissions"
+               interface="ddf.security.permission.Permissions"/>
 
     <bean id="CswResourceComparator"
           class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator">
@@ -30,7 +34,8 @@
 
     <bean id="cswJaxbElementProvider"
           class="org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider">
-        <property name="singleJaxbContext" value="true"/>
+        <property name="singleJaxbContext"
+                  value="true"/>
         <property name="extraClass">
             <list>
                 <value>net.opengis.cat.csw.v_2_0_2.TransactionResponseType</value>
@@ -39,13 +44,15 @@
                 <value>net.opengis.cat.csw.v_2_0_2.AcknowledgementType</value>
             </list>
         </property>
-        <property name="marshallAsJaxbElement" value="true"/>
+        <property name="marshallAsJaxbElement"
+                  value="true"/>
         <property name="marshallerProperties">
             <map/>
         </property>
         <property name="schemaLocation"
                   value="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd"/>
-        <property name="unmarshallAsJaxbElement" value="true"/>
+        <property name="unmarshallAsJaxbElement"
+                  value="true"/>
         <property name="jaxbElementClassMap">
             <map>
                 <entry>
@@ -82,10 +89,13 @@
         <argument ref="queryResponseTransformers"/>
     </bean>
 
-    <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
-    <reference-list id="queryResponseTransformerList" member-type="service-reference"
+    <bean id="queryResponseTransformers"
+          class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="queryResponseTransformerList"
+                    member-type="service-reference"
                     interface="ddf.catalog.transform.QueryResponseTransformer">
-        <reference-listener bind-method="bindService" unbind-method="unbindService"
+        <reference-listener bind-method="bindService"
+                            unbind-method="unbindService"
                             ref="queryResponseTransformers"/>
     </reference-list>
 
@@ -95,10 +105,13 @@
         <argument ref="metacardTransformers"/>
     </bean>
 
-    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
-    <reference-list id="metacardTransformerList" member-type="service-reference"
+    <bean id="metacardTransformers"
+          class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="metacardTransformerList"
+                    member-type="service-reference"
                     interface="ddf.catalog.transform.MetacardTransformer">
-        <reference-listener bind-method="bindService" unbind-method="unbindService"
+        <reference-listener bind-method="bindService"
+                            unbind-method="unbindService"
                             ref="metacardTransformers"/>
     </reference-list>
 
@@ -108,23 +121,26 @@
         <argument ref="inputTransformers"/>
     </bean>
 
-    <bean id="inputTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
-    <reference-list id="inputTransformerList" member-type="service-reference"
+    <bean id="inputTransformers"
+          class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="inputTransformerList"
+                    member-type="service-reference"
                     interface="ddf.catalog.transform.InputTransformer"
                     filter="(|(mime-type=application/xml)(mime-type=text/xml))">
-        <reference-listener bind-method="bindService" unbind-method="unbindService"
+        <reference-listener bind-method="bindService"
+                            unbind-method="unbindService"
                             ref="inputTransformers"/>
     </reference-list>
 
     <bean id="cswActionTransformerProvider"
-      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.impl.CswActionTransformerProviderImpl"/>
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.impl.CswActionTransformerProviderImpl"/>
 
     <reference-list id="cswActionTransformers"
-      interface="org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformer"
-      availability="optional">
+                    interface="org.codice.ddf.spatial.ogc.csw.catalog.actions.CswActionTransformer"
+                    availability="optional">
         <reference-listener bind-method="bind"
-          unbind-method="unbind"
-          ref="cswActionTransformerProvider"/>
+                            unbind-method="unbind"
+                            ref="cswActionTransformerProvider"/>
     </reference-list>
 
     <bean id="cswExceptionMapperProvider"
@@ -134,50 +150,64 @@
         <argument ref="queryResponseTransformerManager"/>
     </bean>
 
-    <reference id="transformProvider" interface="com.thoughtworks.xstream.converters.Converter"
+    <reference id="transformProvider"
+               interface="com.thoughtworks.xstream.converters.Converter"
                filter="(id=csw)"/>
-    <reference id="cswMetacardType" interface="ddf.catalog.data.MetacardType" filter="(name=csw:Record)"/>
-    <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
+    <reference id="cswMetacardType"
+               interface="ddf.catalog.data.MetacardType"
+               filter="(name=csw:Record)"/>
+    <reference id="attributeRegistry"
+               interface="ddf.catalog.data.AttributeRegistry"/>
 
     <bean id="transactionMessageBodyReader"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader.TransactionMessageBodyReader">
         <argument ref="transformProvider"/>
         <argument ref="cswMetacardType"/>
-        <argument ref="attributeRegistry" />
+        <argument ref="attributeRegistry"/>
     </bean>
 
-    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
-    <reference id="eventProcessor" interface="ddf.catalog.event.EventProcessor"/>
-    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
-    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+    <reference id="catalogFramework"
+               interface="ddf.catalog.CatalogFramework"/>
+    <reference id="eventProcessor"
+               interface="ddf.catalog.event.EventProcessor"/>
+    <reference id="filterBuilder"
+               interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="filterAdapter"
+               interface="ddf.catalog.filter.FilterAdapter"/>
 
     <bean id="validator"
-      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.ValidatorImpl">
-        <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.ValidatorImpl">
+        <property name="queryFilterTransformerProvider"
+                  ref="queryFilterTransformerProvider"/>
     </bean>
 
-    <bean id="metacardCswRecordMap" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap"/>
+    <bean id="metacardCswRecordMap"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap"/>
 
     <bean id="cswFilterFactory"
-      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryImpl">
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryImpl">
         <argument ref="metacardCswRecordMap"/>
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>
         <argument ref="permissions"/>
-        <property name="attributeRegistry" ref="attributeRegistry"/>
+        <property name="attributeRegistry"
+                  ref="attributeRegistry"/>
         <property name="schemaToTagsMapping">
             <array value-type="java.lang.String">
                 <value type="java.lang.String">urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=registry,registry-remote</value>
             </array>
         </property>
-        <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
+        <property name="queryFilterTransformerProvider"
+                  ref="queryFilterTransformerProvider"/>
     </bean>
 
     <bean id="cswXmlBinding"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding"/>
 
-    <bean id="CswSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint"
-        init-method="init" destroy-method="destroy">
+    <bean id="CswSvc"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint"
+          init-method="init"
+          destroy-method="destroy">
         <argument ref="catalogFramework"/>
         <argument ref="queryResponseTransformerManager"/>
         <argument ref="metacardTransformerManager"/>
@@ -188,15 +218,22 @@
         <argument ref="cswXmlBinding"/>
     </bean>
 
-    <bean id="ddf.catalog.endpoint.csw" class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
+    <bean id="ddf.catalog.endpoint.csw"
+          class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
         <property name="url"
                   value="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/csw"/>
-        <property name="urlBindingName" value="cswUrl"/>
-        <property name="id" value="registry.federation.method.csw"/>
-        <property name="name" value="CSW Endpoint"/>
-        <property name="version" value="2.0.2"/>
-        <property name="description" value="The endpoint used for csw."/>
-        <property name="bindingType" value="CSW_2.0.2"/>
+        <property name="urlBindingName"
+                  value="cswUrl"/>
+        <property name="id"
+                  value="registry.federation.method.csw"/>
+        <property name="name"
+                  value="CSW Endpoint"/>
+        <property name="version"
+                  value="2.0.2"/>
+        <property name="description"
+                  value="The endpoint used for csw."/>
+        <property name="bindingType"
+                  value="CSW_2.0.2"/>
     </bean>
 
     <bean id="cswQueryFilterTransformer"
@@ -205,7 +242,8 @@
         <argument ref="attributeRegistry"/>
     </bean>
 
-    <service ref="cswQueryFilterTransformer" interface="ddf.catalog.transform.QueryFilterTransformer">
+    <service ref="cswQueryFilterTransformer"
+             interface="ddf.catalog.transform.QueryFilterTransformer">
         <service-properties>
             <entry key="id">
                 <list>
@@ -216,9 +254,9 @@
             </entry>
             <entry key="typeNames">
                 <list>
-                  <value>csw:Record</value>
-                  <value>gmd:MD_Metadata</value>
-                  <value>rim:RegistryPackage</value>
+                    <value>csw:Record</value>
+                    <value>gmd:MD_Metadata</value>
+                    <value>rim:RegistryPackage</value>
                 </list>
             </entry>
         </service-properties>
@@ -237,9 +275,11 @@
     </bean>
 
 
-    <service ref="ddf.catalog.endpoint.csw" interface="ddf.catalog.endpoint.CatalogEndpoint"/>
+    <service ref="ddf.catalog.endpoint.csw"
+             interface="ddf.catalog.endpoint.CatalogEndpoint"/>
 
-    <jaxrs:server id="CswService" address="/csw">
+    <jaxrs:server id="CswService"
+                  address="/csw">
         <jaxrs:serviceBeans>
             <ref component-id="CswSvc"/>
             <ref component-id="CswSubscriptionSvc"/>
@@ -255,19 +295,25 @@
         </jaxrs:providers>
     </jaxrs:server>
 
-    <cm:managed-service-factory id="cswSubscriptionFactory" factory-pid="CSW_Subscription"
-                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" >
-        <cm:managed-component
-                class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactoryImpl" init-method="restore">
+    <cm:managed-service-factory id="cswSubscriptionFactory"
+                                factory-pid="CSW_Subscription"
+                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory">
+        <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactoryImpl"
+                              init-method="restore">
             <argument ref="CswSubscriptionSvc"/>
             <argument ref="cswXmlBinding"/>
-            <property name="filterXml" value=""/>
-            <property name="subscriptionId" value=""/>
-            <property name="deliveryMethodUrl" value=""/>
-            <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
+            <property name="filterXml"
+                      value=""/>
+            <property name="subscriptionId"
+                      value=""/>
+            <property name="deliveryMethodUrl"
+                      value=""/>
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="container-managed"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 
-    <service ref="CswSubscriptionSvc" interface="ddf.catalog.event.Subscriber"/>
+    <service ref="CswSubscriptionSvc"
+             interface="ddf.catalog.event.Subscriber"/>
 
 </blueprint>

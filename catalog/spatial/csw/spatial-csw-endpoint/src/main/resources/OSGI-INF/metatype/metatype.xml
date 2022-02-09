@@ -14,11 +14,16 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="CSW Subscription Endpoint" id="Csw_Subscription_Endpoint" description="CSW Subscription Endpoint">
+    <OCD name="CSW Subscription Endpoint"
+         id="Csw_Subscription_Endpoint"
+         description="CSW Subscription Endpoint">
 
         <AD description="Poll Interval to Check if the Event Response Handlers are available (in minutes - minimum 1)."
-            name="Poll Interval" id="pollInterval"
-            required="true" type="Integer" default="180"/>
+            name="Poll Interval"
+            id="pollInterval"
+            required="true"
+            type="Integer"
+            default="180"/>
 
     </OCD>
 

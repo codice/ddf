@@ -61,9 +61,9 @@ public class CswUnmarshallHelper {
   private static final List<String> CSW_OVERLAPPING_ATTRIBUTE_NAMES =
       Arrays.asList(Core.TITLE, Core.CREATED, Core.MODIFIED);
 
-  private CswUnmarshallHelper() {}
-
   static CswRecordMap cswRecordMap = new MetacardCswRecordMap();
+
+  private CswUnmarshallHelper() {}
 
   public static Date convertToDate(String value) {
     // Dates are strings and expected to be in ISO8601 format, YYYY-MM-DD'T'hh:mm:ss.sss,

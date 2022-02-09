@@ -16,31 +16,40 @@
                         xmlns:xs="http://www.w3.org/2001/XMLSchema"
                         version="2.0.2">
     <csw:SearchStatus timestamp="2017-01-17T09:34:28.597-07:00"/>
-    <csw:SearchResults numberOfRecordsMatched="1" numberOfRecordsReturned="1" nextRecord="0"
-                       recordSchema="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" elementSet="full">
+    <csw:SearchResults numberOfRecordsMatched="1"
+                       numberOfRecordsReturned="1"
+                       nextRecord="0"
+                       recordSchema="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
+                       elementSet="full">
         <rim:RegistryPackage xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
                              objectType="urn:registry:federation:node"
                              id="urn:uuid:12121212121212121212121212121212">
             <rim:ExternalIdentifier registryObject="urn:uuid:70809f17782c42b8ba15747b86b50ebf"
-                                    identificationScheme="MetacardId" value="11111111111111111111111111111111"
+                                    identificationScheme="MetacardId"
+                                    value="11111111111111111111111111111111"
                                     id="urn:registry:metacard:local-id"/>
             <rim:ExternalIdentifier registryObject="urn:uuid:70809f17782c42b8ba15747b86b50ebf"
-                                    identificationScheme="MetacardId" value="11111111111111111111111111111111"
+                                    identificationScheme="MetacardId"
+                                    value="11111111111111111111111111111111"
                                     id="urn:registry:metacard:origin-id"/>
             <rim:ExternalIdentifier registryObject="urn:uuid:70809f17782c42b8ba15747b86b50ebf"
-                                    identificationScheme="RegistryId" value="urn:uuid:12121212121212121212121212121212"
+                                    identificationScheme="RegistryId"
+                                    value="urn:uuid:12121212121212121212121212121212"
                                     id="urn:registry:origin-id"/>
             <rim:RegistryObjectList>
                 <rim:Identifiable xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
                                   xs:type="rim:ExtrinsicObjectType"
-                                  objectType="urn:registry:federation:node" id="someid"
+                                  objectType="urn:registry:federation:node"
+                                  id="someid"
                                   home="https://localhost:8993">
-                    <rim:Slot name="lastUpdated" slotType="xs:dateTime">
+                    <rim:Slot name="lastUpdated"
+                              slotType="xs:dateTime">
                         <rim:ValueList>
                             <rim:Value>2018-02-26T17:16:34.996Z</rim:Value>
                         </rim:ValueList>
                     </rim:Slot>
-                    <rim:Slot name="liveDate" slotType="xs:dateTime">
+                    <rim:Slot name="liveDate"
+                              slotType="xs:dateTime">
                         <rim:ValueList>
                             <rim:Value>2017-01-17T16:28:38.071Z</rim:Value>
                         </rim:ValueList>

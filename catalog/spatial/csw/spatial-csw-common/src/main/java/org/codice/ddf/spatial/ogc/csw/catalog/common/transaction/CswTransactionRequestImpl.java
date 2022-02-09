@@ -26,17 +26,12 @@ import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
  */
 public class CswTransactionRequestImpl implements CswTransactionRequest {
 
-  private String version;
-
-  private String service;
-
-  private boolean verbose;
-
   private final List<InsertAction> insertActions = new ArrayList<>();
-
   private final List<DeleteAction> deleteActions = new ArrayList<>();
-
   private final List<UpdateAction> updateActions = new ArrayList<>();
+  private String version;
+  private String service;
+  private boolean verbose;
 
   @Override
   public String getVersion() {

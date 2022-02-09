@@ -88,68 +88,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestCswSourceBase {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSourceBase.class);
-
   protected static final String ID = "MyCswSource";
-
   protected static final String URL = "http://www.example.com/csw";
-
   protected static final String AUTHENTICATION_TYPE = "saml";
-
   protected static final String USERNAME = "myUsername";
-
   protected static final String PASSWORD = "myPass";
-
   protected static final String AUTH_TYPE = "saml";
-
   protected static final String DISCOVERY_URL = "http://example.com/oauth/auth";
-
   protected static final String CLIENT_ID = "clientId";
-
   protected static final String SECRET = "secret";
-
   protected static final String FLOW = "code";
-
   protected static final String CERT_ALIAS = "testCert";
-
   protected static final String KEYSTORE_PATH = "/path/to/keystore";
-
   protected static final String SSL_PROTOCOL = "TLSv1.2";
-
   protected static final Integer CONNECTION_TIMEOUT = 11;
-
   protected static final Integer RECEIVE_TIMEOUT = 12;
-
   protected static final String OUTPUT_SCHEMA = "outputSchema";
-
   protected static final String QUERY_TYPE_NAME = "queryTypeName";
-
   protected static final String QUERY_TYPE_NAMESPACE = "http://example.com/namespace";
-
   protected static final String IDENTIFIER_MAPPING = "idMapping";
-
   protected static final String COORDINATE_ORDER = "LAT_LON";
-
   protected static final String CREATED_DATE = "createdProperty";
-
   protected static final String EFFECTIVE_DATE = "effectiveProperty";
-
   protected static final String MODIFIED_DATE = "modifiedProperty";
-
   protected static final String CONTENT_TYPE = "contentTypeProperty";
-
-  protected static String[] metacardMappings;
-
   protected static final Integer POLL_INTERVAL = 100;
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSourceBase.class);
   private static final List<String> JAXB_ELEMENT_CLASS_NAMES =
       ImmutableList.of(GetRecordsType.class.getName());
-
   private static final Map<String, String> JAXB_ELEMENT_CLASS_MAP =
       ImmutableMap.of(
           GetRecordsType.class.getName(),
           new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS).toString());
-
+  protected static String[] metacardMappings;
   protected final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
   protected Csw mockCsw = mock(Csw.class);

@@ -48,12 +48,9 @@ public class CswXmlValidatorTest {
   private static final String VALID_PREFIX = "csw";
 
   private static final String VALID_PREFIX_LOCAL_TYPE = VALID_PREFIX + ":" + VALID_TYPE;
-
-  private CswXmlValidator validator;
-
   TransformerManager transformerManager;
-
   List<QName> qNameList;
+  private CswXmlValidator validator;
 
   @Before
   public void setUp() throws Exception {

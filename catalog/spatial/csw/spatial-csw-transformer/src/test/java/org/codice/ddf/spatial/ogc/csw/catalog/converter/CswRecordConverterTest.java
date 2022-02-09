@@ -140,6 +140,17 @@ public class CswRecordConverterTest {
         IOUtils.toString(CswRecordConverterTest.class.getResourceAsStream("/Csw_Record_Text.xml"));
   }
 
+  public static MetacardType getCswMetacardType() {
+    return new MetacardTypeImpl(
+        CswConstants.CSW_METACARD_TYPE_NAME,
+        Arrays.asList(
+            new ContactAttributes(),
+            new LocationAttributes(),
+            new MediaAttributes(),
+            new TopicAttributes(),
+            new AssociationsAttributes()));
+  }
+
   @Test
   public void testMimeType() throws MimeTypeParseException {
     assertThat(
@@ -763,17 +774,6 @@ public class CswRecordConverterTest {
         assertThat(xml, containsString("<dc:subject>" + serializable + "</dc:subject>"));
       }
     }
-  }
-
-  public static MetacardType getCswMetacardType() {
-    return new MetacardTypeImpl(
-        CswConstants.CSW_METACARD_TYPE_NAME,
-        Arrays.asList(
-            new ContactAttributes(),
-            new LocationAttributes(),
-            new MediaAttributes(),
-            new TopicAttributes(),
-            new AssociationsAttributes()));
   }
 
   private XStream createXstream(HierarchicalStreamDriver streamDriver) {

@@ -74,6 +74,20 @@ public class TransactionRequestConverter implements Converter {
     this.registry = registry;
   }
 
+  public static synchronized JAXBContext getJaxBContext() throws JAXBException {
+    if (jaxBContext == null) {
+
+      List<String> contextList =
+          Arrays.asList(
+              net.opengis.cat.csw.v_2_0_2.ObjectFactory.class.getPackage().getName(),
+              net.opengis.filter.v_1_1_0.ObjectFactory.class.getPackage().getName(),
+              net.opengis.gml.v_3_1_1.ObjectFactory.class.getPackage().getName(),
+              net.opengis.ows.v_1_0_0.ObjectFactory.class.getPackage().getName());
+      jaxBContext = JAXBContext.newInstance(StringUtils.join(contextList, ":"));
+    }
+    return jaxBContext;
+  }
+
   public CswRecordConverter getCswRecordConverter() {
     return this.cswRecordConverter;
   }
@@ -388,20 +402,6 @@ public class TransactionRequestConverter implements Converter {
     }
 
     return root.getValue();
-  }
-
-  public static synchronized JAXBContext getJaxBContext() throws JAXBException {
-    if (jaxBContext == null) {
-
-      List<String> contextList =
-          Arrays.asList(
-              net.opengis.cat.csw.v_2_0_2.ObjectFactory.class.getPackage().getName(),
-              net.opengis.filter.v_1_1_0.ObjectFactory.class.getPackage().getName(),
-              net.opengis.gml.v_3_1_1.ObjectFactory.class.getPackage().getName(),
-              net.opengis.ows.v_1_0_0.ObjectFactory.class.getPackage().getName());
-      jaxBContext = JAXBContext.newInstance(StringUtils.join(contextList, ":"));
-    }
-    return jaxBContext;
   }
 
   private Map<String, String> getXmlnsAttributeToUriMappingsFromContext(

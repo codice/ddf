@@ -24,7 +24,6 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 import org.codice.ddf.platform.util.XMLUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
 import org.xml.sax.InputSource;
 
@@ -42,7 +41,7 @@ public class CswXmlBindingImpl implements CswXmlBinding {
         JAXBContext.newInstance(
             "net.opengis.cat.csw.v_2_0_2:"
                 + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0",
-            CswQueryFactory.class.getClassLoader());
+            CswRequestImpl.class.getClassLoader());
   }
 
   @Override
@@ -72,7 +71,7 @@ public class CswXmlBindingImpl implements CswXmlBinding {
   @Override
   public void marshallWriter(Object obj, Writer w) throws JAXBException {
     // Because of the interfaces they implement, Writer and OutputStream
-    // cannot be overloaded in method signatures. Therefore this
+    // cannot be overloaded in method signatures. Therefore, this
     // method has the word "writer" in it.
     createMarshaller().marshal(obj, w);
   }

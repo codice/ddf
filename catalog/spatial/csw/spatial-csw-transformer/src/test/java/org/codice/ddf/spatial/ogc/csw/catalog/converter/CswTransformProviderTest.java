@@ -58,15 +58,11 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 public class CswTransformProviderTest {
 
-  private TransformerManager mockInputManager = mock(TransformerManagerImpl.class);
-
-  private TransformerManager mockMetacardManager = mock(TransformerManagerImpl.class);
-
-  private CswRecordConverter mockCswRecordConverter = mock(CswRecordConverter.class);
-
-  private MetacardTransformer mockMetacardTransformer = mock(MetacardTransformer.class);
-
   private static final String OTHER_SCHEMA = "http://example.com/scheam.xsd";
+  private TransformerManager mockInputManager = mock(TransformerManagerImpl.class);
+  private TransformerManager mockMetacardManager = mock(TransformerManagerImpl.class);
+  private CswRecordConverter mockCswRecordConverter = mock(CswRecordConverter.class);
+  private MetacardTransformer mockMetacardTransformer = mock(MetacardTransformer.class);
 
   @Test
   public void testMarshalCswRecord() throws Exception {

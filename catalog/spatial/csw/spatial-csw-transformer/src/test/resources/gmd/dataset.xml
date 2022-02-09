@@ -1,98 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- VMAP 0 gmd based instance document -->
-<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.isotc211.org/2005/gmd ../../../../../../iso/19139/20060504/gmd/gmd.xsd">
-	<!-- apiso:identifier -->
-	<fileIdentifier>
-		<gco:CharacterString>550e8400-e29b-41d4-a716-48957441234</gco:CharacterString>
-	</fileIdentifier>
-	<language>
-		<gco:CharacterString>eng</gco:CharacterString>
-	</language>
-	<hierarchyLevel>
-		<!-- apiso:type (codeListValue) -->
-		<MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode" codeListValue="dataset"/>
-	</hierarchyLevel>
-	<hierarchyLevelName>
-		<gco:CharacterString>UTI</gco:CharacterString>
-	</hierarchyLevelName>
-	<contact>
-		<CI_ResponsibleParty>
-			<organisationName>
-				<gco:CharacterString>Codice Foundation</gco:CharacterString>
-			</organisationName>
-			<positionName>
-				<gco:CharacterString>Prime Minister</gco:CharacterString>
-			</positionName>
-			<contactInfo>
-				<CI_Contact>
-					<phone>
-						<CI_Telephone>
-							<voice>
-								<gco:CharacterString>12345</gco:CharacterString>
-							</voice>
-							<voice>
-								<gco:CharacterString>56789</gco:CharacterString>
-							</voice>
-						</CI_Telephone>
-					</phone>
-					<address>
-						<CI_Address>
-							<deliveryPoint>
-								<gco:CharacterString>10 Downing Street</gco:CharacterString>
-							</deliveryPoint>
-							<city>
-								<gco:CharacterString>London</gco:CharacterString>
-							</city>
-							<administrativeArea>
-								<gco:CharacterString>Westminster</gco:CharacterString>
-							</administrativeArea>
-							<postalCode>
-								<gco:CharacterString>SW1A 2AA</gco:CharacterString>
-							</postalCode>
-							<country>
-								<gco:CharacterString>United Kingdom</gco:CharacterString>
-							</country>
-							<electronicMailAddress>
-								<gco:CharacterString>theresa.may@gov.uk</gco:CharacterString>
-							</electronicMailAddress>
-						</CI_Address>
-					</address>
-				</CI_Contact>
-			</contactInfo>
-			<role>
-				<CI_RoleCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode" codeListValue="pointOfContact">Point of Contact</CI_RoleCode>
-			</role>
-		</CI_ResponsibleParty>
-	</contact>
-	<!-- Date the metadata was created -->
-	<!-- apiso:modified -->
-	<dateStamp>
-		<gco:Date>2004-03-14</gco:Date>
-	</dateStamp>
-	<metadataStandardName>
-		<gco:CharacterString>ISO19115</gco:CharacterString>
-	</metadataStandardName>
-	<metadataStandardVersion>
-		<gco:CharacterString>2003/Cor.1:2006</gco:CharacterString>
-	</metadataStandardVersion>
-	<dataSetURI>
-		<gco:CharacterString>http://example.com</gco:CharacterString>
-	</dataSetURI>
-	<!-- REFERENCE SYSTEM INFORMATION -->
-	<referenceSystemInfo>
-		<MD_ReferenceSystem>
-			<referenceSystemIdentifier>
-				<!-- apiso:crs -->
-				<RS_Identifier>
-					<code>
-						<gco:CharacterString>WGS 84</gco:CharacterString>
-					</code>
-					<codeSpace>
-						<gco:CharacterString>World Geodetic System</gco:CharacterString>
-					</codeSpace>
-				</RS_Identifier>
-			</referenceSystemIdentifier>
-		</MD_ReferenceSystem>
+<MD_Metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:gco="http://www.isotc211.org/2005/gco"
+             xmlns:gml="http://www.opengis.net/gml"
+             xmlns:xlink="http://www.w3.org/1999/xlink"
+             xmlns="http://www.isotc211.org/2005/gmd"
+             xsi:schemaLocation="http://www.isotc211.org/2005/gmd ../../../../../../iso/19139/20060504/gmd/gmd.xsd">
+    <!-- apiso:identifier -->
+    <fileIdentifier>
+        <gco:CharacterString>550e8400-e29b-41d4-a716-48957441234</gco:CharacterString>
+    </fileIdentifier>
+    <language>
+        <gco:CharacterString>eng</gco:CharacterString>
+    </language>
+    <hierarchyLevel>
+        <!-- apiso:type (codeListValue) -->
+        <MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode"
+                      codeListValue="dataset"/>
+    </hierarchyLevel>
+    <hierarchyLevelName>
+        <gco:CharacterString>UTI</gco:CharacterString>
+    </hierarchyLevelName>
+    <contact>
+        <CI_ResponsibleParty>
+            <organisationName>
+                <gco:CharacterString>Codice Foundation</gco:CharacterString>
+            </organisationName>
+            <positionName>
+                <gco:CharacterString>Prime Minister</gco:CharacterString>
+            </positionName>
+            <contactInfo>
+                <CI_Contact>
+                    <phone>
+                        <CI_Telephone>
+                            <voice>
+                                <gco:CharacterString>12345</gco:CharacterString>
+                            </voice>
+                            <voice>
+                                <gco:CharacterString>56789</gco:CharacterString>
+                            </voice>
+                        </CI_Telephone>
+                    </phone>
+                    <address>
+                        <CI_Address>
+                            <deliveryPoint>
+                                <gco:CharacterString>10 Downing Street</gco:CharacterString>
+                            </deliveryPoint>
+                            <city>
+                                <gco:CharacterString>London</gco:CharacterString>
+                            </city>
+                            <administrativeArea>
+                                <gco:CharacterString>Westminster</gco:CharacterString>
+                            </administrativeArea>
+                            <postalCode>
+                                <gco:CharacterString>SW1A 2AA</gco:CharacterString>
+                            </postalCode>
+                            <country>
+                                <gco:CharacterString>United Kingdom</gco:CharacterString>
+                            </country>
+                            <electronicMailAddress>
+                                <gco:CharacterString>theresa.may@gov.uk</gco:CharacterString>
+                            </electronicMailAddress>
+                        </CI_Address>
+                    </address>
+                </CI_Contact>
+            </contactInfo>
+            <role>
+                <CI_RoleCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode"
+                             codeListValue="pointOfContact">Point of Contact
+                </CI_RoleCode>
+            </role>
+        </CI_ResponsibleParty>
+    </contact>
+    <!-- Date the metadata was created -->
+    <!-- apiso:modified -->
+    <dateStamp>
+        <gco:Date>2004-03-14</gco:Date>
+    </dateStamp>
+    <metadataStandardName>
+        <gco:CharacterString>ISO19115</gco:CharacterString>
+    </metadataStandardName>
+    <metadataStandardVersion>
+        <gco:CharacterString>2003/Cor.1:2006</gco:CharacterString>
+    </metadataStandardVersion>
+    <dataSetURI>
+        <gco:CharacterString>http://example.com</gco:CharacterString>
+    </dataSetURI>
+    <!-- REFERENCE SYSTEM INFORMATION -->
+    <referenceSystemInfo>
+        <MD_ReferenceSystem>
+            <referenceSystemIdentifier>
+                <!-- apiso:crs -->
+                <RS_Identifier>
+                    <code>
+                        <gco:CharacterString>WGS 84</gco:CharacterString>
+                    </code>
+                    <codeSpace>
+                        <gco:CharacterString>World Geodetic System</gco:CharacterString>
+                    </codeSpace>
+                </RS_Identifier>
+            </referenceSystemIdentifier>
+        </MD_ReferenceSystem>
         <MD_ReferenceSystem>
             <referenceSystemIdentifier>
                 <RS_Identifier>
@@ -105,94 +113,104 @@
                 </RS_Identifier>
             </referenceSystemIdentifier>
         </MD_ReferenceSystem>
-	</referenceSystemInfo>
-	<!-- END REFERENCE SYSTEM INFORMATION -->
-	<!-- IDENTIFICATION INFORMATION -->
-	<identificationInfo>
-		<MD_DataIdentification>
-			<citation>
-				<CI_Citation>
-					<!-- apiso:title- -->
-					<title>
-						<gco:CharacterString>VMAPLV0</gco:CharacterString>
-					</title>
-					<date>
-						<CI_Date>
-							<date>
-								<gco:DateTime>2004-03-14T12:00:00Z</gco:DateTime>
-							</date>
-							<dateType>
-								<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="revision">Revision</CI_DateTypeCode>
-							</dateType>
-						</CI_Date>
-					</date>
-					<date>
-						<CI_Date>
-							<date>
-								<gco:Date>2004-03-04</gco:Date>
-							</date>
-							<dateType>
-								<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="expiry">Expiry</CI_DateTypeCode>
-							</dateType>
-						</CI_Date>
-					</date>
-					<date>
-						<CI_Date>
-							<date>
-								<gco:Date>2004-03-10</gco:Date>
-							</date>
-							<dateType>
-								<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="creation">Creation</CI_DateTypeCode>
-							</dateType>
-						</CI_Date>
-					</date>
-					<date>
-						<CI_Date>
-							<date>
-								<gco:Date>2004-03-01</gco:Date>
-							</date>
-							<dateType>
-								<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="publication">Publication</CI_DateTypeCode>
-							</dateType>
-						</CI_Date>
-					</date>
-					<identifier>
-						<MD_Identifier>
-							<code>
-								<gco:CharacterString>String</gco:CharacterString>
-							</code>
-						</MD_Identifier>
-					</identifier>
-					<citedResponsibleParty>
-						<CI_ResponsibleParty id="ID00010">
-							<organisationName>
-								<gco:CharacterString>example orgnanization</gco:CharacterString>
-							</organisationName>
-							<role/>
-						</CI_ResponsibleParty>
-					</citedResponsibleParty>
-					<presentationForm>
-						<CI_PresentationFormCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_PresentationFormCode" codeListValue="mapDigital"/>
-					</presentationForm>
-				</CI_Citation>
-			</citation>
-			<!-- apiso:abstract -->
-			<abstract>
-				<gco:CharacterString>Vector Map: a general purpose database design to support GIS applications</gco:CharacterString>
-			</abstract>
-			<status>
-				<MD_ProgressCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ProgressCode" codeListValue="completed"/>
-			</status>
-			<pointOfContact>
-				<CI_ResponsibleParty id="ID00001">
-					<organisationName>
-						<gco:CharacterString>example organization</gco:CharacterString>
-					</organisationName>
-					<positionName>
-						<gco:CharacterString>Director, ATTN:COD, MS P-37</gco:CharacterString>
-					</positionName>
-					<contactInfo>
-						<CI_Contact id="ID00002">
+    </referenceSystemInfo>
+    <!-- END REFERENCE SYSTEM INFORMATION -->
+    <!-- IDENTIFICATION INFORMATION -->
+    <identificationInfo>
+        <MD_DataIdentification>
+            <citation>
+                <CI_Citation>
+                    <!-- apiso:title- -->
+                    <title>
+                        <gco:CharacterString>VMAPLV0</gco:CharacterString>
+                    </title>
+                    <date>
+                        <CI_Date>
+                            <date>
+                                <gco:DateTime>2004-03-14T12:00:00Z</gco:DateTime>
+                            </date>
+                            <dateType>
+                                <CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+                                                 codeListValue="revision">Revision
+                                </CI_DateTypeCode>
+                            </dateType>
+                        </CI_Date>
+                    </date>
+                    <date>
+                        <CI_Date>
+                            <date>
+                                <gco:Date>2004-03-04</gco:Date>
+                            </date>
+                            <dateType>
+                                <CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+                                                 codeListValue="expiry">Expiry
+                                </CI_DateTypeCode>
+                            </dateType>
+                        </CI_Date>
+                    </date>
+                    <date>
+                        <CI_Date>
+                            <date>
+                                <gco:Date>2004-03-10</gco:Date>
+                            </date>
+                            <dateType>
+                                <CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+                                                 codeListValue="creation">Creation
+                                </CI_DateTypeCode>
+                            </dateType>
+                        </CI_Date>
+                    </date>
+                    <date>
+                        <CI_Date>
+                            <date>
+                                <gco:Date>2004-03-01</gco:Date>
+                            </date>
+                            <dateType>
+                                <CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+                                                 codeListValue="publication">Publication
+                                </CI_DateTypeCode>
+                            </dateType>
+                        </CI_Date>
+                    </date>
+                    <identifier>
+                        <MD_Identifier>
+                            <code>
+                                <gco:CharacterString>String</gco:CharacterString>
+                            </code>
+                        </MD_Identifier>
+                    </identifier>
+                    <citedResponsibleParty>
+                        <CI_ResponsibleParty id="ID00010">
+                            <organisationName>
+                                <gco:CharacterString>example orgnanization</gco:CharacterString>
+                            </organisationName>
+                            <role/>
+                        </CI_ResponsibleParty>
+                    </citedResponsibleParty>
+                    <presentationForm>
+                        <CI_PresentationFormCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_PresentationFormCode"
+                                                 codeListValue="mapDigital"/>
+                    </presentationForm>
+                </CI_Citation>
+            </citation>
+            <!-- apiso:abstract -->
+            <abstract>
+                <gco:CharacterString>Vector Map: a general purpose database design to support GIS applications</gco:CharacterString>
+            </abstract>
+            <status>
+                <MD_ProgressCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ProgressCode"
+                                 codeListValue="completed"/>
+            </status>
+            <pointOfContact>
+                <CI_ResponsibleParty id="ID00001">
+                    <organisationName>
+                        <gco:CharacterString>example organization</gco:CharacterString>
+                    </organisationName>
+                    <positionName>
+                        <gco:CharacterString>Director, ATTN:COD, MS P-37</gco:CharacterString>
+                    </positionName>
+                    <contactInfo>
+                        <CI_Contact id="ID00002">
                             <phone>
                                 <CI_Telephone>
                                     <voice>
@@ -203,172 +221,179 @@
                                     </voice>
                                 </CI_Telephone>
                             </phone>
-							<address>
-								<CI_Address id="ID00003">
-									<deliveryPoint>
-										<gco:CharacterString>4600 Example Rd</gco:CharacterString>
-									</deliveryPoint>
-									<city>
-										<gco:CharacterString>Example Town</gco:CharacterString>
-									</city>
-									<administrativeArea>
-										<gco:CharacterString>CO</gco:CharacterString>
-									</administrativeArea>
-									<postalCode>
-										<gco:CharacterString>12345</gco:CharacterString>
-									</postalCode>
-									<country>
-										<gco:CharacterString>United States</gco:CharacterString>
-									</country>
+                            <address>
+                                <CI_Address id="ID00003">
+                                    <deliveryPoint>
+                                        <gco:CharacterString>4600 Example Rd</gco:CharacterString>
+                                    </deliveryPoint>
+                                    <city>
+                                        <gco:CharacterString>Example Town</gco:CharacterString>
+                                    </city>
+                                    <administrativeArea>
+                                        <gco:CharacterString>CO</gco:CharacterString>
+                                    </administrativeArea>
+                                    <postalCode>
+                                        <gco:CharacterString>12345</gco:CharacterString>
+                                    </postalCode>
+                                    <country>
+                                        <gco:CharacterString>United States</gco:CharacterString>
+                                    </country>
                                     <electronicMailAddress>
                                         <gco:CharacterString>example@email.com</gco:CharacterString>
                                     </electronicMailAddress>
-								</CI_Address>
-							</address>
-							<onlineResource>
-								<CI_OnlineResource id="ID00004">
-									<linkage>
-										<URL>http://example.com</URL>
-									</linkage>
-									<protocol>
-										<gco:CharacterString>http</gco:CharacterString>
-									</protocol>
-									<function>
-										<CI_OnLineFunctionCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_OnLineFunctionCode" codeListValue="download"/>
-									</function>
-								</CI_OnlineResource>
-							</onlineResource>
-						</CI_Contact>
-					</contactInfo>
-					<role>
-						<CI_RoleCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode" codeListValue="originator"/>
-					</role>
-				</CI_ResponsibleParty>
-			</pointOfContact>
-			<resourceFormat>
-				<MD_Format id="ID00005">
-					<name>
-						<gco:CharacterString>VPF</gco:CharacterString>
-					</name>
-					<version>
-						<gco:CharacterString>9606</gco:CharacterString>
-					</version>
-				</MD_Format>
-			</resourceFormat>
-			<resourceFormat>
-				<MD_Format id="ID00006">
-					<name>
-						<gco:CharacterString>VMap 0</gco:CharacterString>
-					</name>
-					<version>
-						<gco:CharacterString>Ammendment 1</gco:CharacterString>
-					</version>
-					<specification>
-						<gco:CharacterString>MIL-V-89039</gco:CharacterString>
-					</specification>
-				</MD_Format>
-			</resourceFormat>
-			<!-- ***** KEYWORDS ***** -->
-			<!-- ***** DISCIPLINE ***** -->
-			<descriptiveKeywords>
-				<MD_Keywords>
-					<keyword>
-						<!-- apiso:subject -->
-						<gco:CharacterString>Geologie</gco:CharacterString>
-					</keyword>
-					<type>
-						<MD_KeywordTypeCode codeList="http://metadata.dgiwg.org/codelistRegistry?MD_KeywordTypeCode" codeListValue="discipline"/>
-					</type>
-					<thesaurusName>
-						<CI_Citation>
-							<title>
-								<gco:CharacterString/>
-							</title>
-							<date>
-								<CI_Date>
-									<date>
-										<gco:Date>2005-06-24</gco:Date>
-									</date>
-									<dateType>
-										<CI_DateTypeCode codeList="CI_DateTypeCode" codeListValue="creation"/>
-									</dateType>
-								</CI_Date>
-							</date>
-						</CI_Citation>
-					</thesaurusName>
-				</MD_Keywords>
-			</descriptiveKeywords>
-			<!-- ***** PLACE ***** -->
-			<descriptiveKeywords>
-				<MD_Keywords>
-					<keyword>
-						<gco:CharacterString>World</gco:CharacterString>
-					</keyword>
-					<type>
-						<MD_KeywordTypeCode codeList="http://metadata.dgiwg.org/codelistRegistry?MD_KeywordTypeCode" codeListValue="place"/>
-					</type>
-				</MD_Keywords>
-			</descriptiveKeywords>
-			<spatialRepresentationType>
-				<MD_SpatialRepresentationTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_SpatialRepresentationTypeCode" codeListValue="vector"/>
-			</spatialRepresentationType>
-			<spatialResolution>
-				<MD_Resolution>
-					<equivalentScale>
-						<MD_RepresentativeFraction>
-							<denominator>
-								<gco:Integer>1000000</gco:Integer>
-							</denominator>
-						</MD_RepresentativeFraction>
-					</equivalentScale>
-				</MD_Resolution>
-			</spatialResolution>
-			<language>
-				<gco:CharacterString>eng</gco:CharacterString>
-			</language>
-			<!-- apiso:subject -->
-			<topicCategory>
-				<MD_TopicCategoryCode>boundaries</MD_TopicCategoryCode>
-			</topicCategory>
-			<topicCategory>
-				<MD_TopicCategoryCode>elevation</MD_TopicCategoryCode>
-			</topicCategory>
-			<topicCategory>
-				<MD_TopicCategoryCode>inlandWaters</MD_TopicCategoryCode>
-			</topicCategory>
-			<topicCategory>
-				<MD_TopicCategoryCode>oceans</MD_TopicCategoryCode>
-			</topicCategory>
-			<topicCategory>
-				<MD_TopicCategoryCode>society</MD_TopicCategoryCode>
-			</topicCategory>
-			<topicCategory>
-				<MD_TopicCategoryCode>structure</MD_TopicCategoryCode>
-			</topicCategory>
-			<topicCategory>
-				<MD_TopicCategoryCode>transportation</MD_TopicCategoryCode>
-			</topicCategory>
-			<topicCategory>
-				<MD_TopicCategoryCode>utilitiesCommunication</MD_TopicCategoryCode>
-			</topicCategory>
-			<!-- Method one for indicating data coverage area -->
-			<!-- Use EX_GeographicBoundingBoxType to describe -->
-			<!-- the data coverage area using approximate coordinates -->
-			<!-- THIS METHOD IS MANDATORY IF THE HIERARCHY  -->
-			<!-- LEVEL OF THIS METADATA IS "DATASET" -->
-			<extent>
-				<EX_Extent>
+                                </CI_Address>
+                            </address>
+                            <onlineResource>
+                                <CI_OnlineResource id="ID00004">
+                                    <linkage>
+                                        <URL>http://example.com</URL>
+                                    </linkage>
+                                    <protocol>
+                                        <gco:CharacterString>http</gco:CharacterString>
+                                    </protocol>
+                                    <function>
+                                        <CI_OnLineFunctionCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_OnLineFunctionCode"
+                                                               codeListValue="download"/>
+                                    </function>
+                                </CI_OnlineResource>
+                            </onlineResource>
+                        </CI_Contact>
+                    </contactInfo>
+                    <role>
+                        <CI_RoleCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode"
+                                     codeListValue="originator"/>
+                    </role>
+                </CI_ResponsibleParty>
+            </pointOfContact>
+            <resourceFormat>
+                <MD_Format id="ID00005">
+                    <name>
+                        <gco:CharacterString>VPF</gco:CharacterString>
+                    </name>
+                    <version>
+                        <gco:CharacterString>9606</gco:CharacterString>
+                    </version>
+                </MD_Format>
+            </resourceFormat>
+            <resourceFormat>
+                <MD_Format id="ID00006">
+                    <name>
+                        <gco:CharacterString>VMap 0</gco:CharacterString>
+                    </name>
+                    <version>
+                        <gco:CharacterString>Ammendment 1</gco:CharacterString>
+                    </version>
+                    <specification>
+                        <gco:CharacterString>MIL-V-89039</gco:CharacterString>
+                    </specification>
+                </MD_Format>
+            </resourceFormat>
+            <!-- ***** KEYWORDS ***** -->
+            <!-- ***** DISCIPLINE ***** -->
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <!-- apiso:subject -->
+                        <gco:CharacterString>Geologie</gco:CharacterString>
+                    </keyword>
+                    <type>
+                        <MD_KeywordTypeCode codeList="http://metadata.dgiwg.org/codelistRegistry?MD_KeywordTypeCode"
+                                            codeListValue="discipline"/>
+                    </type>
+                    <thesaurusName>
+                        <CI_Citation>
+                            <title>
+                                <gco:CharacterString/>
+                            </title>
+                            <date>
+                                <CI_Date>
+                                    <date>
+                                        <gco:Date>2005-06-24</gco:Date>
+                                    </date>
+                                    <dateType>
+                                        <CI_DateTypeCode codeList="CI_DateTypeCode"
+                                                         codeListValue="creation"/>
+                                    </dateType>
+                                </CI_Date>
+                            </date>
+                        </CI_Citation>
+                    </thesaurusName>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <!-- ***** PLACE ***** -->
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>World</gco:CharacterString>
+                    </keyword>
+                    <type>
+                        <MD_KeywordTypeCode codeList="http://metadata.dgiwg.org/codelistRegistry?MD_KeywordTypeCode"
+                                            codeListValue="place"/>
+                    </type>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <spatialRepresentationType>
+                <MD_SpatialRepresentationTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_SpatialRepresentationTypeCode"
+                                                  codeListValue="vector"/>
+            </spatialRepresentationType>
+            <spatialResolution>
+                <MD_Resolution>
+                    <equivalentScale>
+                        <MD_RepresentativeFraction>
+                            <denominator>
+                                <gco:Integer>1000000</gco:Integer>
+                            </denominator>
+                        </MD_RepresentativeFraction>
+                    </equivalentScale>
+                </MD_Resolution>
+            </spatialResolution>
+            <language>
+                <gco:CharacterString>eng</gco:CharacterString>
+            </language>
+            <!-- apiso:subject -->
+            <topicCategory>
+                <MD_TopicCategoryCode>boundaries</MD_TopicCategoryCode>
+            </topicCategory>
+            <topicCategory>
+                <MD_TopicCategoryCode>elevation</MD_TopicCategoryCode>
+            </topicCategory>
+            <topicCategory>
+                <MD_TopicCategoryCode>inlandWaters</MD_TopicCategoryCode>
+            </topicCategory>
+            <topicCategory>
+                <MD_TopicCategoryCode>oceans</MD_TopicCategoryCode>
+            </topicCategory>
+            <topicCategory>
+                <MD_TopicCategoryCode>society</MD_TopicCategoryCode>
+            </topicCategory>
+            <topicCategory>
+                <MD_TopicCategoryCode>structure</MD_TopicCategoryCode>
+            </topicCategory>
+            <topicCategory>
+                <MD_TopicCategoryCode>transportation</MD_TopicCategoryCode>
+            </topicCategory>
+            <topicCategory>
+                <MD_TopicCategoryCode>utilitiesCommunication</MD_TopicCategoryCode>
+            </topicCategory>
+            <!-- Method one for indicating data coverage area -->
+            <!-- Use EX_GeographicBoundingBoxType to describe -->
+            <!-- the data coverage area using approximate coordinates -->
+            <!-- THIS METHOD IS MANDATORY IF THE HIERARCHY  -->
+            <!-- LEVEL OF THIS METADATA IS "DATASET" -->
+            <extent>
+                <EX_Extent>
                     <verticalElement>
                         <EX_VerticalExtent>
                             <minimumValue gco:nilReason="inapplicable"/>
                             <maximumValue>
                                 <gco:Real>312</gco:Real>
                             </maximumValue>
-                            <verticalCRS xlink:href="http://ww.opengis.net/def/crs/EPSG/0/5701" xlink:title="Newlyn Height"/>
+                            <verticalCRS xlink:href="http://ww.opengis.net/def/crs/EPSG/0/5701"
+                                         xlink:title="Newlyn Height"/>
                         </EX_VerticalExtent>
                     </verticalElement>
-					<geographicElement>
-						<!-- apiso:BoundingBox -->
+                    <geographicElement>
+                        <!-- apiso:BoundingBox -->
                         <EX_GeographicDescription>
                             <geographicIdentifier>
                                 <RS_Identifier>
@@ -381,7 +406,7 @@
                                 </RS_Identifier>
                             </geographicIdentifier>
                         </EX_GeographicDescription>
-						<EX_GeographicBoundingBox>
+                        <EX_GeographicBoundingBox>
                             <westBoundLongitude>
                                 <gco:Decimal>6.90</gco:Decimal>
                             </westBoundLongitude>
@@ -394,56 +419,56 @@
                             <northBoundLatitude>
                                 <gco:Decimal>61.61</gco:Decimal>
                             </northBoundLatitude>
-						</EX_GeographicBoundingBox>
-					</geographicElement>
-				</EX_Extent>
-			</extent>
-			<extent>
-				<EX_Extent>
-					<temporalElement>
-						<EX_TemporalExtent>
-							<extent/>
-						</EX_TemporalExtent>
-					</temporalElement>
-				</EX_Extent>
-			</extent>
-			<!-- Method two for indicating data coverage area -->
-			<!-- Use EX_GeographicBoundingPolygonType to describe -->
-			<!-- the data coverage area using more accurate coordinates -->
-			<!-- Make sure to include the proper coordinate reference   -->
-			<!-- system information when using this method -->
-			<extent>
-				<EX_Extent>
+                        </EX_GeographicBoundingBox>
+                    </geographicElement>
+                </EX_Extent>
+            </extent>
+            <extent>
+                <EX_Extent>
+                    <temporalElement>
+                        <EX_TemporalExtent>
+                            <extent/>
+                        </EX_TemporalExtent>
+                    </temporalElement>
+                </EX_Extent>
+            </extent>
+            <!-- Method two for indicating data coverage area -->
+            <!-- Use EX_GeographicBoundingPolygonType to describe -->
+            <!-- the data coverage area using more accurate coordinates -->
+            <!-- Make sure to include the proper coordinate reference   -->
+            <!-- system information when using this method -->
+            <extent>
+                <EX_Extent>
 
-					<geographicElement>
-						<EX_BoundingPolygon>
-							<polygon>
-								<gml:Polygon gml:id="p1">
-									<gml:exterior>
-										<gml:LinearRing>
-											<gml:pos>-180.000000 90.000000</gml:pos>
-											<gml:pos>-180.000000 -90.0000000</gml:pos>
-											<gml:pos>180.000000 -90.000000</gml:pos>
-											<gml:pos>180.000000 90.0000000 </gml:pos>
-											<gml:pos>180.000000 90.000000 </gml:pos>
-										</gml:LinearRing>
-									</gml:exterior>
-								</gml:Polygon>
-							</polygon>
-						</EX_BoundingPolygon>
-					</geographicElement>
-					<temporalElement>
-						<EX_TemporalExtent>
-							<extent>
-								<gml:TimePeriod gml:id="ID00006">
-									<gml:beginPosition>2000-01-01</gml:beginPosition>
-									<gml:endPosition>2007-05-07</gml:endPosition>
-								</gml:TimePeriod>
-							</extent>
-						</EX_TemporalExtent>
-					</temporalElement>
-				</EX_Extent>
-			</extent>
+                    <geographicElement>
+                        <EX_BoundingPolygon>
+                            <polygon>
+                                <gml:Polygon gml:id="p1">
+                                    <gml:exterior>
+                                        <gml:LinearRing>
+                                            <gml:pos>-180.000000 90.000000</gml:pos>
+                                            <gml:pos>-180.000000 -90.0000000</gml:pos>
+                                            <gml:pos>180.000000 -90.000000</gml:pos>
+                                            <gml:pos>180.000000 90.0000000</gml:pos>
+                                            <gml:pos>180.000000 90.000000</gml:pos>
+                                        </gml:LinearRing>
+                                    </gml:exterior>
+                                </gml:Polygon>
+                            </polygon>
+                        </EX_BoundingPolygon>
+                    </geographicElement>
+                    <temporalElement>
+                        <EX_TemporalExtent>
+                            <extent>
+                                <gml:TimePeriod gml:id="ID00006">
+                                    <gml:beginPosition>2000-01-01</gml:beginPosition>
+                                    <gml:endPosition>2007-05-07</gml:endPosition>
+                                </gml:TimePeriod>
+                            </extent>
+                        </EX_TemporalExtent>
+                    </temporalElement>
+                </EX_Extent>
+            </extent>
             <aggregationInfo>
                 <MD_AggregateInformation>
                     <aggregateDataSetIdentifier>
@@ -459,247 +484,260 @@
                 </MD_AggregateInformation>
             </aggregationInfo>
         </MD_DataIdentification>
-	</identificationInfo>
-	<!-- END OF IDENTIFICATION INFORMATION -->
-	<distributionInfo>
-		<MD_Distribution>
-			<distributor>
-				<MD_Distributor>
-					<distributorContact>
-						<CI_ResponsibleParty>
-							<organisationName>
-								<gco:CharacterString>example org</gco:CharacterString>
-							</organisationName>
-							<positionName>
-								<gco:CharacterString>Example position</gco:CharacterString>
-							</positionName>
-							<contactInfo>
-								<CI_Contact>
-									<address xlink:href="#ID00003"/>
-								</CI_Contact>
-							</contactInfo>
-							<role>
-								<CI_RoleCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode" codeListValue="distributor"/>
-							</role>
-						</CI_ResponsibleParty>
-					</distributorContact>
-					<distributorFormat>
-						<MD_Format>
-							<!-- apiso:format -->
-							<name>
-								<gco:CharacterString>gzip</gco:CharacterString>
-							</name>
-							<version>
-								<gco:CharacterString>1.2.4</gco:CharacterString>
-							</version>
-							<specification>
-								<gco:CharacterString>GNU RFC 1952</gco:CharacterString>
-							</specification>
-						</MD_Format>
-					</distributorFormat>
-					<distributorTransferOptions>
-						<MD_DigitalTransferOptions>
-							<onLine>
-								<CI_OnlineResource>
-									<linkage>
-										<URL>http://example.com</URL>
-									</linkage>
-									<function>
-										<CI_OnLineFunctionCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_OnLineFunctionCode" codeListValue="download"/>
-									</function>
-								</CI_OnlineResource>
-							</onLine>
-						</MD_DigitalTransferOptions>
-					</distributorTransferOptions>
-				</MD_Distributor>
-			</distributor>
-			<!-- CD-Ordering for Military Customers -->
-			<distributor>
-				<MD_Distributor>
-					<distributorContact>
-						<CI_ResponsibleParty>
-							<organisationName>
-								<gco:CharacterString>Defense Supply Center Richmond
-                                (DLA)</gco:CharacterString>
-							</organisationName>
-							<contactInfo>
-								<CI_Contact id="ID00007">
-									<address>
-										<CI_Address id="ID00008">
-											<deliveryPoint>
-												<gco:CharacterString>8000 Jefferson Davis
-                                                Hwy</gco:CharacterString>
-											</deliveryPoint>
-											<city>
-												<gco:CharacterString>Richmond</gco:CharacterString>
-											</city>
-											<administrativeArea>
-												<gco:CharacterString>VA</gco:CharacterString>
-											</administrativeArea>
-											<postalCode>
-												<gco:CharacterString>23297</gco:CharacterString>
-											</postalCode>
-											<country>
-												<gco:CharacterString>United
-                                                States</gco:CharacterString>
-											</country>
-										</CI_Address>
-									</address>
-									<onlineResource>
-										<CI_OnlineResource>
-											<linkage>
-												<URL>http://www.dscr.dla.mil/pc9</URL>
-											</linkage>
-											<function>
-												<CI_OnLineFunctionCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_OnLineFunctionCode" codeListValue="order"/>
-											</function>
-										</CI_OnlineResource>
-									</onlineResource>
-								</CI_Contact>
-							</contactInfo>
-							<role>
-								<CI_RoleCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode" codeListValue="distributor"/>
-							</role>
-						</CI_ResponsibleParty>
-					</distributorContact>
-					<distributorFormat>
-						<MD_Format>
-							<!-- apiso:format -->
-							<name>
-								<gco:CharacterString>VPF</gco:CharacterString>
-							</name>
-							<version>
-								<gco:CharacterString>9606</gco:CharacterString>
-							</version>
-							<specification>
-								<gco:CharacterString>MIL-STD-2407</gco:CharacterString>
-							</specification>
-						</MD_Format>
-					</distributorFormat>
-					<distributorTransferOptions>
-						<MD_DigitalTransferOptions>
-							<offLine>
-								<MD_Medium>
-									<name>
-										<MD_MediumNameCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_MediumNameCode" codeListValue="cdRom"/>
-									</name>
-									<volumes>
-										<gco:Integer>4</gco:Integer>
-									</volumes>
-									<mediumFormat>
-										<MD_MediumFormatCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_MediumFormatCode" codeListValue="iso9660"/>
-									</mediumFormat>
-								</MD_Medium>
-							</offLine>
-						</MD_DigitalTransferOptions>
-					</distributorTransferOptions>
-				</MD_Distributor>
-			</distributor>
-			<transferOptions>
-				<MD_DigitalTransferOptions>
-					<onLine>
-						<CI_OnlineResource>
-							<linkage>
-								<URL>http:/example.com/linkage</URL>
-							</linkage>
-						</CI_OnlineResource>
-					</onLine>
-				</MD_DigitalTransferOptions>
-			</transferOptions>
-		</MD_Distribution>
-	</distributionInfo>
-	<!-- DATA QUALITY AND LINEAGE -->
-	<dataQualityInfo>
-		<DQ_DataQuality>
-			<scope>
-				<DQ_Scope>
-					<level>
-						<MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode" codeListValue="dataset"/>
-					</level>
-				</DQ_Scope>
-			</scope>
-			<report>
-				<DQ_DomainConsistency>
-					<nameOfMeasure>
-						<gco:CharacterString>Attribute Completeness Percentage</gco:CharacterString>
-					</nameOfMeasure>
-					<result>
-						<DQ_ConformanceResult>
-							<specification>
-								<CI_Citation>
-									<title>
-										<gco:CharacterString>MIL-V-89039</gco:CharacterString>
-									</title>
-									<date>
-										<CI_Date>
-											<date>
-												<gco:Date>1995-02-09</gco:Date>
-											</date>
-											<dateType>
-												<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="creation"/>
-											</dateType>
-										</CI_Date>
-									</date>
-								</CI_Citation>
-							</specification>
-							<explanation>
-								<gco:CharacterString>All features in this library have valid
+    </identificationInfo>
+    <!-- END OF IDENTIFICATION INFORMATION -->
+    <distributionInfo>
+        <MD_Distribution>
+            <distributor>
+                <MD_Distributor>
+                    <distributorContact>
+                        <CI_ResponsibleParty>
+                            <organisationName>
+                                <gco:CharacterString>example org</gco:CharacterString>
+                            </organisationName>
+                            <positionName>
+                                <gco:CharacterString>Example position</gco:CharacterString>
+                            </positionName>
+                            <contactInfo>
+                                <CI_Contact>
+                                    <address xlink:href="#ID00003"/>
+                                </CI_Contact>
+                            </contactInfo>
+                            <role>
+                                <CI_RoleCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode"
+                                             codeListValue="distributor"/>
+                            </role>
+                        </CI_ResponsibleParty>
+                    </distributorContact>
+                    <distributorFormat>
+                        <MD_Format>
+                            <!-- apiso:format -->
+                            <name>
+                                <gco:CharacterString>gzip</gco:CharacterString>
+                            </name>
+                            <version>
+                                <gco:CharacterString>1.2.4</gco:CharacterString>
+                            </version>
+                            <specification>
+                                <gco:CharacterString>GNU RFC 1952</gco:CharacterString>
+                            </specification>
+                        </MD_Format>
+                    </distributorFormat>
+                    <distributorTransferOptions>
+                        <MD_DigitalTransferOptions>
+                            <onLine>
+                                <CI_OnlineResource>
+                                    <linkage>
+                                        <URL>http://example.com</URL>
+                                    </linkage>
+                                    <function>
+                                        <CI_OnLineFunctionCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_OnLineFunctionCode"
+                                                               codeListValue="download"/>
+                                    </function>
+                                </CI_OnlineResource>
+                            </onLine>
+                        </MD_DigitalTransferOptions>
+                    </distributorTransferOptions>
+                </MD_Distributor>
+            </distributor>
+            <!-- CD-Ordering for Military Customers -->
+            <distributor>
+                <MD_Distributor>
+                    <distributorContact>
+                        <CI_ResponsibleParty>
+                            <organisationName>
+                                <gco:CharacterString>Defense Supply Center Richmond
+                                    (DLA)
+                                </gco:CharacterString>
+                            </organisationName>
+                            <contactInfo>
+                                <CI_Contact id="ID00007">
+                                    <address>
+                                        <CI_Address id="ID00008">
+                                            <deliveryPoint>
+                                                <gco:CharacterString>8000 Jefferson Davis
+                                                    Hwy
+                                                </gco:CharacterString>
+                                            </deliveryPoint>
+                                            <city>
+                                                <gco:CharacterString>Richmond</gco:CharacterString>
+                                            </city>
+                                            <administrativeArea>
+                                                <gco:CharacterString>VA</gco:CharacterString>
+                                            </administrativeArea>
+                                            <postalCode>
+                                                <gco:CharacterString>23297</gco:CharacterString>
+                                            </postalCode>
+                                            <country>
+                                                <gco:CharacterString>United
+                                                    States
+                                                </gco:CharacterString>
+                                            </country>
+                                        </CI_Address>
+                                    </address>
+                                    <onlineResource>
+                                        <CI_OnlineResource>
+                                            <linkage>
+                                                <URL>http://www.dscr.dla.mil/pc9</URL>
+                                            </linkage>
+                                            <function>
+                                                <CI_OnLineFunctionCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_OnLineFunctionCode"
+                                                                       codeListValue="order"/>
+                                            </function>
+                                        </CI_OnlineResource>
+                                    </onlineResource>
+                                </CI_Contact>
+                            </contactInfo>
+                            <role>
+                                <CI_RoleCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode"
+                                             codeListValue="distributor"/>
+                            </role>
+                        </CI_ResponsibleParty>
+                    </distributorContact>
+                    <distributorFormat>
+                        <MD_Format>
+                            <!-- apiso:format -->
+                            <name>
+                                <gco:CharacterString>VPF</gco:CharacterString>
+                            </name>
+                            <version>
+                                <gco:CharacterString>9606</gco:CharacterString>
+                            </version>
+                            <specification>
+                                <gco:CharacterString>MIL-STD-2407</gco:CharacterString>
+                            </specification>
+                        </MD_Format>
+                    </distributorFormat>
+                    <distributorTransferOptions>
+                        <MD_DigitalTransferOptions>
+                            <offLine>
+                                <MD_Medium>
+                                    <name>
+                                        <MD_MediumNameCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_MediumNameCode"
+                                                           codeListValue="cdRom"/>
+                                    </name>
+                                    <volumes>
+                                        <gco:Integer>4</gco:Integer>
+                                    </volumes>
+                                    <mediumFormat>
+                                        <MD_MediumFormatCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_MediumFormatCode"
+                                                             codeListValue="iso9660"/>
+                                    </mediumFormat>
+                                </MD_Medium>
+                            </offLine>
+                        </MD_DigitalTransferOptions>
+                    </distributorTransferOptions>
+                </MD_Distributor>
+            </distributor>
+            <transferOptions>
+                <MD_DigitalTransferOptions>
+                    <onLine>
+                        <CI_OnlineResource>
+                            <linkage>
+                                <URL>http:/example.com/linkage</URL>
+                            </linkage>
+                        </CI_OnlineResource>
+                    </onLine>
+                </MD_DigitalTransferOptions>
+            </transferOptions>
+        </MD_Distribution>
+    </distributionInfo>
+    <!-- DATA QUALITY AND LINEAGE -->
+    <dataQualityInfo>
+        <DQ_DataQuality>
+            <scope>
+                <DQ_Scope>
+                    <level>
+                        <MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode"
+                                      codeListValue="dataset"/>
+                    </level>
+                </DQ_Scope>
+            </scope>
+            <report>
+                <DQ_DomainConsistency>
+                    <nameOfMeasure>
+                        <gco:CharacterString>Attribute Completeness Percentage</gco:CharacterString>
+                    </nameOfMeasure>
+                    <result>
+                        <DQ_ConformanceResult>
+                            <specification>
+                                <CI_Citation>
+                                    <title>
+                                        <gco:CharacterString>MIL-V-89039</gco:CharacterString>
+                                    </title>
+                                    <date>
+                                        <CI_Date>
+                                            <date>
+                                                <gco:Date>1995-02-09</gco:Date>
+                                            </date>
+                                            <dateType>
+                                                <CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+                                                                 codeListValue="creation"/>
+                                            </dateType>
+                                        </CI_Date>
+                                    </date>
+                                </CI_Citation>
+                            </specification>
+                            <explanation>
+                                <gco:CharacterString>All features in this library have valid
                                     attribute codes assigned to them in accordance with this
-                                    specification</gco:CharacterString>
-							</explanation>
-							<pass>
-								<gco:Boolean>true</gco:Boolean>
-							</pass>
-						</DQ_ConformanceResult>
-					</result>
-				</DQ_DomainConsistency>
-			</report>
-			<lineage>
-				<LI_Lineage>
-					<statement>
-						<gco:CharacterString>text </gco:CharacterString>
-					</statement>
-					<source>
-						<LI_Source>
-							<sourceExtent>
-								<EX_Extent>
-									<temporalElement>
-										<EX_TemporalExtent>
-											<extent>
-												<gml:TimePeriod gml:id="tp1">
-													<gml:begin>
-														<gml:TimeInstant gml:id="ti1">
-															<gml:timePosition>1992-04-01T00:00:00-00:00</gml:timePosition>
-														</gml:TimeInstant>
-													</gml:begin>
-													<gml:end>
-														<gml:TimeInstant gml:id="ti2">
-															<gml:timePosition>2002-02-23T00:00:00-00:00</gml:timePosition>
-														</gml:TimeInstant>
-													</gml:end>
-												</gml:TimePeriod>
-											</extent>
-										</EX_TemporalExtent>
-									</temporalElement>
-								</EX_Extent>
-							</sourceExtent>
-						</LI_Source>
-					</source>
-				</LI_Lineage>
-			</lineage>
-		</DQ_DataQuality>
-	</dataQualityInfo>
-	<!-- END OF DATA QUALITY & LINEAGE -->
-	<!-- CONSTRAINTS -->
-	<metadataConstraints>
-		<MD_SecurityConstraints>
-			<classification>
-				<MD_ClassificationCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ClassificationCode" codeListValue="unclassified"/>
-			</classification>
-			<handlingDescription>
-				<gco:CharacterString>RELEASABILITY - unrestricted</gco:CharacterString>
-			</handlingDescription>
-		</MD_SecurityConstraints>
-	</metadataConstraints>
-	<!-- END OF CONSTRAINTS -->
+                                    specification
+                                </gco:CharacterString>
+                            </explanation>
+                            <pass>
+                                <gco:Boolean>true</gco:Boolean>
+                            </pass>
+                        </DQ_ConformanceResult>
+                    </result>
+                </DQ_DomainConsistency>
+            </report>
+            <lineage>
+                <LI_Lineage>
+                    <statement>
+                        <gco:CharacterString>text</gco:CharacterString>
+                    </statement>
+                    <source>
+                        <LI_Source>
+                            <sourceExtent>
+                                <EX_Extent>
+                                    <temporalElement>
+                                        <EX_TemporalExtent>
+                                            <extent>
+                                                <gml:TimePeriod gml:id="tp1">
+                                                    <gml:begin>
+                                                        <gml:TimeInstant gml:id="ti1">
+                                                            <gml:timePosition>1992-04-01T00:00:00-00:00</gml:timePosition>
+                                                        </gml:TimeInstant>
+                                                    </gml:begin>
+                                                    <gml:end>
+                                                        <gml:TimeInstant gml:id="ti2">
+                                                            <gml:timePosition>2002-02-23T00:00:00-00:00</gml:timePosition>
+                                                        </gml:TimeInstant>
+                                                    </gml:end>
+                                                </gml:TimePeriod>
+                                            </extent>
+                                        </EX_TemporalExtent>
+                                    </temporalElement>
+                                </EX_Extent>
+                            </sourceExtent>
+                        </LI_Source>
+                    </source>
+                </LI_Lineage>
+            </lineage>
+        </DQ_DataQuality>
+    </dataQualityInfo>
+    <!-- END OF DATA QUALITY & LINEAGE -->
+    <!-- CONSTRAINTS -->
+    <metadataConstraints>
+        <MD_SecurityConstraints>
+            <classification>
+                <MD_ClassificationCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ClassificationCode"
+                                       codeListValue="unclassified"/>
+            </classification>
+            <handlingDescription>
+                <gco:CharacterString>RELEASABILITY - unrestricted</gco:CharacterString>
+            </handlingDescription>
+        </MD_SecurityConstraints>
+    </metadataConstraints>
+    <!-- END OF CONSTRAINTS -->
 </MD_Metadata>

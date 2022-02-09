@@ -70,20 +70,18 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
    * {@link JTSToGML311GeometryConverter#JTSToGML311GeometryConverter()
    * with the exception that the GML that output is customized based on the
    * properties contained in a property {@link Map}.
-   *
+   * <p>
    * Valid properties include:
+   * <p>
+   * {@code USE_POS_LIST_GEO_CONVERTER_PROP_KEY}, ["true" | "false" ] -
+   * When "true", {@link LinearRingType}s constructed by the
+   * converter will have the posList, rather than the
+   * posOrPointPropertyOrPointRep, member variable set and populated.
+   * When converted to a string, this results in the GML containing a
+   * single <posList> element rather than a list of <pos> elements.
    *
-   *    {@code USE_POS_LIST_GEO_CONVERTER_PROP_KEY}, ["true" | "false" ] -
-   *       When "true", {@link LinearRingType}s constructed by the
-   *       converter will have the posList, rather than the
-   *       posOrPointPropertyOrPointRep, member variable set and populated.
-   *       When converted to a string, this results in the GML containing a
-   *       single <posList> element rather than a list of <pos> elements.
-   *
-   * @param propertyMap
-   *      A map of properties that indicate a desired set of customizations
-   *      to the GML output by the converter.
-   *
+   * @param propertyMap A map of properties that indicate a desired set of customizations
+   *                    to the GML output by the converter.
    */
   public CswJTSToGML311GeometryConverter(Map<String, String> propertyMap) {
     this(

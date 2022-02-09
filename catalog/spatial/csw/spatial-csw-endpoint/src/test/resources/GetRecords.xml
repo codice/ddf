@@ -11,13 +11,27 @@
  *
  **/
 -->
-<csw:GetRecords requestId="bc9c7957-17d6-465e-ba0b-40e1c46725ff" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ogc="http://www.opengis.net/ogc" service="CSW" version="2.0.2" resultType="results" startPosition="1" maxRecords="10" outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:apiso="http://www.opengis.net/cat/csw/apiso/1.0">
+<csw:GetRecords xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                xmlns:ogc="http://www.opengis.net/ogc"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                requestId="bc9c7957-17d6-465e-ba0b-40e1c46725ff"
+                service="CSW"
+                version="2.0.2"
+                resultType="results"
+                startPosition="1"
+                maxRecords="10"
+                outputFormat="application/xml"
+                outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+                xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd">
     <csw:ResponseHandler>http://localhost:1234/test</csw:ResponseHandler>
     <csw:Query typeNames="csw:Record">
         <csw:ElementSetName>full</csw:ElementSetName>
         <csw:Constraint version="1.1.0">
             <ogc:Filter>
-                <ogc:PropertyIsLike matchCase="false" wildCard="%" singleChar="_" escapeChar="\">
+                <ogc:PropertyIsLike matchCase="false"
+                                    wildCard="%"
+                                    singleChar="_"
+                                    escapeChar="\">
                     <ogc:PropertyName>title</ogc:PropertyName>
                     <ogc:Literal>%</ogc:Literal>
                 </ogc:PropertyIsLike>

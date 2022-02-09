@@ -60,10 +60,8 @@ import org.slf4j.LoggerFactory;
  * results and CSW records.
  */
 public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordCollection> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsMessageBodyReader.class);
-
   public static final String BYTES_SKIPPED = "bytes-skipped";
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsMessageBodyReader.class);
   private XStream xstream;
 
   private DataHolder argumentHolder;

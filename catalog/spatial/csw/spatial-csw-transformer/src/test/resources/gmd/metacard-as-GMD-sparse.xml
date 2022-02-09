@@ -1,4 +1,5 @@
-<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco">
+<MD_Metadata xmlns:gco="http://www.isotc211.org/2005/gco"
+             xmlns="http://www.isotc211.org/2005/gmd">
     <fileIdentifier>
         <gco:CharacterString>ID</gco:CharacterString>
     </fileIdentifier>
@@ -6,7 +7,8 @@
         <gco:CharacterString>eng</gco:CharacterString>
     </language>
     <hierarchyLevel>
-        <MD_ScopeCode codeListValue="jpeg" codeList="urn:catalog:metacard"/>
+        <MD_ScopeCode codeListValue="jpeg"
+                      codeList="urn:catalog:metacard"/>
     </hierarchyLevel>
     <identificationInfo>
         <MD_DataIdentification>
@@ -21,7 +23,8 @@
                                 <gco:DateTime>2014-11-01T00:00:00.000Z</gco:DateTime>
                             </date>
                             <dateType>
-                                <CI_DateTypeCode codeList="urn:catalog:metacard" codeListValue="created"/>
+                                <CI_DateTypeCode codeList="urn:catalog:metacard"
+                                                 codeListValue="created"/>
                             </dateType>
                         </CI_Date>
                     </date>

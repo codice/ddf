@@ -12,16 +12,18 @@
  *
  **/
 -->
-<csw:GetRecordsResponse
-        xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-        xmlns:dc="http://purl.org/dc/elements/1.1/"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd">
+<csw:GetRecordsResponse xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                        xmlns:dc="http://purl.org/dc/elements/1.1/"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd">
 
     <csw:RequestId>ebb70c05-b369-41ea-87e6-16b3497b3d0a</csw:RequestId>
     <csw:SearchStatus timestamp="2013-05-14T10:25:20.90-04:00"/>
-    <csw:SearchResults elementSet="brief" recordSchema="http://www.opengis.net/cat/csw/2.0.2"
-                       numberOfRecordsMatched="45" numberOfRecordsReturned="45" nextRecord="0"
+    <csw:SearchResults elementSet="brief"
+                       recordSchema="http://www.opengis.net/cat/csw/2.0.2"
+                       numberOfRecordsMatched="45"
+                       numberOfRecordsReturned="45"
+                       nextRecord="0"
                        expires="2013-05-14T10:25:20.903-04:00">
 
         <csw:BriefRecord>
@@ -424,7 +426,7 @@
             <dc:title>anything</dc:title>
             <dc:type>j</dc:type>
         </csw:BriefRecord>
-        
+
 
     </csw:SearchResults>
 </csw:GetRecordsResponse>

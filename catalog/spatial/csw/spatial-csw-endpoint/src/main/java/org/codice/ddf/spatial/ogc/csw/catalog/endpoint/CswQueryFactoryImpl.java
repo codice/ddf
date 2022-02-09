@@ -87,15 +87,11 @@ public class CswQueryFactoryImpl implements CswQueryFactory {
   private final FilterAdapter adapter;
 
   private final CswRecordMap cswRecordMap;
-
-  private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
-
-  private AttributeRegistry attributeRegistry;
-
-  private QueryFilterTransformerProvider queryFilterTransformerProvider;
-
-  private Permissions permissions;
   private final CswXmlBinding cswXmlBinding;
+  private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
+  private AttributeRegistry attributeRegistry;
+  private QueryFilterTransformerProvider queryFilterTransformerProvider;
+  private Permissions permissions;
 
   public CswQueryFactoryImpl(
       CswRecordMap cswRecordMap,

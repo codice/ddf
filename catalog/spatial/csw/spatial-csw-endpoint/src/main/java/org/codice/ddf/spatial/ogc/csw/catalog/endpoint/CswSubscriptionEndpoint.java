@@ -112,13 +112,10 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
   private final EventProcessor eventProcessor;
 
   private final ClientBuilderFactory clientBuilderFactory;
-
-  private DatatypeFactory datatypeFactory;
-
-  private Map<String, ServiceRegistration<Subscription>> registeredSubscriptions = new HashMap<>();
-
-  private Security security;
   private final CswXmlBinding cswXmlBinding;
+  private DatatypeFactory datatypeFactory;
+  private Map<String, ServiceRegistration<Subscription>> registeredSubscriptions = new HashMap<>();
+  private Security security;
 
   public CswSubscriptionEndpoint(
       EventProcessor eventProcessor,

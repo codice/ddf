@@ -29,41 +29,18 @@ import org.osgi.framework.ServiceReference;
 
 public class TransformerManagerTest {
 
-  private static List<ServiceReference> serviceReferences = new ArrayList<>();
-
-  private static InputTransformer transformerA = mock(InputTransformer.class);
-
-  private static InputTransformer transformerB = mock(InputTransformer.class);
-
   private static final String ID_A = "idA";
-
   private static final String ID_B = "idB";
-
   private static final String MIME_TYPE_A = "mimeTypeA";
-
   private static final String MIME_TYPE_B = "mimeTypeB";
-
   private static final String SCHEMA_A = "urn:example:schema:A";
-
   private static final String SCHEMA_B = "urn:example:schema:B";
-
   private static final String SCHEMA_LOCATION_A = "schema/locationA";
-
   private static final String SCHEMA_LOCATION_B = "schema/locationB";
-
+  private static List<ServiceReference> serviceReferences = new ArrayList<>();
+  private static InputTransformer transformerA = mock(InputTransformer.class);
+  private static InputTransformer transformerB = mock(InputTransformer.class);
   private static BundleContext mockContext = mock(BundleContext.class);
-
-  private static class MockTransformerManager extends TransformerManagerImpl {
-    public MockTransformerManager(List<ServiceReference> serviceReferences) {
-      super(serviceReferences);
-    }
-
-    @Override
-    protected BundleContext getBundleContext() {
-      return mockContext;
-    }
-  }
-
   private static MockTransformerManager manager;
 
   @BeforeClass
@@ -185,5 +162,16 @@ public class TransformerManagerTest {
   @Test
   public void testGetTransformerSchemaLocationForInvalidId() throws Exception {
     assertThat(manager.getTransformerSchemaLocationForId("abc123"), is(""));
+  }
+
+  private static class MockTransformerManager extends TransformerManagerImpl {
+    public MockTransformerManager(List<ServiceReference> serviceReferences) {
+      super(serviceReferences);
+    }
+
+    @Override
+    protected BundleContext getBundleContext() {
+      return mockContext;
+    }
   }
 }

@@ -48,13 +48,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class CswMarshallHelper {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CswMarshallHelper.class);
-
   static final DatatypeFactory XSD_FACTORY;
-
-  private static final String XMLNS = "xmlns:";
-
   static final CswRecordMap CSW_RECORD_MAP = new MetacardCswRecordMap();
+  private static final Logger LOGGER = LoggerFactory.getLogger(CswMarshallHelper.class);
+  private static final String XMLNS = "xmlns:";
 
   static {
     DatatypeFactory factory = null;

@@ -76,61 +76,37 @@ import org.slf4j.LoggerFactory;
 /** Implementation of {@link QueryResponseTransformer} for CSW 2.0.2 GetRecordsResponse */
 public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
+  public static final String NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE = "numberOfRecordsMatched";
+  public static final String NEXT_RECORD_ATTRIBUTE = "nextRecord";
+  public static final String NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE = "numberOfRecordsReturned";
   private static final Logger LOGGER = LoggerFactory.getLogger(CswQueryResponseTransformer.class);
-
   private static final String QUERY_POOL_NAME = "csw-query-pool";
-
   private static final String CSW_PREFIX =
       CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER;
-
-  private static final String XML_PREFIX =
-      XMLConstants.XMLNS_ATTRIBUTE + CswConstants.NAMESPACE_DELIMITER;
-
-  private static final String SEARCH_STATUS_NODE_NAME = "SearchStatus";
-
-  private static final String SEARCH_RESULTS_NODE_NAME = "SearchResults";
-
-  private static final String VERSION_ATTRIBUTE = "version";
-
-  private static final String TIMESTAMP_ATTRIBUTE = "timestamp";
-
-  public static final String NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE = "numberOfRecordsMatched";
-
-  public static final String NEXT_RECORD_ATTRIBUTE = "nextRecord";
-
-  private static final String RECORD_SCHEMA_ATTRIBUTE = "recordSchema";
-
-  private static final String ELEMENT_SET_ATTRIBUTE = "elementSet";
-
-  private static final String XML_DECL = "<?xml version=\'1.0\' encoding=\'UTF-8\'?>\n";
-
   public static final String RECORDS_RESPONSE_QNAME =
       CSW_PREFIX + CswConstants.GET_RECORDS_RESPONSE;
-
   public static final String RECORD_BY_ID_RESPONSE_QNAME =
       CSW_PREFIX + CswConstants.GET_RECORD_BY_ID_RESPONSE;
-
+  private static final String XML_PREFIX =
+      XMLConstants.XMLNS_ATTRIBUTE + CswConstants.NAMESPACE_DELIMITER;
+  private static final String SEARCH_STATUS_NODE_NAME = "SearchStatus";
   public static final String SEARCH_STATUS_QNAME = CSW_PREFIX + SEARCH_STATUS_NODE_NAME;
-
+  private static final String SEARCH_RESULTS_NODE_NAME = "SearchResults";
   public static final String SEARCH_RESULTS_QNAME = CSW_PREFIX + SEARCH_RESULTS_NODE_NAME;
-
-  public static final String NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE = "numberOfRecordsReturned";
-
+  private static final String VERSION_ATTRIBUTE = "version";
+  private static final String TIMESTAMP_ATTRIBUTE = "timestamp";
+  private static final String RECORD_SCHEMA_ATTRIBUTE = "recordSchema";
+  private static final String ELEMENT_SET_ATTRIBUTE = "elementSet";
+  private static final String XML_DECL = "<?xml version=\'1.0\' encoding=\'UTF-8\'?>\n";
   private static final String REQUEST_ID_NODE_NAME = "RequestId";
 
   private static final String REQUEST_ID_QNAME = CSW_PREFIX + REQUEST_ID_NODE_NAME;
-
-  private TransformerManager metacardTransformerManager;
-
-  private CswRecordMap cswRecordMap = new MetacardCswRecordMap();
-
-  private ThreadPoolExecutor queryExecutor;
-
-  private PrintWriterProvider writerProvider;
-
   private static final int BLOCKING_Q_INITIAL_SIZE = 1024;
-
   private static final int ACCUM_INITIAL_SIZE = 4096;
+  private TransformerManager metacardTransformerManager;
+  private CswRecordMap cswRecordMap = new MetacardCswRecordMap();
+  private ThreadPoolExecutor queryExecutor;
+  private PrintWriterProvider writerProvider;
 
   public CswQueryResponseTransformer(
       TransformerManager metacardTransformerManager, PrintWriterProvider writerProvider) {

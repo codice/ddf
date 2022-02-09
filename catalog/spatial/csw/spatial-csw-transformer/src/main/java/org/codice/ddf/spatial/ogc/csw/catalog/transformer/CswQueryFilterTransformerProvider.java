@@ -40,10 +40,8 @@ public class CswQueryFilterTransformerProvider implements QueryFilterTransformer
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(CswQueryFilterTransformerProvider.class);
-
-  private Map<QName, QueryFilterTransformer> queryFilterTransformerMap = new ConcurrentHashMap<>();
-
   private final Map<String, QName> typeNameQNameMap = new HashMap<>();
+  private Map<QName, QueryFilterTransformer> queryFilterTransformerMap = new ConcurrentHashMap<>();
 
   public synchronized void bind(ServiceReference<QueryFilterTransformer> reference) {
     if (reference == null) {
