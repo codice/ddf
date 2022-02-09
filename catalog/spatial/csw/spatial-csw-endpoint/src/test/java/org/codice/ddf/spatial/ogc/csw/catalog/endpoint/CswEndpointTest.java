@@ -151,6 +151,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordsRequest;
@@ -761,7 +762,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordRequestSingleTypePassed() {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     LOGGER.info("Resource directory is {}", this.getClass().getResource(".").getPath());
     DescribeRecordResponseType drrt = null;
@@ -825,7 +826,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordRequestNoTypesPassed() {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     LOGGER.info("Resource directory is {}", this.getClass().getResource(".").getPath());
     when(mockSchemaManager.getTransformerSchemaForId(VALID_PREFIX_LOCAL_TYPE))
         .thenReturn(CswConstants.CSW_OUTPUT_SCHEMA);
@@ -883,7 +884,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordRequestMultipleTypes() {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw:test");
     DescribeRecordResponseType drrt = null;
 
@@ -925,7 +926,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordRequestInvalidType() throws CswException {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + "," + VALID_PREFIX + ":" + BAD_TYPE);
     DescribeRecordResponseType response = csw.describeRecord(drr);
 
@@ -949,7 +950,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordSingleTypeSingleNamespaceNoPrefixes() {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_TYPE);
     drr.setNamespace("xmlns(" + CswConstants.CSW_OUTPUT_SCHEMA + ")");
     when(mockSchemaManager.getTransformerSchemaForId(VALID_TYPE))
@@ -970,7 +971,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordSingleTypeSingleNamespaceNoPrefixesBadType() throws CswException {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(BAD_TYPE);
     drr.setNamespace("xmlns(" + CswConstants.CSW_OUTPUT_SCHEMA + ")");
 
@@ -981,7 +982,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordMultipleTypesMultipleNamespacesNominal() {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw:test");
     drr.setNamespace("xmlns(" + VALID_PREFIX + "=" + CswConstants.CSW_OUTPUT_SCHEMA + ")");
     DescribeRecordResponseType drrt = null;
@@ -998,7 +999,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordMultipleTypesMultipleNamespacesMultiplePrefixes() {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw2:test4");
     drr.setNamespace(
         "xmlns("
@@ -1027,7 +1028,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordMultipleTypesMultipleNamespacesMultiplePrefixesMismatchedPrefix() {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw3:test4");
     drr.setNamespace(
         "xmlns("
@@ -1054,7 +1055,7 @@ public class CswEndpointTest {
 
   @Test(expected = CswException.class)
   public void testDescribeRecordUsePrefixNoNamespace() throws CswException {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     drr.setNamespace(null);
     csw.describeRecord(drr);
@@ -1062,7 +1063,7 @@ public class CswEndpointTest {
 
   @Test(expected = CswException.class)
   public void testDescribeRecordOnlyLocalPart() throws CswException {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_TYPE);
     drr.setNamespace(null);
     csw.describeRecord(drr);
@@ -1070,7 +1071,7 @@ public class CswEndpointTest {
 
   @Test(expected = CswException.class)
   public void testDescribeRecordOnlyLocalPartMultipleTypes() throws CswException {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_TYPE + ",test,test2");
     drr.setNamespace(null);
     csw.describeRecord(drr);
@@ -1078,7 +1079,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordValidOutputFormat() {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     drr.setOutputFormat(CswConstants.OUTPUT_FORMAT_XML);
     DescribeRecordResponseType drrt = null;
@@ -1095,7 +1096,7 @@ public class CswEndpointTest {
 
   @Test
   public void testDescribeRecordValidSchemaLanguage() {
-    DescribeRecordRequestImpl drr = createDefaultDescribeRecordRequest();
+    DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
     drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
     drr.setSchemaLanguage(CswConstants.SCHEMA_LANGUAGE_X_SCHEMA);
     when(mockSchemaManager.getTransformerSchemaForId(VALID_PREFIX_LOCAL_TYPE))
@@ -1755,7 +1756,7 @@ public class CswEndpointTest {
     QueryConstraintType queryConstraintType = new QueryConstraintType();
     queryConstraintType.setCqlText("title = \"foo\"");
     doReturn(queryConstraintType).when(deleteType).getConstraint();
-
+    doReturn("Mock Catalog Framework").when(catalogFramework).toString();
     when(catalogFramework.delete(any(DeleteRequest.class)))
         .thenAnswer(
             (Answer<DeleteResponse>)
@@ -1979,8 +1980,8 @@ public class CswEndpointTest {
    *
    * @return Vanilla DescribeRecordRequest object
    */
-  private DescribeRecordRequestImpl createDefaultDescribeRecordRequest() {
-    DescribeRecordRequestImpl drr = new DescribeRecordRequestImpl();
+  private DescribeRecordRequest createDefaultDescribeRecordRequest() {
+    DescribeRecordRequest drr = new DescribeRecordRequestImpl();
     drr.setService(CswConstants.CSW);
     drr.setVersion(CswConstants.VERSION_2_0_2);
     drr.setRequest(CswConstants.DESCRIBE_RECORD);
