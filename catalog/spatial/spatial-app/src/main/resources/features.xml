@@ -103,6 +103,7 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-schema-bindings/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-action/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-csw-common/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-transformer/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-source/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-endpoint/${project.version}</bundle>
