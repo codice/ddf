@@ -21,15 +21,10 @@
         <version>2.28.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>spatial-csw-endpoint-api</artifactId>
+    <artifactId>spatial-csw-api</artifactId>
     <packaging>bundle</packaging>
-    <name>DDF :: Spatial :: CSW :: Endpoint :: API</name>
+    <name>DDF :: Spatial :: CSW :: API</name>
     <dependencies>
-        <!--        <dependency>-->
-        <!--            <groupId>org.codice.ddf.spatial</groupId>-->
-        <!--            <artifactId>spatial-csw-common</artifactId>-->
-        <!--            <version>${project.version}</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>

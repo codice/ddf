@@ -27,7 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-csw-endpoint-api</artifactId>
+            <artifactId>spatial-csw-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
