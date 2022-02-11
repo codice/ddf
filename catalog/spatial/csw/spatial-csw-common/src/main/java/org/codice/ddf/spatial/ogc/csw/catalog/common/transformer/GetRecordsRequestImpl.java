@@ -15,14 +15,11 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.transformer;
 
 import java.io.StringReader;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -40,11 +37,11 @@ import net.opengis.filter.v_1_1_0.SortOrderType;
 import net.opengis.filter.v_1_1_0.SortPropertyType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRequestImpl;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlBindingImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,31 +53,8 @@ public class GetRecordsRequestImpl extends CswRequestImpl implements GetRecordsR
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsRequestImpl.class);
 
-  private static final JAXBContext JAX_BCONTEXT;
-
-  static {
-    JAXBContext context = null;
-    String contextPath =
-        StringUtils.join(
-            new String[] {
-              CswConstants.OGC_FILTER_PACKAGE,
-              CswConstants.OGC_GML_PACKAGE,
-              CswConstants.OGC_OWS_PACKAGE
-            },
-            ":");
-
-    try {
-      LOGGER.debug("Creating JAXB context with context path: {}", contextPath);
-      context = JAXBContext.newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
-    } catch (JAXBException e) {
-      LOGGER.info("Unable to create JAXB context using contextPath: {}", contextPath, e);
-    }
-
-    JAX_BCONTEXT = context;
-  }
-
   /**
-   * Should not set default values for these fields. Otherwise those values will be used by the
+   * Should not set default values for these fields. Otherwise, those values will be used by the
    * endpoint GET requests, when the caller fails to specify a parameter.
    */
   private String version;
@@ -119,12 +93,6 @@ public class GetRecordsRequestImpl extends CswRequestImpl implements GetRecordsR
 
   public GetRecordsRequestImpl() {
     super(CswConstants.GET_RECORDS);
-  }
-
-  public GetRecordsRequestImpl(String service, String version) {
-    this();
-    setService(service);
-    setVersion(version);
   }
 
   @Override
@@ -314,7 +282,7 @@ public class GetRecordsRequestImpl extends CswRequestImpl implements GetRecordsR
       getRecords.setOutputFormat(getOutputFormat());
     }
     if (getResponseHandler() != null) {
-      getRecords.setResponseHandler(Arrays.asList(getResponseHandler()));
+      getRecords.setResponseHandler(List.of(getResponseHandler()));
     }
     if (getResultType() != null) {
       try {
@@ -370,7 +338,7 @@ public class GetRecordsRequestImpl extends CswRequestImpl implements GetRecordsR
     if (getSortBy() != null) {
       SortByType sort = new SortByType();
 
-      List<SortPropertyType> sortProps = new LinkedList<SortPropertyType>();
+      List<SortPropertyType> sortProps = new LinkedList<>();
 
       String[] sortOptions = getSortBy().split(",");
 
@@ -383,7 +351,7 @@ public class GetRecordsRequestImpl extends CswRequestImpl implements GetRecordsR
 
         String propName = StringUtils.substringBeforeLast(sortOption, ":");
         String direction = StringUtils.substringAfterLast(sortOption, ":");
-        propertyName.setContent(Arrays.asList((Object) propName));
+        propertyName.setContent(List.of(propName));
         SortOrderType sortOrder;
 
         if (direction.equals("A")) {
@@ -420,10 +388,9 @@ public class GetRecordsRequestImpl extends CswRequestImpl implements GetRecordsR
           XMLStreamReader xmlStreamReader =
               xmlInputFactory.createXMLStreamReader(new StringReader(constraint));
 
-          Unmarshaller unmarshaller = JAX_BCONTEXT.createUnmarshaller();
           @SuppressWarnings("unchecked")
           JAXBElement<FilterType> jaxbFilter =
-              (JAXBElement<FilterType>) unmarshaller.unmarshal(xmlStreamReader);
+              (JAXBElement<FilterType>) new CswXmlBindingImpl().unmarshal(xmlStreamReader);
           queryConstraint.setFilter(jaxbFilter.getValue());
         } catch (JAXBException e) {
           LOGGER.debug("JAXBException parsing OGC Filter:", e);
@@ -437,13 +404,9 @@ public class GetRecordsRequestImpl extends CswRequestImpl implements GetRecordsR
       }
       query.setConstraint(queryConstraint);
     }
-
     JAXBElement<QueryType> jaxbQuery =
-        new JAXBElement<QueryType>(
-            new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
-
+        new JAXBElement<>(new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
     getRecords.setAbstractQuery(jaxbQuery);
-
     return getRecords;
   }
 }

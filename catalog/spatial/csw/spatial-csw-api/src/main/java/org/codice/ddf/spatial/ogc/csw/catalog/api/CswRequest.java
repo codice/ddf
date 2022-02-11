@@ -11,22 +11,22 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
+package org.codice.ddf.spatial.ogc.csw.catalog.api;
 
-public interface DescribeRecordRequest extends CswRequest {
-  String getNamespace();
+import java.util.Map;
 
-  void setNamespace(String namespace);
+public interface CswRequest {
+  String getRequest();
 
-  String getTypeName();
+  void setRequest(String request);
 
-  void setTypeName(String typeName);
+  String getService();
 
-  String getOutputFormat();
+  void setService(String service);
 
-  void setOutputFormat(String outputFormat);
+  Map<String, String> parseNamespaces(String namespaces) throws CswException;
 
-  String getSchemaLanguage();
+  String getVersion();
 
-  void setSchemaLanguage(String schemaLanguage);
+  void setVersion(String version);
 }

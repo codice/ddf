@@ -64,10 +64,10 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-urlresourcereader</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ddf.catalog.core</groupId>-->
+<!--            <artifactId>catalog-core-urlresourcereader</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>

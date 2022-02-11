@@ -21,7 +21,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.transform.QueryFilterTransformer;
 import java.io.Serializable;
 import java.util.Map;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswRecordMap;
 import org.geotools.filter.FilterFactoryImpl;
 import org.opengis.filter.Filter;
 

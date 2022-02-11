@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
+package org.codice.ddf.spatial.ogc.csw.catalog.api;
 
 import java.math.BigInteger;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
@@ -91,8 +91,8 @@ public interface GetRecordsRequest extends CswRequest {
    * validation is done at this point
    *
    * @return GetRecordsType representation of this key-value representation
-   * @throws org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException An exception when some
-   *     field cannot be converted to the equivalent GetRecordsType value
+   * @throws CswException An exception when some field cannot be converted to the equivalent
+   *     GetRecordsType value
    */
   GetRecordsType get202RecordsType() throws CswException;
 }

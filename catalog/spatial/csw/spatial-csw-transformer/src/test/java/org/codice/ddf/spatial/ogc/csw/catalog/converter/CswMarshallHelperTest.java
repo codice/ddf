@@ -28,7 +28,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

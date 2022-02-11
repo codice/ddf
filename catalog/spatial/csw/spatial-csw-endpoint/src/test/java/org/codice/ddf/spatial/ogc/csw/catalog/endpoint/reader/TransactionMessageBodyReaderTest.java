@@ -50,9 +50,9 @@ import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryTest;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 import org.junit.Before;
 import org.junit.Test;
 

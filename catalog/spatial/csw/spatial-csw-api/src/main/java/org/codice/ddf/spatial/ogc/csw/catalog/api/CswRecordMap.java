@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
+package org.codice.ddf.spatial.ogc.csw.catalog.api;
 
 import java.util.Collections;
 import java.util.HashMap;

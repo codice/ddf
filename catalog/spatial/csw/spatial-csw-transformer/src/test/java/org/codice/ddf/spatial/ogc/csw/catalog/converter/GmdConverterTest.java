@@ -39,7 +39,7 @@ import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.BeforeClass;

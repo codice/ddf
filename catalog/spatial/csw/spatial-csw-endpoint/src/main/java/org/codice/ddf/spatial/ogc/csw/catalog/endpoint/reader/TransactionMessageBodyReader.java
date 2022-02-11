@@ -31,10 +31,10 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.TransactionRequestConverter;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 
 @Provider
 @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})

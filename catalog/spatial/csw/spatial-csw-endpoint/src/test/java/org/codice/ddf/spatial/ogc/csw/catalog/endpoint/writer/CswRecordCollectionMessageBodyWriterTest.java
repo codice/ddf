@@ -48,11 +48,11 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManagerImpl;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 

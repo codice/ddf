@@ -70,13 +70,13 @@ import net.opengis.ows.v_1_0_0.ServiceIdentification;
 import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.Csw;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequestImpl;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.Csw;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -337,7 +337,8 @@ public class TestCswSourceBase {
     return jaxb.getValue();
   }
 
-  protected String getGetRecordsTypeAsXml(GetRecordsType getRecordsType) throws IOException {
+  protected String getGetRecordsTypeAsXml(GetRecordsType getRecordsType)
+      throws IOException, JAXBException {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider = new CswJAXBElementProvider<>();
@@ -446,7 +447,7 @@ public class TestCswSourceBase {
     if (numRecordsReturned > 0) {
       List<Metacard> metacards = new ArrayList<>(numRecordsReturned);
       for (int i = 1; i <= numRecordsReturned; i++) {
-        String id = "ID_" + String.valueOf(i);
+        String id = "ID_" + i;
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId(id);
         metacard.setContentTypeName("myContentType");

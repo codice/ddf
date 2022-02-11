@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.GetCapabilitiesRequest;
 
 /**
  * JAX-RS Parameter Bean Class for the GetCapabilities request. The member variables will be

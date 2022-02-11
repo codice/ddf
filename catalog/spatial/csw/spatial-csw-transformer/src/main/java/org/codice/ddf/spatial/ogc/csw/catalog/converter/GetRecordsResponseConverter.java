@@ -23,9 +23,9 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.util.List;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollectionImpl;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

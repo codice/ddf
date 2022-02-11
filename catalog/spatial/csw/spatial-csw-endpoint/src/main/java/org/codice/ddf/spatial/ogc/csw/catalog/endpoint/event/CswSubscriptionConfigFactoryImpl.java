@@ -16,9 +16,9 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 import java.io.StringReader;
 import javax.xml.bind.JAXBElement;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswSubscriptionConfigFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswXmlBinding;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscriptionConfigFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

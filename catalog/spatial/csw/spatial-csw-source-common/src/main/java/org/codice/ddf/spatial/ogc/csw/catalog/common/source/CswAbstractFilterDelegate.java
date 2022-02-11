@@ -26,7 +26,7 @@ import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.RequestMethodType;
 import org.apache.cxf.common.util.CollectionUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

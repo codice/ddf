@@ -25,7 +25,7 @@ import javax.xml.namespace.QName;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswRecordCollection;
 
 /**
  * This class represents the domain object for the list of metacards corresponding to the list of

@@ -181,15 +181,17 @@
                   ref="queryFilterTransformerProvider"/>
     </bean>
 
-    <bean id="metacardCswRecordMap"
+    <bean id="cswRecordMap"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap"/>
 
     <bean id="cswFilterFactory"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryImpl">
-        <argument ref="metacardCswRecordMap"/>
+        <argument ref="cswRecordMap"/>
+        <argument ref="attributeRegistry"/>
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>
         <argument ref="permissions"/>
+        <argument ref="cswXmlBinding"/>
         <property name="attributeRegistry"
                   ref="attributeRegistry"/>
         <property name="schemaToTagsMapping">
@@ -202,7 +204,7 @@
     </bean>
 
     <bean id="cswXmlBinding"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding"/>
+          class="org.codice.ddf.spatial.ogc.csw.catalog.api.CswXmlBinding"/>
 
     <bean id="CswSvc"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint"
@@ -238,7 +240,7 @@
 
     <bean id="cswQueryFilterTransformer"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer">
-        <argument ref="metacardCswRecordMap"/>
+        <argument ref="cswRecordMap"/>
         <argument ref="attributeRegistry"/>
     </bean>
 

@@ -30,7 +30,7 @@ import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

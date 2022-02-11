@@ -21,10 +21,13 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.XMLUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswXmlBinding;
 import org.xml.sax.InputSource;
 
 @SuppressWarnings("unused")
@@ -37,6 +40,15 @@ public class CswXmlBindingImpl implements CswXmlBinding {
   public CswXmlBindingImpl() throws JAXBException {
     saxParserFactory = XMLUtils.getInstance().getSecureSAXParserFactory();
     saxParserFactory.setNamespaceAware(true);
+    String contextPath =
+        StringUtils.join(
+            new String[] {
+              CswConstants.OGC_CSW_PACKAGE,
+              CswConstants.OGC_FILTER_PACKAGE,
+              CswConstants.OGC_GML_PACKAGE,
+              CswConstants.OGC_OWS_PACKAGE
+            },
+            ":");
     jaxBContext =
         JAXBContext.newInstance(
             "net.opengis.cat.csw.v_2_0_2:"
@@ -79,5 +91,10 @@ public class CswXmlBindingImpl implements CswXmlBinding {
   @Override
   public void marshal(Object obj, OutputStream os) throws JAXBException {
     createMarshaller().marshal(obj, os);
+  }
+
+  @Override
+  public Object unmarshal(XMLStreamReader xmlStreamReader) throws JAXBException {
+    return createUnmarshaller().unmarshal(xmlStreamReader);
   }
 }

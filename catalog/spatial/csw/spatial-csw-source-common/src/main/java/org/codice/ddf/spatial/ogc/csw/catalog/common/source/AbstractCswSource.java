@@ -126,19 +126,19 @@ import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.Csw;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswSubscribe;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.reader.GetRecordsMessageBodyReader;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.Csw;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscribe;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.GetRecordByIdRequest;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -326,7 +326,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     LOGGER.debug("{}: Entering init()", cswSourceConfiguration.getId());
     try {
       initClientFactory();
-    } catch (URISyntaxException e) {
+    } catch (URISyntaxException | JAXBException e) {
       throw new IllegalArgumentException(e);
     }
     setupAvailabilityPoll();
@@ -334,7 +334,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     configureEventService();
   }
 
-  protected void initClientFactory() throws URISyntaxException {
+  protected void initClientFactory() throws URISyntaxException, JAXBException {
     ClientBuilder<Csw> clientBuilder = clientBuilderFactory.getClientBuilder();
     if (BASIC_AUTH_TYPE.equals(cswSourceConfiguration.getAuthenticationType())
         && StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
@@ -404,7 +404,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
   }
 
-  protected void initSubscribeClientFactory() throws URISyntaxException {
+  protected void initSubscribeClientFactory() throws URISyntaxException, JAXBException {
     ClientBuilder<CswSubscribe> clientBuilder = clientBuilderFactory.getClientBuilder();
     if (BASIC_AUTH_TYPE.equals(cswSourceConfiguration.getAuthenticationType())
         && StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
@@ -596,7 +596,8 @@ public abstract class AbstractCswSource extends MaskableImpl
   }
 
   protected List<Object> initProviders(
-      Converter cswTransformProvider, CswSourceConfiguration cswSourceConfiguration) {
+      Converter cswTransformProvider, CswSourceConfiguration cswSourceConfiguration)
+      throws JAXBException {
     getRecordsTypeProvider = new CswJAXBElementProvider<>();
     getRecordsTypeProvider.setMarshallAsJaxbElement(true);
 
@@ -697,7 +698,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     try {
       initClientFactory();
-    } catch (URISyntaxException e) {
+    } catch (URISyntaxException | JAXBException e) {
       throw new IllegalArgumentException(e);
     }
     configureEventService();
@@ -1960,7 +1961,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     try {
       initSubscribeClientFactory();
-    } catch (URISyntaxException e) {
+    } catch (URISyntaxException | JAXBException e) {
       throw new IllegalArgumentException(e);
     }
     CswSubscribe cswSubscribe =

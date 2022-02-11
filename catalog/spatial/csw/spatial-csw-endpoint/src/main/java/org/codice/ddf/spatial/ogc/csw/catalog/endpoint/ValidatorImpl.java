@@ -21,10 +21,10 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlValidator;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswXmlValidator;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.TransformerManager;
 
 /** Validator provides methods to validate Requests for CSW 2.0.2 */
 public class ValidatorImpl implements CswXmlValidator {

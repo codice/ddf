@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.DescribeRecordRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.DescribeRecordRequest;
 
 /**
  * JAX-RS Parameter Bean Class for the DescribeRecord request. The member variables will be

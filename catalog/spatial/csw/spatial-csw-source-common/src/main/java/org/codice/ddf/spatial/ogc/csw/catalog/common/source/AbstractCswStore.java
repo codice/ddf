@@ -55,6 +55,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.InsertResultType;
@@ -66,16 +67,16 @@ import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.Csw;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.Csw;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
@@ -319,7 +320,8 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
 
   @Override
   protected List<Object> initProviders(
-      Converter cswTransformProvider, CswSourceConfiguration cswSourceConfiguration) {
+      Converter cswTransformProvider, CswSourceConfiguration cswSourceConfiguration)
+      throws JAXBException {
 
     List providers =
         new ArrayList(super.initProviders(cswTransformProvider, cswSourceConfiguration));

@@ -27,9 +27,9 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRecordMap;
 import org.xml.sax.helpers.NamespaceSupport;
 
 public class MetacardCswRecordMap implements CswRecordMap {

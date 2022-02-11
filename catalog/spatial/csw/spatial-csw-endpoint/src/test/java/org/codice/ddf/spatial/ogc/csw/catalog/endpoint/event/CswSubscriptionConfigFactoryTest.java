@@ -24,10 +24,10 @@ import static org.mockito.Mockito.when;
 
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswSubscriptionConfigFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswXmlBinding;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlBindingImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscriptionConfigFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswXmlBinding;
 import org.junit.Before;
 import org.junit.Test;
 

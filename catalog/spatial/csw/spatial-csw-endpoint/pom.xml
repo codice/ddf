@@ -39,10 +39,17 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
         </dependency>
+
+<!--
+        core-api-impl needed for
+        ddf.catalog.data.impl.AttributeImpl
+        df.catalog.data.impl.ResultImpl
+-->
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
+
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
@@ -214,7 +221,6 @@
                         </Import-Package>
                         <Embed-Dependency>
                             spatial-ogc-common,
-                            spatial-csw-common,
                             spatial-csw-transformer,
                             catalog-core-api-impl,
                             geospatial,

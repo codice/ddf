@@ -124,6 +124,10 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-csw-action</artifactId>
             <version>${project.version}</version>
         </dependency>

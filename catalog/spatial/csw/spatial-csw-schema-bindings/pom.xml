@@ -30,9 +30,7 @@
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
-            <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>ddf.jaxb</groupId>
             <artifactId>spatial-csw-schema-bindings</artifactId>
@@ -42,18 +40,15 @@
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>gml-v_3_1_1-schema</artifactId>
             <version>${gml-v_3_1_1-schema.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>ows-v_1_0_0-schema</artifactId>
             <version>${ows-v_1_0_0-schema.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
     <build>

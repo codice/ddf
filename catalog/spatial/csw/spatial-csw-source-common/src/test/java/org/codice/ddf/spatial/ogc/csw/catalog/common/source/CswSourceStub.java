@@ -23,11 +23,12 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import javax.xml.bind.JAXBException;
 import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.security.Security;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswSubscribe;
 import org.osgi.framework.BundleContext;
 
 public class CswSourceStub extends AbstractCswSource {
@@ -53,7 +54,7 @@ public class CswSourceStub extends AbstractCswSource {
     super.subscribeClientFactory = mock(SecureCxfClientFactory.class);
     try {
       initClientFactory();
-    } catch (URISyntaxException e) {
+    } catch (URISyntaxException | JAXBException e) {
       throw new IllegalArgumentException(e);
     }
   }

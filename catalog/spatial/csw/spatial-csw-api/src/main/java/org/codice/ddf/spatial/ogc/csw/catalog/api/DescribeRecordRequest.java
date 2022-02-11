@@ -11,22 +11,22 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
+package org.codice.ddf.spatial.ogc.csw.catalog.api;
 
-public interface GetCapabilitiesRequest extends CswRequest {
-  String getAcceptVersions();
+public interface DescribeRecordRequest extends CswRequest {
+  String getNamespace();
 
-  void setAcceptVersions(String acceptVersions);
+  void setNamespace(String namespace);
 
-  String getSections();
+  String getTypeName();
 
-  void setSections(String sections);
+  void setTypeName(String typeName);
 
-  String getUpdateSequence();
+  String getOutputFormat();
 
-  void setUpdateSequence(String updateSequence);
+  void setOutputFormat(String outputFormat);
 
-  String getAcceptFormats();
+  String getSchemaLanguage();
 
-  void setAcceptFormats(String acceptFormats);
+  void setSchemaLanguage(String schemaLanguage);
 }

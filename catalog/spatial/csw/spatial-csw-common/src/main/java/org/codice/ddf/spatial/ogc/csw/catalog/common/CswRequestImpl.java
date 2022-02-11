@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +44,10 @@ public class CswRequestImpl implements CswRequest {
     this.request = request;
   }
 
-  public CswRequestImpl(String service, String request) {
-    this.service = service;
-    this.request = request;
-  }
+  //  public CswRequestImpl(String service, String request) {
+  //    this.service = service;
+  //    this.request = request;
+  //  }
 
   @Override
   public String getRequest() {

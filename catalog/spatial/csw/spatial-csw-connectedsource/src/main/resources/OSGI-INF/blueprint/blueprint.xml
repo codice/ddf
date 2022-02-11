@@ -40,7 +40,7 @@
                interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="metacardTypes"
-          class="org.codice.ddf.platform.util.SortedServiceList"/>
+          class="org.codice.ddf.spatial.ogc.csw.connectedsource.SortedServiceList"/>
     <reference-list id="metacardTypeList"
                     interface="ddf.catalog.data.MetacardType">
         <reference-listener ref="metacardTypes"

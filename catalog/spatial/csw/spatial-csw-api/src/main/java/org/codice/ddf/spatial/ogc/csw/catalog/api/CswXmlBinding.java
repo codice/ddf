@@ -11,12 +11,13 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api;
+package org.codice.ddf.spatial.ogc.csw.catalog.api;
 
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 
 public interface CswXmlBinding {
@@ -29,4 +30,6 @@ public interface CswXmlBinding {
   void marshallWriter(Object obj, Writer w) throws JAXBException;
 
   void marshal(Object obj, OutputStream os) throws JAXBException;
+
+  Object unmarshal(XMLStreamReader xmlStreamReader) throws JAXBException;
 }

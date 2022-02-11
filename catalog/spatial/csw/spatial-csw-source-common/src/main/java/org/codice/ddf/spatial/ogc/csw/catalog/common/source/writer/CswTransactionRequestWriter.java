@@ -25,9 +25,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequestImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.TransactionRequestConverter;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.api.CswConstants;
 
 public class CswTransactionRequestWriter implements MessageBodyWriter<CswTransactionRequest> {
 
