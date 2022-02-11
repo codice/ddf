@@ -34,7 +34,7 @@
         <bundle>mvn:ddf.test.itests/test-itests-common/${project.version}</bundle>
         <bundle>mvn:ddf.lib/test-common/${project.version}</bundle>
         <bundle>mvn:ddf.lib/gson-support/${project.version}</bundle>
-
+        <bundle>mvn:org.codice.ddf.spatia/spatial-csw-api/${project.version}</bundle>
         <bundle>mvn:ddf.thirdparty/restito/${project.version}</bundle>
     </feature>
 
