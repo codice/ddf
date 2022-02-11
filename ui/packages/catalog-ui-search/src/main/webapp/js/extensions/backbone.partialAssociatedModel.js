@@ -72,44 +72,45 @@ export default Backbone.AssociatedModel.extend({
       return
     }
     this.isFetchingPartial = true
-    this.listenToOnce(this, 'partialSync', () => {
-      this.isFetchingPartial = false
-    })
     const { fetch } = this.options
-    await Promise.all(
-      [
-        fetch(this.url())
-          .then(response => response.json())
-          .then(data => {
-            data[PARTIAL_KEY] = false
-            this.set(data, { silent: true })
-          }),
-      ].concat(
-        this.relations
-          .filter(relation => isRelationPartial(this, relation))
-          .map(relation => {
-            if (relation.makeSomethingUp) {
-              return
-            }
-            return fetch(`${this.url()}/${relation.key}`)
-              .then(response => response.json())
-              .then(data => {
-                if (relation.type === Backbone.Many) {
-                  data = data.map(model => {
-                    model[PARTIAL_KEY] = false
-                    return model
-                  })
-                } else {
-                  data[PARTIAL_KEY] = false
-                }
-                this.set(relation.key, data, { silent: true })
-              })
-              .then(() => {
-                this.get(relation.key).trigger('partialSync')
-              })
-          })
+    try {
+      await Promise.all(
+        [
+          fetch(this.url())
+            .then(response => response.json())
+            .then(data => {
+              data[PARTIAL_KEY] = false
+              this.set(data, { silent: true })
+            }),
+        ].concat(
+          this.relations
+            .filter(relation => isRelationPartial(this, relation))
+            .map(relation => {
+              if (relation.makeSomethingUp) {
+                return
+              }
+              return fetch(`${this.url()}/${relation.key}`)
+                .then(response => response.json())
+                .then(data => {
+                  if (relation.type === Backbone.Many) {
+                    data = data.map(model => {
+                      model[PARTIAL_KEY] = false
+                      return model
+                    })
+                  } else {
+                    data[PARTIAL_KEY] = false
+                  }
+                  this.set(relation.key, data, { silent: true })
+                })
+                .then(() => {
+                  this.get(relation.key).trigger('partialSync')
+                })
+            })
+        )
       )
-    )
+    } finally {
+      this.isFetchingPartial = false
+    }
     this.trigger('partialSync')
   },
   /**

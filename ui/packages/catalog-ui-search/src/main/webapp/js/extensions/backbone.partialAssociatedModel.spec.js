@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { expect } from 'chai'
+import { assert, expect } from 'chai'
 import PartialAssociatedModel from './backbone.partialAssociatedModel'
 import * as Backbone from 'backbone-associations'
 import fetch from '../../react-component/utils/fetch'
@@ -32,6 +32,12 @@ const generateMockFetch = (data, options = { delay: 0, multi: false }) => {
     }
   }
 }
+const generateMockFetchError = (options = { delay: 0 }) => {
+  return async url => {
+    await sleep(options.delay)
+    throw new Error('Mock error')
+  }
+}
 
 describe('Backbone Partial Associated Model', () => {
   describe('options testing', () => {
@@ -45,6 +51,27 @@ describe('Backbone Partial Associated Model', () => {
       const ParentModel = PartialAssociatedModel.extend({})
       const instanceParent = new ParentModel({ id: 1 })
       expect(instanceParent.options.fetch).to.equal(fetch)
+    })
+  })
+
+  describe('error handling', () => {
+    it('isFetchingPartial is set to false when fetchPartial encounters an error', async () => {
+      const ParentModel = PartialAssociatedModel.extend({
+        urlRoot: './parents',
+      })
+      const instanceParent = new ParentModel(
+        { id: 1 },
+        {
+          fetch: generateMockFetchError(),
+        }
+      )
+      try {
+        await instanceParent.fetchPartial()
+        assert.fail('An exception should have been thrown')
+      } catch (error) {
+        expect(error.message).to.equal('Mock error')
+        expect(instanceParent.isFetchingPartial).to.equal(false)
+      }
     })
   })
 
