@@ -20,7 +20,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.api.CswConstants;
 import org.slf4j.Logger;
@@ -39,12 +39,12 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswJAXBElementProvider.class);
 
-  private final JAXBContext jaxbContext;
+  private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
-  public CswJAXBElementProvider() throws JAXBException {
+  public CswJAXBElementProvider() {
     super();
-    jaxbContext = createJaxbContext();
-    Map<String, String> prefixes = new HashMap<>();
+
+    Map<String, String> prefixes = new HashMap<String, String>();
     prefixes.put(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_NAMESPACE_PREFIX);
     prefixes.put(CswConstants.OWS_NAMESPACE, CswConstants.OWS_NAMESPACE_PREFIX);
     prefixes.put(CswConstants.XML_SCHEMA_LANGUAGE, CswConstants.XML_SCHEMA_NAMESPACE_PREFIX);
@@ -54,12 +54,17 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
     prefixes.put(
         CswConstants.DUBLIN_CORE_TERMS_SCHEMA, CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX);
     prefixes.put(GmdConstants.GMD_NAMESPACE, GmdConstants.GMD_PREFIX);
+
     setNamespaceMapperPropertyName(NS_MAPPER_PROPERTY_RI);
     setNamespacePrefixes(prefixes);
   }
 
-  protected JAXBContext createJaxbContext() throws JAXBException {
-    return JAXBContext.newInstance(
+  private static JAXBContext initJaxbContext() {
+    JAXBContext jaxbContext = null;
+
+    // JAXB context path
+    // "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0"
+    String contextPath =
         StringUtils.join(
             new String[] {
               CswConstants.OGC_CSW_PACKAGE,
@@ -67,13 +72,22 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
               CswConstants.OGC_GML_PACKAGE,
               CswConstants.OGC_OWS_PACKAGE
             },
-            ":"),
-        CswJAXBElementProvider.class.getClassLoader());
+            ":");
+
+    try {
+      LOGGER.debug("Creating JAXB context with context path: {}.", contextPath);
+      jaxbContext =
+          JAXBContext.newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
+    } catch (JAXBException e) {
+      LOGGER.info("Unable to create JAXB context using contextPath: {}.", contextPath, e);
+    }
+
+    return jaxbContext;
   }
 
   @Override
-  public JAXBContext getJAXBContext(Class<?> type, Type genericType) {
-    return jaxbContext;
+  public JAXBContext getJAXBContext(Class<?> type, Type genericType) throws JAXBException {
+    return JAXB_CONTEXT;
   }
 
   @Override
@@ -84,7 +98,7 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
     NamespacePrefixMapper mapper =
         new NamespacePrefixMapper() {
 
-          Map<String, String> prefixMap = finalMap;
+          protected Map<String, String> prefixMap = finalMap;
 
           @Override
           public String getPreferredPrefix(
