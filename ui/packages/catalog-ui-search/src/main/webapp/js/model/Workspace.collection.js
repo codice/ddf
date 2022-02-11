@@ -168,11 +168,14 @@ module.exports = Backbone.Collection.extend({
       .startSearch()
   },
   duplicateWorkspace(workspace) {
-    let duplicateWorkspace = _.pick(workspace.toJSON(), 'title', 'queries')
-    duplicateWorkspace.queries = duplicateWorkspace.queries.map(query =>
-      _.omit(query, 'isLocal', 'id')
-    )
-    this.create(duplicateWorkspace)
+    const _this = this
+    return workspace.fetchPartial().then(() => {
+      let duplicateWorkspace = _.pick(workspace.toJSON(), 'title', 'queries')
+      duplicateWorkspace.queries = duplicateWorkspace.queries.map(query =>
+        _.omit(query, 'isLocal', 'id')
+      )
+      _this.create(duplicateWorkspace)
+    })
   },
   saveAll() {
     this.forEach(workspace => {

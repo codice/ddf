@@ -175,7 +175,18 @@ class WorkspaceInteractions extends React.Component<Props, State> {
         },
       })
     })
-    store.get('workspaces').duplicateWorkspace(this.props.workspace)
+
+    store
+      .get('workspaces')
+      .duplicateWorkspace(this.props.workspace)
+      .catch((error: Error) => {
+        loadingview.remove()
+        announcement.announce({
+          title: 'The workspace could not be duplicated',
+          message: error.message || 'The reason is unknown.',
+          type: 'error',
+        })
+      })
   }
   deleteWorkspace = () => {
     var loadingview = new LoadingView()
