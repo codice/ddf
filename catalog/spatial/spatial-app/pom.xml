@@ -79,6 +79,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>geospatial</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.spatial.kml</groupId>
             <artifactId>spatial-kml-networklinkendpoint</artifactId>
             <version>${project.version}</version>

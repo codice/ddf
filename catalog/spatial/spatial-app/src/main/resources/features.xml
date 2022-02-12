@@ -113,6 +113,7 @@
              description="Spatial Connected Sources included CSW and WFS 2.0.0">
         <feature>spatial-csw</feature>
         <feature>spatial-wfs-core</feature>
+        <bundle>wrap:mvn:org.codice.ddf/geospatial/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-connectedsource/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-connectedsource/${project.version}
         </bundle>
