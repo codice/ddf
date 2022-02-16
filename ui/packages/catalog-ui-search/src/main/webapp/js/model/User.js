@@ -207,9 +207,14 @@ User.Preferences = Backbone.AssociatedModel.extend({
     this.listenTo(this, 'change:mapHome', this.savePreferences)
   },
   get(attr) {
-    const value = Backbone.AssociatedModel.prototype.get.call(this, attr)
-    if (attr === 'resultFilter' && value && value.type === 'NOT') {
-      return cql.simplify(value)
+    let value = Backbone.AssociatedModel.prototype.get.call(this, attr)
+    if (attr === 'resultFilter') {
+      if (typeof value === 'string') {
+        value = cql.read(value)
+      }
+      if (value && value.type === 'NOT') {
+        return cql.simplify(value)
+      }
     }
     return value
   },
