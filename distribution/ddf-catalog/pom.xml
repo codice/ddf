@@ -76,17 +76,26 @@
                         </goals>
                         <configuration>
                             <addTransitiveFeatures>true</addTransitiveFeatures>
+                            <resolveDefinedRepositoriesRecursively>false</resolveDefinedRepositoriesRecursively>
                             <descriptors>
-                                <descriptor>
-                                    mvn:ddf.features/kernel/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.features/install-profiles/${project.version}/xml/features
-                                </descriptor>
+                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</descriptor>
+
+                                <descriptor>mvn:ddf.features/kernel/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/install-profiles/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/apps/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/branding/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/security/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/solr/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/utilities/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.catalog.solr/catalog-solr-app/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
-                                <feature>kernel</feature>
-                                <feature>profile-minimum</feature>
                                 <feature>profile-catalog</feature>
                             </features>
                             <repository>${setup.folder}/ddf-kernel-${project.version}/system</repository>
@@ -114,6 +123,25 @@
                                     <outputDirectory>${setup.folder}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <replaceregexp
+                                        file="${project.basedir}/target/dependencies/ddf-kernel-${project.version}/system/org/apache/camel/karaf/apache-camel/${camel.version}/apache-camel-${camel.version}-features.xml"
+                                        match="(&lt;repository&gt;.*&lt;/repository&gt;)" replace="" byline="true" />
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -183,6 +211,20 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.camel.karaf</groupId>
+            <artifactId>apache-camel</artifactId>
+            <version>${camel.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf.karaf</groupId>
+            <artifactId>apache-cxf</artifactId>
+            <version>${cxf.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>kernel</artifactId>
             <version>${project.version}</version>
@@ -192,6 +234,64 @@
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>install-profiles</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+
+        <!-- Features to add to system repository -->
+        <dependency>
+            <groupId>ddf.catalog</groupId>
+            <artifactId>catalog-app</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.solr</groupId>
+            <artifactId>catalog-solr-app</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>apps</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>branding</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>security</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>solr</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
