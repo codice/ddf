@@ -17,11 +17,11 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
-    <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
+    <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.features/camel/${project.version}/xml/features</repository>
+    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
 
     <feature name="security-core-api-dependencies" version="${project.version"
              description="Dependencies for the core security APIs.">

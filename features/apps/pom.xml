@@ -74,16 +74,16 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>camel</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.camel.karaf</groupId>
+            <artifactId>apache-camel</artifactId>
+            <version>${camel.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>cxf</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.cxf.karaf</groupId>
+            <artifactId>apache-cxf</artifactId>
+            <version>${cxf.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

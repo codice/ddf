@@ -60,58 +60,61 @@
                             <goal>features-add-to-repository</goal>
                         </goals>
                         <configuration>
-                            <!-- Add only the top-level features defined in DDF's feature
-                                 descriptors (skipping transitive features). This ensures we can
-                                 install all the features we need without blindly pulling in
-                                 features from third party feature descriptors.
-
-                                 NOTE: Camel and CXF are included here since I'm not sure which
-                                 features are used and which features are not downstream. We could
-                                 shrink the distribution further by adding only the features we
-                                 expect to use. -->
-                            <addTransitiveFeatures>false</addTransitiveFeatures>
+                            <addTransitiveFeatures>true</addTransitiveFeatures>
                             <resolveDefinedRepositoriesRecursively>false</resolveDefinedRepositoriesRecursively>
                             <descriptors>
-                                <descriptor>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</descriptor>
-                                <descriptor>mvn:ddf.catalog.solr/catalog-solr-app/${project.version}/xml/features</descriptor>
-                                <descriptor>mvn:ddf.features/admin/${project.version}/xml/features</descriptor>
-                                <descriptor>mvn:ddf.features/apps/${project.version}/xml/features</descriptor>
-                                <descriptor>mvn:ddf.features/branding/${project.version}/xml/features</descriptor>
-                                <descriptor>mvn:ddf.features/camel/${project.version}/xml/features</descriptor>
-                                <descriptor>mvn:ddf.features/cxf/${project.version}/xml/features</descriptor>
-                                <descriptor>mvn:ddf.features/install-profiles/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</descriptor>
+
                                 <descriptor>mvn:ddf.features/kernel/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/install-profiles/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/apps/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/admin/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/branding/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/security/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/solr/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/utilities/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.catalog.solr/catalog-solr-app/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.codice.ddf/ui/${ddf-admin-ui.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</descriptor>
                             </descriptors>
+                            <features>
+                                <!-- conditional features -->
+                                <feature>cxf-commands</feature>
+                                <!-- boot features -->
+                                <feature>ui</feature>
+                                <feature>admin-modules-installer</feature>
+                                <!-- profile features -->
+                                <feature>profile-minimum</feature>
+                                <feature>profile-catalog</feature>
+                                <feature>profile-standard</feature>
+                            </features>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
                         </configuration>
                     </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
                     <execution>
-                        <id>add-thirdparty-features</id>
-                        <phase>prepare-package</phase>
+                        <phase>package</phase>
                         <goals>
-                            <goal>features-add-to-repository</goal>
+                            <goal>run</goal>
                         </goals>
                         <configuration>
-                            <!-- There are third party repos from which we only use a few features.
-                                 To avoid pulling in more than we need, specify each individual
-                                 feature here -->
-                            <addTransitiveFeatures>true</addTransitiveFeatures>
-                            <descriptors>
-                                <descriptor>mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</descriptor>
-                            </descriptors>
-                            <features>
-                                <feature>decanter-sla</feature>
-                                <feature>decanter-simple-scheduler</feature>
-                                <feature>spring</feature>
-                            </features>
-                            <repository>${setup.folder}/${karaf.folder}/system</repository>
+                            <target>
+                                <replaceregexp
+                                        file="${project.basedir}/target/dependencies/apache-karaf-${karaf.version}/system/org/apache/camel/karaf/apache-camel/${camel.version}/apache-camel-${camel.version}-features.xml"
+                                        match="(&lt;repository&gt;.*&lt;/repository&gt;)" replace="" byline="true" />
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -305,18 +308,18 @@
             <type>xml</type>
         </dependency>
         <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>camel</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
+            <groupId>org.apache.camel.karaf</groupId>
+            <artifactId>apache-camel</artifactId>
+            <version>${camel.version}</version>
             <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>cxf</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
+            <groupId>org.apache.cxf.karaf</groupId>
+            <artifactId>apache-cxf</artifactId>
+            <version>${cxf.version}</version>
             <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>ddf.features</groupId>
