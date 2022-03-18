@@ -69,6 +69,7 @@ import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants.SPATIAL_OPERATORS;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2029,7 +2030,7 @@ public class WfsFilterDelegateTest {
   }
 
   private DateTime convertDateToIso8601Format(Date inputDate) {
-    return new DateTime(inputDate);
+    return new DateTime(inputDate, DateTimeZone.UTC);
   }
 
   private String getPropertyEqualToXmlDate() {
