@@ -1172,9 +1172,9 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#f51c1b59ec73fea2c196cf5b59eaf4ad48dddcee":
+"@connexta/ace@*", "@connexta/ace@git+https://github.com/connexta/ace.git#f51c1b59ec73fea2c196cf5b59eaf4ad48dddcee":
   version "1.0.0"
-  resolved "git://github.com/connexta/ace.git#f51c1b59ec73fea2c196cf5b59eaf4ad48dddcee"
+  resolved "git+https://github.com/connexta/ace.git#f51c1b59ec73fea2c196cf5b59eaf4ad48dddcee"
   dependencies:
     "@babel/core" "^7.0.0"
     "@connexta/eslint-plugin-connexta" "git://github.com/connexta/eslint-plugin-connexta.git#v0.0.2"
@@ -1263,9 +1263,9 @@
     html-react-parser "0.6.1"
     styled-components "3.5.0-0"
 
-"@connexta/eslint-config-connexta@git://github.com/connexta/eslint-config-connexta.git#3f0caece6210d25c16863d472026fbfa069521a6":
+"@connexta/eslint-config-connexta@git+https://github.com/connexta/eslint-config-connexta.git#3f0caece6210d25c16863d472026fbfa069521a6":
   version "1.0.0"
-  resolved "git://github.com/connexta/eslint-config-connexta.git#3f0caece6210d25c16863d472026fbfa069521a6"
+  resolved "git+https://github.com/connexta/eslint-config-connexta.git#3f0caece6210d25c16863d472026fbfa069521a6"
 
 "@connexta/eslint-plugin-connexta@git://github.com/connexta/eslint-plugin-connexta.git#v0.0.2":
   version "0.0.0"
@@ -1273,9 +1273,9 @@
   dependencies:
     requireindex "1.1.0"
 
-"@connexta/icons@git://github.com/connexta/icons.git#v0.0.3":
+"@connexta/icons@git+https://github.com/connexta/icons.git#v0.0.3":
   version "1.0.0"
-  resolved "git://github.com/connexta/icons.git#b3399dca9e0eafbe4b15babb5ddbfd15d6004648"
+  resolved "git+https://github.com/connexta/icons.git#b3399dca9e0eafbe4b15babb5ddbfd15d6004648"
   dependencies:
     css-loader "0.28.11"
     style-loader "0.21.0"
@@ -12801,9 +12801,9 @@ immutable@3.8.2, immutable@^3.8.1:
   version "3.8.2"
   resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
 
-"imperio@git://github.com/connexta/imperio.git#3b1044430b72a4dd48e766faedf86b8b0f4fadeb":
+"imperio@git+https://github.com/connexta/imperio.git#3b1044430b72a4dd48e766faedf86b8b0f4fadeb":
   version "1.0.0"
-  resolved "git://github.com/connexta/imperio.git#3b1044430b72a4dd48e766faedf86b8b0f4fadeb"
+  resolved "git+https://github.com/connexta/imperio.git#3b1044430b72a4dd48e766faedf86b8b0f4fadeb"
   dependencies:
     immutable "3.8.2"
     redux "3.5.2"
