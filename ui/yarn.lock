@@ -1263,9 +1263,15 @@
     html-react-parser "0.6.1"
     styled-components "3.5.0-0"
 
-"@connexta/eslint-config-connexta@git+https://github.com/connexta/eslint-config-connexta.git#3f0caece6210d25c16863d472026fbfa069521a6":
+"@connexta/eslint-config-connexta@git+https://github.com/connexta/eslint-config-connexta.git#283323ca556adcd50a3ebda3f207dd4395798ba3":
   version "1.0.0"
-  resolved "git+https://github.com/connexta/eslint-config-connexta.git#3f0caece6210d25c16863d472026fbfa069521a6"
+  resolved "git+https://github.com/connexta/eslint-config-connexta.git#283323ca556adcd50a3ebda3f207dd4395798ba3"
+
+"@connexta/eslint-plugin-connexta@git+https://github.com/connexta/eslint-plugin-connexta.git#9b366b8924c3dbe03aedcfe6d25c8eb3567cc061":
+  version "0.0.0"
+  resolved "git+https://github.com/connexta/eslint-plugin-connexta.git#9b366b8924c3dbe03aedcfe6d25c8eb3567cc061"
+  dependencies:
+    requireindex "1.1.0"
 
 "@connexta/eslint-plugin-connexta@git://github.com/connexta/eslint-plugin-connexta.git#v0.0.2":
   version "0.0.0"
