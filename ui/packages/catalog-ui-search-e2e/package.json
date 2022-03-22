@@ -19,8 +19,8 @@
     "target/test"
   ],
   "dependencies": {
-    "ace": "git://github.com/connexta/ace.git#a821ea66f6ecb4404a6a23e9e86a95a0064a113f",
-    "imperio": "git://github.com/connexta/imperio.git#3b1044430b72a4dd48e766faedf86b8b0f4fadeb"
+    "ace": "git+https://github.com/connexta/ace.git#a821ea66f6ecb4404a6a23e9e86a95a0064a113f",
+    "imperio": "git+https://github.com/connexta/imperio.git#3b1044430b72a4dd48e766faedf86b8b0f4fadeb"
   },
   "main": "./src/main/webapp/index.js",
   "context-path": "/search/catalog/test"
