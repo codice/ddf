@@ -64,6 +64,7 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants.SPATIAL_OPERATORS;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -792,7 +793,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private DateTime convertDateToIso8601Format(Date inputDate) {
-    return new DateTime(inputDate);
+    return new DateTime(inputDate, DateTimeZone.UTC);
   }
 
   // spatial operators
