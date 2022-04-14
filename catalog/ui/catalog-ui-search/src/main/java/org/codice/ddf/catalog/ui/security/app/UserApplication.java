@@ -44,6 +44,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.security.Constants;
+import org.codice.ddf.catalog.ui.security.user.AttributesModifier;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
@@ -79,15 +80,19 @@ public class UserApplication implements SparkApplication {
 
   private final FilterBuilder filterBuilder;
 
+  private final List<AttributesModifier> attributesModifiers;
+
   public UserApplication(
       EndpointUtil util,
       PersistentStore persistentStore,
       SubjectIdentity subjectIdentity,
-      FilterBuilder filterBuilder) {
+      FilterBuilder filterBuilder,
+      List<AttributesModifier> attributesModifiers) {
     this.util = util;
     this.persistentStore = persistentStore;
     this.subjectIdentity = subjectIdentity;
     this.filterBuilder = filterBuilder;
+    this.attributesModifiers = attributesModifiers;
   }
 
   private static Integer determineAndRetrieveMaxPageSize() {
@@ -284,14 +289,15 @@ public class UserApplication implements SparkApplication {
 
   private Map<String, Object> getSubjectAttributes(Subject subject) {
     // @formatter:off
-    Map<String, Object> required =
-        ImmutableMap.of(
-            "userid", subjectIdentity.getUniqueIdentifier(subject),
-            "username", SubjectUtils.getName(subject),
-            "isGuest", subject.isGuest(),
-            "roles", getSubjectRoles(subject),
-            "preferences", getSubjectPreferences(subject));
+    Map<String, Object> required = new HashMap<>();
+    required.put("userid", subjectIdentity.getUniqueIdentifier(subject));
+    required.put("username", SubjectUtils.getName(subject));
+    required.put("isGuest", subject.isGuest());
+    required.put("roles", getSubjectRoles(subject));
+    required.put("preferences", getSubjectPreferences(subject));
     // @formatter:on
+
+    attributesModifiers.forEach(modifier -> modifier.modifyAttributes(required, subject));
 
     String email = SubjectUtils.getEmailAddress(subject);
 

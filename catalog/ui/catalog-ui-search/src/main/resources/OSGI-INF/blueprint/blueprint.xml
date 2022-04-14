@@ -175,6 +175,7 @@ Implementation details
         <argument ref="endpointUtil"/>
         <argument ref="subjectIdentity"/>
         <argument ref="filterBuilder"/>
+        <argument ref="attributesModifiers"/>
     </bean>
 
     <!--

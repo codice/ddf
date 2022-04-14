@@ -88,6 +88,10 @@ Services (OSGi) that catalog-ui-search CONSUMES from DDF
     <reference id="sessionManagementService"
                interface="org.codice.ddf.security.session.management.service.SessionManagementService"/>
 
+    <reference-list id="attributesModifiers"
+      interface="org.codice.ddf.catalog.ui.security.user.AttributesModifier"
+      availability="optional"/>
+
     <!--
     =============================================================
     DESCRIPTORS APPLICATION
