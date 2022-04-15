@@ -302,7 +302,7 @@ public class UserApplication implements SparkApplication {
     String email = SubjectUtils.getEmailAddress(subject);
 
     if (StringUtils.isEmpty(email)) {
-      return required;
+      return ImmutableMap.copyOf(required);
     }
 
     return ImmutableMap.<String, Object>builder().putAll(required).put("email", email).build();
