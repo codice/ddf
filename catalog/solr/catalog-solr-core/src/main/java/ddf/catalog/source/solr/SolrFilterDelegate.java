@@ -40,9 +40,13 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.joda.time.DateTime;
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
@@ -97,7 +101,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
           "spatialContextFactory",
           JtsSpatialContextFactory.class.getName(),
           "validationRule",
-          ValidationRule.repairConvexHull.name());
+          ValidationRule.repairConvexHull.name(),
+          "normWrapLongitude",
+          "true",
+          "allowMultiOverlap",
+          "true");
 
   private static final SpatialContext SPATIAL_CONTEXT =
       SpatialContextFactory.makeSpatialContext(SPATIAL_CONTEXT_ARGUMENTS, null);
@@ -709,6 +717,33 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     return operationToQuery("Contains", propertyName, wkt);
   }
 
+  public static Geometry removeHoles(final Geometry geo) {
+    if (geo.getGeometryType().equalsIgnoreCase("Polygon")) {
+      final Polygon p = (Polygon) geo;
+      return GEOMETRY_FACTORY.createPolygon(p.getExteriorRing().getCoordinateSequence());
+    } else if (geo.getGeometryType().equalsIgnoreCase("MultiPolygon")) {
+      final MultiPolygon mp = (MultiPolygon) geo;
+      final List<Polygon> polys = new ArrayList<>();
+      for (int i = 0; i < mp.getNumGeometries(); i++) {
+        final Polygon poly =
+            GEOMETRY_FACTORY.createPolygon(
+                ((Polygon) mp.getGeometryN(i)).getExteriorRing().getCoordinateSequence());
+        polys.add(poly);
+      }
+      return GEOMETRY_FACTORY.createMultiPolygon(polys.toArray(new Polygon[0]));
+    } else if (geo.getGeometryType().equalsIgnoreCase("GeometryCollection")) {
+      final GeometryCollection gc = (GeometryCollection) geo;
+      final List<Geometry> geos = new ArrayList<>();
+      for (int i = 0; i < gc.getNumGeometries(); i++) {
+        final Geometry geometry = removeHoles(gc.getGeometryN(i));
+        geos.add(geometry);
+      }
+      return GEOMETRY_FACTORY.createGeometryCollection(geos.toArray(new Geometry[0]));
+    }
+
+    return geo;
+  }
+
   @Override
   public SolrQuery dwithin(String propertyName, String wkt, double distance) {
     Geometry geo = getGeometry(wkt);
@@ -723,6 +758,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return new SolrQuery(pointRadiusQuery);
       } else {
         Geometry bufferGeo = geo.buffer(distanceInDegrees, QUADRANT_SEGMENTS);
+        final Envelope envelope = bufferGeo.getEnvelopeInternal();
+        final boolean crossesDateline =
+            envelope.getWidth() >= 180
+                || (envelope.getMinX() <= 180 && envelope.getMaxX() > 180)
+                || (envelope.getMinX() < -180 && envelope.getMaxX() >= -180);
+        if (crossesDateline) {
+          bufferGeo = removeHoles(bufferGeo);
+        }
         String bufferWkt = WKT_WRITER.write(bufferGeo);
         return operationToQuery(INTERSECTS_OPERATION, propertyName, bufferWkt);
       }
