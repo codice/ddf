@@ -19,6 +19,7 @@ import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.getFilterBui
 import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.update;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -521,6 +522,33 @@ public class SolrProviderSpatial {
     sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
     assertEquals("Should not find a record. ", 0, sourceResponse.getResults().size());
+  }
+
+  @Test
+  public void testSpatialQueryBufferedAcrossDateline() throws Exception {
+    deleteAll(provider);
+
+    MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
+    metacard.setLocation(Library.ARCTIC_OCEAN_POINT_WKT);
+    List<Metacard> list = Collections.singletonList(metacard);
+
+    create(list, provider);
+
+    Filter filter =
+        getFilterBuilder()
+            .attribute(Metacard.GEOGRAPHY)
+            .is()
+            .withinBuffer()
+            .wkt(Library.ON_INTERNATIONAL_DATELINE_CW_WKT, 25_000);
+    SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+    assertThat("Failed to find the correct record.", sourceResponse.getResults(), hasSize(1));
+
+    for (Result r : sourceResponse.getResults()) {
+      assertTrue(
+          "Wrong record, Flagstaff keyword was not found.",
+          r.getMetacard().getMetadata().contains(Library.FLAGSTAFF_QUERY_PHRASE));
+    }
   }
 
   @Test
