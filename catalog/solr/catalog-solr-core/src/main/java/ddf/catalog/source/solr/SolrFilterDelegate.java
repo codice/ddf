@@ -763,6 +763,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             envelope.getWidth() >= 180
                 || (envelope.getMinX() <= 180 && envelope.getMaxX() > 180)
                 || (envelope.getMinX() < -180 && envelope.getMaxX() >= -180);
+        // When spatial4j's JtsGeometry unwraps polygons that cross the dateline, it checks that all
+        // interior rings of the polygon are subsets of the exterior ring, which means polygons with
+        // holes will throw an exception. Remove any holes from polygons that cross the dateline to
+        // prevent that exception from being thrown.
         if (crossesDateline) {
           bufferGeo = removeHoles(bufferGeo);
         }
