@@ -64,6 +64,7 @@ public class VmOptions {
         vmOption("--add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED"),
         vmOption("--add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED"),
         vmOption("--add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED"),
+        vmOption("--add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED"),
         vmOption("-classpath"),
         vmOption("lib/jdk9plus/*" + File.pathSeparator + "lib/boot/*"));
   }

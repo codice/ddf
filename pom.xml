@@ -123,9 +123,9 @@
         <spock.version>2.0-M4-groovy-3.0</spock.version>
         <mockito.version>3.6.28</mockito.version>
         <pax.exam.version>4.13.5</pax.exam.version>
-        <pax.logging.version>2.0.13</pax.logging.version>
+        <pax.logging.version>2.0.16</pax.logging.version>
         <pax.url.version>2.6.10</pax.url.version>
-        <pax.web.version>7.3.23</pax.web.version>
+        <pax.web.version>7.3.25</pax.web.version>
         <restito.version>0.9.4</restito.version>
         <restassured.version>3.3.0</restassured.version>
         <groovy.version>3.0.7</groovy.version>
@@ -149,7 +149,7 @@
         <abdera.version>1.1.3</abdera.version>
         <antlr.version>4.3</antlr.version>
         <apache.shiro.version>1.7.1</apache.shiro.version>
-        <asm.version>9.2</asm.version>
+        <asm.version>9.3</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
         <bouncy.version>1.69</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
@@ -183,10 +183,10 @@
         <ddf-admin-ui.version>2.25.0</ddf-admin-ui.version>
         <decanter.version>1.3.0</decanter.version>
         <dropwizard.version>4.1.25</dropwizard.version>
-        <equinox.version>3.16.300</equinox.version>
-        <felix.configadmin.version>1.9.22</felix.configadmin.version>
+        <equinox.version>3.17.200</equinox.version>
+        <felix.configadmin.version>1.9.24</felix.configadmin.version>
         <felix.coordinator.version>1.0.2</felix.coordinator.version>
-        <felix.fileinstall.version>3.7.2</felix.fileinstall.version>
+        <felix.fileinstall.version>3.7.4</felix.fileinstall.version>
         <felix.metatype.version>1.2.4</felix.metatype.version>
         <felix.scr.version>2.1.30</felix.scr.version>
         <geronimo-servlet-api.artifact>geronimo-servlet_3.0_spec</geronimo-servlet-api.artifact>
@@ -201,7 +201,7 @@
         <httpmime.version>${httpclient.version}</httpmime.version>
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
-        <jackson.version>2.12.5</jackson.version>
+        <jackson.version>2.13.2</jackson.version>
         <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.mail.version>1.6.6</jakarta.mail.version>
@@ -219,7 +219,7 @@
         <jboss-logging.version>3.3.1.Final</jboss-logging.version>
         <jcodec.version>0.2.0_1</jcodec.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
-        <jetty.version>9.4.42.v20210604</jetty.version>
+        <jetty.version>9.4.46.v20220331</jetty.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
         <jodah-failsafe.version>0.9.5</jodah-failsafe.version>
@@ -236,7 +236,7 @@
         <jts.spatial4j.version>1.16.0</jts.spatial4j.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <jwnl.version>1.3.3</jwnl.version>
-        <karaf.version>4.3.5</karaf.version>
+        <karaf.version>4.3.7</karaf.version>
         <jansi.version>2.4.0</jansi.version>
         <org.osgi.util.promise.version>1.2.0</org.osgi.util.promise.version>
         <org.osgi.util.function.version>1.2.0</org.osgi.util.function.version>
@@ -299,7 +299,7 @@
         <solr.spatial4j.version>0.7</solr.spatial4j.version>
         <spark.version>2.9.2</spark.version>
         <spatial4j.version>0.7</spatial4j.version>
-        <spring.version>5.3.13</spring.version>
+        <spring.version>5.3.14</spring.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
         <tika.thirdparty.bundle.version>1.26.0_1</tika.thirdparty.bundle.version>
         <tika.version>1.27</tika.version>
@@ -669,6 +669,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
+                    <version>5.1.4</version>
                     <extensions>true</extensions>
                     <configuration>
                         <!-- Disabled OBR to increase build speed -->
