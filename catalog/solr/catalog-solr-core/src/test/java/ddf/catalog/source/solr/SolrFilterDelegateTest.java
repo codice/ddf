@@ -153,7 +153,8 @@ public class SolrFilterDelegateTest {
         .thenReturn("testProperty_geohash_index");
     SolrQuery query = toTest.contains("testProperty", wkt);
     MultiPolygon multiPolygon = (MultiPolygon) new WKTReader().read(wkt);
-    // Need to use union since allowMultiOverlap is enabled
+    // allowMultiOverlap is enabled, so spatial4j will calculate the union of any MultiPolygon.
+    // This means we need to calculate the union of the expected WKT for the assertion.
     MultiPolygon unioned = (MultiPolygon) new UnaryUnionOp(multiPolygon).union();
     assertThat(
         query.getQuery(),
@@ -192,21 +193,6 @@ public class SolrFilterDelegateTest {
   public void bufferedMultiPolygonHolesRemovedIfCrossingDateline() {
     String wkt =
         "MULTIPOLYGON (((170 10, -170 10, -170 0, 170 0, 170 10), (171 9, 172 9, 172 8, 172 8, 171 9)), ((170 30, -170 30, -170 20, 170 20, 170 30), (171 29, 172 29, 172 28, 172 28, 171 29)))";
-    when(mockResolver.getField(
-            "testProperty", AttributeFormat.GEOMETRY, false, Collections.emptyMap()))
-        .thenReturn("testProperty_geohash_index");
-    // buffer of 0 so the final WKT is easy to calculate
-    SolrQuery query = toTest.dwithin("testProperty", wkt, 0);
-    assertThat(
-        query.getQuery(),
-        startsWith(
-            "testProperty_geohash_index:\"Intersects(MULTIPOLYGON (((-180 0, -180 10, -170 10, -170 0, -180 0)), ((180 10, 180 0, 170 0, 170 10, 180 10)), ((-180 20, -180 30, -170 30, -170 20, -180 20)), ((180 30, 180 20, 170 20, 170 30, 180 30))))\""));
-  }
-
-  @Test
-  public void bufferedGeometryCollectionHolesRemovedIfCrossingDateline() {
-    String wkt =
-        "GEOMETRYCOLLECTION (POLYGON ((170 10, -170 10, -170 0, 170 0, 170 10), (171 9, 172 9, 172 8, 172 8, 171 9)), POLYGON ((170 30, -170 30, -170 20, 170 20, 170 30), (171 29, 172 29, 172 28, 172 28, 171 29)))";
     when(mockResolver.getField(
             "testProperty", AttributeFormat.GEOMETRY, false, Collections.emptyMap()))
         .thenReturn("testProperty_geohash_index");

@@ -42,7 +42,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.joda.time.DateTime;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
@@ -718,10 +717,12 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   }
 
   public static Geometry removeHoles(final Geometry geo) {
-    if (geo.getGeometryType().equalsIgnoreCase("Polygon")) {
+    if ("Polygon".equalsIgnoreCase(geo.getGeometryType())) {
+      logHoleRemoval(geo);
       final Polygon p = (Polygon) geo;
       return GEOMETRY_FACTORY.createPolygon(p.getExteriorRing().getCoordinateSequence());
-    } else if (geo.getGeometryType().equalsIgnoreCase("MultiPolygon")) {
+    } else if ("MultiPolygon".equalsIgnoreCase(geo.getGeometryType())) {
+      logHoleRemoval(geo);
       final MultiPolygon mp = (MultiPolygon) geo;
       final List<Polygon> polys = new ArrayList<>();
       for (int i = 0; i < mp.getNumGeometries(); i++) {
@@ -731,17 +732,15 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         polys.add(poly);
       }
       return GEOMETRY_FACTORY.createMultiPolygon(polys.toArray(new Polygon[0]));
-    } else if (geo.getGeometryType().equalsIgnoreCase("GeometryCollection")) {
-      final GeometryCollection gc = (GeometryCollection) geo;
-      final List<Geometry> geos = new ArrayList<>();
-      for (int i = 0; i < gc.getNumGeometries(); i++) {
-        final Geometry geometry = removeHoles(gc.getGeometryN(i));
-        geos.add(geometry);
-      }
-      return GEOMETRY_FACTORY.createGeometryCollection(geos.toArray(new Geometry[0]));
     }
 
     return geo;
+  }
+
+  private static void logHoleRemoval(final Geometry geo) {
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Removing holes from: {}", geo);
+    }
   }
 
   @Override
@@ -768,6 +767,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         // holes will throw an exception. Remove any holes from polygons that cross the dateline to
         // prevent that exception from being thrown.
         if (crossesDateline) {
+          // Consider using HoleRemover from jtslab once it is production-ready.
           bufferGeo = removeHoles(bufferGeo);
         }
         String bufferWkt = WKT_WRITER.write(bufferGeo);
