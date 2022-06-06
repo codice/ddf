@@ -118,6 +118,7 @@
                class="solr.RptWithGeometrySpatialField"
                spatialContextFactory="JTS"
                distanceUnits="degrees"
+               normWrapLongitude="true"
                format="WKT"
                autoIndex="true"
                allowMultiOverlap="true" />

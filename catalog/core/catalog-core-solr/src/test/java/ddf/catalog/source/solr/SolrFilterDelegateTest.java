@@ -29,6 +29,10 @@ import java.util.Date;
 import java.util.TimeZone;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.junit.Test;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.operation.union.UnaryUnionOp;
 
 public class SolrFilterDelegateTest {
 
@@ -142,17 +146,19 @@ public class SolrFilterDelegateTest {
   }
 
   @Test
-  public void multiPolygon() {
+  public void multiPolygon() throws ParseException {
     String wkt =
         "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)), ((15 5, 40 10, 10 20, 5 10, 15 5)))";
     stub(mockResolver.getField(
             "testProperty", AttributeFormat.GEOMETRY, false, Collections.emptyMap()))
         .toReturn("testProperty_geohash_index");
     SolrQuery query = toTest.contains("testProperty", wkt);
+    MultiPolygon multiPolygon = (MultiPolygon) new WKTReader().read(wkt);
+    // Need to use union since allowMultiOverlap is enabled
+    MultiPolygon unioned = (MultiPolygon) new UnaryUnionOp(multiPolygon).union();
     assertThat(
         query.getQuery(),
-        startsWith(
-            "testProperty_geohash_index:\"Contains(MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)), ((15 5, 40 10, 10 20, 5 10, 15 5))))\""));
+        startsWith(String.format("testProperty_geohash_index:\"Contains(%s)\"", unioned.toText())));
   }
 
   @Test
@@ -166,6 +172,51 @@ public class SolrFilterDelegateTest {
         query.getQuery(),
         startsWith(
             "testProperty_geohash_index:\"Contains(POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30)))\""));
+  }
+
+  @Test
+  public void bufferedPolygonHolesRemovedIfCrossingDateline() {
+    String wkt =
+        "POLYGON ((170 10, -170 10, -170 0, 170 0, 170 10), (171 9, 172 9, 172 8, 172 8, 171 9))";
+    stub(mockResolver.getField(
+            "testProperty", AttributeFormat.GEOMETRY, false, Collections.emptyMap()))
+        .toReturn("testProperty_geohash_index");
+    // buffer of 0 so the final WKT is easy to calculate
+    SolrQuery query = toTest.dwithin("testProperty", wkt, 0);
+    assertThat(
+        query.getQuery(),
+        startsWith(
+            "testProperty_geohash_index:\"Intersects(MULTIPOLYGON (((-180 0, -180 10, -170 10, -170 0, -180 0)), ((180 10, 180 0, 170 0, 170 10, 180 10))))\""));
+  }
+
+  @Test
+  public void bufferedMultiPolygonHolesRemovedIfCrossingDateline() {
+    String wkt =
+        "MULTIPOLYGON (((170 10, -170 10, -170 0, 170 0, 170 10), (171 9, 172 9, 172 8, 172 8, 171 9)), ((170 30, -170 30, -170 20, 170 20, 170 30), (171 29, 172 29, 172 28, 172 28, 171 29)))";
+    stub(mockResolver.getField(
+            "testProperty", AttributeFormat.GEOMETRY, false, Collections.emptyMap()))
+        .toReturn("testProperty_geohash_index");
+    // buffer of 0 so the final WKT is easy to calculate
+    SolrQuery query = toTest.dwithin("testProperty", wkt, 0);
+    assertThat(
+        query.getQuery(),
+        startsWith(
+            "testProperty_geohash_index:\"Intersects(MULTIPOLYGON (((-180 0, -180 10, -170 10, -170 0, -180 0)), ((180 10, 180 0, 170 0, 170 10, 180 10)), ((-180 20, -180 30, -170 30, -170 20, -180 20)), ((180 30, 180 20, 170 20, 170 30, 180 30))))\""));
+  }
+
+  @Test
+  public void bufferedGeometryCollectionHolesRemovedIfCrossingDateline() {
+    String wkt =
+        "GEOMETRYCOLLECTION (POLYGON ((170 10, -170 10, -170 0, 170 0, 170 10), (171 9, 172 9, 172 8, 172 8, 171 9)), POLYGON ((170 30, -170 30, -170 20, 170 20, 170 30), (171 29, 172 29, 172 28, 172 28, 171 29)))";
+    stub(mockResolver.getField(
+            "testProperty", AttributeFormat.GEOMETRY, false, Collections.emptyMap()))
+        .toReturn("testProperty_geohash_index");
+    // buffer of 0 so the final WKT is easy to calculate
+    SolrQuery query = toTest.dwithin("testProperty", wkt, 0);
+    assertThat(
+        query.getQuery(),
+        startsWith(
+            "testProperty_geohash_index:\"Intersects(MULTIPOLYGON (((-180 0, -180 10, -170 10, -170 0, -180 0)), ((180 10, 180 0, 170 0, 170 10, 180 10)), ((-180 20, -180 30, -170 30, -170 20, -180 20)), ((180 30, 180 20, 170 20, 170 30, 180 30))))\""));
   }
 
   @Test
