@@ -15,11 +15,11 @@ package org.codice.ddf.platform.util;
 
 import com.google.common.io.ByteSource;
 import com.google.common.io.FileBackedOutputStream;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.concurrent.TimeUnit;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +39,6 @@ public class TemporaryFileBackedOutputStream extends OutputStream {
   private static final int MAX_RETRY_ATTEMPTS = 5;
 
   private static final long INITIAL_RETRY_SLEEP = 1;
-
-  private static final TimeUnit INITIAL_RETRY_SLEEP_UNIT = TimeUnit.SECONDS;
 
   private static final long MAX_DELAY = 30;
 
@@ -106,15 +104,16 @@ public class TemporaryFileBackedOutputStream extends OutputStream {
   @SuppressWarnings("unchecked")
   private void reset() {
 
-    RetryPolicy retryPolicy =
-        new RetryPolicy()
-            .retryOn(IOException.class)
-            .withBackoff(INITIAL_RETRY_SLEEP, MAX_DELAY, INITIAL_RETRY_SLEEP_UNIT)
-            .withMaxRetries(MAX_RETRY_ATTEMPTS);
+    RetryPolicy<Object> retryPolicy =
+        RetryPolicy.builder()
+            .handle(IOException.class)
+            .withBackoff(Duration.ofSeconds(INITIAL_RETRY_SLEEP), Duration.ofSeconds(MAX_DELAY))
+            .withMaxRetries(MAX_RETRY_ATTEMPTS)
+            .onFailedAttempt(
+                throwable -> LOGGER.debug("failed to delete temporary file, will retry", throwable))
+            .build();
 
     Failsafe.with(retryPolicy)
-        .onFailedAttempt(
-            throwable -> LOGGER.debug("failed to delete temporary file, will retry", throwable))
         .onFailure(throwable -> LOGGER.debug("failed to delete temporary file", throwable))
         .run(fileBackedOutputStream::reset);
   }

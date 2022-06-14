@@ -22,14 +22,15 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
 
 import ddf.catalog.data.AttributeRegistry;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.io.File;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mock.MockComponent;
@@ -305,14 +306,11 @@ public class ContentDirectoryMonitorTest extends ExchangeTestSupport {
       File destinationFolder, File monitoredFolder, String inputFileName) throws Exception {
     doFileMove(destinationFolder, inputFileName);
     Failsafe.with(
-            new RetryPolicy()
-                .retryWhen(false)
+            RetryPolicy.<Boolean>builder()
+                .handleResult(false)
                 .withMaxRetries(MAX_CHECKS_FOR_FILE_COPY)
-                .withDelay(5, TimeUnit.SECONDS))
-        .withFallback(
-            () -> {
-              throw new RuntimeException("File did not get moved in time");
-            })
+                .withDelay(Duration.ofSeconds(5))
+                .build())
         .get(() -> verifyFileMovedToIngestedDirectory(monitoredFolder, inputFileName));
 
     assertThat(

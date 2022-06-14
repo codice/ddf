@@ -48,6 +48,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>${jts.spatial4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.spatial4j</groupId>
+            <artifactId>spatial4j</artifactId>
+            <version>${spatial4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -73,6 +83,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            jts-core,
+                            spatial4j,
                             catalog-solr-core,
                             catalog-core-api-impl
                         </Embed-Dependency>
@@ -85,28 +97,15 @@
                         </Export-Package>
                         <Import-Package>
                             <!--packages required for solrj -->
+                            !org.noggit*,
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj;version=${solr.version},
-                            org.apache.solr.client.solrj.beans;version=${solr.version},
-                            org.apache.solr.client.solrj.cloud;version=${solr.version},
-                            org.apache.solr.client.solrj.cloud.autoscaling;version=${solr.version},
-                            org.apache.solr.client.solrj.impl;version=${solr.version},
-                            org.apache.solr.client.solrj.request;version=${solr.version},
-                            org.apache.solr.client.solrj.response;version=${solr.version},
+                            org.apache.solr.client.solrj.*;version=${solr.version},
                             org.apache.solr.common;version=${solr.version},
-                            org.apache.solr.common.params;version=${solr.version},
-                            org.apache.solr.common.util;version=${solr.version},
+                            org.apache.solr.common.*;version=${solr.version},
                             org.apache.zookeeper;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.client;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.data;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.proto;version=${solr.zookeeper.version},
+                            org.apache.zookeeper.*;version=${solr.zookeeper.version},
                             com.fasterxml.jackson.*;version=${jackson.version},
-
-                            <!-- dependencies used by catalog-solr-core-->
-                            org.locationtech.spatial4j.*;version=${solr.spatial4j.version},
-                            org.locationtech.jts.*;version=${jts.spatial4j.version},
-                            com.saxonica.config;resolution:=optional,
-                            org.expath.pkg.saxon;resolution:=optional,
                             *
                         </Import-Package>
                     </instructions>

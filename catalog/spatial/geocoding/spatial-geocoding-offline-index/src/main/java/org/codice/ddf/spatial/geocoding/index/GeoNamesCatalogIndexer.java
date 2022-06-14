@@ -40,7 +40,10 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,8 +52,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
@@ -204,11 +205,12 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
         };
 
     if (create) {
-      RetryPolicy retryPolicy =
-          new RetryPolicy()
-              .withDelay(10, TimeUnit.SECONDS)
-              .withMaxDuration(5, TimeUnit.MINUTES)
-              .retryOn(Exception.class);
+      RetryPolicy<Object> retryPolicy =
+          RetryPolicy.builder()
+              .withDelay(Duration.ofSeconds(10))
+              .withMaxDuration(Duration.ofMinutes(5))
+              .withMaxRetries(-1)
+              .build();
 
       Failsafe.with(retryPolicy)
           .run(() -> removeGeoNamesMetacardsFromCatalog(resource, extractionCallback));
@@ -298,11 +300,12 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
       List<GeoEntry> newEntries, boolean create, ProgressCallback progressCallback, String resource)
       throws GeoEntryIndexingException {
     if (create) {
-      RetryPolicy retryPolicy =
-          new RetryPolicy()
-              .withDelay(10, TimeUnit.SECONDS)
-              .withMaxDuration(5, TimeUnit.MINUTES)
-              .retryOn(Exception.class);
+      RetryPolicy<Object> retryPolicy =
+          RetryPolicy.builder()
+              .withDelay(Duration.ofSeconds(10))
+              .withMaxDuration(Duration.ofMinutes(5))
+              .withMaxRetries(-1)
+              .build();
 
       Failsafe.with(retryPolicy)
           .run(() -> removeGeoNamesMetacardsFromCatalog(resource, progressCallback));

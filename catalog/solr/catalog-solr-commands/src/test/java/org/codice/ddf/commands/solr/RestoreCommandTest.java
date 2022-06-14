@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.commands.solr;
 
-import static org.codice.ddf.commands.solr.SolrCommands.SOLR_CLIENT_PROP;
-import static org.codice.ddf.commands.solr.SolrCommands.ZOOKEEPER_HOSTS_PROP;
 import static org.codice.ddf.commands.solr.SolrCommands.collectionExists;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -26,13 +24,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.net.URI;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -48,8 +43,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RestoreCommandTest extends SolrCommandTest {
-
-  private static final String SOLR_STANDALONE_TYPE = "SolrStandalone";
 
   private static final Pattern ASCII_COLOR_CODES_REGEX = Pattern.compile("\u001B\\[[;\\d]*m");
 
@@ -70,14 +63,7 @@ public class RestoreCommandTest extends SolrCommandTest {
 
   @Before
   public void setUp() throws Exception {
-    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
-    cipherSuites = System.getProperty("https.cipherSuites");
-    System.setProperty(
-        "https.cipherSuites",
-        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
-    protocols = System.getProperty("https.protocols");
-    System.setProperty("https.protocols", "TLSv1.2");
-    System.setProperty("solr.http.url", "https://localhost:8994/solr");
+    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     consoleOutput = new ConsoleOutput();
     consoleOutput.interceptSystemOut();
 
@@ -91,20 +77,6 @@ public class RestoreCommandTest extends SolrCommandTest {
   @After
   public void tearDown() {
     consoleOutput.resetSystemOut();
-
-    System.clearProperty(SOLR_CLIENT_PROP);
-    System.clearProperty(ZOOKEEPER_HOSTS_PROP);
-
-    if (cipherSuites != null) {
-      System.setProperty("https.cipherSuites", cipherSuites);
-    } else {
-      System.clearProperty("https.cipherSuites");
-    }
-    if (protocols != null) {
-      System.setProperty("https.protocols", protocols);
-    } else {
-      System.clearProperty("https.protocols");
-    }
   }
 
   @AfterClass
@@ -113,35 +85,6 @@ public class RestoreCommandTest extends SolrCommandTest {
       miniSolrCloud.getSolrClient().close();
       miniSolrCloud.shutdown();
     }
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNoArgRestore() throws Exception {
-    setupSystemProperties(SOLR_STANDALONE_TYPE);
-
-    RestoreCommand restoreCommand =
-        new RestoreCommand() {
-          @Override
-          HttpResponse sendGetRequest(URI backupUri) {
-            return mockResponse(HttpStatus.SC_OK, "");
-          }
-        };
-    restoreCommand.execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testSingleNodeRestoreAsyncOptionSupplied() throws Exception {
-    setupSystemProperties(SOLR_STANDALONE_TYPE);
-
-    RestoreCommand restoreCommand =
-        new RestoreCommand() {
-          HttpResponse sendGetRequest(URI backupUri) {
-            return mockResponse(HttpStatus.SC_OK, "");
-          }
-        };
-    restoreCommand.asyncRestore = true;
-
-    restoreCommand.execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -168,7 +111,6 @@ public class RestoreCommandTest extends SolrCommandTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testPerformSolrCloudSynchronousRestoreNoOptions() throws Exception {
-    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     RestoreCommand restoreCommand =
         getSynchronousRestoreCommand(null, null, miniSolrCloud.getSolrClient());
     restoreCommand.execute();
@@ -176,7 +118,6 @@ public class RestoreCommandTest extends SolrCommandTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testPerformSolrCloudSynchronousRestoreNoBackupLocation() throws Exception {
-    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     RestoreCommand restoreCommand =
         getSynchronousRestoreCommand(null, DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
     restoreCommand.execute();
@@ -184,7 +125,6 @@ public class RestoreCommandTest extends SolrCommandTest {
 
   @Test
   public void testPerformSolrCloudSynchronousRestoreNoCollection() throws Exception {
-    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     RestoreCommand restoreCommand =
         getSynchronousRestoreCommand(getBackupLocation(), null, miniSolrCloud.getSolrClient());
     restoreCommand.execute();
@@ -201,7 +141,6 @@ public class RestoreCommandTest extends SolrCommandTest {
   @Test(expected = IllegalArgumentException.class)
   public void testPerformSolrCloudAsynchronousRestoreWithAsyncStatusOptionsSupplied()
       throws Exception {
-    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     RestoreCommand restoreCommand =
         getRestoreCommand(
             getBackupLocation(),
@@ -215,7 +154,6 @@ public class RestoreCommandTest extends SolrCommandTest {
 
   @Test
   public void testPerformSolrCloudAsynchronousRestoreStatus() throws Exception {
-    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     RestoreCommand restoreCommand =
         getAsnychronousRestoreCommand(
             getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
@@ -233,7 +171,6 @@ public class RestoreCommandTest extends SolrCommandTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetSolrCloudAsynchronousRestoreStatusNoRequestId() throws Exception {
-    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     RestoreCommand statusRestoreCommand =
         getStatusRestoreCommand(null, miniSolrCloud.getSolrClient());
     statusRestoreCommand.execute();
@@ -241,7 +178,6 @@ public class RestoreCommandTest extends SolrCommandTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetSolrCloudAsynchronousRestoreStatusNoStatusOption() throws Exception {
-    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     RestoreCommand invalidRestoreStatusCommand =
         getRestoreCommand(null, null, false, false, "myRequestId0", miniSolrCloud.getSolrClient());
     invalidRestoreStatusCommand.execute();
@@ -484,7 +420,7 @@ public class RestoreCommandTest extends SolrCommandTest {
   }
 
   private void backupSolr() throws Exception {
-    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
+    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     SolrClient solrClient = miniSolrCloud.getSolrClient();
     waitForCollectionOrFail(solrClient, DEFAULT_CORE_NAME);
     miniSolrCloud.waitForAllNodes((int) TimeUnit.SECONDS.toMillis(1));

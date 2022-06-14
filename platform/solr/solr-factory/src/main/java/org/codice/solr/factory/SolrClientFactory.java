@@ -13,18 +13,12 @@
  */
 package org.codice.solr.factory;
 
-import org.codice.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrClient;
 
 /** Interface implemented by factory classes used to create new {@link SolrClient} instances. */
 public interface SolrClientFactory {
   /**
    * Requests the creation of a new {@code SolrClient} for a specific Solr core name.
-   *
-   * <p><i>Note:</i> The client returned might not yet be available (see {@link
-   * SolrClient#isAvailable}). Even after having reported to be available, a client might suddenly
-   * become unavailable. All methods will throw {@link
-   * org.codice.solr.factory.impl.UnavailableSolrClient} exceptions anytime the client is
-   * unavailable and the client will attempt to reestablish the connection in the background.
    *
    * @param core the name of the Solr core to create to create a client for
    * @return the newly created {@code SolrClient}

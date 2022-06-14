@@ -81,6 +81,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>dev.failsafe</groupId>
+            <artifactId>failsafe</artifactId>
+            <version>${dev.failsafe.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.thirdparty</groupId>
             <artifactId>restito</artifactId>
             <version>${project.version}</version>

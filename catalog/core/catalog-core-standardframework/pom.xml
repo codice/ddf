@@ -126,9 +126,9 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.jodah</groupId>
+            <groupId>dev.failsafe</groupId>
             <artifactId>failsafe</artifactId>
-            <version>0.9.3</version>
+            <version>${dev.failsafe.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>

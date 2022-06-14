@@ -17,7 +17,10 @@ import static ddf.catalog.Constants.CDM_LOGGER_NAME;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,12 +29,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.camel.CamelContext;
+import org.apache.camel.Component;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.ServiceStatus;
@@ -328,16 +329,17 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   }
 
   private void verifyCamelComponentIsAvailable(String componentName) {
-    Failsafe.with(
-            new RetryPolicy()
-                .retryWhen(null)
-                .withMaxRetries(maxRetries)
-                .withDelay(delayBetweenRetries, TimeUnit.SECONDS))
-        .withFallback(
-            () -> {
-              throw new IllegalStateException("Could not get Camel component " + componentName);
-            })
-        .get(() -> camelContext.getComponent(componentName));
+    Component component =
+        Failsafe.with(
+                RetryPolicy.<Component>builder()
+                    .handleResult(null)
+                    .withMaxRetries(maxRetries)
+                    .withDelay(Duration.ofSeconds(delayBetweenRetries))
+                    .build())
+            .get(() -> camelContext.getComponent(componentName));
+    if (component == null) {
+      throw new IllegalStateException("Could not get Camel component " + componentName);
+    }
   }
 
   private RouteBuilder createRouteBuilder() {

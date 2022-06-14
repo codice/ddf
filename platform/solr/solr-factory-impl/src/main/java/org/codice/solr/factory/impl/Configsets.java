@@ -14,6 +14,7 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.collect.ImmutableSet;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +92,29 @@ public class Configsets {
       return defaultPath;
     }
     return getRectifiedConfig(collection, collectionPath);
+  }
+
+  public byte[] createZip(String collection) throws IOException {
+    Path configFiles = get(collection);
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+
+      for (String configFile : SOLR_CONFIG_FILES) {
+        Path path = configFiles.resolve(configFile);
+        ZipEntry entry = new ZipEntry(configFile);
+
+        zos.putNextEntry(entry);
+        zos.write(Files.readAllBytes(path));
+        zos.closeEntry();
+      }
+
+    } catch (IOException e) {
+      LOGGER.error("Unable to create configset zip.", e);
+    }
+    byte[] output = baos.toByteArray();
+    baos.close();
+    return output;
   }
 
   private Path getRectifiedConfig(String collection, Path collectionPath) {

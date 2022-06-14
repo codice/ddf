@@ -25,7 +25,7 @@ import org.apache.solr.common.SolrDocumentList
 import org.codice.ddf.spatial.geocoding.GeoEntry
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation
-import org.codice.solr.client.solrj.SolrClient
+import org.apache.solr.client.solrj.SolrClient
 import org.codice.solr.factory.SolrClientFactory
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith

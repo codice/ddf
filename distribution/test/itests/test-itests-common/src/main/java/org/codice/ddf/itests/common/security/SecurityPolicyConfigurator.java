@@ -18,6 +18,9 @@ import static org.awaitility.Awaitility.await;
 
 import ddf.security.audit.impl.SecurityLoggerImpl;
 import ddf.security.service.impl.SubjectUtils;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
@@ -26,9 +29,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
-import net.jodah.failsafe.function.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.ServiceManager;
@@ -99,12 +99,14 @@ public class SecurityPolicyConfigurator {
       String webAuthTypes, String endpointAuthTypes, String requiredAttributes, String whitelist)
       throws Exception {
 
-    RetryPolicy retryPolicy =
-        new RetryPolicy()
-            .withDelay(2, TimeUnit.SECONDS)
-            .withMaxDuration(1, TimeUnit.MINUTES)
-            .retryWhen(null)
-            .retryIf((Predicate<Map<String, Object>>) Map::isEmpty);
+    RetryPolicy<Map<String, Object>> retryPolicy =
+        RetryPolicy.<Map<String, Object>>builder()
+            .withDelay(Duration.ofSeconds(2))
+            .withMaxDuration(Duration.ofMinutes(1))
+            .withMaxRetries(-1)
+            .handleResult(null)
+            .handleResultIf(Map::isEmpty)
+            .build();
 
     Map<String, Object> policyProperties =
         Failsafe.with(retryPolicy)

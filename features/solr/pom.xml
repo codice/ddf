@@ -54,9 +54,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>jts</artifactId>
-            <version>${jts.bundle.version}</version>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>${jts.spatial4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.thirdparty</groupId>

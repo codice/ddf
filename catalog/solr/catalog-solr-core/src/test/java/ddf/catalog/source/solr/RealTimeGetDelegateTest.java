@@ -17,7 +17,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 import ddf.catalog.data.Metacard;
-import org.apache.curator.shaded.com.google.common.collect.Lists;
+import java.util.Arrays;
 import org.junit.Test;
 
 public class RealTimeGetDelegateTest {
@@ -31,16 +31,16 @@ public class RealTimeGetDelegateTest {
 
   @Test
   public void and() {
-    assertTrue(delegate.and(Lists.newArrayList(true, true)));
-    assertTrue(delegate.and(Lists.newArrayList(true, false)));
-    assertFalse(delegate.and(Lists.newArrayList(false, false)));
+    assertTrue(delegate.and(Arrays.asList(true, true)));
+    assertTrue(delegate.and(Arrays.asList(true, false)));
+    assertFalse(delegate.and(Arrays.asList(false, false)));
   }
 
   @Test
   public void or() {
-    assertTrue(delegate.or(Lists.newArrayList(true, true)));
-    assertFalse(delegate.or(Lists.newArrayList(true, false)));
-    assertFalse(delegate.or(Lists.newArrayList(false, false)));
+    assertTrue(delegate.or(Arrays.asList(true, true)));
+    assertFalse(delegate.or(Arrays.asList(true, false)));
+    assertFalse(delegate.or(Arrays.asList(false, false)));
   }
 
   @Test

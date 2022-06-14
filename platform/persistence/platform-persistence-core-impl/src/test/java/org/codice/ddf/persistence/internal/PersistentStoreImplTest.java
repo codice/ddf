@@ -17,7 +17,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -28,17 +27,19 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.SolrParams;
+import org.apache.solr.common.util.NamedList;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
-import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +56,8 @@ public class PersistentStoreImplTest {
 
   @Mock private SolrClient solrClient;
 
+  @Mock private SolrPingResponse pingResponse;
+
   private PersistentStoreImpl persistentStore;
 
   @Captor private ArgumentCaptor<SolrParams> solrParamsArgumentCaptor;
@@ -62,7 +65,8 @@ public class PersistentStoreImplTest {
   @Before
   public void setup() throws Exception {
     when(solrClientFactory.newClient(any())).thenReturn(solrClient);
-    when(solrClient.isAvailable(anyLong(), any())).thenReturn(true);
+    when(solrClient.ping()).thenReturn(pingResponse);
+    when(pingResponse.getResponse()).thenReturn(new NamedList<>(Map.of("status", "OK")));
     persistentStore = new PersistentStoreImpl(solrClientFactory);
   }
 

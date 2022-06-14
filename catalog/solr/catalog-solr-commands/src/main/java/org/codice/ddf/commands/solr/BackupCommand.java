@@ -15,13 +15,10 @@ package org.codice.ddf.commands.solr;
 
 import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
@@ -97,31 +94,11 @@ public class BackupCommand extends SolrCommands {
       LOGGER.trace("System configuration: Solr Cloud");
       performSolrCloudBackup();
     } else {
-      LOGGER.trace("System configuration: Single Node Solr Client");
-      performSingleNodeSolrBackup();
+      LOGGER.trace("System configuration: Unsupported Solr configuration");
+      printErrorMessage("Unsupported Solr configuration. Please configure Solr Cloud properly.");
     }
 
     return null;
-  }
-
-  private void performSingleNodeSolrBackup() throws URISyntaxException {
-    verifySingleNodeBackupInput();
-
-    String backupUrl = getReplicationUrl(coreName);
-    httpBuilder = new org.codice.solr.factory.impl.HttpClientBuilder(encryptionService);
-
-    URIBuilder uriBuilder = new URIBuilder(backupUrl);
-    uriBuilder.addParameter("command", "backup");
-
-    if (StringUtils.isNotBlank(backupLocation)) {
-      uriBuilder.addParameter("location", backupLocation);
-    }
-    if (numberToKeep > 0) {
-      uriBuilder.addParameter("numberToKeep", Integer.toString(numberToKeep));
-    }
-
-    URI backupUri = uriBuilder.build();
-    printResponse(sendGetRequest(backupUri));
   }
 
   private void performSolrCloudBackup() throws IOException {

@@ -28,7 +28,7 @@ public class VmOptions {
 
   public static Option defaultVmOptions() {
     return new DefaultCompositeOption(
-        vmOption("-Xmx4096M"),
+        vmOption("-Xmx6144M"),
         vmOption("-Xms2048M"),
 
         // avoid integration tests stealing focus on OS X
@@ -48,6 +48,8 @@ public class VmOptions {
         vmOption("java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-" + karafVersion + ".jar"),
         vmOption("--add-opens"),
         vmOption("java.base/java.security=ALL-UNNAMED"),
+        vmOption("--add-opens"),
+        vmOption("java.base/java.io=ALL-UNNAMED"),
         vmOption("--add-opens"),
         vmOption("java.base/java.net=ALL-UNNAMED"),
         vmOption("--add-opens"),

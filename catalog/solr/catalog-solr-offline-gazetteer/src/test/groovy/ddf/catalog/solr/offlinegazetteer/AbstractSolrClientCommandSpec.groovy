@@ -15,8 +15,9 @@ package ddf.catalog.solr.offlinegazetteer
 
 import org.apache.karaf.shell.api.console.Session
 import org.apache.solr.client.solrj.SolrServerException
-import org.codice.solr.client.solrj.SolrClient
-import org.codice.solr.client.solrj.UnavailableSolrException
+import org.apache.solr.client.solrj.SolrClient
+import org.apache.solr.client.solrj.response.SolrPingResponse
+import org.apache.solr.common.util.NamedList
 import org.codice.solr.factory.SolrClientFactory
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
@@ -47,7 +48,11 @@ class AbstractSolrClientCommandSpec extends Specification {
     def 'test force with \"yes\" user input'() {
         given:
         final SolrClient mockSolrClient = Mock() {
-            isAvailable() >> true
+            ping() >> Mock(SolrPingResponse) {
+                response >> Mock(NamedList) {
+                    get("status") >> "OK"
+                }
+            }
         }
         spyAbstractOfflineSolrGazetteerCommand.with {
             clientFactory = Mock(SolrClientFactory) {
@@ -74,7 +79,11 @@ class AbstractSolrClientCommandSpec extends Specification {
     def 'test executeWithSolrClient'() {
         given:
         final SolrClient mockSolrClient = Mock() {
-            isAvailable() >> true
+            ping() >> Mock(SolrPingResponse) {
+                response >> Mock(NamedList) {
+                    get("status") >> "OK"
+                }
+            }
         }
         spyAbstractOfflineSolrGazetteerCommand.with {
             clientFactory = Mock(SolrClientFactory) {
@@ -96,7 +105,11 @@ class AbstractSolrClientCommandSpec extends Specification {
     def 'test SolrClient is not available'() {
         given:
         final SolrClient mockSolrClient = Mock() {
-            isAvailable() >> false
+            ping() >> Mock(SolrPingResponse) {
+                response >> Mock(NamedList) {
+                    get("status") >> "NOT_OK"
+                }
+            }
         }
         spyAbstractOfflineSolrGazetteerCommand.with {
             clientFactory = Mock(SolrClientFactory) {
@@ -118,7 +131,11 @@ class AbstractSolrClientCommandSpec extends Specification {
     def 'test SolrClient becomes available'() {
         given:
         final SolrClient mockSolrClient = Mock() {
-            isAvailable() >> false >> true
+            ping() >> Mock(SolrPingResponse) {
+                response >> Mock(NamedList) {
+                    get("status") >> "NOT_OK" >> "OK"
+                }
+            }
         }
         spyAbstractOfflineSolrGazetteerCommand.with {
             clientFactory = Mock(SolrClientFactory) {
@@ -141,7 +158,11 @@ class AbstractSolrClientCommandSpec extends Specification {
     def 'test executeWithSolrClient fails'() {
         given:
         final SolrClient mockSolrClient = Mock() {
-            isAvailable() >> true
+            ping() >> Mock(SolrPingResponse) {
+                response >> Mock(NamedList) {
+                    get("status") >> "OK"
+                }
+            }
         }
         spyAbstractOfflineSolrGazetteerCommand.with {
             clientFactory = Mock(SolrClientFactory) {
@@ -163,14 +184,18 @@ class AbstractSolrClientCommandSpec extends Specification {
         1 * mockSolrClient.close()
 
         where:
-        exceptionType << [IOException, SolrServerException, UnavailableSolrException, RuntimeException, InterruptedException]
+        exceptionType << [IOException, SolrServerException, RuntimeException, InterruptedException]
     }
 
     def 'test failure to close SolrClient'() {
         given:
         final IOException mockIOException = Mock()
         final SolrClient mockSolrClient = Mock() {
-            isAvailable() >> true
+            ping() >> Mock(SolrPingResponse) {
+                response >> Mock(NamedList) {
+                    get("status") >> "OK"
+                }
+            }
             close() >> { throw mockIOException }
         }
         spyAbstractOfflineSolrGazetteerCommand.with {

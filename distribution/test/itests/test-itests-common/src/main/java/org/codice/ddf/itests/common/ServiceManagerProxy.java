@@ -17,10 +17,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
 
 import ddf.security.service.SecurityManager;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
+import java.time.Duration;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.Security;
 
@@ -45,8 +46,12 @@ public class ServiceManagerProxy implements InvocationHandler {
         .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
         .until(() -> serviceManager.getServiceReference(SecurityManager.class) != null);
 
-    RetryPolicy retryPolicy =
-        new RetryPolicy().withMaxRetries(10).withDelay(1, SECONDS).retryWhen(null);
+    RetryPolicy<Subject> retryPolicy =
+        RetryPolicy.<Subject>builder()
+            .withMaxRetries(10)
+            .withDelay(Duration.ofSeconds(1))
+            .handleResult(null)
+            .build();
     Subject subject =
         Failsafe.with(retryPolicy).get(() -> security.runAsAdmin(security::getSystemSubject));
     return subject.execute(() -> method.invoke(serviceManager, args));

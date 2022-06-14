@@ -790,8 +790,7 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.username", "admin"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.password", "admin"),
         editConfigurationFilePut(
-            SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", "localhost:10784"),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.maxShardPerNode", "4"));
+            SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", "localhost:10784"));
   }
 
   /**

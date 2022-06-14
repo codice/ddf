@@ -29,15 +29,17 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import ddf.security.Subject;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import org.apache.shiro.util.ThreadContext;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.codice.ddf.security.Security;
-import org.codice.solr.client.solrj.SolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -58,7 +60,6 @@ public class ReindexCommandTest extends SolrCommandTest {
     SolrClient cloudClient = mock(SolrClient.class);
     NamedList<Object> pingStatus = new NamedList<>();
     pingStatus.add("status", "OK");
-    when(cloudClient.isAvailable()).thenReturn(true);
 
     QueryResponse hitCountResponse = mock(QueryResponse.class);
     SolrDocumentList hitCountResults = mock(SolrDocumentList.class);
@@ -80,6 +81,9 @@ public class ReindexCommandTest extends SolrCommandTest {
     when(emptyResponse.getResults()).thenReturn(emptyDocList);
     when(cloudClient.query(any(SolrQuery.class)))
         .thenReturn(hitCountResponse, dataResponse, emptyResponse);
+    SolrPingResponse pingResponse = mock(SolrPingResponse.class);
+    when(cloudClient.ping()).thenReturn(pingResponse);
+    when(pingResponse.getResponse()).thenReturn(new NamedList<>(Map.of("status", "OK")));
 
     SolrMetacardClientImpl solrMetacardClient = mock(SolrMetacardClientImpl.class);
     when(solrMetacardClient.createMetacard(any())).thenReturn(getTestMetacard());
@@ -99,7 +103,6 @@ public class ReindexCommandTest extends SolrCommandTest {
     command.setMetacardClient(solrMetacardClient);
     command.setNumThread(1);
     command.setCollection("catalog");
-    command.setSolrHost("http://localhost:8994/solr");
     command.setCatalogFramework(catalogFramework);
     command.security = security;
     command.execute();

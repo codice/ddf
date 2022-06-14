@@ -15,6 +15,9 @@ package org.codice.ddf.catalog.transformer.bootflag;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.transform.InputTransformer;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
+import java.time.Duration;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.List;
@@ -22,8 +25,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.platform.bootflag.BootServiceFlag;
 import org.osgi.framework.Bundle;
@@ -117,27 +118,33 @@ public class InputTransformerBootServiceFlag implements BootServiceFlag {
         "Beginning to wait for InputTransformers for {} seconds",
         TimeUnit.MILLISECONDS.toSeconds(transformerWaitTimeoutMillis));
 
-    Failsafe.with(
-            new RetryPolicy()
-                .withMaxDuration(transformerWaitTimeoutMillis, TimeUnit.MILLISECONDS)
-                .retryWhen(false)
-                .withDelay(transformerCheckPeriodMillis, TimeUnit.MILLISECONDS))
-        .withFallback(
-            () -> {
-              throw new IllegalArgumentException(
-                  String.format(
-                      "Not all expected Input Transformers were found within %s seconds. Expected: %s, but didn't find: %s. "
-                          + "CDMs will not be able to start without all required InputTransformers. Either remove the un-found "
-                          + "IDs from the InputTransformer ID JSON files under %s, or ensure the bundles providing "
-                          + "the missing InputTransformers are started.",
-                      TimeUnit.MILLISECONDS.toSeconds(transformerWaitTimeoutMillis),
-                      configuredInputTransformers,
-                      requiredInputTransformers,
-                      inputTransformerIds.getTransformerPath()));
-            })
-        .get(() -> checkForInputTransformers(requiredInputTransformers));
-    publishService(bundle);
-    destroy();
+    String errorMessage =
+        String.format(
+            "Not all expected Input Transformers were found within %s seconds. Expected: %s, but didn't find: %s. "
+                + "CDMs will not be able to start without all required InputTransformers. Either remove the un-found "
+                + "IDs from the InputTransformer ID JSON files under %s, or ensure the bundles providing "
+                + "the missing InputTransformers are started.",
+            TimeUnit.MILLISECONDS.toSeconds(transformerWaitTimeoutMillis),
+            configuredInputTransformers,
+            requiredInputTransformers,
+            inputTransformerIds.getTransformerPath());
+
+    boolean isSuccessful =
+        Failsafe.with(
+                RetryPolicy.<Boolean>builder()
+                    .handleResult(false)
+                    .withMaxRetries(-1)
+                    .withMaxDuration(Duration.ofMillis(transformerWaitTimeoutMillis))
+                    .withDelay(Duration.ofMillis(transformerCheckPeriodMillis))
+                    .build())
+            .onFailure(e -> LOGGER.error(errorMessage))
+            .get(() -> checkForInputTransformers(requiredInputTransformers));
+    if (isSuccessful) {
+      publishService(bundle);
+      destroy();
+    } else {
+      throw new IllegalArgumentException(errorMessage);
+    }
   }
 
   private boolean checkForInputTransformers(Set<String> requiredInputTransformers) {

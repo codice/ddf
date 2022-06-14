@@ -33,7 +33,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.codice.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -209,7 +209,13 @@
             <classifier>features</classifier>
         </dependency>
         <!--end feature dependencies-->
-
+        <dependency>
+            <groupId>org.apache.karaf</groupId>
+            <artifactId>karaf</artifactId>
+            <version>${karaf.version}</version>
+            <type>pom</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>sync-installer-api</artifactId>

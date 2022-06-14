@@ -24,11 +24,6 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
             <version>${project.version}</version>
@@ -104,11 +99,6 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
@@ -147,7 +137,13 @@
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${apache-log4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
             <version>${apache-log4j.version}</version>
             <scope>test</scope>
         </dependency>
@@ -169,6 +165,16 @@
             <artifactId>catalog-solr-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>${jts.spatial4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.spatial4j</groupId>
+            <artifactId>spatial4j</artifactId>
+            <version>${spatial4j.version}</version>
+        </dependency>
       <dependency>
         <groupId>ddf.catalog.core</groupId>
         <artifactId>catalog-core-commands</artifactId>
@@ -186,6 +192,8 @@
                         <Karaf-Commands>org.codice.ddf.commands.solr</Karaf-Commands>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            jts-core,
+                            spatial4j,
                             catalog-core-api-impl,
                             catalog-core-commands,
                             catalog-solr-core,
@@ -196,28 +204,18 @@
                         </Private-Package>
                         <Import-Package>
                             !javax.activation,
+                            !org.geotools.filter.text.*,
 
                             <!--packages required for solrj -->
+                            !org.noggit*,
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj;version=${solr.version},
-                            org.apache.solr.client.solrj.beans;version=${solr.version},
-                            org.apache.solr.client.solrj.cloud;version=${solr.version},
-                            org.apache.solr.client.solrj.cloud.autoscaling;version=${solr.version},
-                            org.apache.solr.client.solrj.impl;version=${solr.version},
-                            org.apache.solr.client.solrj.request;version=${solr.version},
-                            org.apache.solr.client.solrj.response;version=${solr.version},
+                            org.apache.solr.client.solrj.*;version=${solr.version},
                             org.apache.solr.common;version=${solr.version},
-                            org.apache.solr.common.params;version=${solr.version},
-                            org.apache.solr.common.util;version=${solr.version},
+                            org.apache.solr.common.*;version=${solr.version},
                             org.apache.zookeeper;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.client;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.data;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.proto;version=${solr.zookeeper.version},
+                            org.apache.zookeeper.*;version=${solr.zookeeper.version},
                             com.fasterxml.jackson.*;version=${jackson.version},
-
-                            <!-- dependencies used by catalog-solr-core-->
-                            org.locationtech.spatial4j.*;version=${solr.spatial4j.version},
-                            org.locationtech.jts.*;version=${jts.spatial4j.version},
                             com.saxonica.config;resolution:=optional,
                             org.expath.pkg.saxon;resolution:=optional,
                             *
@@ -239,7 +237,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>5.5_MB</maxArtifactSize>
+                                    <maxArtifactSize>6.4_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>
@@ -264,7 +262,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.77</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
