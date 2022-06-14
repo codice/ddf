@@ -18,8 +18,10 @@ import static org.apache.commons.lang.Validate.notNull;
 import com.google.common.annotations.VisibleForTesting;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import org.codice.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Factory class used to create the proper {@link SolrClient} based on the current {@code
@@ -27,19 +29,21 @@ import org.codice.solr.factory.SolrClientFactory;
  */
 public final class SolrClientFactoryImpl implements SolrClientFactory {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(SolrClientFactoryImpl.class);
+
   private String clientType;
   private SolrClientFactory factory;
 
-  public SolrClientFactoryImpl(HttpSolrClientFactory httpSolrClientFactory) {
+  public SolrClientFactoryImpl() {
     this.clientType =
         AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty("solr.client", "HttpSolrClient"));
+            (PrivilegedAction<String>) () -> System.getProperty("solr.client", "CloudSolrClient"));
 
-    if ("CloudSolrClient".equals(clientType)) {
-      factory = new SolrCloudClientFactory();
-    } else { // Use HttpSolrClient by default
-      factory = httpSolrClientFactory;
+    if (!"CloudSolrClient".equals(clientType)) {
+      LOGGER.warn("Unknown solr.client system property set. Using Solr Cloud client instead.");
     }
+
+    factory = new SolrCloudClientFactory();
   }
 
   @Override

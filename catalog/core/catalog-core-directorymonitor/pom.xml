@@ -40,9 +40,9 @@
             <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.jodah</groupId>
+            <groupId>dev.failsafe</groupId>
             <artifactId>failsafe</artifactId>
-            <version>${jodah-failsafe.version}</version>
+            <version>${dev.failsafe.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

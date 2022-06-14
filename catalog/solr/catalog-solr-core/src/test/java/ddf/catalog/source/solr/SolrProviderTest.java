@@ -15,6 +15,7 @@ package ddf.catalog.source.solr;
 
 import static ddf.catalog.data.impl.MetacardImpl.BASIC_METACARD;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIVE_MEGABYTES;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.deleteAll;
 
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.source.solr.provider.SolrProviderContentTypes;
@@ -27,15 +28,16 @@ import ddf.catalog.source.solr.provider.SolrProviderSource;
 import ddf.catalog.source.solr.provider.SolrProviderSpatial;
 import ddf.catalog.source.solr.provider.SolrProviderTemporal;
 import ddf.catalog.source.solr.provider.SolrProviderUpdate;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.TimeUnit;
-import org.apache.solr.client.solrj.embedded.JettyConfig;
+import java.time.Duration;
+import org.apache.solr.SolrTestCaseJ4;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
-import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.impl.SolrCloudClientFactory;
-import org.hamcrest.Matchers;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -62,6 +64,8 @@ public class SolrProviderTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderTest.class);
 
+  private static final String COLLECTION = "catalog";
+
   @Rule @ClassRule public static TemporaryFolder baseDir = new TemporaryFolder();
 
   private static SolrClient solrClient;
@@ -74,33 +78,52 @@ public class SolrProviderTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
+    Path solrDataPath = Paths.get("target/test-classes/data");
+    System.setProperty("ddf.home", solrDataPath.toString());
+
     ConfigurationStore store = ConfigurationStore.getInstance();
     store.setForceAutoCommit(true);
-    String solrDataPath = Paths.get("target/surefire/ddf").toString();
-    System.setProperty("ddf.home", solrDataPath);
-    store.setDataDirectoryPath(solrDataPath);
+    store.setDataDirectoryPath(solrDataPath.toString());
 
+    System.clearProperty("https.protocols");
+    System.clearProperty("https.cipherSuites");
+    System.clearProperty("javax.net.ssl.keyStore");
+    System.clearProperty("javax.net.ssl.keyStorePassword");
+    System.clearProperty("javax.net.ssl.keyStoreType");
+    System.clearProperty("javax.net.ssl.trustStore");
+    System.clearProperty("javax.net.ssl.trustStorePassword");
+    System.clearProperty("javax.net.ssl.trustStoreType");
+
+    System.setProperty(
+        "pkiHandlerPrivateKeyPath",
+        SolrTestCaseJ4.class
+            .getClassLoader()
+            .getResource("cryptokeys/priv_key512_pkcs8.pem")
+            .toExternalForm());
+    System.setProperty(
+        "pkiHandlerPublicKeyPath",
+        SolrTestCaseJ4.class
+            .getClassLoader()
+            .getResource("cryptokeys/pub_key512.der")
+            .toExternalForm());
+
+    System.setProperty("jetty.testMode", "true");
     System.setProperty("jute.maxbuffer", "20000000"); // windows solution
 
     miniSolrCloud =
-        new MiniSolrCloudCluster(
-            1, baseDir.getRoot().toPath(), JettyConfig.builder().setContext("/solr").build());
+        new MiniSolrCloudCluster.Builder(1, baseDir.getRoot().toPath())
+            .withJettyConfig(jetty -> jetty.setContext("/solr"))
+            .build();
 
     System.setProperty("solr.cloud.shardCount", "1");
     System.setProperty("solr.cloud.replicationFactor", "1");
-    System.setProperty("solr.cloud.maxShardPerNode", "1");
     System.setProperty("solr.cloud.zookeeper.chroot", "/solr");
     System.setProperty("solr.cloud.zookeeper", miniSolrCloud.getZkServer().getZkHost());
     System.setProperty("metadata.size.limit", Integer.toString(FIVE_MEGABYTES));
     System.setProperty("solr.query.sort.caseInsensitive", "true");
 
     SolrCloudClientFactory solrClientFactory = new SolrCloudClientFactory();
-    solrClient = solrClientFactory.newClient("catalog");
-
-    Assert.assertThat(
-        "Solr client is not available for testing",
-        solrClient.isAvailable(30L, TimeUnit.SECONDS),
-        Matchers.equalTo(true));
+    solrClient = solrClientFactory.newClient(COLLECTION);
 
     DynamicSchemaResolver dynamicSchemaResolver = new DynamicSchemaResolver();
     dynamicSchemaResolver.addMetacardType(BASIC_METACARD);
@@ -114,14 +137,28 @@ public class SolrProviderTest {
 
     // Mask the id, this is something that the CatalogFramework would usually do
     provider.setId(MASKED_ID);
+
+    RetryPolicy<Boolean> retryPolicy =
+        RetryPolicy.<Boolean>builder()
+            .handleResult(false)
+            .withBackoff(Duration.ofMillis(10), Duration.ofMinutes(1))
+            .withMaxDuration(Duration.ofMinutes(5))
+            .withMaxRetries(-1)
+            .build();
+
+    Failsafe.with(retryPolicy).get(() -> provider.isAvailable());
+    Failsafe.with(retryPolicy).run(() -> deleteAll(provider));
   }
 
   @AfterClass
   public static void afterClass() throws Exception {
     System.clearProperty("ddf.home");
+    System.clearProperty("pkiHandlerPrivateKeyPath");
+    System.clearProperty("pkiHandlerPublicKeyPath");
+    System.clearProperty("jetty.testMode");
+    System.clearProperty("jute.maxbuffer");
     System.clearProperty("solr.cloud.shardCount");
     System.clearProperty("solr.cloud.replicationFactor");
-    System.clearProperty("solr.cloud.maxShardPerNode");
     System.clearProperty("solr.cloud.zookeeper.chroot");
     System.clearProperty("solr.cloud.zookeeper");
     System.clearProperty("metadata.size.limit");
@@ -133,6 +170,10 @@ public class SolrProviderTest {
 
     if (solrClient != null) {
       solrClient.close();
+    }
+
+    if (provider != null) {
+      provider.shutdown();
     }
   }
 

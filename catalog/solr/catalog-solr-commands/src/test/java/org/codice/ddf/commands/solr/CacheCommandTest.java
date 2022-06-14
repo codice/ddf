@@ -19,9 +19,11 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
-import org.codice.solr.client.solrj.SolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -34,12 +36,15 @@ public class CacheCommandTest extends SolrCommandTest {
     SolrClient cloudClient = mock(SolrClient.class);
     NamedList<Object> pingStatus = new NamedList<>();
     pingStatus.add("status", "OK");
-    when(cloudClient.isAvailable()).thenReturn(true);
 
     UpdateResponse mockUpdateResponse = mock(UpdateResponse.class);
 
     when(cloudClient.deleteByQuery(any(String.class), any(String.class)))
         .thenReturn(mockUpdateResponse);
+
+    SolrPingResponse pingResponse = mock(SolrPingResponse.class);
+    when(cloudClient.ping()).thenReturn(pingResponse);
+    when(pingResponse.getResponse()).thenReturn(new NamedList<>(Map.of("status", "OK")));
 
     when(mockUpdateResponse.getStatus()).thenReturn(0);
 

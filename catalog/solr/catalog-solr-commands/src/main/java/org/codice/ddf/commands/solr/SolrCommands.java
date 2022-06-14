@@ -13,27 +13,21 @@
  */
 package org.codice.ddf.commands.solr;
 
-import com.google.common.annotations.VisibleForTesting;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -83,8 +77,6 @@ public abstract class SolrCommands extends CommandSupport {
   private static final Color SUCCESS_COLOR = Ansi.Color.GREEN;
 
   private static final Color INFO_COLOR = Ansi.Color.CYAN;
-
-  protected org.codice.solr.factory.impl.HttpClientBuilder httpBuilder;
 
   public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
     LOGGER.debug("setConfigurationAdmin: {}", configurationAdmin);
@@ -238,29 +230,18 @@ public abstract class SolrCommands extends CommandSupport {
     return false;
   }
 
-  protected boolean isSolrClientAvailable(org.codice.solr.client.solrj.SolrClient solrClient) {
-    RetryPolicy retryPolicy =
-        new RetryPolicy()
-            .withDelay(100, TimeUnit.MILLISECONDS)
-            .withMaxDuration(3, TimeUnit.MINUTES)
-            .retryWhen(false);
-    Failsafe.with(retryPolicy).get((Callable<Boolean>) solrClient::isAvailable);
-    return solrClient.isAvailable();
-  }
-
-  @VisibleForTesting
-  HttpResponse sendGetRequest(URI backupUri) {
-    HttpResponse httpResponse = null;
-    HttpGet get = new HttpGet(backupUri);
-    HttpClient client = httpBuilder.get().build();
-
-    try {
-      LOGGER.debug("Sending request to {}", backupUri);
-      httpResponse = client.execute(get);
-    } catch (IOException e) {
-      LOGGER.debug("Error during request. Returning null response.");
+  protected boolean isSolrClientAvailable(SolrClient solrClient) {
+    if (solrClient == null) {
+      return false;
     }
-
-    return httpResponse;
+    RetryPolicy<Boolean> retryPolicy =
+        RetryPolicy.<Boolean>builder()
+            .withDelay(Duration.ofMillis(100))
+            .withMaxDuration(Duration.ofMinutes(3))
+            .withMaxRetries(-1)
+            .handleResult(false)
+            .build();
+    return Failsafe.with(retryPolicy)
+        .get(() -> "OK".equals(solrClient.ping().getResponse().get("status")));
   }
 }

@@ -32,8 +32,6 @@ public class CollectionConfig {
 
   private final int replicationFactor;
 
-  private final int maximumShardsPerNode;
-
   public CollectionConfig(String collection) {
     this(collection, Paths.get(System.getProperty("ddf.home", ""), "etc/solr/configsets"));
   }
@@ -70,12 +68,6 @@ public class CollectionConfig {
             collectionProps.getProperty(
                 "replicationFactor", System.getProperty("solr.cloud.replicationFactor")),
             2);
-
-    maximumShardsPerNode =
-        NumberUtils.toInt(
-            collectionProps.getProperty(
-                "maxShardsPerNode", System.getProperty("solr.cloud.maxShardPerNode")),
-            2);
   }
 
   public int getShardCount() {
@@ -84,9 +76,5 @@ public class CollectionConfig {
 
   public int getReplicationFactor() {
     return replicationFactor;
-  }
-
-  public int getMaximumShardsPerNode() {
-    return maximumShardsPerNode;
   }
 }

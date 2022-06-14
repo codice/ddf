@@ -26,41 +26,6 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
-            <artifactId>solr-core</artifactId>
-            <version>${solr.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>jcl-over-slf4j</artifactId>
-                </exclusion>
-                <!--
-                    HTrace is a retired project. It shades com.fasterxml.jackson.core:jackson-databind:2.4.0,
-                    which pulls in a bunch of CVEs. See
-                    https://ossindex.sonatype.org/component/pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.4.0
-                  -->
-                <exclusion>
-                    <groupId>org.apache.htrace</groupId>
-                    <artifactId>htrace-core4</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
             <version>${solr.version}</version>
             <exclusions>
@@ -73,6 +38,11 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <artifactId>http2-client</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -119,16 +89,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.locationtech.spatial4j</groupId>
-            <artifactId>spatial4j</artifactId>
-            <version>${spatial4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.locationtech.jts</groupId>
-            <artifactId>jts-core</artifactId>
-            <version>${jts.spatial4j.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -145,25 +105,14 @@
                             org.apache.solr.client.solrj.*;version=${solr.version},
                             org.apache.solr.common.*;version=${solr.version},
                             org.apache.zookeeper.*;version=${solr.zookeeper.version},
-                            com.fasterxml.jackson.*;version=${jackson.version},
-
-                            <!-- used by solr-factory implementation -->
-                            org.apache.solr.client.solrj.embedded;version=${solr.version},
-
-                            org.locationtech.spatial4j.*;version=${solr.spatial4j.version}
+                            com.fasterxml.jackson.*;version=${jackson.version}
                         </Export-Package>
                         <Embed-Dependency>
-                            solr-core,
-                            lucene-analyzers-common,
-                            lucene-core,
-                            lucene-queryparser,
                             solr-solrj,
                             commons-io,
                             httpmime,
                             zookeeper,
-                            zookeeper-jute,
-                            spatial4j,
-                            jts-core
+                            zookeeper-jute
                         </Embed-Dependency>
                         <Import-Package>
                             org.slf4j;version=${org.slf4j.version},

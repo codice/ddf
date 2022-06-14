@@ -62,7 +62,7 @@
         </bundle>
         <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
-        <feature>jodah-failsafe</feature>
+        <feature>dev-failsafe</feature>
         <bundle>mvn:ddf.catalog.core/ddf-pubsub/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/ddf-pubsub-tracker/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-urlresourcereader/${project.version}</bundle>
@@ -73,10 +73,10 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/versioning-api/${project.version}</bundle>
         <feature>joda-converter</feature>
-        <feature>jodah-failsafe</feature>
+        <feature>dev-failsafe</feature>
         <feature>slf4j</feature>
         <bundle>mvn:org.locationtech.spatial4j/spatial4j/${spatial4j.version}</bundle>
-        <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
+        <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
 
         <bundle>mvn:nu.validator.htmlparser/htmlparser/1.4</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
@@ -305,7 +305,7 @@
         <feature>apache-commons</feature>
         <feature>catalog-transformer-bootflag</feature>
         <bundle>mvn:com.hazelcast/hazelcast/${hazelcast.version}</bundle>
-        <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
+        <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
@@ -316,7 +316,7 @@
         <feature>catalog-core-api</feature>
         <feature>bootflag-api</feature>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
-        <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
+        <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-bootflag/${project.version}</bundle>
     </feature>
 
@@ -421,7 +421,7 @@
 
     <feature name="catalog-transformer-atom" version="${project.version}"
              description="Atom Query Response Transformer.">
-        <feature>jodah-failsafe</feature>
+        <feature>dev-failsafe</feature>
         <bundle>mvn:org.apache.abdera/abdera-extensions-opensearch/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>

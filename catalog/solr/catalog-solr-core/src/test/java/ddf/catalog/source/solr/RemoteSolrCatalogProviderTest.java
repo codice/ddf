@@ -25,47 +25,14 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceMonitor;
 import java.io.IOException;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.util.NamedList;
-import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.client.solrj.SolrClient.Listener;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 public class RemoteSolrCatalogProviderTest {
-
-  private static String cipherSuites;
-
-  private static String protocols;
-
-  @BeforeClass
-  public static void setUp() {
-    cipherSuites = System.getProperty("https.cipherSuites");
-    System.setProperty(
-        "https.cipherSuites",
-        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
-    protocols = System.getProperty("https.protocols");
-    System.setProperty("https.protocols", "TLSv1.2");
-  }
-
-  @AfterClass
-  public static void tearDown() {
-    if (cipherSuites != null) {
-      System.setProperty("https.cipherSuites", cipherSuites);
-    } else {
-      System.clearProperty("https.cipherSuites");
-    }
-    if (protocols != null) {
-      System.setProperty("https.protocols", protocols);
-    } else {
-      System.clearProperty("https.protocols");
-    }
-  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFilterAdapator() {
@@ -122,31 +89,6 @@ public class RemoteSolrCatalogProviderTest {
     assertThat(provider.isAvailable(), is(false));
 
     verify(client).ping();
-  }
-
-  @Test
-  public void testAvailabilitySourceMonitor() throws Exception {
-    final SolrClient client = givenSolrClient(false);
-    CatalogProvider provider = new MockedRemoteSolrCatalogProvider(client);
-    final SourceMonitor monitor = mock(SourceMonitor.class);
-
-    assertThat(provider.isAvailable(monitor), is(false));
-    final ArgumentCaptor<Listener> listener = ArgumentCaptor.forClass(Listener.class);
-
-    verify(client).isAvailable(listener.capture());
-    verify(client).ping();
-
-    // when the underlying listener is called with not available
-    listener.getValue().changed(client, false);
-
-    // so should our monitor
-    verify(monitor).setUnavailable();
-
-    // when the underlying listener is called with available
-    listener.getValue().changed(client, true);
-
-    // so should our monitor
-    verify(monitor).setAvailable();
   }
 
   /** Tests if the ConfigurationStore is set properly */

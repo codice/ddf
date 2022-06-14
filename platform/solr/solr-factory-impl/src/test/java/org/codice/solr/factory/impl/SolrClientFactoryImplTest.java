@@ -16,11 +16,8 @@ package org.codice.solr.factory.impl;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
-import org.codice.solr.client.solrj.SolrClient;
-import org.junit.Before;
+import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -31,33 +28,16 @@ public class SolrClientFactoryImplTest {
 
   @Mock private SolrClient mockClient;
 
-  @Mock private HttpSolrClientFactory mockHttpSolrClientFactory;
-
-  @Before
-  public void setup() {
-    when(mockHttpSolrClientFactory.newClient(anyString())).thenReturn(mockClient);
-  }
-
   @Test(expected = IllegalArgumentException.class)
   public void newClientWithNullCoreName() {
-    SolrClientFactoryImpl factory = new SolrClientFactoryImpl(mockHttpSolrClientFactory);
+    SolrClientFactoryImpl factory = new SolrClientFactoryImpl();
     factory.newClient(null);
-  }
-
-  @Test
-  public void newHttpSolrClient() {
-    System.setProperty("solr.client", "HttpSolrClient");
-    SolrClientFactoryImpl factory = new SolrClientFactoryImpl(mockHttpSolrClientFactory);
-
-    SolrClient client = factory.newClient("core");
-    assertThat(factory.getFactory(), is(mockHttpSolrClientFactory));
-    assertThat(client, is(mockClient));
   }
 
   @Test
   public void newCloudSolrClient() {
     System.setProperty("solr.client", "CloudSolrClient");
-    SolrClientFactoryImpl factory = new SolrClientFactoryImpl(mockHttpSolrClientFactory);
+    SolrClientFactoryImpl factory = new SolrClientFactoryImpl();
 
     assertThat(factory.getFactory(), is(instanceOf(SolrCloudClientFactory.class)));
   }
@@ -65,10 +45,8 @@ public class SolrClientFactoryImplTest {
   @Test
   public void newClientWithUnknownClientType() {
     System.setProperty("solr.client", "Unknown");
-    SolrClientFactoryImpl factory = new SolrClientFactoryImpl(mockHttpSolrClientFactory);
+    SolrClientFactoryImpl factory = new SolrClientFactoryImpl();
 
-    SolrClient client = factory.newClient("core");
-    assertThat(factory.getFactory(), is(mockHttpSolrClientFactory));
-    assertThat(client, is(mockClient));
+    assertThat(factory.getFactory(), is(instanceOf(SolrCloudClientFactory.class)));
   }
 }

@@ -87,8 +87,8 @@
         <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
-    <feature name="jodah-failsafe" version="${project.version}">
+    <feature name="dev-failsafe" version="${project.version}">
         <feature prerequisite="true">wrap</feature>
-        <bundle>wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
+        <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
     </feature>
 </features>

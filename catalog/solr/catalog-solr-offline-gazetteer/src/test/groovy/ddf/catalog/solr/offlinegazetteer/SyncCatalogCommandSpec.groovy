@@ -26,8 +26,7 @@ import ddf.catalog.source.SourceUnavailableException
 import ddf.catalog.source.UnsupportedQueryException
 import ddf.catalog.util.impl.CatalogQueryException
 import org.apache.solr.client.solrj.SolrServerException
-import org.codice.solr.client.solrj.SolrClient
-import org.codice.solr.client.solrj.UnavailableSolrException
+import org.apache.solr.client.solrj.SolrClient
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
 import spock.lang.Specification
@@ -115,6 +114,6 @@ class SyncCatalogCommandSpec extends Specification {
         e == mockException
 
         where:
-        exceptionType << [IOException, SolrServerException, UnavailableSolrException]
+        exceptionType << [IOException, SolrServerException]
     }
 }

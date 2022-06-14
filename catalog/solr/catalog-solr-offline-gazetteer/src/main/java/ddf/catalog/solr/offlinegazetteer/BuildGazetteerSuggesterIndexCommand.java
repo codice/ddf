@@ -22,9 +22,9 @@ import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.SUGGEST_Q_KEY
 import java.io.IOException;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.codice.solr.client.solrj.SolrClient;
 
 @Service
 @Command(

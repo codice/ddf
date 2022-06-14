@@ -33,6 +33,8 @@ import ddf.catalog.source.UnsupportedQueryException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -118,7 +120,7 @@ public class ResultHighlighter {
     highlighterProperties.setProperty("hl.method", "unified");
     highlighterProperties.setProperty("hl.preserveMulti", "true");
     highlighterProperties.setProperty("hl.snippets", "20");
-    if (configFile != null) {
+    if (configFile != null && Files.exists(Paths.get(configFile))) {
       try (FileInputStream fis = new FileInputStream(configFile)) {
         highlighterProperties.load(fis);
       } catch (IOException e) {

@@ -25,11 +25,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
-import org.codice.solr.client.solrj.SolrClient;
 
 /** {@link SolrCache} specific implementation of {@link SolrMetacardClientImpl}. */
 class CacheSolrMetacardClient extends SolrMetacardClientImpl {

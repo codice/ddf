@@ -17,14 +17,11 @@ import com.google.common.annotations.VisibleForTesting;
 import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
@@ -34,8 +31,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
-import org.codice.solr.factory.impl.ConfigurationStore;
-import org.codice.solr.factory.impl.HttpSolrClientFactory;
 
 @Service
 @Command(
@@ -102,36 +97,8 @@ public class RestoreCommand extends SolrCommands {
 
   @Override
   public Object execute() throws Exception {
-    if (isSystemConfiguredWithSolrCloud()) {
-      performSolrCloudRestore();
-    } else {
-      performSingleNodeSolrRestore();
-    }
-
+    performSolrCloudRestore();
     return null;
-  }
-
-  private void performSingleNodeSolrRestore() throws URISyntaxException {
-    String restoreUrl = getReplicationUrl(coreName);
-
-    try {
-      createSolrCore();
-
-      httpBuilder = new org.codice.solr.factory.impl.HttpClientBuilder(encryptionService);
-      URIBuilder uriBuilder = new URIBuilder(restoreUrl);
-      uriBuilder.addParameter("command", "restore");
-
-      if (StringUtils.isNotBlank(backupLocation)) {
-        uriBuilder.addParameter("location", backupLocation);
-      }
-
-      URI restoreUri = uriBuilder.build();
-      LOGGER.debug("Sending request to {}", restoreUri);
-
-      printResponse(sendGetRequest(restoreUri));
-    } catch (IOException | SolrServerException e) {
-      LOGGER.info("Unable to perform single node Solr restore, core: {}", coreName, e);
-    }
   }
 
   private void performSolrCloudRestore() throws IOException {
@@ -270,14 +237,6 @@ public class RestoreCommand extends SolrCommands {
       }
     }
     return true;
-  }
-
-  private void createSolrCore() throws IOException, SolrServerException {
-    httpBuilder = new org.codice.solr.factory.impl.HttpClientBuilder(encryptionService);
-    String url = getBackupUrl();
-    final String solrDataDir = getSolrDataDir();
-    ConfigurationStore.getInstance().setDataDirectoryPath(solrDataDir);
-    HttpSolrClientFactory.createSolrCore(url, coreName, null, httpBuilder.get().build());
   }
 
   private void verifyStatusInput() {

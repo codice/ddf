@@ -21,7 +21,7 @@
 
     <feature name="platform-util" version="${project.version}"
              description="Platform Utilities">
-        <feature>jodah-failsafe</feature>
+        <feature>dev-failsafe</feature>
         <feature>common-system</feature>
         <feature>spring</feature>
         <feature>guava</feature>

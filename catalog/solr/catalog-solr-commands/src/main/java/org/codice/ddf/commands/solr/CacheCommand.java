@@ -20,7 +20,7 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.api.console.Session;
-import org.codice.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 
 @Service

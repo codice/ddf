@@ -41,12 +41,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrException;
 import org.codice.ddf.catalog.solr.cache.CachePutPlugin;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
-import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.client.solrj.UnavailableSolrException;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -302,8 +301,6 @@ public class SolrCache {
       try {
         LOGGER.debug("Expiring cache.");
         client.deleteByQuery(CACHED_DATE + ":[* TO NOW-" + expirationAgeInMinutes + "MINUTES]");
-      } catch (UnavailableSolrException e) {
-        LOGGER.debug("Unable to expire cache.", e);
       } catch (SolrServerException | SolrException | IOException e) {
         LOGGER.info("Unable to expire cache; {}", e.getMessage());
         LOGGER.debug("Cache expiration error.", e);

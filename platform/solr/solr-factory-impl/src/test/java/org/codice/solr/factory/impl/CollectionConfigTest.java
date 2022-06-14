@@ -39,7 +39,6 @@ public class CollectionConfigTest {
     collectionConfig = new CollectionConfig("DoesNotExist", CONFIGSETS_PATH);
     assertThat(collectionConfig.getShardCount(), is(1));
     assertThat(collectionConfig.getReplicationFactor(), is(1));
-    assertThat(collectionConfig.getMaximumShardsPerNode(), is(1));
   }
 
   @Test
@@ -48,7 +47,6 @@ public class CollectionConfigTest {
     collectionConfig = new CollectionConfig(TEST_COLLECTION_NAME, tempLocation.toPath());
     assertThat(collectionConfig.getShardCount(), is(2));
     assertThat(collectionConfig.getReplicationFactor(), is(2));
-    assertThat(collectionConfig.getMaximumShardsPerNode(), is(2));
   }
 
   @Test
@@ -56,6 +54,5 @@ public class CollectionConfigTest {
     collectionConfig = new CollectionConfig(TEST_COLLECTION_NAME, CONFIGSETS_PATH);
     assertThat(collectionConfig.getShardCount(), is(3));
     assertThat(collectionConfig.getReplicationFactor(), is(3));
-    assertThat(collectionConfig.getMaximumShardsPerNode(), is(3));
   }
 }

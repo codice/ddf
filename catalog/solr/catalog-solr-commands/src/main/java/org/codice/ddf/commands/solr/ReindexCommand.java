@@ -40,6 +40,7 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
@@ -49,7 +50,6 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.CursorMarkParams;
 import org.codice.ddf.security.Security;
-import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 
 @Service
@@ -87,14 +87,6 @@ public class ReindexCommand extends SolrCommands {
   @Reference private SolrClientFactory clientFactory;
 
   @Reference Security security;
-
-  @Option(
-      name = "-s",
-      aliases = {"--solr"},
-      description =
-          "The source Solr system (local or cloud) to retrieve data. Should be in the form of 'http://host:port' of any cloud node.",
-      required = true)
-  private String solrHost;
 
   @Option(
       name = "-c",
@@ -144,7 +136,7 @@ public class ReindexCommand extends SolrCommands {
 
   @Override
   public Object execute() throws Exception {
-    if (StringUtils.isEmpty(solrHost) || StringUtils.isEmpty(collection)) {
+    if (StringUtils.isEmpty(collection)) {
       throw new IllegalArgumentException(
           "Source Solr Host and Source Collection need to be provided");
     }
@@ -204,11 +196,6 @@ public class ReindexCommand extends SolrCommands {
   }
 
   @VisibleForTesting
-  protected void setSolrHost(String solrHost) {
-    this.solrHost = solrHost;
-  }
-
-  @VisibleForTesting
   protected void setCollection(String collection) {
     this.collection = collection;
   }
@@ -233,7 +220,7 @@ public class ReindexCommand extends SolrCommands {
     this.field = field;
   }
 
-  private void migrate(org.codice.solr.client.solrj.SolrClient sourceSolr) {
+  private void migrate(SolrClient sourceSolr) {
     startDataQueryThread(sourceSolr);
     startDataWriterThreads();
   }
@@ -251,7 +238,7 @@ public class ReindexCommand extends SolrCommands {
             new ThreadPoolExecutor.CallerRunsPolicy());
   }
 
-  private void startDataQueryThread(org.codice.solr.client.solrj.SolrClient sourceSolr) {
+  private void startDataQueryThread(SolrClient sourceSolr) {
     readerThread = new Reader(sourceSolr);
     readerThread.setName("reindex-reader");
     readerThread.start();
@@ -289,8 +276,7 @@ public class ReindexCommand extends SolrCommands {
     }
   }
 
-  private List<Metacard> getData(org.codice.solr.client.solrj.SolrClient sourceSolr)
-      throws IOException, SolrServerException {
+  private List<Metacard> getData(SolrClient sourceSolr) throws IOException, SolrServerException {
     final SolrQuery query = getQuery();
     List<Metacard> data = new ArrayList<>();
 
@@ -298,9 +284,7 @@ public class ReindexCommand extends SolrCommands {
 
     /**
      * Always query the default collection, unable to use overload function that takes in a core
-     * name due to how HttpSolrClientFactory create its client
-     * https://github.com/codice/ddf/blob/master/platform/solr/solr-factory-impl/src/main/java/org/codice/solr/factory/impl/HttpSolrClientFactory.java#L130
-     * this limitation also spill over when using solr Cloud
+     * name due to how SolrClientFactory create its client.
      */
     QueryResponse response = sourceSolr.query(query);
     cursorMark = response.getNextCursorMark();
@@ -353,17 +337,14 @@ public class ReindexCommand extends SolrCommands {
     return query;
   }
 
-  private long getHits(org.codice.solr.client.solrj.SolrClient sourceSolr)
-      throws IOException, SolrServerException {
+  private long getHits(SolrClient sourceSolr) throws IOException, SolrServerException {
     final SolrQuery query = getQuery();
     query.setRows(0);
     query.setStart(0);
     query.addSort(new SortClause("id_txt", ORDER.desc));
     /**
      * Always query the default collection, unable to use overload function that takes in a core
-     * name due to how HttpSolrClientFactory create its client
-     * https://github.com/codice/ddf/blob/master/platform/solr/solr-factory-impl/src/main/java/org/codice/solr/factory/impl/HttpSolrClientFactory.java#L130
-     * this limitation also spill over when using solr Cloud
+     * name due to how SolrClientFactory create its client.
      */
     QueryResponse response = sourceSolr.query(query);
     if (response != null && response.getResults() != null) {
@@ -378,38 +359,42 @@ public class ReindexCommand extends SolrCommands {
 
   class Reader extends Thread {
     private boolean running = true;
-    private org.codice.solr.client.solrj.SolrClient sourceSolr;
+    private SolrClient sourceSolr;
 
-    public Reader(org.codice.solr.client.solrj.SolrClient sourceSolr) {
+    public Reader(SolrClient sourceSolr) {
       this.sourceSolr = sourceSolr;
     }
 
     @Override
     public void run() {
-      while (running) {
-        List<Metacard> data = null;
-        try {
-          data = getData(sourceSolr);
-        } catch (IOException | SolrServerException e) {
-          LOGGER.info("Unable to query solr data", e);
-        }
+      try {
+        while (running) {
+          List<Metacard> data = null;
+          try {
+            data = getData(sourceSolr);
+          } catch (IOException | SolrServerException e) {
+            LOGGER.info("Unable to query solr data", e);
+          }
 
-        if (CollectionUtils.isEmpty(data)) {
-          running = false;
-          LOGGER.trace("No more data to be retrieved from: {}", solrHost);
-        }
+          if (CollectionUtils.isEmpty(data)) {
+            running = false;
+            LOGGER.trace("No more data to be retrieved from Solr.");
+          }
 
-        if (!running) {
-          break;
-        }
+          if (!running) {
+            break;
+          }
 
-        try {
-          LOGGER.debug("Data ({}) retrieved, adding to work queue", data.size());
-          addWorkItems(data);
-        } catch (InterruptedException e) {
-          LOGGER.warn("Unable to complete reindexing. Process interrupted", e);
-          Thread.currentThread().interrupt();
+          try {
+            LOGGER.debug("Data ({}) retrieved, adding to work queue", data.size());
+            addWorkItems(data);
+          } catch (InterruptedException e) {
+            LOGGER.warn("Unable to complete reindexing. Process interrupted", e);
+            Thread.currentThread().interrupt();
+          }
         }
+      } catch (RuntimeException e) {
+        LOGGER.warn("Unable to complete reindexing. Process failed", e);
       }
     }
 

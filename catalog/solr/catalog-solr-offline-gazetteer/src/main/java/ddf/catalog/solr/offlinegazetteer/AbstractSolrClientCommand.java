@@ -15,17 +15,15 @@ package ddf.catalog.solr.offlinegazetteer;
 
 import static ddf.catalog.solr.offlinegazetteer.GazetteerConstants.COLLECTION_NAME;
 
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
+import java.time.Duration;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.codice.ddf.commands.catalog.SubjectCommands;
-import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.client.solrj.UnavailableSolrException;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,17 +53,23 @@ public abstract class AbstractSolrClientCommand extends SubjectCommands {
     }
 
     try (SolrClient solrClient = clientFactory.newClient(COLLECTION_NAME)) {
-      Callable<Boolean> booleanCallable = solrClient::isAvailable;
+      if (solrClient == null) {
+        LOGGER.error("Could not create Solr client");
+        printErrorMessage("Could not create Solr client, exiting.");
+        return null;
+      }
       boolean response =
           Failsafe.with(
-                  new RetryPolicy()
-                      .retryWhen(false)
-                      .withMaxDuration(5, TimeUnit.SECONDS)
-                      .withBackoff(25, 1_000, TimeUnit.MILLISECONDS))
-              .get(booleanCallable);
+                  RetryPolicy.<Boolean>builder()
+                      .handleResult(false)
+                      .withMaxDuration(Duration.ofSeconds(5))
+                      .withMaxRetries(-1)
+                      .withBackoff(Duration.ofMillis(25), Duration.ofSeconds(1))
+                      .build())
+              .get(() -> "OK".equals(solrClient.ping().getResponse().get("status")));
       if (!response) {
-        LOGGER.error("Could not contact solr");
-        printErrorMessage("Could not contact solr, exiting.");
+        LOGGER.error("Could not contact Solr");
+        printErrorMessage("Could not contact Solr, exiting.");
         return null;
       }
       executeWithSolrClient(solrClient);
@@ -83,7 +87,6 @@ public abstract class AbstractSolrClientCommand extends SubjectCommands {
   /**
    * @throws IOException if there is a low-level I/O error.
    * @throws SolrServerException if there is an error on the server
-   * @throws UnavailableSolrException if the Solr server or the core is unavailable
    * @throws RuntimeException if there is another error
    * @throws InterruptedException if interrupted while executing
    */

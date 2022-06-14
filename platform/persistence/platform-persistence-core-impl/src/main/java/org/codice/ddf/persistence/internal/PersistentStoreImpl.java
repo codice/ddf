@@ -13,9 +13,12 @@
  */
 package org.codice.ddf.persistence.internal;
 
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,12 +26,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -41,7 +44,6 @@ import org.apache.solr.common.SolrInputDocument;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
-import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 import org.codice.solr.query.SolrQueryFilterVisitor;
 import org.geotools.filter.text.cql2.CQLException;
@@ -291,18 +293,27 @@ public class PersistentStoreImpl implements PersistentStore {
   }
 
   private SolrClient getSolrClient(String storeName) throws PersistenceException {
-    try {
-      final SolrClient solrClient =
-          solrClients.computeIfAbsent(storeName, clientFactory::newClient);
 
-      if (solrClient.isAvailable(5, TimeUnit.SECONDS)) {
-        return solrClient;
-      }
-    } catch (InterruptedException e) {
-      LOGGER.warn("Error getting available solr server for core: {}", storeName, e);
-      Thread.currentThread().interrupt();
+    final SolrClient solrClient = solrClients.computeIfAbsent(storeName, clientFactory::newClient);
+
+    if (solrClient == null) {
+      throw new PersistenceException("Unable to create Solr client");
     }
-    throw new PersistenceException("Solr client is not available");
+
+    boolean response =
+        Failsafe.with(
+                RetryPolicy.<Boolean>builder()
+                    .handleResult(false)
+                    .withMaxDuration(Duration.ofSeconds(5))
+                    .withMaxRetries(-1)
+                    .withBackoff(Duration.ofMillis(25), Duration.ofSeconds(1))
+                    .build())
+            .get(() -> "OK".equals(solrClient.ping().getResponse().get("status")));
+    if (response) {
+      return solrClient;
+    } else {
+      throw new PersistenceException("Solr client is not available");
+    }
   }
 
   private static String accessProperty(String key, String defaultValue) {

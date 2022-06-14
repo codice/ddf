@@ -25,8 +25,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.solr.SolrTestCaseJ4;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.embedded.JettyConfig;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
@@ -71,11 +71,6 @@ public abstract class SolrCommandTest {
     return backupLocation.getRoot().getPath();
   }
 
-  protected void setupSystemProperties(String solrClientType) {
-    setupSolrClientType(solrClientType);
-    setupZkHost();
-  }
-
   protected static void setDdfHome() {
     System.setProperty(DDF_HOME_PROP, DEFAULT_DDF_HOME);
   }
@@ -86,10 +81,6 @@ public abstract class SolrCommandTest {
 
   protected void setupSolrClientType(String solrClientType) {
     System.setProperty(SolrCommands.SOLR_CLIENT_PROP, solrClientType);
-  }
-
-  protected void setupZkHost() {
-    System.setProperty(SolrCommands.ZOOKEEPER_HOSTS_PROP, DEFAULT_ZK_HOSTS);
   }
 
   /**
@@ -146,15 +137,31 @@ public abstract class SolrCommandTest {
   }
 
   protected static void createMiniSolrCloudCluster() throws Exception {
+    System.setProperty(
+        "pkiHandlerPrivateKeyPath",
+        SolrTestCaseJ4.class
+            .getClassLoader()
+            .getResource("cryptokeys/priv_key512_pkcs8.pem")
+            .toExternalForm());
+    System.setProperty(
+        "pkiHandlerPublicKeyPath",
+        SolrTestCaseJ4.class
+            .getClassLoader()
+            .getResource("cryptokeys/pub_key512.der")
+            .toExternalForm());
     System.setProperty("jetty.testMode", "true");
     System.setProperty("solr.allowPaths", "*");
     miniSolrCloud =
-        new MiniSolrCloudCluster(
-            1, getBaseDirPath(), JettyConfig.builder().setContext("/solr").build());
+        new MiniSolrCloudCluster.Builder(1, getBaseDirPath())
+            .withJettyConfig(jetty -> jetty.setContext("/solr"))
+            .addConfig(
+                DEFAULT_CONFIGSET,
+                Paths.get(
+                    BackupCommandTest.class.getClassLoader().getResource("configset").getPath()))
+            .build();
     miniSolrCloud.getSolrClient().connect();
     System.setProperty("solr.cloud.shardCount", "1");
     System.setProperty("solr.cloud.replicationFactor", "1");
-    System.setProperty("solr.cloud.maxShardPerNode", "1");
     System.setProperty("solr.cloud.zookeeper.chroot", "/solr");
     System.setProperty(SolrCommands.ZOOKEEPER_HOSTS_PROP, miniSolrCloud.getZkServer().getZkHost());
     // Set soft commit and hard commit times high, so they will not impact the tests.

@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
-import net.jodah.failsafe.FailsafeException;
 import org.codice.junit.rules.RestoreSystemProperties;
 import org.junit.Before;
 import org.junit.Rule;
@@ -77,7 +76,7 @@ public class InputTransformerBootServiceFlagTest {
         .registerService(isA(Class.class), isA(Object.class), isA(Dictionary.class));
   }
 
-  @Test(expected = FailsafeException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testWaitForInputTransformersTimesOut() {
     InputTransformerIds inputTransformerIds = mock(InputTransformerIds.class);
     when(inputTransformerIds.getIds()).thenReturn(ImmutableSet.of("id1", "id2", "id3"));

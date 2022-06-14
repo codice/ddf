@@ -18,12 +18,12 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.LukeRequest;
 import org.apache.solr.client.solrj.response.LukeResponse;
 import org.apache.solr.client.solrj.response.LukeResponse.FieldInfo;
 import org.apache.solr.common.SolrException;
-import org.codice.solr.client.solrj.SolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,7 +137,7 @@ public class SchemaFieldResolver {
     LukeRequest luke = new LukeRequest();
     LukeResponse rsp;
     try {
-      rsp = luke.process(solr.getClient());
+      rsp = luke.process(solr);
       Map<String, FieldInfo> fieldsInfo = rsp.getFieldInfo();
       if (fieldsInfo != null && !fieldsInfo.isEmpty()) {
         LOGGER.debug("got fieldsInfo for {} fields", fieldsInfo.size());

@@ -38,9 +38,13 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.MaskableImpl;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,11 +54,13 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -63,7 +69,6 @@ import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
-import org.codice.solr.client.solrj.SolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +103,8 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
 
   private final SolrMetacardClientImpl client;
 
+  private CompletableFuture<Void> addFieldsFuture;
+
   /**
    * Constructor that creates a new instance and allows for a custom {@link DynamicSchemaResolver}
    *
@@ -120,7 +127,7 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
     LOGGER.debug(
         "Constructing {} with Solr client [{}]", SolrCatalogProviderImpl.class.getName(), solr);
 
-    solr.whenAvailable(this::addFieldsFromClientToResolver);
+    this.addFieldsFromClientToResolver(solr);
     this.client =
         new ProviderSolrMetacardClient(solrClient, adapter, solrFilterDelegateFactory, resolver);
   }
@@ -154,9 +161,15 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
 
   @Override
   public boolean isAvailable(SourceMonitor callback) {
-    // first register the callback
-    solr.isAvailable(new SolrClientListenerAdapter(callback));
-    return isAvailable(); // then trigger an active ping
+    boolean available = isAvailable(); // then trigger an active ping
+
+    if (available) {
+      callback.setAvailable();
+    } else {
+      callback.setUnavailable();
+    }
+
+    return available;
   }
 
   @Override
@@ -356,12 +369,23 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
   }
 
   private void addFieldsFromClientToResolver(SolrClient client) {
-    try {
-      resolver.addFieldsFromClient(client);
-    } catch (SolrServerException | SolrException | IOException e) {
-      // retry again when it comes back available
-      client.whenAvailable(this::addFieldsFromClientToResolver);
-    }
+    addFieldsFuture =
+        Failsafe.with(
+                RetryPolicy.builder()
+                    .abortOn(
+                        InterruptedIOException.class,
+                        InterruptedException.class,
+                        VirtualMachineError.class)
+                    .withBackoff(Duration.ofMillis(10), Duration.ofMinutes(1))
+                    .withMaxAttempts(-1)
+                    .build())
+            .onFailure(
+                e ->
+                    LOGGER.error(
+                        "Failed to add fields from Solr client to Solr provider", e.getException()))
+            .onSuccess(
+                e -> LOGGER.debug("Successfully added fields from Solr client to Solr provider."))
+            .runAsync(() -> resolver.addFieldsFromClient(client));
   }
 
   private List<Metacard> computeMetacardsToUpdate(
@@ -505,6 +529,9 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
   public void shutdown() {
     LOGGER.debug("Closing down Solr client.");
     try {
+      if (addFieldsFuture != null) {
+        addFieldsFuture.cancel(true);
+      }
       solr.close();
     } catch (IOException e) {
       LOGGER.info("Failed to close Solr client during shutdown.", e);
@@ -534,42 +561,6 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
         metacard.setSourceId(getId());
       }
       return metacard;
-    }
-  }
-
-  /** Solr client listener class to adapt to a source monitor class */
-  private static class SolrClientListenerAdapter implements SolrClient.Listener {
-    private final SourceMonitor callback;
-
-    private SolrClientListenerAdapter(SourceMonitor callback) {
-      this.callback = callback;
-    }
-
-    @Override
-    public void changed(SolrClient client, boolean available) {
-      if (available) {
-        callback.setAvailable();
-      } else {
-        callback.setUnavailable();
-      }
-    }
-
-    @Override
-    public int hashCode() {
-      return callback.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (obj instanceof SolrClientListenerAdapter) {
-        return callback.equals(((SolrClientListenerAdapter) obj).callback);
-      }
-      return false;
-    }
-
-    @Override
-    public String toString() {
-      return callback.toString();
     }
   }
 }

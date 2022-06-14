@@ -28,7 +28,7 @@ import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.common.SolrInputDocument
 import org.apache.solr.common.params.SolrParams
 import org.codice.ddf.spatial.geocoding.GeoEntryAttributes
-import org.codice.solr.client.solrj.SolrClient
+import org.apache.solr.client.solrj.SolrClient
 import org.codice.solr.factory.SolrClientFactory
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith

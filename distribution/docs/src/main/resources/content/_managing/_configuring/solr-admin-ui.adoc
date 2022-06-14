@@ -8,4 +8,4 @@
 == {title}
 
 The ((Solr Admin UI)) for Solr server configurations can be accessed from a web browser.
-See https://lucene.apache.org/solr/guide/${solr.docs.version}/using-the-solr-administration-user-interface.html[Using the Solr Administration User Interface] {external-link} for more details.
+See https://solr.apache.org/guide/solr/${solr.docs.version}/getting-started/solr-admin-ui.html[Using the Solr Administration User Interface] {external-link} for more details.

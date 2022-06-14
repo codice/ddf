@@ -22,10 +22,6 @@ import static ddf.catalog.Constants.SUGGESTION_DICT_KEY;
 import static ddf.catalog.Constants.SUGGESTION_QUERY_KEY;
 import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIRST_CHAR_OF_SUFFIX;
-import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_BUILD;
-import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_CONTEXT_FILTER_QUERY;
-import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_DICT;
-import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_Q;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -70,6 +66,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -85,7 +82,6 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.util.SimpleOrderedMap;
-import org.codice.solr.client.solrj.SolrClient;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -111,6 +107,11 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private static final String GET_QUERY_HANDLER = "/get";
 
   private static final String IDS_KEY = "ids";
+
+  private static final String SUGGEST_BUILD = "suggest.build";
+  private static final String SUGGEST_CONTEXT_FILTER_QUERY = "suggest.cfq";
+  private static final String SUGGEST_DICT = "suggest.dictionary";
+  private static final String SUGGEST_Q = "suggest.q";
 
   public static final String SORT_FIELD_KEY = "sfield";
 
@@ -915,6 +916,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             /* waitForFlush */ true,
             /* waitToMakeVisible */ true,
             /* softCommit */ true)
-        .process(client.getClient());
+        .process(client);
   }
 }

@@ -73,11 +73,6 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>jts</artifactId>
-            <version>${jts.bundle.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.solr</groupId>
             <artifactId>catalog-solr-cache</artifactId>
             <version>${project.version}</version>

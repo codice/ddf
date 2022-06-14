@@ -7,7 +7,7 @@
 
 == {title}
 
-Follow instructions on https://lucene.apache.org/solr/guide/${solr.docs.version}/securing-solr.html[Securing Solr] {external-link}.
+Follow instructions on https://solr.apache.org/guide/solr/${solr.docs.version}/deployment-guide/securing-solr.html[Securing Solr] {external-link}.
 
 === Configuring Solr Encryption
 

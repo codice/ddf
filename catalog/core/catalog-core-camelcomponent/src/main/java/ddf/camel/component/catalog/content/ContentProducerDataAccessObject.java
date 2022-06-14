@@ -35,6 +35,8 @@ import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,17 +45,14 @@ import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
-import net.jodah.failsafe.function.Predicate;
 import org.apache.camel.Message;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileMessage;
@@ -255,13 +254,14 @@ public class ContentProducerDataAccessObject {
 
   private void waitForAvailableSource(CatalogFramework catalogFramework)
       throws SourceUnavailableException {
-    RetryPolicy retryPolicy =
-        new RetryPolicy()
-            .withDelay(3, TimeUnit.SECONDS)
-            .withMaxDuration(3, TimeUnit.MINUTES)
-            .retryIf((Predicate<Set>) Set::isEmpty)
-            .retryIf(
-                (Set<SourceDescriptor> result) -> !result.stream().findFirst().get().isAvailable());
+    RetryPolicy<Set<SourceDescriptor>> retryPolicy =
+        RetryPolicy.<Set<SourceDescriptor>>builder()
+            .withDelay(Duration.ofSeconds(3))
+            .withMaxDuration(Duration.ofMinutes(3))
+            .withMaxRetries(-1)
+            .handleResultIf(Set::isEmpty)
+            .handleResultIf(result -> !result.stream().findFirst().get().isAvailable())
+            .build();
 
     Failsafe.with(retryPolicy)
         .get(
