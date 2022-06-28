@@ -39,7 +39,6 @@
     </dependencyManagement>
     <modules>
         <module>solr-dependencies</module>
-        <module>solr-logging</module>
         <module>solr-query</module>
         <module>solr-schema</module>
         <module>solr-appender</module>
