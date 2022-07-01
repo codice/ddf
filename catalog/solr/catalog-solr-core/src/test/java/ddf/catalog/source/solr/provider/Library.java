@@ -57,6 +57,9 @@ public class Library {
       "POLYGON ((175 30, -175 30, -175 25, 175 25, 175 30))";
   public static final String ACROSS_INTERNATIONAL_DATELINE_LARGE_CCW_WKT =
       "POLYGON ((175 30, 175 25, -175 25, -175 30, 175 30))";
+  public static final String ON_INTERNATIONAL_DATELINE_CW_WKT =
+      "POLYGON ((175 75, 180 75, 180 70, 175 70, 175 75))";
+  public static final String ARCTIC_OCEAN_POINT_WKT = "POINT (-179.9 75.1)";
   public static final String MIDWAY_ISLANDS_POINT_WKT = "POINT (-177.372736 28.208365)";
   public static final String LAS_VEGAS_POINT_WKT = "POINT (-115.136389 36.175)";
   public static final String ARABIAN_SEA_POINT_WKT = "POINT (62.5 14)";

@@ -40,9 +40,12 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.joda.time.DateTime;
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
@@ -97,7 +100,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
           "spatialContextFactory",
           JtsSpatialContextFactory.class.getName(),
           "validationRule",
-          ValidationRule.repairConvexHull.name());
+          ValidationRule.repairConvexHull.name(),
+          "normWrapLongitude",
+          "true",
+          "allowMultiOverlap",
+          "true");
 
   private static final SpatialContext SPATIAL_CONTEXT =
       SpatialContextFactory.makeSpatialContext(SPATIAL_CONTEXT_ARGUMENTS, null);
@@ -709,6 +716,33 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     return operationToQuery("Contains", propertyName, wkt);
   }
 
+  public static Geometry removeHoles(final Geometry geo) {
+    if ("Polygon".equalsIgnoreCase(geo.getGeometryType())) {
+      logHoleRemoval(geo);
+      final Polygon p = (Polygon) geo;
+      return GEOMETRY_FACTORY.createPolygon(p.getExteriorRing().getCoordinateSequence());
+    } else if ("MultiPolygon".equalsIgnoreCase(geo.getGeometryType())) {
+      logHoleRemoval(geo);
+      final MultiPolygon mp = (MultiPolygon) geo;
+      final List<Polygon> polys = new ArrayList<>();
+      for (int i = 0; i < mp.getNumGeometries(); i++) {
+        final Polygon poly =
+            GEOMETRY_FACTORY.createPolygon(
+                ((Polygon) mp.getGeometryN(i)).getExteriorRing().getCoordinateSequence());
+        polys.add(poly);
+      }
+      return GEOMETRY_FACTORY.createMultiPolygon(polys.toArray(new Polygon[0]));
+    }
+
+    return geo;
+  }
+
+  private static void logHoleRemoval(final Geometry geo) {
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Removing holes from: {}", geo);
+    }
+  }
+
   @Override
   public SolrQuery dwithin(String propertyName, String wkt, double distance) {
     Geometry geo = getGeometry(wkt);
@@ -723,6 +757,19 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return new SolrQuery(pointRadiusQuery);
       } else {
         Geometry bufferGeo = geo.buffer(distanceInDegrees, QUADRANT_SEGMENTS);
+        final Envelope envelope = bufferGeo.getEnvelopeInternal();
+        final boolean crossesDateline =
+            envelope.getWidth() >= 180
+                || (envelope.getMinX() <= 180 && envelope.getMaxX() > 180)
+                || (envelope.getMinX() < -180 && envelope.getMaxX() >= -180);
+        // When spatial4j's JtsGeometry unwraps polygons that cross the dateline, it checks that all
+        // interior rings of the polygon are subsets of the exterior ring, which means polygons with
+        // holes will throw an exception. Remove any holes from polygons that cross the dateline to
+        // prevent that exception from being thrown.
+        if (crossesDateline) {
+          // Consider using HoleRemover from jtslab once it is production-ready.
+          bufferGeo = removeHoles(bufferGeo);
+        }
         String bufferWkt = WKT_WRITER.write(bufferGeo);
         return operationToQuery(INTERSECTS_OPERATION, propertyName, bufferWkt);
       }
