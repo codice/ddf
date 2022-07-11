@@ -60,6 +60,41 @@
 
         <!--feature dependencies-->
         <dependency>
+            <groupId>org.apache.cxf.karaf</groupId>
+            <artifactId>apache-cxf</artifactId>
+            <version>${cxf.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel.karaf</groupId>
+            <artifactId>apache-camel</artifactId>
+            <version>${camel.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>kernel</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>security</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>admin</artifactId>
             <version>${project.version}</version>
@@ -74,29 +109,8 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel.karaf</groupId>
-            <artifactId>apache-camel</artifactId>
-            <version>${camel.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf.karaf</groupId>
-            <artifactId>apache-cxf</artifactId>
-            <version>${cxf.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>kernel</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>security</artifactId>
+            <groupId>ddf.catalog</groupId>
+            <artifactId>catalog-app</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
@@ -104,20 +118,6 @@
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>solr</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog</groupId>
-            <artifactId>catalog-app</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
