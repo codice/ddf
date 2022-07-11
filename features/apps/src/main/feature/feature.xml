@@ -18,6 +18,7 @@
 
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
+    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
     <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
@@ -27,6 +28,9 @@
     <feature name="ddf-core" version="${project.version}"
              description="Features that will be started on container startup.">
         <feature>kernel</feature>
+        <feature>cxf</feature>
+        <feature>camel</feature>
+        <feature>camel-cxf</feature>
         <feature>security-core-api</feature>
         <feature>war</feature>
         <feature>ddf-branding</feature>
@@ -53,7 +57,6 @@
     <!-- Start of app features -->
 
     <repository>mvn:ddf.features/admin/${project.version}/xml/features</repository>
-    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
     <repository>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</repository>
