@@ -17,7 +17,7 @@ import java.util.Dictionary;
 import java.util.Optional;
 import org.codice.ddf.branding.BrandingRegistry;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 /* Contains getters and setters for the UI configuration for building Simple Search UI  */
 public class UiConfigurationProperties {
@@ -73,7 +73,7 @@ public class UiConfigurationProperties {
     if (properties.get(key) instanceof String) {
       val = (String) properties.get(key);
     }
-    return Jsoup.clean(val, Whitelist.relaxed());
+    return Jsoup.clean(val, Safelist.relaxed());
   }
 
   private Boolean getBooleanProperty(String key) {
