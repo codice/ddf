@@ -275,15 +275,15 @@
         <openjson.version>1.0.12</openjson.version>
         <pac4j.version>4.0.1</pac4j.version>
         <pdfbox.version>2.0.23</pdfbox.version>
-        <poi.version>4.1.2</poi.version>
-        <xlsx.transformer.poi.version>4.1.2</xlsx.transformer.poi.version>
+        <poi.version>5.2.2</poi.version>
+        <xlsx.transformer.poi.version>5.2.2</xlsx.transformer.poi.version>
         <protobuf.version>3.12.4</protobuf.version>
         <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
         <hazelcast.version>3.12.10</hazelcast.version>
         <saxon.version>9.6.0-4</saxon.version>
-        <servicemix.bundles.poi.version>${poi.version}_1</servicemix.bundles.poi.version>
+        <servicemix.bundles.poi.version>${poi.version}_2</servicemix.bundles.poi.version>
         <servicemix.bundles.jaxb.version>${jaxb.version}_2</servicemix.bundles.jaxb.version>
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
         <servicemix.specs.jaxb.version>2.3_3</servicemix.specs.jaxb.version>
@@ -301,8 +301,7 @@
         <spatial4j.version>0.8</spatial4j.version>
         <spring.version>5.3.14</spring.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
-        <tika.thirdparty.bundle.version>1.26.0_1</tika.thirdparty.bundle.version>
-        <tika.version>1.27</tika.version>
+        <tika.version>1.28.4</tika.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
         <woodstox.core.version>6.2.8</woodstox.core.version>
@@ -314,8 +313,8 @@
         <xerces.version>2.12.0</xerces.version>
         <xerces.bundle.version>2.12.0_1</xerces.bundle.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <xmlbeans.version>3.1.0</xmlbeans.version>
-        <xmlsec.version>2.2.3</xmlsec.version>
+        <xmlbeans.version>5.0.3</xmlbeans.version>
+        <xmlsec.version>2.3.1</xmlsec.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
         <xstream.version>1.4.18</xstream.version>
         <micrometer.version>1.8.0</micrometer.version>
