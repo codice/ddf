@@ -110,9 +110,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
+            <groupId>org.apache.tika</groupId>
             <artifactId>tika-bundle</artifactId>
-            <version>${tika.thirdparty.bundle.version}</version>
+            <version>${tika.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
