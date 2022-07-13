@@ -39,7 +39,7 @@
         <feature>common-system</feature>
 
         <!-- NimbusDS -->
-        <bundle>wrap:mvn:com.nimbusds/nimbus-jose-jwt/${nimbus.version}</bundle>
+        <bundle>wrap:mvn:com.nimbusds/nimbus-jose-jwt/${nimbus.jose.jwt.version}</bundle>
         <bundle>wrap:mvn:com.nimbusds/oauth2-oidc-sdk/${nimbus.oidc.version}</bundle>
         <bundle>mvn:com.nimbusds/content-type/${nimbus.content-type.version}</bundle>
         <bundle>mvn:com.nimbusds/lang-tag/${nimbus.langtag.version}</bundle>
