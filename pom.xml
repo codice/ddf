@@ -179,6 +179,7 @@
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.1.8</countryconverter.version>
+        <cryptomator.version>1.4.4</cryptomator.version>
         <cxf.version>3.5.3</cxf.version>
         <ddf-admin-ui.version>2.25.0</ddf-admin-ui.version>
         <decanter.version>1.3.0</decanter.version>

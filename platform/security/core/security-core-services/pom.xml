@@ -179,7 +179,7 @@
         <dependency>
             <groupId>org.cryptomator</groupId>
             <artifactId>siv-mode</artifactId>
-            <version>1.2.2</version>
+            <version>${cryptomator.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mindrot</groupId>
