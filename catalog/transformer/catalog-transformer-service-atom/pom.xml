@@ -57,6 +57,11 @@
             <artifactId>axiom-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.james</groupId>
+            <artifactId>apache-mime4j-core</artifactId>
+            <version>${mime4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-impl</artifactId>
             <scope>test</scope>

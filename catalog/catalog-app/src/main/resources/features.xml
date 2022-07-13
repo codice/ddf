@@ -151,7 +151,7 @@
 
     <feature name="abdera" version="${project.version}"
              description="Apache Abdera">
-        <bundle>wrap:mvn:org.apache.james/apache-mime4j-core/0.7.2</bundle>
+        <bundle>mvn:org.apache.james/apache-mime4j-core/${mime4j.version}</bundle>
         <bundle>mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
         <!-- This bundle <bundle>mvn:org.apache.ws.commons.axiom/axiom-impl/1.2.10</bundle>
         does not export any classes. Must use the servicemix version. -->
