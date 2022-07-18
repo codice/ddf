@@ -86,10 +86,10 @@ public class HtmlMetacardUtility {
 
     this.resolvers =
         new ValueResolver[] {
-          FieldValueResolver.INSTANCE,
           MapValueResolver.INSTANCE,
           JavaBeanValueResolver.INSTANCE,
-          MethodValueResolver.INSTANCE
+          MethodValueResolver.INSTANCE,
+          FieldValueResolver.INSTANCE
         };
 
     try {
