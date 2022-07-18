@@ -229,7 +229,7 @@
         <johnzon.version>0.9.5</johnzon.version>
         <jpeg2000.version>1.3.1_CODICE_3</jpeg2000.version>
         <json-simple.version>1.1.1</json-simple.version>
-        <json-smart.version>2.4.7</json-smart.version>
+        <json-smart.version>2.4.8</json-smart.version>
         <jsoup.version>1.15.2</jsoup.version>
         <jsr305.version>3.0.2</jsr305.version>
         <jsr305.bundle.version>${jsr305.version}_1</jsr305.bundle.version>
