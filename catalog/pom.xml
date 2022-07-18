@@ -29,7 +29,6 @@
         <cglib.version>3.2.0</cglib.version>
         <logkit.version>1.0.1</logkit.version>
         <cdi-api.version>1.2</cdi-api.version>
-        <xstream.bundle.version>1.4.9_1</xstream.bundle.version>
         <xalan.version>2.7.2</xalan.version>
         <axiom.version>1.2.14</axiom.version>
         <!--
