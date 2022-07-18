@@ -17,7 +17,9 @@ import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
+import com.github.jknack.handlebars.context.MethodValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
 import com.google.common.annotations.VisibleForTesting;
@@ -161,11 +163,6 @@ public class LandingPage extends HttpServlet {
     this.externalUrl = externalUrl;
   }
 
-  // Should this be included as a workaround for how the admin UI handles metatype lists?
-  public void setAnnouncements(String announcements) {
-    setAnnouncements(Arrays.asList(announcements.split(",")));
-  }
-
   public void setAnnouncements(List<String> announcements) {
     this.announcements = announcements;
     sortAnnouncementsByDate();
@@ -287,11 +284,13 @@ public class LandingPage extends HttpServlet {
             .map(registry -> registry.getAttributeFromBranding(BrandingPlugin::getProductName))
             .orElse("");
     logoToUse = StringUtils.isNotEmpty(logo) ? logo : getProductImage();
-    // FieldValueResolver so this class' fields can be accessed in the template.
-    // MapValueResolver so we can access {{@index}} in the #each helper in the template.
     final Context context =
         Context.newBuilder(this)
-            .resolver(FieldValueResolver.INSTANCE, MapValueResolver.INSTANCE)
+            .resolver(
+                MapValueResolver.INSTANCE,
+                JavaBeanValueResolver.INSTANCE,
+                MethodValueResolver.INSTANCE,
+                FieldValueResolver.INSTANCE)
             .build();
     // The template is "index.handlebars".
     final TemplateLoader templateLoader = new ClassPathTemplateLoader("/", ".handlebars");

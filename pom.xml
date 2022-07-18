@@ -109,7 +109,7 @@
         <gib.enabled>false</gib.enabled>
         <gib.failOnError>false</gib.failOnError>
 
-        <jknack.handlebars.version>2.0.0</jknack.handlebars.version>
+        <jknack.handlebars.version>4.3.0</jknack.handlebars.version>
         <picocontainer.version>1.3_1</picocontainer.version>
         <dom4j.bundle.version>2.1.3_1</dom4j.bundle.version>
 
