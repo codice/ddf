@@ -26,6 +26,9 @@
     <service ref="insecureDefaultsCollector" interface="java.lang.Runnable">
         <service-properties>
             <entry key="decanter.collector.name" value="insecureDefaults"/>
+            <entry key="scheduler.period" value="60"/>
+            <entry key="scheduler.concurrent" value="false"/>
+            <entry key="scheduler.name" value="decanter-collector-insecuredefaults"/>
         </service-properties>
     </service>
 
@@ -46,6 +49,9 @@
     <service ref="usersPropertiesCollector" interface="java.lang.Runnable">
         <service-properties>
             <entry key="decanter.collector.name" value="userProperties"/>
+            <entry key="scheduler.period" value="60"/>
+            <entry key="scheduler.concurrent" value="false"/>
+            <entry key="scheduler.name" value="decanter-collector-users"/>
         </service-properties>
     </service>
 </blueprint>

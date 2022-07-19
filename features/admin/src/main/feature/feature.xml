@@ -27,8 +27,8 @@
 
     <feature name="platform-alerts" version="${project.version}"
              description="Basic alert framework. Includes basic Decanter features and persistence-core">
-        <feature>decanter-sla</feature>
-        <feature>decanter-simple-scheduler</feature>
+        <feature>decanter-alerting</feature>
+        <feature>scheduler</feature>
         <feature>persistence-core</feature>
     </feature>
 
