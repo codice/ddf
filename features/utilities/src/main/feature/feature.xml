@@ -222,4 +222,41 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/${servicemix.bundles.poi.version}</bundle>
     </feature>
 
+    <feature name="jts" version="${project.version}">
+        <bundle>mvn:org.locationtech.jts/jts-core/${jts.geotools.version}</bundle>
+        <bundle>wrap:mvn:org.locationtech.jts.io/jts-io-common/${jts.geotools.version}$Bundle-Name=jts-io-common&amp;Bundle-SymbolicName=jts-io-common</bundle>
+        <bundle>mvn:com.googlecode.json-simple/json-simple/${json-simple.version}</bundle>
+    </feature>
+
+    <feature name="geotools" version="${project.version}">
+        <feature>javax-inject</feature>
+        <bundle>wrap:mvn:org.geotools/gt-opengis/${org.geotools.version}$Bundle-Name=gt-opengis&amp;Bundle-SymbolicName=gt-opengis</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-main/${org.geotools.version}$Bundle-Name=gt-main&amp;Bundle-SymbolicName=gt-main</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-cql/${org.geotools.version}$Bundle-Name=gt-cql&amp;Bundle-SymbolicName=gt-cql</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-jts-wrapper/${org.geotools.version}$Bundle-Name=gt-jts-wrapper&amp;Bundle-SymbolicName=gt-jts-wrapper</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-xml/${org.geotools.version}$Bundle-Name=gt-xml&amp;Bundle-SymbolicName=gt-xml</bundle>
+        <bundle>wrap:mvn:org.picocontainer/picocontainer/1.2$Bundle-Name=picocontainer&amp;Bundle-SymbolicName=picocontainer</bundle>
+        <bundle>mvn:ddf.thirdparty/eclipse-emf/${project.version}</bundle>
+        <bundle>wrap:mvn:org.geotools.xsd/gt-xsd-core/${org.geotools.version}$Bundle-Name=gt-xsd-core&amp;Bundle-SymbolicName=gt-xsd-core</bundle>
+        <bundle>wrap:mvn:org.geotools.xsd/gt-xsd-gml2/${org.geotools.version}$Bundle-Name=gt-xsd-gml2&amp;Bundle-SymbolicName=gt-xsd-gml2</bundle>
+        <bundle>wrap:mvn:org.geotools.xsd/gt-xsd-gml3/${org.geotools.version}$Bundle-Name=gt-xsd-gml3&amp;Bundle-SymbolicName=gt-xsd-gml3</bundle>
+        <bundle>wrap:mvn:org.geotools.xsd/gt-xsd-filter/${org.geotools.version}$Bundle-Name=gt-xsd-filter&amp;Bundle-SymbolicName=gt-xsd-filter</bundle>
+        <bundle>wrap:mvn:org.geotools.xsd/gt-xsd-fes/${org.geotools.version}$Bundle-Name=gt-xsd-fes&amp;Bundle-SymbolicName=gt-xsd-fes</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-wfs-ng/${org.geotools.version}$Bundle-Name=gt-wfs-ng&amp;Bundle-SymbolicName=gt-wfs-ng</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-epsg-hsql/${org.geotools.version}$Bundle-Name=gt-epsg-hsql&amp;Bundle-SymbolicName=gt-epsg-hsql</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-epsg-extension/${org.geotools.version}$Bundle-Name=gt-epsg-extension&amp;Bundle-SymbolicName=gt-epsg-extension</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-referencing/${org.geotools.version}$Bundle-Name=gt-referencing&amp;Bundle-SymbolicName=gt-referencing</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-metadata/${org.geotools.version}$Bundle-Name=gt-metadata&amp;Bundle-SymbolicName=gt-metadata&amp;DynamicImport-Package=*</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-geojson/${org.geotools.version}$Bundle-Name=gt-geojson&amp;Bundle-SymbolicName=gt-geojson</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-shapefile/${org.geotools.version}$Bundle-Name=gt-shapefile&amp;Bundle-SymbolicName=gt-shapefile</bundle>
+        <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+        <bundle>mvn:tech.units/indriya/2.0.1</bundle>
+        <bundle>mvn:tech.uom.lib/uom-lib-common/2.1</bundle>
+        <bundle>mvn:si.uom/si-quantity/2.0.1</bundle>
+        <bundle>wrap:mvn:si.uom/si-units/2.0.1$overwrite=merge&amp;Bundle-Name=si-units&amp;Bundle-SymbolicName=si-units&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
+        <bundle>mvn:systems.uom/systems-quantity/2.0.1</bundle>
+        <bundle>wrap:mvn:systems.uom/systems-common/2.0.1$overwrite=merge&amp;Bundle-Name=systems-common&amp;Bundle-SymbolicName=systems-common&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
+        <bundle>mvn:javax.measure/unit-api/2.0</bundle>
+    </feature>
+
 </features>

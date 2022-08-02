@@ -143,10 +143,12 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-xml</artifactId>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.soc</groupId>

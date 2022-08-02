@@ -13,6 +13,8 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+	<bean id="geotoolsPluginLoader"
+		  class="ddf.catalog.filter.proxy.GeotoolsPluginLoader"/>
 	<bean id="geotoolsFilterAdapter"
           class="ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl"/>
 	<bean id="geotoolsFilterBuilder"

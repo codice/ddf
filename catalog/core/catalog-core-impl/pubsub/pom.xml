@@ -85,6 +85,7 @@
         <dependency>
             <groupId>org.geotools.xsd</groupId>
             <artifactId>gt-xsd-gml3</artifactId>
+            <version>${org.geotools.version}</version>
         </dependency>
     </dependencies>
     <build>

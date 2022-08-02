@@ -80,6 +80,7 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

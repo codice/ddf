@@ -30,21 +30,21 @@
         <dependency>
             <groupId>javax.measure</groupId>
             <artifactId>unit-api</artifactId>
-            <version>1.0</version>
+            <version>2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>systems.uom</groupId>
+            <artifactId>systems-common</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>si.uom</groupId>
+            <artifactId>si-units</artifactId>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>geotools-suite</artifactId>
-            <version>${org.geotools.bundle.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>gt-opengis</artifactId>
-            <version>${opengis.bundle.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -33,14 +33,17 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-xml</artifactId>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-epsg-hsql</artifactId>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.jaxb</groupId>

@@ -18,7 +18,8 @@
 
     <feature name="catalog-core-api-only" install="manual" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
-        <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+        <feature>jts</feature>
+        <feature>geotools</feature>
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
     </feature>

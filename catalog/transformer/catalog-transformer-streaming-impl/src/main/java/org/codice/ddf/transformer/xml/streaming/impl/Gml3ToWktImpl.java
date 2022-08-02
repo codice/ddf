@@ -29,7 +29,7 @@ import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.xml.XSDParserDelegate;
+import org.geotools.xsd.XSDParserDelegate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.WKTWriter;

@@ -59,19 +59,14 @@
             <version>${jts.spatial4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-opengis</artifactId>
-            <version>${opengis.bundle.version}</version>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>picocontainer</artifactId>
             <version>${picocontainer.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>geotools-suite</artifactId>
-            <version>${org.geotools.bundle.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>

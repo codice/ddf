@@ -578,6 +578,7 @@ public abstract class AbstractIntegrationTest {
                 + "https://repository.springsource.com/maven/bundles/release@id=springsource,"
                 + "https://repository.springsource.com/maven/bundles/external@id=springsourceext,"
                 + "https://oss.sonatype.org/content/repositories/releases/@id=sonatype,"
+                + "https://repo.osgeo.org/repository/release/@id=osgeo,"
                 + "https://artifacts.codice.org/content/repositories/releases@id=codice-releases,"
                 + "https://artifacts.codice.org/content/repositories/thirdparty@id=codice-thirdparty"),
         when(System.getProperty(MVN_LOCAL_REPO) != null)
@@ -948,11 +949,12 @@ public abstract class AbstractIntegrationTest {
   /**
    * Clears out the catalog and catalog cache of all 'resource' metacards. Will not return until all
    * metacards have been removed. Will throw an AssertionError if catalog could not be cleared
-   * within 30 seconds.
+   * within 5 minutes.
    */
   public void clearCatalogAndWait() {
     clearCatalog();
     with()
+        .alias("clearing catalog of resource metacards")
         .pollInterval(1, SECONDS)
         .await()
         .atMost(GENERIC_TIMEOUT_SECONDS, SECONDS)
@@ -980,6 +982,7 @@ public abstract class AbstractIntegrationTest {
       response.body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsMatched=\"0\"]"));
       return true;
     } catch (AssertionError e) {
+      LOGGER.error("Unable to query the number of catalog records from CSW", e);
       return false;
     }
   }
