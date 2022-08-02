@@ -90,7 +90,7 @@ import org.codice.ddf.opensearch.OpenSearch;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
-import org.geotools.filter.FilterTransformer;
+import org.geotools.xml.filter.FilterTransformer;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
 import org.locationtech.jts.geom.Geometry;

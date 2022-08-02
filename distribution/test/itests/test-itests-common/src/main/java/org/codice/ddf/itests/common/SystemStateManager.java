@@ -177,6 +177,7 @@ public class SystemStateManager {
   private void clearCatalogAndWait() {
     clearCatalog();
     with()
+        .alias("clearing catalog of resource metacards")
         .pollInterval(1, SECONDS)
         .await()
         .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
@@ -207,6 +208,7 @@ public class SystemStateManager {
       response.body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsMatched=\"0\"]"));
       return true;
     } catch (AssertionError e) {
+      LOGGER.error("Unable to query the number of catalog records from CSW", e);
       return false;
     }
   }

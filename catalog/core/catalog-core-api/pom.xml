@@ -24,9 +24,9 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-opengis</artifactId>
-            <version>${opengis.bundle.version}</version>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.api</groupId>

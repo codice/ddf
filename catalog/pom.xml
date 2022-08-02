@@ -201,7 +201,7 @@
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-opengis</artifactId>
-                <version>${opengis.version}</version>
+                <version>${org.geotools.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>

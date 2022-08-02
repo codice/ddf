@@ -76,8 +76,9 @@
             <artifactId>xstream</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>geotools-suite</artifactId>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>${jts.geotools.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -38,7 +38,7 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-        <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-opengis/${org.geotools.version}$Bundle-Name=gt-opengis&amp;Bundle-SymbolicName=gt-opengis</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-attachment/${project.version}</bundle>
     </feature>
 
@@ -53,13 +53,8 @@
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.3_1</bundle>
         <!-- for GeoTools -->
-        <bundle>mvn:javax.measure/unit-api/1.0</bundle>
-        <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
-        <bundle>mvn:com.googlecode.json-simple/json-simple/${json-simple.version}</bundle>
-        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
-        <bundle>
-            mvn:commons-collections/commons-collections/${commons-collections.version}
-        </bundle>
+        <feature>jts</feature>
+        <feature>geotools</feature>
         <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
         <feature>dev-failsafe</feature>
@@ -206,8 +201,7 @@
         <feature>abdera</feature>
         <bundle>mvn:ddf.catalog.common/geo-formatter/${project.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
-        <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
-        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+        <feature>jts</feature>
     </feature>
 
     <feature name="catalog-transformer-xml" version="${project.version}"
@@ -411,6 +405,7 @@
     <feature name="catalog-transformer-tika" version="${project.version}"
              description="Default Input Transformer.">
         <feature>tika</feature>
+        <feature>geotools</feature>
         <bundle>mvn:ddf.catalog.transformer/tika-input-transformer/${project.version}</bundle>
     </feature>
 

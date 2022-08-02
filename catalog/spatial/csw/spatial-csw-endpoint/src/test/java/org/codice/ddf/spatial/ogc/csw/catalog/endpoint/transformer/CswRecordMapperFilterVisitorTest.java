@@ -185,7 +185,7 @@ public class CswRecordMapperFilterVisitorTest {
   @Test
   public void testVisitBBox() {
     BBOX filter = factory.bbox(attrExpr, 0, 0, 10, 20, "EPSG:4326");
-    String polygon = "POLYGON ((0 0, 0 20, 10 20, 10 0, 0 0))";
+    String bbox = "ReferencedEnvelope[0.0 : 10.0, 0.0 : 20.0]";
 
     Object obj = visitor.visit(filter, null);
 
@@ -194,7 +194,7 @@ public class CswRecordMapperFilterVisitorTest {
     Within duplicate = (Within) obj;
 
     assertThat(duplicate.getExpression1(), is(attrExpr));
-    assertThat(duplicate.getExpression2().toString(), is(polygon));
+    assertThat(duplicate.getExpression2().toString(), is(bbox));
   }
 
   @Test

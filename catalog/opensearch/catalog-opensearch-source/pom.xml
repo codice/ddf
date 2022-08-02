@@ -41,6 +41,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-xml</artifactId>
+            <version>${org.geotools.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.rometools</groupId>
             <artifactId>rome</artifactId>
             <version>${com.rometools.version}</version>

@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
-            <version>${opengis.version}</version>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>dev.failsafe</groupId>

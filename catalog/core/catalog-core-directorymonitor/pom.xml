@@ -249,9 +249,9 @@
 
         <!-- Transitive dependencies, used for versionInProject() -->
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-opengis</artifactId>
-            <version>${opengis.bundle.version}</version>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-configuration</groupId>

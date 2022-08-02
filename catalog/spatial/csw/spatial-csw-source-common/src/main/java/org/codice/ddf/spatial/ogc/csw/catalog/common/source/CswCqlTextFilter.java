@@ -26,7 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import net.opengis.filter.v_1_1_0.FilterType;
 import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.filter.v1_1.OGCConfiguration;
-import org.geotools.xml.Parser;
+import org.geotools.xsd.Parser;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

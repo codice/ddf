@@ -26,6 +26,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-opengis</artifactId>
+            <version>${org.geotools.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers</artifactId>
         </dependency>
@@ -86,13 +91,6 @@
             <groupId>org.osgi</groupId>
             <artifactId>osgi.core</artifactId>
         </dependency>
-
-        <!-- Test Dependencies -->
-        <dependency>
-            <groupId>org.opengis</groupId>
-            <artifactId>geoapi</artifactId>
-            <version>3.0.1</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -118,6 +116,7 @@
                         <Import-Package>
                             !javax.activation,
                             !sun.security.action,
+                            !org.opengis.annotation,
                             *
                         </Import-Package>
                         <Export-Package />

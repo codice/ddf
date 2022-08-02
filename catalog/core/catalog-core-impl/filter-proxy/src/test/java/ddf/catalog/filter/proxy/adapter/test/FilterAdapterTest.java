@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.FunctionImpl;
 import org.geotools.geometry.GeometryBuilder;
-import org.geotools.geometry.text.WKTParser;
+import org.geotools.geometry.iso.text.WKTParser;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;

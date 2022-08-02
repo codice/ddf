@@ -55,8 +55,6 @@ public class CswCqlFilterTest {
 
   private static final String DEFAULT_PROPERTY_NAME = "title";
 
-  private static final String SRID = "SRID=4326;";
-
   private static final String QUOTE = "\"";
 
   private static final String EQUALS = "=";
@@ -305,7 +303,6 @@ public class CswCqlFilterTest {
           + QUOTE
           + COMMA
           + SPACE
-          + SRID
           + polygonWkt
           + CLOSE_PARAN;
 
@@ -316,20 +313,11 @@ public class CswCqlFilterTest {
           + QUOTE
           + COMMA
           + SPACE
-          + SRID
           + polygonWkt
           + CLOSE_PARAN;
 
   private final String intersectsPointPropertyOwsBoundingBox =
-      INTERSECTS
-          + QUOTE
-          + CswConstants.BBOX_PROP
-          + QUOTE
-          + COMMA
-          + SPACE
-          + SRID
-          + pointWkt
-          + CLOSE_PARAN;
+      INTERSECTS + QUOTE + CswConstants.BBOX_PROP + QUOTE + COMMA + SPACE + pointWkt + CLOSE_PARAN;
 
   private final String intersectsLineStringPropertyOwsBoundingBox =
       INTERSECTS
@@ -338,7 +326,6 @@ public class CswCqlFilterTest {
           + QUOTE
           + COMMA
           + SPACE
-          + SRID
           + lineStringWkt
           + CLOSE_PARAN;
 
@@ -349,7 +336,6 @@ public class CswCqlFilterTest {
           + QUOTE
           + COMMA
           + SPACE
-          + SRID
           + multiPolygonWkt
           + CLOSE_PARAN;
 
@@ -360,7 +346,6 @@ public class CswCqlFilterTest {
           + QUOTE
           + COMMA
           + SPACE
-          + SRID
           + multiPointWkt
           + CLOSE_PARAN;
 
@@ -371,75 +356,26 @@ public class CswCqlFilterTest {
           + QUOTE
           + COMMA
           + SPACE
-          + SRID
           + multiLineStringWkt
           + CLOSE_PARAN;
 
   private final String crossesPolygonPropertyOwsBoundingBox =
-      CROSSES
-          + QUOTE
-          + CswConstants.BBOX_PROP
-          + QUOTE
-          + COMMA
-          + SPACE
-          + SRID
-          + polygonWkt
-          + CLOSE_PARAN;
+      CROSSES + QUOTE + CswConstants.BBOX_PROP + QUOTE + COMMA + SPACE + polygonWkt + CLOSE_PARAN;
 
   private final String withinPolygonPropertyOwsBoundingBox =
-      WITHIN
-          + QUOTE
-          + CswConstants.BBOX_PROP
-          + QUOTE
-          + COMMA
-          + SPACE
-          + SRID
-          + polygonWkt
-          + CLOSE_PARAN;
+      WITHIN + QUOTE + CswConstants.BBOX_PROP + QUOTE + COMMA + SPACE + polygonWkt + CLOSE_PARAN;
 
   private final String containsPolygonXmlPropertyOwsBoundingBox =
-      CONTAINS
-          + QUOTE
-          + CswConstants.BBOX_PROP
-          + QUOTE
-          + COMMA
-          + SPACE
-          + SRID
-          + polygonWkt
-          + CLOSE_PARAN;
+      CONTAINS + QUOTE + CswConstants.BBOX_PROP + QUOTE + COMMA + SPACE + polygonWkt + CLOSE_PARAN;
 
   private final String disjointPolygonXmlPropertyOwsBoundingBox =
-      DISJOINT
-          + QUOTE
-          + CswConstants.BBOX_PROP
-          + QUOTE
-          + COMMA
-          + SPACE
-          + SRID
-          + polygonWkt
-          + CLOSE_PARAN;
+      DISJOINT + QUOTE + CswConstants.BBOX_PROP + QUOTE + COMMA + SPACE + polygonWkt + CLOSE_PARAN;
 
   private final String overlapsPolygonPropertyOwsBoundingBox =
-      OVERLAPS
-          + QUOTE
-          + CswConstants.BBOX_PROP
-          + QUOTE
-          + COMMA
-          + SPACE
-          + SRID
-          + polygonWkt
-          + CLOSE_PARAN;
+      OVERLAPS + QUOTE + CswConstants.BBOX_PROP + QUOTE + COMMA + SPACE + polygonWkt + CLOSE_PARAN;
 
   private final String touchesPolygonPropertyOwsBoundingBox =
-      TOUCHES
-          + QUOTE
-          + CswConstants.BBOX_PROP
-          + QUOTE
-          + COMMA
-          + SPACE
-          + SRID
-          + polygonWkt
-          + CLOSE_PARAN;
+      TOUCHES + QUOTE + CswConstants.BBOX_PROP + QUOTE + COMMA + SPACE + polygonWkt + CLOSE_PARAN;
 
   private final String beyondPointPropertyOwsBoundingBox =
       BEYOND
@@ -448,7 +384,6 @@ public class CswCqlFilterTest {
           + QUOTE
           + COMMA
           + SPACE
-          + SRID
           + pointWkt
           + COMMA
           + SPACE
@@ -465,7 +400,6 @@ public class CswCqlFilterTest {
           + QUOTE
           + COMMA
           + SPACE
-          + SRID
           + polygonWkt
           + COMMA
           + SPACE
@@ -493,7 +427,6 @@ public class CswCqlFilterTest {
           + QUOTE
           + COMMA
           + SPACE
-          + SRID
           + pointWkt
           + COMMA
           + SPACE
@@ -528,7 +461,6 @@ public class CswCqlFilterTest {
           + QUOTE
           + COMMA
           + SPACE
-          + SRID
           + pointWkt
           + COMMA
           + SPACE

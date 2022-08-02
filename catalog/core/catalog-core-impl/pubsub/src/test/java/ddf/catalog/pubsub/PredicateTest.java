@@ -52,7 +52,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.store.Directory;
-import org.geotools.filter.FilterTransformer;
+import org.geotools.xml.filter.FilterTransformer;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.Filter;
