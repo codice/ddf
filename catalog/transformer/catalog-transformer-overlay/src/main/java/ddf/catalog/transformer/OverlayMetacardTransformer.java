@@ -43,6 +43,7 @@ import javax.imageio.ImageIO;
 import org.apache.commons.lang.Validate;
 import org.la4j.Vector;
 import org.la4j.vector.dense.BasicVector;
+import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
@@ -93,13 +94,18 @@ public class OverlayMetacardTransformer implements MetacardTransformer {
   }
 
   private List<Vector> parseBoundary(String location) throws CatalogTransformerException {
-    final Geometry geometry = parseGeometry(location);
+    Geometry geometry = parseGeometry(location);
     if (!canHandleGeometry(geometry)) {
       throw new CatalogTransformerException("The Image boundary is not a rectangle");
     }
 
     if (crossesDateline(geometry)) {
       adjustForDateline(geometry);
+    }
+
+    // Must happen after the dateline adjustment for JTS to detect counterclockwise coordinates.
+    if (Orientation.isCCW(geometry.getCoordinates())) {
+      geometry = geometry.reverse();
     }
 
     final Coordinate[] coordinates =

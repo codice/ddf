@@ -35,32 +35,16 @@ public class PolygonNormalizationTest {
           // Polygon with size != 5 is unchanged
           {"POLYGON ((0 0, 5 5, 10 0, 0 0))", "POLYGON ((0 0, 5 5, 10 0, 0 0))"},
           {
-            // Counterclockwise to clockwise
-            "POLYGON ((0 10, 0 0, 10 0, 10 10, 0 10))", "POLYGON ((0 10, 10 10, 10 0, 0 0, 0 10))"
-          },
-          {
             // Upper-left adjustment, first coord is upper-right
             "POLYGON ((10 10, 10 0, 0 0, 0 10, 10 10))", "POLYGON ((0 10, 10 10, 10 0, 0 0, 0 10))",
-          },
-          {
-            // Upper-left adjustment, first coord is upper-right AND counterclockwise to clockwise
-            "POLYGON ((10 10, 0 10, 0 0, 10 0, 10 10))", "POLYGON ((0 10, 10 10, 10 0, 0 0, 0 10))"
           },
           {
             // Upper-left adjustment, first coord is lower-right
             "POLYGON ((10 0, 0 0, 0 10, 10 10, 10 0))", "POLYGON ((0 10, 10 10, 10 0, 0 0, 0 10))"
           },
           {
-            // Upper-left adjustment, first coord is lower-right AND counterclockwise to clockwise
-            "POLYGON ((10 0, 10 10, 0 10, 0 0, 10 0))", "POLYGON ((0 10, 10 10, 10 0, 0 0, 0 10))",
-          },
-          {
             // Upper-left adjustment, first coord is lower-left
             "POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0))", "POLYGON ((0 10, 10 10, 10 0, 0 0, 0 10))"
-          },
-          {
-            // Upper-left adjustment, first coord is lower-left AND counterclockwise to clockwise
-            "POLYGON ((0 0, 10 0, 10 10, 0 10, 0 0))", "POLYGON ((0 10, 10 10, 10 0, 0 0, 0 10))"
           },
           {
             // Upper-left adjustment, north edge is left-top
