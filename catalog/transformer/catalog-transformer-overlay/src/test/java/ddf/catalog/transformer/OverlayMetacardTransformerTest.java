@@ -140,7 +140,25 @@ public class OverlayMetacardTransformerTest {
   }
 
   @Test
-  public void testNormalizeOrientationOverDateline() throws Exception {
+  public void testNormalizeOrientationOverDatelineClockwiseCoordinates() throws Exception {
+    final MetacardImpl metacard = getMetacard();
+    metacard.setLocation("POLYGON ((179 -1, 179 1, -179 1, -179 -1, 179 -1))");
+    final BinaryContent content = transform(metacard, null);
+
+    final BufferedImage overlay = getImage(content.getByteArray());
+    final Color lowerLeftColor = new Color(overlay.getRGB(0, overlay.getHeight() - 1));
+    assertThat(lowerLeftColor, is(Color.RED));
+
+    transformer.setNormalizeOrientation(true);
+    final BinaryContent normalizedContent = transform(metacard, null);
+
+    final BufferedImage normalizedOverlay = getImage(normalizedContent.getByteArray());
+    final Color upperLeftColor = new Color(normalizedOverlay.getRGB(0, 0));
+    assertThat(upperLeftColor, is(Color.RED));
+  }
+
+  @Test
+  public void testNormalizeOrientationOverDatelineCounterclockwiseCoordinates() throws Exception {
     final MetacardImpl metacard = getMetacard();
     metacard.setLocation("POLYGON ((-179 -1, -179 1, 179 1, 179 -1, -179 -1))");
     final BinaryContent content = transform(metacard, null);

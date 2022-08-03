@@ -17,7 +17,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.StringUtils;
-import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFilter;
@@ -48,8 +47,7 @@ class GeometryUtils {
 
   /**
    * Takes a four-sided polygon and returns a new polygon with the same vertices as the original,
-   * but with the vertices in a clockwise order, and the vertex assumed to be the upper-left of the
-   * polygon as the first vertex.
+   * but with the vertex assumed to be the upper-left of the polygon as the first vertex.
    *
    * <p>To determine which vertex is supposed to be the upper-left, this method first locates a
    * vertex of {@code polygon} on the northern edge of its bounding box. Then it looks at the two
@@ -66,14 +64,8 @@ class GeometryUtils {
       return polygon;
     }
 
-    Polygon normalized = polygon;
-
-    if (Orientation.isCCW(polygon.getCoordinates())) {
-      normalized = normalized.reverse();
-    }
-
-    final Coordinate[] uniqueCoordinates = Arrays.copyOfRange(normalized.getCoordinates(), 0, 4);
-    final Envelope bbox = normalized.getEnvelopeInternal();
+    final Coordinate[] uniqueCoordinates = Arrays.copyOfRange(polygon.getCoordinates(), 0, 4);
+    final Envelope bbox = polygon.getEnvelopeInternal();
     final int northEdgeIndex =
         IntStream.range(0, uniqueCoordinates.length)
             .filter(index -> uniqueCoordinates[index].y == bbox.getMaxY())
