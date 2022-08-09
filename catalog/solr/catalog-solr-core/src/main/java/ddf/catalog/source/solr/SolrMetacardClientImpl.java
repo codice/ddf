@@ -367,10 +367,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       boolean userSpellcheckIsOn)
       throws IOException, SolrServerException {
 
-    LOGGER.trace("Begin solr spellcheck: query request {}", request);
     QueryResponse highlightResponse = solrResponse;
     SolrDocumentList resultDocs = originalDocs;
     if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
+      LOGGER.trace("Begin solr spellcheck: query request {}", request);
       Collation collation = getCollationToResend(query, solrResponse);
       query.set("q", collation.getCollationQueryString());
       query.set("spellcheck", false);
@@ -392,10 +392,13 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         responseProps.put(DID_YOU_MEAN_KEY, new ArrayList<>(originals));
         responseProps.put(SHOWING_RESULTS_FOR_KEY, new ArrayList<>(corrections));
       }
+      LOGGER.trace("End solr spellcheck: query request {}", request);
     }
-    LOGGER.trace("End solr spellcheck/Starting highlight extraction: query request {}", request);
-    highlighter.processPostQuery(highlightResponse, responseProps);
-    LOGGER.trace("Ending highlight extraction: query request {}", request);
+    if (highlightResponse.getHighlighting() != null) {
+      LOGGER.trace("Starting highlight extraction: query request {}", request);
+      highlighter.processPostQuery(highlightResponse, responseProps);
+      LOGGER.trace("Ending highlight extraction: query request {}", request);
+    }
     return resultDocs;
   }
 

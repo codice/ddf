@@ -449,9 +449,9 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
     for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
       try {
-        LOGGER.trace("Before AccessPlugin (#2): trace-id {}, plugin {}", traceId, plugin);
+        LOGGER.trace("Before post-query AccessPlugin: trace-id {}, plugin {}", traceId, plugin);
         queryResponse = plugin.processPostQuery(queryResponse);
-        LOGGER.trace("After AccessPlugin (#2): trace-id {}, plugin {}", traceId, plugin);
+        LOGGER.trace("After post-query AccessPlugin: trace-id {}, plugin {}", traceId, plugin);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -469,12 +469,12 @@ public class QueryOperations extends DescribableImpl {
       HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
       for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
         try {
-          LOGGER.trace("Before PolicyPlugin (#2): trace-id {}, plugin {}", traceId, plugin);
+          LOGGER.trace("Before post-query PolicyPlugin: trace-id {}, plugin {}", traceId, plugin);
           PolicyResponse policyResponse = plugin.processPostQuery(result, unmodifiableProperties);
           opsSecuritySupport.buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy().entrySet());
           opsSecuritySupport.buildPolicyMap(
               responsePolicyMap, policyResponse.operationPolicy().entrySet());
-          LOGGER.trace("After PolicyPlugin (#2): trace-id {}, plugin {}", traceId, plugin);
+          LOGGER.trace("After post-query PolicyPlugin: trace-id {}, plugin {}", traceId, plugin);
         } catch (StopProcessingException e) {
           throw new FederationException("Query could not be executed.", e);
         }
@@ -507,9 +507,9 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
     for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
       try {
-        LOGGER.trace("Before AccessPlugin (#1): trace-id {}, plugin {}", traceId, plugin);
+        LOGGER.trace("Before pre-query AccessPlugin: trace-id {}, plugin {}", traceId, plugin);
         queryReq = plugin.processPreQuery(queryReq);
-        LOGGER.trace("After AccessPlugin (#1): trace-id {}, plugin {}", traceId, plugin);
+        LOGGER.trace("After pre-query AccessPlugin: trace-id {}, plugin {}", traceId, plugin);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -522,9 +522,11 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
     for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
       try {
-        LOGGER.trace("Before PreAuthorizationPlugin: trace-id {}, plugin {}", traceId, plugin);
+        LOGGER.trace(
+            "Before pre-query PreAuthorizationPlugin: trace-id {}, plugin {}", traceId, plugin);
         queryRequest = plugin.processPreQuery(queryRequest);
-        LOGGER.trace("After PreAuthorizationPlugin: trace-id {}, plugin {}", traceId, plugin);
+        LOGGER.trace(
+            "After pre-query PreAuthorizationPlugin: trace-id {}, plugin {}", traceId, plugin);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -537,9 +539,11 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
     for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
       try {
-        LOGGER.trace("Before PreAuthorizationPlugin: trace-id {}, plugin {}", traceId, plugin);
+        LOGGER.trace(
+            "Before post-query PreAuthorizationPlugin: trace-id {}, plugin {}", traceId, plugin);
         queryResponse = plugin.processPostQuery(queryResponse);
-        LOGGER.trace("After PreAuthorizationPlugin: trace-id {}, plugin {}", traceId, plugin);
+        LOGGER.trace(
+            "After post-query PreAuthorizationPlugin: trace-id {}, plugin {}", traceId, plugin);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -555,12 +559,12 @@ public class QueryOperations extends DescribableImpl {
         Collections.unmodifiableMap(queryReq.getProperties());
     for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
       try {
-        LOGGER.trace("Before PolicyPlugin (#1): trace-id {}, plugin {}", traceId, plugin);
+        LOGGER.trace("Before pre-query PolicyPlugin: trace-id {}, plugin {}", traceId, plugin);
         PolicyResponse policyResponse =
             plugin.processPreQuery(queryReq.getQuery(), unmodifiableProperties);
         opsSecuritySupport.buildPolicyMap(
             requestPolicyMap, policyResponse.operationPolicy().entrySet());
-        LOGGER.trace("After PolicyPlugin (#1): trace-id {}, plugin {}", traceId, plugin);
+        LOGGER.trace("After pre-query PolicyPlugin: trace-id {}, plugin {}", traceId, plugin);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
