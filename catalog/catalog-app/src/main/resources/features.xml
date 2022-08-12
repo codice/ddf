@@ -290,6 +290,8 @@
              description="Core features for content">
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-checksum/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-content-uri/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.common/video-thumbnail/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.common/video-thumbnail-impl/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-videothumbnail/${project.version}</bundle>
     </feature>
 
