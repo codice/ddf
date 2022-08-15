@@ -24,6 +24,7 @@ import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -52,6 +53,8 @@ import org.junit.Test;
 public class CsvMetacardTransformerTest {
 
   private final CsvMetacardTransformer transformer = new CsvMetacardTransformer();
+
+  private static final String METACARD_TYPE_NAME = "test-type";
 
   @Test(expected = CatalogTransformerException.class)
   public void testTransformerWithNullMetacard() throws CatalogTransformerException {
@@ -179,8 +182,8 @@ public class CsvMetacardTransformerTest {
     List<String> attNames = Arrays.asList(lines.get(0).split(","));
     List<String> attValues = Arrays.asList(lines.get(1).split(","));
 
-    assertThat(attNames, contains(stringAtt));
-    assertThat(attValues, contains("stringVal"));
+    assertThat(attNames, containsInAnyOrder(stringAtt, MetacardType.METACARD_TYPE));
+    assertThat(attValues, containsInAnyOrder("stringVal", metacard.getMetacardType().getName()));
   }
 
   private static AttributeDescriptor buildAttributeDescriptor(String name, AttributeType<?> type) {
@@ -189,7 +192,7 @@ public class CsvMetacardTransformerTest {
 
   private Metacard buildMetacard(
       final Set<AttributeDescriptor> attributeDescriptors, final Attribute... attributes) {
-    MetacardType metacardType = new MetacardTypeImpl("", attributeDescriptors);
+    MetacardType metacardType = new MetacardTypeImpl(METACARD_TYPE_NAME, attributeDescriptors);
     Metacard metacard = new MetacardImpl(metacardType);
     for (Attribute attribute : attributes) {
       metacard.setAttribute(attribute);

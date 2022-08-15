@@ -82,8 +82,6 @@ public class GeoJsonInputTransformer implements InputTransformer {
           .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
           .create();
 
-  private static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
-
   private static final String ID = "geojson";
 
   private static final String MIME_TYPE = "application/json";
@@ -113,7 +111,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
     validateTypeValue(rootObject);
     Map<String, Object> properties = getProperties(rootObject);
 
-    final String propertyTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
+    final String propertyTypeName = (String) properties.get(MetacardType.METACARD_TYPE);
     MetacardImpl metacard = getMetacard(propertyTypeName, properties);
 
     MetacardType metacardType = metacard.getMetacardType();

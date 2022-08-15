@@ -17,6 +17,8 @@ package ddf.catalog.transformer.csv.common;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
@@ -32,9 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 class MetacardIterator implements Iterator<Serializable> {
   private static final String MULTIVALUE_DELIMITER = "\n";
 
-  private List<AttributeDescriptor> attributeDescriptorList;
+  private final List<AttributeDescriptor> attributeDescriptorList;
 
-  private Metacard metacard;
+  private final Metacard metacard;
 
   private int index;
 
@@ -73,8 +75,28 @@ class MetacardIterator implements Iterator<Serializable> {
       } else {
         return attribute.getValue();
       }
+    } else if (isSourceId(attributeDescriptor) && isSourceIdSet()) {
+      return metacard.getSourceId();
+    } else if (isMetacardType(attributeDescriptor) && isMetacardTypeSet()) {
+      return metacard.getMetacardType().getName();
     }
 
     return "";
+  }
+
+  private boolean isMetacardTypeSet() {
+    return metacard.getMetacardType() != null && metacard.getMetacardType().getName() != null;
+  }
+
+  private boolean isMetacardType(AttributeDescriptor attributeDescriptor) {
+    return MetacardType.METACARD_TYPE.equals(attributeDescriptor.getName());
+  }
+
+  private boolean isSourceIdSet() {
+    return metacard.getSourceId() != null;
+  }
+
+  private boolean isSourceId(AttributeDescriptor attributeDescriptor) {
+    return Core.SOURCE_ID.equals(attributeDescriptor.getName());
   }
 }

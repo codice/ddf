@@ -54,6 +54,8 @@ public class CsvQueryResponseTransformerTest {
     {"attribute7", "BINARY", BasicTypes.BINARY_TYPE}
   };
 
+  private static final String METACARD_TYPE_NAME = "test-type";
+
   private static final Map<String, Serializable> METACARD_DATA_MAP = new HashMap<>();
 
   private static final List<AttributeDescriptor> ATTRIBUTE_DESCRIPTOR_LIST = new ArrayList<>();
@@ -108,6 +110,49 @@ public class CsvQueryResponseTransformerTest {
     // The scanner will split "value,4" into two tokens even though the CSVPrinter will
     // handle it correctly.
     String[] expectedValues = {"", "\"value", "4\"", "101"};
+
+    for (int i = 0; i < METACARD_COUNT; i++) {
+      validate(scanner, expectedValues);
+    }
+
+    // final new line causes an extra "" value at end of file
+    assertThat(scanner.hasNext(), is(true));
+    assertThat(scanner.next(), is(""));
+    assertThat(scanner.hasNext(), is(false));
+  }
+
+  @Test
+  public void testCsvQueryResponseTransformerWithMetacardType() throws CatalogTransformerException {
+    Map<String, Serializable> argumentsMap = new HashMap<>();
+
+    String[] hiddenFieldsArray = {"attribute3", "attribute5"};
+    argumentsMap.put("hiddenFields", buildSet(hiddenFieldsArray));
+
+    String[] columnOrderArray = {
+      "attribute3", "attribute4", "attribute2", MetacardType.METACARD_TYPE
+    };
+    argumentsMap.put("columnOrder", buildList(columnOrderArray));
+
+    String[][] aliases = {{"attribute1", "column1"}, {"attribute2", "column2"}};
+    argumentsMap.put("aliases", buildMap(aliases));
+
+    assertThat(ATTRIBUTE_DESCRIPTOR_LIST.size(), is(ATTRIBUTE_DATA.length));
+
+    BinaryContent bc = transformer.transform(sourceResponse, argumentsMap);
+    Scanner scanner = new Scanner(bc.getInputStream());
+    scanner.useDelimiter("\\n|\\r|,");
+
+    /*
+     * OBJECT types, BINARY types and hidden attributes will be filtered out
+     * We want to ensure that the only output data matches the explicitly requested headers
+     */
+
+    String[] expectedHeaders = {"attribute4", "column2", MetacardType.METACARD_TYPE};
+    validate(scanner, expectedHeaders);
+
+    // The scanner will split "value,4" into two tokens even though the CSVPrinter will
+    // handle it correctly.
+    String[] expectedValues = {"", "\"value", "4\"", "101", METACARD_TYPE_NAME};
 
     for (int i = 0; i < METACARD_COUNT; i++) {
       validate(scanner, expectedValues);
@@ -195,6 +240,7 @@ public class CsvQueryResponseTransformerTest {
     MetacardType metacardType = mock(MetacardType.class);
     when(metacardType.getAttributeDescriptors())
         .thenReturn(new HashSet<>(ATTRIBUTE_DESCRIPTOR_LIST));
+    when(metacardType.getName()).thenReturn(METACARD_TYPE_NAME);
     return metacardType;
   }
 
