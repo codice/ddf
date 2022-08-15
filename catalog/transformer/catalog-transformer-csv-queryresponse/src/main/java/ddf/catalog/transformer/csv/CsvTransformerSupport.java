@@ -22,10 +22,14 @@ import static ddf.catalog.transformer.csv.common.CsvTransformer.writeMetacardsTo
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 class CsvTransformerSupport {
@@ -64,6 +69,10 @@ class CsvTransformerSupport {
             ? getAllCsvAttributeDescriptors(metacards)
             : getOnlyRequestedAttributes(metacards, requestedFields);
 
+    if (shouldInjectMetacardType(requestedFields)) {
+      injectMetacardType(requestedAttributeDescriptors);
+    }
+
     final Set<AttributeDescriptor> filteredAttributeDescriptors =
         requestedAttributeDescriptors.stream()
             .filter(desc -> !hiddenFields.contains(desc.getName()))
@@ -87,5 +96,15 @@ class CsvTransformerSupport {
         .filter(value -> value instanceof List)
         .map(value -> (List<String>) value)
         .orElse(new ArrayList<>());
+  }
+
+  private static void injectMetacardType(Collection<AttributeDescriptor> descriptors) {
+    descriptors.add(
+        new AttributeDescriptorImpl(
+            MetacardType.METACARD_TYPE, false, false, false, false, BasicTypes.STRING_TYPE));
+  }
+
+  private static boolean shouldInjectMetacardType(Collection<String> attributes) {
+    return CollectionUtils.isEmpty(attributes) || attributes.contains(MetacardType.METACARD_TYPE);
   }
 }

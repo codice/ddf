@@ -20,6 +20,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
@@ -76,8 +77,6 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
           .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
           .create();
 
-  protected static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
-
   protected static final MimeType DEFAULT_MIME_TYPE = new MimeType();
 
   public static final String ID = "propertyjson";
@@ -118,7 +117,7 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
       }
     }
 
-    properties.put(METACARD_TYPE_PROPERTY_KEY, metacard.getMetacardType().getName());
+    properties.put(MetacardType.METACARD_TYPE, metacard.getMetacardType().getName());
 
     if (StringUtils.isNotBlank(metacard.getSourceId())) {
       properties.put(SOURCE_ID_PROPERTY, metacard.getSourceId());

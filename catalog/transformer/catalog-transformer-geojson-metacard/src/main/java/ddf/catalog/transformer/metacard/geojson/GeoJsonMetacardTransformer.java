@@ -18,6 +18,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
@@ -58,8 +59,6 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
   public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
   public static final String ID = "geojson";
-
-  protected static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonMetacardTransformer.class);
 
@@ -106,7 +105,7 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
       rootObject.put(CompositeGeometry.GEOMETRY_KEY, null);
     }
 
-    properties.put(METACARD_TYPE_PROPERTY_KEY, metacard.getMetacardType().getName());
+    properties.put(MetacardType.METACARD_TYPE, metacard.getMetacardType().getName());
 
     if (metacard.getSourceId() != null && !"".equals(metacard.getSourceId())) {
       properties.put(SOURCE_ID_PROPERTY, metacard.getSourceId());
