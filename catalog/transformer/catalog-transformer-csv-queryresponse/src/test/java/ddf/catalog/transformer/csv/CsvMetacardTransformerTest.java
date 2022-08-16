@@ -183,7 +183,12 @@ public class CsvMetacardTransformerTest {
     List<String> attValues = Arrays.asList(lines.get(1).split(","));
 
     assertThat(attNames, containsInAnyOrder(stringAtt, MetacardType.METACARD_TYPE));
-    assertThat(attValues, containsInAnyOrder("stringVal", metacard.getMetacardType().getName()));
+    assertThat(attValues, hasSize(2));
+
+    int stringAttIndex = attNames.indexOf(stringAtt);
+    int typeIndex = attNames.indexOf(MetacardType.METACARD_TYPE);
+    assertThat(attValues.get(stringAttIndex), is("stringVal"));
+    assertThat(attValues.get(typeIndex), is(metacard.getMetacardType().getName()));
   }
 
   private static AttributeDescriptor buildAttributeDescriptor(String name, AttributeType<?> type) {
