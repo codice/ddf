@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
         <artifactId>csw</artifactId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>spatial-csw-endpoint</artifactId>
     <packaging>bundle</packaging>
@@ -211,11 +211,11 @@
                             org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings
                         </Export-Package>
                         <Import-Package>
-                            net.opengis.cat.csw.v_2_0_2;version="[2.8,3)",
-                            net.opengis.cat.csw.v_2_0_2.dc.elements;version="[2.8,3)",
-                            net.opengis.filter.v_1_1_0;version="[2.8,3)",
-                            net.opengis.gml.v_3_1_1;version="[2.8,3)",
-                            net.opengis.ows.v_1_0_0;version="[2.8,3)",
+                            net.opengis.cat.csw.v_2_0_2;version="[3,4)",
+                            net.opengis.cat.csw.v_2_0_2.dc.elements;version="[3,4)",
+                            net.opengis.filter.v_1_1_0;version="[3,4)",
+                            net.opengis.gml.v_3_1_1;version="[3,4)",
+                            net.opengis.ows.v_1_0_0;version="[3,4)",
                             ddf.security.permission,
                             org.apache.commons.logging; version="[1.1.0,2.0.0)",
                             org.codice.ddf.spatial.ogc.csw.catalog.actions,

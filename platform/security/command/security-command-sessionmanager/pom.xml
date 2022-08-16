@@ -19,7 +19,7 @@
     <parent>
         <groupId>ddf.security.command</groupId>
         <artifactId>command</artifactId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <name>DDF :: Security :: Command :: Session Manager</name>

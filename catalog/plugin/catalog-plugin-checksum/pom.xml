@@ -14,7 +14,7 @@
     <parent>
         <artifactId>plugin</artifactId>
         <groupId>ddf.catalog.plugin</groupId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
