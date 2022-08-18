@@ -16,15 +16,27 @@ package ddf.catalog.transformer.csv.common;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of java.util.Iterator which iterates over Metacard attribute values.
@@ -32,6 +44,9 @@ import org.apache.commons.lang3.StringUtils;
  * @see java.util.Iterator
  */
 class MetacardIterator implements Iterator<Serializable> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MetacardIterator.class);
+
   private static final String MULTIVALUE_DELIMITER = "\n";
 
   private final List<AttributeDescriptor> attributeDescriptorList;
@@ -39,6 +54,8 @@ class MetacardIterator implements Iterator<Serializable> {
   private final Metacard metacard;
 
   private int index;
+
+  private DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
   /**
    * @param metacard the metacard to be iterated over.
@@ -67,13 +84,21 @@ class MetacardIterator implements Iterator<Serializable> {
 
     AttributeDescriptor attributeDescriptor = this.attributeDescriptorList.get(index);
     Attribute attribute = metacard.getAttribute(attributeDescriptor.getName());
+    AttributeFormat attributeFormat = attributeDescriptor.getType().getAttributeFormat();
     index++;
 
     if (attribute != null) {
       if (attributeDescriptor.isMultiValued()) {
-        return StringUtils.join(attribute.getValues(), MULTIVALUE_DELIMITER);
+        List<Serializable> convertedValues =
+            attribute.getValues().stream()
+                .map(value -> convertValue(attribute.getName(), value, attributeFormat))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return StringUtils.join(convertedValues, MULTIVALUE_DELIMITER);
       } else {
-        return attribute.getValue();
+        Serializable value =
+            convertValue(attribute.getName(), attribute.getValue(), attributeFormat);
+        return (value == null) ? "" : value;
       }
     } else if (isSourceId(attributeDescriptor) && isSourceIdSet()) {
       return metacard.getSourceId();
@@ -82,6 +107,44 @@ class MetacardIterator implements Iterator<Serializable> {
     }
 
     return "";
+  }
+
+  private Serializable convertValue(
+      String name, Serializable value, AttributeType.AttributeFormat format) {
+    if (value == null) {
+      return null;
+    }
+
+    switch (format) {
+      case DATE:
+        if (!(value instanceof Date)) {
+          LOGGER.debug(
+              "Dropping attribute date value {} for {} because it isn't a Date object.",
+              value,
+              name);
+          return null;
+        }
+        Instant instant = ((Date) value).toInstant();
+        ZoneId zoneId = ZoneId.of("UTC");
+        ZonedDateTime zonedDateTime = instant.atZone(zoneId);
+        return zonedDateTime.format(formatter);
+      case BINARY:
+        byte[] bytes = (byte[]) value;
+        return DatatypeConverter.printBase64Binary(bytes);
+      case BOOLEAN:
+      case DOUBLE:
+      case LONG:
+      case INTEGER:
+      case SHORT:
+      case STRING:
+      case XML:
+      case FLOAT:
+      case GEOMETRY:
+        return value;
+      case OBJECT:
+      default:
+        return null;
+    }
   }
 
   private boolean isMetacardTypeSet() {
