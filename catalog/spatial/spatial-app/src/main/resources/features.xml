@@ -28,67 +28,9 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="spatial-kml" version="${project.version}"
-             description="KML Transformer transforms metacards and query results into KML and KML Network Link Endpoint generates view-based KML Network Links for dynamic query results in KML viewer.">
-        <feature>simple-search-ui</feature>
-        <bundle>mvn:ddf.spatial.kml/spatial-kml-transformer/${project.version}</bundle>
-        <bundle>mvn:ddf.spatial.kml/spatial-kml-networklinkendpoint/${project.version}</bundle>
-        <bundle>mvn:org.apache.commons/commons-math3/${commons-math3.version}</bundle>
-    </feature>
-
     <feature name="spatial-common-ogc" version="${project.version}" description="Common ogc">
         <bundle>mvn:org.jvnet.jaxb2_commons/jaxb2-basics-runtime/0.11.0</bundle>
         <bundle>wrap:mvn:org.hisrc.w3c/xlink-v_1_0/1.4.0$Bundle-Name=xlink-v_1_0&amp;Bundle-SymbolicName=xlink-v_1_0&amp;Bundle-Version=1.4.0&amp;Export-Package=*;version="1.4.0"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
-    </feature>
-
-    <feature name="spatial-wfs-ogc" version="${project.version}"
-             description="Web Feature Service (WFS). OGC ">
-        <feature>spatial-common-ogc</feature>
-        <bundle>wrap:mvn:org.jvnet.ogc/gml-v_3_1_1/${jvnet-ogc.version}$Bundle-Name=gml-v_3_1_1&amp;Bundle-SymbolicName=gml-v_3_1_1&amp;Bundle-Version=${jvnet-ogc.version}&amp;Export-Package=*;version="${jvnet-ogc.version}"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",net.opengis.*;version="[${jvnet-ogc.version},${jvnet-ogc.version}]",*</bundle>
-        <bundle>wrap:mvn:org.jvnet.ogc/ows-v_1_0_0/${jvnet-ogc.version}$Bundle-Name=ows-v_1_0_0&amp;Bundle-SymbolicName=ows-v_1_0_0&amp;Bundle-Version=${jvnet-ogc.version}&amp;Export-Package=*;version="${jvnet-ogc.version}"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",net.opengis.*;version="[${jvnet-ogc.version},${jvnet-ogc.version}]",*</bundle>
-        <bundle>wrap:mvn:org.jvnet.ogc/filter-v_1_1_0/${jvnet-ogc.version}$Bundle-Name=filter-v_1_1_0&amp;Bundle-SymbolicName=filter-v_1_1_0&amp;Bundle-Version=${jvnet-ogc.version}&amp;Export-Package=*;version="${jvnet-ogc.version}"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",net.opengis.*;version="[${jvnet-ogc.version},${jvnet-ogc.version}]",*</bundle>
-        <bundle>wrap:mvn:org.jvnet.ogc/wfs-v_1_1_0/${jvnet-ogc.version}$Bundle-Name=wfs-v_1_1_0&amp;Bundle-SymbolicName=wfs-v_1_1_0&amp;Bundle-Version=${jvnet-ogc.version}&amp;Export-Package=*;version="${jvnet-ogc.version}"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",net.opengis.*;version="[${jvnet-ogc.version},${jvnet-ogc.version}]",*</bundle>
-    </feature>
-
-    <feature name="spatial-wfs-feature-transformer-xstream" description="Xstream feature transformer" version="${project.version}">
-        <feature>spatial-wfs-core</feature>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer-xstream/${project.version}</bundle>
-    </feature>
-
-    <feature name="spatial-wfs-feature-transformer-handlebars" description="handlebars feature transformer" version="${project.version}">
-        <feature>spatial-wfs-core</feature>
-        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-streaming-api/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer-handlebars/${project.version}</bundle>
-        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
-    </feature>
-
-    <feature name="spatial-wfs-core" version="${project.version}"
-             description="Web Feature Service (WFS).">
-        <feature>spatial-wfs-ogc</feature>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer-api/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-metacardtype-registry-api/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-urlresourcereader/${project.version}</bundle>
-        <bundle>
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${xpp3.bundle.version}
-        </bundle>
-        <bundle>
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
-        </bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-mapper/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-metacardtype-registry/${project.version}</bundle>
-    </feature>
-
-    <feature name="spatial-wfs-v1_1_0" version="${project.version}"
-             description="Web Feature Service (WFS) v1.1.0 Source.">
-        <feature>spatial-wfs-core</feature>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_1_0-source/${project.version}</bundle>
-    </feature>
-
-    <feature name="spatial-wfs-v2_0_0" version="${project.version}"
-             description="Web Feature Service (WFS) v2.0.0 Source.">
-        <feature>spatial-wfs-core</feature>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-source/${project.version}</bundle>
     </feature>
 
     <feature name="spatial-csw" version="${project.version}"
@@ -107,67 +49,12 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-endpoint/${project.version}</bundle>
     </feature>
 
-    <feature name="spatial-connected-sources" version="${project.version}"
-             description="Spatial Connected Sources included CSW and WFS 2.0.0">
-        <feature>spatial-csw</feature>
-        <feature>spatial-wfs-core</feature>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-csw-connectedsource/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-connectedsource/${project.version}
-        </bundle>
-    </feature>
-
-    <feature name="spatial-geocoding-endpoint" version="${project.version}"
-             description="Spatial GeoCoding Endpoint.">
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-geocoder/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-endpoint/${project.version}</bundle>
-    </feature>
-
-    <feature name="webservice-gazetteer" version="${project.version}"
-             description="Gazetteer service utilizing the Geonames.org web service.">
-        <feature>spatial-geocoding-endpoint</feature>
-        <feature>security-core-services</feature>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-websearch/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
-    </feature>
-
-    <feature name="offline-gazetteer" version="${project.version}"
-             description="Offline gazetteer service utilizing a local GeoNames index.">
-        <feature>spatial-geocoding-endpoint</feature>
-        <feature>catalog-core-plugins</feature>
-        <bundle>mvn:commons-digester/commons-digester/${commons-digester.version}</bundle>
-        <bundle>mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
-        <bundle>mvn:commons-validator/commons-validator/${commons-validator.version}</bundle>
-        <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-offline-catalog/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-feature/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-commands/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
-    </feature>
-    
-    <feature name="offline-gazetteer-index" version="${project.version}"
-             description="Offline gazetteer index service to build GeoNames index.">
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-offline-index/${project.version}</bundle>
-    </feature>
-
     <feature name="spatial-app" version="${project.version}"
              description="Spatial contains standards-based, geospatial endpoints, sources, and transforms.">
         <feature>catalog-app</feature>
         <feature>catalog-transformer-xml</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-api/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
-        <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
-        <feature>spatial-kml</feature>
-        <feature>spatial-wfs-core</feature>
         <feature>spatial-csw</feature>
-        <feature>offline-gazetteer</feature>
-        <feature>spatial-wfs-feature-transformer-xstream</feature>
-        <feature>spatial-wfs-feature-transformer-handlebars</feature>
-        <feature>spatial-wfs-v1_1_0</feature>
-        <feature>spatial-wfs-v2_0_0</feature>
     </feature>
 
 </features>

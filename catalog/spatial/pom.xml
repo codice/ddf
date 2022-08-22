@@ -27,16 +27,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>ddf.jaxb</groupId>
-                <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
-                <version>${ddf.jaxb.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wfs-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-ogc-common</artifactId>
                 <version>${project.version}</version>
@@ -53,34 +43,8 @@
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wfs-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wfs-v2_0_0-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wfs-converter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wfs-v2_0_0-converter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-ogc-api</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wfs-v2_0_0-schema-webapp</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.codice.thirdparty</groupId>
@@ -100,16 +64,6 @@
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-csw-transformer</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wcs-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wfs-source</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -144,13 +98,8 @@
         </dependency>
     </dependencies>
     <modules>
-        <module>kml</module>
         <module>ogc</module>
-        <module>wfs</module>
-        <module>wcs</module>
         <module>csw</module>
-        <module>geocoding</module>
-        <module>spatial-commands</module>
         <module>spatial-app</module>
     </modules>
 </project>

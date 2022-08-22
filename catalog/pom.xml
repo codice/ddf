@@ -376,22 +376,22 @@
         </dependencies>
     </dependencyManagement>
     <modules>
-        <module>measure</module>
+<!--        <module>measure</module>-->
         <module>common</module>
         <module>core</module>
-        <module>schematron</module>
+<!--        <module>schematron</module>-->
         <module>transformer</module>
         <module>plugin</module>
         <module>opensearch</module>
         <module>rest</module>
-        <module>security</module>
-        <module>admin</module>
+<!--        <module>security</module>-->
+<!--        <module>admin</module>-->
         <module>catalog-app</module>
         <module>solr</module>
         <module>ui</module>
         <module>spatial</module>
-        <module>validator</module>
-        <module>confluence</module>
+<!--        <module>validator</module>-->
+<!--        <module>confluence</module>-->
     </modules>
     <build>
         <plugins>

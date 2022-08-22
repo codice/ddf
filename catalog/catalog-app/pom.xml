@@ -308,68 +308,13 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-filter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-operationplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-logging</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-pointofcontact-policyplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-pointofcontactupdate</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.admin</groupId>
-            <artifactId>catalog-admin-module-sources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.admin</groupId>
-            <artifactId>catalog-admin-module-maplayers</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.admin</groupId>
-            <artifactId>catalog-admin-module-layout</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>video-input-transformer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-metacard-validation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-oauth</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-policyplugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -390,16 +335,6 @@
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-pptx</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-metacardattributeplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-xmlattributeplugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -434,32 +369,12 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-directorymonitor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-versioning</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.admin</groupId>
-            <artifactId>catalog-admin-poller-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-attributeregistry</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-validator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-definitionparser</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -473,58 +388,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.ddf.validator</groupId>
-            <artifactId>catalog-validator-metacardduplication</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.validator</groupId>
-            <artifactId>catalog-validator-metacardlocation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.validator</groupId>
-            <artifactId>catalog-validator-metacardframecenter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.validator</groupId>
-            <artifactId>catalog-validator-wkt</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.validator</groupId>
-            <artifactId>catalog-validator-metacardwkt</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.validator</groupId>
-            <artifactId>catalog-validator-unsupportedattributes</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.transformer</groupId>
-            <artifactId>catalog-transformer-overlay</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-attribute</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-resourcestatusplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-tagsfilterplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-expirationdate</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -534,47 +399,12 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-downloadaction</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
             <artifactId>versioning-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-clientinfo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-metacardtype</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-metacardingest-network</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-resourceplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.confluence</groupId>
-            <artifactId>catalog-confluence-source</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-metacardbackup-storage-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-metacardbackup-storage-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -588,24 +418,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-security-audit</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>csv-queryresponse-transformer</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.transformer</groupId>
-            <artifactId>catalog-transformer-preview</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.countrycode</groupId>
-            <artifactId>converter</artifactId>
-            <version>${countryconverter.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -615,21 +430,6 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-attachment-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-gazetteer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-facet-attribute-access</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.transformer</groupId>
-            <artifactId>catalog-transformer-rtf</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

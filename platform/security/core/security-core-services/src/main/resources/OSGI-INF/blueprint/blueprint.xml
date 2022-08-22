@@ -33,20 +33,6 @@
 
     <service ref="securityLogger" interface="ddf.security.audit.SecurityLogger" />
 
-    <bean id="adminAlertAppender" class="ddf.security.audit.impl.LogFailoverAlertAppender">
-        <argument ref="eventAdmin"/>
-    </bean>
-
-    <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
-
-    <service id="AdminAlertAppenderService" ref="adminAlertAppender"
-             interface="org.ops4j.pax.logging.spi.PaxAppender">
-        <service-properties>
-            <entry key="org.ops4j.pax.logging.appender.name"
-                   value="ddf.security.audit.impl.LogFailoverAlertAppender"/>
-        </service-properties>
-    </service>
-
     <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
                filter="(id=uuidGenerator)"/>
 
@@ -73,15 +59,6 @@
         <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
         <argument ref="encryptionService"/>
     </bean>
-
-    <bean id="logoutMessageImpl" class="ddf.security.samlp.impl.LogoutMessageImpl">
-        <argument ref="uuidGenerator"/>
-        <cm:managed-properties persistent-id="ddf.security.samlp.LogoutMessage"
-                               update-strategy="container-managed"/>
-        <property name="systemCrypto" ref="crypto"/>
-    </bean>
-
-    <service ref="logoutMessageImpl" interface="ddf.security.samlp.LogoutMessage"/>
 
     <service ref="configSecurityLogger"
              interface="org.osgi.service.cm.SynchronousConfigurationListener"/>
@@ -119,9 +96,5 @@
     </bean>
 
     <service ref="security" interface="org.codice.ddf.security.Security" />
-
-    <bean id="samlSecurity" class="org.codice.ddf.security.jaxrs.impl.SamlSecurity" />
-
-    <service ref="samlSecurity" interface="org.codice.ddf.security.jaxrs.SamlSecurity" />
 
 </blueprint>

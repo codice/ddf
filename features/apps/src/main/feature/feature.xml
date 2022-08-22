@@ -43,8 +43,6 @@
         <feature>metrics-core</feature>
         <feature>mime-core</feature>
         <feature>mime-tika-resolver</feature>
-        <feature>error-api</feature>
-        <feature>error-impl</feature>
         <feature>util-uuidgenerator</feature>
         <feature>solr-core</feature>
     </feature>
@@ -65,10 +63,8 @@
              description="Features that will be started on container startup.">
         <feature>ddf-core</feature>
         <feature>security-core-services</feature>
-        <feature>oidc-auth</feature>
-        <feature>saml-auth</feature>
         <feature>platform-app</feature>
-        <feature>admin-app</feature>
+        <feature>sync-installer</feature>
     </feature>
 
     <feature name="platform-app" version="${project.version}"
@@ -86,17 +82,7 @@
         <feature>persistence-core</feature>
         <feature>io</feature>
         <feature>parser-xml</feature>
-        <feature>landing-page</feature>
-        <feature>platform-alerts</feature>
         <feature>resource-bundle-locator</feature>
     </feature>
 
-    <feature name="admin-app" version="${project.version}"
-             description="Administration application for installation and management.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.">
-        <feature>admin-core</feature>
-        <feature>admin-ui</feature>
-        <feature>admin-configurator</feature>
-        <feature>admin-config-updater</feature>
-        <feature>admin-core-logviewer</feature>
-    </feature>
 </features>
