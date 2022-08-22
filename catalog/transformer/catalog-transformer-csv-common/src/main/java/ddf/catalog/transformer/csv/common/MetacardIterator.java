@@ -23,9 +23,6 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -34,7 +31,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.xml.bind.DatatypeConverter;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +50,6 @@ class MetacardIterator implements Iterator<Serializable> {
   private final Metacard metacard;
 
   private int index;
-
-  private DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
   /**
    * @param metacard the metacard to be iterated over.
@@ -89,12 +83,11 @@ class MetacardIterator implements Iterator<Serializable> {
 
     if (attribute != null) {
       if (attributeDescriptor.isMultiValued()) {
-        List<Serializable> convertedValues =
-            attribute.getValues().stream()
-                .map(value -> convertValue(attribute.getName(), value, attributeFormat))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        return StringUtils.join(convertedValues, MULTIVALUE_DELIMITER);
+        return attribute.getValues().stream()
+            .map(value -> convertValue(attribute.getName(), value, attributeFormat))
+            .filter(Objects::nonNull)
+            .map(Object::toString)
+            .collect(Collectors.joining(MULTIVALUE_DELIMITER));
       } else {
         Serializable value =
             convertValue(attribute.getName(), attribute.getValue(), attributeFormat);
@@ -125,9 +118,7 @@ class MetacardIterator implements Iterator<Serializable> {
           return null;
         }
         Instant instant = ((Date) value).toInstant();
-        ZoneId zoneId = ZoneId.of("UTC");
-        ZonedDateTime zonedDateTime = instant.atZone(zoneId);
-        return zonedDateTime.format(formatter);
+        return instant.toString();
       case BINARY:
         byte[] bytes = (byte[]) value;
         return DatatypeConverter.printBase64Binary(bytes);
