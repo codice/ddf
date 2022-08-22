@@ -29,7 +29,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -148,7 +147,7 @@ public class MetacardIteratorTest {
     ATTRIBUTE_DESCRIPTOR_LIST.clear();
     METACARD_DATA_MAP.clear();
 
-    Date now = Date.from(Instant.now());
+    Date now = new Date();
     Attribute attribute = buildAttribute(Core.CREATED, now);
     METACARD_DATA_MAP.put(Core.CREATED, attribute);
     ATTRIBUTE_DESCRIPTOR_LIST.add(
