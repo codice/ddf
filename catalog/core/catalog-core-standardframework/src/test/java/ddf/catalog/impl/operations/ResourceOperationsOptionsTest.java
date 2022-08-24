@@ -88,7 +88,7 @@ public class ResourceOperationsOptionsTest {
 
     mockResultList = new ArrayList<>();
 
-    resourceOperations = new ResourceOperations(frameworkProperties, queryOperationsMock, null);
+    resourceOperations = new ResourceOperations(frameworkProperties, queryOperationsMock);
 
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
     when(resultMock.getMetacard()).thenReturn(metacard);
@@ -96,8 +96,6 @@ public class ResourceOperationsOptionsTest {
 
   private void setUpFrameworkProperties() {
     frameworkProperties = new FrameworkProperties();
-    frameworkProperties.setAccessPlugins(new ArrayList<>());
-    frameworkProperties.setPolicyPlugins(new ArrayList<>());
     frameworkProperties.setPostResource(mockPostResourcePlugins);
     frameworkProperties.setFederationStrategy(mockFederationStrategy);
     frameworkProperties.setFilterBuilder(new GeotoolsFilterBuilder());

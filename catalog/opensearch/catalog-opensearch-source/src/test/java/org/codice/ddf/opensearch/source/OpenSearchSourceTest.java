@@ -49,11 +49,6 @@ import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import ddf.security.audit.SecurityLogger;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.service.SecurityManager;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,13 +72,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.cxf.client.ClientBuilder;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
-import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
-import org.codice.ddf.cxf.oauth.OAuthSecurity;
-import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.jdom2.Element;
 import org.junit.Before;
 import org.junit.Test;
@@ -141,9 +131,7 @@ public class OpenSearchSourceTest {
   private static final String NOT_ID_ATTRIBUTE_NAME = "this attribute name is ignored";
 
   private final WebClient webClient = mock(WebClient.class);
-  private final SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
-  private final ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
-  private final EncryptionService encryptionService = mock(EncryptionService.class);
+  private final JAXRSClientFactoryBean factory = mock(JAXRSClientFactoryBean.class);
   private final OpenSearchParser openSearchParser = new OpenSearchParserImpl();
   private final OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
   private Response response;
@@ -412,31 +400,11 @@ public class OpenSearchSourceTest {
     when(webClient.replaceQueryParam(any(String.class), any(Object.class))).thenReturn(webClient);
     when(webClient.getCurrentURI()).thenReturn(SAMPLE_QUERY_URL);
 
-    doReturn(webClient)
-        .when(factory)
-        .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
-    doReturn(webClient).when(factory).getWebClient();
-
-    ClientBuilder<WebClient> clientBuilder =
-        new ClientBuilderImpl<WebClient>(
-            mock(OAuthSecurity.class),
-            mock(SamlSecurity.class),
-            mock(SecurityLogger.class),
-            mock(SecurityManager.class)) {
-          @Override
-          public SecureCxfClientFactory<WebClient> build() {
-            return factory;
-          }
-        };
-    when(clientBuilderFactory.<WebClient>getClientBuilder()).thenReturn(clientBuilder);
+    doReturn(webClient).when(factory).createWebClient();
 
     source =
         new OverriddenOpenSearchSource(
-            FILTER_ADAPTER,
-            openSearchParser,
-            openSearchFilterVisitor,
-            encryptionService,
-            clientBuilderFactory);
+            FILTER_ADAPTER, openSearchParser, openSearchFilterVisitor, factory);
     source.setShortname(SOURCE_ID);
     source.setBundle(getMockBundleContext(getMockInputTransformer()));
     source.setEndpointUrl("http://localhost:8181/services/catalog/query");
@@ -651,7 +619,6 @@ public class OpenSearchSourceTest {
                     hasEntry("username", (Serializable) "user"),
                     hasEntry("password", (Serializable) "secret")))))
         .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
-    when(encryptionService.decryptValue("secret")).thenReturn("secret");
     MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
     headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/octet-stream"));
     when(response.getHeaders()).thenReturn(headers);
@@ -898,7 +865,6 @@ public class OpenSearchSourceTest {
   private QueryRequestImpl getQueryRequest(Filter filter) {
     QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter));
     Map<String, Serializable> properties = new HashMap<>();
-    properties.put(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));
     queryRequest.setProperties(properties);
     return queryRequest;
   }
@@ -915,14 +881,13 @@ public class OpenSearchSourceTest {
         FilterAdapter filterAdapter,
         OpenSearchParser openSearchParser,
         OpenSearchFilterVisitor openSearchFilterVisitor,
-        EncryptionService encryptionService,
-        ClientBuilderFactory clientBuilderFactory) {
+        JAXRSClientFactoryBean factory) {
       super(
           filterAdapter,
           openSearchParser,
           openSearchFilterVisitor,
-          encryptionService,
-          clientBuilderFactory);
+          (elements, sourceResponse) -> {},
+          factory);
     }
 
     void setBundle(Bundle bundle) {
@@ -945,7 +910,7 @@ public class OpenSearchSourceTest {
     }
 
     @Override
-    protected SecureCxfClientFactory createClientFactory(
+    protected JAXRSClientFactoryBean createClientFactory(
         URI url, String username, String password) {
       return factory;
     }

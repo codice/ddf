@@ -18,9 +18,6 @@ import ddf.catalog.data.Result;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
-import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +52,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
 
   @Override
   public void populateSearchOptions(
-      WebClient client, QueryRequest queryRequest, Subject subject, List<String> parameters) {
+      WebClient client, QueryRequest queryRequest, List<String> parameters) {
     String maxTotalSize = null;
     String maxPerPage = null;
     String routeTo = "";
@@ -81,21 +78,6 @@ public class OpenSearchParserImpl implements OpenSearchParser {
         timeout = Long.toString(query.getTimeoutMillis());
 
         sortStr = translateToOpenSearchSort(query.getSortBy());
-
-        if (subject != null
-            && subject.getPrincipals() != null
-            && !subject.getPrincipals().isEmpty()) {
-          List principals = subject.getPrincipals().asList();
-          for (Object principal : principals) {
-            if (principal instanceof SecurityAssertion) {
-              SecurityAssertion assertion = (SecurityAssertion) principal;
-              Principal assertionPrincipal = assertion.getPrincipal();
-              if (assertionPrincipal != null) {
-                dn = assertionPrincipal.getName();
-              }
-            }
-          }
-        }
       }
     }
 

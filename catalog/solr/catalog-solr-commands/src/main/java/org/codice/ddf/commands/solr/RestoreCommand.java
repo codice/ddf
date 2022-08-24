@@ -14,7 +14,6 @@
 package org.codice.ddf.commands.solr;
 
 import com.google.common.annotations.VisibleForTesting;
-import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +23,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
-import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -38,7 +36,6 @@ import org.apache.solr.client.solrj.response.RequestStatusState;
     name = "restore",
     description = "Restores a selected Solr core/collection from backup.")
 public class RestoreCommand extends SolrCommands {
-  @Reference private EncryptionService encryptionService;
 
   @Option(
       name = "-d",

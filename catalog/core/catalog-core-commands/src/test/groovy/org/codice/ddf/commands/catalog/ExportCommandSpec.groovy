@@ -29,7 +29,6 @@ import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.resource.impl.ResourceImpl
 import ddf.catalog.source.CatalogProvider
 import ddf.catalog.transform.MetacardTransformer
-import ddf.security.audit.SecurityLogger
 import org.apache.karaf.shell.api.console.Session
 import org.codice.ddf.commands.util.DigitalSignature
 import org.junit.platform.runner.JUnitPlatform
@@ -88,7 +87,6 @@ class ExportCommandSpec extends Specification {
                 catalogFramework,
                 signer
         )
-        exportCommand.securityLogger = Mock(SecurityLogger)
     }
 
     void cleanup() {
@@ -109,7 +107,7 @@ class ExportCommandSpec extends Specification {
         }
 
         when:
-        exportCommand.executeWithSubject()
+        exportCommand.execute()
 
         then:
         notThrown(Exception)
@@ -124,7 +122,7 @@ class ExportCommandSpec extends Specification {
         exportCommand.bundleContext = bundleContext
 
         when:
-        exportCommand.executeWithSubject()
+        exportCommand.execute()
 
         then:
         thrown(IllegalArgumentException)
@@ -144,7 +142,7 @@ class ExportCommandSpec extends Specification {
         }
 
         when:
-        exportCommand.executeWithSubject()
+        exportCommand.execute()
 
         then:
         thrown(IllegalStateException)
@@ -160,7 +158,7 @@ class ExportCommandSpec extends Specification {
         }
 
         when:
-        exportCommand.executeWithSubject()
+        exportCommand.execute()
 
         then:
         thrown(IllegalStateException)
@@ -176,7 +174,7 @@ class ExportCommandSpec extends Specification {
         }
 
         when:
-        exportCommand.executeWithSubject()
+        exportCommand.execute()
 
         then:
         thrown(IllegalStateException)
@@ -194,7 +192,7 @@ class ExportCommandSpec extends Specification {
         }
 
         when:
-        exportCommand.executeWithSubject()
+        exportCommand.execute()
 
         then:
         tmpHomeDir.list() == [] // dir is empty
@@ -225,7 +223,7 @@ class ExportCommandSpec extends Specification {
         }
 
         when:
-        exportCommand.executeWithSubject()
+        exportCommand.execute()
 
         then:
         notThrown(Exception)
@@ -268,7 +266,7 @@ class ExportCommandSpec extends Specification {
         }
 
         when:
-        exportCommand.executeWithSubject()
+        exportCommand.execute()
 
         then:
         notThrown(Exception)
@@ -320,7 +318,7 @@ class ExportCommandSpec extends Specification {
         }
 
         when:
-        exportCommand.executeWithSubject()
+        exportCommand.execute()
 
         then:
         notThrown(Exception)

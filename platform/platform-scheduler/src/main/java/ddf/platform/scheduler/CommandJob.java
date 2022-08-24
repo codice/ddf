@@ -13,7 +13,6 @@
  */
 package ddf.platform.scheduler;
 
-import ddf.security.Subject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,9 +23,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.karaf.shell.api.console.SessionFactory;
-import org.apache.shiro.subject.ExecutionException;
-import org.codice.ddf.log.sanitizer.LogSanitizer;
-import org.codice.ddf.security.Security;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -47,45 +43,12 @@ public class CommandJob implements Job {
 
   public static final String COMMAND_KEY = "command";
 
-  private final Security security;
-
-  public CommandJob(Security security) {
-    this.security = security;
-  }
-
-  protected Subject getSystemSubject() {
-    return security.getSystemSubject();
-  }
-
   @Override
   public void execute(final JobExecutionContext context) {
     final String commandString = getCommandString(context);
     if (StringUtils.isNotBlank(commandString)) {
       try {
-        security.runAsAdmin(
-            () -> {
-              final Subject subject = getSystemSubject();
-
-              if (subject != null) {
-                try {
-                  subject.execute(
-                      () -> {
-                        doExecute(commandString);
-                        return null;
-                      });
-                } catch (ExecutionException e) {
-                  logWarningMessage(commandString);
-                  LOGGER.debug("Unable to execute as subject.", e);
-                }
-              } else {
-                // This might happen when the system is very slow to start up where not all of the
-                // required security bundles are started yet.
-                logWarningMessage(commandString);
-                LOGGER.debug("Unable to get system subject.");
-              }
-
-              return null;
-            });
+        doExecute(commandString);
       } catch (RuntimeException e) {
         // This might happen when the system is very slow to start up where not all of the required
         // security bundles are started yet.
@@ -134,17 +97,14 @@ public class CommandJob implements Job {
               };
           final Session session = sessionFactory.create(emptyInputStream, output, output)) {
         if (session != null) {
-          LOGGER.trace("Executing command \"{}\"", LogSanitizer.sanitize(commandString));
+          LOGGER.trace("Executing command \"{}\"", commandString);
           try {
             session.execute(commandString);
 
             try {
               final String commandOutput =
                   byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
-              LOGGER.info(
-                  "Execution output for command \"{}\": {}",
-                  LogSanitizer.sanitize(commandString),
-                  LogSanitizer.sanitize(commandOutput));
+              LOGGER.info("Execution output for command \"{}\": {}", commandString, commandOutput);
             } catch (UnsupportedEncodingException e) {
               LOGGER.debug("Unable to get command output.", e);
             }
@@ -187,6 +147,6 @@ public class CommandJob implements Job {
   private void logWarningMessage(String commandString) {
     LOGGER.warn(
         "Unable to execute command \"{}\". See debug log for more details. The command is still scheduled for execution according to the configured interval.",
-        LogSanitizer.sanitize(commandString));
+        commandString);
   }
 }

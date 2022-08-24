@@ -16,18 +16,6 @@
         xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
         xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <bean id="downloadThreadPool" class="java.util.concurrent.Executors"
-          factory-method="newFixedThreadPool">
-        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
-        <argument ref="downloadManagerThreadFactory"/>
-    </bean>
-
-    <bean id="downloadManagerThreadFactory"
-          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
-          factory-method="newThreadFactory">
-        <argument value="downloadManagerThread"/>
-    </bean>
-
     <reference-list id="downloadManagers"
                     interface="org.codice.ddf.catalog.resource.download.internal.DownloadManager"
                     availability="optional">
@@ -36,49 +24,5 @@
     </reference-list>
 
     <bean id="downloadManagerSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
-
-    <bean id="reliableResourceDownloadManager"
-          class="ddf.catalog.resource.download.ReliableResourceDownloadManager"
-          init-method="init" destroy-method="cleanUp">
-        <cm:managed-properties
-                persistent-id="ddf.catalog.resource.download.ReliableResourceDownloadManager"
-                update-strategy="container-managed"/>
-        <argument>
-            <bean xml:id="downloaderConfig"
-                  class="ddf.catalog.resource.download.ReliableResourceDownloaderConfig">
-                <property name="cacheEnabled" value="true"/>
-                <property name="delayBetweenAttemptsMS" value="10000"/>
-                <property name="maxRetryAttempts" value="3"/>
-                <property name="monitorPeriodMS" value="5000"/>
-                <property name="cacheWhenCanceled" value="false"/>
-                <property name="resourceCache" ref="deprecatedProductCache"/>
-                <property name="eventPublisher" ref="retrieveStatusEventPublisher"/>
-                <property name="eventListener" ref="retrieveStatusEventListener"/>
-            </bean>
-        </argument>
-        <argument ref="downloadStatusInfo"/>
-        <argument ref="downloadThreadPool"/>
-    </bean>
-
-    <bean id="mBeanServer" class="java.lang.management.ManagementFactory"
-          factory-method="getPlatformMBeanServer"/>
-
-    <bean id="resourceDownloadMBean"
-          class="org.codice.ddf.catalog.resource.download.impl.ResourceDownload" init-method="init"
-          destroy-method="destroy">
-        <argument ref="mBeanServer"/>
-        <argument ref="catalogFramework"/>
-        <argument ref="resourceCacheMBean"/>
-    </bean>
-
-    <bean id="resourceCacheMBean"
-          class="org.codice.ddf.catalog.resource.cache.impl.ResourceCacheService" init-method="init"
-          destroy-method="destroy">
-        <argument ref="mBeanServer"/>
-        <argument ref="productCache"/>
-        <argument ref="reliableResourceDownloadManager"/>
-        <argument ref="frameworkProperties"/>
-        <argument ref="catalogFramework"/>
-    </bean>
 
 </blueprint>

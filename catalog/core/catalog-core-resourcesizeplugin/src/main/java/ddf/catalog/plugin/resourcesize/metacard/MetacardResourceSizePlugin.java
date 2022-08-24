@@ -13,8 +13,6 @@
  */
 package ddf.catalog.plugin.resourcesize.metacard;
 
-import ddf.catalog.cache.ResourceCacheInterface;
-import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -25,7 +23,6 @@ import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.resource.data.ReliableResource;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +30,6 @@ import org.slf4j.LoggerFactory;
 public class MetacardResourceSizePlugin implements PostQueryPlugin {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardResourceSizePlugin.class);
-
-  private ResourceCacheInterface cache;
-
-  public MetacardResourceSizePlugin(ResourceCacheInterface cache) {
-    this.cache = cache;
-  }
 
   @Override
   public QueryResponse process(QueryResponse input)

@@ -19,15 +19,13 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.SolrMetacardClientImpl;
-import ddf.security.Subject;
 import java.io.IOException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
@@ -49,7 +47,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.CursorMarkParams;
-import org.codice.ddf.security.Security;
 import org.codice.solr.factory.SolrClientFactory;
 
 @Service
@@ -85,8 +82,6 @@ public class ReindexCommand extends SolrCommands {
   @Reference private CatalogFramework catalogFramework;
 
   @Reference private SolrClientFactory clientFactory;
-
-  @Reference Security security;
 
   @Option(
       name = "-c",
@@ -435,10 +430,15 @@ public class ReindexCommand extends SolrCommands {
     public void run() {
       CreateRequest createRequest = new CreateRequestImpl(new ArrayList<>(workItem.getMetacards()));
 
-      Subject systemSubject =
-          AccessController.doPrivileged(
-              (PrivilegedAction<Subject>) () -> security.runAsAdmin(security::getSystemSubject));
-      systemSubject.execute((Callable) () -> catalogFramework.create(createRequest));
+      try {
+        catalogFramework.create(createRequest);
+      } catch (IngestException e) {
+        printErrorMessage("Unable to reindex: " + e.getMessage());
+        LOGGER.info("Reindex failed", e);
+      } catch (SourceUnavailableException e) {
+        printErrorMessage("Source currently unavailable: " + e.getMessage());
+        LOGGER.info("Reindex failed due to unavailable source", e);
+      }
       count.addAndGet(workItem.getMetacards().size());
       printProgress();
     }

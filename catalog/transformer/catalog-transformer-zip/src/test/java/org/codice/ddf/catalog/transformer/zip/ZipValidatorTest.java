@@ -16,7 +16,6 @@ package org.codice.ddf.catalog.transformer.zip;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import ddf.security.SecurityConstants;
 import java.util.Properties;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -67,7 +66,7 @@ public class ZipValidatorTest {
   @BeforeClass
   public static void setUpBeforeClass() {
     properties = System.getProperties();
-    System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
+    System.setProperty("javax.net.ssl.keyStoreType", "jks");
   }
 
   @AfterClass

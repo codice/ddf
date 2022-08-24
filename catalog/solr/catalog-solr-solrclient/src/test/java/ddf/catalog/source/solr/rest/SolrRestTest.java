@@ -19,9 +19,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import ddf.security.audit.SecurityLogger;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.service.SecurityManager;
 import java.util.HashMap;
 import java.util.Map;
 import org.codice.ddf.cxf.client.ClientBuilder;
@@ -39,8 +36,6 @@ public class SolrRestTest {
 
   @Before
   public void setUp() {
-    EncryptionService encryptionService = mock(EncryptionService.class);
-    when(encryptionService.decrypt(anyString())).thenReturn("test");
     ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
     SecureCxfClientFactory secureCxfClientFactory = mock(SecureCxfClientFactory.class);
     ClientBuilder clientBuilder =
@@ -56,7 +51,7 @@ public class SolrRestTest {
         };
 
     when(clientBuilderFactory.getClientBuilder()).thenReturn(clientBuilder);
-    solrRest = new SolrRest(clientBuilderFactory, encryptionService);
+    solrRest = new SolrRest(clientBuilderFactory);
   }
 
   @Test

@@ -41,7 +41,7 @@ public class ReplicateCommand extends DuplicateCommands {
   String sourceId;
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
     if (batchSize > MAX_BATCH_SIZE || batchSize < 1) {
       console.println("Batch Size must be between 1 and " + MAX_BATCH_SIZE + ".");
       return null;

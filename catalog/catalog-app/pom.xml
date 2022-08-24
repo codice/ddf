@@ -98,11 +98,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-camelcomponent</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.measure</groupId>
             <artifactId>measure-api</artifactId>
             <version>${project.version}</version>
@@ -121,21 +116,6 @@
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>lucene-core</artifactId>
             <version>3.0.2_1</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>ddf-pubsub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-eventcommands</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>ddf-pubsub-tracker</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -165,11 +145,6 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-standardframework</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-resourcesizeplugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -395,11 +370,6 @@
         <dependency>
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-content-uri</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>versioning-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

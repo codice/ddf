@@ -19,7 +19,6 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.validation.constraints.NotNull;
 import org.joda.time.Period;
 
 /* Parses a period similar to ISO8601 format that contains decimal values. ISO8601 doesn't allow
@@ -39,7 +38,7 @@ public class PeriodParser {
     SECONDS // 6
   }
 
-  public static Period parse(@NotNull String periodText, Pattern regex) {
+  public static Period parse(String periodText, Pattern regex) {
 
     Matcher matcher = regex.matcher(periodText);
     if (matcher.matches()) {

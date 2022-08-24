@@ -106,7 +106,7 @@ public class SeedCommand extends CqlCommands {
   int resourceLimit = 20;
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
     if (resourceLimit <= 0) {
       printErrorMessage(
           "A limit of " + resourceLimit + " was supplied. The limit must be greater than 0.");

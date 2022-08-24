@@ -34,7 +34,7 @@ public class LatestCommandTest extends CommandCatalogFrameworkCommon {
     latestCommand.filterBuilder = new GeotoolsFilterBuilder();
 
     // when
-    latestCommand.executeWithSubject();
+    latestCommand.execute();
 
     // then
     assertThat(consoleOutput.getOutput(), containsString("id1"));

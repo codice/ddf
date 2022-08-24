@@ -76,7 +76,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
         .thenReturn(serviceReferencesFiltered);
 
     transformersCommand.setInputOption(true);
-    transformersCommand.executeWithSubject();
+    transformersCommand.execute();
     assertThat(
         consoleOutput.getOutput(),
         containsString(String.format("%s%n%n", "There are no active Input transformers")));
@@ -99,7 +99,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
 
     transformersCommand.setMetacardOption(true);
     transformersCommand.setAllOption(true);
-    transformersCommand.executeWithSubject();
+    transformersCommand.execute();
     assertThat(
         consoleOutput.getOutput(),
         containsString(String.format("%s%n%n", "There are no active Metacard transformers")));
@@ -134,7 +134,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
         .thenReturn(serviceReferencesFiltered);
 
     transformersCommand.setInputOption(true);
-    transformersCommand.executeWithSubject();
+    transformersCommand.execute();
     assertThat(
         consoleOutput.getOutput(),
         containsString(String.format(ACTIVE_INPUT_TRANSFORMERS, notNullIds)));
@@ -169,7 +169,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
         .thenReturn(serviceReferencesFiltered);
 
     transformersCommand.setMetacardOption(true);
-    transformersCommand.executeWithSubject();
+    transformersCommand.execute();
     assertThat(
         consoleOutput.getOutput(),
         containsString(String.format(ACTIVE_METACARD_TRANSFORMERS, notNullIds)));
@@ -209,7 +209,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
 
     transformersCommand.setMetacardOption(true);
     transformersCommand.setAllOption(true);
-    transformersCommand.executeWithSubject();
+    transformersCommand.execute();
     assertThat(
         consoleOutput.getOutput(),
         containsString(String.format(ACTIVE_METACARD_TRANSFORMERS, notNullIds)));
@@ -229,7 +229,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
         .thenReturn(serviceReferences);
 
     transformersCommand.setInputOption(true);
-    transformersCommand.executeWithSubject();
+    transformersCommand.execute();
     assertThat(
         consoleOutput.getOutput(), containsString(String.format(ACTIVE_INPUT_TRANSFORMERS, 3)));
   }
@@ -248,7 +248,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
         .thenReturn(serviceReferences);
 
     transformersCommand.setMetacardOption(true);
-    transformersCommand.executeWithSubject();
+    transformersCommand.execute();
     assertThat(
         consoleOutput.getOutput(), containsString(String.format(ACTIVE_METACARD_TRANSFORMERS, 3)));
   }
@@ -269,7 +269,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
     when(bundleContext.getServiceReferences(InputTransformer.class, FILTER))
         .thenReturn(serviceReferences);
 
-    transformersCommand.executeWithSubject();
+    transformersCommand.execute();
     String output = consoleOutput.getOutput();
     assertThat(output, containsString("schema: N/A"));
     assertThat(output, containsString("mime-types: N/A"));
@@ -294,7 +294,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
     when(bundleContext.getServiceReferences(InputTransformer.class, FILTER))
         .thenReturn(serviceReferences);
 
-    transformersCommand.executeWithSubject();
+    transformersCommand.execute();
     String output = consoleOutput.getOutput();
     assertThat(output, containsString("mime-types: mime1"));
     assertThat(output, containsString("mime2"));

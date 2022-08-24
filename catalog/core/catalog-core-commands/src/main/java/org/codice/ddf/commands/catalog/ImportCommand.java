@@ -23,7 +23,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.security.audit.SecurityLogger;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -76,8 +75,6 @@ public class ImportCommand extends CatalogCommands {
 
   @Reference private StorageProvider storageProvider;
 
-  @Reference private SecurityLogger securityLogger;
-
   private DigitalSignature verifier;
 
   @Argument(
@@ -115,7 +112,7 @@ public class ImportCommand extends CatalogCommands {
   String signatureFile;
 
   @Override
-  protected final Object executeWithSubject() throws Exception {
+  public final Object execute() throws Exception {
     int metacards = 0;
     int content = 0;
     int derivedContent = 0;
@@ -139,7 +136,7 @@ public class ImportCommand extends CatalogCommands {
           return null;
         }
       }
-      securityLogger.audit(
+      LOGGER.info(
           "Skipping validation check of imported data. There are no "
               + "guarantees of integrity or authenticity of the imported data."
               + "File being imported: {}",
@@ -159,14 +156,14 @@ public class ImportCommand extends CatalogCommands {
       try (FileInputStream fileIs = new FileInputStream(file);
           FileInputStream sigFileIs = new FileInputStream(signatureFile)) {
         if (verifier == null) {
-          verifier = new DigitalSignature(security);
+          verifier = new DigitalSignature();
         }
         if (!verifier.verifyDigitalSignature(fileIs, sigFileIs, alias)) {
           throw new CatalogCommandRuntimeException("The provided data could not be verified");
         }
       }
     }
-    securityLogger.audit("Called catalog:import command on the file: {}", importFile);
+    LOGGER.info("Called catalog:import command on the file: {}", importFile);
     console.println("Importing file");
     Instant start = Instant.now();
     try (InputStream fis = new FileInputStream(file);

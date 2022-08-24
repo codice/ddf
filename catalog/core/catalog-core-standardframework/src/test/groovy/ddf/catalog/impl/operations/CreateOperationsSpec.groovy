@@ -26,7 +26,7 @@ class CreateOperationsSpec extends Specification {
     private CreateOperations createOperations
 
     def setup() {
-        createOperations = new CreateOperations(Mock(FrameworkProperties), Mock(QueryOperations), Mock(SourceOperations), Mock(OperationsSecuritySupport), Mock(OperationsMetacardSupport), Mock(OperationsCatalogStoreSupport), Mock(OperationsStorageSupport))
+        createOperations = new CreateOperations(Mock(FrameworkProperties), Mock(QueryOperations), Mock(SourceOperations), Mock(OperationsMetacardSupport), Mock(OperationsCatalogStoreSupport), Mock(OperationsStorageSupport))
     }
 
     def 'test single and multivalued attribute overrides'() {

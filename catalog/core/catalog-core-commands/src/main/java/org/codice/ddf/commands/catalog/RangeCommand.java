@@ -91,7 +91,7 @@ public class RangeCommand extends CatalogCommands {
   String rangeEnd = null;
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
     Filter filter;
 
     Date wayInTheFuture = new DateTime().plusYears(5000).toDate();

@@ -20,8 +20,6 @@ import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
-import ddf.catalog.core.versioning.DeletedMetacard;
-import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -37,7 +35,6 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
-import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -89,16 +86,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Exports Metacards, History, and their content into a zip file. <b> This code is experimental.
- * While this interface is functional and tested, it may change or be removed in a future version of
- * the library. </b>
+ * Exports Metacards and their content into a zip file. <b> This code is experimental. While this
+ * interface is functional and tested, it may change or be removed in a future version of the
+ * library. </b>
  */
 @Service
 @Command(
     scope = CatalogCommands.NAMESPACE,
     name = "export",
-    description =
-        "Exports metacards, history, and their associated resources from the current Catalog")
+    description = "Exports metacards and their associated resources from the current Catalog")
 public class ExportCommand extends CqlCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportCommand.class);
@@ -116,21 +112,15 @@ public class ExportCommand extends CqlCommands {
 
   private static final String DELETED_METACARD = "deleted";
 
-  private static final String REVISION_METACARD = "revision";
-
   private MetacardTransformer transformer;
 
-  private Filter revisionFilter;
-
-  private static final String SECURITY_AUDIT_DELIMITER = ", ";
+  private static final String AUDIT_DELIMITER = ", ";
 
   //  Number of bytes that can be sent is 65,507 (due to udp constraints). This gives a
   //  2002 byte buffer to account for anything the security log prefaces our message with
   private static final int LOG4J_MAX_BUF_SIZE = 63505;
 
   @Reference protected StorageProvider storageProvider;
-
-  @Reference protected SecurityLogger securityLogger;
 
   private DigitalSignature signer;
 
@@ -150,14 +140,6 @@ public class ExportCommand extends CqlCommands {
       description =
           "Delete Metacards and content after export. E.g., --delete=true or --delete=false")
   boolean delete = false;
-
-  @Option(
-      name = "--archived",
-      required = false,
-      aliases = {"-a", "archived"},
-      multiValued = false,
-      description = "Equivalent to --cql \"\\\"metacard-tags\\\" like 'deleted'\"")
-  boolean archived = false;
 
   @Option(
       name = "--force",
@@ -189,9 +171,9 @@ public class ExportCommand extends CqlCommands {
   }
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
     if (signer == null) {
-      signer = new DigitalSignature(security);
+      signer = new DigitalSignature();
     }
     Filter filter = getFilter();
     transformer =
@@ -201,7 +183,6 @@ public class ExportCommand extends CqlCommands {
                 () ->
                     new IllegalArgumentException(
                         "Could not get " + DEFAULT_TRANSFORMER_ID + " transformer"));
-    revisionFilter = initRevisionFilter();
 
     final File outputFile = initOutputFile(output);
     checkFile(outputFile);
@@ -217,7 +198,7 @@ public class ExportCommand extends CqlCommands {
       }
     }
 
-    securityLogger.audit("Called catalog:export command with path : {}", output);
+    LOGGER.info("Called catalog:export command with path : {}", output);
 
     try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
@@ -309,7 +290,7 @@ public class ExportCommand extends CqlCommands {
   }
 
   private void signJar(File outputFile) {
-    securityLogger.audit("Signing exported data. file: [{}]", outputFile.getName());
+    LOGGER.info("Signing exported data. file: [{}]", outputFile.getName());
     console.println("Signing zip file...");
     Instant start = Instant.now();
 
@@ -351,13 +332,13 @@ public class ExportCommand extends CqlCommands {
   }
 
   private int logPartition(String e, AtomicInteger counter) {
-    return counter.getAndAdd(e.length() + SECURITY_AUDIT_DELIMITER.length()) / LOG4J_MAX_BUF_SIZE;
+    return counter.getAndAdd(e.length() + AUDIT_DELIMITER.length()) / LOG4J_MAX_BUF_SIZE;
   }
 
   private void writePartitionToLog(List<String> idList) {
-    securityLogger.audit(
+    LOGGER.info(
         "Ids of exported metacards and content:\n{}",
-        idList.stream().collect(Collectors.joining(SECURITY_AUDIT_DELIMITER, "[", "]")));
+        idList.stream().collect(Collectors.joining(AUDIT_DELIMITER, "[", "]")));
   }
 
   private List<ExportItem> doMetacardExport(
@@ -376,30 +357,9 @@ public class ExportCommand extends CqlCommands {
         exportedItems.add(
             new ExportItem(
                 result.getMetacard().getId(),
-                getTag(result),
                 result.getMetacard().getResourceURI(),
                 getDerivedResources(result)));
         seenIds.add(result.getMetacard().getId());
-      }
-
-      // Fetch and export all history for each exported item
-      QueryImpl historyQuery = new QueryImpl(getHistoryFilter(result));
-      QueryRequest historyQueryRequest = new QueryRequestImpl(historyQuery);
-
-      historyQuery.setPageSize(PAGE_SIZE);
-
-      for (Result revision : resultIterable(catalogFramework, historyQueryRequest)) {
-        if (seenIds.contains(revision.getMetacard().getId())) {
-          continue;
-        }
-        writeResultToZip(zipOutputStream, revision);
-        exportedItems.add(
-            new ExportItem(
-                revision.getMetacard().getId(),
-                getTag(revision),
-                revision.getMetacard().getResourceURI(),
-                getDerivedResources(result)));
-        seenIds.add(revision.getMetacard().getId());
       }
     }
     return exportedItems;
@@ -426,13 +386,6 @@ public class ExportCommand extends CqlCommands {
             // Only our content scheme
             .filter(ei -> ei.getResourceUri().getScheme() != null)
             .filter(ei -> ei.getResourceUri().getScheme().startsWith(ContentItem.CONTENT_SCHEME))
-            // Deleted Metacards have no content associated
-            .filter(ei -> !ei.getMetacardTag().equals(DELETED_METACARD))
-            // for revision metacards, only those that have their own content
-            .filter(
-                ei ->
-                    !ei.getMetacardTag().equals(REVISION_METACARD)
-                        || ei.getResourceUri().getSchemeSpecificPart().equals(ei.getId()))
             .filter(distinctByKey(ei -> ei.getResourceUri().getSchemeSpecificPart()))
             .collect(Collectors.toList());
 
@@ -451,34 +404,31 @@ public class ExportCommand extends CqlCommands {
       }
       writeResourceToZip(zipOutputStream, contentItem, resource);
       exportedContentItems.add(contentItem);
-      if (!contentItem.getMetacardTag().equals(REVISION_METACARD)) {
-        for (String derivedUri : contentItem.getDerivedUris()) {
-          URI uri;
-          try {
-            uri = new URI(derivedUri);
-          } catch (URISyntaxException e) {
-            LOGGER.debug(
-                "Uri [{}] is not a valid URI. Derived content will not be included in export",
-                derivedUri);
-            continue;
-          }
-
-          ResourceResponse derivedResource;
-          try {
-            derivedResource =
-                catalogFramework.getLocalResource(new ResourceRequestByProductUri(uri));
-          } catch (IOException e) {
-            throw new CatalogCommandRuntimeException(
-                "Unable to retrieve resource for " + contentItem.getId(), e);
-          } catch (ResourceNotFoundException | ResourceNotSupportedException e) {
-            LOGGER.warn("Could not retreive resource [{}]", uri, e);
-            console.printf(
-                "%sUnable to retrieve resource for export : %s%s%n",
-                Ansi.ansi().fg(Ansi.Color.RED).toString(), uri, Ansi.ansi().reset().toString());
-            continue;
-          }
-          writeResourceToZip(zipOutputStream, contentItem, derivedResource);
+      for (String derivedUri : contentItem.getDerivedUris()) {
+        URI uri;
+        try {
+          uri = new URI(derivedUri);
+        } catch (URISyntaxException e) {
+          LOGGER.debug(
+              "Uri [{}] is not a valid URI. Derived content will not be included in export",
+              derivedUri);
+          continue;
         }
+
+        ResourceResponse derivedResource;
+        try {
+          derivedResource = catalogFramework.getLocalResource(new ResourceRequestByProductUri(uri));
+        } catch (IOException e) {
+          throw new CatalogCommandRuntimeException(
+              "Unable to retrieve resource for " + contentItem.getId(), e);
+        } catch (ResourceNotFoundException | ResourceNotSupportedException e) {
+          LOGGER.warn("Could not retreive resource [{}]", uri, e);
+          console.printf(
+              "%sUnable to retrieve resource for export : %s%s%n",
+              Ansi.ansi().fg(Ansi.Color.RED).toString(), uri, Ansi.ansi().reset().toString());
+          continue;
+        }
+        writeResourceToZip(zipOutputStream, contentItem, derivedResource);
       }
     }
     return exportedContentItems;
@@ -589,48 +539,9 @@ public class ExportCommand extends CqlCommands {
     return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
   }
 
-  private String getTag(Result r) {
-    Set<String> tags = r.getMetacard().getTags();
-    if (tags.contains(DELETED_METACARD)) {
-      return DELETED_METACARD;
-    } else if (tags.contains(REVISION_METACARD)) {
-      return REVISION_METACARD;
-    } else {
-      return "nonhistory";
-    }
-  }
-
-  private Filter initRevisionFilter() {
-    return filterBuilder.attribute(Metacard.TAGS).is().like().text(REVISION_METACARD);
-  }
-
-  private Filter getHistoryFilter(Result result) {
-    String id;
-    String typeName = result.getMetacard().getMetacardType().getName();
-    switch (typeName) {
-      case DeletedMetacard.PREFIX:
-        id = String.valueOf(result.getMetacard().getAttribute("metacard.deleted.id").getValue());
-        break;
-      case MetacardVersion.PREFIX:
-        return null;
-      default:
-        id = result.getMetacard().getId();
-        break;
-    }
-
-    return filterBuilder.allOf(
-        revisionFilter, filterBuilder.attribute("metacard.version.id").is().equalTo().text(id));
-  }
-
   @Override
   protected Filter getFilter() throws ParseException, CQLException {
-    Filter filter = super.getFilter();
-    if (archived) {
-      filter =
-          filterBuilder.allOf(
-              filter, filterBuilder.attribute(Metacard.TAGS).is().like().text(DELETED_METACARD));
-    }
-    return filter;
+    return super.getFilter();
   }
 
   private String getExportFilePath() {

@@ -27,8 +27,6 @@
                 <exclude>etc/custom.properties</exclude>
                 <exclude>etc/jetty.xml</exclude>
                 <exclude>etc/profile.cfg</exclude>
-                <exclude>etc/org.apache.karaf.command.acl.shell.cfg</exclude>
-                <exclude>etc/org.apache.karaf.command.acl.ssh.cfg</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.apache.karaf.features.xml</exclude>
                 <exclude>etc/org.apache.karaf.shell.cfg</exclude>
@@ -44,9 +42,6 @@
                 <exclude>system/**/*elasticsearch*</exclude>
                 <exclude>system/**/*kibana*</exclude>
                 <exclude>system/**/pax-web-tomcat*</exclude>
-                <exclude>**/jetty/**/9.4.6.v20170531/*</exclude>
-                <exclude>**/jetty/**/8.1.14.v20131031/*</exclude>
-                <exclude>**/pax/web/**/7.0.0/*</exclude>
                 <!--
                 Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
                 when running client script it logs in as "karaf" user without requiring a password.
@@ -278,66 +273,7 @@
         </fileSet>
     </fileSets>
 
-    <!-- We need this because the feature service is not up when we want to provision our
-      own config admin -->
     <dependencySets>
-        <dependencySet>
-            <outputDirectory>system/ddf/platform/osgi/platform-osgi-configadmin/${project.version}
-            </outputDirectory>
-            <includes>
-                <include>ddf.platform.osgi:platform-osgi-configadmin:jar:${project.version}
-                </include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>system/ddf/platform/osgi/platform-osgi-internal-api/${project.version}
-            </outputDirectory>
-            <includes>
-                <include>ddf.platform.osgi:platform-osgi-internal-api:jar:${project.version}
-                </include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>system/ddf/platform/osgi/platform-osgi-condpermadmin/${project.version}
-            </outputDirectory>
-            <includes>
-                <include>ddf.platform.osgi:platform-osgi-condpermadmin:jar:${project.version}
-                </include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>system/ddf/platform/osgi/platform-osgi-conditions/${project.version}
-            </outputDirectory>
-            <includes>
-                <include>ddf.platform.osgi:platform-osgi-conditions:jar:${project.version}</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>system/org/eclipse/platform/org.eclipse.osgi/${equinox.version}
-            </outputDirectory>
-            <includes>
-                <include>org.eclipse.platform:org.eclipse.osgi:jar:${equinox.version}</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>
-                system/org/apache/felix/org.apache.felix.scr/${felix.scr.version}
-            </outputDirectory>
-            <includes>
-                <include>org.apache.felix:org.apache.felix.scr:jar:${felix.scr.version}
-                </include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>
-                system/org/apache/aries/proxy/org.apache.aries.proxy/${org.apache.aries.version}
-            </outputDirectory>
-            <includes>
-                <include>
-                    org.apache.aries.proxy:org.apache.aries.proxy:jar:${org.apache.aries.version}
-                </include>
-            </includes>
-        </dependencySet>
         <dependencySet>
             <outputDirectory>
                 system/org/apache/servicemix/specs/org.apache.servicemix.specs.jaxb-api-2.3/${servicemix.specs.jaxb.version}

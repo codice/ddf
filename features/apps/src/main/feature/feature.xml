@@ -20,7 +20,6 @@
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
-    <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
     <repository>mvn:ddf.catalog.solr/catalog-solr-app/${project.version}/xml/features</repository>
@@ -31,13 +30,12 @@
         <feature>cxf</feature>
         <feature>camel</feature>
         <feature>camel-cxf</feature>
-        <feature>security-core-api</feature>
         <feature>war</feature>
-        <feature>ddf-branding</feature>
+        <feature>branding-app</feature>
     </feature>
 
     <feature name="platform-core" version="${project.version}"
-             description="Installs the platform boot features which all other applications depend upon.\nPlatform Core features installed by default include Actions, MIME, Security Logger, Error Pages, and UUID generator.">
+             description="Installs the platform boot features which all other applications depend upon.\nPlatform Core features installed by default include Actions, MIME, and UUID generator.">
         <feature>action-core-api</feature>
         <feature>action-core-impl</feature>
         <feature>metrics-core</feature>
@@ -62,24 +60,16 @@
     <feature name="ddf-boot-features" version="${project.version}"
              description="Features that will be started on container startup.">
         <feature>ddf-core</feature>
-        <feature>security-core-services</feature>
         <feature>platform-app</feature>
-        <feature>sync-installer</feature>
     </feature>
 
     <feature name="platform-app" version="${project.version}"
              description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics">
-        <feature>security-core-services</feature>
         <feature>platform-core</feature>
         <feature>platform-api</feature>
         <feature>platform-solr-app</feature>
         <feature>tika</feature>
         <feature>platform-util</feature>
-        <feature>platform-logging</feature>
-        <feature>platform-scheduler</feature>
-        <feature>platform-commands</feature>
-        <feature>platform-configuration</feature>
-        <feature>persistence-core</feature>
         <feature>io</feature>
         <feature>parser-xml</feature>
         <feature>resource-bundle-locator</feature>

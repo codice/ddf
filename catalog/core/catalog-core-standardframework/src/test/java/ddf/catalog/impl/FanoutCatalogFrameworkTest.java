@@ -49,7 +49,6 @@ import ddf.catalog.impl.operations.DeleteOperations;
 import ddf.catalog.impl.operations.MetacardFactory;
 import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
-import ddf.catalog.impl.operations.OperationsSecuritySupport;
 import ddf.catalog.impl.operations.OperationsStorageSupport;
 import ddf.catalog.impl.operations.QueryOperations;
 import ddf.catalog.impl.operations.ResourceOperations;
@@ -145,7 +144,6 @@ public class FanoutCatalogFrameworkTest {
         .when(mockContentTypesSourcePoller)
         .getCachedValueForSource(any(Source.class));
 
-    OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
@@ -158,34 +156,21 @@ public class FanoutCatalogFrameworkTest {
             mockContentTypesSourcePoller);
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
     QueryOperations queryOperations =
-        new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
+        new QueryOperations(frameworkProperties, sourceOperations, opsMetacard);
     OperationsCatalogStoreSupport opsCatStore =
         new OperationsCatalogStoreSupport(frameworkProperties, sourceOperations);
     OperationsStorageSupport opsStorage =
         new OperationsStorageSupport(sourceOperations, queryOperations);
     ResourceOperations resourceOperations =
-        new ResourceOperations(frameworkProperties, queryOperations, opsSecurity);
+        new ResourceOperations(frameworkProperties, queryOperations);
     CreateOperations createOperations =
         new CreateOperations(
-            frameworkProperties,
-            queryOperations,
-            sourceOperations,
-            opsSecurity,
-            null,
-            opsCatStore,
-            opsStorage);
+            frameworkProperties, queryOperations, sourceOperations, null, opsCatStore, opsStorage);
     UpdateOperations updateOperations =
         new UpdateOperations(
-            frameworkProperties,
-            queryOperations,
-            sourceOperations,
-            opsSecurity,
-            null,
-            opsCatStore,
-            opsStorage);
+            frameworkProperties, queryOperations, sourceOperations, null, opsCatStore, opsStorage);
     DeleteOperations deleteOperations =
-        new DeleteOperations(
-            frameworkProperties, queryOperations, sourceOperations, opsSecurity, null);
+        new DeleteOperations(frameworkProperties, queryOperations, sourceOperations, null);
 
     framework =
         new CatalogFrameworkImpl(
@@ -438,7 +423,6 @@ public class FanoutCatalogFrameworkTest {
     frameworkProperties.setFederationStrategy(strategy);
     frameworkProperties.setQueryResponsePostProcessor(queryResponsePostProcessor);
 
-    OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
@@ -465,15 +449,14 @@ public class FanoutCatalogFrameworkTest {
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
 
     QueryOperations queryOperations =
-        new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
+        new QueryOperations(frameworkProperties, sourceOperations, opsMetacard);
     OperationsCatalogStoreSupport opsCatStore =
         new OperationsCatalogStoreSupport(frameworkProperties, sourceOperations);
     ResourceOperations resourceOperations =
-        new ResourceOperations(frameworkProperties, queryOperations, opsSecurity);
+        new ResourceOperations(frameworkProperties, queryOperations);
 
     DeleteOperations deleteOperations =
-        new DeleteOperations(
-            frameworkProperties, queryOperations, sourceOperations, opsSecurity, null);
+        new DeleteOperations(frameworkProperties, queryOperations, sourceOperations, null);
 
     framework =
         new CatalogFrameworkImpl(
@@ -516,7 +499,6 @@ public class FanoutCatalogFrameworkTest {
     frameworkProperties.setMimeTypeMapper(mimeTypeMapper);
     frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
 
-    OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
@@ -543,13 +525,13 @@ public class FanoutCatalogFrameworkTest {
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
 
     QueryOperations queryOperations =
-        new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
+        new QueryOperations(frameworkProperties, sourceOperations, opsMetacard);
     OperationsCatalogStoreSupport opsCatStore =
         new OperationsCatalogStoreSupport(frameworkProperties, sourceOperations);
     OperationsStorageSupport opsStorage =
         new OperationsStorageSupport(sourceOperations, queryOperations);
     ResourceOperations resourceOperations =
-        new ResourceOperations(frameworkProperties, queryOperations, opsSecurity);
+        new ResourceOperations(frameworkProperties, queryOperations);
 
     OperationsMetacardSupport opsMetacardSupport =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
@@ -564,7 +546,6 @@ public class FanoutCatalogFrameworkTest {
             frameworkProperties,
             queryOperations,
             sourceOperations,
-            opsSecurity,
             opsMetacardSupport,
             opsCatStore,
             opsStorage);

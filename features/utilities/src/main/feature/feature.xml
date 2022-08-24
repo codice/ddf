@@ -58,21 +58,6 @@
         <bundle>mvn:ddf.action.core/action-core-impl/${project.version}</bundle>
     </feature>
 
-    <feature name="error-api" version="${project.version}"
-             description="Platform error handler API.">
-        <feature>pax-jetty</feature>
-        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
-        <bundle>mvn:ddf.platform.error/platform-error-api/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.error/platform-error-servlet/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.error/platform-error-page-injector/${project.version}</bundle>
-    </feature>
-
-    <feature name="error-impl" version="${project.version}"
-             description="Platform error handler">
-        <feature>error-api</feature>
-        <bundle>mvn:ddf.platform.error/platform-error-impl/${project.version}</bundle>
-    </feature>
-
     <feature name="mime-core-api" version="${project.version}"
              description="MIME API">
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
@@ -167,19 +152,6 @@
     <feature name="platform-api" version="${project.version}"
              description="Top Level Platform API">
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
-    </feature>
-
-    <feature name="platform-usng4j" version="${project.version}"
-             description="Service to convert coordinates between various coordinate systems.">
-        <bundle>mvn:ddf.platform.usng4j/platform-usng4j-api/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.usng4j/platform-usng4j-impl/${project.version}</bundle>
-    </feature>
-
-    <feature name="platform-logging" version="${project.version}"
-             description="platform-logging">
-        <feature>guava</feature>
-        <feature>javax-validation</feature>
-        <bundle>mvn:ddf.platform/platform-logging/${project.version}</bundle>
     </feature>
 
     <feature name="tika" version="${project.version}"

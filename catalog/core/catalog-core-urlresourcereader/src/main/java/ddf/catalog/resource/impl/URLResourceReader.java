@@ -14,7 +14,6 @@
 package ddf.catalog.resource.impl;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.net.HttpHeaders;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
@@ -23,39 +22,34 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
-import ddf.security.SecurityConstants;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLConnection;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.tika.Tika;
-import org.codice.ddf.cxf.client.ClientBuilder;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
-import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,27 +80,16 @@ public class URLResourceReader implements ResourceReader {
 
   private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
-  private static final String BYTES_TO_SKIP = "BytesToSkip";
-
   private static final String USERNAME = "username";
 
   @SuppressWarnings("squid:S2068" /* Password property key */)
   private static final String PASSWORD = "password";
 
-  static final String ID_PROPERTY = "id";
-
-  static final String OAUTH_DISCOVERY_URL = "oauthDiscoveryUrl";
-
-  static final String OAUTH_CLIENT_ID = "oauthClientId";
-
-  static final String OAUTH_CLIENT_SECRET = "oauthClientSecret";
-
-  static final String OAUTH_FLOW = "oauthFlow";
-
   private static final Set<String> QUALIFIER_SET =
       ImmutableSet.of(URL_HTTP_SCHEME, URL_HTTPS_SCHEME, URL_FILE_SCHEME);
-
-  private final ClientBuilderFactory clientBuilderFactory;
+  public static final int OK = 200;
+  public static final int PARTIAL_CONTENT = 206;
+  public static final String CONTENT_RANGE = "Content-Range";
 
   /** Mapper for file extensions-to-mime types (and vice versa) */
   private MimeTypeMapper mimeTypeMapper;
@@ -115,18 +98,11 @@ public class URLResourceReader implements ResourceReader {
 
   private boolean followRedirects = true;
 
-  /** Default URLResourceReader constructor. */
-  public URLResourceReader(ClientBuilderFactory clientBuilderFactory) {
-    this.clientBuilderFactory = clientBuilderFactory;
-  }
-
-  public URLResourceReader(
-      MimeTypeMapper mimeTypeMapper, ClientBuilderFactory clientBuilderFactory) {
+  public URLResourceReader(MimeTypeMapper mimeTypeMapper) {
     if (mimeTypeMapper == null) {
       LOGGER.debug("mimeTypeMapper is NULL");
     }
     this.mimeTypeMapper = mimeTypeMapper;
-    this.clientBuilderFactory = clientBuilderFactory;
 
     LOGGER.debug(
         "Supported Schemes for {}: {}", URLResourceReader.class.getSimpleName(), QUALIFIER_SET);
@@ -265,17 +241,9 @@ public class URLResourceReader implements ResourceReader {
   @Override
   public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
       throws IOException, ResourceNotFoundException {
-    String bytesToSkip;
     if (resourceURI == null) {
       LOGGER.debug("Resource URI was null");
       throw new ResourceNotFoundException("Unable to find resource");
-    }
-
-    if (properties.containsKey(BYTES_TO_SKIP)) {
-      bytesToSkip = properties.get(BYTES_TO_SKIP).toString();
-      LOGGER.debug("bytesToSkip: {}", bytesToSkip);
-    } else {
-      bytesToSkip = "0";
     }
 
     switch (resourceURI.getScheme()) {
@@ -296,14 +264,14 @@ public class URLResourceReader implements ResourceReader {
 
         String fileAddress = resourceURI.toURL().getFile();
         LOGGER.debug("resource name: {}", fileAddress);
-        return retrieveHttpProduct(resourceURI, fileAddress, bytesToSkip, properties);
+        return retrieveHttpProduct(resourceURI, fileAddress, properties);
       case URL_FILE_SCHEME:
         LOGGER.debug("Resource URI is a File");
         File filePathName = new File(resourceURI);
         if (validateFilePath(filePathName)) {
           String fileName = filePathName.getName();
           LOGGER.debug("resource name: {}", fileName);
-          return retrieveFileProduct(resourceURI, fileName, bytesToSkip);
+          return retrieveFileProduct(resourceURI, fileName);
         } else {
           throw new ResourceNotFoundException(
               "Error retrieving resource ["
@@ -328,95 +296,60 @@ public class URLResourceReader implements ResourceReader {
     }
   }
 
-  private ResourceResponse retrieveFileProduct(
-      URI resourceURI, String productName, String bytesToSkip) throws ResourceNotFoundException {
+  private ResourceResponse retrieveFileProduct(URI resourceURI, String productName)
+      throws ResourceNotFoundException {
     URLConnection connection;
     try {
       LOGGER.debug("Opening connection to: {}", resourceURI);
       connection = resourceURI.toURL().openConnection();
 
-      final String originalFileName = productName;
-      productName =
-          AccessController.doPrivileged(
-              (PrivilegedAction<String>)
-                  () ->
-                      StringUtils.defaultIfBlank(
-                          handleContentDispositionHeader(
-                              connection.getHeaderField(HttpHeaders.CONTENT_DISPOSITION)),
-                          originalFileName));
-
       String mimeType = getMimeType(resourceURI, productName);
 
       InputStream is = connection.getInputStream();
-
-      skipBytes(is, bytesToSkip);
 
       return new ResourceResponseImpl(
           new ResourceImpl(
               new BufferedInputStream(is), mimeType, FilenameUtils.getName(productName)));
     } catch (MimeTypeResolutionException | IOException e) {
       LOGGER.info("Error retrieving resource", e);
-      throw new ResourceNotFoundException(
-          "Unable to retrieve resource at: " + resourceURI.toString(), e);
+      throw new ResourceNotFoundException("Unable to retrieve resource at: " + resourceURI, e);
     }
   }
 
   private ResourceResponse retrieveHttpProduct(
-      URI resourceURI, String productName, String bytesToSkip, Map<String, Serializable> properties)
+      URI resourceURI, String productName, Map<String, Serializable> properties)
       throws ResourceNotFoundException {
 
     try {
       LOGGER.debug("Opening connection to: {}", resourceURI);
 
-      WebClient client = getWebClient(resourceURI, properties);
+      HttpClient client = getHttpClient(properties);
 
-      Response response = client.get();
+      HttpResponse<InputStream> response =
+          client.send(
+              HttpRequest.newBuilder(resourceURI).GET().build(),
+              HttpResponse.BodyHandlers.ofInputStream());
 
-      MultivaluedMap<String, Object> headers = response.getHeaders();
-      List<Object> cdHeaders = headers.get(HttpHeaders.CONTENT_DISPOSITION);
-      if (cdHeaders != null && !cdHeaders.isEmpty()) {
-        String contentHeader = (String) cdHeaders.get(0);
-        productName =
-            StringUtils.defaultIfBlank(handleContentDispositionHeader(contentHeader), productName);
-      }
       String mimeType = getMimeType(resourceURI, productName);
 
-      Response clientResponse = client.get();
+      InputStream is = response.body();
 
-      InputStream is;
-      Object entityObj = clientResponse.getEntity();
-      if (entityObj instanceof InputStream) {
-        is = (InputStream) entityObj;
-        if (Response.Status.OK.getStatusCode() != clientResponse.getStatus()
-            && Response.Status.PARTIAL_CONTENT.getStatusCode() != clientResponse.getStatus()) {
-          String error = getResponseErrorMessage(is);
-          String errorMsg =
-              "Received error code while retrieving resource (status "
-                  + clientResponse.getStatus()
-                  + "): "
-                  + error;
-          throw new ResourceNotFoundException(errorMsg);
-        }
-      } else {
-        throw new ResourceNotFoundException("Received null response while retrieving resource.");
+      if (response.statusCode() != OK && response.statusCode() != PARTIAL_CONTENT) {
+        String error = getResponseErrorMessage(is);
+        String errorMsg =
+            "Received error code while retrieving resource (status "
+                + response.statusCode()
+                + "): "
+                + error;
+        throw new ResourceNotFoundException(errorMsg);
       }
-
-      long responseBytesSkipped = 0L;
-      if (headers.getFirst(HttpHeaders.CONTENT_RANGE) != null) {
-        String contentRangeHeader = String.valueOf(headers.getFirst(HttpHeaders.CONTENT_RANGE));
-        responseBytesSkipped =
-            Long.parseLong(
-                StringUtils.substringBetween(contentRangeHeader.toLowerCase(), "bytes ", "-"));
-      }
-      alignStream(is, Long.parseLong(bytesToSkip), responseBytesSkipped);
 
       return new ResourceResponseImpl(
           new ResourceImpl(
               new BufferedInputStream(is), mimeType, FilenameUtils.getName(productName)));
-    } catch (MimeTypeResolutionException | IOException | WebApplicationException e) {
+    } catch (MimeTypeResolutionException | IOException | InterruptedException e) {
       LOGGER.info("Error retrieving resource", e);
-      throw new ResourceNotFoundException(
-          "Unable to retrieve resource at: " + resourceURI.toString(), e);
+      throw new ResourceNotFoundException("Unable to retrieve resource at: " + resourceURI, e);
     }
   }
 
@@ -487,63 +420,6 @@ public class URLResourceReader implements ResourceReader {
     return mimeType;
   }
 
-  /* Check Connection headers for filename */
-  private String handleContentDispositionHeader(String contentDispositionHeader) {
-    if (StringUtils.isNotBlank(contentDispositionHeader)) {
-      ContentDisposition contentDisposition = new ContentDisposition(contentDispositionHeader);
-      String filename = contentDisposition.getParameter("filename");
-      if (StringUtils.isNotBlank(filename)) {
-        LOGGER.debug("Found content disposition header, changing resource name to {}", filename);
-        return filename;
-      }
-    }
-    return "";
-  }
-
-  private void skipBytes(InputStream is, String bytesToSkip) throws IOException {
-    if (bytesToSkip != null) {
-      LOGGER.debug("Skipping {} bytes", bytesToSkip);
-      long bytesSkipped = is.skip(Long.parseLong(bytesToSkip));
-      if (Long.parseLong(bytesToSkip) != bytesSkipped) {
-        LOGGER.debug(
-            "Did not skip specified bytes while retrieving resource."
-                + " Bytes to skip: {} -- Skipped Bytes: {}",
-            bytesToSkip,
-            bytesSkipped);
-      }
-    }
-  }
-
-  private void alignStream(InputStream in, long requestedBytesToSkip, long responseBytesSkipped)
-      throws IOException {
-    long misalignment = requestedBytesToSkip - responseBytesSkipped;
-
-    if (misalignment == 0) {
-      LOGGER.trace("Server responded with the correct byte range.");
-      return;
-    }
-
-    try {
-      if (requestedBytesToSkip > responseBytesSkipped) {
-        LOGGER.debug(
-            "Server returned incorrect byte range, skipping first [{}] bytes", misalignment);
-        if (in.skip(misalignment) != misalignment) {
-          throw new IOException(
-              String.format("Input Stream could not be skipped %d bytes.", misalignment));
-        }
-
-      } else {
-        throw new IOException("Server skipped more bytes than requested in the range header.");
-      }
-    } catch (IOException e) {
-      throw new IOException(
-          String.format(
-              "Unable to align input stream with the requested byteOffset of %d",
-              requestedBytesToSkip),
-          e);
-    }
-  }
-
   private boolean validateFilePath(File resourceFilePath) throws IOException {
     String resourceCanonicalPath;
     try {
@@ -595,56 +471,26 @@ public class URLResourceReader implements ResourceReader {
     return false;
   }
 
-  protected WebClient getWebClient(URI uri, Map<String, Serializable> properties) {
-    SecureCxfClientFactory<WebClient> factory;
-    ClientBuilder<WebClient> clientBuilder = clientBuilderFactory.getClientBuilder();
+  protected HttpClient getHttpClient(Map<String, Serializable> properties) {
+    HttpClient.Builder clientBuilder = HttpClient.newBuilder();
+
+    clientBuilder.connectTimeout(Duration.of(1, ChronoUnit.MINUTES));
+
+    if (getFollowRedirects()) {
+      clientBuilder.followRedirects(HttpClient.Redirect.ALWAYS);
+    }
+
     if (properties.get(USERNAME) != null && properties.get(PASSWORD) != null) {
-      factory =
-          clientBuilder
-              .endpoint(uri.toString())
-              .interfaceClass(WebClient.class)
-              .disableCnCheck(false)
-              .allowRedirects(getFollowRedirects())
-              .username(USERNAME)
-              .password(PASSWORD)
-              .useSamlEcp(true)
-              .build();
-    } else if (properties.get(ID_PROPERTY) != null
-        && properties.get(OAUTH_DISCOVERY_URL) != null
-        && properties.get(OAUTH_CLIENT_ID) != null
-        && properties.get(OAUTH_CLIENT_SECRET) != null
-        && properties.get(OAUTH_FLOW) != null) {
-      try {
-        factory =
-            clientBuilder
-                .endpoint(uri.toString())
-                .interfaceClass(WebClient.class)
-                .disableCnCheck(false)
-                .allowRedirects(getFollowRedirects())
-                .sourceId((String) properties.get(ID_PROPERTY))
-                .discovery(new URI((String) properties.get(OAUTH_DISCOVERY_URL)))
-                .clientId((String) properties.get(OAUTH_CLIENT_ID))
-                .clientSecret((String) properties.get(OAUTH_CLIENT_SECRET))
-                .oauthFlow((String) properties.get(OAUTH_FLOW))
-                .build();
-      } catch (URISyntaxException e) {
-        throw new IllegalArgumentException(e);
-      }
-    } else {
-      factory =
-          clientBuilder
-              .endpoint(uri.toString())
-              .interfaceClass(WebClient.class)
-              .disableCnCheck(false)
-              .allowRedirects(getFollowRedirects())
-              .useSamlEcp(true)
-              .build();
+      clientBuilder.authenticator(
+          new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+              return new PasswordAuthentication(USERNAME, PASSWORD.toCharArray());
+            }
+          });
     }
-    Serializable subject = properties.get(SecurityConstants.SECURITY_SUBJECT);
-    if (subject instanceof org.apache.shiro.subject.Subject) {
-      return factory.getClientForSubject((org.apache.shiro.subject.Subject) subject);
-    }
-    return factory.getWebClient();
+
+    return clientBuilder.build();
   }
 
   @Override

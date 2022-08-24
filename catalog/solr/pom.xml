@@ -34,12 +34,8 @@
     </dependencyManagement>
     <modules>
         <module>catalog-solr-core</module>
-        <module>catalog-solr-cache</module>
         <module>catalog-solr-commands</module>
-        <module>catalog-solr-defaultmetacardtagscacheplugin</module>
         <module>catalog-solr-provider</module>
-        <module>catalog-solr-solrclient</module>
-        <module>catalog-solr-offline-gazetteer</module>
         <module>catalog-solr-app</module>
     </modules>
 </project>

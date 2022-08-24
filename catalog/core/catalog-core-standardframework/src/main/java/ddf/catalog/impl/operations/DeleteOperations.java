@@ -21,9 +21,7 @@ import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.history.Historian;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
@@ -36,22 +34,16 @@ import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PolicyPlugin;
-import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.SecurityConstants;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -86,11 +78,7 @@ public class DeleteOperations {
 
   private final SourceOperations sourceOperations;
 
-  private final OperationsSecuritySupport opsSecuritySupport;
-
   private final OperationsMetacardSupport opsMetacardSupport;
-
-  private Historian historian;
 
   private RemoteDeleteOperations remoteDeleteOperations;
 
@@ -98,17 +86,11 @@ public class DeleteOperations {
       FrameworkProperties frameworkProperties,
       QueryOperations queryOperations,
       SourceOperations sourceOperations,
-      OperationsSecuritySupport opsSecuritySupport,
       OperationsMetacardSupport opsMetacardSupport) {
     this.frameworkProperties = frameworkProperties;
     this.queryOperations = queryOperations;
     this.sourceOperations = sourceOperations;
-    this.opsSecuritySupport = opsSecuritySupport;
     this.opsMetacardSupport = opsMetacardSupport;
-  }
-
-  public void setHistorian(Historian historian) {
-    this.historian = historian;
   }
 
   //
@@ -144,14 +126,10 @@ public class DeleteOperations {
 
     try {
       deleteRequest = populateMetacards(deleteRequest, fanoutTagBlacklist);
-      deleteRequest = preProcessPreAuthorizationPlugins(deleteRequest);
 
       deleteStorageRequest =
           new DeleteStorageRequestImpl(
               getDeleteMetacards(deleteRequest), deleteRequest.getProperties());
-
-      deleteRequest = processPreDeletePolicyPlugins(deleteRequest);
-      deleteRequest = processPreDeleteAccessPlugins(deleteRequest);
 
       deleteRequest = processPreIngestPlugins(deleteRequest);
       deleteRequest = validateDeleteRequest(deleteRequest);
@@ -163,10 +141,6 @@ public class DeleteOperations {
       deleteResponse = performLocalDelete(deleteRequest, deleteStorageRequest);
 
       deleteResponse = remoteDeleteOperations.performRemoteDelete(deleteRequest, deleteResponse);
-
-      deleteResponse = postProcessPreAuthorizationPlugins(deleteResponse);
-      deleteRequest = populateDeleteRequestPolicyMap(deleteRequest, deleteResponse);
-      deleteResponse = processPostDeleteAccessPlugins(deleteResponse);
 
       // Post results to be available for pubsub
       deleteResponse = validateFixDeleteResponse(deleteResponse, deleteRequest);
@@ -258,37 +232,6 @@ public class DeleteOperations {
     return deleteResponse;
   }
 
-  private DeleteResponse processPostDeleteAccessPlugins(DeleteResponse deleteResponse)
-      throws StopProcessingException {
-    for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-      deleteResponse = plugin.processPostDelete(deleteResponse);
-    }
-    return deleteResponse;
-  }
-
-  private DeleteRequest populateDeleteRequestPolicyMap(
-      DeleteRequest deleteRequest, DeleteResponse deleteResponse) throws StopProcessingException {
-    HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
-    Map<String, Serializable> unmodifiableProperties =
-        Collections.unmodifiableMap(deleteRequest.getProperties());
-    if (deleteResponse != null && deleteResponse.getDeletedMetacards() != null) {
-      for (Metacard metacard : deleteResponse.getDeletedMetacards()) {
-        HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
-        for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-          PolicyResponse policyResponse =
-              plugin.processPostDelete(metacard, unmodifiableProperties);
-          opsSecuritySupport.buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy().entrySet());
-          opsSecuritySupport.buildPolicyMap(
-              responsePolicyMap, policyResponse.operationPolicy().entrySet());
-        }
-        metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
-      }
-    }
-    deleteRequest.getProperties().put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
-
-    return deleteRequest;
-  }
-
   private DeleteResponse performLocalDelete(
       DeleteRequest deleteRequest, DeleteStorageRequest deleteStorageRequest)
       throws IngestException {
@@ -305,12 +248,6 @@ public class DeleteOperations {
     }
     DeleteResponse deleteResponse = sourceOperations.getCatalog().delete(deleteRequest);
     deleteResponse = injectAttributes(deleteResponse);
-    try {
-      historian.version(deleteResponse);
-    } catch (SourceUnavailableException e) {
-      LOGGER.debug("Could not version deleted item!", e);
-      throw new IngestException("Could not version deleted Item!");
-    }
     return deleteResponse;
   }
 
@@ -365,31 +302,6 @@ public class DeleteOperations {
     return deleteRequest;
   }
 
-  private DeleteRequest processPreDeleteAccessPlugins(DeleteRequest deleteRequest)
-      throws StopProcessingException {
-    for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-      deleteRequest = plugin.processPreDelete(deleteRequest);
-    }
-    return deleteRequest;
-  }
-
-  private DeleteRequest processPreDeletePolicyPlugins(DeleteRequest deleteRequest)
-      throws StopProcessingException {
-    List<Metacard> metacards = getDeleteMetacards(deleteRequest);
-    Map<String, Serializable> unmodifiableProperties =
-        Collections.unmodifiableMap(deleteRequest.getProperties());
-
-    HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-    for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-      PolicyResponse policyResponse = plugin.processPreDelete(metacards, unmodifiableProperties);
-      opsSecuritySupport.buildPolicyMap(
-          requestPolicyMap, policyResponse.operationPolicy().entrySet());
-    }
-    deleteRequest.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-
-    return deleteRequest;
-  }
-
   private DeleteRequest populateMetacards(
       DeleteRequest deleteRequest, List<String> fanoutTagBlacklist)
       throws IngestException, StopProcessingException {
@@ -426,22 +338,6 @@ public class DeleteOperations {
     return deleteRequest;
   }
 
-  private DeleteRequest preProcessPreAuthorizationPlugins(DeleteRequest deleteRequest)
-      throws StopProcessingException {
-    for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
-      deleteRequest = plugin.processPreDelete(deleteRequest);
-    }
-    return deleteRequest;
-  }
-
-  private DeleteResponse postProcessPreAuthorizationPlugins(DeleteResponse deleteResponse)
-      throws StopProcessingException {
-    for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
-      deleteResponse = plugin.processPostDelete(deleteResponse);
-    }
-    return deleteResponse;
-  }
-
   private boolean blockDeleteMetacards(List<Metacard> metacards, List<String> fanoutTagBlacklist) {
     return metacards.stream()
         .anyMatch((metacard) -> isMetacardBlacklisted(metacard, fanoutTagBlacklist));
@@ -473,15 +369,13 @@ public class DeleteOperations {
 
     QueryImpl queryImpl =
         new QueryImpl(
-            queryOperations.getFilterWithAdditionalFilters(idFilters, deleteRequest),
+            frameworkProperties.getFilterBuilder().anyOf(idFilters),
             1, /* start index */
             deleteRequest.getAttributeValues().size(), /* page size */
             null,
             false, /* total result count */
             0 /* timeout */);
     Map<String, Serializable> properties = new HashMap<>();
-    properties.put(
-        SecurityConstants.SECURITY_SUBJECT, opsSecuritySupport.getSubject(deleteRequest));
     return new QueryRequestImpl(queryImpl, false, deleteRequest.getStoreIds(), properties);
   }
 

@@ -24,7 +24,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.transform.InputTransformer;
-import ddf.security.audit.SecurityLogger;
 import java.io.InputStream;
 import java.util.ArrayList;
 import org.apache.commons.lang3.SystemUtils;
@@ -58,7 +57,6 @@ public class IngestCommandTest extends CommandCatalogFrameworkCommon {
         .verifyDigitalSignature(any(InputStream.class), any(InputStream.class), any(String.class));
 
     ingestCommand = new IngestCommand(verifier);
-    ingestCommand.securityLogger = mock(SecurityLogger.class);
     ingestCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
 
     BundleContext bundleContext = mock(BundleContext.class);
@@ -84,7 +82,7 @@ public class IngestCommandTest extends CommandCatalogFrameworkCommon {
   @Test
   public void testNoFiles() throws Exception {
     // when
-    ingestCommand.executeWithSubject();
+    ingestCommand.execute();
 
     // then
     String expectedIngested = "0 file(s) ingested";
@@ -106,7 +104,7 @@ public class IngestCommandTest extends CommandCatalogFrameworkCommon {
     testFolder.newFile("somefile5.txt");
 
     // when
-    ingestCommand.executeWithSubject();
+    ingestCommand.execute();
 
     // then
     String expectedIngested = "0 file(s) ingested";
@@ -134,7 +132,7 @@ public class IngestCommandTest extends CommandCatalogFrameworkCommon {
     ingestCommand.ignoreList = ignoreList;
 
     // when
-    ingestCommand.executeWithSubject();
+    ingestCommand.execute();
 
     // then
     String expectedIngested = "0 file(s) ingested";
@@ -162,7 +160,7 @@ public class IngestCommandTest extends CommandCatalogFrameworkCommon {
     testFolder.newFile("somefile5");
 
     // when
-    ingestCommand.executeWithSubject();
+    ingestCommand.execute();
 
     // then
     String expectedIngested = "0 file(s) ingested";
@@ -182,7 +180,7 @@ public class IngestCommandTest extends CommandCatalogFrameworkCommon {
     ingestCommand.includeContent = true;
 
     // when
-    ingestCommand.executeWithSubject();
+    ingestCommand.execute();
 
     // then
     String expectedMessage = "must be a zip file";

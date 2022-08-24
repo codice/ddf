@@ -16,21 +16,11 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <repository>mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features</repository>
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
-    <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
-
-    <feature name="platform-alerts" version="${project.version}"
-             description="Basic alert framework. Includes basic Decanter features and persistence-core">
-        <feature>decanter-alerting</feature>
-        <feature>scheduler</feature>
-        <feature>persistence-core</feature>
-    </feature>
 
     <feature name="landing-page" version="${project.version}"
              description="Landing page and branding support.">
@@ -47,122 +37,17 @@
         <bundle>mvn:ddf.platform/resource-bundle-locator/${project.version}</bundle>
     </feature>
 
-    <feature name="platform-scheduler" version="${project.version}" description="Schedules tasks">
-        <feature>apache-commons</feature>
-        <feature>security-core-services</feature>
-        <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
-        <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
-    </feature>
-
-    <feature name="platform-configuration" version="${project.version}"
-             description="Shared platform configuration">
-        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0
-        </bundle>
-        <feature>camel-blueprint</feature>
-        <feature>camel-http</feature>
-        <feature>cxf-jaxrs</feature>
-        <feature>branding-registry</feature>
-        <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
-        <bundle>mvn:ddf.platform/platform-configuration-service/${project.version}</bundle>
-        <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
-        <bundle>mvn:ddf.platform/platform-configuration-endpoint/${project.version}</bundle>
-    </feature>
-
-    <feature name="platform-commands" version="${project.version}"
-             description="Platform Command line tools">
-        <feature>platform-configuration</feature>
-        <bundle>mvn:ddf.platform/platform-commands/${project.version}</bundle>
-    </feature>
-
     <feature name="admin-core" version="${project.version}"
              description="Administration Tools">
-        <feature>sync-installer</feature>
-        <feature>security-core-services</feature>
         <feature>camel-core</feature>
         <feature>javax-validation</feature>
         <feature>cxf-jaxws</feature>
         <feature>cxf-jaxrs</feature>
-        <feature>persistence-core</feature>
 
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
-        <bundle>mvn:ddf.admin.core/admin-core-configpolicy/${project.version}</bundle>
-        <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
-        <bundle>mvn:ddf.admin.core/admin-core-jolokia/${project.version}</bundle>
-        <bundle>mvn:ddf.admin.core/admin-core-configplugin/${project.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-util-property/1.4.0</bundle>
-        <bundle>mvn:ddf.admin.core/admin-core-appservice/${project.version}</bundle>
-        <bundle>mvn:ddf.admin.core/admin-core-impl/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
-
-        <feature>camel-blueprint</feature>
-        <feature>camel-quartz</feature>
-        <bundle>mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-ui" version="${project.version}"
-             description="Administration UI">
-        <feature>admin-core</feature>
-        <feature>ddf-branding</feature>
-        <feature>branding-registry</feature>
-        <bundle>mvn:ddf.admin/admin-ui/${project.version}</bundle>
-    </feature>
-
-    <feature name="admin-modules-configuration" version="${project.version}"
-             description="Configuration Module">
-        <feature>admin-ui</feature>
-        <bundle>mvn:ddf.admin.modules/admin-modules-configuration/${project.version}</bundle>
-    </feature>
-
-    <feature name="admin-modules-docs" version="${project.version}"
-             description="Documentation Module">
-        <feature>pax-http-whiteboard</feature>
-        <feature>admin-ui</feature>
-        <bundle>mvn:com.sparkjava/spark-core/${spark.version}</bundle>
-        <bundle>mvn:ddf.admin.modules/admin-docs-ui/${project.version}</bundle>
-    </feature>
-
-    <feature name="admin-modules-installer" version="${project.version}"
-             description="Installer Module">
-        <feature>sync-installer</feature>
-        <feature>admin-ui</feature>
-        <bundle>mvn:ddf.admin.modules/admin-modules-installer/${project.version}</bundle>
-    </feature>
-
-    <feature name="admin-modules-application" version="${project.version}"
-             description="Application Module">
-        <feature>admin-ui</feature>
-        <bundle>mvn:ddf.admin.modules/admin-modules-application/${project.version}</bundle>
-    </feature>
-
-    <feature name="admin-post-install-modules" version="${project.version}"
-             description="Contains the modules that should be installed after the installer is finished.">
-        <feature>admin-modules-configuration</feature>
-        <feature>admin-modules-application</feature>
-        <feature>admin-modules-docs</feature>
-        <bundle>mvn:ddf.admin.modules/admin-security-certificate-ui/${project.version}</bundle>
-    </feature>
-
-
-
-    <feature name="admin-core-logviewer" version="${project.version}"
-             description="Admin UI's logviewer page to display karaf logs">
-        <feature>admin-core</feature>
-        <bundle>mvn:ddf.admin.core/admin-core-logviewer/${project.version}</bundle>
-    </feature>
-
-    <feature name="admin-configurator" version="${project.version}"
-             description="High-level configurator service for orchestrated configurations.">
-        <feature>admin-core</feature>
-        <bundle>mvn:ddf.admin/admin-configurator-api/${project.version}</bundle>
-        <bundle>mvn:ddf.admin/admin-configurator-actions-api/${project.version}</bundle>
-        <bundle>mvn:ddf.admin/admin-configurator-impl/${project.version}</bundle>
-    </feature>
-
-    <feature name="admin-config-updater" version="${project.version}"
-             description="Synchronizes config admin with the etc directory">
-        <feature>io</feature>
-        <feature>admin-core</feature>
-        <bundle>mvn:ddf.admin/admin-configuration-configupdater/${project.version}</bundle>
-    </feature>
 </features>

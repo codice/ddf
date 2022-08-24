@@ -67,7 +67,7 @@ public class DescribeCommandTest extends ConsoleOutputCommon {
   @Test
   public void testDescribeProvider() throws Exception {
     describeCommand.isProvider = true;
-    describeCommand.executeWithSubject();
+    describeCommand.execute();
     assertThat(consoleOutput.getOutput(), containsString("title=" + TEST_CATALOG_PROVIDER_TITLE));
     assertThat(
         consoleOutput.getOutput(),
@@ -80,7 +80,7 @@ public class DescribeCommandTest extends ConsoleOutputCommon {
   @Test
   public void testDescribeFramework() throws Exception {
     describeCommand.isProvider = false;
-    describeCommand.executeWithSubject();
+    describeCommand.execute();
     assertThat(consoleOutput.getOutput(), containsString("title=" + TEST_CATALOG_FRAMEWORK_TITLE));
     assertThat(
         consoleOutput.getOutput(),

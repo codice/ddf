@@ -35,12 +35,8 @@ import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
-import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PolicyPlugin;
-import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogStore;
@@ -90,8 +86,6 @@ public class CreateOperations {
 
   private final SourceOperations sourceOperations;
 
-  private final OperationsSecuritySupport opsSecuritySupport;
-
   private final OperationsMetacardSupport opsMetacardSupport;
 
   private final OperationsCatalogStoreSupport opsCatStoreSupport;
@@ -102,14 +96,12 @@ public class CreateOperations {
       FrameworkProperties frameworkProperties,
       QueryOperations queryOperations,
       SourceOperations sourceOperations,
-      OperationsSecuritySupport opsSecuritySupport,
       OperationsMetacardSupport opsMetacardSupport,
       OperationsCatalogStoreSupport opsCatStoreSupport,
       OperationsStorageSupport opsStorageSupport) {
     this.frameworkProperties = frameworkProperties;
     this.queryOperations = queryOperations;
     this.sourceOperations = sourceOperations;
-    this.opsSecuritySupport = opsSecuritySupport;
     this.opsMetacardSupport = opsMetacardSupport;
     this.opsCatStoreSupport = opsCatStoreSupport;
     this.opsStorageSupport = opsStorageSupport;
@@ -260,9 +252,6 @@ public class CreateOperations {
       INGEST_LOGGER.info("Started ingesting metacard with titles: {}.", fileNames);
       createRequest = injectAttributes(createRequest);
       createRequest = setDefaultValues(createRequest);
-      createRequest = processPreAuthorizationPlugins(createRequest);
-      createRequest = updateCreateRequestPolicyMap(createRequest);
-      createRequest = processPrecreateAccessPlugins(createRequest);
 
       createRequest
           .getProperties()
@@ -532,44 +521,6 @@ public class CreateOperations {
         LOGGER.info(PROCESSING_ERROR, e);
       }
     }
-    return createRequest;
-  }
-
-  private CreateRequest processPrecreateAccessPlugins(CreateRequest createRequest)
-      throws StopProcessingException {
-    for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-      createRequest = plugin.processPreCreate(createRequest);
-    }
-    return createRequest;
-  }
-
-  private CreateRequest processPreAuthorizationPlugins(CreateRequest createRequest)
-      throws StopProcessingException {
-    for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
-      createRequest = plugin.processPreCreate(createRequest);
-    }
-    return createRequest;
-  }
-
-  private CreateRequest updateCreateRequestPolicyMap(CreateRequest createRequest)
-      throws StopProcessingException {
-    Map<String, Serializable> unmodifiablePropertiesMap =
-        Collections.unmodifiableMap(createRequest.getProperties());
-    HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-    for (Metacard metacard : createRequest.getMetacards()) {
-      HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
-      for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-        PolicyResponse policyResponse =
-            plugin.processPreCreate(metacard, unmodifiablePropertiesMap);
-        opsSecuritySupport.buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy().entrySet());
-        opsSecuritySupport.buildPolicyMap(
-            requestPolicyMap, policyResponse.operationPolicy().entrySet());
-      }
-
-      metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
-    }
-    createRequest.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-
     return createRequest;
   }
 

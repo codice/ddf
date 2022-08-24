@@ -14,21 +14,19 @@
 package ddf.catalog.resource.impl;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.net.HttpHeaders;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
@@ -38,15 +36,16 @@ import ddf.mime.MimeTypeResolver;
 import ddf.mime.custom.CustomMimeTypeResolver;
 import ddf.mime.mapper.MimeTypeMapperImpl;
 import ddf.mime.tika.TikaMimeTypeResolver;
-import ddf.security.audit.SecurityLogger;
-import ddf.security.service.SecurityManager;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -56,17 +55,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.cxf.client.ClientBuilder;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
-import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.cxf.client.impl.ClientBuilderFactoryImpl;
-import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
-import org.codice.ddf.cxf.oauth.OAuthSecurity;
-import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -139,13 +128,11 @@ public class URLResourceReaderTest {
         }
       };
 
-  private ClientBuilderFactory clientBuilderFactory;
-
   private MimeTypeMapper mimeTypeMapper;
 
   private CustomMimeTypeResolver customResolver;
 
-  private WebClient mockWebClient = mock(WebClient.class);
+  private HttpClient mockHttpClient = mock(HttpClient.class);
 
   private static InputStream getBinaryData() {
 
@@ -171,13 +158,11 @@ public class URLResourceReaderTest {
     resolvers.add(tikaResolver);
     resolvers.add(this.customResolver);
     this.mimeTypeMapper = new MimeTypeMapperImpl(resolvers);
-    this.clientBuilderFactory = new ClientBuilderFactoryImpl();
   }
 
   @Test
   public void testURLResourceReaderBadQualifier() {
-    URLResourceReader resourceReader =
-        new TestURLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    URLResourceReader resourceReader = new TestURLResourceReader(mimeTypeMapper);
     resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
     URI uri = TEST_PATH.resolve(MPEG_FILE_NAME_1).toUri();
 
@@ -333,7 +318,7 @@ public class URLResourceReaderTest {
 
   @Test
   public void testURLResourceIOException() throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
 
     String filePath = "JUMANJI!!!!";
 
@@ -356,7 +341,7 @@ public class URLResourceReaderTest {
 
   @Test
   public void testUrlToNonExistentFile() throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
 
     String filePath = TEST_PATH.resolve("NonExistentFile.jpg").toAbsolutePath().toString();
 
@@ -385,19 +370,13 @@ public class URLResourceReaderTest {
   @Test
   public void testNameInContentDisposition() throws Exception {
     URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
-    Response mockResponse = mock(Response.class);
-    when(mockWebClient.get()).thenReturn(mockResponse);
-    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
-    map.put(
-        HttpHeaders.CONTENT_DISPOSITION,
-        Arrays.<Object>asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
-    when(mockResponse.getHeaders()).thenReturn(map);
-    when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-
-    when(mockResponse.getEntity()).thenReturn(getBinaryData());
+    HttpResponse mockResponse = mock(HttpResponse.class);
+    when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+    when(mockResponse.statusCode()).thenReturn(200);
+    when(mockResponse.body()).thenReturn(getBinaryData());
 
     // verify that we got the entire resource
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri);
+    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, 5, uri);
   }
 
   /**
@@ -407,180 +386,45 @@ public class URLResourceReaderTest {
   @Test
   public void testRetrieveQualifiedResource() throws Exception {
     URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
-    Response mockResponse = mock(Response.class);
-    when(mockWebClient.get()).thenReturn(mockResponse);
-    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
-    map.put(
-        HttpHeaders.CONTENT_DISPOSITION,
-        Arrays.<Object>asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
-    when(mockResponse.getHeaders()).thenReturn(map);
-    when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-
-    when(mockResponse.getEntity()).thenReturn(getBinaryData());
+    HttpResponse mockResponse = mock(HttpResponse.class);
+    when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+    when(mockResponse.statusCode()).thenReturn(200);
+    when(mockResponse.body()).thenReturn(getBinaryData());
 
     final String qualifierValue = "qualifierValue";
     final URI expectedWebClientUri =
         new URI(String.format("%s&%s=%s", uri, ContentItem.QUALIFIER_KEYWORD, qualifierValue));
     // verify that we got the entire resource
     verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, qualifierValue, 5, expectedWebClientUri);
-  }
-
-  /**
-   * Tests that a Partial Content response that has the same byte offset as what was requested
-   * returns an input stream starting at the requested byte offset.
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testServerSupportsPartialContentResponseWithCorrectOffset() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
-
-    Response mockResponse = mock(Response.class);
-    when(mockWebClient.get()).thenReturn(mockResponse);
-    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
-    map.put(
-        HttpHeaders.CONTENT_DISPOSITION,
-        Arrays.asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
-    map.put(HttpHeaders.CONTENT_RANGE, Arrays.asList("Bytes 2-4/5"));
-    when(mockResponse.getHeaders()).thenReturn(map);
-    when(mockResponse.getStatus()).thenReturn(Response.Status.PARTIAL_CONTENT.getStatusCode());
-
-    when(mockResponse.getEntity()).thenReturn(getBinaryDataWithOffset(2));
-
-    String bytesToSkip = "2";
-
-    // verify that the requested bytes 3-5 were returned
-    verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri);
-  }
-
-  /**
-   * Tests that a Partial Content response that has a smaller byte offset than what was requested
-   * still returns an input stream starting at the requested byte offset by skipping ahead in the
-   * input stream.
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testServerSupportsPartialContentResponseWithNotEnoughOffset() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
-
-    Response mockResponse = mock(Response.class);
-    when(mockWebClient.get()).thenReturn(mockResponse);
-    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
-    map.put(
-        HttpHeaders.CONTENT_DISPOSITION,
-        Arrays.asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
-    map.put(HttpHeaders.CONTENT_RANGE, Arrays.asList("Bytes 1-4/5"));
-    when(mockResponse.getHeaders()).thenReturn(map);
-    when(mockResponse.getStatus()).thenReturn(Response.Status.PARTIAL_CONTENT.getStatusCode());
-
-    when(mockResponse.getEntity()).thenReturn(getBinaryDataWithOffset(1));
-
-    String bytesToSkip = "2";
-
-    // verify that the requested bytes 3-5 were returned
-    verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri);
-  }
-
-  /**
-   * Tests that a Partial Content response that has a higher byte offset as what was requested
-   * throws an IOException in order to prevent data loss.
-   *
-   * @throws Exception
-   */
-  @Test(expected = ResourceNotFoundException.class)
-  public void testServerSupportsPartialContentResponseTooMuchOffset() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
-
-    Response mockResponse = mock(Response.class);
-    when(mockWebClient.get()).thenReturn(mockResponse);
-    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
-    map.put(
-        HttpHeaders.CONTENT_DISPOSITION,
-        Arrays.asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
-    map.put(HttpHeaders.CONTENT_RANGE, Arrays.asList("Bytes 3-4/5"));
-    when(mockResponse.getHeaders()).thenReturn(map);
-    when(mockResponse.getStatus()).thenReturn(Response.Status.PARTIAL_CONTENT.getStatusCode());
-
-    when(mockResponse.getEntity()).thenReturn(getBinaryDataWithOffset(3));
-
-    String bytesToSkip = "2";
-
-    // this should throw an IOException since more bytes were skipped than requested
-    verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 2135, uri);
-  }
-
-  /**
-   * Tests that if the server does not support range-header requests and responds with the entire
-   * product's contents (no Content-Range header and a 200 response), an input is still returned
-   * with the requested byte offset.
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testServerDoesNotSupportPartialContent() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
-
-    Response mockResponse = mock(Response.class);
-    when(mockWebClient.get()).thenReturn(mockResponse);
-    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
-    map.put(
-        HttpHeaders.CONTENT_DISPOSITION,
-        Arrays.asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
-    when(mockResponse.getHeaders()).thenReturn(map);
-    when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-
-    when(mockResponse.getEntity()).thenReturn(getBinaryData());
-
-    String bytesToSkip = "2";
-
-    // verify that the requested bytes 3-5 were returned
-    verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri);
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, qualifierValue, 5, expectedWebClientUri);
   }
 
   @Test
   public void testUnquotedNameInContentDisposition() throws Exception {
     URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
 
-    Response mockResponse = mock(Response.class);
-    when(mockWebClient.get()).thenReturn(mockResponse);
-    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
-    map.put(
-        HttpHeaders.CONTENT_DISPOSITION,
-        Arrays.<Object>asList("inline; filename=" + JPEG_FILE_NAME_1));
-    when(mockResponse.getHeaders()).thenReturn(map);
-    when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+    HttpResponse mockResponse = mock(HttpResponse.class);
+    when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+    when(mockResponse.statusCode()).thenReturn(200);
+    when(mockResponse.body()).thenReturn(getBinaryData());
 
-    when(mockResponse.getEntity()).thenReturn(getBinaryData());
-
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri);
+    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, 5, uri);
   }
 
   @Test
   public void testUnquotedNameEndingSemicolonInContentDisposition() throws Exception {
     URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
-    Response mockResponse = mock(Response.class);
-    when(mockWebClient.get()).thenReturn(mockResponse);
-    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
-    map.put(
-        HttpHeaders.CONTENT_DISPOSITION,
-        Arrays.<Object>asList("inline;filename=" + JPEG_FILE_NAME_1 + ";"));
-    when(mockResponse.getHeaders()).thenReturn(map);
-    when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+    HttpResponse mockResponse = mock(HttpResponse.class);
+    when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+    when(mockResponse.statusCode()).thenReturn(200);
+    when(mockResponse.body()).thenReturn(getBinaryData());
 
-    when(mockResponse.getEntity()).thenReturn(getBinaryData());
-
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri);
+    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, 5, uri);
   }
 
   @Test
   public void testURLResourceReaderQualifierSet() throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
 
     Set<String> qualifiers = resourceReader.getSupportedSchemes();
 
@@ -620,7 +464,7 @@ public class URLResourceReaderTest {
   @Test
   public void testRemoveARootResourceDirectory() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(
             TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
@@ -643,7 +487,7 @@ public class URLResourceReaderTest {
   @Test
   public void testAddARootResourceDirectory() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(
             TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
@@ -675,7 +519,7 @@ public class URLResourceReaderTest {
   @Test
   public void testSetRootResourceDirectoriesNullInput() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(
             TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
@@ -695,7 +539,7 @@ public class URLResourceReaderTest {
   @Test
   public void testSetRootResourceDirectoriesEmptySetInput() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(
             TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
@@ -712,7 +556,7 @@ public class URLResourceReaderTest {
   public void testSetRootResourceDirectoriesInvalidPath() throws Exception {
     // Setup (1 valid paths, 1 invalid path)
     String invalidPath = "\0";
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
 
     // Perform Test
     resourceReader.setRootResourceDirectories(
@@ -728,7 +572,7 @@ public class URLResourceReaderTest {
   private void verifyFile(
       String filePath, String filename, String expectedMimeType, String... rootResourceDirectories)
       throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
     resourceReader.setRootResourceDirectories(
         new HashSet<String>(Arrays.asList(rootResourceDirectories)));
 
@@ -757,44 +601,33 @@ public class URLResourceReaderTest {
 
   private void verifyFileFromURLResourceReader(
       URI uri, String filename, String expectedMimeType, int expectedResponseResourceLength)
-      throws URISyntaxException, IOException, ResourceNotFoundException {
-    Response mockResponse = mock(Response.class);
-    when(mockWebClient.get()).thenReturn(mockResponse);
-    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
-    map.put(
-        HttpHeaders.CONTENT_DISPOSITION,
-        Arrays.<Object>asList("inline; filename=\"" + filename + "\""));
-    when(mockResponse.getHeaders()).thenReturn(map);
-    when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+      throws Exception {
+    HttpResponse mockResponse = mock(HttpResponse.class);
+    when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+    when(mockResponse.statusCode()).thenReturn(200);
 
-    when(mockResponse.getEntity()).thenReturn(getBinaryData());
+    when(mockResponse.body()).thenReturn(getBinaryData());
     verifyFileFromURLResourceReader(
-        uri, filename, expectedMimeType, null, null, expectedResponseResourceLength, uri);
+        uri, filename, expectedMimeType, null, expectedResponseResourceLength, uri);
   }
 
-  // Create arguments, adding bytesToSkip and qualifier if present, and verify
+  // Create arguments and qualifier if present, and verify
   private void verifyFileFromURLResourceReader(
       URI uri,
       String filename,
       String expectedMimeType,
-      String bytesToSkip,
       String qualifier,
       int expectedResponseResourceLength,
       URI expectedWebClientUri)
-      throws URISyntaxException, IOException, ResourceNotFoundException {
+      throws IOException, ResourceNotFoundException {
 
-    Map<String, Serializable> arguments = new HashMap<String, Serializable>();
-
-    if (bytesToSkip != null) {
-      arguments.put(BYTES_TO_SKIP, bytesToSkip);
-    }
+    Map<String, Serializable> arguments = new HashMap<>();
 
     if (qualifier != null) {
       arguments.put(ContentItem.QUALIFIER_KEYWORD, qualifier);
     }
 
-    TestURLResourceReader resourceReader =
-        new TestURLResourceReader(mimeTypeMapper, clientBuilderFactory);
+    TestURLResourceReader resourceReader = new TestURLResourceReader(mimeTypeMapper);
     resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
 
     // Test using the URL ResourceReader
@@ -816,94 +649,30 @@ public class URLResourceReaderTest {
         "The length of the resource in the response should be " + expectedResponseResourceLength,
         resourceResponse.getResource().getByteArray().length,
         is(expectedResponseResourceLength));
-
-    assertThat(
-        "The web client should be created with uri=" + uri,
-        resourceReader.capturedWebClientUri,
-        equalTo(expectedWebClientUri));
   }
 
   @Test
-  public void testGetWebClientWithUsernameAndPassword() throws URISyntaxException {
-    SecureCxfClientFactory<WebClient> cxfClientFactory = mock(SecureCxfClientFactory.class);
-    when(cxfClientFactory.getWebClient()).thenReturn(mock(WebClient.class));
-
-    ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
-    ClientBuilder<WebClient> clientBuilder =
-        new ClientBuilderImpl<WebClient>(
-            mock(OAuthSecurity.class),
-            mock(SamlSecurity.class),
-            mock(SecurityLogger.class),
-            mock(SecurityManager.class)) {
-          @Override
-          public SecureCxfClientFactory<WebClient> build() {
-            return cxfClientFactory;
-          }
-        };
-    when(clientBuilderFactory.<WebClient>getClientBuilder()).thenReturn(clientBuilder);
-
-    URLResourceReader urlResourceReader =
-        new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
+  public void testGetHttpClientWithUsernameAndPassword() throws Exception {
+    URLResourceReader urlResourceReader = new URLResourceReader(mimeTypeMapper);
 
     Map<String, Serializable> properties =
         ImmutableMap.of("username", "myusername", "password", "mypassword");
-    urlResourceReader.getWebClient(new URI("https://myurl.com"), properties);
+    HttpClient client = urlResourceReader.getHttpClient(properties);
 
-    verify(clientBuilderFactory, times(1)).getClientBuilder();
-  }
-
-  @Test
-  public void testGetWebClientWithOauth() throws URISyntaxException {
-    SecureCxfClientFactory<WebClient> cxfClientFactory = mock(SecureCxfClientFactory.class);
-    when(cxfClientFactory.getWebClient()).thenReturn(mock(WebClient.class));
-
-    ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
-    ClientBuilder<WebClient> clientBuilder =
-        new ClientBuilderImpl<WebClient>(
-            mock(OAuthSecurity.class),
-            mock(SamlSecurity.class),
-            mock(SecurityLogger.class),
-            mock(SecurityManager.class)) {
-          @Override
-          public SecureCxfClientFactory<WebClient> build() {
-            return cxfClientFactory;
-          }
-        };
-    when(clientBuilderFactory.<WebClient>getClientBuilder()).thenReturn(clientBuilder);
-
-    URLResourceReader urlResourceReader =
-        new URLResourceReader(mimeTypeMapper, clientBuilderFactory);
-
-    Map<String, Serializable> properties =
-        ImmutableMap.of(
-            "id",
-            "mysource",
-            "oauthDiscoveryUrl",
-            "https://keycloak:8080/discovery-url",
-            "oauthClientId",
-            "client-id",
-            "oauthClientSecret",
-            "client-secret",
-            "oauthFlow",
-            "code");
-    urlResourceReader.getWebClient(new URI("https://myurl.com"), properties);
-
-    verify(clientBuilderFactory, times(1)).getClientBuilder();
+    assertThat(client.authenticator().get(), instanceOf(PasswordAuthentication.class));
   }
 
   private class TestURLResourceReader extends URLResourceReader {
 
     public URI capturedWebClientUri;
 
-    public TestURLResourceReader(
-        MimeTypeMapper mimeTypeMapper, ClientBuilderFactory clientBuilderFactory) {
-      super(mimeTypeMapper, clientBuilderFactory);
+    public TestURLResourceReader(MimeTypeMapper mimeTypeMapper) {
+      super(mimeTypeMapper);
     }
 
     @Override
-    protected WebClient getWebClient(URI uri, Map<String, Serializable> properties) {
-      capturedWebClientUri = uri;
-      return mockWebClient;
+    protected HttpClient getHttpClient(Map<String, Serializable> properties) {
+      return mockHttpClient;
     }
   }
 }

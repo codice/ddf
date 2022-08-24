@@ -23,12 +23,8 @@ import ddf.catalog.operation.impl.QueryImpl
 import ddf.catalog.operation.impl.QueryRequestImpl
 import ddf.catalog.source.UnsupportedQueryException
 import ddf.catalog.transform.InputTransformer
-import ddf.security.SecurityConstants
-import ddf.security.Subject
-import ddf.security.encryption.EncryptionService
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean
 import org.apache.cxf.jaxrs.client.WebClient
-import org.codice.ddf.cxf.client.SecureCxfClientFactory
-import org.codice.ddf.cxf.client.impl.ClientBuilderFactoryImpl
 import org.codice.ddf.opensearch.OpenSearchConstants
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
@@ -88,13 +84,11 @@ class OpenSearchSourceSpec extends Specification {
             }
         }
 
-        final Subject subject = Mock(Subject)
-
-        final SecureCxfClientFactory factory = Mock(SecureCxfClientFactory) {
-            getWebClientForSubject(subject) >> webClient
+        final JAXRSClientFactoryBean factory = Mock(JAXRSClientFactoryBean) {
+            createWebClient() >> webClient
         }
 
-        source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchParserImpl(), new OpenSearchFilterVisitor(), Mock(EncryptionService), new ClientBuilderFactoryImpl()) {
+        source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchParserImpl(), new OpenSearchFilterVisitor(), (elements, sourceResponse) -> {}, factory) {
 
             @Override
             protected Bundle getBundle() {
@@ -102,7 +96,7 @@ class OpenSearchSourceSpec extends Specification {
             }
 
             @Override
-            protected SecureCxfClientFactory createClientFactory(
+            protected JAXRSClientFactoryBean createClientFactory(
                     URI url, String username, String password) {
                 return factory
             }
@@ -115,7 +109,6 @@ class OpenSearchSourceSpec extends Specification {
         source.setParameters(["q", "src", "mr", "start", "count", "mt", "dn", "lat", "lon", "radius", "bbox", "geometry", "polygon", "dtstart", "dtend", "dateName", "filter", "sort"])
 
         queryRequestProperties = [:]
-        queryRequestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject)
     }
 
     @Unroll

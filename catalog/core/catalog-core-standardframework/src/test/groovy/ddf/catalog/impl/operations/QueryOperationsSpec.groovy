@@ -36,10 +36,6 @@ import ddf.catalog.source.CatalogProvider
 import ddf.catalog.source.ConnectedSource
 import ddf.catalog.source.FederatedSource
 import ddf.catalog.source.UnsupportedQueryException
-import ddf.security.SecurityConstants
-import ddf.security.Subject
-import ddf.security.audit.SecurityLogger
-import ddf.security.permission.impl.PermissionsImpl
 import org.apache.commons.collections.CollectionUtils
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
@@ -58,7 +54,6 @@ class QueryOperationsSpec extends Specification {
     private Collection<FederatedSource> fedSources
     private List<ConnectedSource> connSources
     private SourceOperations sourceOperations
-    private OperationsSecuritySupport opsSecurity
     private OperationsMetacardSupport opsMetacard
     private QueryOperations queryOperations
     private FilterAdapter filterAdapter
@@ -84,12 +79,10 @@ class QueryOperationsSpec extends Specification {
         sourceOperations.getId() >> SOURCE_ID
         sourceOperations.getCatalog() >> { catalogProviders.first() }
 
-        opsSecurity = Mock(OperationsSecuritySupport)
         opsMetacard = Mock(OperationsMetacardSupport)
 
         queryOperations = new QueryOperations(frameworkProperties, sourceOperations,
-                opsSecurity, opsMetacard)
-        queryOperations.setPermissions(new PermissionsImpl())
+                opsMetacard)
         queryOperations.setId(SOURCE_ID)
     }
 
@@ -101,7 +94,7 @@ class QueryOperationsSpec extends Specification {
         request.isEnterprise() >> { false }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
+        def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources = sources.initializeSources(mockForQueryOps, request, sourceIds)
 
         then:
@@ -119,16 +112,13 @@ class QueryOperationsSpec extends Specification {
         def mockSourceOps = Mock(SourceOperations)
         mockSourceOps.isSourceAvailable(_) >> { true }
         def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
+                constructorArgs: [frameworkProperties, mockSourceOps, opsMetacard])
         mockForQueryOps.hasCatalogProvider() >> { true }
-        mockForQueryOps.canAccessSource(_, _) >> { src, req ->
-            true
-        }
         def request = Mock(QueryRequest)
         request.isEnterprise() >> { true }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
+        def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources = sources.initializeSources(mockForQueryOps, request, null)
 
         then:
@@ -138,71 +128,20 @@ class QueryOperationsSpec extends Specification {
         sources.exceptions.isEmpty()
     }
 
-    def 'test querysources enterprise with unavailable sources'() {
-        setup:
-        def mockSourceOps = Mock(SourceOperations)
-        mockSourceOps.isSourceAvailable(_) >> { true }
-        def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
-        mockForQueryOps.hasCatalogProvider() >> { true }
-        mockForQueryOps.canAccessSource(_, _) >> { src, req ->
-            false
-        }
-        def request = Mock(QueryRequest)
-        request.isEnterprise() >> { true }
-
-        when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
-        sources = sources.initializeSources(mockForQueryOps, request, null)
-
-        then:
-        sources.needToAddConnectedSources
-        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
-        sources.isEmpty()
-        sources.exceptions.size() == frameworkProperties.federatedSources.size()
-    }
-
-    def 'test querysources enterprise with one unavailable source'() {
-        setup:
-        def mockSourceOps = Mock(SourceOperations)
-        mockSourceOps.isSourceAvailable(_) >> { true }
-        def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
-        mockForQueryOps.hasCatalogProvider() >> { true }
-        mockForQueryOps.canAccessSource(_, _) >> { src, req ->
-            src.id == 'fed1'
-        }
-        def request = Mock(QueryRequest)
-        request.isEnterprise() >> { true }
-
-        when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
-        sources = sources.initializeSources(mockForQueryOps, request, null)
-
-        then:
-        sources.needToAddConnectedSources
-        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
-        sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.find { it.getId() == 'fed1' }] as Set
-        sources.exceptions.size() == frameworkProperties.federatedSources.size() - 1
-    }
-
     def 'test querysources with only local sourceId'() {
         setup:
         def mockSourceOps = Mock(SourceOperations)
         mockSourceOps.isSourceAvailable(_) >> { true }
         def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
+                constructorArgs: [frameworkProperties, mockSourceOps, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
         mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.includesLocalSources(_) >> { true }
-        mockForQueryOps.canAccessSource(_, _) >> { src, req ->
-            true
-        }
         def request = Mock(QueryRequest)
         request.isEnterprise() >> { false }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
+        def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources = sources.initializeSources(mockForQueryOps, request, [SOURCE_ID] as Set)
 
         then:
@@ -217,18 +156,15 @@ class QueryOperationsSpec extends Specification {
         def mockSourceOps = Mock(SourceOperations)
         mockSourceOps.isSourceAvailable(_) >> { true }
         def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
+                constructorArgs: [frameworkProperties, mockSourceOps, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
         mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.includesLocalSources(_) >> { true }
-        mockForQueryOps.canAccessSource(_, _) >> { src, req ->
-            true
-        }
         def request = Mock(QueryRequest)
         request.isEnterprise() >> { false }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
+        def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources = sources.initializeSources(mockForQueryOps, request, ["fed1"] as Set)
 
         then:
@@ -243,45 +179,16 @@ class QueryOperationsSpec extends Specification {
         def mockSourceOps = Mock(SourceOperations)
         mockSourceOps.isSourceAvailable(_) >> { true }
         def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
+                constructorArgs: [frameworkProperties, mockSourceOps, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
         mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.includesLocalSources(_) >> { true }
-        mockForQueryOps.canAccessSource(_, _) >> { src, req ->
-            true
-        }
         def request = Mock(QueryRequest)
         request.isEnterprise() >> { false }
 
         when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
+        def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources = sources.initializeSources(mockForQueryOps, request, ["unknown"] as Set)
-
-        then:
-        sources.needToAddConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
-        sources.isEmpty()
-        sources.exceptions.size() == 1
-    }
-
-    def 'test querysources with unavailable fed sourceId'() {
-        setup:
-        def mockSourceOps = Mock(SourceOperations)
-        mockSourceOps.isSourceAvailable(_) >> { true }
-        def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
-        mockForQueryOps.getId() >> { SOURCE_ID }
-        mockForQueryOps.hasCatalogProvider() >> { true }
-        mockForQueryOps.includesLocalSources(_) >> { true }
-        mockForQueryOps.canAccessSource(_, _) >> { src, req ->
-            false
-        }
-        def request = Mock(QueryRequest)
-        request.isEnterprise() >> { false }
-
-        when:
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
-        sources = sources.initializeSources(mockForQueryOps, request, ["fed1"] as Set)
 
         then:
         sources.needToAddConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
@@ -295,9 +202,9 @@ class QueryOperationsSpec extends Specification {
         def mockSourceOps = Mock(SourceOperations)
         mockSourceOps.isSourceAvailable(_) >> { true }
         def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
+                constructorArgs: [frameworkProperties, mockSourceOps, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
+        def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources.sourcesToQuery = []
         sources.exceptions = []
 
@@ -314,9 +221,9 @@ class QueryOperationsSpec extends Specification {
         setup:
         def mockSourceOps = Mock(SourceOperations)
         def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
+                constructorArgs: [frameworkProperties, mockSourceOps, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
+        def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources.sourcesToQuery = []
         sources.exceptions = []
         def connectedCount = frameworkProperties.getConnectedSources().size()
@@ -336,9 +243,9 @@ class QueryOperationsSpec extends Specification {
         def mockSourceOps = Mock(SourceOperations)
         mockSourceOps.isSourceAvailable(_) >> { true }
         def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
+                constructorArgs: [frameworkProperties, mockSourceOps, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
+        def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources.sourcesToQuery = []
         sources.exceptions = []
 
@@ -356,9 +263,9 @@ class QueryOperationsSpec extends Specification {
         def mockSourceOps = Mock(SourceOperations)
         mockSourceOps.getCatalog() >> mockCatalogProvider('mockCat')
         def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
+                constructorArgs: [frameworkProperties, mockSourceOps, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
+        def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources.sourcesToQuery = []
         sources.exceptions = []
         sources.needToAddCatalogProvider = true
@@ -377,9 +284,9 @@ class QueryOperationsSpec extends Specification {
         def mockSourceOps = Mock(SourceOperations)
         mockSourceOps.getCatalog() >> mockCatalogProvider('mockCat')
         def mockForQueryOps = Mock(QueryOperations,
-                constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
+                constructorArgs: [frameworkProperties, mockSourceOps, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        def sources = new QueryOperations.QuerySources(frameworkProperties, Mock(SecurityLogger))
+        def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources.sourcesToQuery = []
         sources.exceptions = []
         sources.needToAddCatalogProvider = true
@@ -416,41 +323,6 @@ class QueryOperationsSpec extends Specification {
         newResults.each {
             assert it.metacard.sourceId == queryOperations.id
         }
-    }
-
-    def 'can access source no security attributes'() {
-        setup:
-        def fedSource = Mock(FederatedSource)
-        fedSource.getSecurityAttributes() >> [:]
-
-        expect:
-        queryOperations.canAccessSource(fedSource, Mock(QueryRequest))
-    }
-
-    def 'cannot access source not permitted'() {
-        setup:
-        def fedSource = Mock(FederatedSource)
-        fedSource.getSecurityAttributes() >> [abc: ['def'] as Set]
-        def subject = Mock(Subject)
-        subject.isPermitted(_) >> { false }
-        def request = Mock(QueryRequest)
-        request.getProperties() >> [(SecurityConstants.SECURITY_SUBJECT): subject]
-
-        expect:
-        !queryOperations.canAccessSource(fedSource, request)
-    }
-
-    def 'can access source is permitted'() {
-        setup:
-        def fedSource = Mock(FederatedSource)
-        fedSource.getSecurityAttributes() >> [abc: ['def'] as Set]
-        def subject = Mock(Subject)
-        subject.isPermitted(_) >> { true }
-        def request = Mock(QueryRequest)
-        request.getProperties() >> [(SecurityConstants.SECURITY_SUBJECT): subject]
-
-        expect:
-        queryOperations.canAccessSource(fedSource, request)
     }
 
     def 'test includes local sources'() {
@@ -666,40 +538,6 @@ class QueryOperationsSpec extends Specification {
         notThrown(FederationException)
     }
 
-    def 'ensure query request policy map populated'() {
-        setup:
-        def request = Mock(QueryRequest)
-        def query = Mock(Query)
-        def response = Mock(QueryResponse)
-
-        query.getTimeoutMillis() >> { 100 }
-        query.getPageSize() >> { 100 }
-        request.query >> { query }
-        request.getQuery() >> { query }
-        request.getProperties() >> [:]
-        request.getSourceIds() >> { ['fed1', 'fed2'] }
-        response.getRequest() >> { request }
-        response.getResults() >> []
-        response.getProperties() >> [:]
-        frameworkProperties.federationStrategy = Mock(FederationStrategy)
-
-        def policyResponse = Mock(PolicyResponse)
-        policyResponse.operationPolicy() >> { [:] }
-
-        def policyPlugins = [Mock(PolicyPlugin), Mock(PolicyPlugin)]
-        frameworkProperties.policyPlugins = policyPlugins
-
-        when:
-        queryOperations.query(request, null, false, false)
-
-        then:
-        policyPlugins.each {
-            1 * it.processPreQuery(_ as Query, _ as Map) >> policyResponse
-            1 * opsSecurity.buildPolicyMap(_, _)
-        }
-        frameworkProperties.federationStrategy.federate(_, _) >> response
-    }
-
     def 'ensure default timeout is used if negative set in query'() {
         setup:
         def request = Mock(QueryRequest)
@@ -791,38 +629,6 @@ class QueryOperationsSpec extends Specification {
         then:
         capturedQuery instanceof QueryRequest
         capturedQuery.getQuery().getTimeoutMillis() == 800
-    }
-
-    def 'non-version filter covers revision and deleted metacards'() {
-        setup:
-        FilterBuilder filterBuilder = new GeotoolsFilterBuilder()
-        frameworkProperties.filterBuilder = filterBuilder
-        def request = Mock(QueryRequest)
-        def response = Mock(QueryResponse)
-        def capturedQuery
-        frameworkProperties.federationStrategy = Mock(FederationStrategy)
-
-        def query = new QueryImpl(queryOperations.getNonVersionTagsFilter(request))
-
-        request.query >> { query }
-        request.getQuery() >> { query }
-        request.getProperties() >> [:]
-        request.getSourceIds() >> { ['fed1', 'fed2'] }
-        response.getRequest() >> { request }
-        response.getResults() >> []
-        response.getProperties() >> [:]
-        frameworkProperties.federationStrategy.federate(_, _) >> { sources, queryParam ->
-            capturedQuery = queryParam
-            response
-        }
-
-        when:
-        queryOperations.query(request, null, false, false)
-
-        then:
-        capturedQuery instanceof QueryRequest
-        capturedQuery.getQuery().toString().contains("[ NOT [[ metacard-tags is like revision ] OR [ metacard-tags is like deleted ]] ]")
-
     }
 
     private def mockCatalogProvider(def id) {

@@ -28,10 +28,7 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.source.solr.SolrMetacardClientImpl;
-import ddf.security.Subject;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import org.apache.shiro.util.ThreadContext;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -39,7 +36,6 @@ import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
-import org.codice.ddf.security.Security;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -55,7 +51,6 @@ public class ReindexCommandTest extends SolrCommandTest {
 
   @Test
   public void testReindex() throws Exception {
-    ThreadContext.bind(mock(Subject.class));
 
     SolrClient cloudClient = mock(SolrClient.class);
     NamedList<Object> pingStatus = new NamedList<>();
@@ -92,19 +87,12 @@ public class ReindexCommandTest extends SolrCommandTest {
     CatalogFramework catalogFramework = mock(CatalogFramework.class);
     when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
 
-    Security security = mock(Security.class);
-    Subject subject = mock(Subject.class);
-    when(security.runAsAdmin(any())).thenReturn(subject);
-    when(subject.execute(any(Callable.class)))
-        .thenAnswer(c -> ((Callable) c.getArguments()[0]).call());
-
     ReindexCommand command = new ReindexCommand();
     command.setSolrjClient(cloudClient);
     command.setMetacardClient(solrMetacardClient);
     command.setNumThread(1);
     command.setCollection("catalog");
     command.setCatalogFramework(catalogFramework);
-    command.security = security;
     command.execute();
 
     verify(catalogFramework, times(1)).create(any(CreateRequest.class));

@@ -31,12 +31,8 @@ import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
-import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PolicyPlugin;
-import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostResourcePlugin;
-import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.resource.DataUsageLimitExceededException;
@@ -110,15 +106,10 @@ public class ResourceOperations extends DescribableImpl {
 
   private final QueryOperations queryOperations;
 
-  private final OperationsSecuritySupport opsSecuritySupport;
-
   public ResourceOperations(
-      FrameworkProperties frameworkProperties,
-      QueryOperations queryOperations,
-      OperationsSecuritySupport opsSecuritySupport) {
+      FrameworkProperties frameworkProperties, QueryOperations queryOperations) {
     this.frameworkProperties = frameworkProperties;
     this.queryOperations = queryOperations;
-    this.opsSecuritySupport = opsSecuritySupport;
 
     setId(SystemInfo.getSiteName());
     setVersion(SystemInfo.getVersion());
@@ -334,9 +325,6 @@ public class ResourceOperations extends DescribableImpl {
 
     validateGetResourceRequest(resourceReq);
     try {
-      resourceReq = preProcessPreAuthorizationPlugins(resourceReq);
-      resourceReq = processPreResourcePolicyPlugins(resourceReq);
-      resourceReq = processPreResourceAccessPlugins(resourceReq);
       resourceReq = processPreResourcePlugins(resourceReq);
 
       Map<String, Serializable> requestProperties = resourceReq.getProperties();
@@ -421,9 +409,6 @@ public class ResourceOperations extends DescribableImpl {
 
       resourceResponse = validateFixGetResourceResponse(resourceResponse, resourceReq);
 
-      resourceResponse = postProcessPreAuthorizationPlugins(resourceResponse, metacard);
-      resourceResponse = processPostResourcePolicyPlugins(resourceResponse, metacard);
-      resourceResponse = processPostResourceAccessPlugins(resourceResponse, metacard);
       resourceResponse = processPostResourcePlugins(resourceResponse);
 
       resourceResponse.getProperties().put(Constants.METACARD_PROPERTY, metacard);
@@ -466,26 +451,6 @@ public class ResourceOperations extends DescribableImpl {
     return resourceResponse;
   }
 
-  private ResourceResponse processPostResourceAccessPlugins(
-      ResourceResponse resourceResponse, Metacard metacard) throws StopProcessingException {
-    for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-      resourceResponse = plugin.processPostResource(resourceResponse, metacard);
-    }
-    return resourceResponse;
-  }
-
-  private ResourceResponse processPostResourcePolicyPlugins(
-      ResourceResponse resourceResponse, Metacard metacard) throws StopProcessingException {
-    HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
-    for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-      PolicyResponse policyResponse = plugin.processPostResource(resourceResponse, metacard);
-      opsSecuritySupport.buildPolicyMap(
-          responsePolicyMap, policyResponse.operationPolicy().entrySet());
-    }
-    resourceResponse.getProperties().put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
-    return resourceResponse;
-  }
-
   private ResourceRequest processPreResourcePlugins(ResourceRequest resourceReq)
       throws StopProcessingException {
     for (PreResourcePlugin plugin : frameworkProperties.getPreResource()) {
@@ -499,42 +464,6 @@ public class ResourceOperations extends DescribableImpl {
       }
     }
     return resourceReq;
-  }
-
-  private ResourceRequest processPreResourceAccessPlugins(ResourceRequest resourceReq)
-      throws StopProcessingException {
-    for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-      resourceReq = plugin.processPreResource(resourceReq);
-    }
-    return resourceReq;
-  }
-
-  private ResourceRequest processPreResourcePolicyPlugins(ResourceRequest resourceReq)
-      throws StopProcessingException {
-    HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-    for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-      PolicyResponse policyResponse = plugin.processPreResource(resourceReq);
-      opsSecuritySupport.buildPolicyMap(
-          requestPolicyMap, policyResponse.operationPolicy().entrySet());
-    }
-    resourceReq.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-    return resourceReq;
-  }
-
-  private ResourceRequest preProcessPreAuthorizationPlugins(ResourceRequest resourceRequest)
-      throws StopProcessingException {
-    for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
-      resourceRequest = plugin.processPreResource(resourceRequest);
-    }
-    return resourceRequest;
-  }
-
-  private ResourceResponse postProcessPreAuthorizationPlugins(
-      ResourceResponse resourceResponse, Metacard metacard) throws StopProcessingException {
-    for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
-      resourceResponse = plugin.processPostResource(resourceResponse, metacard);
-    }
-    return resourceResponse;
   }
 
   /**

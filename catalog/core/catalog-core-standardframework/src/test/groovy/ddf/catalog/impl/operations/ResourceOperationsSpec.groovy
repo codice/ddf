@@ -15,23 +15,17 @@ package ddf.catalog.impl.operations
 
 import ddf.catalog.data.Metacard
 import ddf.catalog.data.Result
-import ddf.catalog.event.retrievestatus.DownloadStatusInfo
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder
 import ddf.catalog.impl.FrameworkProperties
 import ddf.catalog.operation.QueryResponse
 import ddf.catalog.operation.ResourceRequest
 import ddf.catalog.operation.ResourceResponse
-import ddf.catalog.plugin.AccessPlugin
-import ddf.catalog.plugin.PolicyPlugin
-import ddf.catalog.plugin.PolicyResponse
 import ddf.catalog.plugin.PostResourcePlugin
 import ddf.catalog.plugin.PreResourcePlugin
-import ddf.catalog.plugin.StopProcessingException
 import ddf.catalog.resource.Resource
 import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.resource.ResourceNotSupportedException
-import ddf.catalog.resource.download.ReliableResourceDownloadManager
-import ddf.catalog.resource.download.ReliableResourceDownloaderConfig
+import ddf.catalog.resource.download.DefaultDownloadManager
 import ddf.catalog.resourceretriever.ResourceRetriever
 import ddf.catalog.source.FederatedSource
 import org.junit.platform.runner.JUnitPlatform
@@ -39,13 +33,10 @@ import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.concurrent.ExecutorService
-
 @RunWith(JUnitPlatform.class)
 class ResourceOperationsSpec extends Specification {
     private FrameworkProperties frameworkProperties
     private QueryOperations queryOperations
-    private OperationsSecuritySupport opsSecurity
     private ResourceOperations resourceOperations
     private URI uri
     private Metacard metacard
@@ -68,9 +59,7 @@ class ResourceOperationsSpec extends Specification {
 
         frameworkProperties = new FrameworkProperties()
         frameworkProperties.setFilterBuilder(new GeotoolsFilterBuilder())
-
-        opsSecurity = new OperationsSecuritySupport()
-        resourceOperations = new ResourceOperations(frameworkProperties, queryOperations, opsSecurity)
+        resourceOperations = new ResourceOperations(frameworkProperties, queryOperations)
     }
 
     @Unroll
@@ -119,49 +108,23 @@ class ResourceOperationsSpec extends Specification {
         resourceResponse.getProperties() >> [:]
 
         and:
-        def downManager = Spy(ReliableResourceDownloadManager,
-                constructorArgs: [new ReliableResourceDownloaderConfig(), Mock(DownloadStatusInfo), Mock(ExecutorService)])
+        def downManager = Spy(DefaultDownloadManager)
         downManager.download(request, metacard, !null as ResourceRetriever) >> resourceResponse
         frameworkProperties.with {
-            policyPlugins = [mockPolicyPlugin(), mockPolicyPlugin()]
-            accessPlugins = [Mock(AccessPlugin)]
             preResource = 3.collect { Mock(PreResourcePlugin) }
             postResource = 4.collect { Mock(PostResourcePlugin) }
-            reliableResourceDownloadManager = downManager
+            defaultDownloadManager = downManager
             federatedSources = [Mock(FederatedSource) {
                 getId() >> 'resourcename'
             }]
         }
 
-        and:
-        def mockPolicyResponse = mockPolicyResponse()
-
         when:
         resourceOperations.getResource(request, false, 'resourcename', false)
 
         then:
-        frameworkProperties.policyPlugins.each {
-            1 * it.processPreResource(request) >> mockPolicyResponse
-        }
-
-        then:
-        frameworkProperties.accessPlugins.each {
-            1 * it.processPreResource(request) >> request
-        }
-
-        then:
         frameworkProperties.preResource.each {
             1 * it.process(request) >> request
-        }
-
-        then:
-        frameworkProperties.policyPlugins.each {
-            1 * it.processPostResource(_ as ResourceResponse, _ as Metacard) >> mockPolicyResponse
-        }
-
-        then:
-        frameworkProperties.accessPlugins.each {
-            1 * it.processPostResource(_ as ResourceResponse, _ as Metacard) >> { res, met -> res }
         }
 
         then:
@@ -170,38 +133,4 @@ class ResourceOperationsSpec extends Specification {
         }
     }
 
-    def 'confirm stop processing throws exception'() {
-        setup:
-        def request = Mock(ResourceRequest)
-        request.getProperties() >> { [:] }
-        request.getAttributeName() >> { ResourceRequest.GET_RESOURCE_BY_PRODUCT_URI }
-        request.getAttributeValue() >> uri
-
-        def policyPlugin = mockPolicyPlugin()
-        policyPlugin.processPreResource(request) >> { throw new StopProcessingException('stop') }
-        frameworkProperties.with {
-            policyPlugins = [policyPlugin]
-            federatedSources = [Mock(FederatedSource) {
-                getId() >> 'resourcename'
-            }]
-        }
-
-        when:
-        resourceOperations.getResource(request, false, 'resourcename', false)
-
-        then:
-        thrown(ResourceNotSupportedException)
-    }
-
-    PolicyPlugin mockPolicyPlugin() {
-        def policyPlugin = Mock(PolicyPlugin)
-
-        return policyPlugin
-    }
-
-    PolicyResponse mockPolicyResponse() {
-        def policyResponse = Mock(PolicyResponse)
-        policyResponse.operationPolicy() >> [:]
-        return policyResponse
-    }
 }

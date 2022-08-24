@@ -25,6 +25,21 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+            <version>${tink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
             <version>${project.version}</version>
@@ -57,11 +72,6 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
-      <dependency>
-        <groupId>ddf.security.encryption</groupId>
-        <artifactId>security-encryption-crypter</artifactId>
-        <version>${project.version}</version>
-      </dependency>
         <dependency>
             <groupId>ddf.mime.core</groupId>
             <artifactId>mime-core-impl</artifactId>
@@ -80,10 +90,46 @@
                         </Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            security-encryption-crypter
+                            gson,
+                            protobuf-java,
+                            tink
                         </Embed-Dependency>
+                        <Import-Package>
+                            <!-- BEGIN: Exclude unnecessary transitive dependencies -->
+                            !com.google.api.*,
+                            !com.google.errorprone.annotations.*,
+                            !org.joda.time.*,
+                            !sun.misc.*,
+                            <!-- END -->
+                            <!-- BEGIN: Exclude packages from embedded dependencies -->
+                            !org.conscrypt.*,
+                            !com.google.protobuf.*,
+                            !org.json.*,
+                            <!-- END -->
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check-artifact-size</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                    <maxArtifactSize>3.8_MB</maxArtifactSize>
+                                </ArtifactSizeEnforcerRule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

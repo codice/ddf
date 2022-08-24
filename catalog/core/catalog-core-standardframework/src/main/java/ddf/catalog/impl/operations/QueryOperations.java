@@ -14,22 +14,15 @@
 package ddf.catalog.impl.operations;
 
 import ddf.catalog.Constants;
-import ddf.catalog.core.versioning.DeletedMetacard;
-import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.data.types.Validation;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.impl.FrameworkProperties;
-import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -39,13 +32,8 @@ import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.plugin.AccessPlugin;
-import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PolicyPlugin;
-import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostQueryPlugin;
-import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogStore;
@@ -56,28 +44,15 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import ddf.security.audit.SecurityLogger;
-import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.Permissions;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,8 +92,6 @@ public class QueryOperations extends DescribableImpl {
 
   private final SourceOperations sourceOperations;
 
-  private final OperationsSecuritySupport opsSecuritySupport;
-
   private final OperationsMetacardSupport opsMetacardSupport;
 
   private FilterAdapter filterAdapter;
@@ -127,18 +100,12 @@ public class QueryOperations extends DescribableImpl {
 
   private long queryTimeoutMillis = 300000;
 
-  protected SecurityLogger securityLogger;
-
-  private Permissions permissions;
-
   public QueryOperations(
       FrameworkProperties frameworkProperties,
       SourceOperations sourceOperations,
-      OperationsSecuritySupport opsSecuritySupport,
       OperationsMetacardSupport opsMetacardSupport) {
     this.frameworkProperties = frameworkProperties;
     this.sourceOperations = sourceOperations;
-    this.opsSecuritySupport = opsSecuritySupport;
     this.opsMetacardSupport = opsMetacardSupport;
   }
 
@@ -190,9 +157,6 @@ public class QueryOperations extends DescribableImpl {
     try {
       queryRequest = validateQueryRequest(queryRequest);
       queryRequest = getFanoutQuery(queryRequest, fanoutEnabled);
-      queryRequest = preProcessPreAuthorizationPlugins(queryRequest);
-      queryRequest = populateQueryRequestPolicyMap(queryRequest);
-      queryRequest = processPreQueryAccessPlugins(queryRequest);
       queryRequest = processPreQueryPlugins(queryRequest);
       queryRequest = validateQueryRequest(queryRequest);
 
@@ -216,15 +180,10 @@ public class QueryOperations extends DescribableImpl {
       LOGGER.trace("BeforePostQueryFilter result size: {}", queryResponse.getResults().size());
       queryResponse = injectAttributes(queryResponse);
       queryResponse = validateFixQueryResponse(queryResponse, overrideFanoutRename, fanoutEnabled);
-      queryResponse = postProcessPreAuthorizationPlugins(queryResponse);
-      queryResponse = populateQueryResponsePolicyMap(queryResponse);
-      queryResponse = processPostQueryAccessPlugins(queryResponse);
       queryResponse = processPostQueryPlugins(queryResponse);
 
       log(queryResponse);
 
-    } catch (OAuthPluginException e) {
-      throw e;
     } catch (RuntimeException re) {
       LOGGER.debug("Unhandled runtime exception during query", re);
       throw new UnsupportedQueryException("Exception during runtime while performing query", re);
@@ -269,7 +228,7 @@ public class QueryOperations extends DescribableImpl {
     LOGGER.debug("source ids: {}", sourceIds);
 
     QuerySources querySources =
-        new QuerySources(frameworkProperties, securityLogger)
+        new QuerySources(frameworkProperties)
             .initializeSources(this, queryRequest, sourceIds)
             .addConnectedSources(this, frameworkProperties)
             .addCatalogProvider(this);
@@ -332,24 +291,6 @@ public class QueryOperations extends DescribableImpl {
     return request;
   }
 
-  Filter getFilterWithAdditionalFilters(List<Filter> originalFilter, Operation requestOperation) {
-    Filter nonVersionTags = getNonVersionTagsFilter(requestOperation);
-    if (nonVersionTags != null) {
-      return frameworkProperties
-          .getFilterBuilder()
-          .allOf(
-              nonVersionTags,
-              getFilterWithValidationFilter(),
-              frameworkProperties.getFilterBuilder().anyOf(originalFilter));
-    }
-
-    return frameworkProperties
-        .getFilterBuilder()
-        .allOf(
-            getFilterWithValidationFilter(),
-            frameworkProperties.getFilterBuilder().anyOf(originalFilter));
-  }
-
   /**
    * Replaces the site name(s) of {@link FederatedSource}s in the {@link QueryResponse} with the
    * fanout's site name to keep info about the {@link FederatedSource}s hidden from the external
@@ -376,24 +317,6 @@ public class QueryOperations extends DescribableImpl {
     newResponse.closeResultQueue();
     LOGGER.trace("EXITING: replaceSourceId()");
     return newResponse;
-  }
-
-  boolean canAccessSource(FederatedSource source, QueryRequest request) {
-    Map<String, Set<String>> securityAttributes = source.getSecurityAttributes();
-    if (securityAttributes.isEmpty()) {
-      return true;
-    }
-
-    Object requestSubject = request.getProperties().get(SecurityConstants.SECURITY_SUBJECT);
-    if (requestSubject instanceof ddf.security.Subject) {
-      Subject subject = (Subject) requestSubject;
-
-      KeyValueCollectionPermission kvCollection =
-          permissions.buildKeyValueCollectionPermission(
-              CollectionPermission.READ_ACTION, securityAttributes);
-      return subject.isPermitted(kvCollection);
-    }
-    return false;
   }
 
   /**
@@ -438,42 +361,6 @@ public class QueryOperations extends DescribableImpl {
     return queryResponse;
   }
 
-  private QueryResponse processPostQueryAccessPlugins(QueryResponse queryResponse)
-      throws FederationException {
-    for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-      try {
-        queryResponse = plugin.processPostQuery(queryResponse);
-      } catch (StopProcessingException e) {
-        throw new FederationException(QUERY_FAILURE_MSG, e);
-      }
-    }
-    return queryResponse;
-  }
-
-  private QueryResponse populateQueryResponsePolicyMap(QueryResponse queryResponse)
-      throws FederationException {
-    HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
-    Map<String, Serializable> unmodifiableProperties =
-        Collections.unmodifiableMap(queryResponse.getProperties());
-    for (Result result : queryResponse.getResults()) {
-      HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
-      for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-        try {
-          PolicyResponse policyResponse = plugin.processPostQuery(result, unmodifiableProperties);
-          opsSecuritySupport.buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy().entrySet());
-          opsSecuritySupport.buildPolicyMap(
-              responsePolicyMap, policyResponse.operationPolicy().entrySet());
-        } catch (StopProcessingException e) {
-          throw new FederationException(QUERY_FAILURE_MSG, e);
-        }
-      }
-      result.getMetacard().setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
-    }
-    queryResponse.getProperties().put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
-
-    return queryResponse;
-  }
-
   private QueryRequest processPreQueryPlugins(QueryRequest queryReq) throws FederationException {
     for (PreQueryPlugin service : frameworkProperties.getPreQuery()) {
       try {
@@ -484,62 +371,6 @@ public class QueryOperations extends DescribableImpl {
         throw new FederationException(QUERY_FAILURE_MSG, e);
       }
     }
-    return queryReq;
-  }
-
-  private QueryRequest processPreQueryAccessPlugins(QueryRequest queryReq)
-      throws FederationException {
-    for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-      try {
-        queryReq = plugin.processPreQuery(queryReq);
-      } catch (StopProcessingException e) {
-        throw new FederationException(QUERY_FAILURE_MSG, e);
-      }
-    }
-    return queryReq;
-  }
-
-  private QueryRequest preProcessPreAuthorizationPlugins(QueryRequest queryRequest)
-      throws FederationException {
-    for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
-      try {
-        queryRequest = plugin.processPreQuery(queryRequest);
-      } catch (StopProcessingException e) {
-        throw new FederationException(QUERY_FAILURE_MSG, e);
-      }
-    }
-    return queryRequest;
-  }
-
-  private QueryResponse postProcessPreAuthorizationPlugins(QueryResponse queryResponse)
-      throws FederationException {
-    for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
-      try {
-        queryResponse = plugin.processPostQuery(queryResponse);
-      } catch (StopProcessingException e) {
-        throw new FederationException(QUERY_FAILURE_MSG, e);
-      }
-    }
-    return queryResponse;
-  }
-
-  private QueryRequest populateQueryRequestPolicyMap(QueryRequest queryReq)
-      throws FederationException {
-    HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-    Map<String, Serializable> unmodifiableProperties =
-        Collections.unmodifiableMap(queryReq.getProperties());
-    for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-      try {
-        PolicyResponse policyResponse =
-            plugin.processPreQuery(queryReq.getQuery(), unmodifiableProperties);
-        opsSecuritySupport.buildPolicyMap(
-            requestPolicyMap, policyResponse.operationPolicy().entrySet());
-      } catch (StopProcessingException e) {
-        throw new FederationException(QUERY_FAILURE_MSG, e);
-      }
-    }
-    queryReq.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-
     return queryReq;
   }
 
@@ -724,47 +555,6 @@ public class QueryOperations extends DescribableImpl {
     return ids;
   }
 
-  @Nullable
-  protected Filter getNonVersionTagsFilter(Operation requestOperation) {
-    FilterBuilder filterBuilder = frameworkProperties.getFilterBuilder();
-    if (requestOperation.containsPropertyName("operation.query-tags")) {
-      Set<String> queryTags =
-          Optional.of(requestOperation)
-              .map((ro) -> ro.getPropertyValue("operation.query-tags"))
-              .filter(Set.class::isInstance)
-              .map(Set.class::cast)
-              .orElse(Collections.emptySet());
-      if (queryTags.isEmpty()) {
-        return null;
-      }
-      return filterBuilder.anyOf(
-          queryTags.stream()
-              .map(tag -> filterBuilder.attribute(Metacard.TAGS).is().like().text(tag))
-              .collect(Collectors.toList()));
-    }
-    return filterBuilder.not(
-        filterBuilder.anyOf(
-            filterBuilder.attribute(Metacard.TAGS).is().like().text(MetacardVersion.VERSION_TAG),
-            filterBuilder.attribute(Metacard.TAGS).is().like().text(DeletedMetacard.DELETED_TAG)));
-  }
-
-  private Filter getFilterWithValidationFilter() {
-    FilterBuilder builder = frameworkProperties.getFilterBuilder();
-    return builder.anyOf(
-        builder
-            .attribute(Validation.VALIDATION_ERRORS)
-            .is()
-            .like()
-            .text(FilterDelegate.WILDCARD_CHAR),
-        builder.attribute(Validation.VALIDATION_ERRORS).empty(),
-        builder
-            .attribute(Validation.VALIDATION_WARNINGS)
-            .is()
-            .like()
-            .text(FilterDelegate.WILDCARD_CHAR),
-        builder.attribute(Validation.VALIDATION_WARNINGS).empty());
-  }
-
   static class QuerySources {
     private final FrameworkProperties frameworkProperties;
 
@@ -776,11 +566,8 @@ public class QueryOperations extends DescribableImpl {
 
     boolean needToAddCatalogProvider = false;
 
-    private SecurityLogger securityLogger;
-
-    QuerySources(FrameworkProperties frameworkProperties, SecurityLogger securityLogger) {
+    QuerySources(FrameworkProperties frameworkProperties) {
       this.frameworkProperties = frameworkProperties;
-      this.securityLogger = securityLogger;
     }
 
     QuerySources initializeSources(
@@ -797,19 +584,11 @@ public class QueryOperations extends DescribableImpl {
         // add all the federated sources
         Set<String> notPermittedSources = new HashSet<>();
         for (FederatedSource source : frameworkProperties.getFederatedSources()) {
-          boolean canAccessSource = queryOps.canAccessSource(source, queryRequest);
-          if (!canAccessSource) {
-            notPermittedSources.add(source.getId());
-          }
-          if (canAccessSource && (queryOps.sourceOperations.isSourceAvailable(source))) {
+          if (queryOps.sourceOperations.isSourceAvailable(source)) {
             sourcesToQuery.add(source);
           } else {
             exceptions.add(queryOps.createUnavailableProcessingDetails(source));
           }
-        }
-        if (!notPermittedSources.isEmpty()) {
-          securityLogger.audit(
-              "Subject is not permitted to access sources {}", notPermittedSources);
         }
 
       } else if (CollectionUtils.isNotEmpty(sourceIds)) {
@@ -850,20 +629,8 @@ public class QueryOperations extends DescribableImpl {
               }
               FederatedSource source = sources.get(0);
 
-              boolean canAccessSource = queryOps.canAccessSource(source, queryRequest);
-              if (!canAccessSource) {
-                notPermittedSources.add(source.getId());
-              }
-              if (canAccessSource) {
-                sourcesToQuery.add(source);
-              } else {
-                exceptions.add(queryOps.createUnavailableProcessingDetails(source));
-              }
+              sourcesToQuery.add(source);
             }
-          }
-          if (!notPermittedSources.isEmpty()) {
-            securityLogger.audit(
-                "Subject is not permitted to access sources {}", notPermittedSources);
           }
         }
       } else {
@@ -908,13 +675,5 @@ public class QueryOperations extends DescribableImpl {
     boolean isEmpty() {
       return sourcesToQuery.isEmpty();
     }
-  }
-
-  public void setSecurityLogger(SecurityLogger securityLogger) {
-    this.securityLogger = securityLogger;
-  }
-
-  public void setPermissions(Permissions permissions) {
-    this.permissions = permissions;
   }
 }

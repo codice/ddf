@@ -82,7 +82,7 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
     configureQueryMock(sizeOfDeleteRequest);
     configureDeleteMock();
     removeCommand.cqlFilter = DUMMY_FILTER;
-    removeCommand.executeWithSubject();
+    removeCommand.execute();
     ArgumentCaptor<DeleteRequest> deleteRequestArgumentCaptor =
         ArgumentCaptor.forClass(DeleteRequest.class);
     verify(removeCommand.catalogFramework, times(2)).delete(deleteRequestArgumentCaptor.capture());
@@ -97,7 +97,7 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
   @Test
   public void testNullList() throws Exception {
     removeCommand.ids = null;
-    removeCommand.executeWithSubject();
+    removeCommand.execute();
     assertThat(consoleOutput.getOutput(), containsString("No IDs or filter provided"));
   }
 
@@ -107,7 +107,7 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
     configureQueryMock(sizeOfDeleteRequest);
     configureDeleteMock();
     removeCommand.ids = oneIdToDelete();
-    removeCommand.executeWithSubject();
+    removeCommand.execute();
     ArgumentCaptor<DeleteRequest> deleteRequestArgumentCaptor =
         ArgumentCaptor.forClass(DeleteRequest.class);
     verify(removeCommand.catalogFramework, times(1)).delete(deleteRequestArgumentCaptor.capture());
@@ -125,7 +125,7 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
     configureQueryMock(sizeOfDeleteRequest);
     configureDeleteMock();
     removeCommand.cqlFilter = "title like 'fake-filter'";
-    removeCommand.executeWithSubject();
+    removeCommand.execute();
     ArgumentCaptor<DeleteRequest> deleteRequestArgumentCaptor =
         ArgumentCaptor.forClass(DeleteRequest.class);
     verify(removeCommand.catalogFramework, times(0)).delete(deleteRequestArgumentCaptor.capture());
@@ -143,7 +143,7 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
     configureDeleteMock();
     removeCommand.ids = ImmutableSet.of("1");
     removeCommand.cqlFilter = DUMMY_FILTER;
-    removeCommand.executeWithSubject();
+    removeCommand.execute();
     ArgumentCaptor<DeleteRequest> deleteRequestArgumentCaptor =
         ArgumentCaptor.forClass(DeleteRequest.class);
     verify(removeCommand.catalogFramework, times(1)).delete(deleteRequestArgumentCaptor.capture());

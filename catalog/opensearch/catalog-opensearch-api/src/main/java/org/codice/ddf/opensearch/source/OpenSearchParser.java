@@ -15,7 +15,6 @@ package org.codice.ddf.opensearch.source;
 
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.QueryRequest;
-import ddf.security.Subject;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -36,11 +35,9 @@ public interface OpenSearchParser {
    *
    * @param client - OpenSearch URL to populate
    * @param queryRequest - The query request from which to populate the search options
-   * @param subject - The subject associated with the query
    * @param parameters - the given OpenSearch parameters
    */
-  void populateSearchOptions(
-      WebClient client, QueryRequest queryRequest, Subject subject, List<String> parameters);
+  void populateSearchOptions(WebClient client, QueryRequest queryRequest, List<String> parameters);
 
   /**
    * Fills in the OpenSearch query URL with the contextual information is contained in the search

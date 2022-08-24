@@ -119,7 +119,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.temporalProperty = Metacard.EFFECTIVE;
     replicateCommand.batchSize = -1;
 
-    replicateCommand.executeWithSubject();
+    replicateCommand.execute();
     verifyConsoleOutput("Batch Size must be between 1 and 1000.");
   }
 
@@ -136,7 +136,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.sourceId = "";
     replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-    replicateCommand.executeWithSubject();
+    replicateCommand.execute();
     verifyConsoleOutput(
         "Please enter the Source ID you would like to replicate:", "sourceId1", "sourceId2");
   }
@@ -147,7 +147,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.sourceId = "sourceId1";
     replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-    replicateCommand.executeWithSubject();
+    replicateCommand.execute();
     verifyReplicate(HITS, Metacard.EFFECTIVE, 2);
     verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
   }
@@ -159,7 +159,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.batchSize = 10;
     replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-    replicateCommand.executeWithSubject();
+    replicateCommand.execute();
     verifyReplicate(HITS, Metacard.EFFECTIVE);
     verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
   }
@@ -172,7 +172,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.maxMetacards = 20;
     replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-    replicateCommand.executeWithSubject();
+    replicateCommand.execute();
     verifyReplicate(Math.min(HITS, replicateCommand.maxMetacards), Metacard.EFFECTIVE);
     verifyConsoleOutput(
         Math.min(HITS, replicateCommand.maxMetacards)
@@ -189,7 +189,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.multithreaded = 4;
     replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-    replicateCommand.executeWithSubject();
+    replicateCommand.execute();
 
     verifyReplicate(HITS, Metacard.EFFECTIVE);
     verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
@@ -202,7 +202,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.temporalProperty = Core.CREATED;
     replicateCommand.lastMinutes = 30;
 
-    replicateCommand.executeWithSubject();
+    replicateCommand.execute();
     verifyReplicate(HITS, Metacard.EFFECTIVE, 2);
     verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
     // TODO - How do I validate the actual filter
@@ -224,7 +224,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.sourceId = "sourceId1";
     replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-    replicateCommand.executeWithSubject();
+    replicateCommand.execute();
     verifyReplicate(HITS, Metacard.EFFECTIVE, 2);
     verifyConsoleOutput(
         (int) Math.floor(HITS / 2)

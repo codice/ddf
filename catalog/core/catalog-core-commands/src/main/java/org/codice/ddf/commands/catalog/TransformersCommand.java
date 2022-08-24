@@ -84,7 +84,7 @@ public class TransformersCommand extends CatalogCommands {
   private boolean allOption = false;
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
     if (!inputOption && !metacardOption) {
       inputOption = true;
       metacardOption = true;

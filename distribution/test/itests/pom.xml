@@ -34,7 +34,6 @@
             </activation>
             <modules>
                 <module>test-itests-common</module>
-                <module>test-itests-ddf</module>
                 <module>test-itests-dependencies-app</module>
                 <module>test-itests-kernel</module>
                 <module>test-itests-ddf-core</module>

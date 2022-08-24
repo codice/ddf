@@ -79,7 +79,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
   @Test
   public void testBadResourceLimit() throws Exception {
     seedCommand.resourceLimit = 0;
-    seedCommand.executeWithSubject();
+    seedCommand.execute();
     assertThat(consoleOutput.getOutput(), containsString("The limit must be greater than 0."));
   }
 
@@ -131,7 +131,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
   private void runCommandAndVerifyQueryRequest(Consumer<QueryRequest> queryRequestAssertions)
       throws Exception {
-    seedCommand.executeWithSubject();
+    seedCommand.execute();
 
     ArgumentCaptor<QueryRequest> queryCaptor = ArgumentCaptor.forClass(QueryRequest.class);
     verify(catalogFramework).query(queryCaptor.capture());
@@ -226,7 +226,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
     mockMultipleCatalogFrameworkQueries(maxPageSize, resourceLimit);
 
-    seedCommand.executeWithSubject();
+    seedCommand.execute();
     assertThat(consoleOutput.getOutput(), containsString(expected));
   }
 
@@ -235,7 +235,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
       Consumer<List<ResourceRequest>> requestAssertions,
       Consumer<List<String>> siteNameAssertions)
       throws Exception {
-    seedCommand.executeWithSubject();
+    seedCommand.execute();
 
     ArgumentCaptor<ResourceRequest> resourceRequestCaptor =
         ArgumentCaptor.forClass(ResourceRequest.class);

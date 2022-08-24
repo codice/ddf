@@ -92,7 +92,7 @@ public class RemoveAllCommand extends CatalogCommands {
   boolean force = false;
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
     if (batchSize < PAGE_SIZE_LOWER_LIMIT) {
       printErrorMessage(String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));
       return null;

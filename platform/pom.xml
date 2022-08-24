@@ -172,33 +172,15 @@
         <module>platform-api</module>
         <module>branding-api</module>
         <module>util</module>
-        <module>platform-session-invalidator-api</module>
-        <module>platform-paxweb-jettyconfig</module>
-        <module>platform-logging</module>
-        <module>platform-configuration-service</module>
-        <module>platform-configuration</module>
-        <module>platform-configuration-endpoint</module>
         <module>io</module>
         <module>parser</module>
         <module>action</module>
         <module>solr</module>
-        <module>persistence</module>
         <module>mime</module>
         <module>metrics</module>
-        <module>platform-scheduler</module>
-        <module>security</module>
         <module>platform-commands</module>
-        <module>security-filter-api</module>
-        <module>error</module>
-        <module>admin</module>
-        <module>landing-page</module>
-        <module>country-converter</module>
         <module>usng4j</module>
-        <module>email</module>
-        <module>osgi</module>
         <module>branding-registry-impl</module>
-        <module>sync-installer</module>
         <module>resource-bundle-locator</module>
-        <module>http-filter-api</module>
     </modules>
 </project>

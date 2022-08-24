@@ -31,7 +31,6 @@ import javax.management.NotCompliantMBeanException;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +42,6 @@ public class CatalogBundle {
       AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
   private static final String CATALOG_FRAMEWORK_PID = "ddf.catalog.CatalogFrameworkImpl";
-
-  private static final String RESOURCE_DOWNLOAD_MANAGER_PID =
-      "ddf.catalog.resource.download.ReliableResourceDownloadManager";
 
   private final ServiceManager serviceManager;
 
@@ -157,40 +153,6 @@ public class CatalogBundle {
       serviceManager.startManagedService(CATALOG_FRAMEWORK_PID, properties);
     }
     serviceManager.waitForAllBundles();
-  }
-
-  public void setupCaching(boolean cachingEnabled) throws IOException {
-    setResourceDownloadProperty("cacheEnabled", Boolean.toString(cachingEnabled));
-  }
-
-  public void setDownloadRetryDelayInSeconds(int delay) throws IOException {
-    setResourceDownloadProperty("delayBetweenAttempts", delay);
-  }
-
-  public void setupMaxDownloadRetryAttempts(int maxRetryAttempts) throws IOException {
-    setResourceDownloadProperty("maxRetryAttempts", maxRetryAttempts);
-  }
-
-  private void setResourceDownloadProperty(String propertyName, Object propertyValue)
-      throws IOException {
-    Map<String, Object> existingProperties;
-    try {
-      existingProperties =
-          Optional.ofNullable(
-                  adminConfig
-                      .getAdminConsoleService()
-                      .getProperties(CatalogBundle.RESOURCE_DOWNLOAD_MANAGER_PID))
-              .orElse(new DictionaryMap<>());
-    } catch (NotCompliantMBeanException e) {
-      existingProperties = new DictionaryMap<>();
-    }
-    DictionaryMap<String, Object> updatedProperties = new DictionaryMap<>();
-    updatedProperties.putAll(existingProperties);
-
-    updatedProperties.put(propertyName, propertyValue);
-
-    Configuration configuration = adminConfig.getConfiguration(RESOURCE_DOWNLOAD_MANAGER_PID, null);
-    configuration.update(updatedProperties);
   }
 
   private <T> T getService(Class<T> c) {

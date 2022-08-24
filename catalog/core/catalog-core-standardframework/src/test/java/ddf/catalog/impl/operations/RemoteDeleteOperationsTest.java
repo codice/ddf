@@ -75,8 +75,6 @@ public class RemoteDeleteOperationsTest {
 
   OperationsMetacardSupport opsMetacardSupport;
 
-  OperationsSecuritySupport opsSecuritySupport;
-
   FrameworkProperties frameworkProperties;
 
   CatalogProvider provider;
@@ -261,8 +259,6 @@ public class RemoteDeleteOperationsTest {
 
   private void setUpFrameworkProperties() {
     frameworkProperties = new FrameworkProperties();
-    frameworkProperties.setAccessPlugins(new ArrayList<>());
-    frameworkProperties.setPolicyPlugins(new ArrayList<>());
     frameworkProperties.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
     frameworkProperties.setPostResource(mockPostResourcePlugins);
     frameworkProperties.setFederationStrategy(mockFederationStrategy);
@@ -333,8 +329,6 @@ public class RemoteDeleteOperationsTest {
     fanoutTagBlacklist = new ArrayList<>();
     fanoutTagBlacklist.add("");
 
-    opsSecuritySupport = mock(OperationsSecuritySupport.class);
-
     opsMetacardSupport = mock(OperationsMetacardSupport.class);
 
     opsCatStoreSupport = mock(OperationsCatalogStoreSupport.class);
@@ -350,20 +344,18 @@ public class RemoteDeleteOperationsTest {
             mockSourceActionRegistry,
             mock(SourcePoller.class),
             mock(SourcePoller.class));
-    OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator);
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
 
     QueryOperations queryOperations =
-        new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
+        new QueryOperations(frameworkProperties, sourceOperations, opsMetacard);
 
     OperationsCatalogStoreSupport opsCatStore =
         new OperationsCatalogStoreSupport(frameworkProperties, sourceOperations);
 
     deleteOperations =
-        new DeleteOperations(
-            frameworkProperties, queryOperations, sourceOperations, opsSecurity, opsMetacard);
+        new DeleteOperations(frameworkProperties, queryOperations, sourceOperations, opsMetacard);
   }
 }

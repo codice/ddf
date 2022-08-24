@@ -20,7 +20,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.impl.SortByImpl;
@@ -29,14 +28,9 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
-import java.security.Principal;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -136,7 +130,6 @@ public class OpenSearchParserImplTest {
     openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
-        null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
@@ -157,7 +150,6 @@ public class OpenSearchParserImplTest {
     openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
-        null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
@@ -178,7 +170,6 @@ public class OpenSearchParserImplTest {
     openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
-        null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
@@ -199,7 +190,6 @@ public class OpenSearchParserImplTest {
     openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
-        null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
@@ -219,7 +209,6 @@ public class OpenSearchParserImplTest {
     openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
-        null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
@@ -240,7 +229,6 @@ public class OpenSearchParserImplTest {
     openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
-        null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
@@ -253,60 +241,9 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateSearchOptionsWithSubject() {
-    SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
-    Filter filter = mock(Filter.class);
-    Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
-    QueryRequest queryRequest = new QueryRequestImpl(query);
-
-    String principalName = "principalName";
-    Subject subject = getMockSubject(principalName);
-
-    openSearchParser.populateSearchOptions(
-        webClient,
-        queryRequest,
-        subject,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-
-    assertQueryParameterPopulated(OpenSearchConstants.COUNT);
-    assertQueryParameterPopulated(OpenSearchConstants.MAX_RESULTS, MAX_RESULTS);
-    assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
-    assertQueryParameterPopulated(OpenSearchParserImpl.USER_DN, principalName);
-    assertQueryParameterPopulated(OpenSearchConstants.SORT, DESCENDING_TEMPORAL_SORT);
-  }
-
-  @Test
-  public void populateSearchOptionsWithNullPrincipalSubject() {
-    SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
-    Filter filter = mock(Filter.class);
-    Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
-    QueryRequest queryRequest = new QueryRequestImpl(query);
-
-    String principalName = "principalName";
-    Subject subject = getMockSubject(principalName);
-    when(subject.getPrincipals()).thenReturn(null);
-    openSearchParser.populateSearchOptions(
-        webClient,
-        queryRequest,
-        subject,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-
-    assertQueryParameterPopulated(OpenSearchConstants.COUNT);
-    assertQueryParameterPopulated(OpenSearchConstants.MAX_RESULTS, MAX_RESULTS);
-    assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
-    assertQueryParameterNotPopulated(OpenSearchParserImpl.USER_DN);
-    assertQueryParameterPopulated(OpenSearchConstants.SORT, DESCENDING_TEMPORAL_SORT);
-  }
-
-  @Test
   public void populateNullSearchOptions() {
     openSearchParser.populateSearchOptions(
         webClient,
-        null,
         null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -462,18 +399,6 @@ public class OpenSearchParserImplTest {
     assertQueryParameterPopulated(OpenSearchConstants.LAT, String.valueOf(lat));
     assertQueryParameterPopulated(OpenSearchConstants.LON, String.valueOf(lon));
     assertQueryParameterPopulated(OpenSearchConstants.RADIUS, String.valueOf(radius));
-  }
-
-  private Subject getMockSubject(String principalName) {
-    Subject subject = mock(Subject.class);
-    PrincipalCollection principalCollection = mock(PrincipalCollection.class);
-    SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
-    Principal principal = mock(Principal.class);
-    when(securityAssertion.getPrincipal()).thenReturn(principal);
-    when(principal.getName()).thenReturn(principalName);
-    when(principalCollection.asList()).thenReturn(Collections.singletonList(securityAssertion));
-    when(subject.getPrincipals()).thenReturn(principalCollection);
-    return subject;
   }
 
   private void assertQueryParameterPopulated(final String queryParameterName) {

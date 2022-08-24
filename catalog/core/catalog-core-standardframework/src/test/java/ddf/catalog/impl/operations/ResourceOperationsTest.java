@@ -43,7 +43,7 @@ import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.download.ReliableResourceDownloadManager;
+import ddf.catalog.resource.download.DefaultDownloadManager;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
@@ -93,7 +93,7 @@ public class ResourceOperationsTest {
 
   QueryRequest queryRequestMock;
 
-  ReliableResourceDownloadManager reliableResourceDownloadManagerMock;
+  DefaultDownloadManager defaultDownloadManager;
 
   ResourceResponse resourceResponseMock;
 
@@ -116,7 +116,7 @@ public class ResourceOperationsTest {
     queryResponseMock = mock(QueryResponse.class);
     queryRequestMock = mock(QueryRequest.class);
     resourceRequestMock = mock(ResourceRequest.class);
-    reliableResourceDownloadManagerMock = mock(ReliableResourceDownloadManager.class);
+    defaultDownloadManager = mock(DefaultDownloadManager.class);
     resourceResponseMock = mock(ResourceResponse.class);
     resultMock = mock(Result.class);
 
@@ -129,7 +129,7 @@ public class ResourceOperationsTest {
     metacard.setTitle("Bobbert's Title");
     metacard.setResourceURI(testUri);
 
-    resourceOperations = new ResourceOperations(frameworkProperties, queryOperationsMock, null);
+    resourceOperations = new ResourceOperations(frameworkProperties, queryOperationsMock);
 
     isEnterprise = true;
     fanoutEnabled = true;
@@ -138,8 +138,6 @@ public class ResourceOperationsTest {
 
   private void setUpFrameworkProperties() {
     frameworkProperties = new FrameworkProperties();
-    frameworkProperties.setAccessPlugins(new ArrayList<>());
-    frameworkProperties.setPolicyPlugins(new ArrayList<>());
     frameworkProperties.setPostResource(mockPostResourcePlugins);
     frameworkProperties.setFederationStrategy(mockFederationStrategy);
     frameworkProperties.setFilterBuilder(new GeotoolsFilterBuilder());
@@ -166,14 +164,14 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
     when(queryResponseMock.getResults().get(0).getMetacard()).thenReturn(metacard);
 
-    when(reliableResourceDownloadManagerMock.download(
+    when(defaultDownloadManager.download(
             any(ResourceRequest.class), any(MetacardImpl.class), isNull()))
         .thenReturn(resourceResponseMock);
 
     Resource resourceMock = mock(Resource.class);
     when(resourceResponseMock.getResource()).thenReturn(resourceMock);
 
-    frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
+    frameworkProperties.setDefaultDownloadManager(defaultDownloadManager);
 
     resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
 
@@ -190,14 +188,14 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
     when(queryResponseMock.getResults().get(0).getMetacard()).thenReturn(metacard);
 
-    when(reliableResourceDownloadManagerMock.download(
+    when(defaultDownloadManager.download(
             any(ResourceRequest.class), any(MetacardImpl.class), isNull()))
         .thenReturn(resourceResponseMock);
 
     Resource resourceMock = mock(Resource.class);
     when(resourceResponseMock.getResource()).thenReturn(resourceMock);
 
-    frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
+    frameworkProperties.setDefaultDownloadManager(defaultDownloadManager);
 
     resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
   }
@@ -213,16 +211,16 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
     when(queryResponseMock.getResults().get(0).getMetacard()).thenReturn(metacard);
 
-    when(reliableResourceDownloadManagerMock.download(
+    when(defaultDownloadManager.download(
             any(ResourceRequest.class), any(MetacardImpl.class), isNull()))
         .thenReturn(resourceResponseMock);
 
-    frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
+    frameworkProperties.setDefaultDownloadManager(defaultDownloadManager);
 
     resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
 
     verify(queryResponseMock).getResults();
-    verify(reliableResourceDownloadManagerMock)
+    verify(defaultDownloadManager)
         .download(any(ResourceRequest.class), any(MetacardImpl.class), isNull());
   }
 
@@ -237,16 +235,16 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
     when(queryResponseMock.getResults().get(0).getMetacard()).thenReturn(metacard);
 
-    when(reliableResourceDownloadManagerMock.download(
+    when(defaultDownloadManager.download(
             any(ResourceRequest.class), any(MetacardImpl.class), isNull()))
         .thenReturn(resourceResponseMock);
 
-    frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
+    frameworkProperties.setDefaultDownloadManager(defaultDownloadManager);
 
     resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
 
     verify(queryResponseMock).getResults();
-    verify(reliableResourceDownloadManagerMock)
+    verify(defaultDownloadManager)
         .download(any(ResourceRequest.class), any(MetacardImpl.class), isNull());
   }
 
@@ -261,19 +259,19 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
     when(queryResponseMock.getResults().get(0).getMetacard()).thenReturn(metacard);
 
-    when(reliableResourceDownloadManagerMock.download(
+    when(defaultDownloadManager.download(
             any(ResourceRequest.class), any(MetacardImpl.class), isNull()))
         .thenThrow(DownloadException.class);
 
     Resource resourceMock = mock(Resource.class);
     when(resourceResponseMock.getResource()).thenReturn(resourceMock);
 
-    frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
+    frameworkProperties.setDefaultDownloadManager(defaultDownloadManager);
 
     resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
 
     verify(queryResponseMock).getResults();
-    verify(reliableResourceDownloadManagerMock)
+    verify(defaultDownloadManager)
         .download(any(ResourceRequest.class), any(MetacardImpl.class), isNull());
   }
 

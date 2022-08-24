@@ -91,24 +91,6 @@
                             unbind-method="unbindPlugin" ref="postResourceSortedList"/>
     </reference-list>
 
-    <reference-list id="preAuthorizationPlugins" interface="ddf.catalog.plugin.PreAuthorizationPlugin"
-                    availability="optional">
-        <reference-listener bind-method="bindPlugin"
-                            unbind-method="unbindPlugin" ref="preAuthSortedList"/>
-    </reference-list>
-
-    <reference-list id="policyPlugins" interface="ddf.catalog.plugin.PolicyPlugin"
-                    availability="optional">
-        <reference-listener bind-method="bindPlugin"
-                            unbind-method="unbindPlugin" ref="policySortedList"/>
-    </reference-list>
-
-    <reference-list id="accessPlugins" interface="ddf.catalog.plugin.AccessPlugin"
-                    availability="optional">
-        <reference-listener bind-method="bindPlugin"
-                            unbind-method="unbindPlugin" ref="accessSortedList"/>
-    </reference-list>
-
     <bean id="preCreateStorageSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <bean id="postCreateStorageSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <bean id="preUpdateStorageSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
@@ -121,8 +103,5 @@
     <bean id="postFederatedQuerySortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <bean id="preResourceSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <bean id="postResourceSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
-    <bean id="preAuthSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
-    <bean id="policySortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
-    <bean id="accessSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
 
 </blueprint>

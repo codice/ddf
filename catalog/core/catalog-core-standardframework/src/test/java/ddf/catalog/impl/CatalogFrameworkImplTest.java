@@ -44,7 +44,6 @@ import com.google.common.io.ByteSource;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
-import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
@@ -74,15 +73,12 @@ import ddf.catalog.data.inject.AttributeInjectorImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.history.Historian;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
 import ddf.catalog.impl.operations.MetacardFactory;
 import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
-import ddf.catalog.impl.operations.OperationsSecuritySupport;
 import ddf.catalog.impl.operations.OperationsStorageSupport;
 import ddf.catalog.impl.operations.QueryOperations;
 import ddf.catalog.impl.operations.RemoteDeleteOperations;
@@ -140,11 +136,6 @@ import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.mapper.MimeTypeMapperImpl;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import ddf.security.audit.SecurityLogger;
-import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.impl.PermissionsImpl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -170,7 +161,6 @@ import java.util.stream.Stream;
 import javax.activation.MimeType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.catalog.sourcepoller.SourcePoller;
 import org.codice.ddf.catalog.sourcepoller.SourceStatus;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
@@ -334,8 +324,6 @@ public class CatalogFrameworkImplTest {
     mockRemoteDeleteOperations = mock(RemoteDeleteOperations.class);
 
     FrameworkProperties frameworkProperties = new FrameworkProperties();
-    frameworkProperties.setAccessPlugins(new ArrayList<>());
-    frameworkProperties.setPolicyPlugins(new ArrayList<>());
     frameworkProperties.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
     frameworkProperties.setPostResource(mockPostResourcePlugins);
     frameworkProperties.setFederationStrategy(mockFederationStrategy);
@@ -388,7 +376,6 @@ public class CatalogFrameworkImplTest {
         .when(mockContentTypesSourcePoller)
         .getCachedValueForSource(any(Source.class));
 
-    OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator);
     OperationsMetacardSupport opsMetacard =
@@ -400,13 +387,9 @@ public class CatalogFrameworkImplTest {
             mockStatusSourcePoller,
             mockContentTypesSourcePoller);
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
-    Historian historian = new Historian();
-    historian.setHistoryEnabled(false);
 
     QueryOperations queryOperations =
-        new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
-    queryOperations.setSecurityLogger(mock(SecurityLogger.class));
-    queryOperations.setPermissions(new PermissionsImpl());
+        new QueryOperations(frameworkProperties, sourceOperations, opsMetacard);
     OperationsStorageSupport opsStorage =
         new OperationsStorageSupport(sourceOperations, queryOperations);
 
@@ -417,7 +400,6 @@ public class CatalogFrameworkImplTest {
             frameworkProperties,
             queryOperations,
             sourceOperations,
-            opsSecurity,
             opsMetacard,
             opsCatStore,
             opsStorage);
@@ -426,16 +408,14 @@ public class CatalogFrameworkImplTest {
             frameworkProperties,
             queryOperations,
             sourceOperations,
-            opsSecurity,
             opsMetacard,
             opsCatStore,
             opsStorage);
     deleteOperations =
-        new DeleteOperations(
-            frameworkProperties, queryOperations, sourceOperations, opsSecurity, opsMetacard);
+        new DeleteOperations(frameworkProperties, queryOperations, sourceOperations, opsMetacard);
 
     ResourceOperations resOps =
-        new ResourceOperations(frameworkProperties, queryOperations, opsSecurity) {
+        new ResourceOperations(frameworkProperties, queryOperations) {
           @Override
           protected ResourceInfo getResourceInfo(
               ResourceRequest resourceRequest,
@@ -456,9 +436,6 @@ public class CatalogFrameworkImplTest {
             return new ResourceInfo(metacard, uri);
           }
         };
-
-    updateOperations.setHistorian(historian);
-    deleteOperations.setHistorian(historian);
 
     framework =
         new CatalogFrameworkImpl(
@@ -489,8 +466,6 @@ public class CatalogFrameworkImplTest {
       sourceOperations.bind(provider);
     }
     sourceOperations.bind(storageProvider);
-
-    ThreadContext.bind(mock(Subject.class));
   }
 
   // Start testing MetacardWriter
@@ -1312,8 +1287,6 @@ public class CatalogFrameworkImplTest {
 
     String sourceId = "myId";
     resourceFramework.setId(sourceId);
-    ResourceCacheImpl resourceCache = mock(ResourceCacheImpl.class);
-    when(resourceCache.containsValid(isA(String.class), isA(Metacard.class))).thenReturn(false);
 
     String resourceSiteName = "myId";
 
@@ -1392,7 +1365,6 @@ public class CatalogFrameworkImplTest {
         .when(mockContentTypesSourcePoller)
         .getCachedValueForSource(any(Source.class));
 
-    OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
@@ -1404,9 +1376,7 @@ public class CatalogFrameworkImplTest {
             mockStatusSourcePoller,
             mockContentTypesSourcePoller);
     QueryOperations queryOperations =
-        new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
-    queryOperations.setSecurityLogger(mock(SecurityLogger.class));
-    queryOperations.setPermissions(new PermissionsImpl());
+        new QueryOperations(frameworkProperties, sourceOperations, opsMetacard);
     OperationsStorageSupport opsStorage =
         new OperationsStorageSupport(sourceOperations, queryOperations);
     OperationsCatalogStoreSupport opsCatStore =
@@ -1416,7 +1386,6 @@ public class CatalogFrameworkImplTest {
             frameworkProperties,
             queryOperations,
             sourceOperations,
-            opsSecurity,
             opsMetacard,
             opsCatStore,
             opsStorage);
@@ -1425,22 +1394,14 @@ public class CatalogFrameworkImplTest {
             frameworkProperties,
             queryOperations,
             sourceOperations,
-            opsSecurity,
             opsMetacard,
             opsCatStore,
             opsStorage);
     DeleteOperations deleteOperations =
-        new DeleteOperations(
-            frameworkProperties, queryOperations, sourceOperations, opsSecurity, opsMetacard);
+        new DeleteOperations(frameworkProperties, queryOperations, sourceOperations, opsMetacard);
     ResourceOperations resourceOperations =
-        new ResourceOperations(frameworkProperties, queryOperations, opsSecurity);
+        new ResourceOperations(frameworkProperties, queryOperations);
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
-
-    Historian historian = new Historian();
-    historian.setHistoryEnabled(false);
-
-    updateOperations.setHistorian(historian);
-    deleteOperations.setHistorian(historian);
 
     CatalogFrameworkImpl catalogFramework =
         new CatalogFrameworkImpl(
@@ -2542,112 +2503,6 @@ public class CatalogFrameworkImplTest {
     assertThat(queryResponse.getResults().size(), is(0));
   }
 
-  @Test(expected = FederationException.class)
-  public void testFederatedQueryPermissionsNoSubject() throws Exception {
-    MockEventProcessor eventAdmin = new MockEventProcessor();
-    MockMemoryProvider provider =
-        new MockMemoryProvider(
-            "Provider", "Provider", "v1.0", "DDF", new HashSet<>(), true, new Date());
-
-    List<CatalogStore> storeList = new ArrayList<>();
-    List<FederatedSource> sourceList = new ArrayList<>();
-
-    Map<String, Set<String>> securityAttributes = new HashMap<>();
-    securityAttributes.put("role", Collections.singleton("myRole"));
-    MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true, securityAttributes);
-    storeList.add(store);
-    sourceList.add(store);
-
-    CatalogFramework framework =
-        createDummyCatalogFramework(provider, storeList, sourceList, eventAdmin);
-
-    FilterBuilder builder = new GeotoolsFilterBuilder();
-
-    QueryImpl query =
-        new QueryImpl(builder.attribute(Metacard.CONTENT_TYPE).is().like().text("someType"));
-    QueryRequestImpl request =
-        new QueryRequestImpl(query, Collections.singletonList("catalogStoreId-1"));
-    framework.query(request);
-  }
-
-  @Test(expected = FederationException.class)
-  public void testFederatedQueryPermissionsNotPermitted() throws Exception {
-    MockEventProcessor eventAdmin = new MockEventProcessor();
-    MockMemoryProvider provider =
-        new MockMemoryProvider(
-            "Provider", "Provider", "v1.0", "DDF", new HashSet<>(), true, new Date());
-
-    List<CatalogStore> storeList = new ArrayList<>();
-    List<FederatedSource> sourceList = new ArrayList<>();
-
-    Map<String, Set<String>> securityAttributes = new HashMap<>();
-    securityAttributes.put("role", Collections.singleton("myRole"));
-    MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true, securityAttributes);
-    storeList.add(store);
-    sourceList.add(store);
-
-    CatalogFramework framework =
-        createDummyCatalogFramework(provider, storeList, sourceList, eventAdmin);
-
-    FilterBuilder builder = new GeotoolsFilterBuilder();
-    Subject subject = mock(Subject.class);
-    when(subject.isPermitted(any(KeyValueCollectionPermission.class))).thenReturn(false);
-    HashMap<String, Serializable> properties = new HashMap<>();
-    properties.put(SecurityConstants.SECURITY_SUBJECT, subject);
-    QueryImpl query =
-        new QueryImpl(builder.attribute(Metacard.CONTENT_TYPE).is().like().text("someType"));
-    QueryRequestImpl request =
-        new QueryRequestImpl(
-            query, false, Collections.singletonList("catalogStoreId-1"), properties);
-    framework.query(request);
-  }
-
-  @Test
-  public void testFederatedQueryPermissions() throws Exception {
-    MockEventProcessor eventAdmin = new MockEventProcessor();
-    MockMemoryProvider provider =
-        new MockMemoryProvider(
-            "Provider", "Provider", "v1.0", "DDF", new HashSet<>(), true, new Date());
-
-    List<CatalogStore> storeList = new ArrayList<>();
-    List<FederatedSource> sourceList = new ArrayList<>();
-
-    Map<String, Set<String>> securityAttributes = new HashMap<>();
-    securityAttributes.put("role", Collections.singleton("myRole"));
-    MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true, securityAttributes);
-    storeList.add(store);
-    sourceList.add(store);
-
-    CatalogFramework framework =
-        createDummyCatalogFramework(provider, storeList, sourceList, eventAdmin);
-
-    List<Metacard> metacards = new ArrayList<>();
-    MetacardImpl newCard = new MetacardImpl();
-    newCard.setId(null);
-    newCard.setContentTypeName("someType");
-    metacards.add(newCard);
-    Map<String, Serializable> reqProps = new HashMap<>();
-    HashSet<String> destinations = new HashSet<>();
-
-    // ==== test writing to store and not local ====
-    destinations.add("catalogStoreId-1");
-    framework.create(new CreateRequestImpl(metacards, reqProps, destinations));
-
-    FilterBuilder builder = new GeotoolsFilterBuilder();
-    Subject subject = mock(Subject.class);
-    when(subject.isPermitted(any(KeyValueCollectionPermission.class))).thenReturn(true);
-    HashMap<String, Serializable> properties = new HashMap<>();
-    properties.put(SecurityConstants.SECURITY_SUBJECT, subject);
-    QueryImpl query =
-        new QueryImpl(builder.attribute(Metacard.CONTENT_TYPE).is().like().text("someType"));
-    QueryRequestImpl request =
-        new QueryRequestImpl(
-            query, false, Collections.singletonList("catalogStoreId-1"), properties);
-    QueryResponse response = framework.query(request);
-
-    assertThat(response.getResults().size(), is(1));
-  }
-
   /**
    * Tests that multiple ResourceReaders with the same scheme will be invoked if the first one did
    * not return a Response.
@@ -2742,10 +2597,8 @@ public class CatalogFrameworkImplTest {
             sourceActionRegistry,
             mockStatusSourcePoller,
             mockContentTypesSourcePoller);
-    QueryOperations queryOps = new QueryOperations(frameworkProperties, sourceOps, null, null);
-    queryOps.setSecurityLogger(mock(SecurityLogger.class));
-    queryOps.setPermissions(new PermissionsImpl());
-    ResourceOperations resOps = new ResourceOperations(frameworkProperties, queryOps, null);
+    QueryOperations queryOps = new QueryOperations(frameworkProperties, sourceOps, null);
+    ResourceOperations resOps = new ResourceOperations(frameworkProperties, queryOps);
     resOps.setId(DDF);
 
     CatalogFrameworkImpl catalogFramework =
@@ -2832,8 +2685,6 @@ public class CatalogFrameworkImplTest {
     frameworkProperties.setPostIngest(postIngestPlugins);
     frameworkProperties.setPreQuery(new ArrayList<>());
     frameworkProperties.setPostQuery(new ArrayList<>());
-    frameworkProperties.setPolicyPlugins(new ArrayList<>());
-    frameworkProperties.setAccessPlugins(new ArrayList<>());
     frameworkProperties.setFederatedSources(sources);
     frameworkProperties.setConnectedSources(new ArrayList<>());
     frameworkProperties.setFederationStrategy(federationStrategy);

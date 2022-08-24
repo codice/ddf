@@ -59,11 +59,6 @@
             <artifactId>action-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security.handler</groupId>
-            <artifactId>security-handler-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-impl</artifactId>
         </dependency>
@@ -82,28 +77,8 @@
             <artifactId>catalog-core-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>versioning-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>versioning-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>ddf-pubsub</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>lucene-core</artifactId>
-                    <groupId>org.apache.lucene</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf</groupId>
@@ -161,11 +136,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.security.encryption</groupId>
-            <artifactId>security-encryption-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
@@ -216,11 +186,6 @@
             <artifactId>xml-apis</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>util-uuidgenerator-api</artifactId>
             <version>${project.version}</version>
@@ -269,11 +234,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>security-rest-cxfwrapper</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
@@ -282,12 +242,6 @@
             <groupId>com.github.npathai</groupId>
             <artifactId>hamcrest-optional</artifactId>
             <version>${hamcrest-optional.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-services</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -304,15 +258,11 @@
                             activities,
                             catalog-core-actions,
                             notifications,
-                            versioning-common,
                             catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Export-Package>
-                            ddf.catalog.cache,
                             ddf.catalog.resourceretriever,
-                            ddf.catalog.resource.data,
                             org.codice.ddf.catalog.resource.download,
-                            org.codice.ddf.catalog.resource.cache,
                             org.codice.ddf.catalog.resource.download.internal,
                             org.codice.ddf.catalog.sourcepoller
                         </Export-Package>

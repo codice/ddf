@@ -16,37 +16,6 @@
         xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
         xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <reference id="security" interface="org.codice.ddf.security.Security" />
-
-    <reference id="subjectOperations" interface="ddf.security.SubjectOperations" />
-
-    <reference id="securityLogger" interface="ddf.security.audit.SecurityLogger" />
-
-    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
-
-    <bean id="historian" class="ddf.catalog.history.Historian" init-method="init">
-        <cm:managed-properties persistent-id="ddf.catalog.history.Historian"
-                               update-strategy="container-managed"/>
-        <property name="uuidGenerator" ref="uuidGenerator"/>
-        <property name="catalogProviders" ref="catalogProviderSortedList"/>
-        <property name="storageProviders" ref="storageProviderSortedList"/>
-        <property name="subjectIdentity" ref="subjectIdentity"/>
-        <property name="metacardTypes">
-            <reference-list interface="ddf.catalog.data.MetacardType"/>
-        </property>
-        <property name="security" ref="security" />
-        <property name="subjectOperations" ref="subjectOperations"/>
-        <property name="securityLogger" ref="securityLogger"/>
-    </bean>
-
-    <service interface="ddf.catalog.configuration.HistorianConfiguration">
-        <bean class="ddf.catalog.history.HistorianConfigurationImpl">
-            <property name="historian" ref="historian"/>
-        </bean>
-    </service>
-
-    <bean id="cfOpsSecurity" class="ddf.catalog.impl.operations.OperationsSecuritySupport"/>
-
     <bean id="cfMetafactory" class="ddf.catalog.impl.operations.MetacardFactory">
         <argument ref="transformerMapper"/>
         <argument ref="uuidGenerator"/>
@@ -88,7 +57,6 @@
                                update-strategy="container-managed"/>
         <argument ref="frameworkProperties"/>
         <argument ref="cfSourceOps"/>
-        <argument ref="cfOpsSecurity"/>
         <argument ref="cfOpsMetacard"/>
         <property name="filterAdapter" ref="filterAdapter"/>
         <property name="fanoutProxyTagBlacklist">
@@ -98,14 +66,11 @@
             </list>
         </property>
         <property name="queryTimeoutMillis" value="300000"/>
-        <property name="securityLogger" ref="securityLogger"/>
-        <property name="permissions" ref="permissions"/>
     </bean>
 
     <bean id="cfResourceOps" class="ddf.catalog.impl.operations.ResourceOperations">
         <argument ref="frameworkProperties"/>
         <argument ref="cfQueryOps"/>
-        <argument ref="cfOpsSecurity"/>
     </bean>
 
     <bean id="cfOpsCatStore" class="ddf.catalog.impl.operations.OperationsCatalogStoreSupport">
@@ -117,7 +82,6 @@
         <argument ref="frameworkProperties"/>
         <argument ref="cfQueryOps"/>
         <argument ref="cfSourceOps"/>
-        <argument ref="cfOpsSecurity"/>
         <argument ref="cfOpsMetacard"/>
         <argument ref="cfOpsCatStore"/>
         <argument ref="cfOpsStorage"/>
@@ -127,20 +91,16 @@
         <argument ref="frameworkProperties"/>
         <argument ref="cfQueryOps"/>
         <argument ref="cfSourceOps"/>
-        <argument ref="cfOpsSecurity"/>
         <argument ref="cfOpsMetacard"/>
         <argument ref="cfOpsCatStore"/>
         <argument ref="cfOpsStorage"/>
-        <property name="historian" ref="historian"/>
     </bean>
 
     <bean id="cfDeleteOps" class="ddf.catalog.impl.operations.DeleteOperations">
         <argument ref="frameworkProperties"/>
         <argument ref="cfQueryOps"/>
         <argument ref="cfSourceOps"/>
-        <argument ref="cfOpsSecurity"/>
         <argument ref="cfOpsMetacard"/>
-        <property name="historian" ref="historian"/>
         <property name="remoteDeleteOperations" ref="remoteDeleteOperations"/>
     </bean>
 

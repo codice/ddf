@@ -36,13 +36,7 @@
         <property name="federationStrategy" ref="federationStrategy"/>
         <property name="pool" ref="queryThreadPool"/>
         <property name="queryResponsePostProcessor" ref="queryResponsePostProcessor"/>
-        <property name="downloadsStatusEventPublisher" ref="retrieveStatusEventPublisher"/>
-        <property name="reliableResourceDownloadManager"
-                  ref="reliableResourceDownloadManager"/>
         <property name="downloadManagers" ref="downloadManagerSortedList"/>
-        <property name="preAuthorizationPlugins" ref="preAuthSortedList"/>
-        <property name="policyPlugins" ref="policySortedList"/>
-        <property name="accessPlugins" ref="accessSortedList"/>
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="mimeTypeMapper" ref="mimeTypeMapper"/>

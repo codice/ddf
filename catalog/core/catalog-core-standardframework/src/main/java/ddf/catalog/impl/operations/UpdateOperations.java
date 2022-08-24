@@ -30,7 +30,6 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.history.Historian;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.OperationTransaction;
@@ -45,12 +44,8 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.operation.impl.UpdateResponseImpl;
-import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PolicyPlugin;
-import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogStore;
@@ -58,12 +53,10 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.SecurityConstants;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -100,35 +93,25 @@ public class UpdateOperations {
 
   private final SourceOperations sourceOperations;
 
-  private final OperationsSecuritySupport opsSecuritySupport;
-
   private final OperationsMetacardSupport opsMetacardSupport;
 
   private final OperationsCatalogStoreSupport opsCatStoreSupport;
 
   private final OperationsStorageSupport opsStorageSupport;
 
-  private Historian historian;
-
   public UpdateOperations(
       FrameworkProperties frameworkProperties,
       QueryOperations queryOperations,
       SourceOperations sourceOperations,
-      OperationsSecuritySupport opsSecuritySupport,
       OperationsMetacardSupport opsMetacardSupport,
       OperationsCatalogStoreSupport opsCatStoreSupport,
       OperationsStorageSupport opsStorageSupport) {
     this.frameworkProperties = frameworkProperties;
     this.queryOperations = queryOperations;
     this.sourceOperations = sourceOperations;
-    this.opsSecuritySupport = opsSecuritySupport;
     this.opsMetacardSupport = opsMetacardSupport;
     this.opsCatStoreSupport = opsCatStoreSupport;
     this.opsStorageSupport = opsStorageSupport;
-  }
-
-  public void setHistorian(Historian historian) {
-    this.historian = historian;
   }
 
   //
@@ -214,9 +197,7 @@ public class UpdateOperations {
                   String.class),
               new ArrayList<>(metacardMap.values()));
       updateRequest.setProperties(streamUpdateRequest.getProperties());
-      historian.setSkipFlag(updateRequest);
       updateResponse = doUpdate(updateRequest);
-      historian.version(streamUpdateRequest, updateStorageResponse, updateResponse);
     } catch (Exception e) {
       if (updateStorageRequest != null) {
         try {
@@ -252,10 +233,6 @@ public class UpdateOperations {
       updateRequest = setDefaultValues(updateRequest);
 
       updateRequest = populateMetacards(updateRequest);
-      updateRequest = processPreAuthorizationPlugins(updateRequest);
-
-      updateRequest = populateUpdateRequestPolicyMap(updateRequest);
-      updateRequest = processPreUpdateAccessPlugins(updateRequest);
 
       updateRequest = processPreIngestPlugins(updateRequest);
       updateRequest = validateUpdateRequest(updateRequest);
@@ -505,7 +482,6 @@ public class UpdateOperations {
     }
 
     UpdateResponse updateResponse = sourceOperations.getCatalog().update(updateRequest);
-    updateResponse = historian.version(updateResponse);
     return updateResponse;
   }
 
@@ -518,49 +494,6 @@ public class UpdateOperations {
         LOGGER.debug("error processing update in PreIngestPlugin", e);
       }
     }
-    return updateRequest;
-  }
-
-  private UpdateRequest processPreUpdateAccessPlugins(UpdateRequest updateRequest)
-      throws StopProcessingException {
-    Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
-    for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-      updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
-    }
-    return updateRequest;
-  }
-
-  private UpdateRequest populateUpdateRequestPolicyMap(UpdateRequest updateRequest)
-      throws StopProcessingException {
-    Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
-    HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-    for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
-      HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
-      HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
-      Metacard oldMetacard = metacardMap.get(update.getKey().toString());
-
-      for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-        PolicyResponse updatePolicyResponse =
-            plugin.processPreUpdate(
-                update.getValue(), Collections.unmodifiableMap(updateRequest.getProperties()));
-        PolicyResponse oldPolicyResponse =
-            plugin.processPreUpdate(
-                oldMetacard, Collections.unmodifiableMap(updateRequest.getProperties()));
-
-        opsSecuritySupport.buildPolicyMap(
-            itemPolicyMap, updatePolicyResponse.itemPolicy().entrySet());
-        opsSecuritySupport.buildPolicyMap(
-            oldItemPolicyMap, oldPolicyResponse.itemPolicy().entrySet());
-        opsSecuritySupport.buildPolicyMap(
-            requestPolicyMap, updatePolicyResponse.operationPolicy().entrySet());
-      }
-      update.getValue().setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
-      if (oldMetacard != null) {
-        oldMetacard.setAttribute(new AttributeImpl(Metacard.SECURITY, oldItemPolicyMap));
-      }
-    }
-    updateRequest.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-
     return updateRequest;
   }
 
@@ -601,15 +534,6 @@ public class UpdateOperations {
     return updateRequest;
   }
 
-  private UpdateRequest processPreAuthorizationPlugins(UpdateRequest updateRequest)
-      throws StopProcessingException {
-    Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
-    for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
-      updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
-    }
-    return updateRequest;
-  }
-
   private QueryRequestImpl createQueryRequest(UpdateRequest updateRequest) {
     List<Filter> idFilters =
         updateRequest.getUpdates().stream()
@@ -625,15 +549,13 @@ public class UpdateOperations {
 
     QueryImpl queryImpl =
         new QueryImpl(
-            queryOperations.getFilterWithAdditionalFilters(idFilters, updateRequest),
+            frameworkProperties.getFilterBuilder().anyOf(idFilters),
             1, /* start index */
             updateRequest.getUpdates().size(), /* page size */
             null,
             false, /* total result count */
             0 /* timeout */);
     Map<String, Serializable> properties = new HashMap<>();
-    properties.put(
-        SecurityConstants.SECURITY_SUBJECT, opsSecuritySupport.getSubject(updateRequest));
     return new QueryRequestImpl(queryImpl, false, updateRequest.getStoreIds(), properties);
   }
 

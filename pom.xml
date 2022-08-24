@@ -181,7 +181,6 @@
         <countryconverter.version>0.1.8</countryconverter.version>
         <cryptomator.version>1.4.4</cryptomator.version>
         <cxf.version>3.5.3</cxf.version>
-        <ddf-admin-ui.version>2.25.0</ddf-admin-ui.version>
         <decanter.version>2.9.0</decanter.version>
         <dropwizard.version>4.1.25</dropwizard.version>
         <equinox.version>3.17.200</equinox.version>
@@ -277,7 +276,7 @@
         <pdfbox.version>2.0.23</pdfbox.version>
         <poi.version>5.2.2</poi.version>
         <xlsx.transformer.poi.version>5.2.2</xlsx.transformer.poi.version>
-        <protobuf.version>3.12.4</protobuf.version>
+        <protobuf.version>3.19.3</protobuf.version>
         <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
@@ -331,7 +330,7 @@
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
 
         <fabric8.docker.plugin.version>0.36.1</fabric8.docker.plugin.version>
-        <tink.version>1.4.0</tink.version>
+        <tink.version>1.7.0</tink.version>
         <org.json.version>20170516</org.json.version>
 
         <!--temporary solr download url> -->

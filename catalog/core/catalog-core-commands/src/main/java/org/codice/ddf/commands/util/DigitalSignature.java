@@ -13,8 +13,12 @@
  */
 package org.codice.ddf.commands.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -27,8 +31,8 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.security.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +46,45 @@ public class DigitalSignature {
 
   private KeyStore keyStore;
 
-  private Security security;
+  public DigitalSignature() {
+    this.keyStore = AccessController.doPrivileged((PrivilegedAction<KeyStore>) getSystemKeyStore());
+  }
 
-  public DigitalSignature(Security security) {
-    this.security = security;
-    this.keyStore =
-        AccessController.doPrivileged((PrivilegedAction<KeyStore>) security::getSystemKeyStore);
+  public KeyStore getSystemKeyStore() {
+    KeyStore keyStore;
+
+    try {
+      keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+
+    } catch (KeyStoreException e) {
+      LOGGER.warn(
+          "Unable to create keystore instance of type {}",
+          System.getProperty("javax.net.ssl.keyStoreType"),
+          e);
+      return null;
+    }
+
+    Path keyStoreFile = new File(System.getProperty("javax.net.ssl.keyStore")).toPath();
+    Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+
+    if (!keyStoreFile.isAbsolute()) {
+      keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
+    }
+
+    String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
+
+    if (!Files.isReadable(keyStoreFile)) {
+      LOGGER.warn("Unable to read system key/trust store files: [ {} ] ", keyStoreFile);
+      return null;
+    }
+
+    try (InputStream kfis = Files.newInputStream(keyStoreFile)) {
+      keyStore.load(kfis, keyStorePassword.toCharArray());
+    } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
+      LOGGER.warn("Unable to load system key file.", e);
+    }
+
+    return keyStore;
   }
 
   public DigitalSignature(KeyStore keyStore) {

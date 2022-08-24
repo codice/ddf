@@ -34,8 +34,6 @@
     <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
                filter="(id=uuidGenerator)"/>
 
-    <reference id="subjectIdentity" interface="ddf.security.SubjectIdentity"/>
-
     <reference id="defaultAttributeValueRegistry"
                interface="ddf.catalog.data.DefaultAttributeValueRegistry"/>
 
@@ -45,13 +43,6 @@
             <bean class="org.codice.ddf.platform.util.SortedServiceList"/>
         </reference-listener>
     </reference-list>
-
-    <bean id="deprecatedProductCache" class="ddf.catalog.cache.impl.ResourceCacheImpl"
-          destroy-method="teardownCache"/>
-
-    <bean id="productCache" class="org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl">
-        <argument ref="deprecatedProductCache"/>
-    </bean>
 
     <bean id="catalogFramework" class="ddf.catalog.impl.CatalogFrameworkImpl">
         <cm:managed-properties persistent-id="ddf.catalog.CatalogFrameworkImpl"
@@ -159,8 +150,6 @@
         </argument>
         <argument ref="sourceRegistry"/>
     </bean>
-
-    <service ref="deprecatedProductCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
 
     <service ref="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
 

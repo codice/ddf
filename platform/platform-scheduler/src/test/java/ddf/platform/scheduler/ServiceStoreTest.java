@@ -16,9 +16,7 @@ package ddf.platform.scheduler;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
-import org.codice.ddf.security.Security;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +27,7 @@ public class ServiceStoreTest {
   @Before
   public void setUp() {
     serviceStore = ServiceStore.getInstance();
-    serviceStore.setObject(new CommandJob(mock(Security.class)));
+    serviceStore.setObject(new CommandJob());
   }
 
   @Test

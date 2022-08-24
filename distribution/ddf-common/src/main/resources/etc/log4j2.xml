@@ -19,8 +19,6 @@
     </Properties>
 
     <Appenders>
-        <PaxOsgi name="osgi-platformLogging"
-                 filter="org.codice.ddf.platform.logging.LoggingService"/>
 
         <PaxOsgi name="osgi-adminAlertAppender"
                  filter="ddf.security.common.audit.LogFailoverAlertAppender"/>
@@ -97,36 +95,30 @@
         <Root level="info">
             <AppenderRef ref="out"/>
             <AppenderRef ref="osgi-karafConsole"/>
-            <AppenderRef ref="osgi-platformLogging"/>
         </Root>
 
         <Logger name="securityLogger" level="info" additivity="false">
             <AppenderRef ref="securityFailover"/>
             <AppenderRef ref="syslog"/>
-            <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
 
         <Logger name="org.apache.karaf.jaas.modules.audit" level="info" additivity="false">
             <AppenderRef ref="securityFailover"/>
             <AppenderRef ref="syslog"/>
-            <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
 
         <Logger name="ingestLogger" level="info" additivity="false">
             <AppenderRef ref="ingestError"/>
             <AppenderRef ref="syslog"/>
-            <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
 
         <Logger name="cdmLogger" level="info" additivity="false">
             <AppenderRef ref="cdm"/>
             <AppenderRef ref="syslog"/>
-            <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
 
         <Logger name="org.apache.solr" level="info" additivity="false">
             <AppenderRef ref="syslog"/>
-            <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
 
         <Logger name="org.apache.sshd" level="INFO"/>

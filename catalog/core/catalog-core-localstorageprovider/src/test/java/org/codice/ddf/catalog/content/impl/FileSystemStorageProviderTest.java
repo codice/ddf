@@ -54,8 +54,6 @@ import ddf.catalog.data.Metacard;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.mapper.MimeTypeMapperImpl;
-import ddf.security.SecurityConstants;
-import ddf.security.encryption.crypter.Crypter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -114,10 +112,9 @@ public class FileSystemStorageProviderTest {
 
     String keysetHome = temporaryFolder.newFolder("keysets").getAbsolutePath();
     String associatedDataHome = temporaryFolder.newFolder("etc").getAbsolutePath();
-    System.setProperty(SecurityConstants.KEYSET_DIR, keysetHome);
+    System.setProperty("keyset.dir", keysetHome);
     System.setProperty(
-        SecurityConstants.ASSOCIATED_DATA_PATH,
-        associatedDataHome.concat("/associatedData.properties"));
+        "associated.data.path", associatedDataHome.concat("/associatedData.properties"));
 
     MimeTypeResolver resolver = new MockMimeTypeResolver();
     MimeTypeMapper mapper = new MimeTypeMapperImpl(Collections.singletonList(resolver));
@@ -133,8 +130,8 @@ public class FileSystemStorageProviderTest {
 
   @After
   public void clean() {
-    System.clearProperty(SecurityConstants.KEYSET_DIR);
-    System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
+    System.clearProperty("keyset.dir");
+    System.clearProperty("associated.data.path");
   }
 
   @Test

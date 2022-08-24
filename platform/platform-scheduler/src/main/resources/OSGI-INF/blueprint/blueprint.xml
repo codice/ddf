@@ -26,9 +26,7 @@
           destroy-method="shutdown" />
 
     <bean id="commandJobFactory"
-          class="ddf.platform.scheduler.CommandJobFactory">
-        <argument ref="security" />
-    </bean>
+          class="ddf.platform.scheduler.CommandJobFactory" />
 
     <cm:managed-service-factory id="commandSchedule" factory-pid="ddf.platform.scheduler.Command"
                                 interface="ddf.platform.scheduler.ScheduledTask">
@@ -40,7 +38,5 @@
                                    update-method="updateTask"/>
         </cm:managed-component>
     </cm:managed-service-factory>
-
-    <reference id="security" interface="org.codice.ddf.security.Security" />
 
 </blueprint>

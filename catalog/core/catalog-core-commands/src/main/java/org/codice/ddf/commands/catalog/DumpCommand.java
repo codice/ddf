@@ -37,7 +37,6 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.util.impl.ResultIterable;
-import ddf.security.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -75,7 +74,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
-import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.util.DigitalSignature;
@@ -194,8 +192,6 @@ public class DumpCommand extends CqlCommands {
           "Dump the entire Catalog and local content into a zip file with the specified name using the default transformer.")
   String zipFileName;
 
-  @Reference protected SecurityLogger securityLogger;
-
   public DumpCommand() {}
 
   public DumpCommand(DigitalSignature signer) {
@@ -203,9 +199,9 @@ public class DumpCommand extends CqlCommands {
   }
 
   @Override
-  protected final Object executeWithSubject() throws Exception {
+  public final Object execute() throws Exception {
     if (signer == null) {
-      signer = new DigitalSignature(security);
+      signer = new DigitalSignature();
     }
     if (FilenameUtils.getExtension(dirPath).equals("") && !dirPath.endsWith(File.separator)) {
       dirPath += File.separator;
@@ -241,7 +237,7 @@ public class DumpCommand extends CqlCommands {
       zipFileName = zipFileName + ".zip";
     }
 
-    securityLogger.audit("Called catalog:dump command with path : {}", dirPath);
+    LOGGER.info("Called catalog:dump command with path : {}", dirPath);
 
     CatalogFacade catalog = getCatalog();
 
@@ -323,7 +319,7 @@ public class DumpCommand extends CqlCommands {
     console.printf(" %d file(s) dumped in %s\t%n", resultCount.get(), elapsedTime);
     LOGGER.debug("{} file(s) dumped in {}", resultCount.get(), elapsedTime);
     console.println();
-    securityLogger.audit("Exported {} files to {}", resultCount.get(), dirPath);
+    LOGGER.info("Exported {} files to {}", resultCount.get(), dirPath);
     return null;
   }
 

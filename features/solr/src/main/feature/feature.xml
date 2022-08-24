@@ -39,7 +39,6 @@
 
     <feature name="solr-factory-impl" version="${project.version}"
              description="Solr factory">
-        <feature>security-core-services</feature>
         <feature>common-system</feature>
         <feature>spring</feature>
         <feature>solr-factory-api</feature>
@@ -57,47 +56,11 @@
     <!-- Start of app features -->
 
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
-    <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
-
-    <feature name="solr-decanter-appender" version="${project.version}"
-        description="A Decanter appender that writes to solr">
-        <feature>persistence-core</feature>
-        <feature>spring</feature>
-        <feature>common-system</feature>
-        <bundle>mvn:ddf.platform.solr/solr-appender/${project.version}</bundle>
-    </feature>
-
-    <feature name="persistence-core-api" version="${project.version}"
-        description="Internal Persistence Core API">
-        <feature>security-core-api</feature>
-        <bundle>mvn:ddf.persistence.core/persistence-core-api/${project.version}</bundle>
-    </feature>
-
-    <feature name="persistence-core" version="${project.version}"
-             description="Internal Persistence Core Implementation">
-        <feature>persistence-core-api</feature>
-        <feature>solr-factory-impl</feature>
-
-        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
-        <bundle>mvn:org.codice.thirdparty/picocontainer/1.3_1</bundle>
-        <!-- for GeoTools -->
-        <feature>jts</feature>
-        <feature>geotools</feature>
-        <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
-        <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>
-
-        <bundle>mvn:joda-time/joda-time/2.9.4</bundle>
-        <bundle>mvn:ddf.persistence.core/persistence-core-listeners/${project.version}</bundle>
-        <bundle>mvn:ddf.persistence.core/persistence-core-attributes-impl/${project.version}
-        </bundle>
-    </feature>
 
     <feature name="platform-solr-app" version="${project.version}"
              description="All Solr features">
         <feature>solr-core</feature>
-        <feature>persistence-core-api</feature>
-        <feature>persistence-core</feature>
     </feature>
 
 </features>

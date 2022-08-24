@@ -55,7 +55,7 @@ public class InspectCommandTest extends CommandCatalogFrameworkCommon {
     command.id = "id";
     command.filterBuilder = new GeotoolsFilterBuilder();
 
-    command.executeWithSubject();
+    command.execute();
 
     String output = consoleOutput.getOutput();
 

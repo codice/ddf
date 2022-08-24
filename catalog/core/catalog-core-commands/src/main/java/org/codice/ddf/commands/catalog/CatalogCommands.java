@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.console.Session;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
 import org.codice.ddf.commands.catalog.facade.Provider;
@@ -33,11 +34,11 @@ import org.osgi.framework.InvalidSyntaxException;
 /**
  * Parent object to all Catalog Commands. Provides common methods and instance variables as well as
  * the extension of {@link org.apache.karaf.shell.console.OsgiCommandSupport} and {@link
- * SubjectCommands} that Catalog Commands can use.
+ * CommandSupport} that Catalog Commands can use.
  *
  * @author Ashraf Barakat
  */
-public abstract class CatalogCommands extends SubjectCommands {
+public abstract class CatalogCommands extends CommandSupport {
 
   public static final DateTimeFormatter DATETIME_FORMATTER =
       DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
@@ -66,6 +67,8 @@ public abstract class CatalogCommands extends SubjectCommands {
           "Interacts with the Provider directly "
               + "instead of the framework. NOTE: This option picks the first Provider.")
   protected boolean isProvider = false;
+
+  @Reference protected Session session;
 
   @Reference protected CatalogProvider catalogProvider;
 

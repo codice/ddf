@@ -74,7 +74,7 @@ public class SearchCommand extends CqlCommands {
   String searchPhraseArgument = WILDCARD;
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
     searchPhrase = searchPhraseArgument;
 
     final Filter filter = getFilter();

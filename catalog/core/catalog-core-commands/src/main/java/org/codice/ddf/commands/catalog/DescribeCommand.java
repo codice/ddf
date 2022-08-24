@@ -26,7 +26,7 @@ public class DescribeCommand extends CatalogCommands {
   private static final String FORMAT_STR = "%s=%s%n";
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
     CatalogFacade catalog = getCatalog();
 
     console.printf(FORMAT_STR, "title", catalog.getTitle());

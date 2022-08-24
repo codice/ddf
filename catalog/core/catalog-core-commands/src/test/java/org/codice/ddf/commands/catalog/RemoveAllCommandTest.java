@@ -86,7 +86,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
     command.batchSize = 0;
 
     // when
-    command.executeWithSubject();
+    command.execute();
 
     // then
     String message = String.format(RemoveAllCommand.BATCH_SIZE_ERROR_MESSAGE_FORMAT, 0);
@@ -119,35 +119,12 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
 
     setCatalogQueryAndDeleteResponses();
 
-    newRemoveAllCommand(new RemoveAllCommand()).executeWithSubject();
-    verify(catalogFrameworkMock, times(numCatalogCalls)).delete(isA(DeleteRequest.class));
-  }
-
-  /**
-   * Checks the forced (-f) generic case.
-   *
-   * <p>Response of size 0 for second call lets the command exit as it simulates no more results to
-   * process.
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testExecuteWithSubject() throws Exception {
-
-    batchSize = 11;
-    numCatalogCalls = 1;
-    forceCommand = true;
-
-    setQueryAndDeleteResponseMocks(11, 0);
-
-    setCatalogQueryAndDeleteResponses();
-
-    newRemoveAllCommand(new RemoveAllCommand()).executeWithSubject();
+    newRemoveAllCommand(new RemoveAllCommand()).execute();
     verify(catalogFrameworkMock, times(numCatalogCalls)).delete(isA(DeleteRequest.class));
   }
 
   @Test
-  public void testExecuteWithSubjectWithoutForceOption() throws Exception {
+  public void testexecuteWithoutForceOption() throws Exception {
     // given
     final Session mockSession = mock(Session.class);
     when(mockSession.readLine(anyString(), isNull())).thenReturn("yes");
@@ -164,7 +141,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
     command.session = mockSession;
 
     // when
-    newRemoveAllCommand(command).executeWithSubject();
+    newRemoveAllCommand(command).execute();
 
     // then
     verify(catalogFrameworkMock, times(numCatalogCalls)).delete(isA(DeleteRequest.class));
@@ -188,7 +165,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
     command.session = mockSession;
 
     // when
-    newRemoveAllCommand(command).executeWithSubject();
+    newRemoveAllCommand(command).execute();
 
     // then
     verifyZeroInteractions(catalogFrameworkMock);
@@ -212,7 +189,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
     command.session = mockSession;
 
     // when
-    newRemoveAllCommand(command).executeWithSubject();
+    newRemoveAllCommand(command).execute();
 
     // then
     verifyZeroInteractions(catalogFrameworkMock);
@@ -236,7 +213,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
     command.session = mockSession;
 
     // when
-    newRemoveAllCommand(command).executeWithSubject();
+    newRemoveAllCommand(command).execute();
 
     // then
     verifyZeroInteractions(catalogFrameworkMock);

@@ -20,20 +20,16 @@ import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
 import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
-import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.plugin.AccessPlugin;
-import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.PostResourcePlugin;
-import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.resource.download.ReliableResourceDownloadManager;
+import ddf.catalog.resource.download.DefaultDownloadManager;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.ConnectedSource;
@@ -72,12 +68,6 @@ public class FrameworkProperties {
 
   private List<PostResourcePlugin> postResource = new ArrayList<>();
 
-  private List<PreAuthorizationPlugin> preAuthorizationPlugins = new ArrayList<>();
-
-  private List<PolicyPlugin> policyPlugins = new ArrayList<>();
-
-  private List<AccessPlugin> accessPlugins = new ArrayList<>();
-
   private List<ConnectedSource> connectedSources = new ArrayList<>();
 
   private Collection<FederatedSource> federatedSources = Collections.emptyList();
@@ -90,9 +80,7 @@ public class FrameworkProperties {
 
   private ExecutorService pool;
 
-  private DownloadsStatusEventPublisher downloadsStatusEventPublisher;
-
-  private ReliableResourceDownloadManager reliableResourceDownloadManager;
+  private DownloadManager defaultDownloadManager = new DefaultDownloadManager();
 
   private FilterBuilder filterBuilder;
 
@@ -180,30 +168,6 @@ public class FrameworkProperties {
     this.postResource = postResource;
   }
 
-  public List<PreAuthorizationPlugin> getPreAuthorizationPlugins() {
-    return preAuthorizationPlugins;
-  }
-
-  public void setPreAuthorizationPlugins(List<PreAuthorizationPlugin> preAuthorizationPlugins) {
-    this.preAuthorizationPlugins = preAuthorizationPlugins;
-  }
-
-  public List<PolicyPlugin> getPolicyPlugins() {
-    return policyPlugins;
-  }
-
-  public void setPolicyPlugins(List<PolicyPlugin> policyPlugins) {
-    this.policyPlugins = policyPlugins;
-  }
-
-  public List<AccessPlugin> getAccessPlugins() {
-    return accessPlugins;
-  }
-
-  public void setAccessPlugins(List<AccessPlugin> accessPlugins) {
-    this.accessPlugins = accessPlugins;
-  }
-
   public List<ConnectedSource> getConnectedSources() {
     return connectedSources;
   }
@@ -250,24 +214,6 @@ public class FrameworkProperties {
 
   public void setPool(ExecutorService pool) {
     this.pool = pool;
-  }
-
-  public DownloadsStatusEventPublisher getDownloadsStatusEventPublisher() {
-    return downloadsStatusEventPublisher;
-  }
-
-  public void setDownloadsStatusEventPublisher(
-      DownloadsStatusEventPublisher downloadsStatusEventPublisher) {
-    this.downloadsStatusEventPublisher = downloadsStatusEventPublisher;
-  }
-
-  public ReliableResourceDownloadManager getReliableResourceDownloadManager() {
-    return reliableResourceDownloadManager;
-  }
-
-  public void setReliableResourceDownloadManager(
-      ReliableResourceDownloadManager reliableResourceDownloadManager) {
-    this.reliableResourceDownloadManager = reliableResourceDownloadManager;
   }
 
   public Collection<CatalogStore> getCatalogStores() {
@@ -364,8 +310,12 @@ public class FrameworkProperties {
     if (!downloadManagers.isEmpty()) {
       return downloadManagers.get(0);
     } else {
-      return reliableResourceDownloadManager;
+      return defaultDownloadManager;
     }
+  }
+
+  public void setDefaultDownloadManager(DownloadManager downloadManager) {
+    this.defaultDownloadManager = downloadManager;
   }
 
   public List<DownloadManager> getDownloadManagers() {

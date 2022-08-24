@@ -32,7 +32,6 @@
 
     <feature name="catalog-core-api" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
-        <feature>security-core-api</feature>
         <feature>action-core-impl</feature>
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
@@ -45,7 +44,6 @@
     <feature name="catalog-core-impl" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
         <feature>catalog-core-api</feature>
-        <feature>security-core-services</feature>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
 
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${jdom2.bundle.version}</bundle>
@@ -58,15 +56,12 @@
         <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
         <feature>dev-failsafe</feature>
-        <bundle>mvn:ddf.catalog.core/ddf-pubsub/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/ddf-pubsub-tracker/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-urlresourcereader/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/filter-proxy/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-attributeregistry/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-injectattribute/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/versioning-api/${project.version}</bundle>
         <feature>joda-converter</feature>
         <feature>dev-failsafe</feature>
         <feature>slf4j</feature>
@@ -95,8 +90,6 @@
 
     <feature name="catalog-core-plugins" version="${project.version}"
              description="Catalog core plugins">
-        <feature>security-core-services</feature>
-        <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-commands/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/${project.version}</bundle>
     </feature>

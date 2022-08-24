@@ -66,27 +66,19 @@
         <module>catalog-core-commons</module>
         <module>catalog-core-commands</module>
         <module>catalog-core-urlresourcereader</module>
-        <module>catalog-core-camelcomponent</module>
-        <module>catalog-core-eventcommands</module>
         <module>catalog-core-impl</module>
-        <module>catalog-core-versioning</module>
         <module>catalog-core-standardframework</module>
         <module>catalog-core-metacardgroomerplugin</module>
         <module>catalog-core-metricsplugin</module>
         <module>catalog-core-sourcemetricsplugin</module>
-        <module>catalog-core-resourcesizeplugin</module>
         <module>catalog-core-backupplugin</module>
         <module>catalog-core-contentresourcereader</module>
         <module>catalog-core-localstorageprovider</module>
-        <module>catalog-core-directorymonitor</module>
         <module>catalog-core-validator</module>
         <module>catalog-core-definitionparser</module>
         <module>catalog-core-attributeregistry</module>
         <module>catalog-core-defaultvalues</module>
         <module>catalog-core-injectattribute</module>
-        <module>catalog-core-resourcestatusplugin</module>
-        <module>catalog-core-tagsfilterplugin</module>
-        <module>catalog-core-downloadaction</module>
         <module>catalog-core-metacardtype</module>
         <module>catalog-core-attachment</module>
         <module>catalog-core-attachment-impl</module>

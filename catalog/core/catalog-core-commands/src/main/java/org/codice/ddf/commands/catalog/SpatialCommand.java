@@ -73,7 +73,7 @@ public class SpatialCommand extends CatalogCommands {
   int numberOfItems = DEFAULT_NUMBER_OF_ITEMS;
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
 
     CatalogFacade catalogProvider = getCatalog();
 

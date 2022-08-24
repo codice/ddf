@@ -65,7 +65,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
@@ -270,11 +269,11 @@ public abstract class AbstractIntegrationTest {
 
     private final DynamicUrl url;
 
-    public DynamicUrl(String root, @NotNull DynamicPort port) {
+    public DynamicUrl(String root, DynamicPort port) {
       this(root, port, "");
     }
 
-    public DynamicUrl(String root, @NotNull DynamicPort port, String tail) {
+    public DynamicUrl(String root, DynamicPort port, String tail) {
       if (null == port) {
         throw new IllegalArgumentException("Port cannot be null");
       }
@@ -284,7 +283,7 @@ public abstract class AbstractIntegrationTest {
       this.tail = tail;
     }
 
-    public DynamicUrl(@NotNull DynamicUrl url, String tail) {
+    public DynamicUrl(DynamicUrl url, String tail) {
       if (null == url) {
         throw new IllegalArgumentException("Url cannot be null");
       }

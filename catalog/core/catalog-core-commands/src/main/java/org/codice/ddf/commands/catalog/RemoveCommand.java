@@ -59,7 +59,7 @@ public class RemoveCommand extends CqlCommands {
   Set<String> ids = new HashSet<>();
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
     if (CollectionUtils.isEmpty(ids) && !hasFilter()) {
       printErrorMessage(
           "No IDs or filter provided"

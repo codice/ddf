@@ -20,7 +20,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
@@ -30,7 +29,6 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ValidationException;
-import ddf.security.Subject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -39,7 +37,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import org.apache.karaf.shell.api.console.Session;
 import org.codice.ddf.commands.catalog.validation.ValidatePrinter;
-import org.codice.ddf.security.Security;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,10 +60,6 @@ public class ValidateCommandTest {
   CatalogFramework mockCatalog = mock(CatalogFramework.class);
 
   ValidatePrinter mockPrinter = mock(ValidatePrinter.class);
-
-  @Mock Subject subject;
-
-  @Mock Security security;
 
   @Mock Session session;
 
@@ -103,9 +96,6 @@ public class ValidateCommandTest {
     // mock out catalog
     validateCommand = new ValidateCommandUnderTest(mockPrinter);
     validateCommand.catalogFramework = mockCatalog;
-
-    when(security.getSystemSubject()).thenReturn(subject);
-    when(subject.execute(any(Callable.class))).thenAnswer(this::executeCommand);
   }
 
   private Object executeCommand(InvocationOnMock invocationOnMock) throws Throwable {
@@ -116,10 +106,10 @@ public class ValidateCommandTest {
   @Test
   public void testNoValidators() throws Exception {
     validateCommand.path = testFolder.getRoot().getAbsolutePath() + "aFileThatDoesntExist.xml";
-    validateCommand.executeWithSubject();
+    validateCommand.execute();
 
     validateCommand.validators = Collections.emptyList();
-    validateCommand.executeWithSubject(); // execute with empty validators list
+    validateCommand.execute(); // execute with empty validators list
 
     verify(mockPrinter, times(2)).printError("No validators have been configured");
   }
@@ -131,7 +121,7 @@ public class ValidateCommandTest {
     validateCommand.validators = new ArrayList<>();
     validateCommand.validators.add(goodValidator);
 
-    validateCommand.executeWithSubject();
+    validateCommand.execute();
   }
 
   // test a single valid file
@@ -143,7 +133,7 @@ public class ValidateCommandTest {
     validateCommand.validators = new ArrayList<>();
     validateCommand.validators.add(goodValidator);
 
-    validateCommand.executeWithSubject();
+    validateCommand.execute();
     verify(mockPrinter).printSummary(0, 1); // 0 errors, one message saying so
   }
 
@@ -156,7 +146,7 @@ public class ValidateCommandTest {
     validateCommand.validators = new ArrayList<>();
     validateCommand.validators.add(badValidator);
 
-    validateCommand.executeWithSubject();
+    validateCommand.execute();
     verify(mockPrinter).printSummary(1, 1);
   }
 
@@ -168,7 +158,7 @@ public class ValidateCommandTest {
     validateCommand.validators = new ArrayList<>();
     validateCommand.validators.add(goodValidator);
 
-    validateCommand.executeWithSubject();
+    validateCommand.execute();
     verify(mockPrinter).printSummary(0, 0);
   }
 
@@ -181,7 +171,7 @@ public class ValidateCommandTest {
     validateCommand.validators = new ArrayList<>();
     validateCommand.validators.add(goodValidator);
 
-    validateCommand.executeWithSubject();
+    validateCommand.execute();
     verify(mockPrinter).printSummary(0, 1);
   }
 
@@ -196,7 +186,7 @@ public class ValidateCommandTest {
     validateCommand.validators = new ArrayList<>();
     validateCommand.validators.add(goodValidator);
 
-    validateCommand.executeWithSubject();
+    validateCommand.execute();
     verify(mockPrinter).printSummary(0, 4);
   }
 
@@ -213,7 +203,7 @@ public class ValidateCommandTest {
     validateCommand.validators.add(goodValidator);
     validateCommand.validators.add(badValidator);
 
-    validateCommand.executeWithSubject();
+    validateCommand.execute();
     verify(mockPrinter).printSummary(4, 4);
   }
 
@@ -247,7 +237,7 @@ public class ValidateCommandTest {
     validateCommand.validators = new ArrayList<>();
     validateCommand.validators.add(badValidator);
 
-    validateCommand.executeWithSubject();
+    validateCommand.execute();
     verify(mockPrinter).printSummary(0, 0);
   }
 
@@ -260,7 +250,7 @@ public class ValidateCommandTest {
     validateCommand.validators = new ArrayList<>();
     validateCommand.validators.add(badValidator);
 
-    validateCommand.executeWithSubject();
+    validateCommand.execute();
     verify(mockPrinter).printSummary(1, 1);
   }
 
@@ -269,7 +259,6 @@ public class ValidateCommandTest {
     ValidateCommandUnderTest(ValidatePrinter printer) {
       super(printer);
       this.session = ValidateCommandTest.this.session;
-      this.security = ValidateCommandTest.this.security;
     }
   }
 }

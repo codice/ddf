@@ -28,13 +28,11 @@ import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.history.Historian;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
 import ddf.catalog.impl.operations.MetacardFactory;
 import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
-import ddf.catalog.impl.operations.OperationsSecuritySupport;
 import ddf.catalog.impl.operations.OperationsStorageSupport;
 import ddf.catalog.impl.operations.QueryOperations;
 import ddf.catalog.impl.operations.ResourceOperations;
@@ -105,17 +103,14 @@ public class CatalogFrameworkQueryTest {
     ActionRegistry sourceActionRegistry = mock(ActionRegistry.class);
     when(sourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
 
-    OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(props.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props, metacardFactory);
     SourceOperations sourceOperations =
         new SourceOperations(
             props, sourceActionRegistry, mockStatusSourcePoller, mock(SourcePoller.class));
-    QueryOperations queryOperations =
-        new QueryOperations(props, sourceOperations, opsSecurity, opsMetacard);
-    ResourceOperations resourceOperations =
-        new ResourceOperations(props, queryOperations, opsSecurity);
+    QueryOperations queryOperations = new QueryOperations(props, sourceOperations, opsMetacard);
+    ResourceOperations resourceOperations = new ResourceOperations(props, queryOperations);
     TransformOperations transformOperations = new TransformOperations(props);
     OperationsCatalogStoreSupport opsCatStore =
         new OperationsCatalogStoreSupport(props, sourceOperations);
@@ -123,30 +118,12 @@ public class CatalogFrameworkQueryTest {
         new OperationsStorageSupport(sourceOperations, queryOperations);
     CreateOperations createOperations =
         new CreateOperations(
-            props,
-            queryOperations,
-            sourceOperations,
-            opsSecurity,
-            opsMetacard,
-            opsCatStore,
-            opsStorage);
+            props, queryOperations, sourceOperations, opsMetacard, opsCatStore, opsStorage);
     UpdateOperations updateOperations =
         new UpdateOperations(
-            props,
-            queryOperations,
-            sourceOperations,
-            opsSecurity,
-            opsMetacard,
-            opsCatStore,
-            opsStorage);
+            props, queryOperations, sourceOperations, opsMetacard, opsCatStore, opsStorage);
     DeleteOperations deleteOperations =
-        new DeleteOperations(props, queryOperations, sourceOperations, opsSecurity, opsMetacard);
-
-    Historian historian = new Historian();
-    historian.setHistoryEnabled(false);
-
-    updateOperations.setHistorian(historian);
-    deleteOperations.setHistorian(historian);
+        new DeleteOperations(props, queryOperations, sourceOperations, opsMetacard);
 
     framework =
         new CatalogFrameworkImpl(

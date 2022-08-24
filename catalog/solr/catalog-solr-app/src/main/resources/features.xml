@@ -28,12 +28,6 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="catalog-solr-cache" version="${project.version}"
-             description="Catalog Cache to interface with Solr ${solr.version}">
-        <bundle>mvn:ddf.catalog.solr/catalog-solr-cache/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.solr/catalog-solr-defaultmetacardtagscacheplugin/${project.version}</bundle>
-    </feature>
-
     <feature name="catalog-solr-provider" version="${project.version}"
              description="Catalog Provider to interface with Solr ${solr.version}">
         <bundle>mvn:ddf.catalog.solr/catalog-solr-provider/${project.version}</bundle>
@@ -44,24 +38,11 @@
         <bundle>mvn:ddf.catalog.solr/catalog-solr-commands/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-solr-solrclient" version="${project.version}"
-             description="Configure Solr parameters.">
-        <bundle>mvn:ddf.catalog.solr/catalog-solr-solrclient/${project.version}</bundle>
-    </feature>
-
-    <feature name="catalog-solr-offline-gazetteer" version="${project.version}" description="Offline gazetteer service utilizing a geonames index stored within a unique solr core (not within the catalog)">
-        <feature>solr-core</feature>
-        <feature>catalog-core</feature>
-        <feature>guava</feature>
-        <bundle>mvn:ddf.catalog.solr/catalog-solr-offline-gazetteer/${project.version}</bundle>
-    </feature>
-
     <feature name="catalog-solr-app" version="${project.version}"
              description="The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr ${solr.version} as a data store.\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.">
         <feature>solr-factory-api</feature>
         <feature>solr-factory-impl</feature>
         <feature>catalog-solr-provider</feature>
-        <feature>catalog-solr-solrclient</feature>
         <feature>catalog-solr-commands</feature>
     </feature>
 

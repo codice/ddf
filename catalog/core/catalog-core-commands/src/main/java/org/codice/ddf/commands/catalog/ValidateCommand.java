@@ -89,7 +89,7 @@ public class ValidateCommand extends CqlCommands {
   }
 
   @Override
-  public Object executeWithSubject() throws Exception {
+  public Object execute() throws Exception {
     int numMetacardsWithErrorsOrWarnings = 0;
     if (validators == null || validators.size() == 0) {
       printer.printError("No validators have been configured");
@@ -130,9 +130,8 @@ public class ValidateCommand extends CqlCommands {
     return metacards;
   }
 
-  private List<Metacard> getMetacardsFromCatalog() {
-    return Objects.requireNonNull(security.getSystemSubject())
-        .execute(this::getMetacardsFromCatalogInternal);
+  private List<Metacard> getMetacardsFromCatalog() throws CatalogCommandException {
+    return getMetacardsFromCatalogInternal();
   }
 
   private List<Metacard> getMetacardsFromCatalogInternal() throws CatalogCommandException {

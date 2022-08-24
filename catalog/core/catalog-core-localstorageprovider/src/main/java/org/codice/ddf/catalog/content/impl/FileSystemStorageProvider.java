@@ -39,8 +39,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
-import ddf.security.encryption.crypter.Crypter;
-import ddf.security.encryption.crypter.Crypter.CrypterException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -522,7 +520,7 @@ public class FileSystemStorageProvider implements StorageProvider {
 
       IOUtils.copy(decryptedInputStream, decryptedOutputStream);
       output = decryptedOutputStream.asByteSource();
-    } catch (CrypterException | IOException e) {
+    } catch (Crypter.CrypterException | IOException e) {
       LOGGER.debug(
           "Error decrypting InputStream {}. Failing StorageProvider read.", contentInputStream, e);
       throw new StorageException(

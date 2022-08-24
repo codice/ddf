@@ -3,7 +3,6 @@
   "description": "Administration application for installation and management.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides modules allowing the administrator to access configuration pages to tailor system services and properties.::Admin",
   "bundleLocations": [
     "mvn:ddf.admin.core/admin-core-configpolicy/${project.version}",
-    "mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}",
-    "mvn:ddf.admin/admin-ui/${ddf-admin-ui.version.version}"
+    "mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}"
   ]
 }

@@ -37,14 +37,11 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.service.ConfiguredService;
-import ddf.catalog.source.OAuthFederatedSource;
+import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import ddf.security.encryption.EncryptionService;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,12 +76,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.PropertyResolver;
-import org.codice.ddf.cxf.client.ClientBuilder;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
-import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.opensearch.OpenSearch;
 import org.codice.ddf.opensearch.OpenSearchConstants;
@@ -108,7 +103,7 @@ import org.slf4j.LoggerFactory;
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
  * via https which requires a keystore and trust store to be provided.
  */
-public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService {
+public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
 
@@ -150,11 +145,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
-  protected final EncryptionService encryptionService;
-
-  private final ClientBuilderFactory clientBuilderFactory;
-
-  private SecureCxfClientFactory<OpenSearch> factory;
+  private JAXRSClientFactoryBean factory;
 
   // service properties
   protected String shortname;
@@ -178,8 +169,6 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
   protected List<String> parameters;
 
   protected Set<String> markUpSet;
-
-  protected String authenticationType = "";
 
   protected String username = "";
 
@@ -225,16 +214,13 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
   public OpenSearchSource(
       FilterAdapter filterAdapter,
       OpenSearchParser openSearchParser,
-      OpenSearchFilterVisitor openSearchFilterVisitor,
-      EncryptionService encryptionService,
-      ClientBuilderFactory clientBuilderFactory) {
+      OpenSearchFilterVisitor openSearchFilterVisitor) {
     this(
         filterAdapter,
         openSearchParser,
         openSearchFilterVisitor,
-        encryptionService,
         (elements, sourceResponse) -> {},
-        clientBuilderFactory);
+        null);
   }
 
   /**
@@ -245,15 +231,13 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
       FilterAdapter filterAdapter,
       OpenSearchParser openSearchParser,
       OpenSearchFilterVisitor openSearchFilterVisitor,
-      EncryptionService encryptionService,
       BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer,
-      ClientBuilderFactory clientBuilderFactory) {
+      JAXRSClientFactoryBean clientFactoryBean) {
     this.filterAdapter = filterAdapter;
-    this.encryptionService = encryptionService;
     this.openSearchParser = openSearchParser;
     this.openSearchFilterVisitor = openSearchFilterVisitor;
     this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
-    this.clientBuilderFactory = clientBuilderFactory;
+    this.factory = clientFactoryBean;
   }
 
   /**
@@ -294,7 +278,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
           private boolean availabilityCheck() {
             LOGGER.debug("Checking availability for source {} ", getId());
             try {
-              final WebClient client = factory.getWebClient();
+              final WebClient client = factory.createWebClient();
               final Response response = client.head();
               return response != null
                   && !(response.getStatus() >= 404 || response.getStatus() == 402);
@@ -321,57 +305,19 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     }
   }
 
-  protected SecureCxfClientFactory<OpenSearch> createClientFactory(
-      URI url, String username, String password) {
-    if (BASIC_AUTH_TYPE.equals(authenticationType)
-        && StringUtils.isNotBlank(username)
-        && StringUtils.isNotBlank(password)) {
-      ClientBuilder<OpenSearch> clientBuilder = clientBuilderFactory.getClientBuilder();
-      return clientBuilder
-          .endpoint(url.toString())
-          .interfaceClass(OpenSearch.class)
-          .disableCnCheck(disableCnCheck)
-          .allowRedirects(allowRedirects)
-          .connectionTimeout(connectionTimeout)
-          .receiveTimeout(receiveTimeout)
-          .username(username)
-          .password(password)
-          .useSamlEcp(true)
-          .build();
-    } else if (OAUTH_AUTH_TYPE.equals(authenticationType)
-        && StringUtils.isNotBlank(oauthDiscoveryUrl)
-        && StringUtils.isNotBlank(oauthClientId)
-        && StringUtils.isNotBlank(oauthClientSecret)) {
-      ClientBuilder<OpenSearch> clientBuilder = clientBuilderFactory.getClientBuilder();
-      try {
-        return clientBuilder
-            .endpoint(url.toString())
-            .interfaceClass(OpenSearch.class)
-            .disableCnCheck(disableCnCheck)
-            .allowRedirects(allowRedirects)
-            .connectionTimeout(connectionTimeout)
-            .receiveTimeout(receiveTimeout)
-            .sourceId(shortname)
-            .discovery(new URI(oauthDiscoveryUrl))
-            .clientId(oauthClientId)
-            .oauthFlow(oauthFlow)
-            .useOAuth(true)
-            .build();
-      } catch (URISyntaxException e) {
-        throw new IllegalArgumentException(e);
-      }
-    } else {
-      ClientBuilder<OpenSearch> clientBuilder = clientBuilderFactory.getClientBuilder();
-      return clientBuilder
-          .endpoint(url.toString())
-          .interfaceClass(OpenSearch.class)
-          .disableCnCheck(disableCnCheck)
-          .allowRedirects(allowRedirects)
-          .connectionTimeout(connectionTimeout)
-          .receiveTimeout(receiveTimeout)
-          .useSamlEcp(true)
-          .build();
+  protected JAXRSClientFactoryBean createClientFactory(URI url, String username, String password) {
+
+    JAXRSClientFactoryBean clientFactory = new JAXRSClientFactoryBean();
+    clientFactory.setClassLoader(OpenSearchSource.class.getClassLoader());
+    clientFactory.setServiceClass(OpenSearch.class);
+    clientFactory.setAddress(url.toString());
+
+    if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+      clientFactory.setUsername(username);
+      clientFactory.setPassword(password);
     }
+
+    return clientFactory;
   }
 
   private void configureXmlInputFactory() {
@@ -405,12 +351,6 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     LOGGER.trace(methodName);
 
     final SourceResponse response;
-
-    Subject subject = null;
-    if (queryRequest.hasProperties()) {
-      Object subjectObj = queryRequest.getProperties().get(SecurityConstants.SECURITY_SUBJECT);
-      subject = (Subject) subjectObj;
-    }
 
     Query query = queryRequest.getQuery();
     if (LOGGER.isTraceEnabled()) {
@@ -454,17 +394,17 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
             idSearch);
       }
 
-      final WebClient restWebClient = factory.getWebClientForSubject(subject);
+      final WebClient restWebClient = factory.createWebClient();
       if (restWebClient == null) {
         throw new UnsupportedQueryException(UNABLE_TO_CREATE_RWC);
       }
       response =
           doOpenSearchQuery(
-              queryRequest, subject, spatialSearch, temporalSearch, searchPhraseMap, restWebClient);
+              queryRequest, spatialSearch, temporalSearch, searchPhraseMap, restWebClient);
     } else if (StringUtils.isNotEmpty(idSearch)) {
       final WebClient restWebClient;
       try {
-        restWebClient = newRestClient(query, idSearch, false, subject);
+        restWebClient = newRestClient(query, idSearch, false);
       } catch (URISyntaxException e) {
         throw new UnsupportedQueryException(UNABLE_TO_CREATE_RWC, e);
       }
@@ -492,7 +432,6 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
 
   private SourceResponse doOpenSearchQuery(
       QueryRequest queryRequest,
-      Subject subject,
       SpatialSearch spatialSearch,
       TemporalFilter temporalSearch,
       Map<String, String> searchPhraseMap,
@@ -502,7 +441,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     if (searchPhraseMap.isEmpty() && temporalSearch == null && spatialSearch == null) {
       searchPhraseMap.put(OpenSearchConstants.SEARCH_TERMS, "*");
     }
-    openSearchParser.populateSearchOptions(restWebClient, queryRequest, subject, parameters);
+    openSearchParser.populateSearchOptions(restWebClient, queryRequest, parameters);
     openSearchParser.populateContextual(restWebClient, searchPhraseMap, parameters);
     openSearchParser.populateTemporal(restWebClient, temporalSearch, parameters);
     if (spatialSearch != null) {
@@ -944,7 +883,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
       String metacardId = serializableId.toString();
       WebClient restClient = null;
       try {
-        restClient = newRestClient(null, metacardId, true, null);
+        restClient = newRestClient(null, metacardId, true);
       } catch (URISyntaxException e) {
         throw new IOException(UNABLE_TO_CREATE_RWC, e);
       }
@@ -953,16 +892,6 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
         requestProperties.put(PASSWORD_PROPERTY, password);
       }
 
-      if (OAUTH_AUTH_TYPE.equals(authenticationType)
-          && StringUtils.isNotBlank(oauthDiscoveryUrl)
-          && StringUtils.isNotBlank(oauthClientId)
-          && StringUtils.isNotBlank(oauthClientSecret)) {
-        requestProperties.put(ID_PROPERTY, shortname);
-        requestProperties.put(OAUTH_DISCOVERY_URL, oauthDiscoveryUrl);
-        requestProperties.put(OAUTH_CLIENT_ID, oauthClientId);
-        requestProperties.put(OAUTH_CLIENT_SECRET, oauthClientSecret);
-        requestProperties.put(OAUTH_FLOW, oauthFlow);
-      }
       return resourceReader.retrieveResource(restClient.getCurrentURI(), requestProperties);
     }
 
@@ -1013,16 +942,6 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     this.parameters = parameters;
   }
 
-  @Override
-  public String getAuthenticationType() {
-    return authenticationType;
-  }
-
-  public void setAuthenticationType(String authenticationType) {
-    this.authenticationType = authenticationType;
-    updateFactory();
-  }
-
   public String getUsername() {
     return username;
   }
@@ -1037,13 +956,8 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
   }
 
   public void setPassword(String password) {
-    this.password = encryptionService.decryptValue(password);
+    this.password = password;
     updateFactory();
-  }
-
-  @Override
-  public String getOauthDiscoveryUrl() {
-    return oauthDiscoveryUrl;
   }
 
   public void setOauthDiscoveryUrl(String oauthDiscoveryUrl) {
@@ -1051,29 +965,14 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     updateFactory();
   }
 
-  @Override
-  public String getOauthClientId() {
-    return oauthClientId;
-  }
-
   public void setOauthClientId(String oauthClientId) {
     this.oauthClientId = oauthClientId;
     updateFactory();
   }
 
-  @Override
-  public String getOauthClientSecret() {
-    return oauthClientSecret;
-  }
-
   public void setOauthClientSecret(String oauthClientSecret) {
     this.oauthClientSecret = oauthClientSecret;
     updateFactory();
-  }
-
-  @Override
-  public String getOauthFlow() {
-    return oauthFlow;
   }
 
   public void setOauthFlow(String oauthFlow) {
@@ -1117,8 +1016,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
     updateFactory();
   }
 
-  private WebClient newRestClient(
-      Query query, String metacardId, boolean retrieveResource, Subject subj)
+  private WebClient newRestClient(Query query, String metacardId, boolean retrieveResource)
       throws URISyntaxException {
     String url = endpointUrl.getResolvedString();
     if (query != null) {
@@ -1134,7 +1032,7 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
         url = restUrl.buildUrl();
       }
     }
-    return newOpenSearchClient(new URI(url), subj);
+    return newOpenSearchClient(new URI(url));
   }
 
   private String createRestUrl(Query query, String endpointUrl, boolean retrieveResource) {
@@ -1182,15 +1080,12 @@ public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService
    * Creates a new webClient based off a url and, if BasicAuth is not used, a Security Subject
    *
    * @param url - the endpoint url
-   * @param subj - the Security Subject, if applicable
    * @return A webclient for the endpoint URL either using BasicAuth, using the Security Subject, or
    *     an insecure client.
    */
-  private WebClient newOpenSearchClient(URI url, Subject subj) {
-    SecureCxfClientFactory<OpenSearch> clientFactory = createClientFactory(url, username, password);
-    return (subj != null)
-        ? clientFactory.getWebClientForSubject(subj)
-        : clientFactory.getWebClient();
+  private WebClient newOpenSearchClient(URI url) {
+    JAXRSClientFactoryBean clientFactory = createClientFactory(url, username, password);
+    return clientFactory.createWebClient();
   }
 
   private List<Metacard> processAdditionalForeignMarkups(Element element, String id)
