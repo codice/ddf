@@ -46,7 +46,6 @@ import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
 import org.codice.ddf.commands.util.DigitalSignature;
-import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,7 +196,7 @@ public class ImportCommand extends CatalogCommands {
                     transformer.transform(
                         new UncloseableBufferedInputStreamWrapper(zipInputStream), id);
               } catch (IOException | CatalogTransformerException e) {
-                LOGGER.debug("Could not transform metacard: {}", LogSanitizer.sanitize(id));
+                LOGGER.debug("Could not transform metacard: {}", id);
                 entry = zipInputStream.getNextEntry();
                 continue;
               }
@@ -250,7 +249,7 @@ public class ImportCommand extends CatalogCommands {
             }
           default:
             {
-              LOGGER.debug("Cannot interpret type of {}", LogSanitizer.sanitize(type));
+              LOGGER.debug("Cannot interpret type of {}", type);
             }
         }
 

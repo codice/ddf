@@ -17,21 +17,15 @@ package ddf.catalog.util;
  * Describable is used to capture a basic description. For an example of a how the Describable
  * interface is used view the {@link ddf.catalog.source.Source} interface and the {@link
  * DescribableImpl} class.
- *
- * @deprecated see {@link org.codice.ddf.platform.services.common.Describable}
  */
-@Deprecated
-@SuppressWarnings(
-    "squid:S2176" /* Intentionally shadowing superclass name as deprecation strategy */)
-public interface Describable extends org.codice.ddf.platform.services.common.Describable {
+public interface Describable {
 
   /**
    * Retrieve the version.
    *
    * @return the version of the item being described (example: 1.0)
    */
-  @Override
-  public String getVersion();
+  String getVersion();
 
   /**
    * Returns the name, aka ID, of the describable item. The name should be unique for each
@@ -41,30 +35,26 @@ public interface Describable extends org.codice.ddf.platform.services.common.Des
    *
    * @return ID of the item
    */
-  @Override
-  public String getId();
+  String getId();
 
   /**
    * Returns the title of the describable item. It is generally more verbose than the name (aka ID).
    *
    * @return title of the item (example: Dummy Catalog Provider)
    */
-  @Override
-  public String getTitle();
+  String getTitle();
 
   /**
    * Returns a description of the describable item.
    *
    * @return description of the item (example: Provider that returns back static results)
    */
-  @Override
-  public String getDescription();
+  String getDescription();
 
   /**
    * Returns the organization associated with the describable item.
    *
    * @return organizational name or acronym (example: USAF)
    */
-  @Override
-  public String getOrganization();
+  String getOrganization();
 }

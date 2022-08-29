@@ -14,8 +14,6 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
-
     <bean id="metacardValidatorList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <reference-list id="metacardValidators"
                     interface="ddf.catalog.validation.MetacardValidator"
@@ -23,18 +21,6 @@
         <reference-listener ref="metacardValidatorList" bind-method="bindPlugin"
                             unbind-method="unbindPlugin"/>
     </reference-list>
-
-    <bean id="catalogProviderSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
-    <reference-list id="catalogProviders" interface="ddf.catalog.source.CatalogProvider"
-      availability="optional">
-        <reference-listener
-          ref="catalogProviderSortedList"
-          bind-method="bindPlugin"
-          unbind-method="unbindPlugin"/>
-    </reference-list>
-
-    <reference id="filterBuilder"
-               interface="ddf.catalog.filter.FilterBuilder"/>
 
     <!-- Pre-Ingest Metacard Validation Marker Plugin -->
     <bean id="pre-ingest-plugin"
@@ -48,31 +34,9 @@
         </property>
         <property name="enforceErrors" value="true"/>
         <property name="enforceWarnings" value="true"/>
-
     </bean>
-
-    <!-- Pre-Federation and Post-Query Metacard Validity Filter Plugin -->
-    <bean id="metacardValidityFilterPlugin"
-          class="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin">
-        <cm:managed-properties
-                persistent-id="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin"
-                update-strategy="container-managed"/>
-        <argument ref="filterBuilder"/>
-        <argument ref="catalogProviders"/>
-        <property name="attributeMap">
-            <list>
-                <value>invalid-state=data-manager,system-user</value>
-            </list>
-        </property>
-        <property name="filterErrors" value="true"/>
-        <property name="filterWarnings" value="false"/>
-        <property name="permissions" ref="permissions"/>
-    </bean>
-
 
     <!-- Register in the OSGi Service Registry -->
     <service ref="pre-ingest-plugin" interface="ddf.catalog.plugin.PreIngestPlugin" ranking="-1"/>
-    <!--<service ref="pre-query-plugin" interface="ddf.catalog.plugin.PreQueryPlugin"/>-->
-    <service ref="metacardValidityFilterPlugin" auto-export="interfaces" ranking="100"/>
 
 </blueprint>

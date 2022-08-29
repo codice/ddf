@@ -20,7 +20,6 @@
              description="Catalog API interfaces and simple implementations.">
         <feature>jts</feature>
         <feature>geotools</feature>
-        <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
     </feature>
 

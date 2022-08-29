@@ -84,16 +84,6 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>ddf.platform.security</groupId>
-                <artifactId>security-rest-cxfwrapper</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ddf.platform</groupId>
-                <artifactId>security</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
                 <version>${xml-apis.version}</version>
@@ -166,11 +156,6 @@
             <dependency>
                 <groupId>ddf.measure</groupId>
                 <artifactId>measure-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ddf.security.core</groupId>
-                <artifactId>security-core-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -376,22 +361,17 @@
         </dependencies>
     </dependencyManagement>
     <modules>
-<!--        <module>measure</module>-->
         <module>common</module>
+        <module>measure</module>
         <module>core</module>
-<!--        <module>schematron</module>-->
         <module>transformer</module>
         <module>plugin</module>
         <module>opensearch</module>
         <module>rest</module>
-<!--        <module>security</module>-->
-<!--        <module>admin</module>-->
         <module>catalog-app</module>
         <module>solr</module>
         <module>ui</module>
         <module>spatial</module>
-<!--        <module>validator</module>-->
-<!--        <module>confluence</module>-->
     </modules>
     <build>
         <plugins>

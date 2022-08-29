@@ -26,17 +26,11 @@
     <description>DDF Libraries</description>
     <modules>
         <module>gson-support</module>
-        <module>activities</module>
-        <module>httpproxy</module>
-        <module>notifications</module>
-        <module>platform-configuration-impl</module>
         <module>common-system</module>
         <module>checksum</module>
         <module>klv</module>
         <module>mpeg-transport-stream</module>
         <module>geospatial</module>
-        <module>tlmatcher</module>
-        <module>alerts</module>
         <module>test-common</module>
     </modules>
 </project>

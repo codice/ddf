@@ -169,7 +169,6 @@
         </plugins>
     </build>
     <modules>
-        <module>platform-api</module>
         <module>branding-api</module>
         <module>util</module>
         <module>io</module>
@@ -179,6 +178,7 @@
         <module>mime</module>
         <module>metrics</module>
         <module>platform-commands</module>
+        <module>sync-installer</module>
         <module>usng4j</module>
         <module>branding-registry-impl</module>
         <module>resource-bundle-locator</module>

@@ -71,21 +71,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.error</groupId>
-            <artifactId>platform-error-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.error</groupId>
-            <artifactId>platform-error-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.error</groupId>
-            <artifactId>platform-error-servlet</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.mime.core</groupId>
             <artifactId>mime-core-api</artifactId>
             <version>${project.version}</version>
@@ -111,18 +96,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>log-sanitizer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-logging</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.api</groupId>
-            <artifactId>platform-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- BEGIN: Tika dependencies -->

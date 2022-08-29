@@ -14,7 +14,6 @@
 package ddf.catalog.util.impl;
 
 import ddf.catalog.util.Describable;
-import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +51,7 @@ public abstract class DescribableImpl implements Describable {
    * @param version
    */
   public void setVersion(String version) {
-    LOGGER.debug("Setting version = {}", LogSanitizer.sanitize(version));
+    LOGGER.debug("Setting version = {}", version);
     this.version = version;
   }
 
@@ -72,7 +71,7 @@ public abstract class DescribableImpl implements Describable {
    * @param id
    */
   public void setId(String id) {
-    LOGGER.debug("ENTERING: setId - id = {}", LogSanitizer.sanitize(id));
+    LOGGER.debug("ENTERING: setId - id = {}", id);
     this.id = id;
     LOGGER.debug("EXITING: setId");
   }
@@ -144,7 +143,7 @@ public abstract class DescribableImpl implements Describable {
    */
   public void setOrganization(String organization) {
     LOGGER.debug("ENTERING: setOrganization");
-    LOGGER.debug("Setting organization = {}", LogSanitizer.sanitize(organization));
+    LOGGER.debug("Setting organization = {}", organization);
     this.organization = organization;
     LOGGER.debug("EXITING: setOrganization");
   }

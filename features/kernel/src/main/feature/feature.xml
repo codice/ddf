@@ -30,11 +30,6 @@
         <feature prerequisite="true">wrap</feature>
     </feature>
 
-    <feature name="sync-installer" version="${project.version}">
-        <bundle>mvn:ddf.platform/sync-installer-api/${project.version}</bundle>
-        <bundle>mvn:ddf.platform/sync-installer-impl/${project.version}</bundle>
-    </feature>
-
     <feature name="javax-validation" version="${project.version}">
         <bundle>mvn:javax.validation/validation-api/${validation.version}</bundle>
     </feature>

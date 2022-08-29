@@ -19,7 +19,6 @@
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
-    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
 
     <feature name="landing-page" version="${project.version}"
@@ -39,7 +38,6 @@
 
     <feature name="admin-core" version="${project.version}"
              description="Administration Tools">
-        <feature>camel-core</feature>
         <feature>javax-validation</feature>
         <feature>cxf-jaxws</feature>
         <feature>cxf-jaxrs</feature>

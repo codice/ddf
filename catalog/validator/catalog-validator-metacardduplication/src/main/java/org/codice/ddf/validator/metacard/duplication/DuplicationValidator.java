@@ -25,6 +25,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.Describable;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ReportingMetacardValidator;
 import ddf.catalog.validation.ValidationException;
@@ -53,8 +54,7 @@ import org.slf4j.LoggerFactory;
 public class DuplicationValidator
     implements MetacardValidator,
         ReportingMetacardValidator,
-        ddf.catalog.util.Describable,
-        org.codice.ddf.platform.services.common.Describable {
+        Describable {
   private static final Logger LOGGER = LoggerFactory.getLogger(DuplicationValidator.class);
 
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";

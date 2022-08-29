@@ -79,7 +79,6 @@ import org.apache.karaf.shell.support.completers.FileCompleter;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
 import org.codice.ddf.commands.util.DigitalSignature;
-import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.Exceptions;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.fusesource.jansi.Ansi;
@@ -450,16 +449,10 @@ public class IngestCommand extends CatalogCommands {
       strBuilder.append(NEW_LINE).append("Batch #: ").append(i + 1).append(" | ");
       if (card != null) {
         if (card.getTitle() != null) {
-          strBuilder
-              .append("Metacard Title: ")
-              .append(LogSanitizer.sanitize(card.getTitle()))
-              .append(" | ");
+          strBuilder.append("Metacard Title: ").append(card.getTitle()).append(" | ");
         }
         if (card.getId() != null) {
-          strBuilder
-              .append("Metacard ID: ")
-              .append(LogSanitizer.sanitize(card.getId()))
-              .append(" | ");
+          strBuilder.append("Metacard ID: ").append(card.getId()).append(" | ");
         }
       } else {
         strBuilder.append("Null Metacard");
@@ -662,9 +655,7 @@ public class IngestCommand extends CatalogCommands {
       phaser.arriveAndDeregister();
 
       INGEST_LOGGER.error(
-          "Thread interrupted while waiting to 'put' metacard: {}",
-          LogSanitizer.sanitize(metacard.getId()),
-          e);
+          "Thread interrupted while waiting to 'put' metacard: {}", metacard.getId(), e);
 
       Thread.currentThread().interrupt();
     }

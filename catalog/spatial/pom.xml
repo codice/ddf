@@ -32,16 +32,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>ddf.platform.security</groupId>
-                <artifactId>security-rest-cxfwrapper</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ddf.security.encryption</groupId>
-                <artifactId>security-encryption-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-ogc-api</artifactId>
                 <version>${project.version}</version>

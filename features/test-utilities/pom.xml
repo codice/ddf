@@ -34,13 +34,17 @@
             <artifactId>rest-assured</artifactId>
             <version>${restassured.version}</version>
         </dependency>
-
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>sync-installer-api</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>sync-installer-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>kernel</artifactId>

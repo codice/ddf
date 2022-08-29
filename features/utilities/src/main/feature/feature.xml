@@ -101,7 +101,6 @@
     <feature name="common-system" version="${project.version}"
              description="common system">
         <feature>apache-commons</feature>
-        <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
         <bundle>mvn:ddf.lib/common-system/${project.version}</bundle>
     </feature>
 
@@ -148,11 +147,6 @@
     <!-- Start of app features -->
 
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
-
-    <feature name="platform-api" version="${project.version}"
-             description="Top Level Platform API">
-        <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
-    </feature>
 
     <feature name="tika" version="${project.version}"
              description="Provides Tika as a bundle.">

@@ -66,7 +66,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -285,7 +284,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     } else if (updateMap.containsKey(request.getId())) {
       commitUpdates(request);
     } else {
-      LOGGER.info("Nothing to commit for request: {}", LogSanitizer.sanitize(request.getId()));
+      LOGGER.info("Nothing to commit for request: {}", request.getId());
     }
   }
 
@@ -344,7 +343,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         if (target == null) {
           LOGGER.debug(
               "Unable to get content item directory. Unable to commit all changes for request: {} with content uri {}",
-              LogSanitizer.sanitize(request.getId()),
+              request.getId(),
               contentUri);
           continue;
         }

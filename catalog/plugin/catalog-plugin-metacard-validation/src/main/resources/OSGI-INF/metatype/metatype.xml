@@ -15,23 +15,6 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-
-    <OCD name="Metacard Validation Filter Plugin"
-         id="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin">
-        <AD
-                description="Comma-delimited mapping of Metacard SECURITY attribute to user attributes. Users with one of these attributes will always receive metacards with errors and/or warnings."
-                name="Attribute map" id="attributeMap" required="false" type="String"
-                default="invalid-state=localhost-data-manager\,system-user" cardinality="100"/>
-        <AD
-                description="Sets whether metacards with validation errors are filtered for users without one of the configured user attribute."
-                name="Filter errors" id="filterErrors" type="Boolean"
-                default="true"/>
-        <AD
-                description="Sets whether metacards with validation warnings are filtered for users without one of the configured user attribute."
-                name="Filter warnings" id="filterWarnings" type="Boolean"
-                default="false"/>
-    </OCD>
-
     <OCD name="Metacard Validation Marker Plugin"
          id="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin">
         <AD
@@ -53,12 +36,6 @@
             pid="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin">
         <Object
                 ocdref="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin"/>
-    </Designate>
-
-    <Designate
-            pid="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin">
-        <Object
-                ocdref="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin"/>
     </Designate>
 
 </metatype:MetaData>

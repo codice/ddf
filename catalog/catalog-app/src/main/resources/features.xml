@@ -33,7 +33,6 @@
     <feature name="catalog-core-api" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
         <feature>action-core-impl</feature>
-        <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
@@ -230,8 +229,6 @@
     </feature>
 
     <!-- Start of app features -->
-
-    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
 
     <feature name="catalog-content" version="${project.version}"
              description="Core features for content">

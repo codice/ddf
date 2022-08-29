@@ -18,7 +18,6 @@
 
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
-    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
@@ -28,8 +27,6 @@
              description="Features that will be started on container startup.">
         <feature>kernel</feature>
         <feature>cxf</feature>
-        <feature>camel</feature>
-        <feature>camel-cxf</feature>
         <feature>war</feature>
         <feature>branding-app</feature>
     </feature>
@@ -52,7 +49,6 @@
 
     <!-- Start of app features -->
 
-    <repository>mvn:ddf.features/admin/${project.version}/xml/features</repository>
     <repository>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</repository>
@@ -64,15 +60,13 @@
     </feature>
 
     <feature name="platform-app" version="${project.version}"
-             description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics">
+             description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Action Framework, MIME Framework, Metrics">
         <feature>platform-core</feature>
-        <feature>platform-api</feature>
         <feature>platform-solr-app</feature>
         <feature>tika</feature>
         <feature>platform-util</feature>
         <feature>io</feature>
         <feature>parser-xml</feature>
-        <feature>resource-bundle-locator</feature>
     </feature>
 
 </features>

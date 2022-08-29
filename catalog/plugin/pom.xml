@@ -29,7 +29,6 @@
         <module>catalog-plugin-metacard-validation</module>
         <module>catalog-plugin-checksum</module>
         <module>catalog-plugin-videothumbnail</module>
-        <module>catalog-plugin-versioning</module>
         <module>catalog-plugin-expirationdate</module>
         <module>catalog-plugin-content-uri</module>
         <module>catalog-plugin-clientinfo</module>
@@ -39,9 +38,5 @@
         <module>catalog-plugin-metacardbackup-storage-common</module>
         <module>catalog-plugin-metacardbackup-filestorage</module>
         <module>catalog-plugin-metacardbackup-s3storage</module>
-        <module>catalog-plugin-security-audit</module>
-        <module>catalog-plugin-gazetteer</module>
-        <module>catalog-plugin-oauth</module>
-        <module>catalog-plugin-facet-attribute-access</module>
     </modules>
 </project>

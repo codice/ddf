@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
-import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,16 +87,14 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     if (isHostUnset(SystemBaseUrl.EXTERNAL.getHost())) {
       LOGGER.debug(
-          "Cannot create Action URL for metacard {}: Host name/IP not set.",
-          LogSanitizer.sanitize(metacard.getId()));
+          "Cannot create Action URL for metacard {}: Host name/IP not set.", metacard.getId());
       return null;
     }
 
     try {
       return getMetacardAction(getSource(metacard), metacard);
     } catch (Exception e) {
-      LOGGER.debug(
-          "Cannot create Action URL for metacard {}.", LogSanitizer.sanitize(metacard.getId()), e);
+      LOGGER.debug("Cannot create Action URL for metacard {}.", metacard.getId(), e);
       return null;
     }
   }

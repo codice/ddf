@@ -21,6 +21,7 @@
     <feature name="test-common" version="${project.version}"
              description="Common utilities for testing">
         <feature>guava</feature>
+        <feature>sync-installer</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/${javax.inject.bundle.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-compress/${commons-compress.version}</bundle>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
@@ -28,6 +29,11 @@
         <bundle>mvn:org.xmlunit/xmlunit-core/${xmlunit-matchers.version}</bundle>
         <bundle>mvn:org.xmlunit/xmlunit-matchers/${xmlunit-matchers.version}</bundle>
         <bundle>mvn:ddf.lib/test-common/${project.version}</bundle>
+    </feature>
+
+    <feature name="sync-installer" version="${project.version}">
+        <bundle>mvn:ddf.platform/sync-installer-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/sync-installer-impl/${project.version}</bundle>
     </feature>
 
     <feature name="hamcrest-all" version="${project.version}"

@@ -46,7 +46,6 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
-import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
@@ -135,8 +134,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     // Save original response for any exception message that might need to be
     // created
     String originalCswResponse = IOUtils.toString(inStream, StandardCharsets.UTF_8);
-    LOGGER.debug(
-        "Converting to CswRecordCollection: \n {}", LogSanitizer.sanitize(originalCswResponse));
+    LOGGER.debug("Converting to CswRecordCollection: \n {}", originalCswResponse);
 
     cswRecords = unmarshalWithStaxReader(originalCswResponse);
     return cswRecords;

@@ -67,13 +67,6 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel.karaf</groupId>
-            <artifactId>apache-camel</artifactId>
-            <version>${camel.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>kernel</artifactId>
             <version>${project.version}</version>
@@ -83,20 +76,6 @@
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>security</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>admin</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>

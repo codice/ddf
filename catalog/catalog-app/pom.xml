@@ -313,11 +313,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.api</groupId>
-            <artifactId>platform-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-localstorageprovider</artifactId>
             <version>${project.version}</version>
