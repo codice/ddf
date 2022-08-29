@@ -124,12 +124,6 @@ import net.opengis.ows.v_1_0_0.SectionsType;
 import net.opengis.ows.v_1_0_0.ServiceIdentification;
 import net.opengis.ows.v_1_0_0.ServiceProvider;
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.mgt.DefaultSecurityManager;
-import org.apache.shiro.session.mgt.SimpleSession;
-import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -248,7 +242,6 @@ public class CswEndpointTest {
       throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
           FederationException, ParseException, IngestException, CswException,
           InvalidSyntaxException {
-    addSecurity();
     URI mockUri = new URI(SAMPLE_NAME_SPACE);
     when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
     URL resourceUrl = CswEndpointTest.class.getResource("/record.xsd");
@@ -318,26 +311,11 @@ public class CswEndpointTest {
     when(queryFactory.getQueryById(anyList())).thenReturn(queryRequest);
   }
 
-  private void addSecurity() {
-    org.apache.shiro.mgt.SecurityManager secManager = new DefaultSecurityManager();
-    PrincipalCollection principals = new SimplePrincipalCollection(USER_ID, "testrealm");
-    Subject subject =
-        new Subject.Builder(secManager)
-            .principals(principals)
-            .session(new SimpleSession())
-            .authenticated(true)
-            .buildSubject();
-    ThreadContext.bind(secManager);
-    ThreadContext.bind(subject);
-  }
-
   @org.junit.After
   public void tearDownClass() {
     if (csw != null) {
       csw.destroy();
     }
-    ThreadContext.unbindSubject();
-    ThreadContext.unbindSecurityManager();
   }
 
   @Test

@@ -24,11 +24,6 @@
     <name>DDF :: Spatial :: CSW :: Endpoint</name>
     <dependencies>
         <dependency>
-            <groupId>ddf.security.handler</groupId>
-            <artifactId>security-handler-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
         </dependency>
@@ -44,10 +39,6 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.measure</groupId>
@@ -146,10 +137,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>security-rest-cxfwrapper</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -179,17 +166,6 @@
             <version>${org.geotools.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>log-sanitizer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-services</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -216,7 +192,6 @@
                             net.opengis.filter.v_1_1_0;version="[3,4)",
                             net.opengis.gml.v_3_1_1;version="[3,4)",
                             net.opengis.ows.v_1_0_0;version="[3,4)",
-                            ddf.security.permission,
                             org.apache.commons.logging; version="[1.1.0,2.0.0)",
                             org.codice.ddf.spatial.ogc.csw.catalog.actions,
                             *

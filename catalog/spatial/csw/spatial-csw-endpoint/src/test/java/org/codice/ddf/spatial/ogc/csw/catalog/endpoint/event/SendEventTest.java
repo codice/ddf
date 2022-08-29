@@ -28,15 +28,9 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.transform.QueryResponseTransformer;
-import ddf.security.Subject;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -46,21 +40,15 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
-import org.osgi.framework.InvalidSyntaxException;
 
 public class SendEventTest {
-
-  private Security mockSecurity;
 
   private URL callbackURI;
 
@@ -70,7 +58,7 @@ public class SendEventTest {
 
   private TransformerManager transformerManager;
 
-  private SendEventExtension sendEvent;
+  private SendEvent sendEvent;
 
   private Metacard metacard;
 
@@ -84,15 +72,11 @@ public class SendEventTest {
 
   private WebClient webclient;
 
-  private SecureCxfClientFactory<CswSubscribe> mockCxfClientFactory;
+  private JAXRSClientFactoryBean mockCxfClientFactory;
 
   private Response response;
 
   private MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-
-  private List<AccessPlugin> accessPlugins = new ArrayList<>();
-
-  private Subject subject;
 
   @Before
   public void setUp() throws Exception {
@@ -120,22 +104,14 @@ public class SendEventTest {
 
     metacard = mock(Metacard.class);
     webclient = mock(WebClient.class);
-    mockCxfClientFactory = mock(SecureCxfClientFactory.class);
+    mockCxfClientFactory = mock(JAXRSClientFactoryBean.class);
     response = mock(Response.class);
-    subject = mock(Subject.class);
 
-    mockSecurity = mock(Security.class);
-    headers.put(Subject.class.toString(), Arrays.asList(new Subject[] {subject}));
-    AccessPlugin accessPlugin = mock(AccessPlugin.class);
-    accessPlugins.add(accessPlugin);
-    when(mockCxfClientFactory.getWebClient()).thenReturn(webclient);
+    when(mockCxfClientFactory.createWebClient()).thenReturn(webclient);
     when(webclient.invoke(anyString(), isNull())).thenReturn(response);
     when(response.getHeaders()).thenReturn(headers);
-    when(accessPlugin.processPostQuery(any(QueryResponse.class)))
-        .thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
 
-    sendEvent = new SendEventExtension(request, query, mockCxfClientFactory);
-    sendEvent.setSubject(subject);
+    sendEvent = new SendEvent(request, query, mockCxfClientFactory);
   }
 
   public void verifyResults() throws Exception {
@@ -180,25 +156,5 @@ public class SendEventTest {
     available = sendEvent.ping();
     assertThat(available, is(true));
     assertThat(lastPing, is(sendEvent.getLastPing()));
-  }
-
-  private class SendEventExtension extends SendEvent {
-
-    public SendEventExtension(
-        GetRecordsType request,
-        QueryRequest query,
-        SecureCxfClientFactory<CswSubscribe> mockCxfClientFactory)
-        throws CswException {
-      super(request, query, mockCxfClientFactory);
-      super.security = mockSecurity;
-    }
-
-    List<AccessPlugin> getAccessPlugins() throws InvalidSyntaxException {
-      return accessPlugins;
-    }
-
-    public void setSubject(Subject subject) {
-      super.subject = subject;
-    }
   }
 }

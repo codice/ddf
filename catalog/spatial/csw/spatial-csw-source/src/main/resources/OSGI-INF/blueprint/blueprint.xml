@@ -27,12 +27,7 @@
     <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
                filter="(shortname=URLResourceReader)"/>
     <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
-    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
-    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
-    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
     <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
-    <reference id="security" interface="org.codice.ddf.security.Security" />
-    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
 
     <bean id="metacardTypes" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
@@ -74,10 +69,6 @@
             <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
-            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
-            <property name="oauthClientId" value="ddf-client"/>
-            <property name="oauthClientSecret" value="secret"/>
-            <property name="oauthFlow" value="code"/>
             <property name="disableCnCheck" value="false"/>
             <property name="coordinateOrder" value="LON_LAT"/>
             <property name="usePosList" value="false"/>
@@ -99,14 +90,9 @@
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
-            <property name="securityManager" ref="securityManager"/>
             <property name="metacardTypes" ref="metacardTypes"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
-            <argument ref="encryptionService"/>
-            <argument ref="clientBuilderFactory"/>
-            <argument ref="security" />
-            <argument ref="permissions"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -127,10 +113,6 @@
             <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
-            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
-            <property name="oauthClientId" value="ddf-client"/>
-            <property name="oauthClientSecret" value="secret"/>
-            <property name="oauthFlow" value="code"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
 
@@ -159,12 +141,7 @@
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
-            <property name="securityManager" ref="securityManager"/>
             <property name="metacardTypes" ref="metacardTypes"/>
-            <argument ref="encryptionService"/>
-            <argument ref="clientBuilderFactory"/>
-            <argument ref="security" />
-            <argument ref="permissions"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -187,10 +164,6 @@
             <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
-            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
-            <property name="oauthClientId" value="ddf-client"/>
-            <property name="oauthClientSecret" value="secret"/>
-            <property name="oauthFlow" value="code"/>
             <property name="disableCnCheck" value="false"/>
             <property name="coordinateOrder" value="LON_LAT"/>
             <property name="usePosList" value="false"/>
@@ -212,14 +185,9 @@
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
-            <property name="securityManager" ref="securityManager"/>
             <property name="metacardTypes" ref="metacardTypes"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
-            <argument ref="encryptionService"/>
-            <argument ref="clientBuilderFactory"/>
-            <argument ref="security" />
-            <argument ref="permissions"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -242,10 +210,6 @@
             <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
-            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
-            <property name="oauthClientId" value="ddf-client"/>
-            <property name="oauthClientSecret" value="secret"/>
-            <property name="oauthFlow" value="code"/>
             <property name="disableCnCheck" value="false"/>
             <property name="coordinateOrder" value="LON_LAT"/>
             <property name="usePosList" value="false"/>
@@ -267,14 +231,9 @@
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
-            <property name="securityManager" ref="securityManager"/>
             <property name="metacardTypes" ref="metacardTypes"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
-            <argument ref="encryptionService"/>
-            <argument ref="clientBuilderFactory"/>
-            <argument ref="security" />
-            <argument ref="permissions"/>
             <!-- CSW Store Properties -->
             <property name="schemaTransformerManager" ref="metacardTransformerManager"/>
             <property name="cswTransactionWriter" ref="cswTransactionWriter"/>

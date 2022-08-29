@@ -54,12 +54,11 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.codice.ddf.configuration.DictionaryMap;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.TransformerProperties;
 import org.codice.ddf.platform.util.XMLUtils;
-import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
@@ -107,13 +106,28 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
   private final EventProcessor eventProcessor;
 
-  private final ClientBuilderFactory clientBuilderFactory;
+  private final JAXRSClientFactoryBean clientFactory;
 
   private DatatypeFactory datatypeFactory;
 
   private Map<String, ServiceRegistration<Subscription>> registeredSubscriptions = new HashMap<>();
 
-  private Security security;
+  public CswSubscriptionEndpoint(
+      EventProcessor eventProcessor,
+      TransformerManager mimeTypeTransformerManager,
+      TransformerManager schemaTransformerManager,
+      TransformerManager inputTransformerManager,
+      Validator validator,
+      CswQueryFactory queryFactory) {
+    this(
+        eventProcessor,
+        mimeTypeTransformerManager,
+        schemaTransformerManager,
+        inputTransformerManager,
+        validator,
+        queryFactory,
+        null);
+  }
 
   public CswSubscriptionEndpoint(
       EventProcessor eventProcessor,
@@ -122,16 +136,18 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       TransformerManager inputTransformerManager,
       Validator validator,
       CswQueryFactory queryFactory,
-      ClientBuilderFactory clientBuilderFactory,
-      Security security) {
+      JAXRSClientFactoryBean clientFactory) {
     this.eventProcessor = eventProcessor;
     this.mimeTypeTransformerManager = mimeTypeTransformerManager;
     this.schemaTransformerManager = schemaTransformerManager;
     this.inputTransformerManager = inputTransformerManager;
     this.validator = validator;
     this.queryFactory = queryFactory;
-    this.clientBuilderFactory = clientBuilderFactory;
-    this.security = security;
+    if (clientFactory != null) {
+      this.clientFactory = clientFactory;
+    } else {
+      this.clientFactory = new JAXRSClientFactoryBean();
+    }
 
     try {
       this.datatypeFactory = DatatypeFactory.newInstance();
@@ -422,10 +438,9 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     // if it is an empty query we need to create a filterless subscription
     if (((QueryType) request.getAbstractQuery().getValue()).getConstraint() == null) {
       return CswSubscription.getFilterlessSubscription(
-          mimeTypeTransformerManager, request, query, clientBuilderFactory, security);
+          mimeTypeTransformerManager, request, query, clientFactory);
     }
-    return new CswSubscription(
-        mimeTypeTransformerManager, request, query, clientBuilderFactory, security);
+    return new CswSubscription(mimeTypeTransformerManager, request, query, clientFactory);
   }
 
   public synchronized String addOrUpdateSubscription(

@@ -41,7 +41,6 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.QueryRequest;
@@ -51,7 +50,6 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryFilterTransformer;
 import ddf.catalog.transform.QueryFilterTransformerProvider;
-import ddf.security.permission.impl.PermissionsImpl;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
@@ -254,8 +252,7 @@ public class CswQueryFactoryTest {
     FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
     CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
-    queryFactory =
-        new CswQueryFactory(cswRecordMap, filterBuilder, filterAdapter, new PermissionsImpl());
+    queryFactory = new CswQueryFactory(cswRecordMap, filterBuilder, filterAdapter);
 
     AttributeRegistryImpl attributeRegistry = new AttributeRegistryImpl();
     attributeRegistry.registerMetacardType(getCswMetacardType());
@@ -723,25 +720,6 @@ public class CswQueryFactoryTest {
         new String[] {CswConstants.CSW_VALID, CQL_DURING_OR_AFTER, TIMESTAMP, "/", DURATION};
     String cqlText = StringUtils.join(cqlTextValues, " ");
     cqlTemporalQuery(Core.EXPIRATION, cqlText, new Class[] {During.class, After.class});
-  }
-
-  @Test
-  public void testQueryTags() throws Exception {
-    queryFactory.setSchemaToTagsMapping(new String[] {CswConstants.CSW_OUTPUT_SCHEMA + "=myTag"});
-
-    List<String> ids = new ArrayList<>();
-    ids.add("someId");
-
-    FilterAdapter adapter = new GeotoolsFilterAdapterImpl();
-
-    assertThat(
-        adapter.adapt(
-            queryFactory
-                .updateQueryRequestTags(
-                    queryFactory.getQueryById(ids), CswConstants.CSW_OUTPUT_SCHEMA)
-                .getQuery(),
-            new TagsFilterDelegate("myTag")),
-        is(true));
   }
 
   @Test

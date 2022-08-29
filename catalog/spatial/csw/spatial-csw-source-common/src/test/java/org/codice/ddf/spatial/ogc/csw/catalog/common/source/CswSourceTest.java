@@ -35,7 +35,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.xstream.converters.Converter;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -45,7 +44,6 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -55,13 +53,6 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.security.SecurityConstants;
-import ddf.security.audit.SecurityLogger;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.Permissions;
-import ddf.security.permission.impl.PermissionsImpl;
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
@@ -82,14 +73,7 @@ import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.filter.v_1_1_0.SortOrderType;
-import org.apache.shiro.subject.Subject;
-import org.codice.ddf.cxf.client.ClientBuilder;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
-import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
-import org.codice.ddf.cxf.oauth.OAuthSecurity;
-import org.codice.ddf.security.impl.Security;
-import org.codice.ddf.security.jaxrs.SamlSecurity;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -124,12 +108,8 @@ public class CswSourceTest extends TestCswSourceBase {
 
   private Converter mockProvider = mock(Converter.class);
 
-  private EncryptionService encryptionService = mock(EncryptionService.class);
-
-  private Permissions permissions = new PermissionsImpl();
-
   @Test
-  public void testParseCapabilities() throws CswException, SecurityServiceException {
+  public void testParseCapabilities() throws CswException {
     AbstractCswSource source = getCswSource(createMockCsw(), mockContext);
 
     assertThat(source.isAvailable(), is(true));
@@ -140,7 +120,7 @@ public class CswSourceTest extends TestCswSourceBase {
   }
 
   @Test
-  public void testInitialContentList() throws CswException, SecurityServiceException {
+  public void testInitialContentList() throws CswException {
     AbstractCswSource source = getCswSource(createMockCsw(), mockContext);
 
     assertThat(source.isAvailable(), is(true));
@@ -151,8 +131,7 @@ public class CswSourceTest extends TestCswSourceBase {
   }
 
   @Test
-  public void testAddingContentTypesOnQueries()
-      throws CswException, UnsupportedQueryException, SecurityServiceException {
+  public void testAddingContentTypesOnQueries() throws CswException, UnsupportedQueryException {
     Csw mockCsw = createMockCsw();
 
     List<String> expectedNames =
@@ -179,15 +158,16 @@ public class CswSourceTest extends TestCswSourceBase {
 
     when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
 
-    QueryImpl propertyIsLikeQuery =
-        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("*"));
+    QueryRequestImpl propertyIsLikeQuery =
+        new QueryRequestImpl(
+            new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("*")));
 
     expectedNames.add("dataset");
     expectedNames.add("dataset 2");
     expectedNames.add("dataset 3");
     expected = generateContentType(expectedNames);
 
-    source.query(getQueryRequestWithSubject(propertyIsLikeQuery));
+    source.query(propertyIsLikeQuery);
 
     assertThat(source.getContentTypes(), hasSize(13));
     assertThat(source.getContentTypes(), is(expected));
@@ -196,7 +176,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testPropertyIsLikeQuery()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
 
     // Setup
     final String searchPhrase = "*th*e";
@@ -221,7 +201,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(getQueryRequestWithSubject(propertyIsLikeQuery));
+    SourceResponse response = cswSource.query(new QueryRequestImpl(propertyIsLikeQuery));
 
     // Verify
     Assert.assertNotNull(response);
@@ -250,7 +230,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testQueryWitNaturalSorting()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
     // Setup
     final String searchPhrase = "*";
     final int pageSize = 1;
@@ -275,7 +255,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
+    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -296,7 +276,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testQueryWitNullSorting()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
     // Setup
     final String searchPhrase = "*";
     final int pageSize = 1;
@@ -321,7 +301,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
+    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -342,7 +322,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testQueryWithSorting()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
 
     final String TITLE = "title";
 
@@ -364,7 +344,6 @@ public class CswSourceTest extends TestCswSourceBase {
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
     query.setPageSize(pageSize);
     SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
-    query.setProperties(ImmutableMap.of(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class)));
     query.setSortBy(sortBy);
 
     AbstractCswSource cswSource = getCswSource(mockCsw, mockContext);
@@ -372,7 +351,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
+    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -405,7 +384,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testQueryWithSortByDistance()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
 
     // Setup
     final String searchPhrase = "*";
@@ -432,7 +411,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
+    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -453,7 +432,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testQueryWithSortByRelevance()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
     // Setup
     final String searchPhrase = "*";
     final int pageSize = 1;
@@ -479,7 +458,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
+    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -512,7 +491,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testQueryWithSortByTemporal()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
     // Setup
     final String searchPhrase = "*";
     final int pageSize = 1;
@@ -538,7 +517,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    SourceResponse response = cswSource.query(getQueryRequestWithSubject(query));
+    SourceResponse response = cswSource.query(new QueryRequestImpl(query));
 
     // Verify
     Assert.assertNotNull(response);
@@ -575,7 +554,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testPropertyIsEqualToQueryContentTypeIsMappedToFormat()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
 
     // Setup
     int pageSize = 10;
@@ -600,7 +579,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(getQueryRequestWithSubject(propertyIsEqualToQuery));
+    cswSource.query(new QueryRequestImpl(propertyIsEqualToQuery));
 
     // Verify
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -633,7 +612,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testPropertyIsLikeContentTypeVersion()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
 
     // Setup
     int pageSize = 10;
@@ -663,7 +642,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(getQueryRequestWithSubject(propertyIsEqualToQuery));
+    cswSource.query(new QueryRequestImpl(propertyIsEqualToQuery));
 
     // Verify
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -692,7 +671,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testAbsoluteTemporalSearchPropertyIsBetweenQuery()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
 
     // Setup
     String expectedXml =
@@ -757,7 +736,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(getQueryRequestWithSubject(temporalQuery));
+    cswSource.query(new QueryRequestImpl(temporalQuery));
 
     // Verify
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -783,7 +762,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testAbsoluteTemporalSearchTwoRanges()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
 
     // Setup
     String expectedXml =
@@ -871,7 +850,7 @@ public class CswSourceTest extends TestCswSourceBase {
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(getQueryRequestWithSubject(temporalQuery));
+    cswSource.query(new QueryRequestImpl(temporalQuery));
 
     // Verify
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -895,8 +874,7 @@ public class CswSourceTest extends TestCswSourceBase {
   }
 
   @Test(expected = UnsupportedQueryException.class)
-  public void testCswSourceNoFilterCapabilities()
-      throws CswException, UnsupportedQueryException, SecurityServiceException {
+  public void testCswSourceNoFilterCapabilities() throws CswException, UnsupportedQueryException {
     // Setup
     CapabilitiesType mockCapabilitiesType = mock(CapabilitiesType.class);
     when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
@@ -909,11 +887,11 @@ public class CswSourceTest extends TestCswSourceBase {
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("junk"));
     propertyIsLikeQuery.setPageSize(10);
 
-    cswSource.query(getQueryRequestWithSubject(propertyIsLikeQuery));
+    cswSource.query(new QueryRequestImpl(propertyIsLikeQuery));
   }
 
   @Test
-  public void testTimeoutConfiguration() throws SecurityServiceException {
+  public void testTimeoutConfiguration() throws Exception {
 
     // Setup
     final int numRecordsReturned = 1;
@@ -942,11 +920,10 @@ public class CswSourceTest extends TestCswSourceBase {
   }
 
   @Test
-  public void testRefreshWithNullConfiguration() throws SecurityServiceException {
-    AbstractCswSource cswSource =
-        getCswSource(null, null, "type", null, null, encryptionService, permissions);
+  public void testRefreshWithNullConfiguration() throws Exception {
+    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null);
     CswSourceConfiguration defaultCswSourceConfiguration =
-        getStandardCswSourceConfiguration(null, null, null, encryptionService, permissions);
+        getStandardCswSourceConfiguration(null, null, null);
 
     // Assert that the default configuration is set
     assertDefaultCswSourceConfiguration(
@@ -960,11 +937,10 @@ public class CswSourceTest extends TestCswSourceBase {
   }
 
   @Test
-  public void testRefreshWithEmptyConfiguration() throws SecurityServiceException {
-    AbstractCswSource cswSource =
-        getCswSource(null, null, "type", null, null, encryptionService, permissions);
+  public void testRefreshWithEmptyConfiguration() throws Exception {
+    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null);
     CswSourceConfiguration defaultCswSourceConfiguration =
-        getStandardCswSourceConfiguration(null, null, null, encryptionService, permissions);
+        getStandardCswSourceConfiguration(null, null, null);
 
     Map<String, Object> configuration = new HashMap<>();
 
@@ -980,11 +956,10 @@ public class CswSourceTest extends TestCswSourceBase {
   }
 
   @Test
-  public void testRefresh() throws SecurityServiceException {
+  public void testRefresh() throws Exception {
     AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, "contentType");
     CswSourceConfiguration defaultCswSourceConfiguration =
-        getStandardCswSourceConfiguration(
-            "contentType", "qname", "queryprefix", encryptionService, permissions);
+        getStandardCswSourceConfiguration("contentType", "qname", "queryprefix");
 
     // Assert Defaults
     assertDefaultCswSourceConfiguration(
@@ -992,7 +967,6 @@ public class CswSourceTest extends TestCswSourceBase {
 
     // Set Configuration Map
     Map<String, Object> configuration = getConfigurationMap(cswSource);
-    when(encryptionService.decryptValue(PASSWORD)).thenReturn(PASSWORD);
 
     // Call Refresh
     cswSource.refresh(configuration);
@@ -1006,44 +980,20 @@ public class CswSourceTest extends TestCswSourceBase {
 
   @Test
   public void testSetPassword() {
-    AbstractCswSource cswSource =
-        getCswSource(null, null, "type", null, null, encryptionService, permissions);
-    when(encryptionService.decryptValue("secret")).thenReturn("secret");
+    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null);
 
     cswSource.setPassword("secret");
 
-    // The password is first initialized to "pass" on creation of the AbstractCswSource.
-    // Verify the encryption service was called with "secret".
-    // Assert the password is equal to "secret".
-    verify(encryptionService, times(2)).decryptValue("secret");
     assertThat(cswSource.cswSourceConfiguration.getPassword(), is(equalTo("secret")));
   }
 
   @Test
   public void testSetPasswordWithEmptyPassword() {
-    AbstractCswSource cswSource =
-        getCswSource(null, null, "type", null, null, encryptionService, permissions);
-    when(encryptionService.decryptValue("")).thenReturn("");
+    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null);
 
     cswSource.setPassword("");
 
-    // The password is first initialized to "pass" on creation of the AbstractCswSource.
-    // Verify the encryption service was called with an empty password.
-    // Assert the password is equal to "".
-    verify(encryptionService, times(2)).decryptValue("");
     assertThat(cswSource.cswSourceConfiguration.getPassword(), is(equalTo("")));
-  }
-
-  @Test
-  public void testSetPasswordWithNullEncryptionService() {
-    AbstractCswSource cswSource = getCswSource(null, null, "type", null, null, null, permissions);
-
-    cswSource.setPassword("secret");
-
-    // Verify the encryption service was not called.
-    // Assert the password is equal to the value it was set to.
-    verify(encryptionService, times(0)).decryptValue("secret");
-    assertThat(cswSource.cswSourceConfiguration.getPassword(), is(equalTo("secret")));
   }
 
   @Test
@@ -1060,10 +1010,7 @@ public class CswSourceTest extends TestCswSourceBase {
     when(response.readEntity(any(Class.class))).thenReturn(ack);
 
     when(ack.getRequestId()).thenReturn(subscriptionId);
-    when(cswSource.getSubscriberClientFactory().getClientForSubject(cswSource.getSubject()))
-        .thenReturn(client);
-    when(cswSource.getSubscriberClientFactory().getClientForSystemSubject(cswSource.getSubject()))
-        .thenReturn(client);
+    when(cswSource.getSubscriberClientFactory().create(CswSubscribe.class)).thenReturn(client);
 
     // Set Configuration Map
     Map<String, Object> configuration = getConfigurationMap(cswSource);
@@ -1096,10 +1043,7 @@ public class CswSourceTest extends TestCswSourceBase {
     when(response.readEntity(any(Class.class))).thenReturn(ack);
 
     when(ack.getRequestId()).thenReturn(subscriptionId);
-    when(cswSource.getSubscriberClientFactory().getClientForSubject(cswSource.getSubject()))
-        .thenReturn(client);
-    when(cswSource.getSubscriberClientFactory().getClientForSystemSubject(cswSource.getSubject()))
-        .thenReturn(client);
+    when(cswSource.getSubscriberClientFactory().create(CswSubscribe.class)).thenReturn(client);
 
     cswSource.cswSourceConfiguration.setRegisterForEvents(true);
     cswSource.cswSourceConfiguration.setEventServiceAddress(eventEndpoint + "/original");
@@ -1136,10 +1080,7 @@ public class CswSourceTest extends TestCswSourceBase {
     when(response.readEntity(any(Class.class))).thenReturn(ack);
 
     when(ack.getRequestId()).thenReturn(subscriptionId);
-    when(cswSource.getSubscriberClientFactory().getClientForSubject(cswSource.getSubject()))
-        .thenReturn(client);
-    when(cswSource.getSubscriberClientFactory().getClientForSystemSubject(cswSource.getSubject()))
-        .thenReturn(client);
+    when(cswSource.getSubscriberClientFactory().create(CswSubscribe.class)).thenReturn(client);
 
     cswSource.cswSourceConfiguration.setRegisterForEvents(true);
     cswSource.cswSourceConfiguration.setEventServiceAddress(eventEndpoint);
@@ -1164,7 +1105,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testQueryWithAlternateQueryType()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
 
     // Setup
     final QName expectedQname = new QName("http://example.com", "example", "abc");
@@ -1191,15 +1132,13 @@ public class CswSourceTest extends TestCswSourceBase {
             mockContext,
             null,
             expectedQname.getPrefix() + ":" + expectedQname.getLocalPart(),
-            expectedQname.getNamespaceURI(),
-            null,
-            permissions);
+            expectedQname.getNamespaceURI());
 
     cswSource.setCswUrl(URL);
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(getQueryRequestWithSubject(query));
+    cswSource.query(new QueryRequestImpl(query));
 
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
     try {
@@ -1218,7 +1157,7 @@ public class CswSourceTest extends TestCswSourceBase {
   @Test
   public void testQueryWithDefaultQueryType()
       throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException, SAXException,
-          IOException, SecurityServiceException {
+          IOException {
 
     // Setup
     final String searchPhrase = "*";
@@ -1239,13 +1178,12 @@ public class CswSourceTest extends TestCswSourceBase {
     query.setPageSize(pageSize);
 
     // Verify passing a null config for qname/prefix falls back to CSW Record
-    AbstractCswSource cswSource =
-        getCswSource(mockCsw, mockContext, null, null, null, null, permissions);
+    AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null);
     cswSource.setCswUrl(URL);
     cswSource.setId(ID);
 
     // Perform test
-    cswSource.query(getQueryRequestWithSubject(query));
+    cswSource.query(new QueryRequestImpl(query));
 
     ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
     try {
@@ -1264,9 +1202,8 @@ public class CswSourceTest extends TestCswSourceBase {
   }
 
   @Test
-  public void testCreateResults() throws SecurityServiceException {
-    AbstractCswSource cswSource =
-        getCswSource(mockCsw, mockContext, null, null, null, encryptionService, permissions);
+  public void testCreateResults() throws Exception {
+    AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null);
     CswRecordCollection recordCollection = new CswRecordCollection();
     final int total = 2;
     List<Metacard> metacards = new ArrayList<>(total);
@@ -1306,8 +1243,7 @@ public class CswSourceTest extends TestCswSourceBase {
       throws URISyntaxException, ResourceNotFoundException, IOException,
           ResourceNotSupportedException, CswException {
     configureMockCsw();
-    AbstractCswSource cswSource =
-        getCswSource(mockCsw, mockContext, null, null, null, null, permissions);
+    AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null);
     ResourceReader reader = mock(ResourceReader.class);
     when(reader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(mock(ResourceResponse.class));
@@ -1325,8 +1261,7 @@ public class CswSourceTest extends TestCswSourceBase {
       throws URISyntaxException, ResourceNotFoundException, IOException,
           ResourceNotSupportedException, CswException {
     configureMockCsw();
-    AbstractCswSource cswSource =
-        getCswSource(mockCsw, mockContext, null, null, null, null, permissions);
+    AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null);
     ResourceReader reader = mock(ResourceReader.class);
     when(reader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(mock(ResourceResponse.class));
@@ -1356,8 +1291,7 @@ public class CswSourceTest extends TestCswSourceBase {
     Resource resource = mock(Resource.class);
     when(collection.getResource()).thenReturn(resource);
     when(csw.getRecordById(any(GetRecordByIdRequest.class), anyString())).thenReturn(collection);
-    AbstractCswSource cswSource =
-        getCswSource(csw, mockContext, null, null, null, null, permissions);
+    AbstractCswSource cswSource = getCswSource(csw, mockContext, null, null, null);
     ResourceReader reader = mock(ResourceReader.class);
     when(reader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(mock(ResourceResponse.class));
@@ -1379,8 +1313,7 @@ public class CswSourceTest extends TestCswSourceBase {
     Resource resource = mock(Resource.class);
     when(collection.getResource()).thenReturn(resource);
     when(csw.getRecordById(any(GetRecordByIdRequest.class), anyString())).thenReturn(collection);
-    AbstractCswSource cswSource =
-        getCswSource(csw, mockContext, null, null, null, null, permissions);
+    AbstractCswSource cswSource = getCswSource(csw, mockContext, null, null, null);
     ResourceReader reader = mock(ResourceReader.class);
     when(reader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(mock(ResourceResponse.class));
@@ -1391,16 +1324,8 @@ public class CswSourceTest extends TestCswSourceBase {
   }
 
   private CswSourceConfiguration getStandardCswSourceConfiguration(
-      String contentTypeMapping,
-      String queryTypeQName,
-      String queryTypePrefix,
-      EncryptionService encryptionService,
-      Permissions permissions) {
-    CswSourceConfiguration cswSourceConfiguration =
-        new CswSourceConfiguration(encryptionService, permissions);
-    if (encryptionService != null) {
-      when(encryptionService.decryptValue("pass")).thenReturn("pass");
-    }
+      String contentTypeMapping, String queryTypeQName, String queryTypePrefix) {
+    CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
     if (contentTypeMapping == null) {
       cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, CswConstants.CSW_TYPE);
     } else {
@@ -1418,20 +1343,13 @@ public class CswSourceTest extends TestCswSourceBase {
     return cswSourceConfiguration;
   }
 
-  private AbstractCswSource getCswSource(Csw csw, BundleContext context)
-      throws SecurityServiceException {
+  private AbstractCswSource getCswSource(Csw csw, BundleContext context) {
     return getCswSource(csw, context, null);
   }
 
   private AbstractCswSource getCswSource(Csw csw, BundleContext context, String contentMapping) {
     return getCswSource(
-        csw,
-        context,
-        contentMapping,
-        CswConstants.CSW_RECORD,
-        CswConstants.CSW_OUTPUT_SCHEMA,
-        encryptionService,
-        permissions);
+        csw, context, contentMapping, CswConstants.CSW_RECORD, CswConstants.CSW_OUTPUT_SCHEMA);
   }
 
   private AbstractCswSource getCswSource(
@@ -1439,44 +1357,17 @@ public class CswSourceTest extends TestCswSourceBase {
       BundleContext context,
       String contentMapping,
       String queryTypeQName,
-      String queryTypePrefix,
-      EncryptionService encryptionService,
-      Permissions permissions) {
+      String queryTypePrefix) {
 
     CswSourceConfiguration cswSourceConfiguration =
-        getStandardCswSourceConfiguration(
-            contentMapping, queryTypeQName, queryTypePrefix, encryptionService, permissions);
+        getStandardCswSourceConfiguration(contentMapping, queryTypeQName, queryTypePrefix);
     cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentMapping);
 
-    SecureCxfClientFactory<Csw> mockFactory = mock(SecureCxfClientFactory.class);
-    doReturn(csw).when(mockFactory).getClient();
-    doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
-    doReturn(csw).when(mockFactory).getClientForSystemSubject(any(Subject.class));
-
-    ClientBuilderFactory clientBuilderFactory = mock(ClientBuilderFactory.class);
-    ClientBuilder<Csw> clientBuilder =
-        new ClientBuilderImpl<Csw>(
-            mock(OAuthSecurity.class),
-            mock(SamlSecurity.class),
-            mock(SecurityLogger.class),
-            mock(SecurityManager.class)) {
-          @Override
-          public SecureCxfClientFactory<Csw> build() {
-            return mockFactory;
-          }
-        };
-
-    when(clientBuilderFactory.<Csw>getClientBuilder()).thenReturn(clientBuilder);
+    JAXRSClientFactoryBean mockFactory = mock(JAXRSClientFactoryBean.class);
+    when(mockFactory.create(Csw.class)).thenReturn(csw);
 
     CswSourceStub cswSource =
-        new CswSourceStub(
-            mockContext,
-            cswSourceConfiguration,
-            mockProvider,
-            clientBuilderFactory,
-            encryptionService,
-            new Security(),
-            permissions);
+        new CswSourceStub(mockContext, cswSourceConfiguration, mockProvider, mockFactory);
     cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
     cswSource.setFilterBuilder(builder);
     cswSource.setContext(context);
@@ -1534,26 +1425,12 @@ public class CswSourceTest extends TestCswSourceBase {
     assertThat(cswSourceConfiguration.getCswUrl(), is(defaultCswSourceConfiguration.getCswUrl()));
     assertThat(
         cswSourceConfiguration.isCqlForced(), is(defaultCswSourceConfiguration.isCqlForced()));
-    assertThat(
-        cswSourceConfiguration.getOauthDiscoveryUrl(),
-        is(defaultCswSourceConfiguration.getOauthDiscoveryUrl()));
-    assertThat(
-        cswSourceConfiguration.getOauthClientId(),
-        is(defaultCswSourceConfiguration.getOauthClientId()));
-    assertThat(
-        cswSourceConfiguration.getOauthClientSecret(),
-        is(defaultCswSourceConfiguration.getOauthClientSecret()));
-    assertThat(
-        cswSourceConfiguration.getOauthFlow(), is(defaultCswSourceConfiguration.getOauthFlow()));
   }
 
   private void assertConfigurationAfterRefresh(CswSourceConfiguration cswSourceConfiguration) {
     assertThat(cswSourceConfiguration.getAuthenticationType(), is(AUTHENTICATION_TYPE));
     assertThat(cswSourceConfiguration.getUsername(), is(USERNAME));
     assertThat(cswSourceConfiguration.getPassword(), is(PASSWORD));
-    assertThat(cswSourceConfiguration.getCertAlias(), is(CERT_ALIAS));
-    assertThat(cswSourceConfiguration.getKeystorePath(), is(KEYSTORE_PATH));
-    assertThat(cswSourceConfiguration.getSslProtocol(), is(SSL_PROTOCOL));
     assertThat(cswSourceConfiguration.getId(), is(ID));
     assertThat(cswSourceConfiguration.getConnectionTimeout(), is(CONNECTION_TIMEOUT));
     assertThat(cswSourceConfiguration.getReceiveTimeout(), is(RECEIVE_TIMEOUT));
@@ -1571,10 +1448,6 @@ public class CswSourceTest extends TestCswSourceBase {
     assertThat(cswSourceConfiguration.getPollIntervalMinutes(), is(POLL_INTERVAL));
     assertThat(cswSourceConfiguration.getCswUrl(), is(URL));
     assertThat(cswSourceConfiguration.isCqlForced(), is(false));
-    assertThat(cswSourceConfiguration.getOauthDiscoveryUrl(), is(DISCOVERY_URL));
-    assertThat(cswSourceConfiguration.getOauthClientId(), is(CLIENT_ID));
-    assertThat(cswSourceConfiguration.getOauthClientSecret(), is(SECRET));
-    assertThat(cswSourceConfiguration.getOauthFlow(), is(FLOW));
   }
 
   private Map<String, Object> getConfigurationMap(AbstractCswSource cswSource) {
@@ -1582,9 +1455,6 @@ public class CswSourceTest extends TestCswSourceBase {
     configuration.put(cswSource.AUTHENTICATION_TYPE, AUTHENTICATION_TYPE);
     configuration.put(cswSource.USERNAME_PROPERTY, USERNAME);
     configuration.put(cswSource.PASSWORD_PROPERTY, PASSWORD);
-    configuration.put(cswSource.CERT_ALIAS_PROPERTY, CERT_ALIAS);
-    configuration.put(cswSource.KEYSTORE_PATH_PROPERTY, KEYSTORE_PATH);
-    configuration.put(cswSource.SSL_PROTOCOL_PROPERTY, SSL_PROTOCOL);
     configuration.put(cswSource.ID_PROPERTY, ID);
     configuration.put(cswSource.CONNECTION_TIMEOUT_PROPERTY, CONNECTION_TIMEOUT);
     configuration.put(cswSource.RECEIVE_TIMEOUT_PROPERTY, RECEIVE_TIMEOUT);
@@ -1598,16 +1468,6 @@ public class CswSourceTest extends TestCswSourceBase {
     configuration.put(cswSource.POLL_INTERVAL_PROPERTY, POLL_INTERVAL);
     configuration.put(cswSource.CSWURL_PROPERTY, URL);
     configuration.put(cswSource.IS_CQL_FORCED_PROPERTY, false);
-    configuration.put(cswSource.OAUTH_DISCOVERY_URL, DISCOVERY_URL);
-    configuration.put(cswSource.OAUTH_CLIENT_ID, CLIENT_ID);
-    configuration.put(cswSource.OAUTH_CLIENT_SECRET, SECRET);
-    configuration.put(cswSource.OAUTH_FLOW, FLOW);
     return configuration;
-  }
-
-  private QueryRequest getQueryRequestWithSubject(QueryImpl query) {
-    QueryRequestImpl queryRequest = new QueryRequestImpl(query);
-    query.setProperties(ImmutableMap.of(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class)));
-    return queryRequest;
   }
 }

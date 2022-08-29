@@ -39,10 +39,6 @@ import ddf.catalog.operation.impl.UpdateResponseImpl;
 import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.Permissions;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,8 +58,6 @@ import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
 import net.opengis.filter.v_1_1_0.FilterType;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
-import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -90,33 +84,10 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
    * @param context The {@link BundleContext} from the OSGi Framework
    * @param cswSourceConfiguration the configuration of this source
    * @param provider transform provider to transform results
-   * @param clientBuilderFactory client factory already configured for this source
    */
   public AbstractCswStore(
-      BundleContext context,
-      CswSourceConfiguration cswSourceConfiguration,
-      Converter provider,
-      ClientBuilderFactory clientBuilderFactory,
-      EncryptionService encryptionService,
-      Security security,
-      Permissions permissions) {
-    super(
-        context,
-        cswSourceConfiguration,
-        provider,
-        clientBuilderFactory,
-        encryptionService,
-        security,
-        permissions);
-  }
-
-  /** Instantiates a CswStore. */
-  public AbstractCswStore(
-      EncryptionService encryptionService,
-      ClientBuilderFactory clientBuilderFactory,
-      Security security,
-      Permissions permissions) {
-    super(encryptionService, clientBuilderFactory, security, permissions);
+      BundleContext context, CswSourceConfiguration cswSourceConfiguration, Converter provider) {
+    super(context, cswSourceConfiguration, provider);
   }
 
   @Override
@@ -125,8 +96,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
 
     validateOperation();
 
-    Subject subject = (Subject) createRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
-    Csw csw = factory.getClientForSubject(subject);
+    Csw csw = factory.create(Csw.class);
     CswTransactionRequest transactionRequest = getTransactionRequest();
 
     List<Metacard> metacards = createRequest.getMetacards();
@@ -180,7 +150,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
     }
 
     try {
-      createdMetacards = transactionQuery(createdMetacardFilters, subject);
+      createdMetacards = transactionQuery(createdMetacardFilters);
     } catch (UnsupportedQueryException e) {
       errors.add(
           new ProcessingDetailsImpl(this.getId(), e, "Failed to retrieve newly created metacards"));
@@ -195,8 +165,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
 
     validateOperation();
 
-    Subject subject = (Subject) updateRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
-    Csw csw = factory.getClientForSubject(subject);
+    Csw csw = factory.create(Csw.class);
     CswTransactionRequest transactionRequest = getTransactionRequest();
 
     OperationTransaction opTrans =
@@ -240,7 +209,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
     }
 
     try {
-      updatedMetacards.addAll(transactionQuery(updatedMetacardFilters, subject));
+      updatedMetacards.addAll(transactionQuery(updatedMetacardFilters));
     } catch (UnsupportedQueryException e) {
       errors.add(
           new ProcessingDetailsImpl(this.getId(), e, "Failed to retrieve updated metacards"));
@@ -259,8 +228,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
 
     validateOperation();
 
-    Subject subject = (Subject) deleteRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
-    Csw csw = factory.getClientForSubject(subject);
+    Csw csw = factory.create(Csw.class);
     CswTransactionRequest transactionRequest = getTransactionRequest();
 
     OperationTransaction opTrans =
@@ -336,8 +304,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
     this.cswTransactionWriter = cswTransactionWriter;
   }
 
-  private List<Metacard> transactionQuery(List<Filter> idFilters, Subject subject)
-      throws UnsupportedQueryException {
+  private List<Metacard> transactionQuery(List<Filter> idFilters) throws UnsupportedQueryException {
     Filter createFilter =
         filterBuilder.allOf(
             filterBuilder.anyOf(
@@ -351,7 +318,6 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
 
     Query query = new QueryImpl(createFilter);
     Map<String, Serializable> properties = new HashMap<>();
-    properties.put(SecurityConstants.SECURITY_SUBJECT, subject);
     QueryRequest queryRequest = new QueryRequestImpl(query, properties);
 
     SourceResponse sourceResponse = query(queryRequest);

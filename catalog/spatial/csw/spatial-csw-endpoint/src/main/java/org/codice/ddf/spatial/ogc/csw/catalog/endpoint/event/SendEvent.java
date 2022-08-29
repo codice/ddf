@@ -22,16 +22,11 @@ import ddf.catalog.operation.Pingable;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.plugin.AccessPlugin;
-import ddf.catalog.plugin.StopProcessingException;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -44,20 +39,13 @@ import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.cxf.client.ClientBuilder;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
-import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,18 +87,13 @@ public class SendEvent implements DeliveryMethod, Pingable {
 
   private final Random random = new Random();
 
-  Security security;
-
-  volatile Subject subject;
-
-  SecureCxfClientFactory<CswSubscribe> cxfClientFactory;
+  JAXRSClientFactoryBean cxfClientFactory;
 
   public SendEvent(
       TransformerManager transformerManager,
       GetRecordsType request,
       QueryRequest query,
-      ClientBuilderFactory clientBuilderFactory,
-      Security security)
+      JAXRSClientFactoryBean clientFactory)
       throws CswException {
 
     URL deliveryMethodUrl;
@@ -132,7 +115,6 @@ public class SendEvent implements DeliveryMethod, Pingable {
       LOGGER.debug(msg);
       throw new CswException(msg);
     }
-    this.security = security;
     this.query = query;
     this.callbackUrl = deliveryMethodUrl;
     this.request = request;
@@ -145,15 +127,12 @@ public class SendEvent implements DeliveryMethod, Pingable {
     this.resultType = request.getResultType() == null ? ResultType.HITS : request.getResultType();
 
     List providers = ImmutableList.of(new CswRecordCollectionMessageBodyWriter(transformerManager));
-    ClientBuilder<CswSubscribe> clientBuilder = clientBuilderFactory.getClientBuilder();
-    cxfClientFactory =
-        clientBuilder
-            .endpoint(callbackUrl.toString())
-            .interfaceClass(CswSubscribe.class)
-            .entityProviders(providers)
-            .useSamlEcp(true)
-            .useSubjectRetrievalInterceptor()
-            .build();
+    cxfClientFactory = clientFactory;
+    cxfClientFactory.setClassLoader(CswSubscribe.class.getClassLoader());
+    cxfClientFactory.setServiceClass(CswSubscribe.class);
+    cxfClientFactory.setAddress(callbackUrl.toString());
+    cxfClientFactory.setProviders(providers);
+
     try {
       InetAddress address = InetAddress.getByName(callbackUrl.getHost());
       ip = address.getHostAddress();
@@ -164,9 +143,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
   }
 
   public SendEvent(
-      GetRecordsType request,
-      QueryRequest query,
-      SecureCxfClientFactory<CswSubscribe> cxfClientFactory)
+      GetRecordsType request, QueryRequest query, JAXRSClientFactoryBean cxfClientFactory)
       throws CswException {
 
     URL deliveryMethodUrl;
@@ -210,54 +187,33 @@ public class SendEvent implements DeliveryMethod, Pingable {
   }
 
   private void sendEvent(String operation, Metacard... metacards) {
-    if (subject == null) {
+    List<Result> results =
+        Arrays.asList(metacards).stream().map(ResultImpl::new).collect(Collectors.toList());
+
+    QueryResponse queryResponse = new QueryResponseImpl(query, results, true, metacards.length);
+    CswRecordCollection recordCollection = new CswRecordCollection();
+
+    recordCollection.setElementName(elementName);
+    recordCollection.setElementSetType(elementSetType);
+    recordCollection.setById(false);
+    recordCollection.setRequest(request);
+    recordCollection.setResultType(resultType);
+    recordCollection.setDoWriteNamespaces(false);
+    recordCollection.setMimeType(mimeType);
+    recordCollection.setOutputSchema(outputSchema);
+
+    if (queryResponse.getResults().isEmpty()) {
       return;
     }
-    try {
-      List<Result> results =
-          Arrays.asList(metacards).stream().map(ResultImpl::new).collect(Collectors.toList());
+    recordCollection.setSourceResponse(queryResponse);
 
-      QueryResponse queryResponse = new QueryResponseImpl(query, results, true, metacards.length);
-      CswRecordCollection recordCollection = new CswRecordCollection();
-
-      recordCollection.setElementName(elementName);
-      recordCollection.setElementSetType(elementSetType);
-      recordCollection.setById(false);
-      recordCollection.setRequest(request);
-      recordCollection.setResultType(resultType);
-      recordCollection.setDoWriteNamespaces(false);
-      recordCollection.setMimeType(mimeType);
-      recordCollection.setOutputSchema(outputSchema);
-
-      queryResponse.getRequest().getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
-
-      for (AccessPlugin plugin : getAccessPlugins()) {
-
-        queryResponse = plugin.processPostQuery(queryResponse);
-      }
-
-      if (queryResponse.getResults().isEmpty()) {
-        return;
-      }
-      recordCollection.setSourceResponse(queryResponse);
-
-      send(operation, recordCollection);
-    } catch (StopProcessingException | InvalidSyntaxException e) {
-      LOGGER.debug("Unable to send event error running AccessPlugin processPostQuery. ", e);
-    }
+    send(operation, recordCollection);
   }
 
   private boolean send(String operation, CswRecordCollection recordCollection) {
-    WebClient webClient = cxfClientFactory.getWebClient();
+    WebClient webClient = cxfClientFactory.createWebClient();
 
-    try {
-      Response response = webClient.invoke(operation, recordCollection);
-      Subject pingSubject = (Subject) response.getHeaders().getFirst(Subject.class.toString());
-      if (pingSubject == null && ip != null) {
-        subject = security.getGuestSubject(ip);
-      } else {
-        subject = pingSubject;
-      }
+    try (Response response = webClient.invoke(operation, recordCollection)) {
 
       lastPing = System.currentTimeMillis();
       retryCount.set(0);
@@ -317,13 +273,6 @@ public class SendEvent implements DeliveryMethod, Pingable {
     }
 
     return send(HttpMethod.HEAD, null);
-  }
-
-  List<AccessPlugin> getAccessPlugins() throws InvalidSyntaxException {
-    BundleContext bundleContext = FrameworkUtil.getBundle(CswSubscription.class).getBundleContext();
-    Collection<ServiceReference<AccessPlugin>> serviceCollection =
-        bundleContext.getServiceReferences(AccessPlugin.class, null);
-    return serviceCollection.stream().map(bundleContext::getService).collect(Collectors.toList());
   }
 
   public long getLastPing() {

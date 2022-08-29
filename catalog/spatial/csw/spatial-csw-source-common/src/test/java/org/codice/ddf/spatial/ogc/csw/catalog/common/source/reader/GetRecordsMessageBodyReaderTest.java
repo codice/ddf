@@ -43,9 +43,6 @@ import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.Resource;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.Permissions;
-import ddf.security.permission.impl.PermissionsImpl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -75,10 +72,6 @@ public class GetRecordsMessageBodyReaderTest {
 
   private Converter mockProvider = mock(Converter.class);
 
-  private EncryptionService encryptionService = mock(EncryptionService.class);
-
-  private Permissions permissions = new PermissionsImpl();
-
   @Before
   public void setUp() {
     when(mockProvider.canConvert(any(Class.class))).thenReturn(true);
@@ -87,7 +80,7 @@ public class GetRecordsMessageBodyReaderTest {
   @Test
   public void testConfigurationArguments() throws Exception {
 
-    CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
+    CswSourceConfiguration config = new CswSourceConfiguration();
     config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     config.setCswAxisOrder(CswAxisOrder.LAT_LON);
@@ -227,7 +220,7 @@ public class GetRecordsMessageBodyReaderTest {
     CswRecordCollection collection = new CswRecordCollection();
     collection.setCswRecords(inputMetacards);
     when(mockProvider.unmarshal(any(), any())).thenReturn(collection);
-    CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
+    CswSourceConfiguration config = new CswSourceConfiguration();
     config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
@@ -245,7 +238,7 @@ public class GetRecordsMessageBodyReaderTest {
 
   @Test
   public void testReadProductData() throws Exception {
-    CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
+    CswSourceConfiguration config = new CswSourceConfiguration();
     config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
@@ -274,7 +267,7 @@ public class GetRecordsMessageBodyReaderTest {
 
   @Test
   public void testPartialContentResponseHandling() throws Exception {
-    CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
+    CswSourceConfiguration config = new CswSourceConfiguration();
     config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
@@ -312,7 +305,7 @@ public class GetRecordsMessageBodyReaderTest {
 
   @Test
   public void testPartialContentNotSupportedHandling() throws Exception {
-    CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
+    CswSourceConfiguration config = new CswSourceConfiguration();
     config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
@@ -349,8 +342,7 @@ public class GetRecordsMessageBodyReaderTest {
   @Test(expected = WebApplicationException.class)
   public void testExceptionReport() throws Exception {
     GetRecordsMessageBodyReader reader =
-        new GetRecordsMessageBodyReader(
-            mockProvider, new CswSourceConfiguration(encryptionService, permissions));
+        new GetRecordsMessageBodyReader(mockProvider, new CswSourceConfiguration());
 
     try (InputStream is =
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/exceptionReport.xml")) {
@@ -367,7 +359,7 @@ public class GetRecordsMessageBodyReaderTest {
   }
 
   private CswSourceConfiguration createConfig() {
-    CswSourceConfiguration config = new CswSourceConfiguration(encryptionService, permissions);
+    CswSourceConfiguration config = new CswSourceConfiguration();
     Map<String, String> mappings = new HashMap<>();
     mappings.put(Core.CREATED, "dateSubmitted");
     mappings.put(Metacard.EFFECTIVE, "created");

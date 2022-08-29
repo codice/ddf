@@ -28,7 +28,6 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryFilterTransformerProvider;
-import ddf.security.permission.Permissions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -98,17 +97,11 @@ public class CswQueryFactory {
 
   private QueryFilterTransformerProvider queryFilterTransformerProvider;
 
-  private Permissions permissions;
-
   public CswQueryFactory(
-      CswRecordMap cswRecordMap,
-      FilterBuilder filterBuilder,
-      FilterAdapter adapter,
-      Permissions permissions) {
+      CswRecordMap cswRecordMap, FilterBuilder filterBuilder, FilterAdapter adapter) {
     this.cswRecordMap = cswRecordMap;
     this.builder = filterBuilder;
     this.adapter = adapter;
-    this.permissions = permissions;
   }
 
   public static synchronized JAXBContext getJaxBContext() throws JAXBException {
@@ -461,14 +454,6 @@ public class CswQueryFactory {
               queryRequest.getProperties());
     }
     return newRequest;
-  }
-
-  public void setSchemaToTagsMapping(String[] schemaToTagsMappingStrings) {
-    if (schemaToTagsMappingStrings != null) {
-      schemaToTagsMapping.clear();
-      schemaToTagsMapping.putAll(
-          permissions.parsePermissionsFromString(schemaToTagsMappingStrings));
-    }
   }
 
   public void setAttributeRegistry(AttributeRegistry attributeRegistry) {

@@ -16,66 +16,41 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 import static org.mockito.Mockito.mock;
 
 import com.thoughtworks.xstream.converters.Converter;
-import ddf.security.Subject;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.Permissions;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
-import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.security.Security;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.osgi.framework.BundleContext;
 
 public class CswSourceStub extends AbstractCswSource {
-
-  Subject subject = mock(Subject.class);
 
   public CswSourceStub(
       BundleContext mockContext,
       CswSourceConfiguration cswSourceConfiguration,
       Converter mockProvider,
-      ClientBuilderFactory clientBuilderFactory,
-      EncryptionService encryptionService,
-      Security security,
-      Permissions permissions) {
-    super(
-        mockContext,
-        cswSourceConfiguration,
-        mockProvider,
-        clientBuilderFactory,
-        encryptionService,
-        security,
-        permissions);
-    super.subscribeClientFactory = mock(SecureCxfClientFactory.class);
-    try {
-      initClientFactory();
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
+      JAXRSClientFactoryBean clientFactoryBean) {
+    super(mockContext, cswSourceConfiguration, mockProvider);
+    super.subscribeClientFactory = mock(JAXRSClientFactoryBean.class);
+    super.factory = clientFactoryBean;
   }
 
   @Override
-  protected void initSubscribeClientFactory() {}
+  protected JAXRSClientFactoryBean initClientFactory(Class clazz) {
+    if (Csw.class.equals(clazz)) {
+      return super.factory;
+    } else {
+      return super.subscribeClientFactory;
+    }
+  }
 
   @Override
   protected Map<String, Consumer<Object>> getAdditionalConsumers() {
     return new HashMap<>();
   }
 
-  @Override
-  protected Subject getSystemSubject() {
-    return subject;
-  }
-
-  public Subject getSubject() {
-    return subject;
-  }
-
-  public SecureCxfClientFactory<CswSubscribe> getSubscriberClientFactory() {
+  public JAXRSClientFactoryBean getSubscriberClientFactory() {
     return subscribeClientFactory;
   }
 }

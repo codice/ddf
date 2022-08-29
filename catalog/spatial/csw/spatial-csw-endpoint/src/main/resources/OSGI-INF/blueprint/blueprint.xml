@@ -18,10 +18,7 @@
            xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="clientBuilderFactory" interface="org.codice.ddf.cxf.client.ClientBuilderFactory"/>
     <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
-    <reference id="security" interface="org.codice.ddf.security.Security" />
-    <reference id="permissions" interface="ddf.security.permission.Permissions"/>
 
     <bean id="CswResourceComparator"
           class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator">
@@ -147,7 +144,6 @@
     </bean>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
-    <reference id="eventProcessor" interface="ddf.catalog.event.EventProcessor"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
@@ -163,13 +159,7 @@
         <argument ref="metacardCswRecordMap"/>
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>
-        <argument ref="permissions"/>
         <property name="attributeRegistry" ref="attributeRegistry"/>
-        <property name="schemaToTagsMapping">
-            <array value-type="java.lang.String">
-                <value type="java.lang.String">urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=registry,registry-remote</value>
-            </array>
-        </property>
         <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
     </bean>
 
@@ -220,24 +210,11 @@
         </service-properties>
     </service>
 
-    <bean id="CswSubscriptionSvc"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint">
-        <argument ref="eventProcessor"/>
-        <argument ref="queryResponseTransformerManager"/>
-        <argument ref="metacardTransformerManager"/>
-        <argument ref="inputTransformerManager"/>
-        <argument ref="validator"/>
-        <argument ref="cswFilterFactory"/>
-        <argument ref="clientBuilderFactory"/>
-        <argument ref="security"/>
-    </bean>
-
     <service ref="ddf.catalog.endpoint.csw" interface="ddf.catalog.endpoint.CatalogEndpoint"/>
 
     <jaxrs:server id="CswService" address="/csw">
         <jaxrs:serviceBeans>
             <ref component-id="CswSvc"/>
-            <ref component-id="CswSubscriptionSvc"/>
         </jaxrs:serviceBeans>
         <jaxrs:resourceComparator>
             <ref component-id="CswResourceComparator"/>
@@ -249,19 +226,5 @@
             <ref component-id="cswRecordCollectionWriter"/>
         </jaxrs:providers>
     </jaxrs:server>
-
-    <cm:managed-service-factory id="cswSubscriptionFactory" factory-pid="CSW_Subscription"
-                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" >
-        <cm:managed-component
-                class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" init-method="restore">
-            <argument ref="CswSubscriptionSvc"/>
-            <property name="filterXml" value=""/>
-            <property name="subscriptionId" value=""/>
-            <property name="deliveryMethodUrl" value=""/>
-            <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
-        </cm:managed-component>
-    </cm:managed-service-factory>
-
-    <service ref="CswSubscriptionSvc" interface="ddf.catalog.event.Subscriber"/>
 
 </blueprint>

@@ -14,42 +14,21 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import com.thoughtworks.xstream.converters.Converter;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.Permissions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
-import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.AbstractCswSource;
 import org.osgi.framework.BundleContext;
 
 public class CswSourceImpl extends AbstractCswSource {
   public CswSourceImpl(
-      BundleContext context,
-      CswSourceConfiguration cswSourceConfiguration,
-      Converter provider,
-      ClientBuilderFactory clientBuilderFactory,
-      EncryptionService encryptionService,
-      Security security,
-      Permissions permissions) {
-    super(
-        context,
-        cswSourceConfiguration,
-        provider,
-        clientBuilderFactory,
-        encryptionService,
-        security,
-        permissions);
+      BundleContext context, CswSourceConfiguration cswSourceConfiguration, Converter provider) {
+    super(context, cswSourceConfiguration, provider);
   }
 
-  public CswSourceImpl(
-      EncryptionService encryptionService,
-      ClientBuilderFactory clientBuilderFactory,
-      Security security,
-      Permissions permissions) {
-    super(encryptionService, clientBuilderFactory, security, permissions);
+  public CswSourceImpl() {
+    super();
   }
 
   @Override

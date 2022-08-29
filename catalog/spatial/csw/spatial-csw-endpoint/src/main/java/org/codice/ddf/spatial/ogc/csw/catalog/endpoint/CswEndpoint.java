@@ -139,8 +139,6 @@ import net.opengis.ows.v_1_0_0.ServiceIdentification;
 import net.opengis.ows.v_1_0_0.ServiceProvider;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.XMLUtils;
@@ -571,7 +569,6 @@ public class CswEndpoint implements Csw {
     response.setVersion(CswConstants.VERSION_2_0_2);
 
     int numInserted = 0;
-    final Subject subject = SecurityUtils.getSubject();
     for (InsertAction insertAction : request.getInsertActions()) {
       final InsertAction transformInsertAction = transformInsertAction(insertAction);
 
@@ -593,8 +590,7 @@ public class CswEndpoint implements Csw {
                     transformInsertAction.getHandle());
               }
             };
-        Callable<CreateResponse> createCallable = subject.associateWith(callable);
-        completionService.submit(createCallable);
+        completionService.submit(callable);
       }
 
       for (int i = 0; i < metacards.size(); i++) {
@@ -633,7 +629,7 @@ public class CswEndpoint implements Csw {
       Callable<Integer> callable =
           () -> {
             try {
-              return updateRecords(subject, updateAction);
+              return updateRecords(updateAction);
             } catch (CswException
                 | FederationException
                 | IngestException
@@ -645,8 +641,7 @@ public class CswEndpoint implements Csw {
                   UNABLE_TO_UPDATE_MSG, CswConstants.TRANSACTION_FAILED, updateAction.getHandle());
             }
           };
-      Callable<Integer> updateCallable = subject.associateWith(callable);
-      updateCompletionService.submit(updateCallable);
+      updateCompletionService.submit(callable);
     }
     for (int i = 0; i < updateActions.size(); i++) {
       try {
@@ -759,7 +754,6 @@ public class CswEndpoint implements Csw {
     while (idsToDelete.length > 0) {
       LOGGER.debug(
           "Attempting to delete {} metacards from batch {}.", idsToDelete.length, ++batchCount);
-      final Subject subject = SecurityUtils.getSubject();
       for (final String id : idsToDelete) {
         Callable<DeleteResponse> callable =
             () -> {
@@ -774,8 +768,7 @@ public class CswEndpoint implements Csw {
                     transformDeleteAction.getHandle());
               }
             };
-        Callable<DeleteResponse> deleteCallable = subject.associateWith(callable);
-        deleteCompletionService.submit(deleteCallable);
+        deleteCompletionService.submit(callable);
       }
 
       for (int i = 0; i < idsToDelete.length; i++) {
@@ -833,7 +826,7 @@ public class CswEndpoint implements Csw {
         .orElse(updateAction);
   }
 
-  private int updateRecords(Subject subject, UpdateAction updateAction)
+  private int updateRecords(UpdateAction updateAction)
       throws CswException, FederationException, IngestException, SourceUnavailableException,
           UnsupportedQueryException {
 
@@ -886,8 +879,7 @@ public class CswEndpoint implements Csw {
               }
             };
         batchCount++;
-        Callable<Integer> updateCallable = subject.associateWith(callable);
-        completionService.submit(updateCallable);
+        completionService.submit(callable);
       }
 
       for (int i = 0; i < batchCount - 1; i++) {

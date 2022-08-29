@@ -105,8 +105,7 @@
                             ddf.catalog.data.impl.*,
                             ddf.catalog.operation.impl,
                             ddf.catalog.resource.impl,
-                            ddf.catalog.util.impl,
-                            org.codice.ddf.security.common.jaxrs
+                            ddf.catalog.util.impl
                         </Private-Package>
                         <Export-Package>
                             org.codice.ddf.spatial.ogc.catalog.resource.impl;version="${project.version}"

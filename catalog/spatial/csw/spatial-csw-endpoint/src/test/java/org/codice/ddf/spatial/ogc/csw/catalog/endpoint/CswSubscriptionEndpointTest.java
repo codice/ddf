@@ -33,11 +33,6 @@ import ddf.catalog.event.Subscription;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.security.SecurityConstants;
-import ddf.security.audit.SecurityLogger;
-import ddf.security.service.SecurityManager;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -52,15 +47,7 @@ import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
-import org.apache.commons.io.IOUtils;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.cxf.client.ClientBuilder;
-import org.codice.ddf.cxf.client.ClientBuilderFactory;
-import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.cxf.client.impl.ClientBuilderImpl;
-import org.codice.ddf.cxf.oauth.OAuthSecurity;
-import org.codice.ddf.security.Security;
-import org.codice.ddf.security.jaxrs.SamlSecurity;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
@@ -132,42 +119,12 @@ public class CswSubscriptionEndpointTest {
 
   private TransformerManager mockInputManager;
 
-  File systemKeystoreFile = null;
-
-  File systemTruststoreFile = null;
-
-  String password = "changeit";
-
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private ClientBuilderFactory clientBuilderFactory;
-
-  private Security security;
-
-  private SecurityManager securityManager;
+  private JAXRSClientFactoryBean clientBuilderFactory;
 
   @Before
   public void setUp() throws Exception {
-    systemKeystoreFile = temporaryFolder.newFile("serverKeystore.jks");
-    FileOutputStream systemKeyOutStream = new FileOutputStream(systemKeystoreFile);
-    InputStream systemKeyStream =
-        CswSubscriptionEndpointTest.class.getResourceAsStream("/serverKeystore.jks");
-    IOUtils.copy(systemKeyStream, systemKeyOutStream);
-
-    systemTruststoreFile = temporaryFolder.newFile("serverTruststore.jks");
-    FileOutputStream systemTrustOutStream = new FileOutputStream(systemTruststoreFile);
-    InputStream systemTrustStream =
-        CswSubscriptionEndpointTest.class.getResourceAsStream("/serverTruststore.jks");
-    IOUtils.copy(systemTrustStream, systemTrustOutStream);
-
-    System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
-    System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "jks");
-    System.setProperty("ddf.home", "");
-    System.setProperty(SecurityConstants.KEYSTORE_PATH, systemKeystoreFile.getAbsolutePath());
-    System.setProperty(SecurityConstants.TRUSTSTORE_PATH, systemTruststoreFile.getAbsolutePath());
-    System.setProperty(SecurityConstants.KEYSTORE_PASSWORD, password);
-    System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, password);
-
     eventProcessor = mock(EventProcessor.class);
     mockInputManager = mock(TransformerManager.class);
     mockContext = mock(BundleContext.class);
@@ -185,31 +142,14 @@ public class CswSubscriptionEndpointTest {
     configAdminRef = mock(ServiceReference.class);
     configAdmin = mock(ConfigurationAdmin.class);
     config = mock(Configuration.class);
-    SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
-    clientBuilderFactory = mock(ClientBuilderFactory.class);
-    ClientBuilder<WebClient> clientBuilder =
-        new ClientBuilderImpl<WebClient>(
-            mock(OAuthSecurity.class),
-            mock(SamlSecurity.class),
-            mock(SecurityLogger.class),
-            mock(SecurityManager.class)) {
-          @Override
-          public SecureCxfClientFactory<WebClient> build() {
-            return mockFactory;
-          }
-        };
+    clientBuilderFactory = mock(JAXRSClientFactoryBean.class);
 
-    when(clientBuilderFactory.<WebClient>getClientBuilder()).thenReturn(clientBuilder);
     Configuration[] configArry = {config};
 
     defaultRequest = createDefaultGetRecordsRequest();
     subscription =
         new CswSubscription(
-            mockMimeTypeManager,
-            defaultRequest.get202RecordsType(),
-            query,
-            clientBuilderFactory,
-            security);
+            mockMimeTypeManager, defaultRequest.get202RecordsType(), query, clientBuilderFactory);
 
     when(osgiFilter.toString()).thenReturn(FILTER_STR);
     doReturn(serviceRegistration)
@@ -238,8 +178,7 @@ public class CswSubscriptionEndpointTest {
             validator,
             queryFactory,
             mockContext,
-            clientBuilderFactory,
-            security);
+            clientBuilderFactory);
   }
 
   @Test
@@ -487,8 +426,7 @@ public class CswSubscriptionEndpointTest {
         Validator validator,
         CswQueryFactory queryFactory,
         BundleContext context,
-        ClientBuilderFactory clientBuilderFactory,
-        Security security) {
+        JAXRSClientFactoryBean clientBuilderFactory) {
       super(
           eventProcessor,
           mimeTypeTransformerManager,
@@ -496,8 +434,7 @@ public class CswSubscriptionEndpointTest {
           inputTransformerManager,
           validator,
           queryFactory,
-          clientBuilderFactory,
-          security);
+          clientBuilderFactory);
       this.bundleContext = context;
     }
 

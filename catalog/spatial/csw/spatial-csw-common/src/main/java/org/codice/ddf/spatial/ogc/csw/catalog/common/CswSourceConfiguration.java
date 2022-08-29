@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.Permissions;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -79,16 +76,7 @@ public class CswSourceConfiguration {
 
   private boolean registerForEvents;
 
-  private EncryptionService encryptionService;
-
   private Map<String, Set<String>> securityAttributes = new HashMap<>();
-
-  private Permissions permissions;
-
-  public CswSourceConfiguration(EncryptionService encryptionService, Permissions permissions) {
-    this.encryptionService = encryptionService;
-    this.permissions = permissions;
-  }
 
   @Deprecated
   public CswSourceConfiguration() {}
@@ -130,11 +118,7 @@ public class CswSourceConfiguration {
   }
 
   public void setPassword(String password) {
-    String updatedPassword = password;
-    if (encryptionService != null) {
-      updatedPassword = encryptionService.decryptValue(password);
-    }
-    this.password = updatedPassword;
+    this.password = password;
   }
 
   public String getOauthDiscoveryUrl() {
@@ -266,17 +250,6 @@ public class CswSourceConfiguration {
 
   public void setQueryTypeNamespace(String queryTypeNamespace) {
     this.queryTypeNamespace = queryTypeNamespace;
-  }
-
-  public Map<String, Set<String>> getSecurityAttributes() {
-    return Collections.unmodifiableMap(securityAttributes);
-  }
-
-  public void setSecurityAttributes(String[] securityAttributStrings) {
-    if (securityAttributStrings != null) {
-      securityAttributes.clear();
-      securityAttributes.putAll(permissions.parsePermissionsFromString(securityAttributStrings));
-    }
   }
 
   public boolean isRegisterForEvents() {
