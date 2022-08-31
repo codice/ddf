@@ -13,9 +13,9 @@
  */
 package ddf.catalog.resource.impl;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -41,10 +41,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,13 +55,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.junit.rules.TestWatchman;
 import org.junit.runners.model.FrameworkMethod;
+import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -368,58 +368,21 @@ public class URLResourceReaderTest {
   }
 
   @Test
-  public void testNameInContentDisposition() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
-    HttpResponse mockResponse = mock(HttpResponse.class);
-    when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
-    when(mockResponse.statusCode()).thenReturn(200);
-    when(mockResponse.body()).thenReturn(getBinaryData());
-
-    // verify that we got the entire resource
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, 5, uri);
-  }
-
-  /**
-   * Exactly the same as {@link URLResourceReaderTest#testNameInContentDisposition} except with a
-   * "qualifier" property. Tests that the {@link WebClient} is created with the correct URL.
-   */
-  @Test
   public void testRetrieveQualifiedResource() throws Exception {
     URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
     HttpResponse mockResponse = mock(HttpResponse.class);
-    when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+    ArgumentCaptor<HttpRequest> request = ArgumentCaptor.forClass(HttpRequest.class);
+    when(mockHttpClient.send(request.capture(), any())).thenReturn(mockResponse);
     when(mockResponse.statusCode()).thenReturn(200);
     when(mockResponse.body()).thenReturn(getBinaryData());
 
     final String qualifierValue = "qualifierValue";
+    // verify that we got the entire resource
+    verifyFileFromURLResourceReader(uri, null, null, qualifierValue, 5, uri);
+
     final URI expectedWebClientUri =
         new URI(String.format("%s&%s=%s", uri, ContentItem.QUALIFIER_KEYWORD, qualifierValue));
-    // verify that we got the entire resource
-    verifyFileFromURLResourceReader(
-        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, qualifierValue, 5, expectedWebClientUri);
-  }
-
-  @Test
-  public void testUnquotedNameInContentDisposition() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
-
-    HttpResponse mockResponse = mock(HttpResponse.class);
-    when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
-    when(mockResponse.statusCode()).thenReturn(200);
-    when(mockResponse.body()).thenReturn(getBinaryData());
-
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, 5, uri);
-  }
-
-  @Test
-  public void testUnquotedNameEndingSemicolonInContentDisposition() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
-    HttpResponse mockResponse = mock(HttpResponse.class);
-    when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
-    when(mockResponse.statusCode()).thenReturn(200);
-    when(mockResponse.body()).thenReturn(getBinaryData());
-
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, 5, uri);
+    assertThat(request.getValue().uri(), is(expectedWebClientUri));
   }
 
   @Test
@@ -642,13 +605,20 @@ public class URLResourceReaderTest {
     LOGGER.info("Got resource: {}", resource.getName());
     String name = resource.getName();
     assertNotNull(name);
-    assertThat(name, is(filename));
-    assertTrue(resource.getMimeType().toString().contains(expectedMimeType));
+    if (filename != null) {
+      assertThat(name, is(filename));
+    }
+    if (expectedMimeType != null) {
+      assertTrue(resource.getMimeType().toString().contains(expectedMimeType));
+    }
 
     assertThat(
         "The length of the resource in the response should be " + expectedResponseResourceLength,
         resourceResponse.getResource().getByteArray().length,
         is(expectedResponseResourceLength));
+
+    assertThat(
+        "The web client should be created with uri=" + uri, uri, equalTo(expectedWebClientUri));
   }
 
   @Test
@@ -659,7 +629,7 @@ public class URLResourceReaderTest {
         ImmutableMap.of("username", "myusername", "password", "mypassword");
     HttpClient client = urlResourceReader.getHttpClient(properties);
 
-    assertThat(client.authenticator().get(), instanceOf(PasswordAuthentication.class));
+    assertNotNull(client.authenticator().get());
   }
 
   private class TestURLResourceReader extends URLResourceReader {

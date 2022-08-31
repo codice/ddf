@@ -41,7 +41,6 @@
         <module>solr-dependencies</module>
         <module>solr-query</module>
         <module>solr-schema</module>
-        <module>solr-appender</module>
         <module>solr-factory</module>
         <module>solr-factory-impl</module>
     </modules>

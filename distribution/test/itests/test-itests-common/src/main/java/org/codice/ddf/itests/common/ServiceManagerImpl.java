@@ -18,6 +18,7 @@ import static io.restassured.RestAssured.given;
 import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.osgi.framework.Constants.SERVICE_PID;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -49,15 +51,16 @@ import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
-import org.codice.ddf.admin.core.api.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.metatype.AttributeDefinition;
@@ -93,7 +96,7 @@ public class ServiceManagerImpl implements ServiceManager {
 
   private final MetaTypeService metatype;
 
-  private final AdminConfig adminConfig;
+  private final ConfigurationAdmin configAdmin;
 
   private BundleService bundleService;
 
@@ -103,12 +106,12 @@ public class ServiceManagerImpl implements ServiceManager {
 
   ServiceManagerImpl(
       MetaTypeService metatype,
-      AdminConfig adminConfig,
+      ConfigurationAdmin configAdmin,
       BundleContext bundleContext,
       BundleService bundleService,
       FeaturesService featuresService) {
     this.metatype = metatype;
-    this.adminConfig = adminConfig;
+    this.configAdmin = configAdmin;
     this.bundleService = bundleService;
     this.bundleContext = bundleContext;
     this.featuresService = featuresService;
@@ -120,10 +123,10 @@ public class ServiceManagerImpl implements ServiceManager {
   }
 
   @Override
-  public Configuration createManagedService(String factoryPid, Map<String, Object> properties)
-      throws IOException {
+  public Configuration createManagedService(
+      String factoryPid, Dictionary<String, Object> properties) throws IOException {
 
-    Configuration sourceConfig = adminConfig.createFactoryConfiguration(factoryPid, null);
+    Configuration sourceConfig = configAdmin.createFactoryConfiguration(factoryPid, null);
 
     startManagedService(sourceConfig, properties);
 
@@ -131,25 +134,21 @@ public class ServiceManagerImpl implements ServiceManager {
   }
 
   @Override
-  public void startManagedService(String servicePid, Map<String, Object> properties)
+  public void startManagedService(String servicePid, Dictionary<String, Object> properties)
       throws IOException {
-    Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
+    Configuration sourceConfig = configAdmin.getConfiguration(servicePid, null);
 
     startManagedService(sourceConfig, properties);
   }
 
   @Override
   public void stopManagedService(String servicePid) throws IOException {
-    Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
-
-    try {
-      adminConfig.getAdminConsoleService().delete(sourceConfig.getPid());
-    } catch (NotCompliantMBeanException ignored) {
-    }
+    Configuration sourceConfig = configAdmin.getConfiguration(servicePid, null);
+    sourceConfig.delete();
   }
 
-  private void startManagedService(Configuration sourceConfig, Map<String, Object> properties)
-      throws IOException {
+  private void startManagedService(
+      Configuration sourceConfig, Dictionary<String, Object> properties) throws IOException {
     ServiceManagerImpl.ServiceConfigurationListener listener =
         new ServiceConfigurationListener(sourceConfig.getPid());
 
@@ -166,10 +165,7 @@ public class ServiceManagerImpl implements ServiceManager {
     } catch (NotCompliantMBeanException ignored) {
     }
 
-    try {
-      adminConfig.getAdminConsoleService().update(sourceConfig.getPid(), properties);
-    } catch (NotCompliantMBeanException ignored) {
-    }
+    sourceConfig.update(properties);
 
     await("Waiting for configuration to be updated")
         .atMost(MANAGED_SERVICE_TIMEOUT, TimeUnit.MILLISECONDS)
@@ -193,10 +189,21 @@ public class ServiceManagerImpl implements ServiceManager {
         .until(() -> isServiceReady(sourceConfig));
   }
 
-  private boolean isServiceReady(Configuration sourceConfig) throws NotCompliantMBeanException {
-    return adminConfig.getAdminConsoleService().listServices().stream()
-        .map(Service::getId)
-        .anyMatch(id -> servicePredicate(id, sourceConfig));
+  private boolean isServiceReady(Configuration sourceConfig) {
+    BundleContext context = FrameworkUtil.getBundle(ServiceManagerImpl.class).getBundleContext();
+    List<ServiceReference> allServices;
+    try {
+      allServices = Arrays.asList(context.getAllServiceReferences(null, null));
+    } catch (InvalidSyntaxException e) {
+      LOGGER.debug("Unable to get all service references.", e);
+      return false;
+    }
+
+    return allServices.stream()
+        .map(sr -> sr.getProperty(SERVICE_PID))
+        .filter(Objects::nonNull)
+        .anyMatch(
+            id -> id.equals(sourceConfig.getPid()) || id.equals(sourceConfig.getFactoryPid()));
   }
 
   @Override

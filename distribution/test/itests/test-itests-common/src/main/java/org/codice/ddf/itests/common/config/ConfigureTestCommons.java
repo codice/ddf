@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.List;
 import org.codice.ddf.configuration.DictionaryMap;
-import org.codice.ddf.itests.common.AdminConfig;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 public class ConfigureTestCommons {
 
@@ -39,8 +39,9 @@ public class ConfigureTestCommons {
   private ConfigureTestCommons() {}
 
   public static Dictionary<String, Object> configureService(
-      String pid, Dictionary<String, Object> newProps, AdminConfig adminConfig) throws IOException {
-    Configuration config = adminConfig.getConfiguration(pid, null);
+      String pid, Dictionary<String, Object> newProps, ConfigurationAdmin configAdmin)
+      throws IOException {
+    Configuration config = configAdmin.getConfiguration(pid, null);
     Dictionary<String, Object> oldProps = config.getProperties();
     config.update(newProps);
     return oldProps;
@@ -59,7 +60,7 @@ public class ConfigureTestCommons {
       List<String> securityAttributeMappings,
       boolean filterErrors,
       boolean filterWarnings,
-      AdminConfig configAdmin)
+      ConfigurationAdmin configAdmin)
       throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("attributeMap", securityAttributeMappings.toArray(new String[0]));
@@ -76,7 +77,7 @@ public class ConfigureTestCommons {
    * @return A dictionary containing the old properties that the service had.
    */
   public static Dictionary<String, Object> configureMetacardValidityFilterPlugin(
-      Dictionary<String, Object> props, AdminConfig configAdmin) throws IOException {
+      Dictionary<String, Object> props, ConfigurationAdmin configAdmin) throws IOException {
     return configureService(METACARD_VALIDITY_FILTER_PLUGIN_SERVICE_PID, props, configAdmin);
   }
 
@@ -92,7 +93,7 @@ public class ConfigureTestCommons {
       List<String> enforcedValidators,
       boolean enforceErrors,
       boolean enforceWarnings,
-      AdminConfig configAdmin)
+      ConfigurationAdmin configAdmin)
       throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("enforcedMetacardValidators", enforcedValidators.toArray(new String[0]));
@@ -109,7 +110,7 @@ public class ConfigureTestCommons {
    * @return A dictionary containing the old properties that the service had.
    */
   public static Dictionary<String, Object> configureValidationMarkerPlugin(
-      Dictionary<String, Object> props, AdminConfig configAdmin) throws IOException {
+      Dictionary<String, Object> props, ConfigurationAdmin configAdmin) throws IOException {
     return configureService(METACARD_VALIDITY_MARKER_PLUGIN_SERVICE_PID, props, configAdmin);
   }
 
@@ -122,7 +123,9 @@ public class ConfigureTestCommons {
    * @return A dictionary containing the old properties that the service had.
    */
   public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
-      List<String> intersectAttributes, List<String> unionAttributes, AdminConfig configAdmin)
+      List<String> intersectAttributes,
+      List<String> unionAttributes,
+      ConfigurationAdmin configAdmin)
       throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("intersectMetacardAttributes", intersectAttributes.toArray(new String[0]));
@@ -138,7 +141,7 @@ public class ConfigureTestCommons {
    * @return A dictionary containing the old properties that the service had.
    */
   public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
-      Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+      Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) throws IOException {
     return configureService(METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID, properties, configAdmin);
   }
 
@@ -154,7 +157,7 @@ public class ConfigureTestCommons {
       List<String> matchAllMappings,
       List<String> matchOneAttributes,
       List<String> environmentAttributes,
-      AdminConfig configAdmin)
+      ConfigurationAdmin configAdmin)
       throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("matchAllMappings", matchAllMappings.toArray(new String[0]));
@@ -171,7 +174,7 @@ public class ConfigureTestCommons {
    * @return A dictionary containing the old properties that the service had.
    */
   public static Dictionary<String, Object> configureAuthZRealm(
-      Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+      Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) throws IOException {
     return configureService(AUTH_Z_REALM_PID, properties, configAdmin);
   }
 
@@ -185,7 +188,7 @@ public class ConfigureTestCommons {
    * @return A dictionary containing the old properties that the service had.
    */
   public static Dictionary<String, Object> configureAdminConfigPolicy(
-      List<String> featurePolicies, List<String> servicePolicies, AdminConfig configAdmin)
+      List<String> featurePolicies, List<String> servicePolicies, ConfigurationAdmin configAdmin)
       throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("featurePolicies", featurePolicies.toArray(new String[0]));
@@ -201,7 +204,7 @@ public class ConfigureTestCommons {
    * @return A dictionary containing the old properties that the service had.
    */
   public static Dictionary<String, Object> configureAdminConfigPolicy(
-      Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+      Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) throws IOException {
     return configureService(ADMIN_CONFIG_POLICY_PID, properties, configAdmin);
   }
 }

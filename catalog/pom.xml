@@ -109,8 +109,8 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>ddf.platform</groupId>
-                <artifactId>platform-configuration</artifactId>
+                <groupId>ddf.lib</groupId>
+                <artifactId>common-system</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

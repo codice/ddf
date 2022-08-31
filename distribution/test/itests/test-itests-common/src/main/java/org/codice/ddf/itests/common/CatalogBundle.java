@@ -23,14 +23,13 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceUnavailableException;
 import java.io.IOException;
+import java.util.Dictionary;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import javax.management.NotCompliantMBeanException;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +44,11 @@ public class CatalogBundle {
 
   private final ServiceManager serviceManager;
 
-  private final AdminConfig adminConfig;
+  private final ConfigurationAdmin configAdmin;
 
-  CatalogBundle(ServiceManager serviceManager, AdminConfig adminConfig) {
+  CatalogBundle(ServiceManager serviceManager, ConfigurationAdmin configAdmin) {
     this.serviceManager = serviceManager;
-    this.adminConfig = adminConfig;
+    this.configAdmin = configAdmin;
   }
 
   public void waitForCatalogProvider() throws InterruptedException {
@@ -121,13 +120,10 @@ public class CatalogBundle {
   }
 
   public void setFanout(boolean fanoutEnabled) throws IOException {
-    Map<String, Object> properties;
-    try {
-      properties =
-          Optional.ofNullable(
-                  adminConfig.getAdminConsoleService().getProperties(CATALOG_FRAMEWORK_PID))
-              .orElse(new DictionaryMap<>());
-    } catch (NotCompliantMBeanException e) {
+    Dictionary<String, Object> properties;
+    if (configAdmin.getConfiguration(CATALOG_FRAMEWORK_PID, null) != null) {
+      properties = configAdmin.getConfiguration(CATALOG_FRAMEWORK_PID, null).getProperties();
+    } else {
       properties = new DictionaryMap<>();
     }
 
@@ -137,13 +133,10 @@ public class CatalogBundle {
 
   public void setFanoutTagBlacklist(List<String> blacklist)
       throws IOException, InterruptedException {
-    Map<String, Object> properties;
-    try {
-      properties =
-          Optional.ofNullable(
-                  adminConfig.getAdminConsoleService().getProperties(CATALOG_FRAMEWORK_PID))
-              .orElse(new DictionaryMap<>());
-    } catch (NotCompliantMBeanException e) {
+    Dictionary<String, Object> properties;
+    if (configAdmin.getConfiguration(CATALOG_FRAMEWORK_PID, null) != null) {
+      properties = configAdmin.getConfiguration(CATALOG_FRAMEWORK_PID, null).getProperties();
+    } else {
       properties = new DictionaryMap<>();
     }
 

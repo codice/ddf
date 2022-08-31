@@ -57,7 +57,6 @@
             factory-pid="Csw_Federated_Source">
         <interfaces>
             <value>ddf.catalog.source.FederatedSource</value>
-            <value>ddf.catalog.source.OAuthFederatedSource</value>
         </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
                               init-method="init" destroy-method="destroy">
@@ -103,7 +102,6 @@
             factory-pid="Csw_Federation_Profile_Source">
         <interfaces>
             <value>ddf.catalog.source.FederatedSource</value>
-            <value>ddf.catalog.source.OAuthFederatedSource</value>
         </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
                               init-method="init" destroy-method="destroy">
@@ -152,7 +150,6 @@
             factory-pid="Gmd_Csw_Federated_Source">
         <interfaces>
             <value>ddf.catalog.source.FederatedSource</value>
-            <value>ddf.catalog.source.OAuthFederatedSource</value>
         </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
                               init-method="init" destroy-method="destroy">
@@ -198,7 +195,6 @@
             factory-pid="Csw_Transactional_Federated_Source">
         <interfaces>
             <value>ddf.catalog.source.FederatedSource</value>
-            <value>ddf.catalog.source.OAuthFederatedSource</value>
         </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.TransactionalCswStoreImpl"
                               init-method="init" destroy-method="destroy">

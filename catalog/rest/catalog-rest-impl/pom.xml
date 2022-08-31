@@ -56,8 +56,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration</artifactId>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>
@@ -115,6 +115,11 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-attachment</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

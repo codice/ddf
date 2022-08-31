@@ -123,23 +123,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private static final String ID_PROPERTY = "id";
 
-  private static final String OAUTH_DISCOVERY_URL = "oauthDiscoveryUrl";
-
-  private static final String OAUTH_CLIENT_ID = "oauthClientId";
-
-  private static final String OAUTH_CLIENT_SECRET = "oauthClientSecret";
-
-  private static final String OAUTH_FLOW = "oauthFlow";
-
   private static final int MIN_DISTANCE_TOLERANCE_IN_METERS = 1;
 
   private static final int MIN_NUM_POINT_RADIUS_VERTICES = 4;
 
   private static final int MAX_NUM_POINT_RADIUS_VERTICES = 32;
-
-  private static final String BASIC_AUTH_TYPE = "basic";
-
-  private static final String OAUTH_AUTH_TYPE = "oauth";
 
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 

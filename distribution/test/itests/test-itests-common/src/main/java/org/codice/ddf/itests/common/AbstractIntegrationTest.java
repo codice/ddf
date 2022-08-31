@@ -38,8 +38,6 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceCo
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 
 import com.google.common.collect.ImmutableMap;
-import ddf.security.audit.impl.SecurityLoggerImpl;
-import ddf.security.service.impl.SubjectUtils;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.XmlConfig;
@@ -48,7 +46,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Proxy;
 import java.net.ServerSocket;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -79,8 +76,6 @@ import org.apache.karaf.shell.api.console.SessionFactory;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
-import org.codice.ddf.itests.common.security.SecurityPolicyConfigurator;
-import org.codice.ddf.security.Security;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.BeforeSuite;
 import org.codice.ddf.test.common.annotations.ExamResultLogger;
@@ -187,11 +182,7 @@ public abstract class AbstractIntegrationTest {
   @Filter(timeout = 300000L)
   BootFinished bootFinished;
 
-  private AdminConfig adminConfig;
-
   private ServiceManager serviceManager;
-
-  private SecurityPolicyConfigurator securityPolicy;
 
   private CatalogBundle catalogBundle;
 
@@ -206,7 +197,7 @@ public abstract class AbstractIntegrationTest {
   private static final String DDF_ITESTS_GROUP_ID = "ddf.test.itests";
 
   protected static final String[] DEFAULT_REQUIRED_APPS = {
-    "catalog-app", "catalog-solr-app", "spatial-app", "test-rest-endpoint", "test-storageplugins"
+    "profile-standard", "test-storageplugins"
   };
 
   protected KarafConsole console;
@@ -368,24 +359,11 @@ public abstract class AbstractIntegrationTest {
     RestAssured.config =
         RestAssuredConfig.config().xmlConfig(XmlConfig.xmlConfig().namespaceAware(false));
     ddfHome = System.getProperty(DDF_HOME_PROPERTY);
-    adminConfig = new AdminConfig(configAdmin);
-    Security security = new org.codice.ddf.security.impl.Security();
-    ((org.codice.ddf.security.impl.Security) security)
-        .setSecurityLogger(new SecurityLoggerImpl(new SubjectUtils()));
 
-    // This proxy runs the service manager as the system subject
     serviceManager =
-        (ServiceManager)
-            Proxy.newProxyInstance(
-                AbstractIntegrationTest.class.getClassLoader(),
-                ServiceManagerImpl.class.getInterfaces(),
-                new ServiceManagerProxy(
-                    new ServiceManagerImpl(
-                        metatype, adminConfig, bundleContext, bundleService, features),
-                    security));
+        new ServiceManagerImpl(metatype, configAdmin, bundleContext, bundleService, features);
 
-    catalogBundle = new CatalogBundle(serviceManager, adminConfig);
-    securityPolicy = new SecurityPolicyConfigurator(serviceManager, configAdmin);
+    catalogBundle = new CatalogBundle(serviceManager, configAdmin);
     urlResourceReaderConfigurator = new UrlResourceReaderConfigurator(configAdmin);
     console = new KarafConsole(bundleContext, features, sessionFactory);
   }
@@ -398,31 +376,22 @@ public abstract class AbstractIntegrationTest {
       basePort = getBasePort();
       getServiceManager().startFeature(true, getDefaultRequiredApps());
       getServiceManager().waitForAllBundles();
-      getSecurityPolicy().configureRestForGuest();
       getCatalogBundle().waitForCatalogProvider();
 
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog?_wadl");
 
-      getServiceManager().startFeature(true, "search-ui-app");
       getServiceManager().waitForAllBundles();
     } catch (Exception e) {
       throw new IllegalStateException("Failed to start up required features.", e);
     }
   }
 
-  public void waitForSystemReady() {
-    SystemStateManager manager =
-        SystemStateManager.getManager(serviceManager, features, adminConfig, console);
-    manager.setSystemBaseState(this::waitForBaseSystemFeatures, false);
-    manager.waitForSystemBaseState();
-  }
-
   @BeforeSuite
   public void beforeSuite() throws Exception {
     try {
-      waitForSystemReady();
+      waitForBaseSystemFeatures();
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeSuite: ");
     }
@@ -833,8 +802,8 @@ public abstract class AbstractIntegrationTest {
     return Arrays.copyOf(DEFAULT_REQUIRED_APPS, DEFAULT_REQUIRED_APPS.length);
   }
 
-  protected AdminConfig getAdminConfig() {
-    return adminConfig;
+  protected ConfigurationAdmin getConfigAdmin() {
+    return configAdmin;
   }
 
   protected ServiceManager getServiceManager() {
@@ -843,10 +812,6 @@ public abstract class AbstractIntegrationTest {
 
   protected CatalogBundle getCatalogBundle() {
     return catalogBundle;
-  }
-
-  protected SecurityPolicyConfigurator getSecurityPolicy() {
-    return securityPolicy;
   }
 
   protected UrlResourceReaderConfigurator getUrlResourceReaderConfigurator() {
@@ -913,26 +878,6 @@ public abstract class AbstractIntegrationTest {
    */
   public static String getFileContent(String filePath, ImmutableMap<String, String> params) {
     return getFileContent(filePath, params, AbstractIntegrationTest.class);
-  }
-
-  public void configureRestForGuest() throws Exception {
-    getSecurityPolicy().configureRestForGuest();
-  }
-
-  public void configureRestForBasic() throws Exception {
-    getSecurityPolicy().configureRestForBasic();
-  }
-
-  public void configureRestForGuest(String whitelist) throws Exception {
-    getSecurityPolicy().configureRestForGuest(whitelist);
-  }
-
-  public void configureRestForBasic(String whitelist) throws Exception {
-    getSecurityPolicy().configureRestForBasic(whitelist);
-  }
-
-  public void configureRestForSaml(String whitelist) throws Exception {
-    getSecurityPolicy().configureRestForSaml(whitelist);
   }
 
   protected void configureBundle(

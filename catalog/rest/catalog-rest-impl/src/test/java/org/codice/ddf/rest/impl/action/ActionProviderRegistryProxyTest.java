@@ -13,22 +13,13 @@
  */
 package org.codice.ddf.rest.impl.action;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ddf.action.ActionProvider;
 import ddf.catalog.Constants;
-import ddf.catalog.transformer.attribute.AttributeMetacardTransformer;
 import java.util.Dictionary;
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -119,27 +110,6 @@ public class ActionProviderRegistryProxyTest {
     // then
     verify(mockBundleContext, times(1))
         .registerService(isA(String.class), isA(Object.class), isA(Dictionary.class));
-  }
-
-  @Test
-  public void testAttributeTransformer() throws MimeTypeParseException {
-    // given
-    ActionProviderRegistryProxy proxy = new ActionProviderTestRegistryProxy(mtapf);
-
-    when(mockBundleContext.getService(mockServiceReference))
-        .thenReturn(
-            new AttributeMetacardTransformer("metadata", "metadata", new MimeType("text", "xml")));
-
-    // when
-    proxy.bind(mockServiceReference);
-
-    // then
-    verify(mockBundleContext, times(1))
-        .registerService(anyString(), captor.capture(), any(Dictionary.class));
-
-    Object value = captor.getValue();
-    assertThat(value, notNullValue());
-    assertThat(value instanceof ActionProvider, is(true));
   }
 
   @Test

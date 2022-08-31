@@ -18,15 +18,18 @@ import io.micrometer.core.instrument.Metrics;
 import java.io.IOException;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.codice.ddf.platform.filter.http.HttpFilter;
-import org.codice.ddf.platform.filter.http.HttpFilterChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServletMetrics implements HttpFilter {
+public class ServletMetrics implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServletMetrics.class);
 
@@ -35,8 +38,23 @@ public class ServletMetrics implements HttpFilter {
   private static final String HISTOGRAM_NAME = "latency";
 
   @Override
+  public void init(FilterConfig filterConfig) throws ServletException {}
+
+  @Override
   public void doFilter(
-      HttpServletRequest request, HttpServletResponse response, HttpFilterChain filterChain)
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+      throws IOException, ServletException {
+    if (servletRequest instanceof HttpServletRequest
+        && servletResponse instanceof HttpServletResponse)
+      doFilter(
+          (HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse, filterChain);
+  }
+
+  @Override
+  public void destroy() {}
+
+  public void doFilter(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws IOException, ServletException {
     boolean hadException = false;
     long startTime = System.currentTimeMillis();

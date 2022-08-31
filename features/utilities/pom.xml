@@ -95,11 +95,6 @@
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-logging</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- BEGIN: Tika dependencies -->
         <dependency>
             <groupId>org.apache.tika</groupId>
@@ -308,11 +303,6 @@
         </dependency>
         <!-- END -->
         
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>bootflag-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>ddf.platform.io</groupId>
             <artifactId>platform-io-impl</artifactId>

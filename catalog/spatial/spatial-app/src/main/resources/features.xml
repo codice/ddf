@@ -35,6 +35,9 @@
 
     <feature name="spatial-csw" version="${project.version}"
              description="Catalogue Service for Web (CSW) v2.0.2 Source and Endpoint.">
+        <feature>geotools</feature>
+        <feature>jts</feature>
+        <feature>parser-xml</feature>
         <feature>catalog-transformer-xml</feature>
         <feature>catalog-core-api</feature>
         <bundle>

@@ -34,9 +34,5 @@
         <module>catalog-plugin-clientinfo</module>
         <module>catalog-plugin-metacardingest-network</module>
         <module>catalog-plugin-pointofcontactupdate</module>
-        <module>catalog-plugin-metacardbackup-storage-api</module>
-        <module>catalog-plugin-metacardbackup-storage-common</module>
-        <module>catalog-plugin-metacardbackup-filestorage</module>
-        <module>catalog-plugin-metacardbackup-s3storage</module>
     </modules>
 </project>

@@ -48,8 +48,8 @@
             <artifactId>osgi.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration</artifactId>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>

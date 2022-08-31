@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>test-itests-ddf-core</artifactId>
-    <name>DDF :: Core :: Integration :: Test</name>
+    <name>DDF :: Test :: Integration :: Core</name>
 
     <properties>
         <solr.script.dir>${project.build.directory}/solr/bin/</solr.script.dir>

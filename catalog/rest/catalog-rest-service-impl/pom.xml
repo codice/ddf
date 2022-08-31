@@ -40,8 +40,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration</artifactId>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>
@@ -74,6 +74,11 @@
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>util-uuidgenerator-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-attribute</artifactId>
             <version>${project.version}</version>
@@ -81,6 +86,11 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-attachment</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

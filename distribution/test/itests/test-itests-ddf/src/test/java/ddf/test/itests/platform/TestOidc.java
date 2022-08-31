@@ -1284,7 +1284,7 @@ public class TestOidc extends AbstractIntegrationTest {
 
   /** Configure the OIDC Handler with the given parameters */
   private void setConfig() throws Exception {
-    Configuration config = getAdminConfig().getConfiguration(OIDC_PID, null);
+    Configuration config = getConfigAdmin().getConfiguration(OIDC_PID, null);
 
     if (config.getProperties() == null) {
       oldHandlerProps =

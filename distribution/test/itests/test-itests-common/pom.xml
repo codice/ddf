@@ -100,16 +100,6 @@
             <artifactId>pax-exam-container-karaf</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.admin.core</groupId>
-            <artifactId>admin-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.admin.core</groupId>
-            <artifactId>admin-core-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>
@@ -133,14 +123,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-services</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         </dependency>
     </dependencies>
 
@@ -208,11 +192,9 @@
                             org.codice.ddf.itests.common.*
                         </Export-Package>
                         <Embed-Dependency>
-                            admin-core-impl,
                             catalog-core-api-impl,
                             common,
-                            pax-exam-container-karaf,
-                            security-core-services
+                            pax-exam-container-karaf
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

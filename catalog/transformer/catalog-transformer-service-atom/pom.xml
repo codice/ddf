@@ -41,10 +41,6 @@
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.common</groupId>
             <artifactId>geo-formatter</artifactId>
         </dependency>
@@ -79,7 +75,6 @@
         <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>common-system</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>

@@ -20,10 +20,6 @@
 		<bundle start-level='60'>mvn:ddf.test/test-input-transformer-stubs/${project.version}</bundle>
 	</feature>
 
-	<feature name="test-rest-endpoint" version="${project.version}">
-		<bundle>mvn:ddf.test/test-rest-endpoint/${project.version}</bundle>
-	</feature>
-
 	<feature name="test-storageplugins" version="${project.version}">
 		<bundle>mvn:ddf.test/test-storageplugins/${project.version}</bundle>
 	</feature>

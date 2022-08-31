@@ -29,16 +29,17 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpResponse;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.activation.MimeType;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.tika.Tika;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class ResourceReaderTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceReaderTest.class);
 
-  private WebClient mockWebClient = mock(WebClient.class);
+  private HttpClient mockHttpClient = mock(HttpClient.class);
 
   private Tika mockTika = mock(Tika.class);
 
@@ -85,15 +86,15 @@ public class ResourceReaderTest {
   @Test
   public void testRetrieveResourceTextHtmlDetectedByTika() throws Exception {
     // Setup
-    Response mockResponse = getMockResponse();
-    setupMockWebClient(mockResponse);
+    HttpResponse mockResponse = getMockResponse();
+    setupMockHttpClient(mockResponse);
     setupMockTika(MediaType.TEXT_HTML);
 
     URLResourceReader urlResourceReader =
         new URLResourceReader(null) {
           @Override
-          protected WebClient getWebClient(URI uri, Map<String, Serializable> properties) {
-            return mockWebClient;
+          protected HttpClient getHttpClient(Map<String, Serializable> properties) {
+            return mockHttpClient;
           }
         };
 
@@ -142,8 +143,8 @@ public class ResourceReaderTest {
             + MOCK_HTTP_SERVER_PORT
             + MOCK_HTTP_SERVER_PATH;
     URI uri = new URI(httpUriStr);
-    Response mockResponse = getMockResponse();
-    setupMockWebClient(mockResponse);
+    HttpResponse mockResponse = getMockResponse();
+    setupMockHttpClient(mockResponse);
     ResourceResponse mockResourceResponse = getMockResourceResponse(null);
     URLResourceReader mockUrlResourceReader = getMockUrlResourceReader(uri, mockResourceResponse);
     setupMockTika(MediaType.TEXT_HTML);
@@ -175,8 +176,8 @@ public class ResourceReaderTest {
             + MOCK_HTTP_SERVER_PATH;
 
     URI uri = new URI(httpUriStr);
-    Response mockResponse = getMockResponse();
-    setupMockWebClient(mockResponse);
+    HttpResponse mockResponse = getMockResponse();
+    setupMockHttpClient(mockResponse);
     ResourceResponse mockResourceResponse =
         getMockResourceResponse(new MimeType("application/octet-stream"));
     URLResourceReader mockUrlResourceReader = getMockUrlResourceReader(uri, mockResourceResponse);
@@ -218,8 +219,8 @@ public class ResourceReaderTest {
             + MOCK_HTTP_SERVER_PORT
             + MOCK_HTTP_SERVER_PATH;
     URI uri = new URI(httpUriStr);
-    Response mockResponse = getMockResponse();
-    setupMockWebClient(mockResponse);
+    HttpResponse mockResponse = getMockResponse();
+    setupMockHttpClient(mockResponse);
     ResourceResponse mockResourceResponse =
         getMockResourceResponse(new MimeType("application/octet-stream"));
     URLResourceReader mockUrlResourceReader = getMockUrlResourceReader(uri, mockResourceResponse);
@@ -262,8 +263,8 @@ public class ResourceReaderTest {
             + MOCK_HTTP_SERVER_PATH;
 
     URI uri = new URI(httpUriStr);
-    Response mockResponse = getMockResponse();
-    setupMockWebClient(mockResponse);
+    HttpResponse mockResponse = getMockResponse();
+    setupMockHttpClient(mockResponse);
     ResourceResponse mockResourceResponse =
         getMockResourceResponse(new MimeType("application/octet-stream"));
     URLResourceReader mockUrlResourceReader = getMockUrlResourceReader(uri, mockResourceResponse);
@@ -416,17 +417,17 @@ public class ResourceReaderTest {
     return mockResourceResponse;
   }
 
-  private Response getMockResponse() {
-    Response mockResponse = mock(Response.class);
-    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
-    when(mockResponse.getHeaders()).thenReturn(map);
+  private HttpResponse getMockResponse() {
+    HttpResponse mockResponse = mock(HttpResponse.class);
+    HttpHeaders headers = HttpHeaders.of(new HashMap<String, List<String>>(), (h, v) -> false);
+    when(mockResponse.headers()).thenReturn(headers);
     InputStream mockInputStream = mock(InputStream.class);
-    when(mockResponse.getEntity()).thenReturn(mockInputStream);
-    when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+    when(mockResponse.body()).thenReturn(mockInputStream);
+    when(mockResponse.statusCode()).thenReturn(Response.Status.OK.getStatusCode());
     return mockResponse;
   }
 
-  private void setupMockWebClient(Response response) {
-    when(mockWebClient.get()).thenReturn(response);
+  private void setupMockHttpClient(HttpResponse response) throws Exception {
+    when(mockHttpClient.send(any(), any())).thenReturn(response);
   }
 }

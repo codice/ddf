@@ -104,11 +104,6 @@
         <bundle>mvn:ddf.lib/common-system/${project.version}</bundle>
     </feature>
 
-    <feature name="bootflag-api" version="${project.version}"
-             description="API for registering services to indicate a boot condition in the system has been met.">
-        <bundle>mvn:ddf.platform/bootflag-api/${project.version}</bundle>
-    </feature>
-
     <feature name="metrics-micrometer" version="${project.version}" description="Micrometer core">
         <bundle>mvn:org.codice.ddf.metrics/micrometer-bundle/${project.version}</bundle>
     </feature>
@@ -128,7 +123,6 @@
     <feature name="metrics-servlet-filter" version="${project.version}" description="Servlet metrics reporter">
         <feature>pax-jetty</feature>
         <feature>metrics-micrometer</feature>
-        <bundle dependency="true">mvn:ddf.platform/http-filter-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.metrics/metrics-servlet-filter/${project.version}</bundle>
     </feature>
 
@@ -194,8 +188,20 @@
         <bundle>mvn:com.googlecode.json-simple/json-simple/${json-simple.version}</bundle>
     </feature>
 
-    <feature name="geotools" version="${project.version}">
+    <feature name="uom" version="${project.version}">
+        <feature prerequisite="true">wrap</feature>
         <feature>javax-inject</feature>
+        <bundle>mvn:tech.units/indriya/2.0.1</bundle>
+        <bundle>mvn:tech.uom.lib/uom-lib-common/2.1</bundle>
+        <bundle>mvn:si.uom/si-quantity/2.0.1</bundle>
+        <bundle>wrap:mvn:si.uom/si-units/2.0.1$overwrite=merge&amp;Bundle-Name=si-units&amp;Bundle-SymbolicName=si-units&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
+        <bundle>mvn:systems.uom/systems-quantity/2.0.1</bundle>
+        <bundle>wrap:mvn:systems.uom/systems-common/2.0.1$overwrite=merge&amp;Bundle-Name=systems-common&amp;Bundle-SymbolicName=systems-common&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
+        <bundle>mvn:javax.measure/unit-api/2.0</bundle>
+    </feature>
+
+    <feature name="geotools" version="${project.version}">
+        <feature prerequisite="true">uom</feature>
         <bundle>wrap:mvn:org.geotools/gt-opengis/${org.geotools.version}$Bundle-Name=gt-opengis&amp;Bundle-SymbolicName=gt-opengis</bundle>
         <bundle>wrap:mvn:org.geotools/gt-main/${org.geotools.version}$Bundle-Name=gt-main&amp;Bundle-SymbolicName=gt-main</bundle>
         <bundle>wrap:mvn:org.geotools/gt-cql/${org.geotools.version}$Bundle-Name=gt-cql&amp;Bundle-SymbolicName=gt-cql</bundle>
@@ -216,13 +222,6 @@
         <bundle>wrap:mvn:org.geotools/gt-geojson/${org.geotools.version}$Bundle-Name=gt-geojson&amp;Bundle-SymbolicName=gt-geojson</bundle>
         <bundle>wrap:mvn:org.geotools/gt-shapefile/${org.geotools.version}$Bundle-Name=gt-shapefile&amp;Bundle-SymbolicName=gt-shapefile</bundle>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
-        <bundle>mvn:tech.units/indriya/2.0.1</bundle>
-        <bundle>mvn:tech.uom.lib/uom-lib-common/2.1</bundle>
-        <bundle>mvn:si.uom/si-quantity/2.0.1</bundle>
-        <bundle>wrap:mvn:si.uom/si-units/2.0.1$overwrite=merge&amp;Bundle-Name=si-units&amp;Bundle-SymbolicName=si-units&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
-        <bundle>mvn:systems.uom/systems-quantity/2.0.1</bundle>
-        <bundle>wrap:mvn:systems.uom/systems-common/2.0.1$overwrite=merge&amp;Bundle-Name=systems-common&amp;Bundle-SymbolicName=systems-common&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
-        <bundle>mvn:javax.measure/unit-api/2.0</bundle>
     </feature>
 
 </features>

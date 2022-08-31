@@ -107,7 +107,6 @@ public abstract class AbstractComponentTest {
         .add("commons-io", "commons-io")
         .add("commons-lang", "commons-lang")
         .add("org.apache.commons", "commons-collections4")
-        .add("ddf.platform.security", "log-sanitizer")
         .add("ddf.lib", "test-common")
         .add("ddf.lib", "common-system");
   }

@@ -30,9 +30,9 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
+import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.codice.ddf.platform.filter.http.HttpFilterChain;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -53,7 +53,7 @@ public class ServletMetricsTest {
 
   @Mock private HttpServletResponse mockResponse;
 
-  @Mock private HttpFilterChain mockFilterChain;
+  @Mock private FilterChain mockFilterChain;
 
   private final ServletMetrics underTest = new ServletMetrics();
 

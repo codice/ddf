@@ -43,6 +43,7 @@ import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.ConnectedSource;
+import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.OAuthFederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -141,7 +142,7 @@ import org.slf4j.LoggerFactory;
  * 2.0.2 services.
  */
 public abstract class AbstractCswSource extends MaskableImpl
-    implements ConnectedSource, ConfiguredService {
+    implements FederatedSource, ConnectedSource, ConfiguredService {
 
   public static final String DISABLE_CN_CHECK_PROPERTY = "disableCnCheck";
 

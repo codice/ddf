@@ -364,13 +364,13 @@ public class TestSecurity extends AbstractIntegrationTest {
                   + "=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin\"");
 
       String adminConfigPolicyPid = "org.codice.ddf.admin.config.policy.AdminConfigPolicy";
-      getAdminConfig()
+      getConfigAdmin()
           .getConfiguration(adminConfigPolicyPid)
           .setBundleLocation(
               "mvn:ddf.admin.core/admin-core-configpolicy/" + System.getProperty("ddf.version"));
 
       adminConfigProps =
-          configureAdminConfigPolicy(featurePolicies, servicePolicies, getAdminConfig());
+          configureAdminConfigPolicy(featurePolicies, servicePolicies, getConfigAdmin());
 
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
@@ -380,7 +380,7 @@ public class TestSecurity extends AbstractIntegrationTest {
   @AfterExam
   public void afterExam() throws Exception {
     if (adminConfigProps != null) {
-      configureAdminConfigPolicy(adminConfigProps, getAdminConfig());
+      configureAdminConfigPolicy(adminConfigProps, getConfigAdmin());
     }
   }
 
@@ -885,12 +885,12 @@ public class TestSecurity extends AbstractIntegrationTest {
               Collections.singletonList(
                   "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=accessGroups"),
               Collections.emptyList(),
-              getAdminConfig());
+              getConfigAdmin());
       metacardAttributeSecurityFilterProperties =
           configureMetacardAttributeSecurityFiltering(
               Collections.singletonList("security.access-groups=accessGroups"),
               Collections.emptyList(),
-              getAdminConfig());
+              getConfigAdmin());
 
       String testData = getFileContent(XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml");
       testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "guest");
@@ -915,11 +915,11 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     } finally {
       if (authZProperties != null) {
-        configureAuthZRealm(authZProperties, getAdminConfig());
+        configureAuthZRealm(authZProperties, getConfigAdmin());
       }
       if (metacardAttributeSecurityFilterProperties != null) {
         configureMetacardAttributeSecurityFiltering(
-            metacardAttributeSecurityFilterProperties, getAdminConfig());
+            metacardAttributeSecurityFilterProperties, getConfigAdmin());
       }
       configureRestForGuest(SERVICE_ROOT.getUrl());
       getSecurityPolicy().waitForGuestAuthReady(url);
@@ -947,12 +947,12 @@ public class TestSecurity extends AbstractIntegrationTest {
               Collections.singletonList(
                   "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=accessGroups"),
               Collections.emptyList(),
-              getAdminConfig());
+              getConfigAdmin());
       metacardAttributeSecurityFilterProperties =
           configureMetacardAttributeSecurityFiltering(
               Collections.singletonList("security.access-groups=accessGroups"),
               Collections.emptyList(),
-              getAdminConfig());
+              getConfigAdmin());
 
       // configure for basic auth
       configureRestForBasic();
@@ -975,11 +975,11 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     } finally {
       if (authZProperties != null) {
-        configureAuthZRealm(authZProperties, getAdminConfig());
+        configureAuthZRealm(authZProperties, getConfigAdmin());
       }
       if (metacardAttributeSecurityFilterProperties != null) {
         configureMetacardAttributeSecurityFiltering(
-            metacardAttributeSecurityFilterProperties, getAdminConfig());
+            metacardAttributeSecurityFilterProperties, getConfigAdmin());
       }
       configureRestForGuest();
       waitForSecurityHandlers(SERVICE_ROOT.getUrl());

@@ -28,8 +28,6 @@ import static org.codice.ddf.itests.common.csw.CswTestCommons.getMetacardIdFromC
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearch;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.xml.HasXPath.hasXPath;
@@ -55,6 +53,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.io.FileUtils;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
@@ -73,12 +72,6 @@ import org.ops4j.pax.exam.spi.reactors.PerSuite;
 @ExamReactorStrategy(PerSuite.class)
 public class DdfCoreIT extends AbstractIntegrationTest {
 
-  private static final DynamicUrl SECURE_ROOT_AND_PORT =
-      new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT);
-
-  private static final DynamicUrl ADMIN_PATH =
-      new DynamicUrl(SECURE_ROOT_AND_PORT, "/admin/index.html");
-
   private static final String RECORD_TITLE_1 = "myTitle";
 
   private static final String RECORD_TITLE_2 = "myXmlTitle";
@@ -91,8 +84,6 @@ public class DdfCoreIT extends AbstractIntegrationTest {
   private static final String DEFAULT_SAMPLE_PRODUCT_FILE_NAME = "sample.txt";
   private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
   private final List<String> resourcesToDelete = new ArrayList<>();
-
-  private static final int MAX_DOWNLOAD_RETRY_ATTEMPTS = 3;
   private static final String CSW_STUB_SOURCE_ID = "cswStubServer";
   private static final DynamicPort CSW_STUB_SERVER_PORT = new DynamicPort(7);
   private static final DynamicUrl CSW_STUB_SERVER_PATH =
@@ -104,12 +95,8 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
   @BeforeExam
   public void beforeExam() throws Exception {
-    getCatalogBundle().setupMaxDownloadRetryAttempts(MAX_DOWNLOAD_RETRY_ATTEMPTS);
-
     setupOpenSearch();
-
     setupCswServer();
-
     setupGmd();
 
     getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
@@ -126,9 +113,6 @@ public class DdfCoreIT extends AbstractIntegrationTest {
             CSW_SOURCE_ID,
             CSW_SOURCE_WITH_METACARD_XML_ID,
             GMD_SOURCE_ID);
-
-    getCatalogBundle().setDownloadRetryDelayInSeconds(1);
-    getCatalogBundle().setupCaching(false);
 
     LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body().prettyPrint());
   }
@@ -153,7 +137,6 @@ public class DdfCoreIT extends AbstractIntegrationTest {
   @After
   public void tearDown() throws Exception {
     clearCatalogAndWait();
-    configureRestForGuest();
 
     urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
         DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
@@ -257,70 +240,6 @@ public class DdfCoreIT extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testBasicRestAccess() throws Exception {
-    String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
-
-    waitForSecurityHandlers(url);
-
-    configureRestForBasic("/services/sdk");
-
-    // Make sure that no credentials receives a 401
-    getSecurityPolicy().waitForBasicAuthReady(url);
-    when().get(url).then().log().all().assertThat().statusCode(equalTo(401));
-
-    // A random user receives a 401
-    given()
-        .auth()
-        .basic("bad", "user")
-        .when()
-        .get(url)
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(401));
-
-    // A real user receives a SSO token
-    String cookie =
-        given()
-            .auth()
-            .basic("admin", "admin")
-            .when()
-            .get(url)
-            .then()
-            .log()
-            .ifValidationFails()
-            .assertThat()
-            .statusCode(equalTo(200))
-            .assertThat()
-            .header("Set-Cookie", containsString("JSESSIONID"))
-            .extract()
-            .cookie("JSESSIONID");
-
-    // Try the session instead of basic auth
-    given()
-        .cookie("JSESSIONID", cookie)
-        .when()
-        .get(url)
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(200));
-
-    // Admin user should be able to access the admin page
-    given()
-        .cookie("JSESSIONID", cookie)
-        .when()
-        .get(ADMIN_PATH.getUrl())
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(200));
-  }
-
-  @Test
   public void testFederatedSpatial() throws IOException {
     ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
     ingestXmlWithProduct(DEFAULT_SAMPLE_PRODUCT_FILE_NAME);
@@ -418,7 +337,8 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     Map<String, Object> openSearchProperties =
         getOpenSearchSourceProperties(
             OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
-    getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
+    getServiceManager()
+        .createManagedService(OPENSEARCH_FACTORY_PID, new DictionaryMap<>(openSearchProperties));
   }
 
   private void setupCswServer() throws IOException, InterruptedException {
@@ -432,7 +352,8 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     cswStubServerProperties.put("cswUrl", CSW_STUB_SERVER_PATH.getUrl());
     cswStubServerProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
     getServiceManager()
-        .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswStubServerProperties)
+        .createManagedService(
+            CSW_FEDERATED_SOURCE_FACTORY_PID, new DictionaryMap<>(cswStubServerProperties))
         .getPid();
 
     getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
@@ -442,7 +363,7 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
     cswProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
     getServiceManager()
-        .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties)
+        .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, new DictionaryMap<>(cswProperties))
         .getPid();
 
     Map<String, Object> cswProperties2 =
@@ -451,7 +372,7 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     cswProperties2.put("outputSchema", "urn:catalog:metacard");
     cswProperties2.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
     getServiceManager()
-        .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties2)
+        .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, new DictionaryMap<>(cswProperties2))
         .getPid();
   }
 
@@ -465,7 +386,8 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
     gmdProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
     getServiceManager()
-        .createManagedService(GMD_CSW_FEDERATED_SOURCE_FACTORY_PID, gmdProperties)
+        .createManagedService(
+            GMD_CSW_FEDERATED_SOURCE_FACTORY_PID, new DictionaryMap<>(gmdProperties))
         .getPid();
   }
 }

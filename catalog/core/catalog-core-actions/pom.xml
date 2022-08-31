@@ -45,9 +45,8 @@
             <version>${org.slf4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration</artifactId>
-            <version>${project.version}</version>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
         </dependency>
     </dependencies>
 </project>

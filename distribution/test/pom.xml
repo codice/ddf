@@ -26,11 +26,9 @@
     <modules>
         <module>features-xml</module>
         <module>test-input-transformer-stubs</module>
-        <module>test-rest-endpoint</module>
         <module>test-storageplugins</module>
         <module>test-metacard-validator</module>
         <module>itests</module>
-        <module>performance</module>
         <module>example-bundle</module>
     </modules>
     <dependencies>
@@ -42,12 +40,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-api</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>

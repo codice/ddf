@@ -15,6 +15,7 @@ package org.codice.ddf.itests.common;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.Map;
 import java.util.function.Predicate;
 import org.apache.karaf.features.FeatureState;
@@ -33,13 +34,13 @@ public interface ServiceManager {
    * asynchronous call that the properties have been updated and the service can be used.
    *
    * <p>For Managed Services not created from a Managed Service Factory, use {@link
-   * #startManagedService(String, Map)} instead.
+   * #startManagedService(String, Dictionary)} instead.
    *
    * @param factoryPid the factory pid of the Managed Service Factory
    * @param properties the service properties for the Managed Service
    * @throws IOException if access to persistent storage fails
    */
-  Configuration createManagedService(String factoryPid, Map<String, Object> properties)
+  Configuration createManagedService(String factoryPid, Dictionary<String, Object> properties)
       throws IOException;
 
   /**
@@ -47,13 +48,14 @@ public interface ServiceManager {
    * and the service can be used.
    *
    * <p>For Managed Services created from a Managed Service Factory, use {@link
-   * #createManagedService(String, Map)} instead.
+   * #createManagedService(String, Dictionary)} instead.
    *
    * @param servicePid persistent identifier of the Managed Service to start
    * @param properties service configuration properties
    * @throws IOException thrown if if access to persistent storage fails
    */
-  void startManagedService(String servicePid, Map<String, Object> properties) throws IOException;
+  void startManagedService(String servicePid, Dictionary<String, Object> properties)
+      throws IOException;
 
   /**
    * Stops a managed service.

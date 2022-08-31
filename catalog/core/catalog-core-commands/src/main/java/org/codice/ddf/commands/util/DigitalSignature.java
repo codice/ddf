@@ -19,14 +19,12 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.AccessController;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.PrivilegedAction;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
@@ -47,7 +45,7 @@ public class DigitalSignature {
   private KeyStore keyStore;
 
   public DigitalSignature() {
-    this.keyStore = AccessController.doPrivileged((PrivilegedAction<KeyStore>) getSystemKeyStore());
+    this.keyStore = getSystemKeyStore();
   }
 
   public KeyStore getSystemKeyStore() {

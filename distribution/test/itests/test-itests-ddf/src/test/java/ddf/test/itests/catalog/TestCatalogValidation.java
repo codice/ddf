@@ -83,10 +83,10 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       // start test with validation errors/warnings allowed in catalog/search results
       oldValidationMarkerPluginProps =
           configureValidationMarkerPlugin(
-              Collections.singletonList(""), false, false, getAdminConfig());
+              Collections.singletonList(""), false, false, getConfigAdmin());
       oldValidityFilterPluginProps =
           configureMetacardValidityFilterPlugin(
-              Collections.singletonList("invalid-state=guest"), false, false, getAdminConfig());
+              Collections.singletonList("invalid-state=guest"), false, false, getConfigAdmin());
       clearCatalogAndWait();
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
@@ -102,10 +102,10 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   public void afterExam() {
     try {
       if (oldValidationMarkerPluginProps != null) {
-        configureValidationMarkerPlugin(oldValidationMarkerPluginProps, getAdminConfig());
+        configureValidationMarkerPlugin(oldValidationMarkerPluginProps, getConfigAdmin());
       }
       if (oldValidityFilterPluginProps != null) {
-        configureMetacardValidityFilterPlugin(oldValidityFilterPluginProps, getAdminConfig());
+        configureMetacardValidityFilterPlugin(oldValidityFilterPluginProps, getConfigAdmin());
       }
       getServiceManager().stopFeature(true, "test-metacard-validator");
     } catch (Exception e) {
@@ -119,7 +119,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     // Configure marker plugin to enforce validator errors but not warnings
     Dictionary<String, Object> markerPluginProps =
         configureValidationMarkerPlugin(
-            Collections.singletonList(SAMPLE_VALIDATOR), true, false, getAdminConfig());
+            Collections.singletonList(SAMPLE_VALIDATOR), true, false, getConfigAdmin());
 
     try {
       String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
@@ -137,7 +137,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       update(cleanId, errorData, MediaType.APPLICATION_XML, HttpStatus.SC_BAD_REQUEST);
     } finally {
       // Reset marker plugin
-      configureValidationMarkerPlugin(markerPluginProps, getAdminConfig());
+      configureValidationMarkerPlugin(markerPluginProps, getConfigAdmin());
     }
   }
 
@@ -146,7 +146,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     // Configure marker plugin to enforce warnings but not errors
     Dictionary<String, Object> markerPluginProps =
         configureValidationMarkerPlugin(
-            Collections.singletonList(SAMPLE_VALIDATOR), false, true, getAdminConfig());
+            Collections.singletonList(SAMPLE_VALIDATOR), false, true, getConfigAdmin());
 
     try {
       ingestXmlFromResourceWaitForFailure(WARNING_METACARD);
@@ -164,7 +164,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       update(cleanId, errorData, MediaType.APPLICATION_XML, HttpStatus.SC_OK);
     } finally {
       // Reset marker plugin
-      configureValidationMarkerPlugin(markerPluginProps, getAdminConfig());
+      configureValidationMarkerPlugin(markerPluginProps, getConfigAdmin());
     }
   }
 
@@ -173,7 +173,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     // Configure marker plugin to enforce errors and warnings
     Dictionary<String, Object> markerPluginProps =
         configureValidationMarkerPlugin(
-            Collections.singletonList(SAMPLE_VALIDATOR), true, true, getAdminConfig());
+            Collections.singletonList(SAMPLE_VALIDATOR), true, true, getConfigAdmin());
 
     try {
       ingestXmlFromResourceWaitForFailure(WARNING_METACARD);
@@ -190,7 +190,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       update(cleanId, errorData, MediaType.APPLICATION_XML, HttpStatus.SC_BAD_REQUEST);
     } finally {
       // Reset marker plugin
-      configureValidationMarkerPlugin(markerPluginProps, getAdminConfig());
+      configureValidationMarkerPlugin(markerPluginProps, getConfigAdmin());
     }
   }
 
@@ -199,7 +199,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     // Configure marker plugin to enforce neither errors nor warnings
     Dictionary<String, Object> markerPluginProps =
         configureValidationMarkerPlugin(
-            Collections.singletonList(SAMPLE_VALIDATOR), false, false, getAdminConfig());
+            Collections.singletonList(SAMPLE_VALIDATOR), false, false, getConfigAdmin());
 
     try {
       String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
@@ -218,7 +218,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       update(cleanId, errorData, MediaType.APPLICATION_XML, HttpStatus.SC_OK);
     } finally {
       // Reset marker plugin
-      configureValidationMarkerPlugin(markerPluginProps, getAdminConfig());
+      configureValidationMarkerPlugin(markerPluginProps, getConfigAdmin());
     }
   }
 
@@ -280,7 +280,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     // Configure to filter metacards with validation warnings but not validation errors
     Dictionary<String, Object> filterPluginProps =
         configureMetacardValidityFilterPlugin(
-            Collections.singletonList("invalid-state=data-manager"), false, true, getAdminConfig());
+            Collections.singletonList("invalid-state=data-manager"), false, true, getConfigAdmin());
 
     try {
       query(warningId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
@@ -288,7 +288,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       query(errorId, TRANSFORMER_XML, HttpStatus.SC_OK);
     } finally {
       // Reset plugin
-      configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+      configureMetacardValidityFilterPlugin(filterPluginProps, getConfigAdmin());
     }
   }
 
@@ -301,7 +301,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     // Configure to filter metacards with validation errors but not validation warnings
     Dictionary<String, Object> filterPluginProps =
         configureMetacardValidityFilterPlugin(
-            Collections.singletonList("invalid-state=data-manager"), true, false, getAdminConfig());
+            Collections.singletonList("invalid-state=data-manager"), true, false, getConfigAdmin());
 
     try {
       query(warningId, TRANSFORMER_XML, HttpStatus.SC_OK);
@@ -309,7 +309,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       query(errorId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
     } finally {
       // Reset plugin
-      configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+      configureMetacardValidityFilterPlugin(filterPluginProps, getConfigAdmin());
     }
   }
 
@@ -322,7 +322,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     // Configure to filter metacards with validation errors and validation warnings
     Dictionary<String, Object> filterPluginProps =
         configureMetacardValidityFilterPlugin(
-            Collections.singletonList("invalid-state=data-manager"), true, true, getAdminConfig());
+            Collections.singletonList("invalid-state=data-manager"), true, true, getConfigAdmin());
 
     try {
       query(warningId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
@@ -330,7 +330,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       query(errorId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
     } finally {
       // Reset plugin
-      configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+      configureMetacardValidityFilterPlugin(filterPluginProps, getConfigAdmin());
     }
   }
 
@@ -346,7 +346,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
             Collections.singletonList("invalid-state=data-manager"),
             false,
             false,
-            getAdminConfig());
+            getConfigAdmin());
 
     try {
       query(warningId, TRANSFORMER_XML, HttpStatus.SC_OK);
@@ -354,7 +354,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       query(errorId, TRANSFORMER_XML, HttpStatus.SC_OK);
     } finally {
       // Reset plugin
-      configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+      configureMetacardValidityFilterPlugin(filterPluginProps, getConfigAdmin());
     }
   }
 

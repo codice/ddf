@@ -74,18 +74,8 @@
                     <version>${karaf.version}</version>
                 </dependency>
                 <dependency>
-                    <groupId>ddf.admin.core</groupId>
-                    <artifactId>admin-core-appservice</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-                <dependency>
                     <groupId>org.springframework.osgi</groupId>
                     <artifactId>spring-osgi-core</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>ddf.security.policy</groupId>
-                    <artifactId>security-policy-context</artifactId>
-                    <version>${project.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>ddf.catalog.core</groupId>

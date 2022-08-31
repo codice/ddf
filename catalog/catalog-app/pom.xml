@@ -163,11 +163,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.schematron</groupId>
-            <artifactId>catalog-schematron-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.rest</groupId>
             <artifactId>catalog-rest-service</artifactId>
             <version>${project.version}</version>
@@ -373,16 +368,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-metacardbackup-filestorage</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-metacardbackup-s3storage</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>csv-queryresponse-transformer</artifactId>
             <version>${project.version}</version>
@@ -403,11 +388,6 @@
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.transformer</groupId>
-            <artifactId>catalog-transformer-bootflag</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.rest</groupId>
