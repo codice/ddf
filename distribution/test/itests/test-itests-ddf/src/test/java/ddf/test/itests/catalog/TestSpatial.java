@@ -26,6 +26,7 @@ import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestCswR
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.junit.Assert.assertTrue;
@@ -343,6 +344,10 @@ public class TestSpatial extends AbstractIntegrationTest {
     // geometry
     setupWfs11Query(wfsResponse(sfRoad1), withPostBodyContaining("coordinates>"));
 
+    setupWfs11QueryHitsExceptionHitCount();
+
+    setupWfs11QueryHitsExceptionResults(wfsResponse(sfRoad1));
+
     // ID Search
     whenHttp(server)
         .match(post(WFS_11_CONTEXT), withPostBodyContaining("FeatureId"))
@@ -380,6 +385,53 @@ public class TestSpatial extends AbstractIntegrationTest {
     queryConditions.add(withPostBodyContaining("GetFeature"));
     queryConditions.add(withPostBodyContaining("sf:roads"));
     queryConditions.addAll(Arrays.asList(conditions));
+
+    whenHttp(server)
+        .match(queryConditions.toArray(new Condition[0]))
+        .then(Action.success(), Action.stringContent(response));
+  }
+
+  /**
+   * Simulate the WFS server returning an exception to a hits request. {@link #testWfsHitsException}
+   */
+  private void setupWfs11QueryHitsExceptionHitCount() {
+    List<Condition> queryConditions = new ArrayList<>();
+    queryConditions.add(post(WFS_11_CONTEXT));
+    queryConditions.add(withPostBodyContaining("GetFeature"));
+    queryConditions.add(withPostBodyContaining("the_geom"));
+    queryConditions.add(
+        withPostBodyContaining("-90.0,179.0 90.0,179.0 90.0,-179.0 -90.0,-179.0 -90.0,179.0"));
+    queryConditions.add(withPostBodyContaining("resultType=\"hits\""));
+
+    String response =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<ows:ExceptionReport xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.0.0\">\n"
+            + "   <ows:Exception exceptionCode=\"NoApplicableCode\">\n"
+            + "      <ows:ExceptionText>java.lang.RuntimeException: java.io.IOException: Error executing count search\n"
+            + "java.io.IOException: Error executing count search\n"
+            + "Error executing count search\n"
+            + "Error executing query search\n"
+            + "method [POST], host [http://localhost:9999], URI [/foo/_search], status line [HTTP/1.1 400 Bad Request]\n"
+            + "{\"error\":{\"root_cause\":[{\"type\":\"illegal_argument_exception\",\"reason\":\"Result window is too large, from + size must be less than or equal to: [10000] but was [2147483647]. See the scroll api for a more efficient way to request large data sets. This limit can be set by changing the [index.max_result_window] index level setting.\"}],\"type\":\"search_phase_execution_exception\",\"reason\":\"all shards failed\",\"phase\":\"query\",\"grouped\":true,\"failed_shards\":[{\"shard\":0,\"index\":\"foo\",\"node\":\"8MWGQrnkTXWI9lo0ZxVUcw\",\"reason\":{\"type\":\"illegal_argument_exception\",\"reason\":\"Result window is too large, from + size must be less than or equal to: [10000] but was [2147483647]. See the scroll api for a more efficient way to request large data sets. This limit can be set by changing the [index.max_result_window] index level setting.\"}}],\"caused_by\":{\"type\":\"illegal_argument_exception\",\"reason\":\"Result window is too large, from + size must be less than or equal to: [10000] but was [2147483647]. See the scroll api for a more efficient way to request large data sets. This limit can be set by changing the [index.max_result_window] index level setting.\",\"caused_by\":{\"type\":\"illegal_argument_exception\",\"reason\":\"Result window is too large, from + size must be less than or equal to: [10000] but was [2147483647]. See the scroll api for a more efficient way to request large data sets. This limit can be set by changing the [index.max_result_window] index level setting.\"}}},\"status\":400}</ows:ExceptionText>\n"
+            + "   </ows:Exception>\n"
+            + "</ows:ExceptionReport>";
+    whenHttp(server)
+        .match(queryConditions.toArray(new Condition[0]))
+        .then(Action.success(), Action.stringContent(response));
+  }
+
+  /**
+   * Simulate the WFS server returning results for the scenario when an exception is thrown during
+   * the hits request. {@link #setupWfs11QueryHitsExceptionHitCount} {@link #testWfsHitsException}
+   */
+  private void setupWfs11QueryHitsExceptionResults(String response) {
+    List<Condition> queryConditions = new ArrayList<>();
+    queryConditions.add(post(WFS_11_CONTEXT));
+    queryConditions.add(withPostBodyContaining("GetFeature"));
+    queryConditions.add(withPostBodyContaining("the_geom"));
+    queryConditions.add(
+        withPostBodyContaining("-90.0,179.0 90.0,179.0 90.0,-179.0 -90.0,-179.0 -90.0,179.0"));
+    queryConditions.add(withPostBodyContaining("resultType=\"results\""));
 
     whenHttp(server)
         .match(queryConditions.toArray(new Condition[0]))
@@ -618,6 +670,57 @@ public class TestSpatial extends AbstractIntegrationTest {
     String queryUrl = OPENSEARCH_PATH + "?q=roads.2 AND roads.3&format=xml&src=" + WFS_11_SOURCE_ID;
     String responseXml = given().request().get(queryUrl).andReturn().body().asString();
     assertMetacards(responseXml, 2, WFS_11_SOURCE_ID, "roads");
+  }
+
+  /**
+   * A downstream project encountered a situation where a WFS server would return an exception
+   * report for the hit count, but still return valid results. The SourceResponse contract allows
+   * the hit count to be -1 if it is unknown. {@link #setupWfs11QueryHitsExceptionHitCount} {@link
+   * #setupWfs11QueryHitsExceptionResults}
+   */
+  @Test
+  public void testWfsHitsException() {
+
+    String response =
+        sendCswQuery(
+            "<GetRecords xmlns=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                + "        xmlns:ogc=\"http://www.opengis.net/ogc\"\n"
+                + "        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + "        xmlns:gml=\"http://www.opengis.net/gml\"\n"
+                + "        service=\"CSW\"\n"
+                + "        version=\"2.0.2\"\n"
+                + "        maxRecords=\"4\"\n"
+                + "        startPosition=\"1\"\n"
+                + "        resultType=\"results\"\n"
+                + "        outputFormat=\"application/xml\"\n"
+                + "        outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                + "        xsi:schemaLocation=\"http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd\">\n"
+                + "    <Query typeNames=\"Record\">\n"
+                + "        <ElementSetName>summary</ElementSetName>\n"
+                + "        <Constraint version=\"1.1.0\">\n"
+                + "            <ogc:Filter>\n"
+                + "                <ogc:Intersects>\n"
+                + "                    <ogc:PropertyName>the_geom</ogc:PropertyName>\n"
+                + "                    <gml:MultiPolygon>\n"
+                + "                        <gml:polygonMember>\n"
+                + "                            <gml:Polygon>\n"
+                + "                                <gml:exterior>\n"
+                + "                                    <gml:LinearRing>\n"
+                + "                                        <gml:coordinates decimal=\".\" cs=\",\" ts=\" \">179,-90 179,90 -179,90 -179,-90 179,-90</gml:coordinates>\n"
+                + "                                    </gml:LinearRing>\n"
+                + "                                </gml:exterior>\n"
+                + "                            </gml:Polygon>\n"
+                + "                        </gml:polygonMember>\n"
+                + "                    </gml:MultiPolygon>\n"
+                + "                </ogc:Intersects>\n"
+                + "            </ogc:Filter>\n"
+                + "        </Constraint>\n"
+                + "    </Query>\n"
+                + "    <DistributedSearch hopCount=\"2\" />\n"
+                + "</GetRecords>\n");
+
+    assertThat(response, containsString("numberOfRecordsMatched=\"-1\""));
+    assertThat(response, containsString("numberOfRecordsReturned=\"1\""));
   }
 
   @Test
