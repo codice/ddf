@@ -29,7 +29,6 @@ using the maven-dependency-plugin.
 These shared resources include:
     - DDF startup scripts for Windows and Unix (in resources/bin)
     - Customized Karaf .cfg and .properties files (in resources/etc)
-    - DDF default site security configuration file (in resources/etc/ddf)
     - Security keystores (in resources/etc/keystores)
     - Third party license files as PDFs and txt files (in resources/licenses)
     - Template .cfg files to create sources/providers (in resources/templates)

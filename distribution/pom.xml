@@ -16,7 +16,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf</groupId>
-        <artifactId>ddf</artifactId>
+        <artifactId>ddf-reactor</artifactId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>distribution</artifactId>
@@ -31,7 +31,6 @@
         <module>ddf-branding-plugin</module>
         <module>ddf-common</module>
         <module>kernel</module>
-        <module>docs</module>
         <module>ddf-catalog</module>
         <module>ddf</module>
         <module>docker</module>

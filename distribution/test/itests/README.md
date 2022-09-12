@@ -34,7 +34,7 @@ Solr runs in its own OS process separate from PAX-EXAM and the application. Thin
 * The Solr administration UI is available at `http://localhost:9994/solr`. Use the default 
 username (`admin`)and default password (`admin`)to log into the Solr administration UI.
 * The Maven exec-maven-plugin executes the Solr start command before the itests begin. The plugin also executes the Solr stop command when the itests have terminated.
-* The files for the Solr instance are located inside of the `test-itest-ddf/target/solr` folder and **not** in the exam folder. There is not a per exam-folder copy of Solr. Therefore it is not
+* The files for the Solr instance are located inside of the `test-itest-ddf-core/target/solr` folder and **not** in the exam folder. There is not a per exam-folder copy of Solr. Therefore it is not
  recommended to run itests concurrently because the tests may corrupt each other's data.
 * Because not every itest cleans up after itself, it is possible to leak data between separate runs of the itests, **if** the test process terminated abnormally. In such cases, use `mvn clean` to delete the target folder. This ensures future itests have a clean Solr installation.
 
@@ -46,17 +46,10 @@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 20003 admin@l
 ```
 
 ## Running Tests
-The Pax Exam tests support Maven Surefire Plugin properties. One useful property is the `it.test` property to select a single test class or method to execute.
+The Pax Exam tests support Maven Surefire Plugin properties. One useful property is the `it.test` property to select a single test method to execute.
 
 ```
-mvn clean verify -Dit.test=TestFederation
-mvn clean verify -Dit.test=TestFederation#<testMethodName>
-```
-
-Multiple test classes can also be executed sequentially using comma separation.
-
-```
-mvn clean verify -Dit.test=TestFederation,TestSecurity
+mvn clean verify -Dit.test=DdfCoreIT#<testMethodName>
 ```
 
 This can be combined with the `isDebugEnabled` property.
@@ -75,15 +68,8 @@ By default, itests are run at a log level of `WARN` for increased performance.
 If you want to change the logging level, use any combination of the below flags:
 * `-DglobalLogLevel=<level>` affects the root logger (all packages)
 * `-DitestLogLevel=<level>` affects the packages `ddf` and `org.codice`
-* `-DsecurityLogLevel=<level>` affects the packages `ddf.security.expansion.impl.RegexExpansion` and `ddf.security.service.impl.AbstractAuthorizingRealm`
 
 Valid levels are defined by the [SLF4J API](http://www.slf4j.org/api/org/apache/commons/logging/Log.html).
 
 ## Run unstable tests
 By default, all tests that include a call to `unstableTest` will not be run. To include them as part of a build, add the `-DincludeUnstableTests=true` property to the Maven command.
-
-## Generate missing security permissions
-When adding new functionality that requires security permissions that have
-not been added to `security/default.policy`, running with the `DgeneratePolicyFile=true`
-flag and the `-DkeepRuntimeFolder=true` flag will generate the missing
-policies in the `generated.policy` file in the exam folder.

@@ -1,8 +1,0 @@
-{
-  "name": "search-ui-app",
-  "description": "The Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.::Search UI",
-  "bundleLocations": [
-    "mvn:ddf.ui.search/search-redirect/${project.version}",
-    "mvn:ddf.ui.search/simple/${project.version}"
-  ]
-}

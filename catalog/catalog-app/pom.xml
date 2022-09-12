@@ -154,11 +154,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-backupplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-sourcemetricsplugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -198,16 +193,6 @@
             <version>3.1.0_1</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>plugin-federation-replication</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>jpeg2000-thumbnail-converter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-html</artifactId>
             <version>${project.version}</version>
@@ -225,11 +210,6 @@
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-thumbnail</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.transformer</groupId>
-            <artifactId>service-xslt-transformer</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -275,11 +255,6 @@
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-zip</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-pointofcontactupdate</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

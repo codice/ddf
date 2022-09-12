@@ -132,9 +132,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>ddf-pubsub-tracker</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

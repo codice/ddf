@@ -237,8 +237,8 @@ public class QueryOperations extends DescribableImpl {
       // We have nothing to query at all.
       // TODO change to SourceUnavailableException
       throw new FederationException(
-          "SiteNames could not be resolved due to invalid site names, none of the sites "
-              + "were available, or the current subject doesn't have permission to access the sites.");
+          "SiteNames could not be resolved due to invalid site names or none of the sites "
+              + "were available.");
     }
 
     LOGGER.debug("Calling strategy.federate()");

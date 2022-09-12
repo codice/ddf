@@ -107,11 +107,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.transformer</groupId>
-            <artifactId>catalog-transformer-propertyjson-metacard</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-jsp</artifactId>
         </dependency>

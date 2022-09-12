@@ -24,8 +24,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>filter-proxy</module>
-        <module>pubsub</module>
-        <module>pubsub-tracker</module>
         <module>metacard-type-registry</module>
     </modules>
 </project>

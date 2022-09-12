@@ -24,15 +24,9 @@
     <packaging>pom</packaging>
     <name>DDF :: Catalog :: Plugin</name>
     <modules>
-        <module>catalog-plugin-federation-replication</module>
-        <module>catalog-plugin-jpeg2000-thumbnail-converter</module>
         <module>catalog-plugin-metacard-validation</module>
         <module>catalog-plugin-checksum</module>
         <module>catalog-plugin-videothumbnail</module>
-        <module>catalog-plugin-expirationdate</module>
         <module>catalog-plugin-content-uri</module>
-        <module>catalog-plugin-clientinfo</module>
-        <module>catalog-plugin-metacardingest-network</module>
-        <module>catalog-plugin-pointofcontactupdate</module>
     </modules>
 </project>

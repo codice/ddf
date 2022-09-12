@@ -123,32 +123,6 @@
             <outputDirectory>/documentation</outputDirectory>
         </fileSet>
 
-        <!-- Javadoc -->
-        <fileSet>
-            <directory>${setup.folder}/catalog_api_javadoc</directory>
-            <outputDirectory>/documentation/javadoc/catalog_api_javadoc</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>${setup.folder}/mime_api_javadoc</directory>
-            <outputDirectory>/documentation/javadoc/mime_api_javadoc</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>${setup.folder}/content_api_javadoc</directory>
-            <outputDirectory>/documentation/javadoc/content_api_javadoc</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>${setup.folder}/action_api_javadoc</directory>
-            <outputDirectory>/documentation/javadoc/action_api_javadoc</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>${setup.folder}/security_api_javadoc</directory>
-            <outputDirectory>/documentation/javadoc/security_api_javadoc</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>${setup.folder}/encryption_api_javadoc</directory>
-            <outputDirectory>/documentation/javadoc/encryption_api_javadoc</outputDirectory>
-        </fileSet>
-
         <!-- Console Branding -->
         <fileSet>
             <directory>${setup.folder}</directory>
@@ -249,23 +223,9 @@
 
         <!-- DDF Files -->
         <fileSet>
-            <directory>${setup.folder}/security</directory>
-            <outputDirectory>/security</outputDirectory>
-            <fileMode>0644</fileMode>
-        </fileSet>
-
-        <fileSet>
             <directory>${setup.folder}/data</directory>
             <outputDirectory>/data</outputDirectory>
             <directoryMode>0775</directoryMode>
-        </fileSet>
-        <fileSet>
-            <directory>${setup.folder}/routes</directory>
-            <outputDirectory>/etc/routes/</outputDirectory>
-            <includes>
-                <include>*.xml</include>
-            </includes>
-            <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
             <directory>${setup.folder}/solr/</directory>
