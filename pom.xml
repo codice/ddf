@@ -1527,7 +1527,7 @@
     <modules>
         <module>gitsetup</module>
         <module>thirdparty</module>
-        <module>libs</module>
+        <module>lib</module>
         <module>platform</module>
         <module>catalog</module>
         <module>distribution</module>
