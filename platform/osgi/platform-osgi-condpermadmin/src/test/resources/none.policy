@@ -1,9 +1,0 @@
-deny {
-    permission java.io.FilePermission "<<ALL FILES>>", "read, write, execute";
-}
-
-grant
-  codeBase "file:/test-bundle" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
-};

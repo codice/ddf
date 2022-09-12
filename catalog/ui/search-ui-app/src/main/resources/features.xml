@@ -17,23 +17,11 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="simple-search-ui" version="${project.version}">
+    <feature name="search-ui-app" version="${project.version}"
+             description="The Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.">
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/${pax.web.version}</bundle>
         <bundle>mvn:org.jsoup/jsoup/${jsoup.version}</bundle>
-        <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>
-    </feature>
-
-    <feature name="search-redirect" version="${project.version}"
-             description="Configuration to redirect /search to another endpoint">
-        <feature>common-system</feature>
-        <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
-    </feature>
-
-    <feature name="search-ui-app" version="${project.version}"
-             description="The Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\nThe left pane of the Search UI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\nIt includes both the Catalog UI (3d globe) and Simple Search UI (text page) versions.">
-        <feature>catalog-app</feature>
-        <feature>simple-search-ui</feature>
-        <feature>search-redirect</feature>
+        <bundle>mvn:ddf.ui/simple/${project.version}</bundle>
     </feature>
 
 </features>

@@ -1,4 +1,0 @@
-priority "grant";
-
-grant codeBase "file:/test-bundle" {
-};

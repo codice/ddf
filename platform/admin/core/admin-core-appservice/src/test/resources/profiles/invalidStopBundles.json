@@ -1,7 +1,0 @@
-{
-  "stop-bundles": [
-    "bundle1",
-    "badBundle",
-    "bundle2"
-  ]
-}

@@ -65,29 +65,6 @@
                                     <type>xml</type>
                                     <classifier>features</classifier>
                                 </artifact>
-                                <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.config
-                                    </file>
-                                    <type>properties</type>
-                                    <classifier>catalog-ui-config</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.theme.config
-                                    </file>
-                                    <type>properties</type>
-                                    <classifier>catalog-ui-theme-config</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.attribute.hidden.config
-                                    </file>
-                                    <type>properties</type>
-                                    <classifier>catalog-ui-attribute-hidden-config</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>src/main/resources/etc/IntrigueBundle.properties</file>
-                                    <type>config</type>
-                                    <classifier>intrigue-bundle-config</classifier>
-                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
@@ -97,13 +74,8 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>ddf.ui.search</groupId>
+            <groupId>ddf.ui</groupId>
             <artifactId>simple</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui.search</groupId>
-            <artifactId>search-redirect</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

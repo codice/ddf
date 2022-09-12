@@ -25,9 +25,8 @@
     <groupId>ddf.ui</groupId>
     <packaging>pom</packaging>
     <modules>
-        <module>search-ui</module>
+        <module>simple</module>
         <module>search-ui-app</module>
-
     </modules>
     <dependencyManagement>
         <dependencies>
