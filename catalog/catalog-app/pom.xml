@@ -113,11 +113,6 @@
             <version>${jts.geotools.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>3.0.2_1</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-urlresourcereader</artifactId>
             <version>${project.version}</version>

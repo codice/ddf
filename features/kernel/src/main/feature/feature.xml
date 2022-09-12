@@ -22,6 +22,7 @@
     <feature name="kernel" version="${project.version}"
              description="Minimual set of features and dependencies commonly used.">
         <feature version="${karaf.version}">standard</feature>
+        <feature version="${karaf.version}">webconsole</feature>
         <feature version="${karaf.version}">eventadmin</feature>
         <feature version="${karaf.version}">jasypt-encryption</feature>
         <feature version="${pax.web.version}">pax-web-core</feature>

@@ -22,6 +22,7 @@
             <outputDirectory>/</outputDirectory>
             <excludes>
                 <exclude>**/demos/**</exclude>
+                <exclude>examples/**</exclude>
                 <exclude>bin/**</exclude>
                 <!-- Don't copy over config files that are customized -->
                 <exclude>etc/custom.properties</exclude>
