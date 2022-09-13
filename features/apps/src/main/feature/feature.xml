@@ -27,8 +27,10 @@
              description="Features that will be started on container startup.">
         <feature>kernel</feature>
         <feature>cxf</feature>
-        <feature>war</feature>
+        <feature>pax-web-war</feature>
+        <feature>pax-web-http-whiteboard</feature>
         <feature>branding-app</feature>
+        <feature>webconsole</feature>
     </feature>
 
     <feature name="platform-core" version="${project.version}"
