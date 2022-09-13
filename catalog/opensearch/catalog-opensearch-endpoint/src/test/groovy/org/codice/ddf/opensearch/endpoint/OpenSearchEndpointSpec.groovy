@@ -26,8 +26,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletRequest
-import javax.ws.rs.core.MultivaluedMap
-import javax.ws.rs.core.UriInfo
+import javax.servlet.http.HttpServletResponse
 
 @RunWith(JUnitPlatform.class)
 class OpenSearchEndpointSpec extends Specification {
@@ -69,17 +68,12 @@ class OpenSearchEndpointSpec extends Specification {
                 sort,
                 null,
                 null,
-                Mock(UriInfo) {
-                    getQueryParameters() >> Mock(MultivaluedMap) {
-                        get(_) >> null
-                    }
-                    getRequestUri() >> new URI()
-                },
                 null,
                 null,
                 Mock(HttpServletRequest) {
                     getParameterMap() >> [:]
-                })
+                },
+                Mock(HttpServletResponse))
 
         then:
         1 * catalogFramework.transform({

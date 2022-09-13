@@ -95,8 +95,7 @@
 		 * geojson format through jsonp from the server
 		 */
 		$.ajax({
-			url:  getServicesUrl() + "../../services/catalog/" + id + "?transform=geojson",
-			dataType: "jsonp"
+			url:  getServicesUrl() + "../../services/catalog/" + id + "?transform=geojson"
 		}).done(function(metacard){
 			// creating RecordView for metacard
 			rv = new RecordView(metacard);

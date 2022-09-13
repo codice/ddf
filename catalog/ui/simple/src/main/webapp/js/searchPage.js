@@ -33,8 +33,7 @@ function getServicesUrl() {
 
 $.ajax(
 	{
-		url: getServicesUrl() + "../../services/catalog/sources",
-		dataType: "jsonp"
+		url: getServicesUrl() + "../../services/catalog/sources"
 	}).done(function(data){
 		var sources, types, type, to, i, j, id, o;
 		sources = data;
@@ -361,7 +360,6 @@ function getResults(startVal, showList) {
 	pendingRequest = $.ajax({
 		url:  getServicesUrl() + $("#searchForm").attr("action"),
 		data: $("#searchForm").serialize(),
-		dataType: "jsonp",
 		timeout:300000
 	}).done(function(results){
 		results.itemsPerPage = getItemsPerPage();

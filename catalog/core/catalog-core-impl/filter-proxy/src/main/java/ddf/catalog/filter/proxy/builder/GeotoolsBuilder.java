@@ -26,7 +26,6 @@ import org.geotools.geometry.GeometryBuilder;
 import org.geotools.geometry.iso.text.WKTParser;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PrimitiveFactoryImpl;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPeriodDuration;
@@ -41,19 +40,17 @@ import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.units.indriya.function.DefaultNumberSystem;
 
 class GeotoolsBuilder {
 
-  // Use the OGC SE standard mapping for meters so that units assigned here
-  // will
-  // match units assigned elsewhere throughout DDF
-  private static final String METERS = UomOgcMapping.METRE.name();
-
   private static final Logger LOGGER = LoggerFactory.getLogger(GeotoolsBuilder.class);
+
+  private static final String METRE = "METRE";
 
   private static WKTReader reader = new WKTReader();
 
-  private static WKTParser parser = new WKTParser(new GeometryBuilder(DefaultGeographicCRS.WGS84));
+  private final WKTParser parser;
 
   private FilterFactory factory = new FilterFactoryImpl();
 
@@ -87,7 +84,14 @@ class GeotoolsBuilder {
     this.operator = operator;
     this.functionName = functionName;
     this.arguments = arguments;
-    parser.setFactory(new PrimitiveFactoryImpl(DefaultGeographicCRS.WGS84));
+    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(DefaultNumberSystem.class.getClassLoader());
+    try {
+      parser = new WKTParser(new GeometryBuilder(DefaultGeographicCRS.WGS84));
+      parser.setFactory(new PrimitiveFactoryImpl(DefaultGeographicCRS.WGS84));
+    } finally {
+      Thread.currentThread().setContextClassLoader(tccl);
+    }
   }
 
   //
@@ -193,7 +197,7 @@ class GeotoolsBuilder {
         wkt = getValue(String.class);
         distance = getSecondaryValue(Double.class);
         if (wkt != null && wkt.length() > 0) {
-          filter = factory.beyond(attribute, toGeometry(wkt), distance, METERS);
+          filter = factory.beyond(attribute, toGeometry(wkt), distance, METRE);
         }
         break;
       case CONTAINS:
@@ -206,7 +210,7 @@ class GeotoolsBuilder {
         wkt = getValue(String.class);
         distance = getSecondaryValue(Double.class);
         if (wkt != null && wkt.length() > 0) {
-          filter = factory.dwithin(attribute, toGeometry(wkt), distance, METERS);
+          filter = factory.dwithin(attribute, toGeometry(wkt), distance, METRE);
         }
         break;
       case INTERSECTS:

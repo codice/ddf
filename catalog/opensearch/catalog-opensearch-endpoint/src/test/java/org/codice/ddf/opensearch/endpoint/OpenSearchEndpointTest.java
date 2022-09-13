@@ -33,13 +33,11 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
+import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.opensearch.endpoint.query.OpenSearchQuery;
 import org.junit.Assert;
@@ -51,7 +49,7 @@ public class OpenSearchEndpointTest {
   /**
    * Test method for {@link OpenSearchEndpoint#processQuery(String, String, String, String, String,
    * String, String, String, String, String, String, String, String, String, String, String, String,
-   * String, UriInfo, String, String, HttpServletRequest)} .
+   * String, String, String, HttpServletRequest, HttpServletResponse)} .
    *
    * <p>This test will verify that the string "local" in the sources passed to
    * OpenSearchEndpoint.processQuery is replaced with the local site name (in this case the mocked
@@ -63,7 +61,7 @@ public class OpenSearchEndpointTest {
   @Test
   public void testProcessQueryForProperHandlingOfSiteNameLOCAL()
       throws URISyntaxException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException, UnsupportedEncodingException, CatalogTransformerException {
+          FederationException, IOException, CatalogTransformerException {
 
     // ***Test setup***
     final String testSiteName = "TestSiteName";
@@ -86,16 +84,6 @@ public class OpenSearchEndpointTest {
     // "local" MUST be included
     String sources = "test, local";
     String count = "200";
-
-    // dummy UriInfo, not really used functionally
-    UriInfo mockUriInfo = mock(UriInfo.class);
-    URI uri = new URI("test");
-    when(mockUriInfo.getRequestUri()).thenReturn(uri);
-
-    MultivaluedMap<String, String> mockMVMap = mock(MultivaluedMap.class);
-    when(mockMVMap.get("subscription")).thenReturn(null);
-    when(mockMVMap.get("interval")).thenReturn(null);
-    when(mockUriInfo.getQueryParameters()).thenReturn(mockMVMap);
 
     @SuppressWarnings("unused")
     BinaryContent mockByteContent = mock(BinaryContent.class);
@@ -147,9 +135,9 @@ public class OpenSearchEndpointTest {
         null,
         null,
         null,
-        mockUriInfo,
         null,
         null,
-        null);
+        null,
+        mock(HttpServletResponse.class));
   }
 }

@@ -25,34 +25,31 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.configuration.SystemInfo;
-import org.codice.ddf.opensearch.OpenSearch;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.codice.ddf.opensearch.endpoint.query.OpenSearchQuery;
 import org.parboiled.errors.ParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Path("/")
-public class OpenSearchEndpoint implements OpenSearch {
+public class OpenSearchEndpoint extends HttpServlet {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchEndpoint.class);
 
@@ -101,6 +98,35 @@ public class OpenSearchEndpoint implements OpenSearch {
     this.filterBuilder = filterBuilder;
   }
 
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    LOGGER.trace("request url: {}", req.getRequestURI());
+    processQuery(
+        req.getParameter(OpenSearchConstants.SEARCH_TERMS),
+        req.getParameter(OpenSearchConstants.MAX_RESULTS),
+        req.getParameter(OpenSearchConstants.SOURCES),
+        req.getParameter(OpenSearchConstants.MAX_TIMEOUT),
+        req.getParameter(OpenSearchConstants.START_INDEX),
+        req.getParameter(OpenSearchConstants.COUNT),
+        req.getParameter(OpenSearchConstants.GEOMETRY),
+        req.getParameter(OpenSearchConstants.BBOX),
+        req.getParameter(OpenSearchConstants.POLYGON),
+        req.getParameter(OpenSearchConstants.LAT),
+        req.getParameter(OpenSearchConstants.LON),
+        req.getParameter(OpenSearchConstants.RADIUS),
+        req.getParameter(OpenSearchConstants.DATE_START),
+        req.getParameter(OpenSearchConstants.DATE_END),
+        req.getParameter(OpenSearchConstants.DATE_OFFSET),
+        req.getParameter(OpenSearchConstants.SORT),
+        req.getParameter(OpenSearchConstants.FORMAT),
+        req.getParameter(OpenSearchConstants.SELECTORS),
+        req.getParameter(OpenSearchConstants.TYPE),
+        req.getParameter(OpenSearchConstants.VERSIONS),
+        req,
+        resp);
+  }
+
   /**
    * @param searchTerms Space-delimited list of search terms.
    * @param maxResults Maximum # of results to return. If count is also specified, the count value
@@ -136,33 +162,30 @@ public class OpenSearchEndpoint implements OpenSearch {
    * @param type Specifies the type of data to search for. (example: nitf)
    * @param versions Specifies the versions in a comma-delimited list.
    */
-  @Override
-  @GET
-  public Response processQuery(
-      @QueryParam(OpenSearchConstants.SEARCH_TERMS) String searchTerms,
-      @QueryParam(OpenSearchConstants.MAX_RESULTS) String maxResults,
-      @QueryParam(OpenSearchConstants.SOURCES) String sources,
-      @QueryParam(OpenSearchConstants.MAX_TIMEOUT) String maxTimeout,
-      @QueryParam(OpenSearchConstants.START_INDEX) String startIndex,
-      @QueryParam(OpenSearchConstants.COUNT) String count,
-      @QueryParam(OpenSearchConstants.GEOMETRY) String geometry,
-      @QueryParam(OpenSearchConstants.BBOX) String bbox,
-      @QueryParam(OpenSearchConstants.POLYGON) String polygon,
-      @QueryParam(OpenSearchConstants.LAT) String lat,
-      @QueryParam(OpenSearchConstants.LON) String lon,
-      @QueryParam(OpenSearchConstants.RADIUS) String radius,
-      @QueryParam(OpenSearchConstants.DATE_START) String dateStart,
-      @QueryParam(OpenSearchConstants.DATE_END) String dateEnd,
-      @QueryParam(OpenSearchConstants.DATE_OFFSET) String dateOffset,
-      @QueryParam(OpenSearchConstants.SORT) String sort,
-      @QueryParam(OpenSearchConstants.FORMAT) String format,
-      @QueryParam(OpenSearchConstants.SELECTORS) String selectors,
-      @Context UriInfo ui,
-      @QueryParam(OpenSearchConstants.TYPE) String type,
-      @QueryParam(OpenSearchConstants.VERSIONS) String versions,
-      @Context HttpServletRequest request) {
-    Response response;
-    LOGGER.trace("request url: {}", ui.getRequestUri());
+  public void processQuery(
+      String searchTerms,
+      String maxResults,
+      String sources,
+      String maxTimeout,
+      String startIndex,
+      String count,
+      String geometry,
+      String bbox,
+      String polygon,
+      String lat,
+      String lon,
+      String radius,
+      String dateStart,
+      String dateEnd,
+      String dateOffset,
+      String sort,
+      String format,
+      String selectors,
+      String type,
+      String versions,
+      HttpServletRequest request,
+      HttpServletResponse response)
+      throws IOException {
 
     try {
       OpenSearchQuery query = createNewQuery(startIndex, count, maxResults, sort, maxTimeout);
@@ -226,22 +249,14 @@ public class OpenSearchEndpoint implements OpenSearch {
         }
       }
 
-      response = executeQuery(format, query, ui, properties);
+      executeQuery(format, query, request, response, properties);
     } catch (ParsingException e) {
       LOGGER.debug("Bad input found while executing a query", e);
-      response =
-          Response.status(Response.Status.BAD_REQUEST)
-              .entity(wrapStringInPreformattedTags(e.getMessage()))
-              .build();
+      response.sendError(400, e.getMessage());
     } catch (RuntimeException re) {
       LOGGER.debug("Exception while executing a query", re);
-      response =
-          Response.serverError()
-              .entity(wrapStringInPreformattedTags("Exception while executing a query"))
-              .build();
+      response.sendError(500, "Exception while executing a query");
     }
-
-    return response;
   }
 
   /**
@@ -293,22 +308,29 @@ public class OpenSearchEndpoint implements OpenSearch {
    *
    * @param format - of the results in the response
    * @param query - the query to execute
-   * @param ui -the ui information to use to format the results
+   * @param request -the request information to use to format the results
    * @return the response on the query
    */
-  private Response executeQuery(
-      String format, OpenSearchQuery query, UriInfo ui, Map<String, Serializable> properties) {
-    Response response = null;
+  private void executeQuery(
+      String format,
+      OpenSearchQuery query,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      Map<String, Serializable> properties)
+      throws IOException {
     String queryFormat = format;
 
-    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
-    List<String> subscriptionList = queryParams.get(Constants.SUBSCRIPTION_KEY);
+    Map<String, String[]> queryParams = request.getParameterMap();
+    List<String> subscriptionList =
+        queryParams.containsKey(Constants.SUBSCRIPTION_KEY)
+            ? Arrays.asList(queryParams.get(Constants.SUBSCRIPTION_KEY))
+            : Collections.emptyList();
 
     LOGGER.trace("Attempting to execute query: {}", query);
     try {
       Map<String, Serializable> arguments = new HashMap<>();
       String organization = framework.getOrganization();
-      String url = ui.getRequestUri().toString();
+      String url = request.getRequestURI();
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("organization: {}", organization);
         LOGGER.trace("url: {}", url);
@@ -323,7 +345,10 @@ public class OpenSearchEndpoint implements OpenSearch {
         String subscription = subscriptionList.get(0);
         LOGGER.trace("Subscription: {}", subscription);
         arguments.put(Constants.SUBSCRIPTION_KEY, subscription);
-        List<String> intervalList = queryParams.get(UPDATE_QUERY_INTERVAL);
+        List<String> intervalList =
+            queryParams.containsKey(UPDATE_QUERY_INTERVAL)
+                ? Arrays.asList(queryParams.get(UPDATE_QUERY_INTERVAL))
+                : Collections.emptyList();
         if (CollectionUtils.isNotEmpty(intervalList)) {
           arguments.put(UPDATE_QUERY_INTERVAL, intervalList.get(0));
         }
@@ -343,7 +368,9 @@ public class OpenSearchEndpoint implements OpenSearch {
 
         // pass in the format for the transform
         BinaryContent content = framework.transform(queryResponse, queryFormat, arguments);
-        response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
+        response.setStatus(200);
+        response.setContentType(content.getMimeTypeValue());
+        content.getInputStream().transferTo(response.getOutputStream());
       } else {
         // No query was specified
         QueryRequest queryRequest =
@@ -356,46 +383,31 @@ public class OpenSearchEndpoint implements OpenSearch {
         // pass in the format for the transform
         BinaryContent content = framework.transform(queryResponseQueue, queryFormat, arguments);
         if (null != content) {
-          response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
+          response.setStatus(200);
+          response.setContentType(content.getMimeTypeValue());
+          content.getInputStream().transferTo(response.getOutputStream());
         }
       }
     } catch (UnsupportedQueryException ce) {
       LOGGER.debug("Unsupported query", ce);
-      response =
-          Response.status(Response.Status.BAD_REQUEST)
-              .entity(wrapStringInPreformattedTags("Unsupported query"))
-              .build();
+      response.sendError(400, "Unsupported query");
     } catch (CatalogTransformerException e) {
       LOGGER.debug("Error transforming response", e);
-      response =
-          Response.serverError()
-              .entity(wrapStringInPreformattedTags("Error transforming response"))
-              .build();
+      response.sendError(500, "Error transforming response");
     } catch (FederationException e) {
       LOGGER.debug("Error executing query", e);
-      response =
-          Response.serverError()
-              .entity(wrapStringInPreformattedTags("Error executing query"))
-              .build();
+      response.sendError(500, "Error executing query");
     } catch (SourceUnavailableException e) {
       LOGGER.debug("Error executing query because the underlying source was unavailable.", e);
-      response =
-          Response.serverError()
-              .entity(
-                  wrapStringInPreformattedTags(
-                      "Error executing query because the underlying source was unavailable."))
-              .build();
+      response.sendError(
+          500, "Error executing query because the underlying source was unavailable.");
     } catch (RuntimeException e) {
       // Account for any runtime exceptions and send back a server error
       // this prevents full stacktraces returning to the client
       // this allows for a graceful server error to be returned
       LOGGER.debug("RuntimeException on executing query", e);
-      response =
-          Response.serverError()
-              .entity(wrapStringInPreformattedTags("RuntimeException on executing query"))
-              .build();
+      response.sendError(500, "RuntimeException on executing query");
     }
-    return response;
   }
 
   /**

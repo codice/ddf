@@ -11,7 +11,6 @@
  *
  **/ -->
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
 
@@ -20,21 +19,12 @@
     <reference id="ddf" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
-    <jaxrs:server id="OsService" address="/catalog/query">
-        <jaxrs:serviceBeans>
-            <ref component-id="OsSvc"/>
-        </jaxrs:serviceBeans>
-
-        <jaxrs:inInterceptors>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpInInterceptor">
-                <property name="callbackParam" value="callback"/>
-            </bean>
-        </jaxrs:inInterceptors>
-        <jaxrs:outInterceptors>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
-        </jaxrs:outInterceptors>
-    </jaxrs:server>
+    <service interface="javax.servlet.Servlet" ref="OsSvc">
+        <service-properties>
+            <entry key="alias" value="/services/catalog/query"/>
+            <entry key="async-supported" value="true"/>
+        </service-properties>
+    </service>
 
     <bean id="OsSvc" class="org.codice.ddf.opensearch.endpoint.OpenSearchEndpoint">
         <argument ref="ddf"/>
