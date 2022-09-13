@@ -40,7 +40,6 @@
     <feature name="solr-factory-impl" version="${project.version}"
              description="Solr factory">
         <feature>common-system</feature>
-        <feature>spring</feature>
         <feature>solr-factory-api</feature>
         <feature>platform-util</feature>
         <bundle>mvn:ddf.platform.solr/solr-factory-impl/${project.version}</bundle>
@@ -55,7 +54,6 @@
 
     <!-- Start of app features -->
 
-    <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
 
     <feature name="platform-solr-app" version="${project.version}"

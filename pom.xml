@@ -207,8 +207,6 @@
         <jakarta.mail.version>1.6.6</jakarta.mail.version>
         <jasypt.version>1.9.3</jasypt.version>
         <javax.annotation-api.version>1.3.5</javax.annotation-api.version>
-        <javax.cache.version>1.1.1</javax.cache.version>
-        <javax.cache.bundle.version>1.1.0_1</javax.cache.bundle.version>
         <javax.inject.version>1</javax.inject.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <javax.ws.rs.version>2.1</javax.ws.rs.version>

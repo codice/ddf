@@ -17,13 +17,11 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
-    <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
 
     <feature name="platform-util" version="${project.version}"
              description="Platform Utilities">
         <feature>dev-failsafe</feature>
         <feature>common-system</feature>
-        <feature>spring</feature>
         <feature>guava</feature>
         <bundle>mvn:ddf.platform.util/platform-util/${project.version}</bundle>
     </feature>
@@ -67,7 +65,6 @@
              description="MIME Core">
         <feature>mime-core-api</feature>
         <feature>guava</feature>
-        <feature>spring</feature>
         <feature>common-system</feature>
         <feature>slf4j</feature>
         <feature>platform-util</feature>
