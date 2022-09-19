@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.rest.service.impl;
+package org.codice.ddf.endpoints.rest;
 
 import com.google.common.collect.Iterables;
 import ddf.action.Action;
@@ -100,8 +100,6 @@ import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.rest.api.CatalogService;
-import org.codice.ddf.rest.api.CatalogServiceException;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -112,9 +110,9 @@ import org.owasp.html.HtmlPolicyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CatalogServiceImpl implements CatalogService {
+public class CatalogService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogServiceImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogService.class);
 
   public static final String DEFAULT_METACARD_TRANSFORMER = "xml";
 
@@ -156,23 +154,22 @@ public class CatalogServiceImpl implements CatalogService {
 
   protected CatalogFramework catalogFramework;
 
-  public CatalogServiceImpl(
+  public CatalogService(
       CatalogFramework framework,
       AttachmentParser attachmentParser,
       AttributeRegistry attributeRegistry) {
-    LOGGER.trace("Constructing CatalogServiceImpl");
+    LOGGER.trace("Constructing CatalogService");
     this.catalogFramework = framework;
     this.attachmentParser = attachmentParser;
     this.attributeRegistry = attributeRegistry;
-    LOGGER.trace(("CatalogServiceImpl constructed successfully"));
+    LOGGER.trace(("CatalogService constructed successfully"));
   }
 
   protected BundleContext getBundleContext() {
-    Bundle bundle = FrameworkUtil.getBundle(CatalogServiceImpl.class);
+    Bundle bundle = FrameworkUtil.getBundle(CatalogService.class);
     return bundle == null ? null : bundle.getBundleContext();
   }
 
-  @Override
   public BinaryContent getHeaders(
       String sourceid,
       String id,
@@ -262,7 +259,6 @@ public class CatalogServiceImpl implements CatalogService {
     return jsonObject;
   }
 
-  @Override
   public BinaryContent getSourcesInfo() {
     JSONArray resultsList = new JSONArray();
     SourceInfoResponse sources;
@@ -309,7 +305,6 @@ public class CatalogServiceImpl implements CatalogService {
         new ByteArrayInputStream(sourcesString.getBytes(StandardCharsets.UTF_8)), jsonMimeType);
   }
 
-  @Override
   public BinaryContent getDocument(
       String encodedSourceId,
       String encodedId,
@@ -411,7 +406,6 @@ public class CatalogServiceImpl implements CatalogService {
     }
   }
 
-  @Override
   public void updateDocument(
       String id,
       List<String> contentTypeList,
@@ -483,7 +477,6 @@ public class CatalogServiceImpl implements CatalogService {
     }
   }
 
-  @Override
   public String addDocument(
       List<String> contentTypeList,
       List<FileItem> fileItems,
@@ -749,7 +742,6 @@ public class CatalogServiceImpl implements CatalogService {
     return metacard;
   }
 
-  @Override
   public void deleteDocument(String id) throws CatalogServiceException, ServletException {
     LOGGER.debug("DELETE");
     try {
@@ -876,7 +868,6 @@ public class CatalogServiceImpl implements CatalogService {
     return mimeType;
   }
 
-  @Override
   public String getFileExtensionForMimeType(String mimeType) {
     String fileExtension = this.tikaMimeTypeResolver.getFileExtensionForMimeType(mimeType);
     LOGGER.debug("Mime Type [{}] resolves to file extension [{}].", mimeType, fileExtension);

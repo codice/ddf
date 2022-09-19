@@ -27,10 +27,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
         </dependency>
@@ -44,22 +40,26 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.mime.core</groupId>
+            <artifactId>mime-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>util-uuidgenerator-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-attachment</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -110,12 +110,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-service-impl</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
             <scope>test</scope>
@@ -140,7 +134,6 @@
                             *
                         </Import-Package>
                         <Embed-Dependency>
-                            catalog-rest-service,
                             catalog-core-api-impl,
                             owasp-java-html-sanitizer,
                             asm,

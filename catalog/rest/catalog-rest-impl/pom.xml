@@ -42,10 +42,6 @@
 
         <!-- Compile and Runtime -->
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
             <version>${project.version}</version>
@@ -115,16 +111,6 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-attachment</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-service</artifactId>
             <version>${project.version}</version>
         </dependency>
 

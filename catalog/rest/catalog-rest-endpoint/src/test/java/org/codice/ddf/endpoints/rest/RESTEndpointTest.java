@@ -52,7 +52,6 @@ import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
-import org.codice.ddf.rest.service.impl.CatalogServiceImpl;
 import org.junit.Test;
 
 public class RESTEndpointTest {
@@ -147,14 +146,14 @@ public class RESTEndpointTest {
     when(mimeTypeMapper.getMimeTypeForFileExtension("txt")).thenReturn("text/plain");
     when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
 
-    CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(
+    CatalogService catalogService =
+        new CatalogService(
             framework, new AttachmentParserImpl(mimeTypeMapper), mock(AttributeRegistry.class));
-    catalogServiceImpl.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
+    catalogService.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
-    catalogServiceImpl.setFilterBuilder(filterBuilder);
+    catalogService.setFilterBuilder(filterBuilder);
 
-    RESTEndpoint restEndpoint = new RESTEndpoint(catalogServiceImpl);
+    RESTEndpoint restEndpoint = new RESTEndpoint(catalogService);
 
     if (local) {
       when(request.getPathInfo()).thenReturn(LOCAL_RETRIEVE_SERVLET_PATH);
@@ -372,15 +371,15 @@ public class RESTEndpointTest {
     when(mimeTypeMapper.getMimeTypeForFileExtension("txt")).thenReturn("text/plain");
     when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
 
-    CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(
+    CatalogService catalogService =
+        new CatalogService(
             framework, new AttachmentParserImpl(mimeTypeMapper), mock(AttributeRegistry.class));
 
-    catalogServiceImpl.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
+    catalogService.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
-    catalogServiceImpl.setFilterBuilder(filterBuilder);
+    catalogService.setFilterBuilder(filterBuilder);
 
-    RESTEndpoint restEndpoint = new RESTEndpoint(catalogServiceImpl);
+    RESTEndpoint restEndpoint = new RESTEndpoint(catalogService);
 
     if (local) {
       when(request.getPathInfo()).thenReturn(LOCAL_RETRIEVE_SERVLET_PATH);

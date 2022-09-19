@@ -91,8 +91,9 @@ import org.apache.tika.io.IOUtils;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
+import org.codice.ddf.endpoints.rest.CatalogService;
+import org.codice.ddf.endpoints.rest.CatalogServiceException;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.rest.api.CatalogServiceException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -102,14 +103,12 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Tests methods of the {@link CatalogServiceImpl} */
-public class CatalogServiceImplTest {
-
-  private static final int INTERNAL_SERVER_ERROR = 500;
+/** Tests methods of the {@link CatalogService} */
+public class CatalogServiceTest {
 
   private static final String SAMPLE_ID = "12345678900987654321abcdeffedcba";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogServiceImplTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogServiceTest.class);
 
   private static final String GET_OUTPUT_TYPE = "UTF-8";
 
@@ -133,8 +132,8 @@ public class CatalogServiceImplTest {
 
     CatalogFramework framework = mock(CatalogFramework.class);
 
-    CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry);
 
     try {
       catalogService.addDocument(
@@ -160,8 +159,8 @@ public class CatalogServiceImplTest {
   public void testAddDocumentPositiveCase() throws Exception {
 
     CatalogFramework framework = givenCatalogFramework();
-    CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry);
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
     UuidGenerator uuidGenerator = mock(UuidGenerator.class);
@@ -202,8 +201,8 @@ public class CatalogServiceImplTest {
 
     when(attributeRegistry.lookup("custom.attribute")).thenReturn(Optional.of(descriptor));
 
-    CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -272,8 +271,8 @@ public class CatalogServiceImplTest {
     when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
         .thenReturn(serviceReferences);
 
-    CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -359,8 +358,8 @@ public class CatalogServiceImplTest {
     when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
         .thenReturn(serviceReferences);
 
-    CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -370,7 +369,7 @@ public class CatalogServiceImplTest {
         .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.METADATA)));
     when(attributeRegistry.lookup("foo")).thenReturn(Optional.empty());
 
-    addMatchingService(catalogServiceImpl, Collections.singletonList(getSimpleTransformer()));
+    addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
 
     FileItem fileItem1 =
         createFileItemMock(
@@ -383,7 +382,7 @@ public class CatalogServiceImplTest {
             "C:\\DDF\\metacard.xml");
 
     Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseFormUpload(List.of(fileItem1, fileItem2), "xml");
+        catalogService.parseFormUpload(List.of(fileItem1, fileItem2), "xml");
     assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
 
     FileItem fileItem3 =
@@ -392,8 +391,7 @@ public class CatalogServiceImplTest {
         createFileItemMock("foo", "application/octet-stream", "bar", "C:\\DDF\\metacard.txt");
 
     attachmentInfoAndMetacard =
-        catalogServiceImpl.parseFormUpload(
-            List.of(fileItem1, fileItem2, fileItem3, fileItem4), "xml");
+        catalogService.parseFormUpload(List.of(fileItem1, fileItem2, fileItem3, fileItem4), "xml");
 
     assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("<meta>beta</meta>"));
     assertThat(attachmentInfoAndMetacard.getValue().getAttribute("foo"), equalTo(null));
@@ -402,8 +400,8 @@ public class CatalogServiceImplTest {
   @Test
   public void testParseFormUploadWithAttributeOverrides() throws Exception {
     CatalogFramework framework = givenCatalogFramework();
-    CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry);
 
     when(attributeRegistry.lookup(Topic.KEYWORD))
         .thenReturn(Optional.of(new TopicAttributes().getAttributeDescriptor(Topic.KEYWORD)));
@@ -420,8 +418,7 @@ public class CatalogServiceImplTest {
         createFileItemMock("parse.topic.keyword", "application/octet-stream", "keyword2", null);
 
     Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseFormUpload(
-            List.of(fileItem1, fileItem2, fileItem3, fileItem4), null);
+        catalogService.parseFormUpload(List.of(fileItem1, fileItem2, fileItem3, fileItem4), null);
     Metacard metacard = attachmentInfoAndMetacard.getValue();
 
     assertThat(metacard.getAttribute(Core.LOCATION).getValues(), hasItem("POINT(0 0)"));
@@ -446,8 +443,8 @@ public class CatalogServiceImplTest {
     when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
         .thenReturn(serviceReferences);
 
-    CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -457,7 +454,7 @@ public class CatalogServiceImplTest {
         .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.METADATA)));
     when(attributeRegistry.lookup("foo")).thenReturn(Optional.empty());
 
-    addMatchingService(catalogServiceImpl, Collections.singletonList(getSimpleTransformer()));
+    addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
 
     FileItem fileItem1 =
         createFileItemMock("parse.resource", "text/plain", "Some Text", "C:\\DDF\\metacard.txt");
@@ -469,7 +466,7 @@ public class CatalogServiceImplTest {
             "C:\\DDF\\metacard.xml");
 
     Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseFormUpload(List.of(fileItem1, fileItem2), "xml");
+        catalogService.parseFormUpload(List.of(fileItem1, fileItem2), "xml");
     assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
 
     FileItem fileItem3 =
@@ -479,8 +476,7 @@ public class CatalogServiceImplTest {
         createFileItemMock("foo", "application/octet-stream", "bar", "C:\\DDF\\metacard.txt");
 
     attachmentInfoAndMetacard =
-        catalogServiceImpl.parseFormUpload(
-            List.of(fileItem1, fileItem2, fileItem3, fileItem4), "xml");
+        catalogService.parseFormUpload(List.of(fileItem1, fileItem2, fileItem3, fileItem4), "xml");
 
     // Ensure that the metadata was not overriden because it was too large to be parsed
     assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
@@ -534,8 +530,8 @@ public class CatalogServiceImplTest {
     when(framework.getSourceInfo(isA(SourceInfoRequestEnterprise.class)))
         .thenReturn(sourceInfoResponse);
 
-    CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry);
 
     BinaryContent content = catalogService.getSourcesInfo();
     assertEquals(jsonMimeTypeString, content.getMimeTypeValue());
@@ -595,8 +591,8 @@ public class CatalogServiceImplTest {
     when(content.getMimeTypeValue()).thenReturn("application/json;id=geojson");
     when(framework.transform(isA(Metacard.class), anyString(), isNull())).thenReturn(content);
 
-    CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry);
 
     // Add a MimeTypeToINputTransformer that the REST endpoint will call to create the metacard
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
@@ -640,7 +636,7 @@ public class CatalogServiceImplTest {
         catalogService.addDocument(
             List.of("multipart/form-data"),
             List.of(fileItem),
-            CatalogServiceImpl.DEFAULT_METACARD_TRANSFORMER,
+            CatalogService.DEFAULT_METACARD_TRANSFORMER,
             mock(InputStream.class));
     assertEquals("12345678900987654321abcdeffedcba", id);
   }
@@ -668,8 +664,8 @@ public class CatalogServiceImplTest {
     when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
         .thenReturn(serviceReferences);
 
-    CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -707,8 +703,8 @@ public class CatalogServiceImplTest {
     when(framework.create(isA(CreateRequest.class))).thenThrow(thrown);
     when(framework.create(isA(CreateStorageRequest.class))).thenThrow(thrown);
 
-    CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry);
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
     UuidGenerator uuidGenerator = mock(UuidGenerator.class);
@@ -741,7 +737,7 @@ public class CatalogServiceImplTest {
 
     Metacard returnMetacard = mock(Metacard.class);
 
-    when(returnMetacard.getId()).thenReturn(CatalogServiceImplTest.SAMPLE_ID);
+    when(returnMetacard.getId()).thenReturn(CatalogServiceTest.SAMPLE_ID);
 
     when(framework.create(isA(CreateRequest.class)))
         .thenReturn(new CreateResponseImpl(null, null, Collections.singletonList(returnMetacard)));
@@ -787,14 +783,14 @@ public class CatalogServiceImplTest {
 
   @SuppressWarnings({"unchecked"})
   private MimeTypeToTransformerMapper addMatchingService(
-      CatalogServiceImpl catalogServiceImpl, List<InputTransformer> sortedListOfTransformers) {
+      CatalogService catalogService, List<InputTransformer> sortedListOfTransformers) {
 
     MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
 
     when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
         .thenReturn((List) sortedListOfTransformers);
 
-    catalogServiceImpl.setMimeTypeToTransformerMapper(matchingService);
+    catalogService.setMimeTypeToTransformerMapper(matchingService);
 
     return matchingService;
   }

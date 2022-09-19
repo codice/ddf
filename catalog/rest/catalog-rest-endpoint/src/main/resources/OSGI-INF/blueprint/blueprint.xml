@@ -23,7 +23,7 @@
     <reference id="attachmentParser" interface="org.codice.ddf.attachment.AttachmentParser"/>
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
-    <bean id="catalogService" class="org.codice.ddf.rest.service.impl.CatalogServiceImpl">
+    <bean id="catalogService" class="org.codice.ddf.endpoints.rest.CatalogService">
         <argument ref="catalog"/>
         <argument ref="attachmentParser"/>
         <argument ref="attributeRegistry" />
