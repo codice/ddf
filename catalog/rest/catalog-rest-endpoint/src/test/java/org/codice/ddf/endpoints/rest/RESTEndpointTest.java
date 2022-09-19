@@ -18,6 +18,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.CatalogFramework;
@@ -39,17 +40,17 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.tika.TikaMimeTypeResolver;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import org.apache.tika.io.IOUtils;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
 import org.codice.ddf.rest.service.impl.CatalogServiceImpl;
 import org.junit.Test;
@@ -58,13 +59,16 @@ public class RESTEndpointTest {
 
   private static final int OK = 200;
 
-  private static final int NO_CONTENT = 204;
-
   private static final int NOT_FOUND = 404;
 
   private static final String SAMPLE_ID = "12345678900987654321abcdeffedcba";
 
-  private static final String LOCAL_RETRIEVE_ADDRESS = "http://localhost:8181/services/catalog";
+  private static final String LOCAL_RETRIEVE_SERVLET_PATH = "/abc123456def";
+
+  private static final String LOCAL_RETRIEVE_ADDRESS =
+      "http://localhost:8181/services/catalog/abc123456def";
+
+  private static final String FED_RETRIEVE_SERVLET_PATH = "/sources/test/abc123456def";
 
   private static final String FED_RETRIEVE_ADDRESS =
       "http://localhost:8181/services/catalog/sources/test/abc123456def";
@@ -83,39 +87,17 @@ public class RESTEndpointTest {
 
   private static final String GET_FILENAME = "example.xml";
 
-  private static final String GET_TYPE_OUTPUT =
-      "{Content-Type=[text/xml], Accept-Ranges=[bytes], "
-          + "Content-Disposition=[inline; filename=\""
-          + GET_FILENAME
-          + "\"]}";
-
-  private static final String GET_KML_TYPE_OUTPUT =
-      "{Content-Type=[application/vnd.google-earth.kml+xml], "
-          + "Accept-Ranges=[bytes], Content-Disposition=[inline; filename=\""
-          + GET_ID
-          + ".kml"
-          + "\"]}";
-
-  private static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
-
-  private static final String ACCEPT_RANGES_VALUE = "bytes";
-
-  private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
-
-  private static final String CONTENT_DISPOSITION_VALUE =
-      "inline; filename=\"" + GET_FILENAME + "\"";
-
   /**
    * Test using a Head request to find out if Range headers are supported and to get resource size
    * of a local resource for use when using Range headers.
    */
   @Test
   public void testHeadRequestLocal() throws Exception {
-    Response response = headTest(true);
+    HttpServletResponse response = headTest(true);
 
-    assertEquals(NO_CONTENT, response.getStatus());
-    assertEquals(ACCEPT_RANGES_VALUE, response.getHeaderString(HEADER_ACCEPT_RANGES));
-    assertEquals(CONTENT_DISPOSITION_VALUE, response.getHeaderString(HEADER_CONTENT_DISPOSITION));
+    assertEquals("", response.getOutputStream().toString());
+    verify(response).setStatus(OK);
+    verifyHeaders(response);
   }
 
   /**
@@ -124,22 +106,23 @@ public class RESTEndpointTest {
    */
   @Test
   public void testHeadRequestFederated() throws Exception {
-    Response response = headTest(false);
+    HttpServletResponse response = headTest(false);
 
-    assertEquals(NO_CONTENT, response.getStatus());
-    assertEquals(ACCEPT_RANGES_VALUE, response.getHeaderString(HEADER_ACCEPT_RANGES));
-    assertEquals(CONTENT_DISPOSITION_VALUE, response.getHeaderString(HEADER_CONTENT_DISPOSITION));
+    assertEquals("", response.getOutputStream().toString());
+    verify(response).setStatus(OK);
+    verifyHeaders(response);
   }
 
   @SuppressWarnings({"unchecked"})
-  private Response headTest(boolean local) throws Exception {
+  private HttpServletResponse headTest(boolean local) throws Exception {
 
     MetacardImpl metacard;
     List<Result> list = new ArrayList<>();
     Result result = mock(Result.class);
     InputStream inputStream;
-    UriInfo uriInfo;
-    Response response;
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    HttpServletResponse response = mock(HttpServletResponse.class);
+    when(response.getOutputStream()).thenReturn(new MockServletOutputStream());
 
     CatalogFramework framework = givenCatalogFramework();
     list.add(result);
@@ -171,15 +154,17 @@ public class RESTEndpointTest {
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
     catalogServiceImpl.setFilterBuilder(filterBuilder);
 
-    uriInfo = createSpecificUriInfo(LOCAL_RETRIEVE_ADDRESS);
-
     RESTEndpoint restEndpoint = new RESTEndpoint(catalogServiceImpl);
 
     if (local) {
-      response = restEndpoint.getHeaders(GET_ID, uriInfo, null);
+      when(request.getPathInfo()).thenReturn(LOCAL_RETRIEVE_SERVLET_PATH);
+      when(request.getRequestURL()).thenReturn(new StringBuffer(LOCAL_RETRIEVE_ADDRESS));
     } else {
-      response = restEndpoint.getHeaders(null, GET_ID, uriInfo, null);
+      when(request.getPathInfo()).thenReturn(FED_RETRIEVE_SERVLET_PATH);
+      when(request.getRequestURL()).thenReturn(new StringBuffer(FED_RETRIEVE_ADDRESS));
     }
+
+    restEndpoint.doHead(request, response);
 
     return response;
   }
@@ -190,9 +175,10 @@ public class RESTEndpointTest {
 
     CatalogFramework framework = givenCatalogFramework();
     String transformer = mockTestSetup(framework, TestType.QUERY_RESPONSE_TEST);
-    Response response = executeTest(framework, transformer, true);
-    assertEquals(response.getStatus(), NOT_FOUND);
-    assertEquals(response.getEntity(), "<pre>Unable to retrieve requested metacard.</pre>");
+    HttpServletResponse response = executeTest(framework, transformer, true);
+    verify(response).setStatus(NOT_FOUND);
+    assertEquals(
+        response.getOutputStream().toString(), "<pre>Unable to retrieve requested metacard.</pre>");
   }
 
   /** Tests federated retrieve with a null QueryResponse */
@@ -201,9 +187,10 @@ public class RESTEndpointTest {
 
     CatalogFramework framework = givenCatalogFramework();
     String transformer = mockTestSetup(framework, TestType.QUERY_RESPONSE_TEST);
-    Response response = executeTest(framework, transformer, false);
-    assertEquals(response.getStatus(), NOT_FOUND);
-    assertEquals(response.getEntity(), "<pre>Unable to retrieve requested metacard.</pre>");
+    HttpServletResponse response = executeTest(framework, transformer, false);
+    verify(response).setStatus(NOT_FOUND);
+    assertEquals(
+        response.getOutputStream().toString(), "<pre>Unable to retrieve requested metacard.</pre>");
   }
 
   /** Tests local retrieve with a null Metacard */
@@ -212,9 +199,10 @@ public class RESTEndpointTest {
 
     CatalogFramework framework = givenCatalogFramework();
     String transformer = mockTestSetup(framework, TestType.METACARD_TEST);
-    Response response = executeTest(framework, transformer, true);
-    assertEquals(response.getStatus(), NOT_FOUND);
-    assertEquals(response.getEntity(), "<pre>Unable to retrieve requested metacard.</pre>");
+    HttpServletResponse response = executeTest(framework, transformer, true);
+    verify(response).setStatus(NOT_FOUND);
+    assertEquals(
+        response.getOutputStream().toString(), "<pre>Unable to retrieve requested metacard.</pre>");
   }
 
   /** Tests federated retrieve with a null Metacard */
@@ -223,9 +211,10 @@ public class RESTEndpointTest {
 
     CatalogFramework framework = givenCatalogFramework();
     String transformer = mockTestSetup(framework, TestType.METACARD_TEST);
-    Response response = executeTest(framework, transformer, false);
-    assertEquals(response.getStatus(), NOT_FOUND);
-    assertEquals(response.getEntity(), "<pre>Unable to retrieve requested metacard.</pre>");
+    HttpServletResponse response = executeTest(framework, transformer, false);
+    verify(response).setStatus(NOT_FOUND);
+    assertEquals(
+        response.getOutputStream().toString(), "<pre>Unable to retrieve requested metacard.</pre>");
   }
 
   /** Tests local retrieve with a successful response */
@@ -234,12 +223,11 @@ public class RESTEndpointTest {
 
     CatalogFramework framework = givenCatalogFramework();
     String transformer = mockTestSetup(framework, TestType.SUCCESS_TEST);
-    Response response = executeTest(framework, transformer, true);
+    HttpServletResponse response = executeTest(framework, transformer, true);
 
-    String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
-    assertEquals(GET_STREAM, responseMessage);
-    assertEquals(OK, response.getStatus());
-    assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
+    assertEquals(GET_STREAM, response.getOutputStream().toString());
+    verify(response).setStatus(OK);
+    verifyHeaders(response);
   }
 
   @Test
@@ -247,12 +235,13 @@ public class RESTEndpointTest {
 
     CatalogFramework framework = givenCatalogFramework();
     String transformer = mockTestSetup(framework, TestType.KML_TEST);
-    Response response = executeTest(framework, transformer, true);
+    HttpServletResponse response = executeTest(framework, transformer, true);
 
-    String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
-    assertEquals(GET_STREAM, responseMessage);
-    assertEquals(OK, response.getStatus());
-    assertEquals(GET_KML_TYPE_OUTPUT, response.getMetadata().toString());
+    assertEquals(GET_STREAM, response.getOutputStream().toString());
+    verify(response).setStatus(OK);
+    verify(response).addHeader("Accept-Ranges", "bytes");
+    verify(response).setContentType(GET_KML_MIME_TYPE);
+    verify(response).addHeader("Content-Disposition", "inline; filename=\"abc123456def.kml\"");
   }
 
   /** Tests federated retrieve with a successful response */
@@ -261,12 +250,11 @@ public class RESTEndpointTest {
 
     CatalogFramework framework = givenCatalogFramework();
     String transformer = mockTestSetup(framework, TestType.SUCCESS_TEST);
-    Response response = executeTest(framework, transformer, false);
+    HttpServletResponse response = executeTest(framework, transformer, false);
 
-    String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
-    assertEquals(GET_STREAM, responseMessage);
-    assertEquals(OK, response.getStatus());
-    assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
+    assertEquals(GET_STREAM, response.getOutputStream().toString());
+    verify(response).setStatus(OK);
+    verifyHeaders(response);
   }
 
   /** Tests retrieving a local resource with a successful response */
@@ -275,12 +263,11 @@ public class RESTEndpointTest {
 
     CatalogFramework framework = givenCatalogFramework();
     String transformer = mockTestSetup(framework, TestType.RESOURCE_TEST);
-    Response response = executeTest(framework, transformer, true);
+    HttpServletResponse response = executeTest(framework, transformer, true);
 
-    String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
-    assertEquals(GET_STREAM, responseMessage);
-    assertEquals(OK, response.getStatus());
-    assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
+    assertEquals(GET_STREAM, response.getOutputStream().toString());
+    verify(response).setStatus(OK);
+    verifyHeaders(response);
   }
 
   /** Tests retrieving a federated resource with a successful response */
@@ -289,12 +276,17 @@ public class RESTEndpointTest {
 
     CatalogFramework framework = givenCatalogFramework();
     String transformer = mockTestSetup(framework, TestType.RESOURCE_TEST);
-    Response response = executeTest(framework, transformer, false);
+    HttpServletResponse response = executeTest(framework, transformer, false);
 
-    String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
-    assertEquals(GET_STREAM, responseMessage);
-    assertEquals(OK, response.getStatus());
-    assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
+    assertEquals(GET_STREAM, response.getOutputStream().toString());
+    verify(response).setStatus(OK);
+    verifyHeaders(response);
+  }
+
+  private void verifyHeaders(HttpServletResponse response) {
+    verify(response).addHeader("Accept-Ranges", "bytes");
+    verify(response).setContentType(GET_MIME_TYPE);
+    verify(response).addHeader("Content-Disposition", "inline; filename=\"example.xml\"");
   }
 
   /**
@@ -369,8 +361,12 @@ public class RESTEndpointTest {
     return transformer;
   }
 
-  private Response executeTest(CatalogFramework framework, String transformer, boolean local)
-      throws Exception {
+  private HttpServletResponse executeTest(
+      CatalogFramework framework, String transformer, boolean local) throws Exception {
+
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    HttpServletResponse response = mock(HttpServletResponse.class);
+    when(response.getOutputStream()).thenReturn(new MockServletOutputStream());
 
     MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
     when(mimeTypeMapper.getMimeTypeForFileExtension("txt")).thenReturn("text/plain");
@@ -386,30 +382,17 @@ public class RESTEndpointTest {
 
     RESTEndpoint restEndpoint = new RESTEndpoint(catalogServiceImpl);
 
-    UriInfo uriInfo;
-    Response response;
     if (local) {
-      uriInfo = createSpecificUriInfo(LOCAL_RETRIEVE_ADDRESS);
-      response = restEndpoint.getDocument(GET_ID, transformer, uriInfo, null);
+      when(request.getPathInfo()).thenReturn(LOCAL_RETRIEVE_SERVLET_PATH);
+      when(request.getRequestURL()).thenReturn(new StringBuffer(LOCAL_RETRIEVE_ADDRESS));
     } else {
-      uriInfo = createSpecificUriInfo(FED_RETRIEVE_ADDRESS);
-      response = restEndpoint.getDocument(GET_SITENAME, GET_ID, transformer, uriInfo, null);
+      when(request.getPathInfo()).thenReturn(FED_RETRIEVE_SERVLET_PATH);
+      when(request.getRequestURL()).thenReturn(new StringBuffer(FED_RETRIEVE_ADDRESS));
     }
 
+    restEndpoint.doGet(request, response);
+
     return response;
-  }
-
-  /** Creates a UriInfo with a user specified URL */
-  @SuppressWarnings({"unchecked"})
-  private UriInfo createSpecificUriInfo(String url) throws URISyntaxException {
-
-    UriInfo uriInfo = mock(UriInfo.class);
-    URI uri = new URI(url);
-
-    when(uriInfo.getAbsolutePath()).thenReturn(uri);
-    when(uriInfo.getQueryParameters()).thenReturn(mock(MultivaluedMap.class));
-
-    return uriInfo;
   }
 
   private CatalogFramework givenCatalogFramework()
@@ -431,5 +414,30 @@ public class RESTEndpointTest {
     SUCCESS_TEST,
     RESOURCE_TEST,
     KML_TEST
+  }
+
+  private static class MockServletOutputStream extends ServletOutputStream {
+
+    private ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+    @Override
+    public boolean isReady() {
+      return true;
+    }
+
+    @Override
+    public void setWriteListener(WriteListener writeListener) {
+      // ignore
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+      os.write(b);
+    }
+
+    @Override
+    public String toString() {
+      return os.toString();
+    }
   }
 }

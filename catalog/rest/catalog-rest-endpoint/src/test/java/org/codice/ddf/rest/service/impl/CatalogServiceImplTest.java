@@ -81,26 +81,18 @@ import java.util.Set;
 import java.util.UUID;
 import javax.activation.MimeType;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.apache.tika.io.IOUtils;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.rest.api.CatalogServiceException;
-import org.codice.ddf.rest.service.AbstractCatalogService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -144,15 +136,10 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
 
-    HttpHeaders headers = mock(HttpHeaders.class);
-
     try {
       catalogService.addDocument(
-          headers.getRequestHeader(HttpHeaders.CONTENT_TYPE),
-          mock(MultipartBody.class),
-          null,
-          null);
-    } catch (CatalogServiceException e) {
+          Collections.emptyList(), List.of(mock(FileItem.class)), null, null);
+    } catch (CatalogServiceException | ServletException e) {
       assertEquals(e.getMessage(), "No content found, cannot do CREATE.");
     }
   }
@@ -160,31 +147,31 @@ public class CatalogServiceImplTest {
   @Test
   public void testAddDocumentFrameworkIngestException() throws Exception {
 
-    assertExceptionThrown(IngestException.class);
+    assertExceptionThrown(new IngestException("test"));
   }
 
   @Test
   public void testAddDocumentFrameworkSourceUnavailableException() throws Exception {
 
-    assertExceptionThrown(SourceUnavailableException.class);
+    assertExceptionThrown(new SourceUnavailableException("test"));
   }
 
   @Test
   public void testAddDocumentPositiveCase() throws Exception {
 
     CatalogFramework framework = givenCatalogFramework();
-
-    HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
-
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
+    UuidGenerator uuidGenerator = mock(UuidGenerator.class);
+    catalogService.setUuidGenerator(uuidGenerator);
+    when(uuidGenerator.generateUuid()).thenReturn("12345678900987654321abcdeffedcba");
 
     String response =
         catalogService.addDocument(
-            headers.getRequestHeader(HttpHeaders.CONTENT_TYPE),
-            mock(MultipartBody.class),
+            List.of("application/json"),
+            List.of(mock(FileItem.class)),
             null,
             new ByteArrayInputStream("".getBytes()));
 
@@ -203,7 +190,6 @@ public class CatalogServiceImplTest {
         new AttributeDescriptorImpl(
             "custom.attribute", true, true, false, false, BasicTypes.STRING_TYPE);
 
-    HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
     BundleContext bundleContext = mock(BundleContext.class);
     Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
     ServiceReference serviceReference = mock(ServiceReference.class);
@@ -230,27 +216,15 @@ public class CatalogServiceImplTest {
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
 
-    List<Attachment> attachments = new ArrayList<>();
-    ContentDisposition contentDisposition =
-        new ContentDisposition("form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
-    Attachment attachment =
-        new Attachment(
-            "parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
-    attachments.add(attachment);
-    ContentDisposition contentDisposition2 =
-        new ContentDisposition("form-data; name=custom.attribute; ");
-    Attachment attachment2 =
-        new Attachment(
-            descriptor.getName(),
-            new ByteArrayInputStream("CustomValue".getBytes()),
-            contentDisposition2);
-    attachments.add(attachment2);
-    MultipartBody multipartBody = new MultipartBody(attachments);
+    FileItem fileItem1 =
+        createFileItemMock("parse.resource", "text/plain", "Some Text", "C:\\DDF\\metacard.txt");
+    FileItem fileItem2 =
+        createFileItemMock("custom.attribute", "application/octet-stream", "CustomValue", null);
 
     String response =
         catalogService.addDocument(
-            headers.getRequestHeader(HttpHeaders.CONTENT_TYPE),
-            multipartBody,
+            List.of("application/json"),
+            List.of(fileItem1, fileItem2),
             null,
             new ByteArrayInputStream("".getBytes()));
 
@@ -270,13 +244,24 @@ public class CatalogServiceImplTest {
         equalTo(descriptor));
   }
 
+  private static FileItem createFileItemMock(
+      String fieldName, String contentType, String content, String filename) throws IOException {
+    FileItem result = mock(FileItem.class);
+    when(result.getFieldName()).thenReturn(fieldName);
+    when(result.getContentType()).thenReturn(contentType);
+    when(result.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes()));
+    if (filename != null) {
+      when(result.getName()).thenReturn(filename);
+    }
+    return result;
+  }
+
   @Test
   @SuppressWarnings({"unchecked"})
   public void testAddDocumentWithMetadataPositiveCase() throws Exception {
 
     CatalogFramework framework = givenCatalogFramework();
 
-    HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
     BundleContext bundleContext = mock(BundleContext.class);
     Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
     ServiceReference serviceReference = mock(ServiceReference.class);
@@ -304,35 +289,21 @@ public class CatalogServiceImplTest {
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
 
-    List<Attachment> attachments = new ArrayList<>();
-    ContentDisposition contentDisposition =
-        new ContentDisposition("form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
-    Attachment attachment =
-        new Attachment(
-            "parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
-    attachments.add(attachment);
-    ContentDisposition contentDisposition1 =
-        new ContentDisposition("form-data; name=parse.metadata; filename=C:\\DDF\\metacard.xml");
-    Attachment attachment1 =
-        new Attachment(
+    FileItem fileItem1 =
+        createFileItemMock("parse.resource", "text/plain", "Some Text", "C:\\DDF\\metacard.txt");
+    FileItem fileItem2 =
+        createFileItemMock(
             "parse.metadata",
-            new ByteArrayInputStream("Some Text Again".getBytes()),
-            contentDisposition1);
-    attachments.add(attachment1);
-    ContentDisposition contentDisposition2 =
-        new ContentDisposition("form-data; name=metadata; filename=C:\\DDF\\metacard.xml");
-    Attachment attachment2 =
-        new Attachment(
-            "metadata",
-            new ByteArrayInputStream("<meta>beta</meta>".getBytes()),
-            contentDisposition2);
-    attachments.add(attachment2);
-    MultipartBody multipartBody = new MultipartBody(attachments);
+            "application/octet-stream",
+            "Some Text Again",
+            "C:\\DDF\\metacard.xml");
+    FileItem fileItem3 =
+        createFileItemMock("metadata", "text/xml", "<meta>beta</meta>", "C:\\DDF\\metacard.xml");
 
     String response =
         catalogService.addDocument(
-            headers.getRequestHeader(HttpHeaders.CONTENT_TYPE),
-            multipartBody,
+            List.of("application/json"),
+            List.of(fileItem1, fileItem2, fileItem3),
             null,
             new ByteArrayInputStream("".getBytes()));
 
@@ -372,79 +343,7 @@ public class CatalogServiceImplTest {
 
   @Test
   @SuppressWarnings({"unchecked"})
-  public void testParseAttachments()
-      throws IOException, CatalogTransformerException, SourceUnavailableException, IngestException,
-          InvalidSyntaxException {
-    CatalogFramework framework = givenCatalogFramework();
-    BundleContext bundleContext = mock(BundleContext.class);
-    Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
-    ServiceReference serviceReference = mock(ServiceReference.class);
-    InputTransformer inputTransformer = mock(InputTransformer.class);
-    MetacardImpl metacard = new MetacardImpl();
-    metacard.setMetadata("Some Text Again");
-    when(inputTransformer.transform(any())).thenReturn(metacard);
-    when(bundleContext.getService(serviceReference)).thenReturn(inputTransformer);
-    serviceReferences.add(serviceReference);
-    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
-        .thenReturn(serviceReferences);
-
-    CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
-          @Override
-          protected BundleContext getBundleContext() {
-            return bundleContext;
-          }
-        };
-    when(attributeRegistry.lookup(Core.METADATA))
-        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.METADATA)));
-    when(attributeRegistry.lookup("foo")).thenReturn(Optional.empty());
-
-    addMatchingService(catalogServiceImpl, Collections.singletonList(getSimpleTransformer()));
-
-    List<Attachment> attachments = new ArrayList<>();
-    ContentDisposition contentDisposition =
-        new ContentDisposition("form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
-    Attachment attachment =
-        new Attachment(
-            "parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
-    attachments.add(attachment);
-    ContentDisposition contentDisposition1 =
-        new ContentDisposition("form-data; name=parse.metadata; filename=C:\\DDF\\metacard.xml");
-    Attachment attachment1 =
-        new Attachment(
-            "parse.metadata",
-            new ByteArrayInputStream("Some Text Again".getBytes()),
-            contentDisposition1);
-    attachments.add(attachment1);
-
-    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseAttachments(attachments, "xml");
-    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
-
-    ContentDisposition contentDisposition2 =
-        new ContentDisposition("form-data; name=metadata; filename=C:\\DDF\\metacard.xml");
-    Attachment attachment2 =
-        new Attachment(
-            "metadata",
-            new ByteArrayInputStream("<meta>beta</meta>".getBytes()),
-            contentDisposition2);
-    attachments.add(attachment2);
-
-    ContentDisposition contentDisposition3 =
-        new ContentDisposition("form-data; name=foo; filename=C:\\DDF\\metacard.xml");
-    Attachment attachment3 =
-        new Attachment("foo", new ByteArrayInputStream("bar".getBytes()), contentDisposition3);
-    attachments.add(attachment3);
-
-    attachmentInfoAndMetacard = catalogServiceImpl.parseAttachments(attachments, "xml");
-
-    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("<meta>beta</meta>"));
-    assertThat(attachmentInfoAndMetacard.getValue().getAttribute("foo"), equalTo(null));
-  }
-
-  @Test
-  @SuppressWarnings({"unchecked"})
-  public void testParseParts()
+  public void testParseFormUpload()
       throws IOException, CatalogTransformerException, SourceUnavailableException, IngestException,
           InvalidSyntaxException, ServletException {
     CatalogFramework framework = givenCatalogFramework();
@@ -473,51 +372,35 @@ public class CatalogServiceImplTest {
 
     addMatchingService(catalogServiceImpl, Collections.singletonList(getSimpleTransformer()));
 
-    List<Part> parts = new ArrayList<>();
-    Part part =
-        createPart(
-            "parse.resource",
-            new ByteArrayInputStream("Some Text".getBytes()),
-            "form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
-    Part part1 =
-        createPart(
+    FileItem fileItem1 =
+        createFileItemMock(
+            "parse.resource", "application/octet-stream", "Some Text", "C:\\DDF\\metacard.txt");
+    FileItem fileItem2 =
+        createFileItemMock(
             "parse.metadata",
-            new ByteArrayInputStream("Some Text Again".getBytes()),
-            "form-data; name=parse.metadata; filename=C:\\DDF\\metacard.xml");
-
-    parts.add(part);
-    parts.add(part1);
-
-    HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
-    when(httpServletRequest.getParts()).thenReturn(parts);
+            "application/octet-stream",
+            "Some Text Again",
+            "C:\\DDF\\metacard.xml");
 
     Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseParts(parts, "xml");
+        catalogServiceImpl.parseFormUpload(List.of(fileItem1, fileItem2), "xml");
     assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
 
-    Part part2 =
-        createPart(
-            "metadata",
-            new ByteArrayInputStream("<meta>beta</meta>".getBytes()),
-            "form-data; name=metadata; filename=C:\\DDF\\metacard.xml");
-    Part part3 =
-        createPart(
-            "foo",
-            new ByteArrayInputStream("bar".getBytes()),
-            "form-data; name=foo; filename=C:\\DDF\\metacard.xml");
+    FileItem fileItem3 =
+        createFileItemMock("metadata", "text/xml", "<meta>beta</meta>", "C:\\DDF\\metacard.xml");
+    FileItem fileItem4 =
+        createFileItemMock("foo", "application/octet-stream", "bar", "C:\\DDF\\metacard.txt");
 
-    parts.add(part2);
-    parts.add(part3);
-
-    attachmentInfoAndMetacard = catalogServiceImpl.parseParts(parts, "xml");
+    attachmentInfoAndMetacard =
+        catalogServiceImpl.parseFormUpload(
+            List.of(fileItem1, fileItem2, fileItem3, fileItem4), "xml");
 
     assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("<meta>beta</meta>"));
     assertThat(attachmentInfoAndMetacard.getValue().getAttribute("foo"), equalTo(null));
   }
 
   @Test
-  public void testParseAttachmentsWithAttributeOverrides()
-      throws IngestException, SourceUnavailableException {
+  public void testParseFormUploadWithAttributeOverrides() throws Exception {
     CatalogFramework framework = givenCatalogFramework();
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
@@ -527,90 +410,18 @@ public class CatalogServiceImplTest {
     when(attributeRegistry.lookup(Core.LOCATION))
         .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.LOCATION)));
 
-    List<Attachment> attachments = new ArrayList<>();
-    ContentDisposition contentDisposition =
-        new ContentDisposition("form-data; name=parse.resource; filename=/path/to/metacard.txt");
-    Attachment attachment =
-        new Attachment(
-            "parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
-    ContentDisposition contentDisposition1 =
-        new ContentDisposition("form-data; name=parse.location");
-    Attachment attachment1 =
-        new Attachment(
-            "parse.location",
-            new ByteArrayInputStream("POINT(0 0)".getBytes()),
-            contentDisposition1);
-    ContentDisposition contentDisposition2 =
-        new ContentDisposition("form-data; name=parse.topic.keyword");
-    Attachment attachment2 =
-        new Attachment(
-            "parse.topic.keyword",
-            new ByteArrayInputStream("keyword1".getBytes()),
-            contentDisposition2);
-    ContentDisposition contentDisposition3 =
-        new ContentDisposition("form-data; name=parse.topic.keyword");
-    Attachment attachment3 =
-        new Attachment(
-            "parse.topic.keyword",
-            new ByteArrayInputStream("keyword2".getBytes()),
-            contentDisposition3);
-    attachments.add(attachment);
-    attachments.add(attachment1);
-    attachments.add(attachment2);
-    attachments.add(attachment3);
-
-    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseAttachments(attachments, null);
-    Metacard metacard = attachmentInfoAndMetacard.getValue();
-
-    assertThat(metacard.getAttribute(Core.LOCATION).getValues(), hasItem("POINT(0 0)"));
-    assertThat(metacard.getAttribute(Topic.KEYWORD).getValues(), hasItems("keyword1", "keyword2"));
-  }
-
-  @Test
-  public void testParsePartsWithAttributeOverrides() throws Exception {
-    CatalogFramework framework = givenCatalogFramework();
-    CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
-
-    when(attributeRegistry.lookup(Topic.KEYWORD))
-        .thenReturn(Optional.of(new TopicAttributes().getAttributeDescriptor(Topic.KEYWORD)));
-    when(attributeRegistry.lookup(Core.LOCATION))
-        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.LOCATION)));
-
-    List<Part> parts = new ArrayList<>();
-    Part part =
-        createPart(
-            "parse.resource",
-            new ByteArrayInputStream("Some Text".getBytes()),
-            "form-data; name=parse.resource; filename=/path/to/metacard.txt");
-    Part part1 =
-        createPart(
-            "parse.location",
-            new ByteArrayInputStream("POINT(0 0)".getBytes()),
-            "form-data; name=parse.location");
-
-    Part part2 =
-        createPart(
-            "parse.topic.keyword",
-            new ByteArrayInputStream("keyword1".getBytes()),
-            "form-data; name=parse.topic.keyword");
-    Part part3 =
-        createPart(
-            "parse.topic.keyword",
-            new ByteArrayInputStream("keyword2".getBytes()),
-            "form-data; name=parse.topic.keyword");
-
-    parts.add(part);
-    parts.add(part1);
-    parts.add(part2);
-    parts.add(part3);
-
-    HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
-    when(httpServletRequest.getParts()).thenReturn(parts);
+    FileItem fileItem1 =
+        createFileItemMock("parse.resource", "text/plain", "Some Text", "C:\\DDF\\metacard.txt");
+    FileItem fileItem2 =
+        createFileItemMock("parse.location", "application/octet-stream", "POINT(0 0)", null);
+    FileItem fileItem3 =
+        createFileItemMock("parse.topic.keyword", "application/octet-stream", "keyword1", null);
+    FileItem fileItem4 =
+        createFileItemMock("parse.topic.keyword", "application/octet-stream", "keyword2", null);
 
     Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseParts(parts, null);
+        catalogServiceImpl.parseFormUpload(
+            List.of(fileItem1, fileItem2, fileItem3, fileItem4), null);
     Metacard metacard = attachmentInfoAndMetacard.getValue();
 
     assertThat(metacard.getAttribute(Core.LOCATION).getValues(), hasItem("POINT(0 0)"));
@@ -619,80 +430,7 @@ public class CatalogServiceImplTest {
 
   @Test
   @SuppressWarnings({"unchecked"})
-  public void testParseAttachmentsTooLarge()
-      throws IOException, CatalogTransformerException, SourceUnavailableException, IngestException,
-          InvalidSyntaxException {
-    CatalogFramework framework = givenCatalogFramework();
-    BundleContext bundleContext = mock(BundleContext.class);
-    Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
-    ServiceReference serviceReference = mock(ServiceReference.class);
-    InputTransformer inputTransformer = mock(InputTransformer.class);
-    MetacardImpl metacard = new MetacardImpl();
-    metacard.setMetadata("Some Text Again");
-    when(inputTransformer.transform(any())).thenReturn(metacard);
-    when(bundleContext.getService(serviceReference)).thenReturn(inputTransformer);
-    serviceReferences.add(serviceReference);
-    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
-        .thenReturn(serviceReferences);
-
-    CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
-          @Override
-          protected BundleContext getBundleContext() {
-            return bundleContext;
-          }
-        };
-    when(attributeRegistry.lookup(Core.METADATA))
-        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.METADATA)));
-    when(attributeRegistry.lookup("foo")).thenReturn(Optional.empty());
-
-    addMatchingService(catalogServiceImpl, Collections.singletonList(getSimpleTransformer()));
-
-    List<Attachment> attachments = new ArrayList<>();
-    ContentDisposition contentDisposition =
-        new ContentDisposition("form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
-    Attachment attachment =
-        new Attachment(
-            "parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
-    attachments.add(attachment);
-    ContentDisposition contentDisposition1 =
-        new ContentDisposition("form-data; name=parse.metadata; filename=C:\\DDF\\metacard.xml");
-    Attachment attachment1 =
-        new Attachment(
-            "parse.metadata",
-            new ByteArrayInputStream("Some Text Again".getBytes()),
-            contentDisposition1);
-    attachments.add(attachment1);
-
-    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseAttachments(attachments, "xml");
-    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
-
-    ContentDisposition contentDisposition2 =
-        new ContentDisposition("form-data; name=metadata; filename=C:\\DDF\\metacard.xml");
-    Attachment attachment2 =
-        new Attachment(
-            "metadata",
-            new ByteArrayInputStream(Strings.repeat("hi", 100_000).getBytes()),
-            contentDisposition2);
-    attachments.add(attachment2);
-
-    ContentDisposition contentDisposition3 =
-        new ContentDisposition("form-data; name=foo; filename=C:\\DDF\\metacard.xml");
-    Attachment attachment3 =
-        new Attachment("foo", new ByteArrayInputStream("bar".getBytes()), contentDisposition3);
-    attachments.add(attachment3);
-
-    attachmentInfoAndMetacard = catalogServiceImpl.parseAttachments(attachments, "xml");
-
-    // Ensure that the metadata was not overriden because it was too large to be parsed
-    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
-    assertThat(attachmentInfoAndMetacard.getValue().getAttribute("foo"), equalTo(null));
-  }
-
-  @Test
-  @SuppressWarnings({"unchecked"})
-  public void testParsePartsTooLarge()
+  public void testParseFormUploadTooLarge()
       throws IOException, CatalogTransformerException, SourceUnavailableException, IngestException,
           InvalidSyntaxException, ServletException {
     CatalogFramework framework = givenCatalogFramework();
@@ -721,43 +459,28 @@ public class CatalogServiceImplTest {
 
     addMatchingService(catalogServiceImpl, Collections.singletonList(getSimpleTransformer()));
 
-    List<Part> parts = new ArrayList<>();
-    Part part =
-        createPart(
-            "parse.resource",
-            new ByteArrayInputStream("Some Text".getBytes()),
-            "form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
-    Part part1 =
-        createPart(
+    FileItem fileItem1 =
+        createFileItemMock("parse.resource", "text/plain", "Some Text", "C:\\DDF\\metacard.txt");
+    FileItem fileItem2 =
+        createFileItemMock(
             "parse.metadata",
-            new ByteArrayInputStream("Some Text Again".getBytes()),
-            "form-data; name=parse.metadata; filename=C:\\DDF\\metacard.xml");
-
-    parts.add(part);
-    parts.add(part1);
-
-    HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
-    when(httpServletRequest.getParts()).thenReturn(parts);
+            "application/octet-stream",
+            "Some Text Again",
+            "C:\\DDF\\metacard.xml");
 
     Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseParts(parts, "xml");
+        catalogServiceImpl.parseFormUpload(List.of(fileItem1, fileItem2), "xml");
     assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
 
-    Part part2 =
-        createPart(
-            "metadata",
-            new ByteArrayInputStream(Strings.repeat("hi", 100_000).getBytes()),
-            "form-data; name=metadata; filename=C:\\DDF\\metacard.xml");
-    Part part3 =
-        createPart(
-            "foo",
-            new ByteArrayInputStream("bar".getBytes()),
-            "form-data; name=foo; filename=C:\\DDF\\metacard.xml");
+    FileItem fileItem3 =
+        createFileItemMock(
+            "metadata", "text/xml", Strings.repeat("hi", 100_000), "C:\\DDF\\metacard.xml");
+    FileItem fileItem4 =
+        createFileItemMock("foo", "application/octet-stream", "bar", "C:\\DDF\\metacard.txt");
 
-    parts.add(part2);
-    parts.add(part3);
-
-    attachmentInfoAndMetacard = catalogServiceImpl.parseParts(parts, "xml");
+    attachmentInfoAndMetacard =
+        catalogServiceImpl.parseFormUpload(
+            List.of(fileItem1, fileItem2, fileItem3, fileItem4), "xml");
 
     // Ensure that the metadata was not overriden because it was too large to be parsed
     assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
@@ -851,7 +574,7 @@ public class CatalogServiceImplTest {
    */
   @Test
   @SuppressWarnings({"unchecked"})
-  public void testGetMetacardAsXml() throws Exception {
+  public void testGetMetacardAsXmlFromGeojson() throws Exception {
 
     CatalogFramework framework = givenCatalogFramework();
     String metacardXml =
@@ -880,6 +603,9 @@ public class CatalogServiceImplTest {
     catalogService.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
     catalogService.setFilterBuilder(filterBuilder);
+    UuidGenerator uuidGenerator = mock(UuidGenerator.class);
+    catalogService.setUuidGenerator(uuidGenerator);
+    when(uuidGenerator.generateUuid()).thenReturn("12345678900987654321abcdeffedcba");
 
     String json =
         "{\r\n"
@@ -906,21 +632,17 @@ public class CatalogServiceImplTest {
     // Sample headers for a multipart body specifying a geojson file to have a metacard created for:
     //    Content-Disposition: form-data; name="file"; filename="C:\DDF\geojson_valid.json"
     //    Content-Type: application/json;id=geojson
-    InputStream is = IOUtils.toInputStream(json);
-    List<Attachment> attachments = new ArrayList<>();
-    ContentDisposition contentDisposition =
-        new ContentDisposition("form-data; name=file; filename=C:\\DDF\\geojson_valid.json");
-    Attachment attachment = new Attachment("file_part", is, contentDisposition);
-    attachments.add(attachment);
-    MediaType mediaType = new MediaType(MediaType.APPLICATION_JSON, "id=geojson");
-    MultipartBody multipartBody = new MultipartBody(attachments, mediaType, true);
+    FileItem fileItem =
+        createFileItemMock(
+            "parse.resource", "application/json;id=geojson", json, "C:\\DDF\\geojson_valid.json");
 
-    BinaryContent binaryContent =
-        catalogService.createMetacard(
-            multipartBody, AbstractCatalogService.DEFAULT_METACARD_TRANSFORMER);
-    InputStream responseEntity = binaryContent.getInputStream();
-    String responseXml = IOUtils.toString(responseEntity);
-    assertEquals(metacardXml, responseXml);
+    String id =
+        catalogService.addDocument(
+            List.of("multipart/form-data"),
+            List.of(fileItem),
+            CatalogServiceImpl.DEFAULT_METACARD_TRANSFORMER,
+            mock(InputStream.class));
+    assertEquals("12345678900987654321abcdeffedcba", id);
   }
 
   private String mcardIdTest(Metacard metacard, UuidGenerator uuidGenerator) throws Exception {
@@ -936,7 +658,6 @@ public class CatalogServiceImplTest {
                   null, new HashMap<>(), Collections.singletonList(item.getMetacard()));
             });
 
-    HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
     BundleContext bundleContext = mock(BundleContext.class);
     Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
     ServiceReference serviceReference = mock(ServiceReference.class);
@@ -962,60 +683,52 @@ public class CatalogServiceImplTest {
 
     addMatchingService(catalogService, Collections.singletonList(inputTransformer));
 
-    List<Attachment> attachments = new ArrayList<>();
-    ContentDisposition contentDisposition =
-        new ContentDisposition("form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
-    Attachment attachment =
-        new Attachment(
-            "parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
-    attachments.add(attachment);
-    ContentDisposition contentDisposition1 =
-        new ContentDisposition("form-data; name=parse.metadata; filename=C:\\DDF\\metacard.xml");
-    Attachment attachment1 =
-        new Attachment(
+    FileItem fileItem1 =
+        createFileItemMock("parse.resource", "text/plain", "Some Text", "C:\\DDF\\metacard.txt");
+    FileItem fileItem2 =
+        createFileItemMock(
             "parse.metadata",
-            new ByteArrayInputStream("Some Text Again".getBytes()),
-            contentDisposition1);
-    attachments.add(attachment1);
-
-    MultipartBody multipartBody = new MultipartBody(attachments);
+            "application/octet-stream",
+            "Some Text Again",
+            "C:\\DDF\\metacard.xml");
 
     return catalogService.addDocument(
-        headers.getRequestHeader(HttpHeaders.CONTENT_TYPE),
-        multipartBody,
+        List.of("application/json"),
+        List.of(fileItem1, fileItem2),
         null,
         new ByteArrayInputStream("".getBytes()));
   }
 
   @SuppressWarnings({"unchecked"})
-  private void assertExceptionThrown(Class<? extends Throwable> klass) throws Exception {
+  private void assertExceptionThrown(Throwable thrown) throws Exception {
 
     CatalogFramework framework = mock(CatalogFramework.class);
 
-    when(framework.create(isA(CreateRequest.class))).thenThrow(klass);
-
-    when(framework.create(isA(CreateStorageRequest.class))).thenThrow(klass);
-
-    HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
+    when(framework.create(isA(CreateRequest.class))).thenThrow(thrown);
+    when(framework.create(isA(CreateStorageRequest.class))).thenThrow(thrown);
 
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
+    UuidGenerator uuidGenerator = mock(UuidGenerator.class);
+    catalogService.setUuidGenerator(uuidGenerator);
+    when(uuidGenerator.generateUuid()).thenReturn("12345678900987654321abcdeffedcba");
 
     try {
       catalogService.addDocument(
-          headers.getRequestHeader(HttpHeaders.CONTENT_TYPE),
-          mock(MultipartBody.class),
+          List.of("application/json"),
+          List.of(mock(FileItem.class)),
           null,
           new ByteArrayInputStream("".getBytes()));
-    } catch (InternalServerErrorException e) {
-      if (klass.getName().equals(SourceUnavailableException.class.getName())) {
-        assertThat(e.getResponse().getStatus(), equalTo(INTERNAL_SERVER_ERROR));
+    } catch (ServletException e) {
+      if (thrown.getClass().getName().equals(SourceUnavailableException.class.getName())) {
+        assertEquals(
+            e.getMessage(), "Cannot create catalog entry because source is unavailable: test");
       }
     } catch (CatalogServiceException e) {
-      if (klass.getName().equals(IngestException.class.getName())) {
-        assertEquals(e.getMessage(), "Error while storing entry in catalog: ");
+      if (thrown.getClass().getName().equals(IngestException.class.getName())) {
+        assertEquals(e.getMessage(), "Error while storing entry in catalog: test");
       } else {
         fail();
       }
@@ -1045,7 +758,7 @@ public class CatalogServiceImplTest {
     when(part.getName()).thenReturn(name);
     when(part.getInputStream()).thenReturn(inputStream);
     when(part.getHeader("Content-Disposition")).thenReturn(contentDisposition);
-    when(part.getContentType()).thenReturn(MediaType.APPLICATION_OCTET_STREAM);
+    when(part.getContentType()).thenReturn("application/octet-stream");
     return part;
   }
 
@@ -1084,15 +797,6 @@ public class CatalogServiceImplTest {
     catalogServiceImpl.setMimeTypeToTransformerMapper(matchingService);
 
     return matchingService;
-  }
-
-  private HttpHeaders createHeaders(List<String> mimeTypeList) {
-
-    HttpHeaders headers = mock(HttpHeaders.class);
-
-    when(headers.getRequestHeader(HttpHeaders.CONTENT_TYPE)).thenReturn(mimeTypeList);
-
-    return headers;
   }
 
   private String getSample() {

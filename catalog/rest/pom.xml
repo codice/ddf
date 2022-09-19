@@ -24,10 +24,7 @@
     <name>DDF Catalog REST</name>
     <packaging>pom</packaging>
     <modules>
-        <module>catalog-rest-service</module>
         <module>catalog-rest-impl</module>
         <module>catalog-rest-endpoint</module>
-        <module>catalog-rest-service-impl</module>
-        <module>catalog-rest-api</module>
     </modules>
 </project>

@@ -76,7 +76,7 @@ public class BinaryContentImpl implements BinaryContent {
 
   @Override
   public String getMimeTypeValue() {
-    return mimeType != null ? mimeType.getBaseType() : null;
+    return mimeType != null ? mimeType.getBaseType() : "application/octet-stream";
   }
 
   /**

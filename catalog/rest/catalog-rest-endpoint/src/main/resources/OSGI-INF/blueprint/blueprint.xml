@@ -11,33 +11,37 @@
  *
  **/ -->
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
-           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-           http://cxf.apache.org/blueprint/jaxrs
-           http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <reference id="catalogService" interface="org.codice.ddf.rest.api.CatalogService"/>
+    <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
+    <reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="tikaMimeTypeResolver" filter="(name=tikaMimeTypeResolver)" interface="ddf.mime.MimeTypeResolver"/>
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+    <reference id="attachmentParser" interface="org.codice.ddf.attachment.AttachmentParser"/>
+    <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
+
+    <bean id="catalogService" class="org.codice.ddf.rest.service.impl.CatalogServiceImpl">
+        <argument ref="catalog"/>
+        <argument ref="attachmentParser"/>
+        <argument ref="attributeRegistry" />
+        <property name="filterBuilder" ref="filterBuilder"/>
+        <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
+        <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver"/>
+        <property name="uuidGenerator" ref="uuidGenerator" />
+    </bean>
 
     <bean id="restSvc" class="org.codice.ddf.endpoints.rest.RESTEndpoint">
         <argument ref="catalogService"/>
     </bean>
 
-    <jaxrs:server id="restService" address="/catalog">
-        <jaxrs:serviceBeans>
-            <ref component-id="restSvc"/>
-        </jaxrs:serviceBeans>
-
-        <jaxrs:inInterceptors>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpInInterceptor">
-                <property name="callbackParam" value="callback"/>
-            </bean>
-        </jaxrs:inInterceptors>
-        <jaxrs:outInterceptors>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
-        </jaxrs:outInterceptors>
-    </jaxrs:server>
+    <service interface="javax.servlet.Servlet" ref="restSvc">
+        <service-properties>
+            <entry key="alias" value="/services/catalog"/>
+            <entry key="async-supported" value="true"/>
+        </service-properties>
+    </service>
 
 </blueprint>

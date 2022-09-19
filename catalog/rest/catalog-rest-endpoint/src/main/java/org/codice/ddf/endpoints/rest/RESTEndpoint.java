@@ -15,42 +15,31 @@ package org.codice.ddf.endpoints.rest;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.resource.Resource;
-import java.io.InputStream;
+import ddf.catalog.source.UnsupportedQueryException;
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.Encoded;
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import org.apache.commons.codec.CharEncoding;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.rest.api.CatalogService;
 import org.codice.ddf.rest.api.CatalogServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RESTEndpoint implements RESTService {
+public class RESTEndpoint extends HttpServlet {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
 
@@ -62,10 +51,15 @@ public class RESTEndpoint implements RESTService {
 
   private static final String BYTES = "bytes";
 
+  private static final String HEADER_RANGE = "Range";
+
+  private static final String BYTES_EQUAL = "bytes=";
+
   private static final String PRE_FORMAT = "<pre>%s</pre>";
 
   private static final String UNABLE_TO_RETRIEVE_REQUESTED_METACARD =
       "Unable to retrieve requested metacard.";
+  public static final String NOT_FOUND = "Not Found";
 
   private CatalogService catalogService;
 
@@ -75,31 +69,24 @@ public class RESTEndpoint implements RESTService {
     LOGGER.trace(("Rest Endpoint constructed successfully"));
   }
 
-  @HEAD
-  @Path("")
-  public Response ping() {
-    LOGGER.trace("Ping!");
-    return Response.ok().build();
+  @Override
+  protected void doHead(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String[] pathParts = Objects.toString(req.getPathInfo(), "").split("/");
+    if (patternMatches(req, "/sources")) {
+      getSources(resp, false);
+    } else if (patternMatches(req, "/{id}")) {
+      getHeaders(null, pathParts[1], req, resp);
+    } else if (patternMatches(req, "/sources/{sourceid}/{id}")) {
+      getHeaders(pathParts[2], pathParts[3], req, resp);
+    } else {
+      ping(resp);
+    }
   }
 
-  /**
-   * REST Head. Retrieves information regarding the entry specified by the id. This can be used to
-   * verify that the Range header is supported (the Accept-Ranges header is returned) and to get the
-   * size of the requested resource for use in Content-Range requests.
-   *
-   * @param id
-   * @param uriInfo
-   * @param httpRequest
-   * @return
-   */
-  @HEAD
-  @Path("/{id}")
-  public Response getHeaders(
-      @PathParam("id") String id,
-      @Context UriInfo uriInfo,
-      @Context HttpServletRequest httpRequest) {
-
-    return getHeaders(null, id, uriInfo, httpRequest);
+  public void ping(HttpServletResponse response) {
+    LOGGER.trace("Ping!");
+    response.setStatus(200);
   }
 
   /**
@@ -108,91 +95,78 @@ public class RESTEndpoint implements RESTService {
    *
    * @param sourceid
    * @param id
-   * @param uriInfo
-   * @param httpRequest
-   * @return
+   * @param request
+   * @param response
    */
-  @HEAD
-  @Path("/sources/{sourceid}/{id}")
-  public Response getHeaders(
-      @PathParam("sourceid") String sourceid,
-      @PathParam("id") String id,
-      @Context UriInfo uriInfo,
-      @Context HttpServletRequest httpRequest) {
+  public void getHeaders(
+      String sourceid, String id, HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
     try {
-      Response.ResponseBuilder responseBuilder;
-
+      String transform = getTransform(request);
       final BinaryContent content =
           catalogService.getHeaders(
-              sourceid, id, uriInfo.getAbsolutePath(), uriInfo.getQueryParameters());
+              sourceid,
+              id,
+              transform,
+              request.getRequestURL().toString(),
+              request.getParameterMap());
 
       if (content == null) {
-        return Response.status(Status.NOT_FOUND)
-            .entity(String.format(PRE_FORMAT, UNABLE_TO_RETRIEVE_REQUESTED_METACARD))
-            .type(MediaType.TEXT_HTML)
-            .build();
+        sendNotFoundResponse(UNABLE_TO_RETRIEVE_REQUESTED_METACARD, response);
       }
 
-      responseBuilder = Response.noContent();
-
+      response.setContentType(content.getMimeTypeValue());
       // Add the Accept-ranges header to let the client know that we accept ranges in bytes
-      responseBuilder.header(HEADER_ACCEPT_RANGES, BYTES);
+      response.addHeader(HEADER_ACCEPT_RANGES, BYTES);
 
-      setFileNameOnResponseBuilder(id, content, responseBuilder);
+      setFileNameOnResponseBuilder(id, content, response);
 
       long size = content.getSize();
       if (size > 0) {
-        responseBuilder.header(HEADER_CONTENT_LENGTH, size);
+        response.addHeader(HEADER_CONTENT_LENGTH, String.valueOf(size));
       }
-      return responseBuilder.build();
+      response.setStatus(200);
     } catch (CatalogServiceException e) {
-      return createBadRequestResponse(e.getMessage());
-    } catch (InternalServerErrorException e) {
+      sendBadRequestResponse(e.getMessage(), response);
+    } catch (ServletException e) {
       LOGGER.info(e.getMessage());
-      return createErrorResponse(e.getMessage());
+      sendErrorResponse(e.getMessage(), response);
     }
   }
 
-  /**
-   * REST Get. Retrieves the metadata entry specified by the id. Transformer argument is optional,
-   * but is used to specify what format the data should be returned.
-   *
-   * @param id
-   * @param transformerParam (OPTIONAL)
-   * @param uriInfo
-   * @return
-   */
   @Override
-  @GET
-  @Path("/{id}")
-  public Response getDocument(
-      @PathParam("id") String id,
-      @QueryParam("transform") String transformerParam,
-      @Context UriInfo uriInfo,
-      @Context HttpServletRequest httpRequest) {
-
-    return getDocument(null, id, transformerParam, uriInfo, httpRequest);
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String[] pathParts = Objects.toString(req.getPathInfo(), "").split("/");
+    if (patternMatches(req, "/sources")) {
+      getSources(resp, true);
+    } else if (patternMatches(req, "/{id}")) {
+      getDocument(null, pathParts[1], req, resp);
+    } else if (patternMatches(req, "/sources/{sourceid}/{id}")) {
+      getDocument(pathParts[2], pathParts[3], req, resp);
+    } else {
+      sendNotFoundResponse(NOT_FOUND, resp);
+    }
   }
 
   /**
    * REST Get. Retrieves information regarding sources available.
    *
-   * @param uriInfo
-   * @param httpRequest
+   * @param response
+   * @param writeOutput
    * @return
    */
-  @Override
-  @GET
-  @Path(SOURCES_PATH)
-  public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
-    ResponseBuilder responseBuilder;
-
+  public void getSources(HttpServletResponse response, boolean writeOutput) throws IOException {
     final BinaryContent content = catalogService.getSourcesInfo();
-    responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
+
+    response.setStatus(200);
+    response.setContentType(content.getMimeTypeValue());
+    if (writeOutput) {
+      content.getInputStream().transferTo(response.getOutputStream());
+    }
 
     // Add the Accept-ranges header to let the client know that we accept ranges in bytes
-    responseBuilder.header(HEADER_ACCEPT_RANGES, BYTES);
-    return responseBuilder.build();
+    response.addHeader(HEADER_ACCEPT_RANGES, BYTES);
   }
 
   /**
@@ -200,183 +174,134 @@ public class RESTEndpoint implements RESTService {
    * by sourceid. Transformer argument is optional, but is used to specify what format the data
    * should be returned.
    *
-   * @param encodedSourceId
-   * @param encodedId
-   * @param transformerParam
-   * @param uriInfo
-   * @return
+   * @param sourceId
+   * @param id
+   * @param request
+   * @param response
    */
-  @Override
-  @GET
-  @Path("/sources/{sourceid}/{id}")
-  public Response getDocument(
-      @Encoded @PathParam("sourceid") String encodedSourceId,
-      @Encoded @PathParam("id") String encodedId,
-      @QueryParam("transform") String transformerParam,
-      @Context UriInfo uriInfo,
-      @Context HttpServletRequest httpRequest) {
+  public void getDocument(
+      String sourceId, String id, HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
     try {
-      Response.ResponseBuilder responseBuilder;
-      String id = URLDecoder.decode(encodedId, CharEncoding.UTF_8);
-
       final BinaryContent content =
           catalogService.getDocument(
-              encodedSourceId,
-              encodedId,
-              transformerParam,
-              uriInfo.getAbsolutePath(),
-              uriInfo.getQueryParameters(),
-              httpRequest);
+              sourceId,
+              id,
+              getTransform(request),
+              getRangeStart(request),
+              request.getRequestURL().toString(),
+              request.getParameterMap());
 
       if (content == null) {
-        return Response.status(Status.NOT_FOUND)
-            .entity(String.format(PRE_FORMAT, UNABLE_TO_RETRIEVE_REQUESTED_METACARD))
-            .type(MediaType.TEXT_HTML)
-            .build();
+        sendNotFoundResponse(UNABLE_TO_RETRIEVE_REQUESTED_METACARD, response);
+      } else {
+        LOGGER.debug("Read and transform complete, preparing response.");
+        response.setStatus(200);
+        response.setContentType(content.getMimeTypeValue());
+        content.getInputStream().transferTo(response.getOutputStream());
+
+        // Add the Accept-ranges header to let the client know that we accept ranges in bytes
+        response.addHeader(HEADER_ACCEPT_RANGES, BYTES);
+
+        setFileNameOnResponseBuilder(id, content, response);
+
+        long size = content.getSize();
+        if (size > 0) {
+          response.addHeader(HEADER_CONTENT_LENGTH, String.valueOf(size));
+        }
       }
-
-      LOGGER.debug("Read and transform complete, preparing response.");
-      responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
-
-      // Add the Accept-ranges header to let the client know that we accept ranges in bytes
-      responseBuilder.header(HEADER_ACCEPT_RANGES, BYTES);
-
-      setFileNameOnResponseBuilder(id, content, responseBuilder);
-
-      long size = content.getSize();
-      if (size > 0) {
-        responseBuilder.header(HEADER_CONTENT_LENGTH, size);
-      }
-
-      return responseBuilder.build();
-
     } catch (CatalogServiceException e) {
-      return createBadRequestResponse(e.getMessage());
-
+      sendBadRequestResponse(e.getMessage(), response);
     } catch (DataUsageLimitExceededException e) {
-      return Response.status(Status.REQUEST_ENTITY_TOO_LARGE)
-          .entity(String.format(PRE_FORMAT, e.getMessage()))
-          .type(MediaType.TEXT_HTML)
-          .build();
-    } catch (OAuthPluginException e) {
-      return Response.status(Status.SEE_OTHER).header(HttpHeaders.LOCATION, e.getUrl()).build();
+      sendHtmlError(413, e.getMessage(), response);
     } catch (UnsupportedEncodingException e) {
       String exceptionMessage = "Unknown error occurred while processing request: ";
       LOGGER.info(exceptionMessage, e);
-      throw new InternalServerErrorException(exceptionMessage);
-    } catch (InternalServerErrorException e) {
+      throw new ServletException(exceptionMessage);
+    } catch (ServletException | UnsupportedQueryException e) {
       LOGGER.info(e.getMessage());
-      return createErrorResponse(e.getMessage());
-    }
-  }
-
-  @POST
-  @Path("/metacard")
-  public Response createMetacard(
-      MultipartBody multipartBody,
-      @Context UriInfo requestUriInfo,
-      @QueryParam("transform") String transformerParam) {
-    try {
-      final BinaryContent content = catalogService.createMetacard(multipartBody, transformerParam);
-
-      Response.ResponseBuilder responseBuilder =
-          Response.ok(content.getInputStream(), content.getMimeTypeValue());
-      return responseBuilder.build();
-    } catch (CatalogServiceException e) {
-      return createBadRequestResponse(e.getMessage());
-    }
-  }
-
-  /**
-   * REST Put. Updates the specified entry with the provided document.
-   *
-   * @param id
-   * @param message
-   * @return
-   */
-  @Override
-  @PUT
-  @Path("/{id}")
-  @Consumes({"text/*", "application/*"})
-  public Response updateDocument(
-      @PathParam("id") String id,
-      @Context HttpHeaders headers,
-      @Context HttpServletRequest httpRequest,
-      @QueryParam("transform") String transformerParam,
-      InputStream message) {
-    return updateDocument(id, headers, httpRequest, null, transformerParam, message);
-  }
-
-  /**
-   * REST Put. Updates the specified entry with the provided document.
-   *
-   * @param id
-   * @param message
-   * @return
-   */
-  @Override
-  @PUT
-  @Path("/{id}")
-  @Consumes("multipart/*")
-  public Response updateDocument(
-      @PathParam("id") String id,
-      @Context HttpHeaders headers,
-      @Context HttpServletRequest httpRequest,
-      MultipartBody multipartBody,
-      @QueryParam("transform") String transformerParam,
-      InputStream message) {
-    try {
-      List<String> contentTypeList = headers.getRequestHeader(HttpHeaders.CONTENT_TYPE);
-      catalogService.updateDocument(id, contentTypeList, multipartBody, transformerParam, message);
-
-      return Response.ok().build();
-
-    } catch (CatalogServiceException e) {
-      return createBadRequestResponse(e.getMessage());
+      sendErrorResponse(e.getMessage(), response);
     }
   }
 
   @Override
-  @POST
-  @Consumes({"text/*", "application/*"})
-  public Response addDocument(
-      @Context HttpHeaders headers,
-      @Context UriInfo requestUriInfo,
-      @Context HttpServletRequest httpRequest,
-      @QueryParam("transform") String transformerParam,
-      InputStream message) {
-    return addDocument(headers, requestUriInfo, httpRequest, null, transformerParam, message);
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    if (patternMatches(req, "/")) {
+      addDocument(req, resp);
+    } else {
+      sendHtmlError(405, "Method Not Allowed", resp);
+    }
   }
 
   /**
    * REST Post. Creates a new metadata entry in the catalog.
    *
-   * @param message
-   * @return
+   * @param request
+   * @param response
    */
-  @Override
-  @POST
-  @Consumes("multipart/*")
-  public Response addDocument(
-      @Context HttpHeaders headers,
-      @Context UriInfo requestUriInfo,
-      @Context HttpServletRequest httpRequest,
-      MultipartBody multipartBody,
-      @QueryParam("transform") String transformerParam,
-      InputStream message) {
+  public void addDocument(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
     try {
-      List<String> contentTypeList = headers.getRequestHeader(HttpHeaders.CONTENT_TYPE);
+      List<String> contentTypeList = Collections.list(request.getHeaders("Content-Type"));
+      String transform = getTransform(request);
+      List<FileItem> fileItems = parseFormUpload(request);
+
       String id =
-          catalogService.addDocument(contentTypeList, multipartBody, transformerParam, message);
+          catalogService.addDocument(
+              contentTypeList, fileItems, transform, request.getInputStream());
 
-      UriBuilder uriBuilder = requestUriInfo.getAbsolutePathBuilder().path("/" + id);
-      ResponseBuilder responseBuilder = Response.created(uriBuilder.build());
-      responseBuilder.header(Metacard.ID, id);
+      response.setStatus(201);
+      response.addHeader(Metacard.ID, id);
+      response.addHeader("location", request.getRequestURL().append("/" + id).toString());
+    } catch (CatalogServiceException | FileUploadException | ServletException e) {
+      sendBadRequestResponse(e.getMessage(), response);
+    }
+  }
 
-      return responseBuilder.build();
+  @Override
+  protected void doPut(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String[] pathParts = Objects.toString(req.getPathInfo(), "").split("/");
+    if (patternMatches(req, "/{id}")) {
+      updateDocument(pathParts[1], req, resp);
+    } else {
+      sendHtmlError(405, "Method Not Allowed", resp);
+    }
+  }
 
-    } catch (CatalogServiceException e) {
-      return createBadRequestResponse(e.getMessage());
+  /**
+   * REST Put. Updates the specified entry with the provided document.
+   *
+   * @param id
+   * @param request
+   * @param response
+   */
+  public void updateDocument(String id, HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    try {
+      List<String> contentTypeList = Collections.list(request.getHeaders("Content-Type"));
+      String transform = getTransform(request);
+      List<FileItem> fileItems = parseFormUpload(request);
+
+      catalogService.updateDocument(
+          id, contentTypeList, fileItems, transform, request.getInputStream());
+
+      response.setStatus(200);
+
+    } catch (CatalogServiceException | FileUploadException | ServletException e) {
+      sendBadRequestResponse(e.getMessage(), response);
+    }
+  }
+
+  @Override
+  protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String[] pathParts = Objects.toString(req.getPathInfo(), "").split("/");
+    if (patternMatches(req, "/{id}")) {
+      deleteDocument(pathParts[1], resp);
+    } else {
+      sendHtmlError(405, "Method Not Allowed", resp);
     }
   }
 
@@ -386,22 +311,29 @@ public class RESTEndpoint implements RESTService {
    * @param id
    * @return
    */
-  @Override
-  @DELETE
-  @Path("/{id}")
-  public Response deleteDocument(
-      @PathParam("id") String id, @Context HttpServletRequest httpRequest) {
+  public void deleteDocument(String id, HttpServletResponse response) throws IOException {
     try {
       catalogService.deleteDocument(id);
-      return Response.ok(id).build();
+      response.setStatus(200);
+      response.setContentType("text/plain");
+      response.getOutputStream().print(id);
 
-    } catch (CatalogServiceException e) {
-      return createBadRequestResponse(e.getMessage());
+    } catch (CatalogServiceException | ServletException e) {
+      sendBadRequestResponse(e.getMessage(), response);
     }
   }
 
+  private static String getTransform(HttpServletRequest request) {
+    String transform = null;
+    if (request.getParameterValues("transform") != null
+        && request.getParameterValues("transform").length == 1) {
+      transform = request.getParameterValues("transform")[0];
+    }
+    return transform;
+  }
+
   private void setFileNameOnResponseBuilder(
-      String id, BinaryContent content, ResponseBuilder responseBuilder) {
+      String id, BinaryContent content, HttpServletResponse response) {
     String filename = null;
 
     if (content instanceof Resource) {
@@ -416,21 +348,122 @@ public class RESTEndpoint implements RESTService {
 
     if (StringUtils.isNotBlank(filename)) {
       LOGGER.debug("filename: {}", filename);
-      responseBuilder.header(HEADER_CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"");
+      response.addHeader(HEADER_CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"");
     }
   }
 
-  private Response createBadRequestResponse(String entityMessage) {
-    return Response.status(Status.BAD_REQUEST)
-        .entity(String.format(PRE_FORMAT, entityMessage))
-        .type(MediaType.TEXT_HTML)
-        .build();
+  private void sendBadRequestResponse(String message, HttpServletResponse response)
+      throws IOException {
+    sendHtmlError(400, message, response);
   }
 
-  private Response createErrorResponse(String entityMessage) {
-    return Response.status(Status.INTERNAL_SERVER_ERROR)
-        .entity(String.format(PRE_FORMAT, entityMessage))
-        .type(MediaType.TEXT_HTML)
-        .build();
+  private void sendNotFoundResponse(String message, HttpServletResponse response)
+      throws IOException {
+    sendHtmlError(404, message, response);
+  }
+
+  private void sendErrorResponse(String message, HttpServletResponse response) throws IOException {
+    sendHtmlError(500, message, response);
+  }
+
+  private void sendHtmlError(int statusCode, String message, HttpServletResponse response)
+      throws IOException {
+    response.setStatus(statusCode);
+    response.setContentType("text/html");
+    response.getOutputStream().print(String.format(PRE_FORMAT, message));
+  }
+
+  private boolean patternMatches(HttpServletRequest req, String pathPattern) {
+    String path = Objects.toString(req.getPathInfo(), "");
+    String pattern = Objects.toString(pathPattern, "");
+    if (path.equals(pattern)) {
+      return true;
+    }
+
+    String[] pathParts = path.split("/");
+    String[] patternParts = pattern.split("/");
+    if (Arrays.equals(pathParts, patternParts)) {
+      return true;
+    }
+
+    if (pathParts.length != patternParts.length) {
+      return false;
+    }
+
+    for (int i = 0; i < pathParts.length; i++) {
+      String pathPart = pathParts[i];
+      String patternPart = patternParts[i];
+      if (!pathPart.equalsIgnoreCase(patternPart)
+          && !patternPart.startsWith("{")
+          && !patternPart.endsWith("}")) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private boolean rangeHeaderExists(HttpServletRequest httpRequest) {
+    boolean response = false;
+
+    if (httpRequest != null && httpRequest.getHeader(HEADER_RANGE) != null) {
+      response = true;
+    }
+
+    return response;
+  }
+
+  // Return 0 (beginning of stream) if the range header does not exist.
+  private long getRangeStart(HttpServletRequest httpRequest) throws UnsupportedQueryException {
+    long response = 0;
+
+    if (httpRequest != null && rangeHeaderExists(httpRequest)) {
+      String rangeHeader = httpRequest.getHeader(HEADER_RANGE);
+      String range = getRange(rangeHeader);
+
+      if (range != null) {
+        response = Long.parseLong(range);
+      }
+    }
+
+    return response;
+  }
+
+  private String getRange(String rangeHeader) throws UnsupportedQueryException {
+    String response = null;
+
+    if (rangeHeader != null) {
+      if (rangeHeader.startsWith(BYTES_EQUAL)) {
+        String tempString = rangeHeader.substring(BYTES_EQUAL.length());
+        if (tempString.contains("-")) {
+          response = rangeHeader.substring(BYTES_EQUAL.length(), rangeHeader.lastIndexOf('-'));
+        } else {
+          response = rangeHeader.substring(BYTES_EQUAL.length());
+        }
+      } else {
+        throw new UnsupportedQueryException("Invalid range header: " + rangeHeader);
+      }
+    }
+
+    return response;
+  }
+
+  private List<FileItem> parseFormUpload(HttpServletRequest request) throws FileUploadException {
+    boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+
+    if (!isMultipart) {
+      return null;
+    }
+
+    DiskFileItemFactory factory = new DiskFileItemFactory();
+    ServletFileUpload upload = new ServletFileUpload(factory);
+
+    File repository =
+        (File) request.getServletContext().getAttribute("javax.servlet.context.tempdir");
+    if (repository != null) {
+      factory.setRepository(repository);
+    }
+
+    return upload.parseRequest(request);
   }
 }

@@ -21,7 +21,7 @@
     </parent>
     <artifactId>catalog-rest-impl</artifactId>
     <packaging>bundle</packaging>
-    <name>DDF :: Catalog :: REST :: Impl</name>
+    <name>DDF :: Catalog :: REST :: Actions</name>
 
     <dependencyManagement>
         <dependencies>
