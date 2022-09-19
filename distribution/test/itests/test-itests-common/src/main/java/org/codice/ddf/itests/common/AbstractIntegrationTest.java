@@ -378,9 +378,11 @@ public abstract class AbstractIntegrationTest {
       getServiceManager().waitForAllBundles();
       getCatalogBundle().waitForCatalogProvider();
 
-      getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
+      getServiceManager()
+          .waitForHttpEndpoint(
+              SERVICE_ROOT + "/catalog/query?format=geojson&start=1&q=*&src=local&count=10");
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
-      getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog?_wadl");
+      getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/sources/");
 
       getServiceManager().waitForAllBundles();
     } catch (Exception e) {
