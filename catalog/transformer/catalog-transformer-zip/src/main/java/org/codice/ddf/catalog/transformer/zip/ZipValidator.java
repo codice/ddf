@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.xml.security.Init;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,20 @@ public class ZipValidator {
     try (InputStream is = new FileInputStream(signaturePropertiesPath)) {
       Properties signatureProperties = new Properties();
       signatureProperties.load(is);
+      for (Map.Entry<Object, Object> entry : signatureProperties.entrySet()) {
+        String value = entry.getValue().toString();
+        if (value.startsWith("${") && value.endsWith("}")) {
+          String sysProp = value.substring(2, value.length() - 1);
+          if (System.getProperty(sysProp) != null) {
+            signatureProperties.put(entry.getKey(), System.getProperty(sysProp));
+          } else {
+            LOGGER.warn(
+                "Unable to read merlin properties file. Unable to replace system property: "
+                    + sysProp);
+          }
+        }
+      }
+      Init.init();
       merlin = new Merlin(signatureProperties, ZipDecompression.class.getClassLoader(), null);
     } catch (WSSecurityException | IOException e) {
       LOGGER.warn("Unable to read merlin properties file. Unable to validate signatures.", e);
