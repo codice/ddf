@@ -171,11 +171,12 @@ public class CswServlet extends HttpServlet {
     try {
       String service = req.getParameter("service");
       if (service == null) {
-        throw new CswException("Missing service value", CswConstants.MISSING_PARAMETER_VALUE, null);
+        throw new CswException(
+            "Missing service value", CswConstants.MISSING_PARAMETER_VALUE, "service");
       }
       if (!"csw".equalsIgnoreCase(service)) {
         throw new CswException(
-            "Unknown service (" + service + ")", CswConstants.INVALID_PARAMETER_VALUE, null);
+            "Unknown service (" + service + ")", CswConstants.INVALID_PARAMETER_VALUE, "service");
       }
 
       String version = req.getParameter("version");
