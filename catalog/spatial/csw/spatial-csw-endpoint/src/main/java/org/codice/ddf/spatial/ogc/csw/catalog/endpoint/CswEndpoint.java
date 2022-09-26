@@ -20,6 +20,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -87,9 +88,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -281,7 +280,7 @@ public class CswEndpoint implements Csw {
 
   private ThreadPoolExecutor queryExecutor;
 
-  @Context private UriInfo uri;
+  private String cswUrl;
 
   /** JAX-RS Server that represents a CSW v2.0.2 Server. */
   public CswEndpoint(
@@ -291,7 +290,8 @@ public class CswEndpoint implements Csw {
       TransformerManager inputManager,
       CswActionTransformerProvider cswActionTransformerProvider,
       Validator validator,
-      CswQueryFactory queryFactory) {
+      CswQueryFactory queryFactory,
+      CatalogEndpoint catalogEndpoint) {
     LOGGER.trace("Entering: CSW Endpoint constructor.");
     this.framework = ddf;
     this.mimeTypeTransformerManager = mimeTypeManager;
@@ -300,6 +300,9 @@ public class CswEndpoint implements Csw {
     this.cswActionTransformerProvider = cswActionTransformerProvider;
     this.validator = validator;
     this.queryFactory = queryFactory;
+    if (catalogEndpoint.getEndpointProperties().containsKey("url")) {
+      this.cswUrl = catalogEndpoint.getEndpointProperties().get("url");
+    }
     LOGGER.trace("Exiting: CSW Endpoint constructor.");
   }
 
@@ -1483,7 +1486,7 @@ public class CswEndpoint implements Csw {
     HTTP http = new HTTP();
     for (QName type : types) {
       RequestMethodType rmt = new RequestMethodType();
-      rmt.setHref(uri.getBaseUri().toASCIIString());
+      rmt.setHref(cswUrl);
       JAXBElement<RequestMethodType> requestElement =
           new JAXBElement<>(type, RequestMethodType.class, rmt);
       if (type.equals(CswConstants.POST)) {
@@ -1627,8 +1630,8 @@ public class CswEndpoint implements Csw {
   }
 
   /* For unit testing */
-  void setUri(UriInfo uri) {
-    this.uri = uri;
+  void setUrl(String url) {
+    this.cswUrl = url;
   }
 
   Bundle getBundle() {

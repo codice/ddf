@@ -128,7 +128,7 @@ public class XmlParser implements Parser {
                 Boolean.FALSE); // This disables DTDs entirely for that factory
             XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(stream);
             @SuppressWarnings("unchecked")
-            T unmarshal = (T) unmarshaller.unmarshal(xmlStreamReader);
+            T unmarshal = (T) unmarshaller.unmarshal(xmlStreamReader, cls);
             return unmarshal;
           } catch (XMLStreamException | JAXBException e) {
             throw new ParserRuntimeException(UNMARSHALLING_ERROR_MSG, e);

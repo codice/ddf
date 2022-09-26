@@ -42,6 +42,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
@@ -71,7 +72,6 @@ import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayDeque;
@@ -92,7 +92,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.activation.MimeType;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -202,7 +201,7 @@ public class CswEndpointTest {
 
   private static final String USER_ID = "testUser";
 
-  private static UriInfo mockUriInfo = mock(UriInfo.class);
+  private static CatalogEndpoint mockCatalogEndpoint = mock(CatalogEndpoint.class);
 
   private static Bundle mockBundle = mock(Bundle.class);
 
@@ -242,8 +241,6 @@ public class CswEndpointTest {
       throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
           FederationException, ParseException, IngestException, CswException,
           InvalidSyntaxException {
-    URI mockUri = new URI(SAMPLE_NAME_SPACE);
-    when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
     URL resourceUrl = CswEndpointTest.class.getResource("/record.xsd");
     URL resourceUrlDot = CswEndpointTest.class.getResource(".");
     when(mockBundle.getResource(RECORD_SCHEMA_LOCATION)).thenReturn(resourceUrl);
@@ -268,8 +265,9 @@ public class CswEndpointTest {
             mockCswActionTransformerProvider,
             validator,
             queryFactory,
+            mockCatalogEndpoint,
             mockBundle);
-    csw.setUri(mockUriInfo);
+    csw.setUrl(SAMPLE_NAME_SPACE);
     csw.init();
     when(mockMimeTypeManager.getAvailableMimeTypes())
         .thenReturn(Arrays.asList(MediaType.APPLICATION_XML));
@@ -2223,6 +2221,7 @@ public class CswEndpointTest {
         CswActionTransformerProvider cswActionTransformerProvider,
         Validator validator,
         CswQueryFactory queryFactory,
+        CatalogEndpoint catalogEndpoint,
         Bundle bundle) {
       super(
           ddf,
@@ -2231,7 +2230,8 @@ public class CswEndpointTest {
           inputManager,
           cswActionTransformerProvider,
           validator,
-          queryFactory);
+          queryFactory,
+          catalogEndpoint);
       this.bundle = bundle;
     }
 

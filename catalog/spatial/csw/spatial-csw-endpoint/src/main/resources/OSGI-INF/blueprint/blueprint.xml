@@ -172,9 +172,10 @@
         <argument ref="cswActionTransformerProvider"/>
         <argument ref="validator"/>
         <argument ref="cswFilterFactory"/>
+        <argument ref="CatalogEndpointImpl"/>
     </bean>
 
-    <bean id="ddf.catalog.endpoint.csw" class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
+    <bean id="CatalogEndpointImpl" class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
         <property name="url"
                   value="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/csw"/>
         <property name="urlBindingName" value="cswUrl"/>
@@ -210,7 +211,7 @@
         </service-properties>
     </service>
 
-    <service ref="ddf.catalog.endpoint.csw" interface="ddf.catalog.endpoint.CatalogEndpoint"/>
+    <service ref="CatalogEndpointImpl" interface="ddf.catalog.endpoint.CatalogEndpoint"/>
 
     <jaxrs:server id="CswService" address="/csw">
         <jaxrs:serviceBeans>
@@ -226,5 +227,24 @@
             <ref component-id="cswRecordCollectionWriter"/>
         </jaxrs:providers>
     </jaxrs:server>
+
+    <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
+               availability="mandatory"/>
+
+    <bean id="cswServlet" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswServlet">
+        <argument ref="CswSvc"/>
+        <argument ref="queryResponseTransformerManager"/>
+        <argument ref="xmlParser"/>
+        <argument ref="transformProvider"/>
+        <argument ref="cswMetacardType"/>
+        <argument ref="attributeRegistry" />
+    </bean>
+
+    <service interface="javax.servlet.Servlet" ref="cswServlet">
+        <service-properties>
+            <entry key="alias" value="/services/servlet/csw"/>
+            <entry key="async-supported" value="true"/>
+        </service-properties>
+    </service>
 
 </blueprint>
