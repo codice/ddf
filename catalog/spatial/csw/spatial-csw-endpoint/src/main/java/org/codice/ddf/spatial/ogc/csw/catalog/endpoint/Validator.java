@@ -17,7 +17,6 @@ import ddf.catalog.transform.QueryFilterTransformerProvider;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +32,7 @@ public class Validator {
   private static final String OCTET_STREAM_OUTPUT_SCHEMA =
       "http://www.iana.org/assignments/media-types/application/octet-stream";
 
-  private static final String DEFAULT_OUTPUT_FORMAT = MediaType.APPLICATION_XML;
+  private static final String DEFAULT_OUTPUT_FORMAT = "application/xml";
 
   private QueryFilterTransformerProvider queryFilterTransformerProvider;
 
@@ -127,8 +126,7 @@ public class Validator {
   public void validateOutputFormat(String format, TransformerManager mimeTypeTransformerManager)
       throws CswException {
     if (!StringUtils.isEmpty(format)) {
-      if (!(DEFAULT_OUTPUT_FORMAT.equals(format)
-              || MediaType.APPLICATION_OCTET_STREAM.equals(format))
+      if (!(DEFAULT_OUTPUT_FORMAT.equals(format) || "application/octet-stream".equals(format))
           && mimeTypeTransformerManager != null
           && !mimeTypeTransformerManager.getAvailableMimeTypes().contains(format)) {
         throw new CswException(

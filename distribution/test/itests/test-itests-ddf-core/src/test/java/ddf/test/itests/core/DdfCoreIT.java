@@ -356,7 +356,8 @@ public class DdfCoreIT extends AbstractIntegrationTest {
             CSW_FEDERATED_SOURCE_FACTORY_PID, new DictionaryMap<>(cswStubServerProperties))
         .getPid();
 
-    getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
+    getServiceManager()
+        .waitForHttpEndpoint(CSW_PATH + "?service=CSW&version=2.0.2&request=GetCapabilities");
 
     Map<String, Object> cswProperties =
         getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());

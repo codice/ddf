@@ -381,7 +381,9 @@ public abstract class AbstractIntegrationTest {
       getServiceManager()
           .waitForHttpEndpoint(
               SERVICE_ROOT + "/catalog/query?format=geojson&start=1&q=*&src=local&count=10");
-      getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
+      getServiceManager()
+          .waitForHttpEndpoint(
+              SERVICE_ROOT + "/csw?service=CSW&version=2.0.2&request=GetCapabilities");
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/sources/");
 
       getServiceManager().waitForAllBundles();

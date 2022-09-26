@@ -82,13 +82,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -143,11 +136,9 @@ import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
@@ -171,7 +162,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /** CswEndpoint provides a server implementation of the Catalogue Service for Web (CSW) 2.0.2. */
-public class CswEndpoint implements Csw {
+public class CswEndpoint {
 
   protected static final String SERVICE_TITLE = "Catalog Service for the Web";
 
@@ -235,7 +226,9 @@ public class CswEndpoint implements Csw {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswEndpoint.class);
 
-  private static final String DEFAULT_OUTPUT_FORMAT = MediaType.APPLICATION_XML;
+  private static final String DEFAULT_OUTPUT_FORMAT = "application/xml";
+
+  public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 
   private static final String OCTET_STREAM_OUTPUT_SCHEMA =
       "http://www.iana.org/assignments/media-types/application/octet-stream";
@@ -306,12 +299,7 @@ public class CswEndpoint implements Csw {
     LOGGER.trace("Exiting: CSW Endpoint constructor.");
   }
 
-  @Override
-  @GET
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  public CapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request)
-      throws CswException {
+  public CapabilitiesType getCapabilities(GetCapabilitiesRequest request) throws CswException {
 
     LOGGER.trace("Entering: getCapabilities.");
     capabilitiesType = buildCapabilitiesType();
@@ -331,10 +319,6 @@ public class CswEndpoint implements Csw {
     return buildCapabilitiesType(sectionList);
   }
 
-  @Override
-  @POST
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   public CapabilitiesType getCapabilities(GetCapabilitiesType request) throws CswException {
     capabilitiesType = buildCapabilitiesType();
 
@@ -353,11 +337,7 @@ public class CswEndpoint implements Csw {
     return buildCapabilitiesType(sectionList);
   }
 
-  @Override
-  @GET
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  public DescribeRecordResponseType describeRecord(@QueryParam("") DescribeRecordRequest request)
+  public DescribeRecordResponseType describeRecord(DescribeRecordRequest request)
       throws CswException {
     if (request == null) {
       throw new CswException("DescribeRecordRequest request is null");
@@ -381,10 +361,6 @@ public class CswEndpoint implements Csw {
     return buildDescribeRecordResponseFromTypes(types);
   }
 
-  @Override
-  @POST
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   public DescribeRecordResponseType describeRecord(DescribeRecordType request) throws CswException {
     if (request == null) {
       throw new CswException("DescribeRecordRequest request is null");
@@ -396,11 +372,7 @@ public class CswEndpoint implements Csw {
     return buildDescribeRecordResponseFromTypes(request.getTypeName());
   }
 
-  @Override
-  @GET
-  @Produces({MediaType.WILDCARD})
-  public CswRecordCollection getRecords(@QueryParam("") GetRecordsRequest request)
-      throws CswException {
+  public CswRecordCollection getRecords(GetRecordsRequest request) throws CswException {
     if (request == null) {
       throw new CswException("GetRecordsRequest request is null");
     } else {
@@ -417,10 +389,6 @@ public class CswEndpoint implements Csw {
     return getRecords(request.get202RecordsType());
   }
 
-  @Override
-  @POST
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.WILDCARD})
   public CswRecordCollection getRecords(GetRecordsType request) throws CswException {
     if (request == null) {
       throw new CswException("GetRecordsType request is null");
@@ -452,13 +420,7 @@ public class CswEndpoint implements Csw {
     return queryCsw(request);
   }
 
-  @Override
-  @GET
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  public CswRecordCollection getRecordById(
-      @QueryParam("") GetRecordByIdRequest request,
-      @HeaderParam(CswConstants.RANGE_HEADER) String rangeValue)
+  public CswRecordCollection getRecordById(GetRecordByIdRequest request, String rangeValue)
       throws CswException {
     if (request == null) {
       throw new CswException("GetRecordByIdRequest request is null");
@@ -498,12 +460,7 @@ public class CswEndpoint implements Csw {
     }
   }
 
-  @Override
-  @POST
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  public CswRecordCollection getRecordById(
-      GetRecordByIdType request, @HeaderParam(CswConstants.RANGE_HEADER) String rangeValue)
+  public CswRecordCollection getRecordById(GetRecordByIdType request, String rangeValue)
       throws CswException {
     if (request == null) {
       throw new CswException("GetRecordByIdRequest request is null");
@@ -545,10 +502,6 @@ public class CswEndpoint implements Csw {
     }
   }
 
-  @Override
-  @POST
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   public TransactionResponseType transaction(CswTransactionRequest request) throws CswException {
     if (request == null) {
       throw new CswException("TransactionRequest request is null");
@@ -934,44 +887,6 @@ public class CswEndpoint implements Csw {
     return updatedCount;
   }
 
-  @GET
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  public void unknownService(@QueryParam("") CswRequest request) throws CswException {
-    if (request.getService() == null) {
-      throw new CswException(
-          "Missing service value", CswConstants.MISSING_PARAMETER_VALUE, SERVICE);
-    }
-    throw new CswException(
-        "Unknown service (" + request.getService() + ")",
-        CswConstants.INVALID_PARAMETER_VALUE,
-        SERVICE);
-  }
-
-  @POST
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  public void unknownService() throws CswException {
-    throw new CswException("Unknown Service", CswConstants.INVALID_PARAMETER_VALUE, SERVICE);
-  }
-
-  @GET
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  public void unknownOperation(@QueryParam("") CswRequest request) throws CswException {
-    throw new CswException(
-        "No such operation: " + request.getRequest(),
-        CswConstants.OPERATION_NOT_SUPPORTED,
-        request.getRequest());
-  }
-
-  @POST
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  public void unknownOperation() throws CswException {
-    throw new CswException("No such operation", CswConstants.OPERATION_NOT_SUPPORTED, null);
-  }
-
   /**
    * Returns a list of QNames based on typeNames and namespaces given
    *
@@ -992,7 +907,7 @@ public class CswEndpoint implements Csw {
 
     for (String typeName : types) {
       // if type name is in the format prefix:localPart (eg. csw:Record).
-      if (typeName.indexOf(CswConstants.NAMESPACE_DELIMITER) != -1) {
+      if (typeName.contains(CswConstants.NAMESPACE_DELIMITER)) {
         String prefix = typeName.substring(0, typeName.indexOf(CswConstants.NAMESPACE_DELIMITER));
         String localPart =
             typeName.substring(typeName.indexOf(CswConstants.NAMESPACE_DELIMITER) + 1);
@@ -1401,7 +1316,7 @@ public class CswEndpoint implements Csw {
     addFederatedCatalogs(getRecordsOp);
 
     // Builds GetRecordById operation metadata
-    mimeTypes.add(MediaType.APPLICATION_OCTET_STREAM);
+    mimeTypes.add(APPLICATION_OCTET_STREAM);
     List<String> supportedSchemas = new ArrayList<>(availableSchemas);
     supportedSchemas.add(OCTET_STREAM_OUTPUT_SCHEMA);
     Operation getRecordByIdOp = buildOperation(CswConstants.GET_RECORD_BY_ID, getAndPost);
@@ -1556,20 +1471,20 @@ public class CswEndpoint implements Csw {
   private boolean isProductRetrieval(List<String> ids, String outputFormat, String outputSchema)
       throws CswException {
     if (outputSchema.equals(OCTET_STREAM_OUTPUT_SCHEMA)
-        && outputFormat.equals(MediaType.APPLICATION_OCTET_STREAM)) {
+        && outputFormat.equals(APPLICATION_OCTET_STREAM)) {
       if (ids.size() == 1) {
         return true;
       } else {
         throw new CswException(ERROR_MULTI_PRODUCT_RETRIEVAL);
       }
     } else if ((outputSchema.equals(OCTET_STREAM_OUTPUT_SCHEMA)
-            && !outputFormat.equals(MediaType.APPLICATION_OCTET_STREAM))
+            && !outputFormat.equals(APPLICATION_OCTET_STREAM))
         || (!outputSchema.equals(OCTET_STREAM_OUTPUT_SCHEMA)
-            && outputFormat.equals(MediaType.APPLICATION_OCTET_STREAM))) {
+            && outputFormat.equals(APPLICATION_OCTET_STREAM))) {
       throw new CswException(
           String.format(
               ERROR_SCHEMA_FORMAT_PRODUCT_RETRIEVAL,
-              MediaType.APPLICATION_OCTET_STREAM,
+              APPLICATION_OCTET_STREAM,
               OCTET_STREAM_OUTPUT_SCHEMA));
     }
     return false;
@@ -1596,13 +1511,13 @@ public class CswEndpoint implements Csw {
     MimeType mimeType = resource.getMimeType();
     if (mimeType == null) {
       try {
-        mimeType = new MimeType(MediaType.APPLICATION_OCTET_STREAM);
+        mimeType = new MimeType(APPLICATION_OCTET_STREAM);
         resource = new ResourceImpl(resource.getInputStream(), mimeType, resource.getName());
       } catch (MimeTypeParseException e) {
         throw new CswException(
             String.format(
                 "Could not create mime type upon null mimeType, for mime %s.",
-                MediaType.APPLICATION_OCTET_STREAM),
+                APPLICATION_OCTET_STREAM),
             e);
       }
     }

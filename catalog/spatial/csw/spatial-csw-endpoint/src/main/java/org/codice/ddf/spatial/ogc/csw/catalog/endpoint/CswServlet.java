@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +37,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
@@ -51,6 +47,7 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
+import net.opengis.cat.csw.v_2_0_2.TransactionType;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import net.opengis.ows.v_1_0_0.ExceptionType;
 import org.apache.commons.lang3.StringUtils;
@@ -78,8 +75,7 @@ public class CswServlet extends HttpServlet {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswServlet.class);
 
-  private static final List<String> XML_MIME_TYPES =
-      Collections.unmodifiableList(Arrays.asList(MediaType.APPLICATION_XML, MediaType.TEXT_XML));
+  private static final List<String> XML_MIME_TYPES = List.of("application/xml", "text/xml");
 
   private static final String OCTET_STREAM_OUTPUT_SCHEMA =
       "http://www.iana.org/assignments/media-types/application/octet-stream";
@@ -94,11 +90,11 @@ public class CswServlet extends HttpServlet {
 
   private ParserConfigurator unmarshallConfig;
 
-  private Converter cswRecordConverter;
+  private final Converter cswRecordConverter;
 
-  private MetacardType metacardType;
+  private final MetacardType metacardType;
 
-  private AttributeRegistry registry;
+  private final AttributeRegistry registry;
 
   public CswServlet(
       CswEndpoint cswEndpoint,
@@ -118,21 +114,27 @@ public class CswServlet extends HttpServlet {
   }
 
   private void initializeParserConfig() {
-    Map<String, String> prefixes = new HashMap<>();
-    prefixes.put(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_NAMESPACE_PREFIX);
-    prefixes.put(CswConstants.OWS_NAMESPACE, CswConstants.OWS_NAMESPACE_PREFIX);
-    prefixes.put(CswConstants.XML_SCHEMA_LANGUAGE, CswConstants.XML_SCHEMA_NAMESPACE_PREFIX);
-    prefixes.put(CswConstants.OGC_SCHEMA, CswConstants.OGC_NAMESPACE_PREFIX);
-    prefixes.put(CswConstants.GML_SCHEMA, CswConstants.GML_NAMESPACE_PREFIX);
-    prefixes.put(CswConstants.DUBLIN_CORE_SCHEMA, CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX);
-    prefixes.put(
-        CswConstants.DUBLIN_CORE_TERMS_SCHEMA, CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX);
-    prefixes.put(GmdConstants.GMD_NAMESPACE, GmdConstants.GMD_PREFIX);
-
     NamespacePrefixMapper mapper =
         new NamespacePrefixMapper() {
 
-          private final Map<String, String> prefixMap = prefixes;
+          private final Map<String, String> prefixMap =
+              Map.of(
+                  CswConstants.CSW_OUTPUT_SCHEMA,
+                  CswConstants.CSW_NAMESPACE_PREFIX,
+                  CswConstants.OWS_NAMESPACE,
+                  CswConstants.OWS_NAMESPACE_PREFIX,
+                  CswConstants.XML_SCHEMA_LANGUAGE,
+                  CswConstants.XML_SCHEMA_NAMESPACE_PREFIX,
+                  CswConstants.OGC_SCHEMA,
+                  CswConstants.OGC_NAMESPACE_PREFIX,
+                  CswConstants.GML_SCHEMA,
+                  CswConstants.GML_NAMESPACE_PREFIX,
+                  CswConstants.DUBLIN_CORE_SCHEMA,
+                  CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX,
+                  CswConstants.DUBLIN_CORE_TERMS_SCHEMA,
+                  CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX,
+                  GmdConstants.GMD_NAMESPACE,
+                  GmdConstants.GMD_PREFIX);
 
           @Override
           public String getPreferredPrefix(
@@ -177,11 +179,11 @@ public class CswServlet extends HttpServlet {
       }
 
       String version = req.getParameter("version");
-      if (!"2.0.2".equals(version)) {
+      if (version != null && !version.contains("2.0.2")) {
         throw new CswException(
-            "Version(s) "
+            "Version(s) ("
                 + version
-                + " is not supported, we currently support version "
+                + ") is not supported, we currently support version "
                 + CswConstants.VERSION_2_0_2,
             CswConstants.VERSION_NEGOTIATION_FAILED,
             null);
@@ -308,7 +310,7 @@ public class CswServlet extends HttpServlet {
             endpoint.getRecordById(getRecordByIdRequest, req.getHeader(CswConstants.RANGE_HEADER));
 
         writeRecords(getRecordByIdResponse, resp);
-      } else if ("transaction".equalsIgnoreCase(request.getName().getLocalPart())) {
+      } else if (TransactionType.class.equals(request.getDeclaredType())) {
         CswTransactionRequest cswTransactionRequest;
         try (InputStream xstreamStream = requestStream.asByteSource().openBufferedStream()) {
           cswTransactionRequest = unmarshallTransaction(xstreamStream);
@@ -359,10 +361,9 @@ public class CswServlet extends HttpServlet {
       transformer = transformerManager.getTransformerByMimeType(mimeType);
     } else if (OCTET_STREAM_OUTPUT_SCHEMA.equals(recordCollection.getOutputSchema())) {
       Resource resource = recordCollection.getResource();
-      response.addHeader(HttpHeaders.CONTENT_TYPE, resource.getMimeType().toString());
+      response.addHeader("Content-Type", resource.getMimeType().toString());
       response.addHeader(
-          HttpHeaders.CONTENT_DISPOSITION,
-          String.format("inline; filename=\"%s\"", resource.getName()));
+          "Content-Disposition", String.format("inline; filename=\"%s\"", resource.getName()));
       // Custom HTTP header to represent that the product data will be returned in the response.
       response.addHeader(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "true");
       // Accept-ranges header to represent that ranges in bytes are accepted.
