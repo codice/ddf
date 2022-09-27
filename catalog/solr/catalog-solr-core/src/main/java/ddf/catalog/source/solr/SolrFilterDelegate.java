@@ -85,8 +85,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
   private static final String INTERSECTS_OPERATION = "Intersects";
 
-  private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT =
-      metersToDegrees(new Distance(1000, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
+  // 1000 nautical miles in degrees
+  // metersToDegrees(new Distance(1000, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER))
+  private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = 16.65541321094601;
 
   // Using quantization of 12 to reduce error below 1%
   private static final int QUADRANT_SEGMENTS = 12;
