@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,10 +33,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
-import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader.TransactionMessageBodyReader;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -44,7 +46,7 @@ public class CswServletTest {
 
   private CswEndpoint cswEndpoint = mock(CswEndpoint.class);
 
-  private Parser xmlParser = new XmlParser();
+  private CswXmlParser xmlParser = new CswXmlParser(new XmlParser());
 
   private TransformerManager transformerManager = mock(TransformerManager.class);
 
@@ -53,6 +55,14 @@ public class CswServletTest {
   private MetacardType metacardType = mock(MetacardType.class);
 
   private AttributeRegistry registry = mock(AttributeRegistry.class);
+
+  private final TransactionMessageBodyReader transactionReader =
+      new TransactionMessageBodyReader(cswRecordConverter, metacardType, registry);
+
+  private final CswRecordCollectionMessageBodyWriter recordCollectionWriter =
+      new CswRecordCollectionMessageBodyWriter(transformerManager);
+
+  private final CswExceptionMapper exceptionMapper = new CswExceptionMapper(xmlParser);
 
   private HttpServletRequest request = mock(HttpServletRequest.class);
 
@@ -73,7 +83,7 @@ public class CswServletTest {
     when(request.getInputStream()).thenReturn(inputStream);
     cswServlet =
         new CswServlet(
-            cswEndpoint, transformerManager, xmlParser, cswRecordConverter, metacardType, registry);
+            cswEndpoint, xmlParser, transactionReader, recordCollectionWriter, exceptionMapper);
   }
 
   @Test
@@ -82,7 +92,7 @@ public class CswServletTest {
 
     cswServlet.doGet(request, response);
 
-    verify(response, times(1)).setStatus(400);
+    verify(response, times(1)).setStatus(SC_BAD_REQUEST);
   }
 
   @Test
@@ -91,7 +101,7 @@ public class CswServletTest {
 
     cswServlet.doGet(request, response);
 
-    verify(response, times(1)).setStatus(400);
+    verify(response, times(1)).setStatus(SC_BAD_REQUEST);
   }
 
   @Test
@@ -100,7 +110,7 @@ public class CswServletTest {
 
     cswServlet.doGet(request, response);
 
-    verify(response, times(1)).setStatus(400);
+    verify(response, times(1)).setStatus(SC_BAD_REQUEST);
   }
 
   @Test

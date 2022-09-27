@@ -95,7 +95,7 @@
         <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
     </bean>
 
-    <bean id="CswSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint"
+    <bean id="CswEndpoint" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint"
         init-method="init" destroy-method="destroy">
         <argument ref="catalogFramework"/>
         <argument ref="queryResponseTransformerManager"/>
@@ -148,13 +148,34 @@
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                availability="mandatory"/>
 
-    <bean id="cswServlet" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswServlet">
-        <argument ref="CswSvc"/>
-        <argument ref="queryResponseTransformerManager"/>
+    <bean id="cswXmlParser"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswXmlParser">
         <argument ref="xmlParser"/>
+    </bean>
+
+    <bean id="transactionMessageBodyReader"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader.TransactionMessageBodyReader">
         <argument ref="transformProvider"/>
         <argument ref="cswMetacardType"/>
         <argument ref="attributeRegistry" />
+    </bean>
+
+    <bean id="cswRecordCollectionWriter"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter">
+        <argument ref="queryResponseTransformerManager"/>
+    </bean>
+
+    <bean id="cswExceptionMapperProvider"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper">
+        <argument ref="cswXmlParser"/>
+    </bean>
+
+    <bean id="cswServlet" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswServlet">
+        <argument ref="CswEndpoint"/>
+        <argument ref="cswXmlParser"/>
+        <argument ref="transactionMessageBodyReader"/>
+        <argument ref="cswRecordCollectionWriter"/>
+        <argument ref="cswExceptionMapperProvider"/>
     </bean>
 
     <service interface="javax.servlet.Servlet" ref="cswServlet">
