@@ -15,9 +15,14 @@ package org.codice.ddf.pax.web.jetty;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.SecurityFilter;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.platform.filter.http.HttpFilter;
 import org.codice.ddf.platform.filter.http.HttpFilterChain;
 import org.codice.ddf.security.util.ThreadContextProperties;
@@ -32,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * <a href="https://www.w3.org/TR/trace-context/">W3C Trace Context Specification</a> and
  * specifically the <a href="https://www.w3.org/TR/trace-context/#trace-id">trace-id</a> property.
  */
-public class TraceContextFilter implements HttpFilter {
+public class TraceContextFilter implements HttpFilter, SecurityFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TraceContextFilter.class);
 
@@ -51,5 +56,30 @@ public class TraceContextFilter implements HttpFilter {
       LOGGER.trace("Removing trace ID {} from context", traceId);
       ThreadContextProperties.removeTraceId();
     }
+  }
+
+  @Override
+  public void init() {
+    LOGGER.debug("Starting TraceContextFilter.");
+  }
+
+  @Override
+  public void doFilter(
+      ServletRequest request, ServletResponse response, SecurityFilterChain filterChain)
+      throws IOException, AuthenticationException {
+    String traceId = ThreadContextProperties.addTraceId();
+    LOGGER.trace("Adding traceId {} to context", traceId);
+
+    try {
+      filterChain.doFilter(request, response);
+    } finally {
+      LOGGER.trace("Removing trace ID {} from context", traceId);
+      ThreadContextProperties.removeTraceId();
+    }
+  }
+
+  @Override
+  public void destroy() {
+    LOGGER.debug("Destroying TraceContextFilter.");
   }
 }

@@ -14,17 +14,18 @@
 package org.codice.ddf.pax.web.jetty;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.log.sanitizer.LogSanitizer;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.SecurityFilter;
+import org.codice.ddf.platform.filter.SecurityFilterChain;
 import org.codice.ddf.platform.filter.http.HttpFilter;
 import org.codice.ddf.platform.filter.http.HttpFilterChain;
+import org.codice.ddf.security.util.ThreadContextProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,48 +41,47 @@ import org.slf4j.LoggerFactory;
  * <p>For example, the key associated with {@link ServletRequest#getRemoteAddr()} would be the
  * string {@code remoteAddr}.
  *
- * <p>The only exception to this rule, {@link ClientInfoFilter#CLIENT_INFO_KEY}, which holds a value
- * string of {@code client-info}, is the key used to access the entire client information map. It
- * may contain different kinds of data that does not necessarily correlate to the servlet API.
+ * <p>The only exception to this rule, {@link ThreadContextProperties#CLIENT_INFO_KEY}, which holds
+ * a value string of {@code client-info}, is the key used to access the entire client information
+ * map. It may contain different kinds of data that does not necessarily correlate to the servlet
+ * API.
  */
-public class ClientInfoFilter implements HttpFilter {
-
+public class ClientInfoFilter implements HttpFilter, SecurityFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClientInfoFilter.class);
-
-  public static final String CLIENT_INFO_KEY = "client-info";
-
-  public static final String SERVLET_REMOTE_ADDR = "remoteAddr";
-
-  public static final String SERVLET_REMOTE_HOST = "remoteHost";
-
-  public static final String SERVLET_SCHEME = "scheme";
-
-  public static final String SERVLET_CONTEXT_PATH = "contextPath";
 
   @Override
   public void doFilter(
       HttpServletRequest request, HttpServletResponse response, HttpFilterChain filterChain)
       throws IOException, ServletException {
-    ThreadContext.put(CLIENT_INFO_KEY, createClientInfoMap(request));
+    LOGGER.debug("ClientInfoFilter HttpFilter doFilter.");
+    ThreadContextProperties.addClientInfo(request);
     try {
       filterChain.doFilter(request, response);
     } finally {
-      ThreadContext.remove(CLIENT_INFO_KEY);
+      ThreadContextProperties.removeClientInfo();
     }
   }
 
-  private Map<String, String> createClientInfoMap(ServletRequest request) {
-    Map<String, String> clientInfoMap = new HashMap<>();
-    clientInfoMap.put(SERVLET_REMOTE_ADDR, request.getRemoteAddr());
-    clientInfoMap.put(SERVLET_REMOTE_HOST, request.getRemoteHost());
-    clientInfoMap.put(SERVLET_SCHEME, request.getScheme());
-    ServletContext servletContext = request.getServletContext();
-    if (servletContext != null) {
-      clientInfoMap.put(SERVLET_CONTEXT_PATH, servletContext.getContextPath());
+  @Override
+  public void init() {
+    LOGGER.debug("Starting ClientInfoFilter.");
+  }
+
+  @Override
+  public void doFilter(
+      ServletRequest request, ServletResponse response, SecurityFilterChain filterChain)
+      throws IOException, AuthenticationException {
+    LOGGER.debug("ClientInfoFilter SecureFilter doFilter.");
+    ThreadContextProperties.addClientInfo(request);
+    try {
+      filterChain.doFilter(request, response);
+    } finally {
+      ThreadContextProperties.removeClientInfo();
     }
-    LOGGER.debug(
-        "Creating client info map with the following pairs, {}",
-        LogSanitizer.sanitize(clientInfoMap));
-    return clientInfoMap;
+  }
+
+  @Override
+  public void destroy() {
+    LOGGER.debug("Destroying ClientInfoFilter.");
   }
 }
