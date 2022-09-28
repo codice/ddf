@@ -39,8 +39,9 @@
 
     <service interface="javax.servlet.Servlet" ref="restSvc">
         <service-properties>
-            <entry key="alias" value="/services/catalog"/>
-            <entry key="async-supported" value="true"/>
+            <entry key="osgi.http.whiteboard.servlet.name" value="rest-endpoint"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/services/catalog/*"/>
+            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
     </service>
 

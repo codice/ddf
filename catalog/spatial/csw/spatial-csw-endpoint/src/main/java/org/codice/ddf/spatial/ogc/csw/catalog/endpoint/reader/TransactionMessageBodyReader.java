@@ -41,15 +41,23 @@ public class TransactionMessageBodyReader {
   }
 
   public CswTransactionRequest readFrom(InputStream inputStream) {
-    XStream xStream = new XStream(new Xpp3Driver(new NoNameCoder()));
-    xStream.addPermission(NoTypePermission.NONE);
-    TransactionRequestConverter transactionRequestConverter =
-        new TransactionRequestConverter(cswRecordConverter, registry);
-    transactionRequestConverter.setCswRecordConverter(new CswRecordConverter(metacardType));
-    xStream.registerConverter(transactionRequestConverter);
-    xStream.allowTypeHierarchy(CswTransactionRequest.class);
-    xStream.alias("csw:" + CswConstants.TRANSACTION, CswTransactionRequest.class);
-    xStream.alias(CswConstants.TRANSACTION, CswTransactionRequest.class);
-    return (CswTransactionRequest) xStream.fromXML(inputStream);
+    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread()
+        .setContextClassLoader(TransactionMessageBodyReader.class.getClassLoader());
+    try {
+      XStream xStream = new XStream(new Xpp3Driver(new NoNameCoder()));
+      xStream.setClassLoader(TransactionMessageBodyReader.class.getClassLoader());
+      xStream.addPermission(NoTypePermission.NONE);
+      TransactionRequestConverter transactionRequestConverter =
+          new TransactionRequestConverter(cswRecordConverter, registry);
+      transactionRequestConverter.setCswRecordConverter(new CswRecordConverter(metacardType));
+      xStream.registerConverter(transactionRequestConverter);
+      xStream.allowTypeHierarchy(CswTransactionRequest.class);
+      xStream.alias("csw:" + CswConstants.TRANSACTION, CswTransactionRequest.class);
+      xStream.alias(CswConstants.TRANSACTION, CswTransactionRequest.class);
+      return (CswTransactionRequest) xStream.fromXML(inputStream);
+    } finally {
+      Thread.currentThread().setContextClassLoader(tccl);
+    }
   }
 }

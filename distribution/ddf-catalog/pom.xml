@@ -125,6 +125,27 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <replaceregexp
+                                        file="${project.basedir}/target/dependencies/apache-karaf-${karaf.version}/etc/jre.properties"
+                                        match="java.nio.file," byline="true">
+                                    <substitution expression="java.nio.file, \\\\${line.separator} java.nio.file.spi,"/>
+                                </replaceregexp>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!--
             Uses the assembly descriptor in this DDF distribution project (bin.xml) which
             also injects the copied common-bin.xml descriptor from ddf-common, to create
@@ -163,8 +184,8 @@
                         <configuration>
                             <rules>
                                 <requireFilesSize>
-                                    <maxsize>220000000</maxsize>
-                                    <minsize>180000000</minsize>
+                                    <maxsize>190000000</maxsize>
+                                    <minsize>160000000</minsize>
                                     <files>
                                         <file>${project.build.directory}/${distribution.file.name}.zip</file>
                                     </files>

@@ -78,4 +78,9 @@ public class ServiceReferenceImpl implements ServiceReference {
 
     return 0;
   }
+
+  @Override
+  public Object adapt(Class aClass) {
+    return null;
+  }
 }

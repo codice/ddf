@@ -19,8 +19,9 @@
 
     <service interface="javax.servlet.Servlet" ref="OsSvc">
         <service-properties>
-            <entry key="alias" value="/services/catalog/query"/>
-            <entry key="async-supported" value="true"/>
+            <entry key="osgi.http.whiteboard.servlet.name" value="opensearch-endpoint"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/services/catalog/query/*"/>
+            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
     </service>
 

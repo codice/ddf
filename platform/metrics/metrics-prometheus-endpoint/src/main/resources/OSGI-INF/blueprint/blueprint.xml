@@ -17,8 +17,9 @@
 
     <service interface="javax.servlet.Servlet">
         <service-properties>
-            <entry key="alias" value="/metrics"/>
-            <entry key="async-supported" value="true"/>
+            <entry key="osgi.http.whiteboard.servlet.name" value="prometheus-metrics"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/metrics/*"/>
+            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
         <bean class="org.codice.ddf.metrics.endpoint.PrometheusMetricsEndpoint" />
     </service>

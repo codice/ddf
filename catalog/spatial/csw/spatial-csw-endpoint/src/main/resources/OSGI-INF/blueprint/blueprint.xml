@@ -180,8 +180,9 @@
 
     <service interface="javax.servlet.Servlet" ref="cswServlet">
         <service-properties>
-            <entry key="alias" value="/services/csw"/>
-            <entry key="async-supported" value="true"/>
+            <entry key="osgi.http.whiteboard.servlet.name" value="csw-endpoint"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/services/csw/*"/>
+            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
     </service>
 

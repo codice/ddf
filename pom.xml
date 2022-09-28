@@ -123,13 +123,13 @@
         <spock.version>2.0-M4-groovy-3.0</spock.version>
         <mockito.version>3.6.28</mockito.version>
         <pax.exam.version>4.13.5</pax.exam.version>
-        <pax.logging.version>2.0.16</pax.logging.version>
-        <pax.url.version>2.6.10</pax.url.version>
-        <pax.web.version>7.3.25</pax.web.version>
+        <pax.logging.version>2.1.3</pax.logging.version>
+        <pax.url.version>2.6.11</pax.url.version>
+        <pax.web.version>8.0.6</pax.web.version>
         <restito.version>0.9.4</restito.version>
         <restassured.version>3.3.0</restassured.version>
         <groovy.version>3.0.7</groovy.version>
-        <xmlunit.version>1.4</xmlunit.version>
+        <xmlunit.version>1.6</xmlunit.version>
         <xmlunit-matchers.version>2.8.2</xmlunit-matchers.version>
         <auth0.jwt.version>3.8.1</auth0.jwt.version>
 
@@ -151,7 +151,7 @@
         <apache.shiro.version>1.9.1</apache.shiro.version>
         <asm.version>9.3</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
-        <bouncy.version>1.69</bouncy.version>
+        <bouncy.version>1.70</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
@@ -183,12 +183,12 @@
         <cxf.version>3.5.3</cxf.version>
         <decanter.version>2.9.0</decanter.version>
         <dropwizard.version>4.1.25</dropwizard.version>
-        <equinox.version>3.17.200</equinox.version>
+        <equinox.version>3.18.0</equinox.version>
         <felix.configadmin.version>1.9.24</felix.configadmin.version>
         <felix.coordinator.version>1.0.2</felix.coordinator.version>
         <felix.fileinstall.version>3.7.4</felix.fileinstall.version>
         <felix.metatype.version>1.2.4</felix.metatype.version>
-        <felix.scr.version>2.1.30</felix.scr.version>
+        <felix.scr.version>2.2.2</felix.scr.version>
         <geronimo-servlet-api.artifact>geronimo-servlet_3.0_spec</geronimo-servlet-api.artifact>
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>
         <google-http-client.version>1.22.0</google-http-client.version>
@@ -223,7 +223,7 @@
         <joda-convert.version>1.7</joda-convert.version>
         <dev.failsafe.version>3.2.4</dev.failsafe.version>
         <joda-time.version>2.10.11</joda-time.version>
-        <johnzon.version>0.9.5</johnzon.version>
+        <johnzon.version>1.2.14</johnzon.version>
         <jpeg2000.version>1.3.1_CODICE_3</jpeg2000.version>
         <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.4.8</json-smart.version>
@@ -235,7 +235,7 @@
         <jts.spatial4j.version>1.17.0</jts.spatial4j.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <jwnl.version>1.3.3</jwnl.version>
-        <karaf.version>4.3.7</karaf.version>
+        <karaf.version>4.4.1</karaf.version>
         <jansi.version>2.4.0</jansi.version>
         <org.osgi.util.promise.version>1.2.0</org.osgi.util.promise.version>
         <org.osgi.util.function.version>1.2.0</org.osgi.util.function.version>
@@ -296,7 +296,7 @@
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
         <spark.version>2.9.2</spark.version>
         <spatial4j.version>0.8</spatial4j.version>
-        <spring.version>5.3.14</spring.version>
+        <spring.version>5.2.22.RELEASE</spring.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
         <tika.version>1.28.4</tika.version>
         <usng4j.version>0.4</usng4j.version>
@@ -820,7 +820,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>5.1.4</version>
+                    <version>5.1.6</version>
                     <extensions>true</extensions>
                     <configuration>
                         <!-- Disabled OBR to increase build speed -->
@@ -834,7 +834,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.10.1</version>
                     <configuration>
                         <source>11</source>
                         <target>11</target>
@@ -871,7 +871,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.commonjava.maven.plugins</groupId>
@@ -881,17 +881,17 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.2.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.karaf.tooling</groupId>
@@ -907,11 +907,11 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.3.1</version>
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>
@@ -935,7 +935,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>1.4.1</version>
+                    <version>3.1.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>ddf.support</groupId>

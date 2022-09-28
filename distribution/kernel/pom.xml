@@ -39,7 +39,6 @@
         <!-- The name of the distribution zip file to generate in the /target directory -->
         <distribution.file.name>ddf-${project.artifactId}-${project.version}
         </distribution.file.name>
-        <org.apache.aries.proxy.version>1.1.10</org.apache.aries.proxy.version>
     </properties>
     <build>
         <resources>
@@ -153,17 +152,6 @@
                                     </destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.apache.aries.proxy</groupId>
-                                    <artifactId>org.apache.aries.proxy</artifactId>
-                                    <version>${org.apache.aries.proxy.version}</version>
-                                    <outputDirectory>
-                                        ${setup.folder}/system/org/apache/aries/proxy/org.apache.aries.proxy/${org.apache.aries.proxy.version}
-                                    </outputDirectory>
-                                    <destFileName>
-                                        org.apache.aries.proxy-${org.apache.aries.proxy.version}.jar
-                                    </destFileName>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>org.apache.servicemix.bundles</groupId>
                                     <artifactId>org.apache.servicemix.bundles.xerces</artifactId>
                                     <version>${xerces.bundle.version}</version>
@@ -230,6 +218,27 @@
                                     <outputDirectory>${setup.folder}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <replaceregexp
+                                        file="${project.basedir}/target/dependencies/apache-karaf-${karaf.version}/etc/jre.properties"
+                                        match="java.nio.file," byline="true">
+                                    <substitution expression="java.nio.file, \\\\${line.separator} java.nio.file.spi,"/>
+                                </replaceregexp>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -309,11 +318,6 @@
             <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
             <version>${equinox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.aries.proxy</groupId>
-            <artifactId>org.apache.aries.proxy</artifactId>
-            <version>${org.apache.aries.proxy.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.saxon</groupId>

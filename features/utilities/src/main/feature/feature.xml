@@ -118,7 +118,7 @@
     </feature>
 
     <feature name="metrics-servlet-filter" version="${project.version}" description="Servlet metrics reporter">
-        <feature>pax-jetty</feature>
+        <feature>pax-web-jetty</feature>
         <feature>metrics-micrometer</feature>
         <bundle>mvn:org.codice.ddf.metrics/metrics-servlet-filter/${project.version}</bundle>
     </feature>
