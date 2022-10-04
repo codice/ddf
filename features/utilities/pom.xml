@@ -343,6 +343,11 @@
             <artifactId>metrics-system-reporter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.security</groupId>
+            <artifactId>security-filter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!--feature dependencies-->
         <dependency>

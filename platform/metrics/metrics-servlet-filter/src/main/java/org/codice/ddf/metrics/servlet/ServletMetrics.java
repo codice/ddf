@@ -45,9 +45,12 @@ public class ServletMetrics implements Filter {
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
       throws IOException, ServletException {
     if (servletRequest instanceof HttpServletRequest
-        && servletResponse instanceof HttpServletResponse)
+        && servletResponse instanceof HttpServletResponse) {
       doFilter(
           (HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse, filterChain);
+    } else {
+      filterChain.doFilter(servletRequest, servletResponse);
+    }
   }
 
   @Override

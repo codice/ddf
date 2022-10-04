@@ -135,6 +135,11 @@
         <feature>metrics-system-reporter</feature>
     </feature>
 
+    <feature name="security-filter" version="${project.version}" description="Security Servlet Filter">
+        <feature>jaas-deployer</feature>
+        <bundle>mvn:org.codice.ddf.security/security-filter/${project.version}</bundle>
+    </feature>
+
     <!-- Start of app features -->
 
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>

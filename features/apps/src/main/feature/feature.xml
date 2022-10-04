@@ -35,6 +35,7 @@
 
     <feature name="platform-core" version="${project.version}"
              description="Installs the platform boot features which all other applications depend upon.\nPlatform Core features installed by default include Actions, MIME, and UUID generator.">
+        <feature>security-filter</feature>
         <feature>action-core-api</feature>
         <feature>action-core-impl</feature>
         <feature>metrics-core</feature>

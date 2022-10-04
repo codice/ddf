@@ -178,6 +178,7 @@
         <module>mime</module>
         <module>metrics</module>
         <module>platform-commands</module>
+        <module>security-filter</module>
         <module>sync-installer</module>
         <module>usng4j</module>
         <module>branding-registry-impl</module>
