@@ -30,6 +30,9 @@ import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getO
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 
 import com.google.common.collect.ImmutableMap;
@@ -177,6 +180,9 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
     given()
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+        .auth()
+        .preemptive()
+        .basic("admin", "admin")
         .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswFilterDeleteRequest"))
         .post(CSW_PATH.getUrl())
         .then()
@@ -193,6 +199,9 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
     given()
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+        .auth()
+        .preemptive()
+        .basic("admin", "admin")
         .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest"))
         .post(CSW_PATH.getUrl())
         .then()
@@ -205,7 +214,9 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     String secondId = getMetacardIdFromCswInsertResponse(secondResponse);
 
     String firstUrl = REST_PATH.getUrl() + firstId;
-    when()
+    given()
+        .auth()
+        .basic("admin", "admin")
         .get(firstUrl)
         .then()
         .log()
@@ -222,7 +233,9 @@ public class DdfCoreIT extends AbstractIntegrationTest {
                 is("Hydrography--Dictionaries")));
 
     String secondUrl = REST_PATH.getUrl() + secondId;
-    when()
+    given()
+        .auth()
+        .basic("admin", "admin")
         .get(secondUrl)
         .then()
         .log()
@@ -246,8 +259,8 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
     getOpenSearch(
             "xml",
-            null,
-            null,
+            "admin",
+            "admin",
             "lat=10.0",
             "lon=30.0",
             "radius=250000",
@@ -280,6 +293,9 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
     given()
         .contentType(ContentType.XML)
+        .auth()
+        .preemptive()
+        .basic("admin", "admin")
         .body(titleQuery)
         .when()
         .post(CSW_PATH.getUrl())
@@ -297,12 +313,88 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
     return given()
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+        .auth()
+        .preemptive()
+        .basic("admin", "admin")
         .body(
             getCswInsertRequest(
                 "csw:Record",
                 getFileContent(
                     CSW_RECORD_RESOURCE_PATH + "/CswRecord", ImmutableMap.of("id", uuid))))
         .post(CSW_PATH.getUrl());
+  }
+
+  @Test
+  public void testBasicRestAccess() throws Exception {
+    String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+
+    waitForSecurityHandlers(url);
+
+    // Make sure that no credentials receives a 401
+    when().get(url).then().log().all().assertThat().statusCode(equalTo(401));
+
+    // A random user receives a 401
+    given()
+        .auth()
+        .preemptive()
+        .basic("bad", "user")
+        .when()
+        .get(url)
+        .then()
+        .log()
+        .ifValidationFails()
+        .assertThat()
+        .statusCode(equalTo(401));
+
+    // A real user receives a SSO token
+    String cookie =
+        given()
+            .auth()
+            .preemptive()
+            .basic("admin", "admin")
+            .when()
+            .get(url)
+            .then()
+            .log()
+            .ifValidationFails()
+            .assertThat()
+            .statusCode(equalTo(200))
+            .assertThat()
+            .header("Set-Cookie", containsString("JSESSIONID"))
+            .extract()
+            .cookie("JSESSIONID");
+
+    // Try the session instead of basic auth
+    given()
+        .auth()
+        .preemptive()
+        .basic("admin", "admin")
+        .cookie("JSESSIONID", cookie)
+        .when()
+        .get(url)
+        .then()
+        .log()
+        .ifValidationFails()
+        .assertThat()
+        .statusCode(equalTo(200))
+        .assertThat()
+        .header("Set-Cookie", isEmptyOrNullString());
+
+    // Admin user should be able to access the admin page
+    given()
+        .auth()
+        .preemptive()
+        .basic("admin", "admin")
+        .cookie("JSESSIONID", cookie)
+        .when()
+        .get(ADMIN_CONSOLE_PATH.getUrl())
+        .then()
+        .log()
+        .ifValidationFails()
+        .assertThat()
+        .statusCode(equalTo(200))
+        .assertThat()
+        .header("Set-Cookie", containsString("Path=/system/console"));
   }
 
   private void waitForSecurityHandlers(String url) {

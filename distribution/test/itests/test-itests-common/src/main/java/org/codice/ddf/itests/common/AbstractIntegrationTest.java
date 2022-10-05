@@ -323,26 +323,8 @@ public abstract class AbstractIntegrationTest {
 
   public static final DynamicUrl CSW_PATH = new DynamicUrl(SERVICE_ROOT, "/csw");
 
-  public static final DynamicUrl CSW_SUBSCRIPTION_PATH =
-      new DynamicUrl(SERVICE_ROOT, "/csw/subscription");
-
-  public static final DynamicUrl CSW_EVENT_PATH =
-      new DynamicUrl(SERVICE_ROOT, "/csw/subscription/event");
-
-  public static final DynamicUrl ADMIN_ALL_SOURCES_PATH =
-      new DynamicUrl(
-          SECURE_ROOT,
-          HTTPS_PORT,
-          "/admin/jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/allSourceInfo");
-
-  public static final DynamicUrl ADMIN_STATUS_PATH =
-      new DynamicUrl(
-          SECURE_ROOT,
-          HTTPS_PORT,
-          "/admin/jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/sourceStatus/");
-
-  public static final DynamicUrl RESOURCE_DOWNLOAD_ENDPOINT_ROOT =
-      new DynamicUrl(SERVICE_ROOT, "/internal/catalog/download/cache");
+  public static final DynamicUrl ADMIN_CONSOLE_PATH =
+      new DynamicUrl(SECURE_ROOT, HTTPS_PORT, "/system/console");
 
   static {
     // Make Pax URL use the maven.repo.local setting if present
@@ -924,6 +906,7 @@ public abstract class AbstractIntegrationTest {
               .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
               .body(query)
               .auth()
+              .preemptive()
               .basic("admin", "admin")
               .post(CSW_PATH.getUrl())
               .then();

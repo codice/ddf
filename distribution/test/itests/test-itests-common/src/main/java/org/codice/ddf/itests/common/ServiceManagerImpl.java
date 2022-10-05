@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.itests.common;
 
-import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles;
 import static org.awaitility.Awaitility.await;
@@ -395,7 +394,13 @@ public class ServiceManagerImpl implements ServiceManager {
 
   private boolean isHttpEndpointReady(String path) {
     Response response =
-        given().header("X-Requested-With", "XMLHttpRequest").header("Origin", path).get(path);
+        given()
+            .auth()
+            .preemptive()
+            .basic("admin", "admin")
+            .header("X-Requested-With", "XMLHttpRequest")
+            .header("Origin", path)
+            .get(path);
 
     String body = response.getBody().asString();
     LOGGER.debug("Response body: {}", body);
@@ -417,7 +422,8 @@ public class ServiceManagerImpl implements ServiceManager {
   }
 
   private boolean areSourcesAvailable(String restPath, List<String> sources) {
-    Response response = get(restPath + "sources");
+    Response response =
+        given().auth().preemptive().basic("admin", "admin").get(restPath + "sources");
     String body = response.getBody().asString();
     List<String> ids = response.getBody().jsonPath().getList("id");
 

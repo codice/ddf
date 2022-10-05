@@ -67,6 +67,9 @@ public class CatalogTestCommons {
       return ingest(data, mimeType, HttpStatus.SC_CREATED);
     } else {
       return given()
+          .auth()
+          .preemptive()
+          .basic("admin", "admin")
           .body(data)
           .header(HttpHeaders.CONTENT_TYPE, mimeType)
           .when()
@@ -83,6 +86,9 @@ public class CatalogTestCommons {
    */
   public static String ingest(String data, String mimeType, int expectedStatusCode) {
     return given()
+        .auth()
+        .preemptive()
+        .basic("admin", "admin")
         .body(data)
         .header(HttpHeaders.CONTENT_TYPE, mimeType)
         .expect()
@@ -178,6 +184,9 @@ public class CatalogTestCommons {
       ValidatableResponse response =
           given()
               .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+              .auth()
+              .preemptive()
+              .basic("admin", "admin")
               .body(query)
               .post(CSW_PATH.getUrl())
               .then();
@@ -200,6 +209,9 @@ public class CatalogTestCommons {
         given()
             .body(transactionRequest)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+            .auth()
+            .preemptive()
+            .basic("admin", "admin")
             .when()
             .post(CSW_PATH.getUrl())
             .then()
@@ -230,6 +242,9 @@ public class CatalogTestCommons {
   public static String query(String id, String transformer, int expectedStatusCode) {
     ValidatableResponse response =
         given()
+            .auth()
+            .preemptive()
+            .basic("admin", "admin")
             .get(REST_PATH.getUrl() + id + "?transform=" + transformer)
             .then()
             .assertThat()
