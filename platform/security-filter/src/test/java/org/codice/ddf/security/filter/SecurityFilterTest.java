@@ -18,6 +18,8 @@ import static org.codice.ddf.security.filter.SecurityFilter.JAVAX_SERVLET_REQUES
 import static org.codice.ddf.security.filter.SecurityFilter.JAVA_SUBJECT;
 import static org.codice.ddf.security.filter.SecurityFilter.KARAF_SUBJECT_RUN_AS;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,6 +73,7 @@ public class SecurityFilterTest {
         .thenReturn(loginContext);
     when(request.getSession(false)).thenReturn(null);
     when(request.getSession(true)).thenReturn(session);
+    when(request.getRequestURI()).thenReturn("/services/catalog/query");
   }
 
   @After
@@ -83,6 +86,19 @@ public class SecurityFilterTest {
     filter.doFilter(request, response, filterChain);
 
     verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+  }
+
+  @Test
+  public void verifyHeaders() throws Exception {
+    filter.doFilter(request, response, filterChain);
+
+    verify(response).setHeader(eq("Cache-Control"), anyString());
+    verify(response).setHeader(eq("Strict-Transport-Security"), anyString());
+    verify(response).setHeader(eq("Content-Security-Policy"), anyString());
+    verify(response).setHeader(eq("X-FRAME-OPTIONS"), anyString());
+    verify(response).setHeader(eq("X-XSS-Protection"), anyString());
+    verify(response).setHeader(eq("Referrer-Policy"), anyString());
+    verify(response).setHeader(eq("X-Content-Type-Options"), anyString());
   }
 
   @Test

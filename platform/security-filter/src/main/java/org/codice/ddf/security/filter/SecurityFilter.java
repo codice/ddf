@@ -66,10 +66,15 @@ public class SecurityFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
       throws IOException, ServletException {
     if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
+      HttpServletRequest httpRequest = (HttpServletRequest) request;
+      HttpServletResponse httpResponse = (HttpServletResponse) response;
+
       ClassLoader tccl = Thread.currentThread().getContextClassLoader();
       Thread.currentThread().setContextClassLoader(SecurityFilter.class.getClassLoader());
       try {
-        login((HttpServletRequest) request, (HttpServletResponse) response, filterChain);
+        addCachingHeaders(httpRequest, httpResponse);
+        addSecurityHeaders(httpResponse);
+        login(httpRequest, httpResponse, filterChain);
       } finally {
         Thread.currentThread().setContextClassLoader(tccl);
       }
@@ -80,6 +85,29 @@ public class SecurityFilter implements Filter {
 
   @Override
   public void destroy() {}
+
+  private void addCachingHeaders(HttpServletRequest request, HttpServletResponse response) {
+    String requestURI = request.getRequestURI();
+    if (requestURI.endsWith("/")
+        || requestURI.endsWith(".html")
+        || requestURI.endsWith(".htm")
+        || requestURI.endsWith(".xhtml")) {
+      response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    } else {
+      response.setHeader("Cache-Control", "private, max-age=604800, immutable");
+    }
+  }
+
+  private void addSecurityHeaders(HttpServletResponse response) {
+    response.setHeader("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains");
+    response.setHeader(
+        "Content-Security-Policy",
+        "default-src 'none'; connect-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'");
+    response.setHeader("X-FRAME-OPTIONS", "SAMEORIGIN");
+    response.setHeader("X-XSS-Protection", "1; mode=block");
+    response.setHeader("Referrer-Policy", "nosniff");
+    response.setHeader("X-Content-Type-Options", "origin-when-cross-origin");
+  }
 
   private void login(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
