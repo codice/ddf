@@ -366,9 +366,6 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
     // Try the session instead of basic auth
     given()
-        .auth()
-        .preemptive()
-        .basic("admin", "admin")
         .cookie("JSESSIONID", cookie)
         .when()
         .get(url)

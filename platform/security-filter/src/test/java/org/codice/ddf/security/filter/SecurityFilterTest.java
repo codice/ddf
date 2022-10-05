@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -86,6 +87,17 @@ public class SecurityFilterTest {
     filter.doFilter(request, response, filterChain);
 
     verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+  }
+
+  @Test
+  public void activeSessionWithSubject() throws Exception {
+    when(request.getSession(false)).thenReturn(session);
+    when(session.getAttribute(eq(KARAF_SUBJECT_RUN_AS))).thenReturn(new Subject());
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(response, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    verify(filterChain).doFilter(request, response);
   }
 
   @Test

@@ -16,6 +16,8 @@ package org.codice.ddf.security.filter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
@@ -111,27 +113,42 @@ public class SecurityFilter implements Filter {
 
   private void login(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws IOException, ServletException {
+      throws ServletException {
 
-    boolean isLoggedIn = clientCertLogin(request);
-    if (!isLoggedIn) {
-      isLoggedIn = basicLogin(request);
+    Subject subject = getCurrentSubject(request);
+
+    if (subject == null) {
+      subject = clientCertLogin(request);
+    }
+    if (subject == null) {
+      subject = basicLogin(request);
     }
 
-    if (isLoggedIn) {
-      filterChain.doFilter(request, response);
+    if (subject != null) {
+      try {
+        Subject.doAs(
+            subject,
+            (PrivilegedExceptionAction<Void>)
+                () -> {
+                  filterChain.doFilter(request, response);
+                  return null;
+                });
+      } catch (PrivilegedActionException e) {
+        LOGGER.debug("Unable to complete filter chain as user", e);
+        throw new ServletException("Unable to complete request as given user.");
+      }
     } else {
       requireAuthentication(response);
     }
   }
 
-  private boolean clientCertLogin(HttpServletRequest request) {
+  private Subject clientCertLogin(HttpServletRequest request) {
 
     X509Certificate[] certs =
         (X509Certificate[]) request.getAttribute(JAVAX_SERVLET_REQUEST_X_509_CERTIFICATE);
 
     if (certs == null || certs.length == 0 || certs[0].getSubjectX500Principal() == null) {
-      return false;
+      return null;
     }
 
     String username = certs[0].getSubjectX500Principal().getName();
@@ -140,35 +157,35 @@ public class SecurityFilter implements Filter {
     return loginToSession(request, username, key);
   }
 
-  private boolean basicLogin(HttpServletRequest request) {
+  private Subject basicLogin(HttpServletRequest request) {
 
     String authHeader = request.getHeader(AUTHORIZATION_HEADER);
 
     if (authHeader == null || authHeader.length() == 0) {
-      return false;
+      return null;
     }
 
     String[] parts = authHeader.trim().split(" ");
 
     if (parts.length != 2) {
-      return false;
+      return null;
     }
 
     String authType = parts[0];
     if (!HttpServletRequest.BASIC_AUTH.equalsIgnoreCase(authType)) {
-      return false;
+      return null;
     }
 
     String authInfo = parts[1];
     byte[] decode = Base64.getDecoder().decode(authInfo);
     if (decode == null) {
-      return false;
+      return null;
     }
 
     String userPass = new String(decode, StandardCharsets.UTF_8);
     String[] authComponents = userPass.split(":");
     if (authComponents.length != 2) {
-      return false;
+      return null;
     }
 
     String username = authComponents[0];
@@ -177,17 +194,13 @@ public class SecurityFilter implements Filter {
     return loginToSession(request, username, password);
   }
 
-  private boolean loginToSession(
+  private Subject loginToSession(
       HttpServletRequest request, String username, Object identityProof) {
-    Subject subject = getCurrentSubject(request);
+    String address = request.getRemoteHost() + ":" + request.getRemotePort();
+    Subject subject = authenticate(address, username, identityProof);
 
     if (subject == null) {
-      String address = request.getRemoteHost() + ":" + request.getRemotePort();
-      subject = authenticate(address, username, identityProof);
-    }
-
-    if (subject == null) {
-      return false;
+      return null;
     }
 
     request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
@@ -197,10 +210,10 @@ public class SecurityFilter implements Filter {
       HttpSession session = request.getSession(true);
       session.setMaxInactiveInterval(sessionTimeout);
       session.setAttribute(KARAF_SUBJECT_RUN_AS, subject);
-      return true;
+      return subject;
     } catch (Throwable t) {
       LOGGER.debug("Unable to create HTTP session.", t);
-      return false;
+      return null;
     }
   }
 
