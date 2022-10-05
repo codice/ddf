@@ -17,6 +17,7 @@ import static org.codice.ddf.security.filter.SecurityFilter.AUTHORIZATION_HEADER
 import static org.codice.ddf.security.filter.SecurityFilter.JAVAX_SERVLET_REQUEST_X_509_CERTIFICATE;
 import static org.codice.ddf.security.filter.SecurityFilter.JAVA_SUBJECT;
 import static org.codice.ddf.security.filter.SecurityFilter.KARAF_SUBJECT_RUN_AS;
+import static org.codice.ddf.security.filter.SecurityFilter.WWW_AUTHENTICATE_HEADER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,6 +32,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -87,6 +89,43 @@ public class SecurityFilterTest {
     filter.doFilter(request, response, filterChain);
 
     verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+  }
+
+  @Test
+  public void disabledAuth() throws Exception {
+    try {
+      System.setProperty("org.codice.ddf.http.auth.basic", "false");
+      System.setProperty("org.codice.ddf.http.auth.cert", "false");
+      filter = new SecurityFilter();
+
+      filter.doFilter(request, response, filterChain);
+
+      verify(response, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      verify(filterChain).doFilter(request, response);
+    } finally {
+      System.clearProperty("org.codice.ddf.http.auth.basic");
+      System.clearProperty("org.codice.ddf.http.auth.cert");
+    }
+  }
+
+  @Test
+  public void disabledBasic() throws Exception {
+    try {
+      ServletOutputStream outputStream = mock(ServletOutputStream.class);
+      when(response.getOutputStream()).thenReturn(outputStream);
+
+      System.setProperty("org.codice.ddf.http.auth.basic", "false");
+      filter = new SecurityFilter();
+
+      filter.doFilter(request, response, filterChain);
+
+      verify(response, never()).setHeader(eq(WWW_AUTHENTICATE_HEADER), anyString());
+      verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      verify(filterChain, never()).doFilter(request, response);
+      verify(outputStream).println(anyString());
+    } finally {
+      System.clearProperty("org.codice.ddf.http.auth.basic");
+    }
   }
 
   @Test

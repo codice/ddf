@@ -57,7 +57,14 @@ public class SecurityFilter implements Filter {
 
   // The default inactive HTTP session limit is unlimited
   private final int sessionTimeout =
-      Integer.parseInt(System.getProperty("http.session.inactive.limit", "0").trim());
+      Integer.parseInt(
+          System.getProperty("org.codice.ddf.security.http.session.inactive.limit", "0").trim());
+
+  private final boolean isBasicAuthEnabled =
+      Boolean.parseBoolean(System.getProperty("org.codice.ddf.http.auth.basic", "true").trim());
+
+  private final boolean isClientCertAuthEnabled =
+      Boolean.parseBoolean(System.getProperty("org.codice.ddf.http.auth.cert", "true").trim());
 
   private LoginContextFactory loginContextFactory = new LoginContextFactory();
 
@@ -113,14 +120,19 @@ public class SecurityFilter implements Filter {
 
   private void login(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException {
+      throws ServletException, IOException {
+
+    if (!isBasicAuthEnabled && !isClientCertAuthEnabled) {
+      filterChain.doFilter(request, response);
+      return;
+    }
 
     Subject subject = getCurrentSubject(request);
 
-    if (subject == null) {
+    if (subject == null && isClientCertAuthEnabled) {
       subject = clientCertLogin(request);
     }
-    if (subject == null) {
+    if (subject == null && isBasicAuthEnabled) {
       subject = basicLogin(request);
     }
 
@@ -252,10 +264,14 @@ public class SecurityFilter implements Filter {
   }
 
   private void requireAuthentication(HttpServletResponse response) {
-    response.setHeader(WWW_AUTHENTICATE_HEADER, "Basic realm=\"" + DDF_REALM + "\"");
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    response.setContentLength(0);
     try {
+      if (isBasicAuthEnabled) {
+        response.setHeader(WWW_AUTHENTICATE_HEADER, "Basic realm=\"" + DDF_REALM + "\"");
+        response.setContentLength(0);
+      } else {
+        response.getOutputStream().println("401 Unauthorized");
+      }
       response.flushBuffer();
     } catch (IOException e) {
       LOGGER.debug("Error flushing after sending authentication required response.", e);
