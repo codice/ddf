@@ -1,0 +1,9 @@
+.col > input[type="search"] {
+    margin-top: 0.4rem;
+}
+
+td {
+    overflow: clip;
+    text-overflow: ellipsis;
+    max-width: 20vmax;
+}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<!--
+/**
+* Copyright (c) Codice Foundation
+*
+* This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+* version 3 of the License, or any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+* <http://www.gnu.org/licenses/lgpl.html>.
+*
+**/
+-->
+<html lang="en">
+    <head>
+        <title>Catalog Search</title>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <link rel="stylesheet" href="../static/css/classless.css" th:href="@{/static/css/classless.css}">
+        <link rel="stylesheet" href="../static/css/fonts.css" th:href="@{/static/css/fonts.css}">
+        <link rel="stylesheet" href="../static/css/search.css" th:href="@{/static/css/search.css}">
+    </head>
+    <body>
+        <form method="get" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
+            <input type="hidden" name="start" value="1" />
+            <div class="row">
+                <div class="col">
+                    <input type="search" name="q" value="test" th:value="${q}" placeholder="Search keywords" autofocus />
+                </div>
+                <div class="col-12">
+                    <button type="submit">Search</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <select name="sort" class="float-right">
+                        <optgroup label="Sort Order">
+                            <option value="modified" th:selected="${sort} == 'modified'">Last modified</option>
+                            <option value="title" th:selected="${sort} == 'title'">Title</option>
+                            <option value="id" th:selected="${sort} == 'id'">ID</option>
+                            <option value="relevance" th:selected="${sort} == 'relevance'">Keyword Relevance</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="col">
+                    <select name="past">
+                        <optgroup label="Date Range">
+                            <option value="all" th:selected="${past} == 'all'">Any Time</option>
+                            <option value="day" th:selected="${past} == 'day'">Past Day</option>
+                            <option value="week" th:selected="${past} == 'week'">Past Week</option>
+                            <option value="month" th:selected="${past} == 'month'">Past Month</option>
+                            <option value="year" th:selected="${past} == 'year'">Past Year</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+        </form>
+        <div th:if="${hasResults} == true">
+            <p>Total results: <span th:text="${results.totalResults}">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Source</th>
+                        <th>Preview</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="metacard : ${results.metacards}">
+                        <td><a href="/" th:href="'/?id=' + ${metacard.id}" th:text="${metacard.title}">Title</a></td>
+                        <td th:text="${metacard.source}">source-id</td>
+                        <td><img th:src="${metacard.thumbnail}" src="../static/favicon.png"/></td>
+                        <td><a href="/" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col float-left">
+                    <form method="get" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
+                        <input type="hidden" name="start" value="1" th:value="${results.previousStart}" />
+                        <input type="hidden" name="q" value="test" th:value="${q}" />
+                        <input type="hidden" name="sort" value="id" th:value="${sort}" />
+                        <input type="hidden" name="past" value="any" th:value="${past}" />
+                        <button type="submit" class="float-right" th:disabled="${results.previousDisabled}">Previous</button>
+                    </form>
+                </div>
+                <div class="col">
+                    <form method="get" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
+                        <input type="hidden" name="start" value="51" th:value="${results.nextStart}" />
+                        <input type="hidden" name="q" value="test" th:value="${q}" />
+                        <input type="hidden" name="sort" value="id" th:value="${sort}" />
+                        <input type="hidden" name="past" value="any" th:value="${past}" />
+                        <button type="submit" th:disabled="${results.nextDisabled}">Next</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

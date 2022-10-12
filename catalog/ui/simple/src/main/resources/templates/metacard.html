@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--
+/**
+* Copyright (c) Codice Foundation
+*
+* This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+* version 3 of the License, or any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+* <http://www.gnu.org/licenses/lgpl.html>.
+*
+**/
+-->
+<html lang="en">
+    <head>
+        <title th:text="${metacard.title}">Metacard Title</title>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <link rel="stylesheet" href="../static/css/classless.css" th:href="@{/static/css/classless.css}">
+        <link rel="stylesheet" href="../static/css/fonts.css" th:href="@{/static/css/fonts.css}">
+        <link rel="stylesheet" href="../static/css/metacard.css" th:href="@{/static/css/metacard.css}">
+    </head>
+    <body>
+        <h1 th:text="${metacard.title}">Metacard Title</h1>
+        <img th:if="${metacard.thumbnail} != ''" th:src="${metacard.thumbnail}" src="../static/favicon.png"/>
+        <br />
+        <a th:if="${metacard.download} != ''" href="/" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a>
+        <table>
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="attribute : ${metacard.attributes}">
+                    <td th:text="${attribute.getKey()}">metacard.attribute.key</td>
+                    <td>
+                        <div class="value" th:text="${attribute.getValue()}">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id venenatis turpis. Morbi tempor urna id nisi aliquam, vitae molestie velit consequat. Donec aliquam, metus ornare malesuada laoreet, augue urna lacinia sem, eget blandit turpis eros sed erat. Vestibulum id gravida nunc. Nulla facilisi. Donec at ultricies sem. Sed quis venenatis purus. Suspendisse id malesuada libero. Proin placerat non ipsum eget pharetra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+                            Etiam fringilla dapibus nisl, ac sollicitudin enim blandit sed. Donec sed dolor nibh. Aliquam sit amet placerat enim. Proin a laoreet dui. Mauris dapibus orci in tellus placerat, in lobortis metus auctor. Duis quis velit at nulla viverra consectetur ac et odio. Nunc placerat fermentum purus in porttitor. Quisque in augue vel justo vestibulum faucibus a sed erat. Etiam ac gravida mauris. Nam at sapien eu lorem sollicitudin semper. Morbi hendrerit lorem quam, rutrum maximus velit euismod id. Curabitur vitae enim vehicula, tincidunt nulla at, elementum dolor. Suspendisse nisi nisl, fermentum eu placerat et, viverra vel tellus. Curabitur viverra, augue in placerat tempor, eros libero vestibulum elit, nec convallis ante magna vitae massa. Vestibulum pretium non lacus quis dictum. Donec vulputate nulla nec sem hendrerit, condimentum pretium sem suscipit.
+                            Phasellus eu quam id arcu condimentum faucibus. Nam malesuada ex sem, eget tristique ipsum facilisis ut. Ut magna mauris, consequat quis justo et, condimentum scelerisque urna. Phasellus gravida rutrum dignissim. Maecenas pulvinar nulla a facilisis finibus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus porttitor mauris a tempor gravida. Phasellus eu porta ex, vitae egestas ligula. In condimentum ut enim eu lobortis. Donec quis nulla erat. Etiam a elementum risus. Fusce sit amet porta diam.
+                            Integer urna urna, consectetur quis porta a, scelerisque quis mi. Ut commodo neque sem, eu suscipit nulla cursus ac. Donec elit erat, facilisis lacinia sem eu, fermentum dictum diam. Vivamus molestie et dui in tempus. Maecenas justo quam, cursus a mattis non, cursus vel quam. Nam odio dolor, aliquet sed lacus ut, suscipit vehicula quam. Etiam in eros ut orci gravida fringilla. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec aliquam iaculis nulla, nec pharetra dolor. Duis vitae blandit urna, nec condimentum ipsum.
+                            Nunc in rhoncus mauris, eget cursus eros. Aenean mattis malesuada metus, sit amet luctus nisl imperdiet ut. Suspendisse at odio ut augue scelerisque ultrices. Praesent tristique, nibh in rutrum eleifend, risus nunc eleifend sem, eget imperdiet ipsum sem at diam. Duis cursus dolor at velit pharetra tristique. Nunc ornare ligula nec nibh venenatis pellentesque. Praesent egestas, ante nec ullamcorper maximus, tortor enim consectetur velit, at tincidunt nunc odio vel erat. In vitae sollicitudin diam, et tempor est. Aliquam eget velit molestie, dictum nisi a, fermentum ipsum. Sed maximus, odio gravida malesuada porta, ipsum eros tristique erat, vitae scelerisque velit nunc ac mauris. Phasellus venenatis turpis in ornare tempus. Phasellus sit amet blandit magna.
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </body>
+</html>

@@ -28,4 +28,27 @@
         <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
 
+    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+
+    <bean id="catalog"
+          class="org.codice.ddf.ui.searchui.simple.Catalog">
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+    </bean>
+
+    <bean id="search" class="org.codice.ddf.ui.searchui.Search">
+        <argument ref="catalog"/>
+    </bean>
+
+    <service interface="javax.servlet.Servlet" ref="search">
+        <service-properties>
+            <entry key="osgi.http.whiteboard.servlet.name" value="search-ui"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value=""/>
+            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
+            <entry key="osgi.http.whiteboard.resource.pattern" value="/static/*"/>
+            <entry key="osgi.http.whiteboard.resource.prefix" value="/static"/>
+        </service-properties>
+    </service>
+
 </blueprint>

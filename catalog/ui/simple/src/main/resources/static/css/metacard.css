@@ -1,0 +1,11 @@
+
+.value {
+    vertical-align: top;
+    text-align: left;
+    overflow: scroll;
+    text-overflow: ellipsis;
+    max-width: 30rem;
+    max-height: 10rem;
+    overflow-inline: scroll;
+    white-space: break-spaces;
+}

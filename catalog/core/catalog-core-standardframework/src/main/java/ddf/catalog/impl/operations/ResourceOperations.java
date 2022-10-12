@@ -58,7 +58,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.resource.download.DownloadException;
 import org.codice.ddf.configuration.SystemInfo;
-import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -532,7 +531,7 @@ public class ResourceOperations extends DescribableImpl {
 
       QueryRequest queryRequest =
           new QueryRequestImpl(
-              anyTag(query, site, isEnterprise),
+              query,
               isEnterprise,
               Collections.singletonList(site == null ? this.getId() : site),
               resourceRequest.getProperties());
@@ -601,28 +600,6 @@ public class ResourceOperations extends DescribableImpl {
               "The GetResourceRequest with attribute name '%s' and value of class '%s' is not supported by this instance of the CatalogFramework.",
               name, value.getClass()));
     }
-  }
-
-  private Query anyTag(Query query, String site, boolean isEnterprise) {
-    if (isEnterprise || !getId().equals(site)) {
-      return query;
-    }
-
-    Filter anyTag =
-        frameworkProperties
-            .getFilterBuilder()
-            .attribute(Metacard.TAGS)
-            .is()
-            .like()
-            .text(FilterDelegate.WILDCARD_CHAR);
-    Filter filter = frameworkProperties.getFilterBuilder().allOf(anyTag, query);
-    return new QueryImpl(
-        filter,
-        query.getStartIndex(),
-        query.getPageSize(),
-        query.getSortBy(),
-        query.requestsTotalResultsCount(),
-        query.getTimeoutMillis());
   }
 
   protected static class ResourceInfo {

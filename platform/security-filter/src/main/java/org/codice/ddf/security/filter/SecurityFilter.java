@@ -111,7 +111,7 @@ public class SecurityFilter implements Filter {
     response.setHeader("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains");
     response.setHeader(
         "Content-Security-Policy",
-        "default-src 'none'; connect-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'");
+        "default-src 'none'; connect-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'");
     response.setHeader("X-FRAME-OPTIONS", "SAMEORIGIN");
     response.setHeader("X-XSS-Protection", "1; mode=block");
     response.setHeader("Referrer-Policy", "nosniff");
