@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -12,27 +25,13 @@ import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311LineStringConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311SRSReferenceGroupConverterInterface;
 
 /**
- * Copyright (c) Codice Foundation
- *
- * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
- * Lesser General Public License as published by the Free Software Foundation, either version 3 of
- * the License, or any later version.
- *
- * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
- * License is distributed along with this program and can be found at
- * <http://www.gnu.org/licenses/lgpl.html>.
- */
-
-/**
  * An implementation of {@link JTSToGML311LineStringConverter} that provides a means of customizing
  * the LineString GML. By default, the {@code CswJTSToGML311LineStringConverter} behaves identically
  * to the {@code JTSToGML311LineStringConverter}, but the output of the converter can be customized
  * via constructor argument(s).
  */
 public class CswJTSToGML311LineStringConverter extends JTSToGML311LineStringConverter {
-  boolean usePosList = false;
+  private boolean usePosList = false;
 
   /**
    * Constructs a LineString converter that is functionally identical to the converter constructed
