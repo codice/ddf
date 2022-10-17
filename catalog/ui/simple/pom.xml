@@ -35,23 +35,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>branding-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>common-system</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -108,9 +93,7 @@
                             ddf.catalog.operation.impl,
                             ddf.catalog.resource.impl,
                             ddf.catalog.util.impl,
-                            org.codice.ddf.ui.searchui,
-                            org.codice.ddf.ui.searchui.simple,
-                            org.codice.ddf.ui.searchui.simple.properties
+                            org.codice.ddf.ui.search
                         </Private-Package>
                         <Export-Package />
                         <Import-Package>
@@ -159,17 +142,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.1</minimum>
+                                            <minimum>.0</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.1</minimum>
+                                            <minimum>.0</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.1</minimum>
+                                            <minimum>.0</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

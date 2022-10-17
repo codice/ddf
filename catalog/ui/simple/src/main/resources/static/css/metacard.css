@@ -1,11 +1,22 @@
+.row {
+    align-items: center;
+}
+
+.col {
+    text-align: center;
+}
+
+.thumbnail {
+    max-height: 20rem;
+}
 
 .value {
     vertical-align: top;
     text-align: left;
-    overflow: scroll;
+    overflow: auto;
     text-overflow: ellipsis;
-    max-width: 30rem;
     max-height: 10rem;
-    overflow-inline: scroll;
-    white-space: break-spaces;
+    min-width: 15rem;
+    word-break: break-word;
+    white-space: normal;
 }

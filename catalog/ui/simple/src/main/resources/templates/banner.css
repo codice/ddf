@@ -1,0 +1,4 @@
+.banner {
+    color:  [[${color}]];
+    background: [[${background}]];
+}

@@ -32,8 +32,8 @@
         </Console>
 
         <RollingFile name="out" append="true"
-                     fileName="${sys:karaf.log}/${sys:org.codice.ddf.system.branding}.log"
-                     filePattern="${sys:karaf.log}/${sys:org.codice.ddf.system.branding}.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+                     fileName="${sys:karaf.log}/${sys:org.codice.ddf.system.name}.log"
+                     filePattern="${sys:karaf.log}/${sys:org.codice.ddf.system.name}.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
             <PatternLayout pattern="${log4j2.pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>

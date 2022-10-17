@@ -21,11 +21,18 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <link rel="stylesheet" href="../static/css/classless.css" th:href="@{/static/css/classless.css}">
-        <link rel="stylesheet" href="../static/css/fonts.css" th:href="@{/static/css/fonts.css}">
-        <link rel="stylesheet" href="../static/css/search.css" th:href="@{/static/css/search.css}">
+        <link rel="stylesheet" href="../static/css/classless.css" th:href="@{/static/css/classless.css}" />
+        <link rel="stylesheet" href="../static/css/fonts.css" th:href="@{/static/css/fonts.css}" />
+        <link rel="stylesheet" href="../static/css/banner.css" th:href="@{/static/css/banner.css}" />
+        <link rel="stylesheet" href="./banner.css" th:href="@{/banner.css}" />
+        <link rel="stylesheet" href="../static/css/search.css" th:href="@{/static/css/search.css}" />
+
+        <link rel="icon" href="../static/favicon.png" th:href="@{/static/favicon.png}" type="image/png" />
     </head>
     <body>
+        <div th:if="${header} != ''" class="banner header" th:text="${header}">
+            UNCLASSIFIED
+        </div>
         <form method="get" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
             <input type="hidden" name="start" value="1" />
             <div class="row">
@@ -73,7 +80,7 @@
                 </thead>
                 <tbody>
                     <tr th:each="metacard : ${results.metacards}">
-                        <td><a href="/" th:href="'/?id=' + ${metacard.id}" th:text="${metacard.title}">Title</a></td>
+                        <td><a href="/" th:href="'/?id=' + ${metacard.id}" th:text="${metacard.title}">Title Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla mauris nunc, finibus ut placerat vitae, semper eu sem.</a></td>
                         <td th:text="${metacard.source}">source-id</td>
                         <td><img th:src="${metacard.thumbnail}" src="../static/favicon.png"/></td>
                         <td><a href="/" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a></td>
@@ -100,6 +107,9 @@
                     </form>
                 </div>
             </div>
+        </div>
+        <div th:if="${footer} != ''" class="banner footer" th:text="${footer}">
+            UNCLASSIFIED
         </div>
     </body>
 </html>

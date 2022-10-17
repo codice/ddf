@@ -23,13 +23,27 @@
 
         <link rel="stylesheet" href="../static/css/classless.css" th:href="@{/static/css/classless.css}">
         <link rel="stylesheet" href="../static/css/fonts.css" th:href="@{/static/css/fonts.css}">
+        <link rel="stylesheet" href="../static/css/banner.css" th:href="@{/static/css/banner.css}">
+        <link rel="stylesheet" href="./banner.css" th:href="@{/banner.css}" />
         <link rel="stylesheet" href="../static/css/metacard.css" th:href="@{/static/css/metacard.css}">
+
+        <link rel="icon" href="../static/favicon.png" th:href="@{/static/favicon.png}" type="image/png" />
     </head>
     <body>
+        <div th:if="${header} != ''" class="banner header" th:text="${header}">
+            UNCLASSIFIED
+        </div>
         <h1 th:text="${metacard.title}">Metacard Title</h1>
-        <img th:if="${metacard.thumbnail} != ''" th:src="${metacard.thumbnail}" src="../static/favicon.png"/>
-        <br />
-        <a th:if="${metacard.download} != ''" href="/" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a>
+        <div class="row">
+            <div class="col">
+                <a th:if="${metacard.download} != ''" href="/" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a>
+            </div>
+            <div class="col">
+                <a th:if="${metacard.thumbnail} != ''" href="../static/favicon.png" th:href="${metacard.thumbnail}">
+                    <img class="thumbnail" th:if="${metacard.thumbnail} != ''" th:src="${metacard.thumbnail}" src="../static/favicon.png"/>
+                </a>
+            </div>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -39,7 +53,10 @@
             </thead>
             <tbody>
                 <tr th:each="attribute : ${metacard.attributes}">
-                    <td th:text="${attribute.getKey()}">metacard.attribute.key</td>
+                    <td th:text="${attribute.getKey()}">
+                        <div class="value" th:text="${attribute.getKey()}">
+                            metacard.attribute.key.is.very.long.and.should.wrap
+                        </div>
                     <td>
                         <div class="value" th:text="${attribute.getValue()}">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id venenatis turpis. Morbi tempor urna id nisi aliquam, vitae molestie velit consequat. Donec aliquam, metus ornare malesuada laoreet, augue urna lacinia sem, eget blandit turpis eros sed erat. Vestibulum id gravida nunc. Nulla facilisi. Donec at ultricies sem. Sed quis venenatis purus. Suspendisse id malesuada libero. Proin placerat non ipsum eget pharetra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
                             Etiam fringilla dapibus nisl, ac sollicitudin enim blandit sed. Donec sed dolor nibh. Aliquam sit amet placerat enim. Proin a laoreet dui. Mauris dapibus orci in tellus placerat, in lobortis metus auctor. Duis quis velit at nulla viverra consectetur ac et odio. Nunc placerat fermentum purus in porttitor. Quisque in augue vel justo vestibulum faucibus a sed erat. Etiam ac gravida mauris. Nam at sapien eu lorem sollicitudin semper. Morbi hendrerit lorem quam, rutrum maximus velit euismod id. Curabitur vitae enim vehicula, tincidunt nulla at, elementum dolor. Suspendisse nisi nisl, fermentum eu placerat et, viverra vel tellus. Curabitur viverra, augue in placerat tempor, eros libero vestibulum elit, nec convallis ante magna vitae massa. Vestibulum pretium non lacus quis dictum. Donec vulputate nulla nec sem hendrerit, condimentum pretium sem suscipit.
@@ -51,5 +68,8 @@
                 </tr>
             </tbody>
         </table>
+        <div th:if="${footer} != ''" class="banner footer" th:text="${footer}">
+            UNCLASSIFIED
+        </div>
     </body>
 </html>

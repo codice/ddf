@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.ui.searchui.simple;
+package org.codice.ddf.ui.search;
 
 import static ddf.catalog.data.AttributeType.AttributeFormat.BINARY;
 import static ddf.catalog.data.AttributeType.AttributeFormat.OBJECT;
@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.opengis.filter.Filter;
@@ -97,7 +98,7 @@ public class Catalog {
 
     try {
       QueryResponse result = catalog.query(queryRequest);
-      if (result.getResults().size() == 1) {
+      if (result.getResults().size() == 1 && result.getResults().get(0) != null) {
         Metacard metacard = result.getResults().get(0).getMetacard();
 
         details.title = metacard.getTitle();
@@ -105,29 +106,41 @@ public class Catalog {
         details.thumbnail = createThumbnailSrc(metacard);
         details.download = createDownloadUrl(metacard);
 
-        for (AttributeDescriptor descriptor :
-            metacard.getMetacardType().getAttributeDescriptors()) {
-          String name = descriptor.getName();
-          AttributeType.AttributeFormat format = descriptor.getType().getAttributeFormat();
-          Attribute attribute = metacard.getAttribute(name);
-          if (attribute != null && attribute.getValue() != null) {
-            Serializable value = metacard.getAttribute(name).getValue();
-
-            if (BINARY.equals(format)) {
-              details.attributes.put(name, ((byte[]) value).length + " bytes");
-            } else if (OBJECT.equals(format)) {
-              details.attributes.put(name, value.getClass().getName());
-            } else {
-              details.attributes.put(name, value.toString());
-            }
-          }
-        }
+        addAttributes(details, metacard);
       }
     } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
       LOGGER.debug("Metacard {} not found", id, e);
     }
 
     return details;
+  }
+
+  private void addAttributes(MetacardDetails details, Metacard metacard) {
+    for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
+      String name = descriptor.getName();
+      AttributeType.AttributeFormat format = descriptor.getType().getAttributeFormat();
+      Attribute attribute = metacard.getAttribute(name);
+      if (attribute != null && attribute.getValue() != null) {
+        Serializable value = metacard.getAttribute(name).getValue();
+
+        if (BINARY.equals(format)) {
+          details.attributes.put(name, ((byte[]) value).length + " bytes");
+        } else if (OBJECT.equals(format)) {
+          details.attributes.put(name, value.getClass().getName());
+        } else {
+          String display;
+          if (metacard.getAttribute(name).getValues().size() > 1) {
+            display =
+                metacard.getAttribute(name).getValues().stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(",\n"));
+          } else {
+            display = value.toString();
+          }
+          details.attributes.put(name, display);
+        }
+      }
+    }
   }
 
   public QueryResult query(HttpServletRequest request) {
@@ -172,13 +185,15 @@ public class Catalog {
     if (queryResponse.getResults().size() > 0) {
       result.hasResults = true;
     }
-    setMetacards(queryResponse, result);
+
     if (queryResponse.getHits() >= 0) {
       result.totalResults = String.valueOf(queryResponse.getHits());
     }
+
+    addResults(queryResponse, result);
   }
 
-  private void setMetacards(QueryResponse queryResponse, QueryResult result) {
+  private void addResults(QueryResponse queryResponse, QueryResult result) {
     for (Result current : queryResponse.getResults()) {
       Metacard mc = current.getMetacard();
 
