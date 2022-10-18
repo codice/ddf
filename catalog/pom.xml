@@ -370,8 +370,8 @@
         <module>rest</module>
         <module>catalog-app</module>
         <module>solr</module>
-        <module>ui</module>
         <module>spatial</module>
+        <module>search-ui</module>
     </modules>
     <build>
         <plugins>

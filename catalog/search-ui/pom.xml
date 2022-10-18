@@ -15,12 +15,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>ddf.ui</groupId>
-        <artifactId>catalog-ui</artifactId>
+        <groupId>ddf.catalog</groupId>
+        <artifactId>catalog</artifactId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>simple</artifactId>
-    <name>DDF :: UI :: Search UI</name>
+    <artifactId>search-ui</artifactId>
+    <name>DDF :: Catalog :: Search UI</name>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
-            <version>${thymeleaf.version}</version>
+            <version>3.0.15.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>ognl</groupId>

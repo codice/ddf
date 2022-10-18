@@ -228,6 +228,11 @@
 
     <!-- Start of app features -->
 
+    <feature name="catalog-search-ui" version="${project.version}"
+             description="Simple Catalog Search UI">
+        <bundle>mvn:ddf.catalog/search-ui/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-content" version="${project.version}"
              description="Core features for content">
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-checksum/${project.version}</bundle>
@@ -317,6 +322,7 @@
     <feature name="catalog-app" version="${project.version}"
              description="The Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.">
         <feature>catalog-core</feature>
+        <feature>catalog-search-ui</feature>
         <feature>catalog-content</feature>
         <feature>catalog-metrics</feature>
         <feature>catalog-transformer-html</feature>

@@ -24,7 +24,7 @@
         <link rel="stylesheet" href="../static/css/classless.css" th:href="@{/static/css/classless.css}" />
         <link rel="stylesheet" href="../static/css/fonts.css" th:href="@{/static/css/fonts.css}" />
         <link rel="stylesheet" href="../static/css/banner.css" th:href="@{/static/css/banner.css}" />
-        <link rel="stylesheet" href="./banner.css" th:href="@{/banner.css}" />
+        <link rel="stylesheet" href="../templates/banner.css" th:href="@{/banner.css}" />
         <link rel="stylesheet" href="../static/css/search.css" th:href="@{/static/css/search.css}" />
 
         <link rel="icon" href="../static/favicon.png" th:href="@{/static/favicon.png}" type="image/png" />
@@ -86,10 +86,10 @@
                 </thead>
                 <tbody>
                     <tr th:each="metacard : ${results.metacards}">
-                        <td><a href="/" th:href="'/?id=' + ${metacard.id}" th:text="${metacard.title}">Title Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla mauris nunc, finibus ut placerat vitae, semper eu sem.</a></td>
+                        <td><a href="/static" th:href="'/?id=' + ${metacard.id}" th:text="${metacard.title}">Title Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla mauris nunc, finibus ut placerat vitae, semper eu sem.</a></td>
                         <td th:text="${metacard.source}">source-id</td>
                         <td><img th:if="${!#strings.isEmpty(metacard.thumbnail)}" th:src="${metacard.thumbnail}" src="../static/favicon.png"/></td>
-                        <td><a href="/" th:if="${!#strings.isEmpty(metacard.download)}" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a></td>
+                        <td><a href="/static" th:if="${!#strings.isEmpty(metacard.download)}" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a></td>
                     </tr>
                 </tbody>
             </table>

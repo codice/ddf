@@ -77,7 +77,6 @@
                                 <descriptor>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.catalog.solr/catalog-solr-app/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</descriptor>
-                                <descriptor>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
                                 <!-- conditional features -->
@@ -176,13 +175,6 @@
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>search-ui-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>

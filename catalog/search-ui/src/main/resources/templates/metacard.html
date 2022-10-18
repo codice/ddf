@@ -24,7 +24,7 @@
         <link rel="stylesheet" href="../static/css/classless.css" th:href="@{/static/css/classless.css}">
         <link rel="stylesheet" href="../static/css/fonts.css" th:href="@{/static/css/fonts.css}">
         <link rel="stylesheet" href="../static/css/banner.css" th:href="@{/static/css/banner.css}">
-        <link rel="stylesheet" href="./banner.css" th:href="@{/banner.css}" />
+        <link rel="stylesheet" href="../templates/banner.css" th:href="@{/banner.css}" />
         <link rel="stylesheet" href="../static/css/metacard.css" th:href="@{/static/css/metacard.css}">
 
         <link rel="icon" href="../static/favicon.png" th:href="@{/static/favicon.png}" type="image/png" />
@@ -42,7 +42,7 @@
         <h1 th:text="${metacard.title}">Metacard Title</h1>
         <div class="row">
             <div class="col">
-                <a th:if="${!#strings.isEmpty(metacard.download)}" href="/" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a>
+                <a th:if="${!#strings.isEmpty(metacard.download)}" href="/static" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a>
             </div>
             <div class="col">
                 <a th:if="${!#strings.isEmpty(metacard.thumbnail)}" href="../static/favicon.png" th:href="${metacard.thumbnail}">

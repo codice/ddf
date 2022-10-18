@@ -53,7 +53,6 @@
     <!-- Start of app features -->
 
     <repository>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</repository>
 
     <feature name="ddf-boot-features" version="${project.version}"

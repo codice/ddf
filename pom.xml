@@ -298,7 +298,6 @@
         <spatial4j.version>0.8</spatial4j.version>
         <spring.version>5.2.22.RELEASE</spring.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
-        <thymeleaf.version>3.0.15.RELEASE</thymeleaf.version>
         <tika.version>1.28.4</tika.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>

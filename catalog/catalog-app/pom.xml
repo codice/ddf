@@ -288,6 +288,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog</groupId>
+            <artifactId>search-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>checksum</artifactId>
             <version>${project.version}</version>
