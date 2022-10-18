@@ -30,9 +30,15 @@
         <link rel="icon" href="../static/favicon.png" th:href="@{/static/favicon.png}" type="image/png" />
     </head>
     <body>
-        <div th:if="${header} != ''" class="banner header" th:text="${header}">
+        <div th:if="${!#strings.isEmpty(header)}" class="banner header" th:text="${header}">
             UNCLASSIFIED
         </div>
+        <blockquote class="warn" th:if="${!#lists.isEmpty(results.errors)}">
+            <p><b>There was a problem</b></p>
+            <ul th:each="error : ${results.errors}">
+                <li th:text="${error}">Error Message</li>
+            </ul>
+        </blockquote>
         <form method="get" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
             <input type="hidden" name="start" value="1" />
             <div class="row">
@@ -67,7 +73,7 @@
                 </div>
             </div>
         </form>
-        <div th:if="${hasResults} == true">
+        <div th:if="${!#lists.isEmpty(results.metacards)}">
             <p>Total results: <span th:text="${results.totalResults}">1</span></p>
             <table>
                 <thead>
@@ -82,8 +88,8 @@
                     <tr th:each="metacard : ${results.metacards}">
                         <td><a href="/" th:href="'/?id=' + ${metacard.id}" th:text="${metacard.title}">Title Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla mauris nunc, finibus ut placerat vitae, semper eu sem.</a></td>
                         <td th:text="${metacard.source}">source-id</td>
-                        <td><img th:src="${metacard.thumbnail}" src="../static/favicon.png"/></td>
-                        <td><a href="/" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a></td>
+                        <td><img th:if="${!#strings.isEmpty(metacard.thumbnail)}" th:src="${metacard.thumbnail}" src="../static/favicon.png"/></td>
+                        <td><a href="/" th:if="${!#strings.isEmpty(metacard.download)}" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a></td>
                     </tr>
                 </tbody>
             </table>
@@ -108,7 +114,7 @@
                 </div>
             </div>
         </div>
-        <div th:if="${footer} != ''" class="banner footer" th:text="${footer}">
+        <div th:if="${!#strings.isEmpty(footer)}" class="banner footer" th:text="${footer}">
             UNCLASSIFIED
         </div>
     </body>

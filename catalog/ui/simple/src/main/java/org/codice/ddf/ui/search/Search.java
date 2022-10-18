@@ -19,8 +19,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -28,13 +26,11 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 public class Search extends HttpServlet {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
+  private final Catalog catalog;
 
-  private Catalog catalog;
+  private final TemplateEngine htmlTemplates;
 
-  private TemplateEngine htmlTemplates;
-
-  private TemplateEngine cssTemplates;
+  private final TemplateEngine cssTemplates;
 
   private String header = "UNCLASSIFIED";
 
@@ -47,25 +43,24 @@ public class Search extends HttpServlet {
   public Search(Catalog catalog) {
     this.catalog = catalog;
 
-    ClassLoaderTemplateResolver htmlTemplateResolver =
-        createTemplateResolver(TemplateMode.HTML, "/templates/", ".html");
     htmlTemplates = new TemplateEngine();
-    htmlTemplates.setTemplateResolver(htmlTemplateResolver);
+    htmlTemplates.setTemplateResolver(createTemplateResolver(TemplateMode.HTML));
 
-    ClassLoaderTemplateResolver cssTemplateResolver =
-        createTemplateResolver(TemplateMode.CSS, "/templates/", ".css");
     cssTemplates = new TemplateEngine();
-    cssTemplates.setTemplateResolver(cssTemplateResolver);
+    cssTemplates.setTemplateResolver(createTemplateResolver(TemplateMode.CSS));
   }
 
-  private static ClassLoaderTemplateResolver createTemplateResolver(
-      TemplateMode mode, String prefix, String suffix) {
+  private static ClassLoaderTemplateResolver createTemplateResolver(TemplateMode mode) {
     ClassLoaderTemplateResolver templateResolver =
         new ClassLoaderTemplateResolver(Search.class.getClassLoader());
     templateResolver.setTemplateMode(mode);
+    if (mode.equals(TemplateMode.CSS)) {
+      templateResolver.setSuffix(".css");
+    } else {
+      templateResolver.setSuffix(".html");
+    }
+    templateResolver.setPrefix("/templates/");
     templateResolver.setCharacterEncoding("UTF-8");
-    templateResolver.setPrefix(prefix);
-    templateResolver.setSuffix(suffix);
     templateResolver.setCacheTTLMs(Duration.ofHours(1).toMillis());
     return templateResolver;
   }
@@ -74,7 +69,7 @@ public class Search extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     if (req.getServletPath().lastIndexOf("/") > 0
-        || !"/".equals(req.getRequestURI()) && !req.getServletPath().endsWith(".css")) {
+        || (!req.getServletPath().equals("/") && !req.getServletPath().endsWith(".css"))) {
       resp.setStatus(404);
       return;
     }
@@ -121,13 +116,10 @@ public class Search extends HttpServlet {
     ctx.setVariable("sort", req.getParameter("sort"));
     ctx.setVariable("past", req.getParameter("past"));
 
-    boolean hasResults = false;
     if (catalog.hasQuery(req)) {
       Catalog.QueryResult results = catalog.query(req);
       ctx.setVariable("results", results);
-      hasResults = results.hasResults;
     }
-    ctx.setVariable("hasResults", hasResults);
 
     htmlTemplates.process("search", ctx, resp.getWriter());
     resp.setContentType("text/html;charset=UTF-8");

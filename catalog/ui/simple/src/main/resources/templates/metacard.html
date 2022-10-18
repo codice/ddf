@@ -30,21 +30,27 @@
         <link rel="icon" href="../static/favicon.png" th:href="@{/static/favicon.png}" type="image/png" />
     </head>
     <body>
-        <div th:if="${header} != ''" class="banner header" th:text="${header}">
+        <div th:if="${!#strings.isEmpty(header)}" class="banner header" th:text="${header}">
             UNCLASSIFIED
         </div>
+        <blockquote class="warn" th:if="${!#lists.isEmpty(metacard.errors)}">
+            <p><b>There was a problem</b></p>
+            <ul th:each="error : ${metacard.errors}">
+                <li th:text="${error}">Error Message</li>
+            </ul>
+        </blockquote>
         <h1 th:text="${metacard.title}">Metacard Title</h1>
         <div class="row">
             <div class="col">
-                <a th:if="${metacard.download} != ''" href="/" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a>
+                <a th:if="${!#strings.isEmpty(metacard.download)}" href="/" th:href="${metacard.download}" rel="noopener" target="_blank">Download</a>
             </div>
             <div class="col">
-                <a th:if="${metacard.thumbnail} != ''" href="../static/favicon.png" th:href="${metacard.thumbnail}">
-                    <img class="thumbnail" th:if="${metacard.thumbnail} != ''" th:src="${metacard.thumbnail}" src="../static/favicon.png"/>
+                <a th:if="${!#strings.isEmpty(metacard.thumbnail)}" href="../static/favicon.png" th:href="${metacard.thumbnail}">
+                    <img class="thumbnail" th:if="${!#strings.isEmpty(metacard.thumbnail)}" th:src="${metacard.thumbnail}" src="../static/favicon.png"/>
                 </a>
             </div>
         </div>
-        <table>
+        <table th:if="${!#maps.isEmpty(metacard.attributes)}">
             <thead>
                 <tr>
                     <th>Attribute</th>
@@ -68,7 +74,7 @@
                 </tr>
             </tbody>
         </table>
-        <div th:if="${footer} != ''" class="banner footer" th:text="${footer}">
+        <div th:if="${!#strings.isEmpty(footer)}" class="banner footer" th:text="${footer}">
             UNCLASSIFIED
         </div>
     </body>

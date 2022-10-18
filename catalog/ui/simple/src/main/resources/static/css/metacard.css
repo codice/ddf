@@ -10,6 +10,10 @@
     max-height: 20rem;
 }
 
+th {
+    text-align: left;
+}
+
 .value {
     vertical-align: top;
     text-align: left;

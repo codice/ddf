@@ -27,6 +27,7 @@ import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.SortByImpl;
+import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -42,6 +43,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -58,22 +60,14 @@ public class Catalog {
 
   private static final int PAGE_SIZE = 50;
 
-  private CatalogFramework catalog;
+  private final CatalogFramework catalog;
 
-  private FilterBuilder filterBuilder;
+  private final FilterBuilder filterBuilder;
 
   boolean isThumbnailDataUri = false;
 
   public Catalog(CatalogFramework catalogFramework, FilterBuilder filterBuilder) {
     this.catalog = catalogFramework;
-    this.filterBuilder = filterBuilder;
-  }
-
-  public void setCatalogFramework(CatalogFramework catalogFramework) {
-    this.catalog = catalogFramework;
-  }
-
-  public void setFilterBuilder(FilterBuilder filterBuilder) {
     this.filterBuilder = filterBuilder;
   }
 
@@ -96,21 +90,26 @@ public class Catalog {
 
     QueryRequestImpl queryRequest = new QueryRequestImpl(query);
 
+    QueryResponse result;
     try {
-      QueryResponse result = catalog.query(queryRequest);
+      result = catalog.query(queryRequest);
       if (result.getResults().size() == 1 && result.getResults().get(0) != null) {
         Metacard metacard = result.getResults().get(0).getMetacard();
 
-        details.title = metacard.getTitle();
-        details.source = metacard.getSourceId();
+        details.title = Objects.requireNonNullElse(metacard.getTitle(), "No Title");
+        details.source = Objects.requireNonNullElse(metacard.getSourceId(), "Unknown Source");
         details.thumbnail = createThumbnailSrc(metacard);
         details.download = createDownloadUrl(metacard);
 
         addAttributes(details, metacard);
       }
     } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
-      LOGGER.debug("Metacard {} not found", id, e);
+      LOGGER.debug("Exception getting metacard [{}]", id, e);
+      result =
+          new QueryResponseImpl(
+              queryRequest, null, true, 0, null, Set.of(new ProcessingDetailsImpl("local", e)));
     }
+    details.errors.addAll(getErrorMessages(result));
 
     return details;
   }
@@ -133,7 +132,7 @@ public class Catalog {
             display =
                 metacard.getAttribute(name).getValues().stream()
                     .map(Object::toString)
-                    .collect(Collectors.joining(",\n"));
+                    .collect(Collectors.joining(", "));
           } else {
             display = value.toString();
           }
@@ -168,26 +167,21 @@ public class Catalog {
       queryResponse = catalog.query(queryRequest);
       updateResults(result, queryResponse);
     } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
-      LOGGER.debug("Exception on query {}", q, e);
-
-      QueryResponseImpl response = new QueryResponseImpl(queryRequest);
-      response.closeResultQueue();
-      response.setProcessingDetails(Set.of(new ProcessingDetailsImpl("local", e)));
-
-      queryResponse = response;
+      LOGGER.debug("Exception on query [{}]", q, e);
+      queryResponse =
+          new QueryResponseImpl(
+              queryRequest, null, true, 0, null, Set.of(new ProcessingDetailsImpl("local", e)));
     }
-    result.hasErrors = queryResponse.getProcessingDetails().size() > 0;
+    result.errors.addAll(getErrorMessages(queryResponse));
     setPaging(queryResponse, result);
     return result;
   }
 
   private void updateResults(QueryResult result, QueryResponse queryResponse) {
-    if (queryResponse.getResults().size() > 0) {
-      result.hasResults = true;
-    }
-
     if (queryResponse.getHits() >= 0) {
       result.totalResults = String.valueOf(queryResponse.getHits());
+    } else {
+      result.totalResults = "Unknown";
     }
 
     addResults(queryResponse, result);
@@ -199,8 +193,8 @@ public class Catalog {
 
       MetacardResult metacard = new MetacardResult();
       metacard.id = mc.getId();
-      metacard.title = mc.getTitle();
-      metacard.source = mc.getSourceId();
+      metacard.title = Objects.requireNonNullElse(mc.getTitle(), "No Title");
+      metacard.source = Objects.requireNonNullElse(mc.getSourceId(), "Unknown Source");
       metacard.thumbnail = createThumbnailSrc(mc);
       metacard.download = createDownloadUrl(mc);
 
@@ -253,7 +247,11 @@ public class Catalog {
       String encodedThumbnail = Base64.getEncoder().encodeToString(metacard.getThumbnail());
       return "data:image/jpeg;charset=utf-8;base64, " + encodedThumbnail;
     } else {
-      return "/services/catalog/" + metacard.getId() + "?transform=thumbnail";
+      return "/services/catalog/sources/"
+          + metacard.getSourceId()
+          + "/"
+          + metacard.getId()
+          + "?transform=thumbnail";
     }
   }
 
@@ -287,11 +285,26 @@ public class Catalog {
     return start;
   }
 
+  private List<String> getErrorMessages(QueryResponse response) {
+    return response.getProcessingDetails().stream()
+        .map(this::extractMessage)
+        .collect(Collectors.toList());
+  }
+
+  private String extractMessage(ProcessingDetails details) {
+    if (details != null
+        && details.getException() != null
+        && details.getException().getMessage() != null) {
+      return details.getException().getMessage();
+    } else {
+      return "Unknown Error";
+    }
+  }
+
   public static class QueryResult {
     public List<MetacardResult> metacards = new ArrayList<>();
-    public boolean hasErrors;
-    public boolean hasResults;
-    public String totalResults = "Unknown";
+    public List<String> errors = new ArrayList<>();
+    public String totalResults;
     public int start;
     public boolean previousDisabled;
     public int previousStart;
@@ -300,11 +313,11 @@ public class Catalog {
   }
 
   public static class MetacardResult {
-    public String id = "";
-    public String title = "No Title";
-    public String source = "Unknown Source";
-    public String thumbnail = "";
-    public String download = "";
+    public String id;
+    public String title;
+    public String source;
+    public String thumbnail;
+    public String download;
   }
 
   public static class MetacardDetails {
@@ -313,5 +326,6 @@ public class Catalog {
     public String thumbnail = "";
     public String download = "";
     public Map<String, String> attributes = new TreeMap<>();
+    public List<String> errors = new ArrayList<>();
   }
 }
