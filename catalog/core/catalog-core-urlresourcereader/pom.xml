@@ -108,16 +108,11 @@
                             ddf.catalog.resource.impl,
                             ddf.catalog.operation.impl,
                             ddf.catalog.data.impl.*,
-                            ddf.catalog.util.impl,
-                            org.codice.ddf.security.common.jaxrs
+                            ddf.catalog.util.impl
                         </Private-Package>
                         <Import-Package>
                             !com.rometools.utils,
-                            !ddf.security.liberty.paos.impl,
-                            !org.codice.ddf.security.common.jaxrs,
-                            !ddf.security.assertion.impl,
                             !org.codice.ddf.platform.util.http,
-                            !org.codice.ddf.cxf,
                             *
                         </Import-Package>
                     </instructions>

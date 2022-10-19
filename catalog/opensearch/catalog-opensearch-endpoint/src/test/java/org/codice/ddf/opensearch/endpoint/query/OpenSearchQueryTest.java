@@ -884,6 +884,44 @@ public class OpenSearchQueryTest {
   }
 
   @Test
+  public void testRecordIdsWithSingleId() {
+    OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
+    query.addRecordIds("123");
+    Filter filter = query.getFilter();
+
+    VerificationVisitor verificationVisitor = new VerificationVisitor();
+    filter.accept(verificationVisitor, null);
+    HashMap<String, FilterStatus> map =
+        (HashMap<String, FilterStatus>) verificationVisitor.getMap();
+
+    printFilterStatusMap(map);
+
+    List<Filter> filters = getFilters(map, IsEqualsToImpl.class.getName());
+    assertEquals(1, filters.size());
+
+    verifyEqualsFilter(filters.get(0), "id", "123");
+  }
+
+  @Test
+  public void testRecordIdsWithMultipleId() {
+    OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
+    query.addRecordIds("123,456");
+    Filter filter = query.getFilter();
+
+    VerificationVisitor verificationVisitor = new VerificationVisitor();
+    filter.accept(verificationVisitor, null);
+    HashMap<String, FilterStatus> map =
+        (HashMap<String, FilterStatus>) verificationVisitor.getMap();
+
+    printFilterStatusMap(map);
+
+    List<Filter> filters = getFilters(map, IsEqualsToImpl.class.getName());
+    assertEquals(2, filters.size());
+
+    verifyEqualsFilter(filters.get(1), "id", "456");
+  }
+
+  @Test
   public void testWktParser() throws Exception {
     String geometryWkt = "POINT( 48.44 -123.37)";
     GeometryBuilder builder = new GeometryBuilder(DefaultGeographicCRS.WGS84);

@@ -39,7 +39,7 @@
 
         <AD name="OpenSearch query parameters" id="parameters" required="true"
             type="String"
-            default="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,geometry,polygon,dtstart,dtend,dateName,filter,sort"
+            default="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,geometry,polygon,dtstart,dtend,dateName,filter,sort,recordIds"
             cardinality="100"
             description="Query parameters to use with the OpenSearch connection."/>
 

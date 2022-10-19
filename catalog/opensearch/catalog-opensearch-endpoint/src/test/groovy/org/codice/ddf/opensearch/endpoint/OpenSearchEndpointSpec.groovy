@@ -70,6 +70,7 @@ class OpenSearchEndpointSpec extends Specification {
                 null,
                 null,
                 null,
+                null,
                 Mock(HttpServletRequest) {
                     getParameterMap() >> [:]
                 },

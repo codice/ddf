@@ -42,6 +42,7 @@ import org.geotools.temporal.object.DefaultPosition;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterVisitor;
+import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.geometry.Geometry;
@@ -77,17 +78,17 @@ public class OpenSearchQuery implements Query {
 
   private final Integer count;
 
-  private long maxTimeout;
+  private final long maxTimeout;
 
   private boolean isEnterprise;
 
   private Set<String> siteIds;
 
-  private SortBy sortBy;
+  private final SortBy sortBy;
 
-  private List<Filter> filters;
+  private final List<Filter> filters;
 
-  private List<Filter> spatialFilters;
+  private final List<Filter> spatialFilters;
 
   /**
    * Creates an Implementation of a DDF Query interface. This object is passed from the endpoint to
@@ -383,6 +384,27 @@ public class OpenSearchQuery implements Query {
     }
   }
 
+  public void addRecordIds(String recordIds) {
+    if (recordIds == null || recordIds.isBlank()) {
+      return;
+    }
+
+    String[] ids = recordIds.split(",");
+
+    List<Filter> idFilteres = new ArrayList<>();
+    for (String id : ids) {
+      PropertyIsEqualTo idFilter =
+          FILTER_FACTORY.equals(FILTER_FACTORY.property(Metacard.ID), FILTER_FACTORY.literal(id));
+      idFilteres.add(idFilter);
+    }
+
+    if (idFilteres.size() > 1) {
+      filters.add(FILTER_FACTORY.or(idFilteres));
+    } else if (idFilteres.size() == 1) {
+      filters.add(idFilteres.get(0));
+    }
+  }
+
   @Override
   public Object accept(FilterVisitor visitor, Object obj) {
     Filter filter = getFilter();
@@ -496,7 +518,7 @@ public class OpenSearchQuery implements Query {
     if (queryFilter == null) {
       return "OpenSearchQuery: FILTERS:{ NULL }";
     } else {
-      return "OpenSearchQuery: " + "FILTERS:{" + queryFilter.toString() + "}";
+      return "OpenSearchQuery: FILTERS:{" + queryFilter + "}";
     }
   }
 }

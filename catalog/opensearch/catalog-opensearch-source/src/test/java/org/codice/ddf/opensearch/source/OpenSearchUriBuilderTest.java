@@ -30,7 +30,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import java.util.Arrays;
 import java.util.Date;
-import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -46,7 +46,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 
-public class OpenSearchParserImplTest {
+public class OpenSearchUriBuilderTest {
 
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
@@ -59,14 +59,11 @@ public class OpenSearchParserImplTest {
   private static final String WKT_GEOMETRY =
       "GEOMETRYCOLLECTION (POINT (-105.2071712 40.0160994), LINESTRING (4 6, 7 10))";
 
-  private OpenSearchParser openSearchParser;
-
-  private WebClient webClient;
+  private URIBuilder uriBuilder;
 
   @Before
   public void setUp() {
-    openSearchParser = new OpenSearchParserImpl();
-    webClient = mock(WebClient.class);
+    uriBuilder = mock(URIBuilder.class);
   }
 
   // {@link OpenSearchParser#populateTemporal(WebClient, TemporalFilter, List)} tests
@@ -78,8 +75,8 @@ public class OpenSearchParserImplTest {
     Date end = new Date(System.currentTimeMillis());
     TemporalFilter temporal = new TemporalFilter(start, end);
 
-    openSearchParser.populateTemporal(
-        webClient,
+    OpenSearchUriBuilder.populateTemporal(
+        uriBuilder,
         temporal,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -95,8 +92,8 @@ public class OpenSearchParserImplTest {
     temporalFilter.setEndDate(null);
     temporalFilter.setStartDate(null);
 
-    openSearchParser.populateTemporal(
-        webClient,
+    OpenSearchUriBuilder.populateTemporal(
+        uriBuilder,
         temporalFilter,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -108,8 +105,8 @@ public class OpenSearchParserImplTest {
 
   @Test
   public void populateNullTemporal() {
-    openSearchParser.populateTemporal(
-        webClient,
+    OpenSearchUriBuilder.populateTemporal(
+        uriBuilder,
         null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -127,8 +124,8 @@ public class OpenSearchParserImplTest {
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParser.populateSearchOptions(
-        webClient,
+    OpenSearchUriBuilder.populateSearchOptions(
+        uriBuilder,
         queryRequest,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -147,8 +144,8 @@ public class OpenSearchParserImplTest {
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParser.populateSearchOptions(
-        webClient,
+    OpenSearchUriBuilder.populateSearchOptions(
+        uriBuilder,
         queryRequest,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -167,8 +164,8 @@ public class OpenSearchParserImplTest {
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParser.populateSearchOptions(
-        webClient,
+    OpenSearchUriBuilder.populateSearchOptions(
+        uriBuilder,
         queryRequest,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -187,8 +184,8 @@ public class OpenSearchParserImplTest {
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParser.populateSearchOptions(
-        webClient,
+    OpenSearchUriBuilder.populateSearchOptions(
+        uriBuilder,
         queryRequest,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -206,8 +203,8 @@ public class OpenSearchParserImplTest {
     Query query = new QueryImpl(filter, 0, 2000, null, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParser.populateSearchOptions(
-        webClient,
+    OpenSearchUriBuilder.populateSearchOptions(
+        uriBuilder,
         queryRequest,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -226,8 +223,8 @@ public class OpenSearchParserImplTest {
     Query query = new QueryImpl(filter, 0, -1000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParser.populateSearchOptions(
-        webClient,
+    OpenSearchUriBuilder.populateSearchOptions(
+        uriBuilder,
         queryRequest,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -235,15 +232,15 @@ public class OpenSearchParserImplTest {
 
     assertQueryParameterPopulated(OpenSearchConstants.COUNT);
     assertQueryParameterPopulated(
-        OpenSearchConstants.MAX_RESULTS, OpenSearchParserImpl.DEFAULT_TOTAL_MAX.toString());
+        OpenSearchConstants.MAX_RESULTS, OpenSearchUriBuilder.DEFAULT_TOTAL_MAX.toString());
     assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
     assertQueryParameterPopulated(OpenSearchConstants.SORT, DESCENDING_TEMPORAL_SORT);
   }
 
   @Test
   public void populateNullSearchOptions() {
-    openSearchParser.populateSearchOptions(
-        webClient,
+    OpenSearchUriBuilder.populateSearchOptions(
+        uriBuilder,
         null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
@@ -253,8 +250,8 @@ public class OpenSearchParserImplTest {
     assertQueryParameterNotPopulated(OpenSearchConstants.MAX_RESULTS);
     assertQueryParameterNotPopulated(OpenSearchConstants.SOURCES);
     assertQueryParameterNotPopulated(OpenSearchConstants.MAX_TIMEOUT);
-    assertQueryParameterNotPopulated(OpenSearchParserImpl.USER_DN);
-    assertQueryParameterNotPopulated(OpenSearchParserImpl.FILTER);
+    assertQueryParameterNotPopulated(OpenSearchUriBuilder.USER_DN);
+    assertQueryParameterNotPopulated(OpenSearchUriBuilder.FILTER);
     assertQueryParameterNotPopulated(OpenSearchConstants.SORT);
   }
 
@@ -264,8 +261,8 @@ public class OpenSearchParserImplTest {
   public void populateSpatialGeometry() throws ParseException {
 
     Geometry geometry = new WKTReader().read(WKT_GEOMETRY);
-    openSearchParser.populateSpatial(
-        webClient,
+    OpenSearchUriBuilder.populateSpatial(
+        uriBuilder,
         geometry,
         null,
         null,
@@ -281,8 +278,8 @@ public class OpenSearchParserImplTest {
   public void populateSpatialBoundingBox() {
     final BoundingBox boundingBox = new BoundingBox(170, 50, -150, 60);
 
-    openSearchParser.populateSpatial(
-        webClient,
+    OpenSearchUriBuilder.populateSpatial(
+        uriBuilder,
         null,
         boundingBox,
         null,
@@ -308,8 +305,8 @@ public class OpenSearchParserImplTest {
                 }),
             null);
 
-    openSearchParser.populateSpatial(
-        webClient,
+    OpenSearchUriBuilder.populateSpatial(
+        uriBuilder,
         null,
         null,
         polygon,
@@ -329,8 +326,8 @@ public class OpenSearchParserImplTest {
     double radius = 10000;
 
     PointRadius pointRadius = new PointRadius(lon, lat, radius);
-    openSearchParser.populateSpatial(
-        webClient,
+    OpenSearchUriBuilder.populateSpatial(
+        uriBuilder,
         null,
         null,
         null,
@@ -346,8 +343,8 @@ public class OpenSearchParserImplTest {
 
   @Test
   public void populateNullSpatial() {
-    openSearchParser.populateSpatial(
-        webClient,
+    OpenSearchUriBuilder.populateSpatial(
+        uriBuilder,
         null,
         null,
         null,
@@ -382,8 +379,8 @@ public class OpenSearchParserImplTest {
 
     final BoundingBox boundingBox = new BoundingBox(170, 50, -150, 60);
 
-    openSearchParser.populateSpatial(
-        webClient,
+    OpenSearchUriBuilder.populateSpatial(
+        uriBuilder,
         geometry,
         boundingBox,
         polygon,
@@ -402,19 +399,19 @@ public class OpenSearchParserImplTest {
   }
 
   private void assertQueryParameterPopulated(final String queryParameterName) {
-    verify(webClient, times(1)).replaceQueryParam(eq(queryParameterName), any());
+    verify(uriBuilder, times(1)).setParameter(eq(queryParameterName), any());
   }
 
   private void assertQueryParameterPopulated(
       final String queryParameterName, final String queryParameterValue) {
-    verify(webClient, times(1)).replaceQueryParam(queryParameterName, queryParameterValue);
+    verify(uriBuilder, times(1)).setParameter(queryParameterName, queryParameterValue);
   }
 
   private void assertQueryParameterNotPopulated(final String queryParameterName) {
-    verify(webClient, never()).replaceQueryParam(eq(queryParameterName), any());
+    verify(uriBuilder, never()).setParameter(eq(queryParameterName), any());
   }
 
   private void assertNoQueryParametersPopulated() {
-    verifyZeroInteractions(webClient);
+    verifyZeroInteractions(uriBuilder);
   }
 }

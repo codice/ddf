@@ -123,6 +123,7 @@ public class OpenSearchEndpoint extends HttpServlet {
         req.getParameter(OpenSearchConstants.SELECTORS),
         req.getParameter(OpenSearchConstants.TYPE),
         req.getParameter(OpenSearchConstants.VERSIONS),
+        req.getParameter(OpenSearchConstants.RECORD_IDS),
         req,
         resp);
   }
@@ -183,6 +184,7 @@ public class OpenSearchEndpoint extends HttpServlet {
       String selectors,
       String type,
       String versions,
+      String recordIds,
       HttpServletRequest request,
       HttpServletResponse response)
       throws IOException {
@@ -239,17 +241,11 @@ public class OpenSearchEndpoint extends HttpServlet {
         query.addTypeFilter(type.trim(), versions);
       }
 
-      Map<String, Serializable> properties = new HashMap<>();
-      for (Object key : request.getParameterMap().keySet()) {
-        if (key instanceof String) {
-          Object value = request.getParameterMap().get(key);
-          if (value != null) {
-            properties.put((String) key, ((String[]) value)[0]);
-          }
-        }
+      if (StringUtils.isNotBlank(recordIds)) {
+        query.addRecordIds(recordIds);
       }
 
-      executeQuery(format, query, request, response, properties);
+      executeQuery(format, query, request, response);
     } catch (ParsingException e) {
       LOGGER.debug("Bad input found while executing a query", e);
       response.sendError(400, e.getMessage());
@@ -309,14 +305,12 @@ public class OpenSearchEndpoint extends HttpServlet {
    * @param format - of the results in the response
    * @param query - the query to execute
    * @param request -the request information to use to format the results
-   * @return the response on the query
    */
   private void executeQuery(
       String format,
       OpenSearchQuery query,
       HttpServletRequest request,
-      HttpServletResponse response,
-      Map<String, Serializable> properties)
+      HttpServletResponse response)
       throws IOException {
     String queryFormat = format;
 
@@ -360,7 +354,7 @@ public class OpenSearchEndpoint extends HttpServlet {
 
       if (query.getFilter() != null) {
         QueryRequest queryRequest =
-            new QueryRequestImpl(query, query.isEnterprise(), query.getSiteIds(), properties);
+            new QueryRequestImpl(query, query.isEnterprise(), query.getSiteIds(), new HashMap<>());
         QueryResponse queryResponse;
 
         LOGGER.trace("Sending query");
@@ -514,9 +508,5 @@ public class OpenSearchEndpoint extends HttpServlet {
     }
 
     return new OpenSearchQuery(startIndex, count, sortField, sortOrder, maxTimeout, filterBuilder);
-  }
-
-  private String wrapStringInPreformattedTags(String stringToWrap) {
-    return "<pre>" + stringToWrap + "</pre>";
   }
 }

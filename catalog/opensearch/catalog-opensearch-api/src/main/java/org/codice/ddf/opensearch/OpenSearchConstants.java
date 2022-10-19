@@ -77,6 +77,7 @@ public final class OpenSearchConstants {
   public static final String SORT_TEMPORAL = "date";
 
   public static final String FORMAT = "format";
+  public static final String RECORD_IDS = "recordIds";
 
   private OpenSearchConstants() {}
 }

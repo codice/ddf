@@ -23,8 +23,6 @@ import ddf.catalog.operation.impl.QueryImpl
 import ddf.catalog.operation.impl.QueryRequestImpl
 import ddf.catalog.source.UnsupportedQueryException
 import ddf.catalog.transform.InputTransformer
-import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean
-import org.apache.cxf.jaxrs.client.WebClient
 import org.codice.ddf.opensearch.OpenSearchConstants
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
@@ -40,7 +38,9 @@ import org.osgi.framework.ServiceReference
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import javax.ws.rs.core.Response
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 
 @RunWith(JUnitPlatform.class)
@@ -62,7 +62,7 @@ class OpenSearchSourceSpec extends Specification {
 
     private OpenSearchSource source
 
-    private WebClient webClient = Mock(WebClient)
+    private HttpClient httpClient = Mock(HttpClient)
 
     private Map<String, Serializable> queryRequestProperties
 
@@ -84,22 +84,13 @@ class OpenSearchSourceSpec extends Specification {
             }
         }
 
-        final JAXRSClientFactoryBean factory = Mock(JAXRSClientFactoryBean) {
-            createWebClient() >> webClient
-        }
-
-        source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchParserImpl(), new OpenSearchFilterVisitor(), (elements, sourceResponse) -> {}, factory) {
+        source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchFilterVisitor(), (elements, sourceResponse) -> {}) {
 
             @Override
             protected Bundle getBundle() {
                 return bundle
             }
 
-            @Override
-            protected JAXRSClientFactoryBean createClientFactory(
-                    URI url, String username, String password) {
-                return factory
-            }
         }
 
         source.setEndpointUrl("http://localhost:8181/services/catalog/query")
@@ -107,6 +98,7 @@ class OpenSearchSourceSpec extends Specification {
         source.setNumMultiPointRadiusVertices(8)
         source.init()
         source.setParameters(["q", "src", "mr", "start", "count", "mt", "dn", "lat", "lon", "radius", "bbox", "geometry", "polygon", "dtstart", "dtend", "dateName", "filter", "sort"])
+        source.setHttpClient(httpClient)
 
         queryRequestProperties = [:]
     }
@@ -114,17 +106,11 @@ class OpenSearchSourceSpec extends Specification {
     @Unroll
     def 'testQueries #filter'(Filter filter, Map<String, Object> expectedQueryParameters) throws UnsupportedQueryException {
         given:
-        final Map<String, Object> webClientQueryParameters = [:]
-
-        webClient.get() >> {
-            return Mock(Response) {
-                getStatus() >> Response.Status.OK.getStatusCode()
-                getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
-                getHeaderString("Accept-Ranges") >> "bytes"
+        httpClient.send(_ as HttpRequest, _ as HttpResponse.BodyHandler<InputStream>) >> {
+            return Mock(HttpResponse) {
+                statusCode() >> 200
+                body() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
             }
-        }
-        webClient.replaceQueryParam(_ as String, _ as Object) >> {
-            String parameter, Object value -> webClientQueryParameters.put(parameter, value)
         }
 
         final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter), queryRequestProperties)
@@ -185,18 +171,11 @@ class OpenSearchSourceSpec extends Specification {
     @Unroll
     def 'testBboxSpatialQueries #filter'(Filter filter, Map<String, Object> expectedQueryParameters) throws UnsupportedQueryException {
         given:
-        final Map<String, Object> webClientQueryParameters = [:]
-
-        webClient.get() >> {
-            assert webClientQueryParameters == expectedQueryParameters
-            return Mock(Response) {
-                getStatus() >> Response.Status.OK.getStatusCode()
-                getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
-                getHeaderString("Accept-Ranges") >> "bytes"
+        httpClient.send(_ as HttpRequest, _ as HttpResponse.BodyHandler) >> {
+            return Mock(HttpResponse) {
+                statusCode() >> 200
+                body() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
             }
-        }
-        webClient.replaceQueryParam(_ as String, _ as Object) >> {
-            String parameter, Object value -> webClientQueryParameters.put(parameter, value)
         }
 
         final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter), queryRequestProperties)
@@ -241,7 +220,7 @@ class OpenSearchSourceSpec extends Specification {
         source.query(queryRequest)
 
         then:
-        0 * webClient.get()
+        0 * httpClient.send(_ as HttpRequest, _ as HttpResponse.BodyHandler)
         thrown(UnsupportedQueryException)
 
         where:

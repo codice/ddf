@@ -70,6 +70,11 @@
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
         <!-- TEST DEPENDENCIES -->
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -128,10 +133,6 @@
                         </Embed-Dependency>
                         <Import-Package>
                             !com.rometools.utils,
-                            !ddf.security.liberty.paos.impl,
-                            !org.codice.ddf.security.common.jaxrs,
-                            !ddf.security.assertion.impl,
-                            !org.codice.ddf.platform.util.http,
                             *
                         </Import-Package>
                     </instructions>

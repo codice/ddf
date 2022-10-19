@@ -47,10 +47,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.net.MalformedURLException;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,7 +72,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import javax.ws.rs.core.Response;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -76,15 +81,12 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.http.client.utils.URIBuilder;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
-import org.codice.ddf.opensearch.OpenSearch;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
-import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.geotools.xml.filter.FilterTransformer;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
@@ -107,7 +109,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
 
-  private static final String UNABLE_TO_CREATE_RWC = "Unable to create restWebClient";
+  private static final String UNABLE_TO_CREATE_HTTP_CLIENT = "Unable to create HTTP Client";
 
   private static final String ORGANIZATION = "DDF";
 
@@ -121,8 +123,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   @SuppressWarnings("squid:S2068" /*Key for the requestProperties map, not a hardcoded password*/)
   protected static final String PASSWORD_PROPERTY = "password";
 
-  private static final String ID_PROPERTY = "id";
-
   private static final int MIN_DISTANCE_TOLERANCE_IN_METERS = 1;
 
   private static final int MIN_NUM_POINT_RADIUS_VERTICES = 4;
@@ -133,7 +133,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
-  private JAXRSClientFactoryBean factory;
+  private HttpClient httpClient;
 
   // service properties
   protected String shortname;
@@ -162,19 +162,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected String password = "";
 
-  protected String oauthDiscoveryUrl = "";
-
-  protected String oauthClientId = "";
-
-  protected String oauthClientSecret = "";
-
-  protected String oauthFlow = "";
-
   private XMLInputFactory xmlInputFactory;
 
   protected ResourceReader resourceReader;
-
-  protected final OpenSearchParser openSearchParser;
 
   protected final OpenSearchFilterVisitor openSearchFilterVisitor;
 
@@ -200,15 +190,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    * overwritten using the setter methods.
    */
   public OpenSearchSource(
-      FilterAdapter filterAdapter,
-      OpenSearchParser openSearchParser,
-      OpenSearchFilterVisitor openSearchFilterVisitor) {
-    this(
-        filterAdapter,
-        openSearchParser,
-        openSearchFilterVisitor,
-        (elements, sourceResponse) -> {},
-        null);
+      FilterAdapter filterAdapter, OpenSearchFilterVisitor openSearchFilterVisitor) {
+    this(filterAdapter, openSearchFilterVisitor, (elements, sourceResponse) -> {});
   }
 
   /**
@@ -217,15 +200,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    */
   public OpenSearchSource(
       FilterAdapter filterAdapter,
-      OpenSearchParser openSearchParser,
       OpenSearchFilterVisitor openSearchFilterVisitor,
-      BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer,
-      JAXRSClientFactoryBean clientFactoryBean) {
+      BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer) {
     this.filterAdapter = filterAdapter;
-    this.openSearchParser = openSearchParser;
     this.openSearchFilterVisitor = openSearchFilterVisitor;
     this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
-    this.factory = clientFactoryBean;
   }
 
   /**
@@ -238,11 +217,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   private void updateFactory() {
-    try {
-      factory = createClientFactory(new URI(endpointUrl.getResolvedString()), username, password);
-    } catch (URISyntaxException e) {
-      LOGGER.debug("Unable to convert endpoint to URI", e);
-    }
+    httpClient = createHttpClient();
     updateScheduler();
   }
 
@@ -261,29 +236,40 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("openSearchSourceThread"));
 
-    scheduler.scheduleWithFixedDelay(
-        new Runnable() {
-          private boolean availabilityCheck() {
-            LOGGER.debug("Checking availability for source {} ", getId());
-            try {
-              final WebClient client = factory.createWebClient();
-              final Response response = client.head();
-              return response != null
-                  && !(response.getStatus() >= 404 || response.getStatus() == 402);
-            } catch (Exception e) {
-              LOGGER.debug("Web Client was unable to connect to endpoint.", e);
-              return false;
-            }
-          }
+    try {
+      HttpRequest head =
+          HttpRequest.newBuilder()
+              .method("HEAD", HttpRequest.BodyPublishers.noBody())
+              .uri(new URI(getEndpointUrl()))
+              .timeout(Duration.of(getReceiveTimeout(), ChronoUnit.MILLIS))
+              .build();
 
-          @Override
-          public void run() {
-            isAvailable = availabilityCheck();
-          }
-        },
-        1,
-        pollInterval.longValue() * 60L,
-        TimeUnit.SECONDS);
+      scheduler.scheduleWithFixedDelay(
+          new Runnable() {
+            private boolean availabilityCheck() {
+              LOGGER.debug("Checking availability for source {} ", getId());
+              try {
+                final HttpResponse<Void> response =
+                    httpClient.send(head, HttpResponse.BodyHandlers.discarding());
+                return response != null
+                    && !(response.statusCode() >= 404 || response.statusCode() == 402);
+              } catch (Exception e) {
+                LOGGER.debug("Web Client was unable to connect to endpoint.", e);
+                return false;
+              }
+            }
+
+            @Override
+            public void run() {
+              isAvailable = availabilityCheck();
+            }
+          },
+          1,
+          pollInterval.longValue() * 60L,
+          TimeUnit.SECONDS);
+    } catch (URISyntaxException e) {
+      LOGGER.debug("Unable to convert endpoint to URI", e);
+    }
   }
 
   public void destroy(int code) {
@@ -293,19 +279,26 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
   }
 
-  protected JAXRSClientFactoryBean createClientFactory(URI url, String username, String password) {
+  protected HttpClient createHttpClient() {
+    HttpClient.Builder clientBuilder = HttpClient.newBuilder();
 
-    JAXRSClientFactoryBean clientFactory = new JAXRSClientFactoryBean();
-    clientFactory.setClassLoader(OpenSearchSource.class.getClassLoader());
-    clientFactory.setServiceClass(OpenSearch.class);
-    clientFactory.setAddress(url.toString());
+    clientBuilder.connectTimeout(Duration.of(getConnectionTimeout(), ChronoUnit.MILLIS));
 
-    if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
-      clientFactory.setUsername(username);
-      clientFactory.setPassword(password);
+    if (getAllowRedirects()) {
+      clientBuilder.followRedirects(HttpClient.Redirect.ALWAYS);
     }
 
-    return clientFactory;
+    if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+      clientBuilder.authenticator(
+          new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+              return new PasswordAuthentication(username, password.toCharArray());
+            }
+          });
+    }
+
+    return clientBuilder.build();
   }
 
   private void configureXmlInputFactory() {
@@ -372,35 +365,15 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     final Map<String, String> searchPhraseMap =
         contextualSearch == null ? new HashMap<>() : contextualSearch.getSearchPhraseMap();
 
-    // OpenSearch endpoints only support certain keyword, temporal, and spatial searches. The
-    // OpenSearchSource additionally supports an id search when no other search criteria is
-    // specified.
-    if (MapUtils.isNotEmpty(searchPhraseMap) || spatialSearch != null || temporalSearch != null) {
-      if (StringUtils.isNotEmpty(idSearch)) {
-        LOGGER.debug(
-            "Ignoring the id search {}. Querying the source with the keyword, temporal, and/or spatial OpenSearch parameters",
-            idSearch);
-      }
-
-      final WebClient restWebClient = factory.createWebClient();
-      if (restWebClient == null) {
-        throw new UnsupportedQueryException(UNABLE_TO_CREATE_RWC);
+    if (MapUtils.isNotEmpty(searchPhraseMap)
+        || spatialSearch != null
+        || temporalSearch != null
+        || StringUtils.isNotEmpty(idSearch)) {
+      if (httpClient == null) {
+        throw new UnsupportedQueryException(UNABLE_TO_CREATE_HTTP_CLIENT);
       }
       response =
-          doOpenSearchQuery(
-              queryRequest, spatialSearch, temporalSearch, searchPhraseMap, restWebClient);
-    } else if (StringUtils.isNotEmpty(idSearch)) {
-      final WebClient restWebClient;
-      try {
-        restWebClient = newRestClient(query, idSearch, false);
-      } catch (URISyntaxException e) {
-        throw new UnsupportedQueryException(UNABLE_TO_CREATE_RWC, e);
-      }
-      if (restWebClient == null) {
-        throw new UnsupportedQueryException(UNABLE_TO_CREATE_RWC);
-      }
-
-      response = doQueryById(queryRequest, restWebClient);
+          doOpenSearchQuery(queryRequest, spatialSearch, temporalSearch, idSearch, searchPhraseMap);
     } else {
       LOGGER.debug(
           "The OpenSearch Source only supports id searches or searches with certain keyword, \"{}\" temporal, or \"{}\" spatial criteria, but the query was {}. See the documentation for more details about supported searches.",
@@ -422,60 +395,44 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       QueryRequest queryRequest,
       SpatialSearch spatialSearch,
       TemporalFilter temporalSearch,
-      Map<String, String> searchPhraseMap,
-      WebClient restWebClient)
+      String idSearch,
+      Map<String, String> searchPhraseMap)
       throws UnsupportedQueryException {
-    // All queries must have at least a search phrase to be valid
-    if (searchPhraseMap.isEmpty() && temporalSearch == null && spatialSearch == null) {
-      searchPhraseMap.put(OpenSearchConstants.SEARCH_TERMS, "*");
-    }
-    openSearchParser.populateSearchOptions(restWebClient, queryRequest, parameters);
-    openSearchParser.populateContextual(restWebClient, searchPhraseMap, parameters);
-    openSearchParser.populateTemporal(restWebClient, temporalSearch, parameters);
-    if (spatialSearch != null) {
-      openSearchParser.populateSpatial(
-          restWebClient,
-          spatialSearch.getGeometry(),
-          spatialSearch.getBoundingBox(),
-          spatialSearch.getPolygon(),
-          spatialSearch.getPointRadius(),
-          parameters);
-    }
+    URIBuilder uriBuilder;
+    try {
+      uriBuilder = new URIBuilder(getEndpointUrl());
 
-    if (localQueryOnly) {
-      restWebClient.replaceQueryParam(
-          OpenSearchConstants.SOURCES, OpenSearchConstants.LOCAL_SOURCE);
-    } else {
-      restWebClient.replaceQueryParam(OpenSearchConstants.SOURCES, "");
-    }
-
-    InputStream responseStream = performRequest(restWebClient);
-
-    return processResponse(responseStream, queryRequest);
-  }
-
-  private SourceResponse doQueryById(QueryRequest queryRequest, WebClient restWebClient)
-      throws UnsupportedQueryException {
-    InputStream responseStream = performRequest(restWebClient);
-
-    try (TemporaryFileBackedOutputStream fileBackedOutputStream =
-        new TemporaryFileBackedOutputStream()) {
-      IOUtils.copyLarge(responseStream, fileBackedOutputStream);
-      InputTransformer inputTransformer;
-      try (InputStream inputStream = fileBackedOutputStream.asByteSource().openStream()) {
-        inputTransformer = getInputTransformer(inputStream);
+      // All queries must have at least a search phrase to be valid
+      if (searchPhraseMap.isEmpty() && temporalSearch == null && spatialSearch == null) {
+        searchPhraseMap.put(OpenSearchConstants.SEARCH_TERMS, "*");
+      }
+      OpenSearchUriBuilder.populateSearchOptions(uriBuilder, queryRequest, parameters);
+      OpenSearchUriBuilder.populateContextual(uriBuilder, searchPhraseMap, parameters);
+      OpenSearchUriBuilder.populateTemporal(uriBuilder, temporalSearch, parameters);
+      if (spatialSearch != null) {
+        OpenSearchUriBuilder.populateSpatial(
+            uriBuilder,
+            spatialSearch.getGeometry(),
+            spatialSearch.getBoundingBox(),
+            spatialSearch.getPolygon(),
+            spatialSearch.getPointRadius(),
+            parameters);
       }
 
-      try (InputStream inputStream = fileBackedOutputStream.asByteSource().openStream()) {
-        final Metacard metacard = inputTransformer.transform(inputStream);
-        metacard.setSourceId(getId());
-        ResultImpl result = new ResultImpl(metacard);
-        List<Result> resultQueue = new ArrayList<>();
-        resultQueue.add(result);
-        return new SourceResponseImpl(queryRequest, resultQueue);
+      if (idSearch != null && !idSearch.isBlank()) {
+        uriBuilder.setParameter(OpenSearchConstants.RECORD_IDS, idSearch);
       }
-    } catch (IOException | CatalogTransformerException e) {
-      throw new UnsupportedQueryException("Problem with transformation.", e);
+
+      if (localQueryOnly) {
+        uriBuilder.setParameter(OpenSearchConstants.SOURCES, OpenSearchConstants.LOCAL_SOURCE);
+      } else {
+        uriBuilder.setParameter(OpenSearchConstants.SOURCES, "");
+      }
+
+      InputStream responseStream = performRequest(uriBuilder.build());
+      return processResponse(responseStream, queryRequest);
+    } catch (URISyntaxException e) {
+      throw new UnsupportedQueryException(UNABLE_TO_CREATE_HTTP_CLIENT, e);
     }
   }
 
@@ -494,35 +451,45 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   /**
    * Performs a GET request on the client and returns the entity as an InputStream.
    *
-   * @param client Client to perform the GET request on.
+   * @param uri URI to perform the GET request on.
    * @return The entity of the response as an InputStream.
    */
-  private InputStream performRequest(WebClient client) throws UnsupportedQueryException {
-    Response clientResponse = client.get();
+  private InputStream performRequest(URI uri) throws UnsupportedQueryException {
+    HttpResponse<InputStream> clientResponse = null;
+    try {
+      clientResponse =
+          httpClient.send(
+              HttpRequest.newBuilder()
+                  .GET()
+                  .uri(uri)
+                  .timeout(Duration.of(getReceiveTimeout(), ChronoUnit.MILLIS))
+                  .build(),
+              HttpResponse.BodyHandlers.ofInputStream());
+    } catch (IOException | InterruptedException e) {
+      throw new UnsupportedQueryException(UNABLE_TO_CREATE_HTTP_CLIENT, e);
+    }
 
-    Object entityObj = clientResponse.getEntity();
-    if (entityObj == null) {
+    final InputStream stream = clientResponse.body();
+    if (stream == null) {
       throw new UnsupportedQueryException("The response message does not contain an entity body.");
     }
 
-    final InputStream stream = (InputStream) entityObj;
-
-    if (Response.Status.OK.getStatusCode() == clientResponse.getStatus()) {
-      return stream;
+    if (clientResponse.statusCode() != 200) {
+      String error = "";
+      try {
+        error = IOUtils.toString(stream, StandardCharsets.UTF_8);
+      } catch (IOException ioe) {
+        LOGGER.debug("Could not convert error message to a string for output.", ioe);
+      }
+      String errorMsg =
+          "Received error code from remote source (status "
+              + clientResponse.statusCode()
+              + "): "
+              + error;
+      throw new UnsupportedQueryException(errorMsg);
     }
 
-    String error = "";
-    try {
-      error = IOUtils.toString(stream, StandardCharsets.UTF_8);
-    } catch (IOException ioe) {
-      LOGGER.debug("Could not convert error message to a string for output.", ioe);
-    }
-    String errorMsg =
-        "Received error code from remote source (status "
-            + clientResponse.getStatus()
-            + "): "
-            + error;
-    throw new UnsupportedQueryException(errorMsg);
+    return stream;
   }
 
   /** Package-private so that tests may set the foreign markup consumer. */
@@ -865,22 +832,21 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       throw new ResourceNotFoundException("Could not retrieve resource with null properties.");
     }
 
-    Serializable serializableId = requestProperties.get(Metacard.ID);
-
-    if (serializableId != null) {
-      String metacardId = serializableId.toString();
-      WebClient restClient = null;
+    if (requestProperties.get(Metacard.RESOURCE_URI) != null) {
+      URI resourceUri;
       try {
-        restClient = newRestClient(null, metacardId, true);
+        resourceUri = new URI(requestProperties.get(Metacard.RESOURCE_URI).toString());
       } catch (URISyntaxException e) {
-        throw new IOException(UNABLE_TO_CREATE_RWC, e);
+        throw new ResourceNotFoundException(
+            "Could not retrieve resource with invalid OpenSearch endpoint URL.");
       }
+
       if (StringUtils.isNotBlank(username)) {
         requestProperties.put(USERNAME_PROPERTY, username);
         requestProperties.put(PASSWORD_PROPERTY, password);
       }
 
-      return resourceReader.retrieveResource(restClient.getCurrentURI(), requestProperties);
+      return resourceReader.retrieveResource(resourceUri, requestProperties);
     }
 
     LOGGER.trace("EXIT: {}", methodName);
@@ -948,26 +914,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     updateFactory();
   }
 
-  public void setOauthDiscoveryUrl(String oauthDiscoveryUrl) {
-    this.oauthDiscoveryUrl = oauthDiscoveryUrl;
-    updateFactory();
-  }
-
-  public void setOauthClientId(String oauthClientId) {
-    this.oauthClientId = oauthClientId;
-    updateFactory();
-  }
-
-  public void setOauthClientSecret(String oauthClientSecret) {
-    this.oauthClientSecret = oauthClientSecret;
-    updateFactory();
-  }
-
-  public void setOauthFlow(String oauthFlow) {
-    this.oauthFlow = oauthFlow;
-    updateFactory();
-  }
-
   public Boolean getDisableCnCheck() {
     return disableCnCheck;
   }
@@ -1004,76 +950,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     updateFactory();
   }
 
-  private WebClient newRestClient(Query query, String metacardId, boolean retrieveResource)
-      throws URISyntaxException {
-    String url = endpointUrl.getResolvedString();
-    if (query != null) {
-      url = createRestUrl(query, url, retrieveResource);
-    } else {
-      RestUrl restUrl = newRestUrl(url);
-
-      if (restUrl != null) {
-        if (StringUtils.isNotEmpty(metacardId)) {
-          restUrl.setId(metacardId);
-        }
-        restUrl.setRetrieveResource(retrieveResource);
-        url = restUrl.buildUrl();
-      }
-    }
-    return newOpenSearchClient(new URI(url));
-  }
-
-  private String createRestUrl(Query query, String endpointUrl, boolean retrieveResource) {
-
-    String url = null;
-    RestFilterDelegate delegate = null;
-    RestUrl restUrl = newRestUrl(endpointUrl);
-    if (restUrl != null) {
-      restUrl.setRetrieveResource(retrieveResource);
-      delegate = new RestFilterDelegate(restUrl);
-    }
-
-    if (delegate != null) {
-      try {
-        filterAdapter.adapt(query, delegate);
-        url = delegate.getRestUrl().buildUrl();
-      } catch (UnsupportedQueryException e) {
-        LOGGER.debug("Not a REST request.", e);
-      }
-    }
-    return url;
-  }
-
   public void setResourceReader(ResourceReader reader) {
     this.resourceReader = reader;
   }
 
-  /**
-   * Creates a new RestUrl object based on an OpenSearch URL
-   *
-   * @return RestUrl object for a DDF REST endpoint
-   */
-  private RestUrl newRestUrl(String url) {
-    RestUrl restUrl = null;
-    try {
-      restUrl = RestUrl.newInstance(url);
-      restUrl.setRetrieveResource(true);
-    } catch (MalformedURLException | URISyntaxException e) {
-      LOGGER.debug("Bad url given for remote source", e);
-    }
-    return restUrl;
-  }
-
-  /**
-   * Creates a new webClient based off a url and, if BasicAuth is not used, a Security Subject
-   *
-   * @param url - the endpoint url
-   * @return A webclient for the endpoint URL either using BasicAuth, using the Security Subject, or
-   *     an insecure client.
-   */
-  private WebClient newOpenSearchClient(URI url) {
-    JAXRSClientFactoryBean clientFactory = createClientFactory(url, username, password);
-    return clientFactory.createWebClient();
+  // For testing
+  void setHttpClient(HttpClient client) {
+    this.httpClient = client;
   }
 
   private List<Metacard> processAdditionalForeignMarkups(Element element, String id)

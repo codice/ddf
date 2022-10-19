@@ -30,9 +30,6 @@
     <bean id="openSearchFilterVisitor"
           class="org.codice.ddf.opensearch.source.OpenSearchFilterVisitor"/>
 
-    <bean id="openSearchParserImpl"
-          class="org.codice.ddf.opensearch.source.OpenSearchParserImpl"/>
-
     <cm:managed-service-factory id="DDFfederationPrototypeServiceFactory"
                                 factory-pid="OpenSearchSource">
         <interfaces>
@@ -45,7 +42,6 @@
                 instance is created and when it is deleted. The init method is called after 
                 all of the setter methods have been called. -->
             <argument ref="filterAdapter"/>
-            <argument ref="openSearchParserImpl"/>
             <argument ref="openSearchFilterVisitor"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="container-managed"/>
@@ -82,6 +78,7 @@
                     <value>dateName</value>
                     <value>filter</value>
                     <value>sort</value>
+                    <value>recordIds</value>
                 </list>
             </property>
             <property name="resourceReader" ref="resourceReader"/>

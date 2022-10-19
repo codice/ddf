@@ -481,11 +481,13 @@ public class URLResourceReader implements ResourceReader {
     }
 
     if (properties.get(USERNAME) != null && properties.get(PASSWORD) != null) {
+      String username = properties.get(USERNAME).toString();
+      String password = properties.get(PASSWORD).toString();
       clientBuilder.authenticator(
           new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-              return new PasswordAuthentication(USERNAME, PASSWORD.toCharArray());
+              return new PasswordAuthentication(username, password.toCharArray());
             }
           });
     }

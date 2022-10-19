@@ -23,7 +23,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,6 +53,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -69,11 +70,8 @@ import javax.annotation.Nullable;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.jdom2.Element;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,11 +128,8 @@ public class OpenSearchSourceTest {
 
   private static final String NOT_ID_ATTRIBUTE_NAME = "this attribute name is ignored";
 
-  private final WebClient webClient = mock(WebClient.class);
-  private final JAXRSClientFactoryBean factory = mock(JAXRSClientFactoryBean.class);
-  private final OpenSearchParser openSearchParser = new OpenSearchParserImpl();
   private final OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
-  private Response response;
+  private HttpResponse response;
   private OverriddenOpenSearchSource source;
 
   public static final String SAMPLE_ATOM =
@@ -390,31 +385,26 @@ public class OpenSearchSourceTest {
 
   @Before
   public void setUp() throws Exception {
-    response = mock(Response.class);
+    HttpClient httpClient = mock(HttpClient.class);
+    response = mock(HttpResponse.class);
+    when(httpClient.send(any(), any())).thenReturn(response);
 
-    doReturn(response).when(webClient).get();
-    doReturn(Response.Status.OK.getStatusCode()).when(response).getStatus();
+    when(response.statusCode()).thenReturn(200);
+    when(response.body()).thenReturn(getSampleXmlStream());
 
-    doReturn(getSampleXmlStream()).when(response).getEntity();
-    when(response.getHeaderString(eq("Accept-Ranges"))).thenReturn("bytes");
-    when(webClient.replaceQueryParam(any(String.class), any(Object.class))).thenReturn(webClient);
-    when(webClient.getCurrentURI()).thenReturn(SAMPLE_QUERY_URL);
-
-    doReturn(webClient).when(factory).createWebClient();
-
-    source =
-        new OverriddenOpenSearchSource(
-            FILTER_ADAPTER, openSearchParser, openSearchFilterVisitor, factory);
+    source = new OverriddenOpenSearchSource(FILTER_ADAPTER, openSearchFilterVisitor);
     source.setShortname(SOURCE_ID);
     source.setBundle(getMockBundleContext(getMockInputTransformer()));
     source.setEndpointUrl("http://localhost:8181/services/catalog/query");
     source.init();
     source.setParameters(DEFAULT_PARAMETERS);
+    source.setHttpClient(httpClient);
   }
 
   /** Tests the proper query is sent to the remote source for query by id. */
   @Test
   public void testQueryById() throws UnsupportedQueryException {
+    when(response.body()).thenReturn(getSampleAtomStream());
     Filter filter = FILTER_BUILDER.attribute(ID_ATTRIBUTE_NAME).equalTo().text(SAMPLE_ID);
 
     // when
@@ -426,7 +416,7 @@ public class OpenSearchSourceTest {
 
   @Test
   public void testQueryBySearchPhrase() throws UnsupportedQueryException {
-    when(response.getEntity()).thenReturn(getSampleAtomStream());
+    when(response.body()).thenReturn(getSampleAtomStream());
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
@@ -446,7 +436,7 @@ public class OpenSearchSourceTest {
 
   @Test
   public void testQueryBySearchPhraseRss() throws UnsupportedQueryException {
-    when(response.getEntity()).thenReturn(getSampleRssStream());
+    when(response.body()).thenReturn(getSampleRssStream());
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
@@ -468,7 +458,7 @@ public class OpenSearchSourceTest {
   public void testQueryBySearchPhraseContentTypeSet()
       throws UnsupportedQueryException, IOException, CatalogTransformerException,
           InvalidSyntaxException {
-    when(response.getEntity()).thenReturn(getSampleAtomStream());
+    when(response.body()).thenReturn(getSampleAtomStream());
     InputTransformer inputTransformer = mock(InputTransformer.class);
 
     MetacardImpl generatedMetacard = new MetacardImpl();
@@ -499,7 +489,7 @@ public class OpenSearchSourceTest {
   public void testQueryBySearchPhraseContentTypeSetRss()
       throws UnsupportedQueryException, IOException, CatalogTransformerException,
           InvalidSyntaxException {
-    when(response.getEntity()).thenReturn(getSampleRssStream());
+    when(response.body()).thenReturn(getSampleRssStream());
 
     InputTransformer inputTransformer = mock(InputTransformer.class);
 
@@ -529,7 +519,7 @@ public class OpenSearchSourceTest {
 
   @Test
   public void testQueryAnyText() throws UnsupportedQueryException {
-    when(response.getEntity()).thenReturn(getSampleAtomStream());
+    when(response.body()).thenReturn(getSampleAtomStream());
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
@@ -542,7 +532,7 @@ public class OpenSearchSourceTest {
   public void testResponseWithNoCorrespondingTransformer()
       throws InvalidSyntaxException, UnsupportedQueryException {
     source.setBundle(getMockBundleContext(null));
-    when(response.getEntity()).thenReturn(getSampleAtomStream());
+    when(response.body()).thenReturn(getSampleAtomStream());
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
@@ -552,7 +542,7 @@ public class OpenSearchSourceTest {
 
   @Test(expected = UnsupportedQueryException.class)
   public void testQueryBadResponse() throws UnsupportedQueryException {
-    doReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).when(response).getStatus();
+    when(response.statusCode()).thenReturn(500);
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
@@ -563,7 +553,7 @@ public class OpenSearchSourceTest {
   @Test
   public void testQueryResponseWithForeignMarkup() throws UnsupportedQueryException {
     source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
-    when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
+    when(response.body()).thenReturn(getSampleAtomStreamWithForeignMarkup());
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
@@ -583,18 +573,17 @@ public class OpenSearchSourceTest {
 
     // given
     ResourceReader mockReader = mock(ResourceReader.class);
-    when(response.getEntity()).thenReturn(getBinaryData());
+    when(response.body()).thenReturn(getBinaryData());
     when(mockReader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
     MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
     headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/octet-stream"));
-    when(response.getHeaders()).thenReturn(headers);
 
     source.setLocalQueryOnly(true);
     source.setResourceReader(mockReader);
 
     Map<String, Serializable> requestProperties = new HashMap<>();
-    requestProperties.put(ID_ATTRIBUTE_NAME, SAMPLE_ID);
+    requestProperties.put(Metacard.RESOURCE_URI, SAMPLE_QUERY_URL);
 
     // when
     ResourceResponse response = source.retrieveResource(null, requestProperties);
@@ -611,7 +600,7 @@ public class OpenSearchSourceTest {
   public void testRetrieveResourceBasicAuth() throws Exception {
 
     ResourceReader mockReader = mock(ResourceReader.class);
-    when(response.getEntity()).thenReturn(getBinaryData());
+    when(response.body()).thenReturn(getBinaryData());
     when(mockReader.retrieveResource(
             any(URI.class),
             argThat(
@@ -621,7 +610,6 @@ public class OpenSearchSourceTest {
         .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
     MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
     headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/octet-stream"));
-    when(response.getHeaders()).thenReturn(headers);
 
     source.setLocalQueryOnly(true);
     source.setResourceReader(mockReader);
@@ -629,7 +617,7 @@ public class OpenSearchSourceTest {
     source.setPassword("secret");
 
     Map<String, Serializable> requestProperties = new HashMap<>();
-    requestProperties.put(ID_ATTRIBUTE_NAME, SAMPLE_ID);
+    requestProperties.put(Metacard.RESOURCE_URI, SAMPLE_QUERY_URL);
 
     ResourceResponse response = source.retrieveResource(null, requestProperties);
     assertThat(response.getResource().getByteArray().length, is(3));
@@ -644,7 +632,7 @@ public class OpenSearchSourceTest {
 
   @Test
   public void testQueryQueryByMetacardIdFollowedByAnyTextQuery() throws Exception {
-    when(response.getEntity()).thenReturn(getSampleXmlStream()).thenReturn(getSampleAtomStream());
+    when(response.body()).thenReturn(getSampleAtomStream()).thenReturn(getSampleAtomStream());
 
     // Metacard ID filter
     Filter idFilter = FILTER_BUILDER.attribute(ID_ATTRIBUTE_NAME).equalTo().text(SAMPLE_ID);
@@ -668,7 +656,7 @@ public class OpenSearchSourceTest {
 
   @Test
   public void testQueryQueryByMetacardIdFollowedByAnyTextQueryRss() throws Exception {
-    when(response.getEntity()).thenReturn(getSampleXmlStream()).thenReturn(getSampleRssStream());
+    when(response.body()).thenReturn(getSampleRssStream()).thenReturn(getSampleRssStream());
 
     // Metacard ID filter
     Filter idFilter = FILTER_BUILDER.attribute(ID_ATTRIBUTE_NAME).equalTo().text(SAMPLE_ID);
@@ -752,7 +740,7 @@ public class OpenSearchSourceTest {
     source.setForeignMarkupBiConsumer(foreignMarkupConsumer);
 
     source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
-    when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
+    when(response.body()).thenReturn(getSampleAtomStreamWithForeignMarkup());
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
@@ -787,7 +775,7 @@ public class OpenSearchSourceTest {
     source.setForeignMarkupBiConsumer(foreignMarkupConsumer);
 
     source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
-    when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
+    when(response.body()).thenReturn(getSampleAtomStreamWithForeignMarkup());
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
@@ -819,7 +807,7 @@ public class OpenSearchSourceTest {
     source.setForeignMarkupBiConsumer(foreignMarkupConsumer);
 
     source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
-    when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
+    when(response.body()).thenReturn(getSampleAtomStreamWithForeignMarkup());
 
     Filter filter =
         FILTER_BUILDER.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
@@ -878,16 +866,8 @@ public class OpenSearchSourceTest {
      * overwritten using the setter methods.
      */
     OverriddenOpenSearchSource(
-        FilterAdapter filterAdapter,
-        OpenSearchParser openSearchParser,
-        OpenSearchFilterVisitor openSearchFilterVisitor,
-        JAXRSClientFactoryBean factory) {
-      super(
-          filterAdapter,
-          openSearchParser,
-          openSearchFilterVisitor,
-          (elements, sourceResponse) -> {},
-          factory);
+        FilterAdapter filterAdapter, OpenSearchFilterVisitor openSearchFilterVisitor) {
+      super(filterAdapter, openSearchFilterVisitor, (elements, sourceResponse) -> {});
     }
 
     void setBundle(Bundle bundle) {
@@ -907,12 +887,6 @@ public class OpenSearchSourceTest {
         }
       }
       return null;
-    }
-
-    @Override
-    protected JAXRSClientFactoryBean createClientFactory(
-        URI url, String username, String password) {
-      return factory;
     }
   }
 }

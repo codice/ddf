@@ -13,30 +13,28 @@
  */
 package org.codice.ddf.opensearch.source
 
-import org.apache.cxf.jaxrs.client.WebClient
+import org.apache.http.client.utils.URIBuilder
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
 import spock.lang.Specification
 
 @RunWith(JUnitPlatform.class)
-class OpenSearchParserImplSpec extends Specification {
+class OpenSearchUriBuilderSpec extends Specification {
 
-    private OpenSearchParser openSearchParser = new OpenSearchParserImpl()
-
-    private WebClient webClient = Mock(WebClient)
+    private URIBuilder uriBuilder = Mock(URIBuilder)
 
     // {@link OpenSearchParser#populateContextual(WebClient, Map, List)} tests
 
     def 'test populate contextual'() {
         when:
-        openSearchParser.populateContextual(
-                webClient,
+        OpenSearchUriBuilder.populateContextual(
+                uriBuilder,
                 [q: searchPhrase],
                 ['q', 'src', 'mr', 'start', 'count', 'mt', 'dn', 'lat', 'lon', 'radius', 'bbox', 'polygon', 'dtstart', 'dtend', 'dateName', 'filter', 'sort']
         )
 
         then:
-        1 * webClient.replaceQueryParam('q', searchPhrase)
+        1 * uriBuilder.setParameter('q', searchPhrase)
 
         where:
         searchPhrase << ['TestQuery123', 'Test Query 123']
@@ -44,14 +42,14 @@ class OpenSearchParserImplSpec extends Specification {
 
     def 'test contextual not populated'() {
         when:
-        openSearchParser.populateContextual(
-                webClient,
+        OpenSearchUriBuilder.populateContextual(
+                uriBuilder,
                 searchPhraseMap,
                 ['q', 'src', 'mr', 'start', 'count', 'mt', 'dn', 'lat', 'lon', 'radius', 'bbox', 'polygon', 'dtstart', 'dtend', 'dateName', 'filter', 'sort']
         )
 
         then:
-        0 * webClient._
+        0 * uriBuilder._
 
         where:
         searchPhraseMap << [[unrecognizedParameter: 'TestQuery123'], [:], null]

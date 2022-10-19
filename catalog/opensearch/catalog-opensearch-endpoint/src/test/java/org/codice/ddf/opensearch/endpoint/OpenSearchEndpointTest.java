@@ -49,7 +49,7 @@ public class OpenSearchEndpointTest {
   /**
    * Test method for {@link OpenSearchEndpoint#processQuery(String, String, String, String, String,
    * String, String, String, String, String, String, String, String, String, String, String, String,
-   * String, String, String, HttpServletRequest, HttpServletResponse)} .
+   * String, String, String, String, HttpServletRequest, HttpServletResponse)} .
    *
    * <p>This test will verify that the string "local" in the sources passed to
    * OpenSearchEndpoint.processQuery is replaced with the local site name (in this case the mocked
@@ -123,6 +123,7 @@ public class OpenSearchEndpointTest {
         null,
         null,
         count,
+        null,
         null,
         null,
         null,
