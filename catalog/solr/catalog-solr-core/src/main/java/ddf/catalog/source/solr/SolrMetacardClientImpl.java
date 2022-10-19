@@ -186,7 +186,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     SolrFilterDelegate solrFilterDelegate =
         filterDelegateFactory.newInstance(resolver, request.getProperties());
+    LOGGER.trace("Generate solr query: query request {}", request);
     SolrQuery query = getSolrQuery(request, solrFilterDelegate);
+    LOGGER.trace("Done generating solr query: query request {}", request);
 
     boolean isFacetedQuery = handleFacetRequest(query, request);
     query = handleSuggestionQuery(query, request);
@@ -199,6 +201,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
               || BooleanUtils.toBoolean(
                   filterAdapter.adapt(request.getQuery(), new RealTimeGetDelegate()));
 
+      LOGGER.trace("Begin executing solr query: query request {}", request);
       if (doRealTimeGet) {
         LOGGER.debug("Performing real time query");
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
@@ -210,6 +213,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         highlighter.processPreQuery(request, query);
         solrResponse = client.query(query, METHOD.POST);
       }
+      LOGGER.trace("End executing solr query: query request {}", request);
 
       if (isFacetedQuery) {
         handleFacetResponse(solrResponse, responseProps);
@@ -366,6 +370,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     QueryResponse highlightResponse = solrResponse;
     SolrDocumentList resultDocs = originalDocs;
     if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
+      LOGGER.trace("Begin solr spellcheck: query request {}", request);
       Collation collation = getCollationToResend(query, solrResponse);
       query.set("q", collation.getCollationQueryString());
       query.set("spellcheck", false);
@@ -387,8 +392,13 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         responseProps.put(DID_YOU_MEAN_KEY, new ArrayList<>(originals));
         responseProps.put(SHOWING_RESULTS_FOR_KEY, new ArrayList<>(corrections));
       }
+      LOGGER.trace("End solr spellcheck: query request {}", request);
     }
-    highlighter.processPostQuery(highlightResponse, responseProps);
+    if (highlightResponse.getHighlighting() != null) {
+      LOGGER.trace("Starting highlight extraction: query request {}", request);
+      highlighter.processPostQuery(highlightResponse, responseProps);
+      LOGGER.trace("Ending highlight extraction: query request {}", request);
+    }
     return resultDocs;
   }
 
