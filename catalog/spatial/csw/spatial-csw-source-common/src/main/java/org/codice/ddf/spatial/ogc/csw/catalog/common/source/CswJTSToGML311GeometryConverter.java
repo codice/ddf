@@ -14,6 +14,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.HashMap;
@@ -51,6 +52,8 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
 
   private final JTSToGML311ConverterInterface<LinearRingType, AbstractRingPropertyType, LinearRing>
       cswLinearRingConverter;
+
+  private final CswJTSToGML311LineStringConverter cswLineStringConverter;
 
   private final JTSToGML311ConverterInterface<PolygonType, PolygonPropertyType, Polygon>
       cswPolygonConverter;
@@ -130,6 +133,12 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
             srsReferenceGroupConverter,
             this.cswCoordinateConverter,
             Boolean.valueOf(propertyMap.get(USE_POS_LIST_GEO_CONVERTER_PROP_KEY)));
+    this.cswLineStringConverter =
+        new CswJTSToGML311LineStringConverter(
+            objectFactory,
+            srsReferenceGroupConverter,
+            this.cswCoordinateConverter,
+            Boolean.valueOf(propertyMap.get(USE_POS_LIST_GEO_CONVERTER_PROP_KEY)));
     this.cswPolygonConverter =
         new JTSToGML311PolygonConverter(
             objectFactory, srsReferenceGroupConverter, this.cswLinearRingConverter);
@@ -145,6 +154,9 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
     } else if (geometry instanceof Polygon) {
       LOGGER.debug("Creating PolygonType");
       return cswPolygonConverter.createGeometryType((Polygon) geometry);
+    } else if (geometry instanceof LineString) {
+      LOGGER.debug("Creating LineString");
+      return cswLineStringConverter.createGeometryType((LineString) geometry);
     } else {
       LOGGER.debug("Passing Geometry to superclass for default doCreateGeometryType processing");
       return super.doCreateGeometryType(geometry);
@@ -164,6 +176,9 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
     } else if (geometry instanceof Polygon) {
       LOGGER.debug("Creating Polygon");
       return cswPolygonConverter.createElement((Polygon) geometry);
+    } else if (geometry instanceof LineString) {
+      LOGGER.debug("Creating LineString");
+      return cswLineStringConverter.createElement((LineString) geometry);
     } else {
       LOGGER.debug("Passing Geometry to superclass for default createElement processing");
       return super.createElement(geometry);
