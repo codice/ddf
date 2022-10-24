@@ -67,9 +67,6 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Element;
@@ -576,8 +573,6 @@ public class OpenSearchSourceTest {
     when(response.body()).thenReturn(getBinaryData());
     when(mockReader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/octet-stream"));
 
     source.setLocalQueryOnly(true);
     source.setResourceReader(mockReader);
@@ -608,8 +603,6 @@ public class OpenSearchSourceTest {
                     hasEntry("username", (Serializable) "user"),
                     hasEntry("password", (Serializable) "secret")))))
         .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/octet-stream"));
 
     source.setLocalQueryOnly(true);
     source.setResourceReader(mockReader);
