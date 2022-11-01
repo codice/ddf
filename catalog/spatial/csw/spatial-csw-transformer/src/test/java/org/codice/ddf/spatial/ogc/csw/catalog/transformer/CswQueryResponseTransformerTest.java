@@ -45,7 +45,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transformer.api.PrintWriter;
 import ddf.catalog.transformer.api.PrintWriterProvider;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -57,17 +56,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.activation.MimeType;
-import javax.ws.rs.WebApplicationException;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.hamcrest.core.IsEqual;
 import org.junit.Before;
@@ -314,7 +311,7 @@ public class CswQueryResponseTransformerTest {
 
   @Test
   public void testMarshalAcknowledgement()
-      throws WebApplicationException, IOException, JAXBException, CatalogTransformerException {
+      throws IOException, ParserException, CatalogTransformerException {
 
     GetRecordsType query = new GetRecordsType();
     query.setResultType(ResultType.VALIDATE);
@@ -328,13 +325,8 @@ public class CswQueryResponseTransformerTest {
 
     BinaryContent content = transformer.transform(sourceResponse, args);
 
-    String xml = new String(content.getByteArray());
-
-    JAXBElement<?> jaxb =
-        (JAXBElement<?>)
-            getJaxBContext()
-                .createUnmarshaller()
-                .unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+    CswXmlParser parser = new CswXmlParser();
+    JAXBElement<?> jaxb = parser.unmarshal(JAXBElement.class, content.getInputStream());
 
     assertThat(jaxb.getValue(), is(instanceOf(AcknowledgementType.class)));
     AcknowledgementType response = (AcknowledgementType) jaxb.getValue();
@@ -345,7 +337,7 @@ public class CswQueryResponseTransformerTest {
 
   @Test
   public void testMarshalAcknowledgementWithFailedTransforms()
-      throws WebApplicationException, IOException, JAXBException, CatalogTransformerException {
+      throws IOException, JAXBException, CatalogTransformerException {
 
     GetRecordsType query = new GetRecordsType();
     query.setResultType(ResultType.RESULTS);
@@ -476,23 +468,6 @@ public class CswQueryResponseTransformerTest {
     }
 
     return list;
-  }
-
-  private JAXBContext getJaxBContext() throws JAXBException {
-    JAXBContext context;
-    String contextPath =
-        StringUtils.join(
-            new String[] {
-              CswConstants.OGC_CSW_PACKAGE,
-              CswConstants.OGC_FILTER_PACKAGE,
-              CswConstants.OGC_GML_PACKAGE,
-              CswConstants.OGC_OWS_PACKAGE
-            },
-            ":");
-
-    context = JAXBContext.newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
-
-    return context;
   }
 
   private PrintWriter getSimplePrintWriter() {

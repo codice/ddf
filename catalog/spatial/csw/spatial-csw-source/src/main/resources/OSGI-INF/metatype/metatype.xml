@@ -24,16 +24,6 @@
             name="CSW URL" id="cswUrl" type="String"
             default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/csw"/>
 
-        <AD name="Event Service Address" id="eventServiceAddress" required="false" type="String"
-            description="Event Service endpoint."
-            default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/csw/subscription">
-        </AD>
-
-        <AD name="Register for Events" id="registerForEvents" required="false" type="Boolean"
-            default="false"
-            description="Check to register for events from this source.">
-        </AD>
-
         <AD name="Authentication Type" id="authenticationType" type="String" default="none"
             description="The authentication type to use when federating.">
             <Option label="None" value="none"/>
@@ -57,10 +47,6 @@
             <Option label="Lon/Lat" value="LON_LAT"/>
             <Option label="Lat/Lon" value="LAT_LON"/>
         </AD>
-
-        <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing"
-            name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean"
-            default="false"/>
 
         <AD description="Mapping of the Metacard Attribute names to their CSW property names. The format should be 'title=dc:title'."
             name="Metacard Mappings" id="metacardMappings" required="false" type="String"

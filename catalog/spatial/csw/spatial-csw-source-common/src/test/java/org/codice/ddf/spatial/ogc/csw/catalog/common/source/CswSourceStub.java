@@ -13,15 +13,12 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
-import static org.mockito.Mockito.mock;
-
 import com.thoughtworks.xstream.converters.Converter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.osgi.framework.BundleContext;
 
 public class CswSourceStub extends AbstractCswSource {
@@ -30,27 +27,17 @@ public class CswSourceStub extends AbstractCswSource {
       BundleContext mockContext,
       CswSourceConfiguration cswSourceConfiguration,
       Converter mockProvider,
-      JAXRSClientFactoryBean clientFactoryBean) {
-    super(mockContext, cswSourceConfiguration, mockProvider);
-    super.subscribeClientFactory = mock(JAXRSClientFactoryBean.class);
-    super.factory = clientFactoryBean;
+      CswClient cswClient) {
+    super(mockContext, cswSourceConfiguration, new CswXmlParser(), mockProvider, cswClient);
   }
 
   @Override
-  protected JAXRSClientFactoryBean initClientFactory(Class clazz) {
-    if (Csw.class.equals(clazz)) {
-      return super.factory;
-    } else {
-      return super.subscribeClientFactory;
-    }
+  protected CswClient createCswClient() {
+    return super.cswClient;
   }
 
   @Override
   protected Map<String, Consumer<Object>> getAdditionalConsumers() {
     return new HashMap<>();
-  }
-
-  public JAXRSClientFactoryBean getSubscriberClientFactory() {
-    return subscribeClientFactory;
   }
 }

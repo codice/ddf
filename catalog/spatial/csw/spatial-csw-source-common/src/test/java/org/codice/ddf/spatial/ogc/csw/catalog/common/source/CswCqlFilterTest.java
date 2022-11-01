@@ -43,6 +43,7 @@ import net.opengis.ows.v_1_0_0.Operation;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -1295,7 +1296,7 @@ public class CswCqlFilterTest {
 
   @Test
   public void testIdQuoting() throws UnsupportedQueryException {
-    CswFilterFactory factory = new CswFilterFactory(CswAxisOrder.LON_LAT, true);
+    CswFilterFactory factory = new CswFilterFactory(new CswXmlParser(), CswAxisOrder.LON_LAT);
     FilterType filter = factory.buildPropertyIsEqualToFilter(Core.ID, "12345", false);
     String cqlText = CswCqlTextFilter.getInstance().getCqlText(filter);
     assertThat(cqlText, is("\"id\" = '12345'"));
@@ -1534,6 +1535,7 @@ public class CswCqlFilterTest {
 
     CswFilterDelegate localCswFilterDelegate =
         new CswFilterDelegate(
+            new CswXmlParser(),
             getOperation(),
             getMockFilterCapabilities(),
             outputFormatValues,

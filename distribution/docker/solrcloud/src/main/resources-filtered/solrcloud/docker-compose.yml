@@ -34,6 +34,7 @@ services:
     environment:
       - SOLR_HOST=localhost
       - SOLR_PORT=8994
+      - SOLR_HEAP=2g
       - SOLR_OPTS=-Djute.maxbuffer=2097152
       - ZK_HOST=zoo:2181
     volumes:
@@ -52,6 +53,7 @@ services:
     environment:
       - SOLR_HOST=localhost
       - SOLR_PORT=8995
+      - SOLR_HEAP=2g
       - SOLR_OPTS=-Djute.maxbuffer=2097152
       - ZK_HOST=zoo:2181
     volumes:

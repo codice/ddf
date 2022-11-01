@@ -17,7 +17,6 @@ import com.google.common.net.HttpHeaders;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 
 public final class CswConstants {
@@ -405,7 +404,7 @@ public final class CswConstants {
 
   public static final String TRANSACTION_FAILED = "TransactionFailed";
 
-  public static final String OUTPUT_FORMAT_XML = MediaType.APPLICATION_XML;
+  public static final String OUTPUT_FORMAT_XML = "application/xml";
 
   public static final String SCHEMA_LANGUAGE_X_SCHEMA_2001 = "http://www.w3.org/2001/XMLSchema";
 

@@ -16,14 +16,11 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import net.opengis.filter.v_1_1_0.FilterType;
+import net.opengis.filter.v_1_1_0.ObjectFactory;
+import org.codice.ddf.parser.ParserException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.filter.v1_1.OGCConfiguration;
 import org.geotools.xsd.Parser;
@@ -37,7 +34,9 @@ public final class CswCqlTextFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswCqlTextFilter.class);
 
-  private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
+  private final ObjectFactory objectFactory = new ObjectFactory();
+
+  private final CswXmlParser parser = new CswXmlParser();
 
   private static CswCqlTextFilter instance;
 
@@ -48,22 +47,6 @@ public final class CswCqlTextFilter {
       instance = new CswCqlTextFilter();
     }
     return instance;
-  }
-
-  private static JAXBContext initJaxbContext() {
-
-    JAXBContext jaxbContext = null;
-
-    try {
-      jaxbContext =
-          JAXBContext.newInstance(
-              "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0",
-              AbstractCswSource.class.getClassLoader());
-    } catch (JAXBException e) {
-      LOGGER.info("Failed to initialize JAXBContext", e);
-    }
-
-    return jaxbContext;
   }
 
   public String getCqlText(FilterType filterType) throws UnsupportedQueryException {
@@ -78,19 +61,14 @@ public final class CswCqlTextFilter {
       } else {
         throw new UnsupportedQueryException("Query did not produce a valid filter.");
       }
-    } catch (IOException | SAXException | ParserConfigurationException | JAXBException e) {
+    } catch (IOException | SAXException | ParserConfigurationException | ParserException e) {
       throw new UnsupportedQueryException("Unable to create CQL Filter.", e);
     }
   }
 
-  private String marshalFilterType(FilterType filterType) throws JAXBException {
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    JAXBElement<FilterType> filterTypeJaxbElement =
-        new JAXBElement<>(
-            new QName("http://www.opengis.net/ogc", "Filter"), FilterType.class, filterType);
-    StringWriter writer = new StringWriter();
-    marshaller.marshal(filterTypeJaxbElement, writer);
-    LOGGER.debug("Filter as XML => {}", writer);
-    return writer.toString();
+  private String marshalFilterType(FilterType filterType) throws ParserException {
+    String result = parser.marshal(objectFactory.createFilter(filterType));
+    LOGGER.debug("Filter as XML => {}", result);
+    return result;
   }
 }

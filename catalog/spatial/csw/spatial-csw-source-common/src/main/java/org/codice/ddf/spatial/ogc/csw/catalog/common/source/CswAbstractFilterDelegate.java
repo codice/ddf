@@ -25,7 +25,6 @@ import net.opengis.ows.v_1_0_0.DCP;
 import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.RequestMethodType;
-import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +95,7 @@ public abstract class CswAbstractFilterDelegate<T> extends FilterDelegate<T> {
   private void readUrls(Operation getRecordsOp) {
     List<DCP> dcp = getRecordsOp.getDCP();
     // only supports 1 DCP, and that is HTTP
-    if (!CollectionUtils.isEmpty(dcp)) {
+    if (dcp != null && !dcp.isEmpty()) {
       List<JAXBElement<RequestMethodType>> methods = dcp.get(0).getHTTP().getGetOrPost();
       for (JAXBElement<RequestMethodType> method : methods) {
         if (CswConstants.POST.equals(method.getName())) {

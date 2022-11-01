@@ -11,21 +11,23 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
+package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.Marshaller;
-import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
+import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.parser.xml.XmlParserConfigurator;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 
 public class CswXmlParser {
 
@@ -35,13 +37,33 @@ public class CswXmlParser {
 
   private ParserConfigurator unmarshallConfig;
 
-  public CswXmlParser(Parser parser) {
-    this.xmlParser = parser;
-
-    initializeParserConfig();
+  public CswXmlParser() {
+    this(new XmlParser());
   }
 
-  private void initializeParserConfig() {
+  public CswXmlParser(Parser parser) {
+    this(parser, new ArrayList<>());
+  }
+
+  public CswXmlParser(Parser parser, List<String> additionalContextPaths) {
+    this.xmlParser = parser;
+
+    initializeParserConfig(additionalContextPaths);
+  }
+
+  private void initializeParserConfig(List<String> additionalContextPaths) {
+    List<String> contextPath =
+        new ArrayList<>(
+            List.of(
+                CswConstants.OGC_CSW_PACKAGE,
+                CswConstants.OGC_FILTER_PACKAGE,
+                CswConstants.OGC_GML_PACKAGE,
+                CswConstants.OGC_OWS_PACKAGE));
+
+    if (additionalContextPaths != null) {
+      contextPath.addAll(additionalContextPaths);
+    }
+
     NamespacePrefixMapper mapper =
         new NamespacePrefixMapper() {
 
@@ -72,31 +94,39 @@ public class CswXmlParser {
         };
 
     marshallConfig = new XmlParserConfigurator();
-    marshallConfig.setClassLoader(ObjectFactory.class.getClassLoader());
-    marshallConfig.setContextPath(
-        List.of(
-            CswConstants.OGC_CSW_PACKAGE,
-            CswConstants.OGC_FILTER_PACKAGE,
-            CswConstants.OGC_GML_PACKAGE,
-            CswConstants.OGC_OWS_PACKAGE));
+    marshallConfig.setClassLoader(CswXmlParser.class.getClassLoader());
+    marshallConfig.setContextPath(contextPath);
+
     marshallConfig.addProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
     marshallConfig.addProperty("com.sun.xml.bind.namespacePrefixMapper", mapper);
 
     unmarshallConfig = new XmlParserConfigurator();
-    unmarshallConfig.setClassLoader(ObjectFactory.class.getClassLoader());
-    unmarshallConfig.setContextPath(
-        List.of(
-            CswConstants.OGC_CSW_PACKAGE,
-            CswConstants.OGC_FILTER_PACKAGE,
-            CswConstants.OGC_GML_PACKAGE,
-            CswConstants.OGC_OWS_PACKAGE));
+    unmarshallConfig.setClassLoader(CswXmlParser.class.getClassLoader());
+    unmarshallConfig.setContextPath(contextPath);
   }
 
   public void marshal(Object obj, OutputStream outputStream) throws ParserException {
     xmlParser.marshal(marshallConfig, obj, outputStream);
   }
 
+  public String marshal(Object obj) throws ParserException {
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+      xmlParser.marshal(marshallConfig, obj, outputStream);
+      return outputStream.toString();
+    } catch (IOException e) {
+      throw new ParserException("Unable to marshal CSW object to string.", e);
+    }
+  }
+
   public <T> T unmarshal(Class<? extends T> cls, InputStream inputStream) throws ParserException {
     return xmlParser.unmarshal(unmarshallConfig, cls, inputStream);
+  }
+
+  public <T> T unmarshal(Class<? extends T> cls, String input) throws ParserException {
+    try (ByteArrayInputStream inputStream = new ByteArrayInputStream(input.getBytes())) {
+      return unmarshal(cls, inputStream);
+    } catch (IOException e) {
+      throw new ParserException("Unable to unmarshal CSW string to object.", e);
+    }
   }
 }

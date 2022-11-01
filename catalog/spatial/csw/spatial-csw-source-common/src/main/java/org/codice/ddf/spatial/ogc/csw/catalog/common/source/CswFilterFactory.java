@@ -13,15 +13,12 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,10 +26,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import net.opengis.filter.v_1_1_0.AbstractIdType;
 import net.opengis.filter.v_1_1_0.BBOXType;
 import net.opengis.filter.v_1_1_0.BinaryComparisonOpType;
@@ -57,11 +50,11 @@ import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 import net.opengis.gml.v_3_1_1.DirectPositionType;
 import net.opengis.gml.v_3_1_1.EnvelopeType;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
+import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.BinarySpatialOperand;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311GeometryConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.MarshallerImpl;
 import org.locationtech.jts.geom.Envelope;
@@ -82,6 +75,8 @@ public class CswFilterFactory {
 
   private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
+  private final CswXmlParser parser;
+
   private final ObjectFactory filterObjectFactory = new ObjectFactory();
 
   private final net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
@@ -89,18 +84,15 @@ public class CswFilterFactory {
 
   private final CswAxisOrder cswAxisOrder;
 
-  private final boolean isSetUsePosList;
-
   /**
    * Constructor for CswFilterFactory.
    *
+   * @param parser XML parser to transform results
    * @param cswAxisOrder The order that axes are provided in.
-   * @param isSetUsePosList True if a single <posList> element, rather than a set of <pos> elements,
-   *     should be used in LinearRings when constructing XML Filter strings.
    */
-  public CswFilterFactory(CswAxisOrder cswAxisOrder, boolean isSetUsePosList) {
+  public CswFilterFactory(CswXmlParser parser, CswAxisOrder cswAxisOrder) {
+    this.parser = parser;
     this.cswAxisOrder = cswAxisOrder;
-    this.isSetUsePosList = isSetUsePosList;
   }
 
   private static JAXBContext initJaxbContext() {
@@ -120,8 +112,7 @@ public class CswFilterFactory {
 
     try {
       LOGGER.debug("Creating JAXB context with context path: {}.", contextPath);
-      jaxbContext =
-          JAXBContext.newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
+      jaxbContext = JAXBContext.newInstance(contextPath, CswFilterFactory.class.getClassLoader());
       LOGGER.debug("{}", jaxbContext);
     } catch (JAXBException e) {
       LOGGER.info("Unable to create JAXB context using contextPath: {}.", contextPath, e);
@@ -302,7 +293,7 @@ public class CswFilterFactory {
 
     Set<String> featureIds = getFeatureIds(filters);
 
-    if (!CollectionUtils.isEmpty(featureIds)) {
+    if (!featureIds.isEmpty()) {
       return buildFeatureIdFilter(featureIds);
     }
 
@@ -362,7 +353,7 @@ public class CswFilterFactory {
   private Set<String> getFeatureIds(List<FilterType> filters) {
     Set<String> ids = new HashSet<String>();
 
-    if (!CollectionUtils.isEmpty(filters)) {
+    if (filters != null && !filters.isEmpty()) {
       boolean isFeatureIdFilter = filters.get(0) != null && filters.get(0).isSetId();
 
       for (FilterType filter : filters) {
@@ -482,13 +473,7 @@ public class CswFilterFactory {
     geometry.setUserData(CswConstants.SRS_NAME);
     JAXBElement<? extends AbstractGeometryType> abstractGeometry = null;
     try {
-      Map<String, String> geoConverterProps = new HashMap<String, String>();
-      geoConverterProps.put(
-          CswJTSToGML311GeometryConverter.USE_POS_LIST_GEO_CONVERTER_PROP_KEY,
-          String.valueOf(isSetUsePosList));
-
-      JTSToGML311GeometryConverter converter =
-          new CswJTSToGML311GeometryConverter(geoConverterProps);
+      JTSToGML311GeometryConverter converter = new CswJTSToGML311GeometryConverter();
 
       Marshaller marshaller = new MarshallerImpl(JAXB_CONTEXT.createMarshaller(), converter);
       StringWriter writer = new StringWriter();
@@ -496,24 +481,8 @@ public class CswFilterFactory {
       String xmlGeo = writer.toString();
       LOGGER.debug("Geometry as XML: {}", xmlGeo);
 
-      XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
-      xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-      xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-      xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
-      XMLStreamReader xmlStreamReader =
-          xmlInputFactory.createXMLStreamReader(new StringReader(xmlGeo));
-
-      Unmarshaller unmarshaller = JAXB_CONTEXT.createUnmarshaller();
-      Object object = unmarshaller.unmarshal(xmlStreamReader);
-      LOGGER.debug("Unmarshalled as => {}", object);
-      if (object instanceof JAXBElement) {
-        abstractGeometry = (JAXBElement<? extends AbstractGeometryType>) object;
-      } else {
-        LOGGER.debug(
-            "Unable to cast to JAXBElement<? extends AbstractGeometryType>.  Object is of type [{}].",
-            object.getClass().getName());
-      }
-    } catch (JAXBException | XMLStreamException e) {
+      abstractGeometry = parser.unmarshal(JAXBElement.class, xmlGeo);
+    } catch (JAXBException | ParserException e) {
       LOGGER.debug("Unable to unmarshal geometry [{}]", geometry.getClass().getName(), e);
     }
 

@@ -16,55 +16,22 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source.writer;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyWriter;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.TransactionRequestConverter;
 
-public class CswTransactionRequestWriter implements MessageBodyWriter<CswTransactionRequest> {
+public class CswTransactionRequestConverter {
 
   private XStream xStream;
 
-  public CswTransactionRequestWriter(Converter delegatingTransformer) {
+  public CswTransactionRequestConverter(Converter delegatingTransformer) {
     xStream = new XStream(new Xpp3Driver());
     xStream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     xStream.registerConverter(new TransactionRequestConverter(delegatingTransformer, null));
     xStream.alias(CswConstants.CSW_TRANSACTION, CswTransactionRequest.class);
   }
 
-  @Override
-  public boolean isWriteable(
-      Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-    return CswTransactionRequest.class.isAssignableFrom(aClass);
-  }
-
-  @Override
-  public long getSize(
-      CswTransactionRequest cswTransactionRequest,
-      Class<?> aClass,
-      Type type,
-      Annotation[] annotations,
-      MediaType mediaType) {
-    return 0;
-  }
-
-  @Override
-  public void writeTo(
-      CswTransactionRequest cswTransactionRequest,
-      Class<?> aClass,
-      Type type,
-      Annotation[] annotations,
-      MediaType mediaType,
-      MultivaluedMap<String, Object> multivaluedMap,
-      OutputStream outputStream)
-      throws IOException, WebApplicationException {
-    xStream.toXML(cswTransactionRequest, outputStream);
+  public String convert(CswTransactionRequest cswTransactionRequest) {
+    return xStream.toXML(cswTransactionRequest);
   }
 }

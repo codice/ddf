@@ -37,8 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.activation.MimeType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 import org.junit.Rule;
@@ -56,6 +54,8 @@ public class ResourceReaderTest {
   private HttpClient mockHttpClient = mock(HttpClient.class);
 
   private Tika mockTika = mock(Tika.class);
+
+  private static final String TEXT_HTML = "text/html";
 
   private static final String HTTP_SCHEME_PLUS_SEP = "http://";
 
@@ -88,7 +88,7 @@ public class ResourceReaderTest {
     // Setup
     HttpResponse mockResponse = getMockResponse();
     setupMockHttpClient(mockResponse);
-    setupMockTika(MediaType.TEXT_HTML);
+    setupMockTika(TEXT_HTML);
 
     URLResourceReader urlResourceReader =
         new URLResourceReader(null) {
@@ -147,7 +147,7 @@ public class ResourceReaderTest {
     setupMockHttpClient(mockResponse);
     ResourceResponse mockResourceResponse = getMockResourceResponse(null);
     URLResourceReader mockUrlResourceReader = getMockUrlResourceReader(uri, mockResourceResponse);
-    setupMockTika(MediaType.TEXT_HTML);
+    setupMockTika(TEXT_HTML);
     when(mockUrlResourceReader.retrieveResource(eq(uri), any(Map.class)))
         .thenReturn(mockResourceResponse);
     OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mockUrlResourceReader, mockTika);
@@ -181,7 +181,7 @@ public class ResourceReaderTest {
     ResourceResponse mockResourceResponse =
         getMockResourceResponse(new MimeType("application/octet-stream"));
     URLResourceReader mockUrlResourceReader = getMockUrlResourceReader(uri, mockResourceResponse);
-    setupMockTika(MediaType.TEXT_HTML);
+    setupMockTika(TEXT_HTML);
     OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mockUrlResourceReader, mockTika);
 
     HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
@@ -224,7 +224,7 @@ public class ResourceReaderTest {
     ResourceResponse mockResourceResponse =
         getMockResourceResponse(new MimeType("application/octet-stream"));
     URLResourceReader mockUrlResourceReader = getMockUrlResourceReader(uri, mockResourceResponse);
-    setupMockTika(MediaType.TEXT_HTML);
+    setupMockTika(TEXT_HTML);
     OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mockUrlResourceReader, mockTika);
 
     HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
@@ -268,7 +268,7 @@ public class ResourceReaderTest {
     ResourceResponse mockResourceResponse =
         getMockResourceResponse(new MimeType("application/octet-stream"));
     URLResourceReader mockUrlResourceReader = getMockUrlResourceReader(uri, mockResourceResponse);
-    setupMockTika(MediaType.TEXT_HTML);
+    setupMockTika(TEXT_HTML);
     OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mockUrlResourceReader, mockTika);
 
     HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
@@ -423,7 +423,7 @@ public class ResourceReaderTest {
     when(mockResponse.headers()).thenReturn(headers);
     InputStream mockInputStream = mock(InputStream.class);
     when(mockResponse.body()).thenReturn(mockInputStream);
-    when(mockResponse.statusCode()).thenReturn(Response.Status.OK.getStatusCode());
+    when(mockResponse.statusCode()).thenReturn(200);
     return mockResponse;
   }
 

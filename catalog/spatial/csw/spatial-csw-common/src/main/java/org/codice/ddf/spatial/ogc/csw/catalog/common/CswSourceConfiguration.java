@@ -15,7 +15,6 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Domain object to encapsulate the configuration of an instance of a {@link CswSource}. CSW
@@ -71,12 +70,6 @@ public class CswSourceConfiguration {
   private String queryTypeName;
 
   private String queryTypeNamespace;
-
-  private String eventServiceAddress;
-
-  private boolean registerForEvents;
-
-  private Map<String, Set<String>> securityAttributes = new HashMap<>();
 
   @Deprecated
   public CswSourceConfiguration() {}
@@ -250,22 +243,6 @@ public class CswSourceConfiguration {
 
   public void setQueryTypeNamespace(String queryTypeNamespace) {
     this.queryTypeNamespace = queryTypeNamespace;
-  }
-
-  public boolean isRegisterForEvents() {
-    return registerForEvents;
-  }
-
-  public void setRegisterForEvents(Boolean registerForEvents) {
-    this.registerForEvents = registerForEvents;
-  }
-
-  public String getEventServiceAddress() {
-    return eventServiceAddress;
-  }
-
-  public void setEventServiceAddress(String eventServiceAddress) {
-    this.eventServiceAddress = eventServiceAddress;
   }
 
   public String getCertAlias() {

@@ -18,13 +18,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.AbstractCswSource;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.source.CswClient;
 import org.osgi.framework.BundleContext;
 
 public class CswSourceImpl extends AbstractCswSource {
   public CswSourceImpl(
-      BundleContext context, CswSourceConfiguration cswSourceConfiguration, Converter provider) {
-    super(context, cswSourceConfiguration, provider);
+      BundleContext context,
+      CswSourceConfiguration cswSourceConfiguration,
+      CswXmlParser parser,
+      Converter provider,
+      CswClient cswClient) {
+    super(context, cswSourceConfiguration, parser, provider, cswClient);
   }
 
   public CswSourceImpl() {

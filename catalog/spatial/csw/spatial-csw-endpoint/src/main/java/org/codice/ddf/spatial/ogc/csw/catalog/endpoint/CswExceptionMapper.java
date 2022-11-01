@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

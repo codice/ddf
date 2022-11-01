@@ -41,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.BinarySpatialOperand;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.joda.time.DateTime;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
@@ -93,6 +94,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
   /**
    * Instantiates a CswFilterDelegate instance
    *
+   * @param parser XML parser to transform results
    * @param getRecordsOp An {@link net.opengis.ows.v_1_0_0.Operation} for the getRecords feature of
    *     the Csw service
    * @param filterCapabilities The {@link net.opengis.filter.v_1_1_0.FilterCapabilities} understood
@@ -103,6 +105,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
    *     Result Types supported
    */
   public CswFilterDelegate(
+      CswXmlParser parser,
       Operation getRecordsOp,
       FilterCapabilities filterCapabilities,
       DomainType outputFormatValues,
@@ -110,9 +113,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       CswSourceConfiguration cswSourceConfiguration) {
     super(getRecordsOp, outputFormatValues, resultTypesValues);
     this.cswSourceConfiguration = cswSourceConfiguration;
-    cswFilterFactory =
-        new CswFilterFactory(
-            cswSourceConfiguration.getCswAxisOrder(), cswSourceConfiguration.isSetUsePosList());
+    cswFilterFactory = new CswFilterFactory(parser, cswSourceConfiguration.getCswAxisOrder());
     updateAllowedOperations(filterCapabilities);
   }
 

@@ -61,9 +61,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -74,11 +71,11 @@ import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
-import org.apache.commons.lang.StringUtils;
 import org.apache.tika.io.IOUtils;
+import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -105,6 +102,8 @@ public class GetRecordsResponseConverterTest {
   private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
 
   private TransformerManager mockInputManager = mock(TransformerManager.class);
+
+  private CswXmlParser parser = new CswXmlParser();
 
   @Before
   public void setUp() {
@@ -356,7 +355,7 @@ public class GetRecordsResponseConverterTest {
   @Ignore
   @Test
   public void testMarshalRecordCollectionGetBrief()
-      throws UnsupportedEncodingException, JAXBException {
+      throws UnsupportedEncodingException, ParserException {
     final int totalResults = 5;
 
     XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -384,13 +383,8 @@ public class GetRecordsResponseConverterTest {
         context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
     assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.BRIEF));
 
-    JAXBElement<GetRecordsResponseType> jaxb =
-        (JAXBElement<GetRecordsResponseType>)
-            getJaxBContext()
-                .createUnmarshaller()
-                .unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-
-    GetRecordsResponseType response = jaxb.getValue();
+    GetRecordsResponseType response =
+        parser.unmarshal(GetRecordsResponseType.class, new ByteArrayInputStream(xml.getBytes()));
     // Assert the GetRecordsResponse elements and attributes
     assertThat(response, not(nullValue()));
     SearchResultsType resultsType = response.getSearchResults();
@@ -404,7 +398,7 @@ public class GetRecordsResponseConverterTest {
   @Ignore
   @Test
   public void testMarshalRecordCollectionGetSummary()
-      throws UnsupportedEncodingException, JAXBException {
+      throws UnsupportedEncodingException, ParserException {
     final int totalResults = 5;
 
     XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -432,13 +426,8 @@ public class GetRecordsResponseConverterTest {
         context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
     assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.SUMMARY));
 
-    JAXBElement<GetRecordsResponseType> jaxb =
-        (JAXBElement<GetRecordsResponseType>)
-            getJaxBContext()
-                .createUnmarshaller()
-                .unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-
-    GetRecordsResponseType response = jaxb.getValue();
+    GetRecordsResponseType response =
+        parser.unmarshal(GetRecordsResponseType.class, new ByteArrayInputStream(xml.getBytes()));
     // Assert the GetRecordsResponse elements and attributes
     assertThat(response, not(nullValue()));
     SearchResultsType resultsType = response.getSearchResults();
@@ -452,7 +441,7 @@ public class GetRecordsResponseConverterTest {
   @Ignore
   @Test
   public void testMarshalRecordCollectionGetFull()
-      throws UnsupportedEncodingException, JAXBException {
+      throws UnsupportedEncodingException, ParserException {
     final int totalResults = 5;
 
     XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -480,13 +469,8 @@ public class GetRecordsResponseConverterTest {
         context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
     assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.FULL));
 
-    JAXBElement<GetRecordsResponseType> jaxb =
-        (JAXBElement<GetRecordsResponseType>)
-            getJaxBContext()
-                .createUnmarshaller()
-                .unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-
-    GetRecordsResponseType response = jaxb.getValue();
+    GetRecordsResponseType response =
+        parser.unmarshal(GetRecordsResponseType.class, new ByteArrayInputStream(xml.getBytes()));
     // Assert the GetRecordsResponse elements and attributes
     assertThat(response, not(nullValue()));
     SearchResultsType resultsType = response.getSearchResults();
@@ -499,7 +483,8 @@ public class GetRecordsResponseConverterTest {
 
   @Ignore
   @Test
-  public void testMarshalRecordCollectionHits() throws UnsupportedEncodingException, JAXBException {
+  public void testMarshalRecordCollectionHits()
+      throws UnsupportedEncodingException, ParserException {
     final int totalResults = 5;
 
     XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -521,13 +506,8 @@ public class GetRecordsResponseConverterTest {
         .marshal(
             any(Object.class), any(HierarchicalStreamWriter.class), any(MarshallingContext.class));
 
-    JAXBElement<GetRecordsResponseType> jaxb =
-        (JAXBElement<GetRecordsResponseType>)
-            getJaxBContext()
-                .createUnmarshaller()
-                .unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-
-    GetRecordsResponseType response = jaxb.getValue();
+    GetRecordsResponseType response =
+        parser.unmarshal(GetRecordsResponseType.class, new ByteArrayInputStream(xml.getBytes()));
     // Assert the GetRecordsResponse elements and attributes
     assertThat(response, not(nullValue()));
     SearchResultsType resultsType = response.getSearchResults();
@@ -541,7 +521,7 @@ public class GetRecordsResponseConverterTest {
   @Ignore
   @Test
   public void testMarshalRecordCollectionGetElements()
-      throws UnsupportedEncodingException, JAXBException {
+      throws UnsupportedEncodingException, ParserException {
     final int totalResults = 5;
 
     XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -574,13 +554,8 @@ public class GetRecordsResponseConverterTest {
     assertThat(qnames.contains(CswConstants.CSW_TITLE_QNAME), is(true));
     assertThat(qnames.contains(CswConstants.CSW_SOURCE_QNAME), is(true));
 
-    JAXBElement<GetRecordsResponseType> jaxb =
-        (JAXBElement<GetRecordsResponseType>)
-            getJaxBContext()
-                .createUnmarshaller()
-                .unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-
-    GetRecordsResponseType response = jaxb.getValue();
+    GetRecordsResponseType response =
+        parser.unmarshal(GetRecordsResponseType.class, new ByteArrayInputStream(xml.getBytes()));
     // Assert the GetRecordsResponse elements and attributes
     assertThat(response, not(nullValue()));
     SearchResultsType resultsType = response.getSearchResults();
@@ -594,7 +569,7 @@ public class GetRecordsResponseConverterTest {
   @Ignore
   @Test
   public void testMarshalRecordCollectionGetFirstPage()
-      throws UnsupportedEncodingException, JAXBException {
+      throws UnsupportedEncodingException, ParserException {
     final int maxRecords = 6;
     final int startPosition = 1;
     final int totalResults = 22;
@@ -607,7 +582,7 @@ public class GetRecordsResponseConverterTest {
   @Ignore
   @Test
   public void testMarshalRecordCollectionGetMiddlePage()
-      throws UnsupportedEncodingException, JAXBException {
+      throws UnsupportedEncodingException, ParserException {
     final int maxRecords = 6;
     final int startPosition = 4;
     final int totalResults = 22;
@@ -620,7 +595,7 @@ public class GetRecordsResponseConverterTest {
   @Ignore
   @Test
   public void testMarshalRecordCollectionGetLastPage()
-      throws UnsupportedEncodingException, JAXBException {
+      throws UnsupportedEncodingException, ParserException {
     final int maxRecords = 6;
     final int startPosition = 18;
     final int totalResults = 22;
@@ -633,7 +608,7 @@ public class GetRecordsResponseConverterTest {
   @Ignore
   @Test
   public void testMarshalRecordCollectionGetAllOnePage()
-      throws UnsupportedEncodingException, JAXBException {
+      throws UnsupportedEncodingException, ParserException {
     final int maxRecords = 23;
     final int startPosition = 1;
     final int totalResults = 22;
@@ -645,7 +620,8 @@ public class GetRecordsResponseConverterTest {
 
   @Ignore
   @Test
-  public void testMarshalRecordCollectionById() throws UnsupportedEncodingException, JAXBException {
+  public void testMarshalRecordCollectionById()
+      throws UnsupportedEncodingException, ParserException {
     final int totalResults = 2;
 
     XStream xstream = createXStream(CswConstants.GET_RECORD_BY_ID_RESPONSE);
@@ -667,13 +643,8 @@ public class GetRecordsResponseConverterTest {
     assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
     assertThat(context.get(CswConstants.ELEMENT_NAMES), is(nullValue()));
 
-    JAXBElement<GetRecordByIdResponseType> jaxb =
-        (JAXBElement<GetRecordByIdResponseType>)
-            getJaxBContext()
-                .createUnmarshaller()
-                .unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-
-    GetRecordByIdResponseType response = jaxb.getValue();
+    GetRecordByIdResponseType response =
+        parser.unmarshal(GetRecordByIdResponseType.class, new ByteArrayInputStream(xml.getBytes()));
     // Assert the GetRecordsResponse elements and attributes
     assertThat(response, not(nullValue()));
   }
@@ -681,7 +652,7 @@ public class GetRecordsResponseConverterTest {
   @Ignore
   @Test
   public void testMarshalRecordCollectionFullXml()
-      throws UnsupportedEncodingException, JAXBException {
+      throws UnsupportedEncodingException, ParserException {
     final int totalResults = 5;
 
     TransformerManager mockMetacardManager = mock(TransformerManager.class);
@@ -712,13 +683,8 @@ public class GetRecordsResponseConverterTest {
 
     String xml = xstream.toXML(collection);
 
-    JAXBElement<GetRecordsResponseType> jaxb =
-        (JAXBElement<GetRecordsResponseType>)
-            getJaxBContext()
-                .createUnmarshaller()
-                .unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-
-    GetRecordsResponseType response = jaxb.getValue();
+    GetRecordsResponseType response =
+        parser.unmarshal(GetRecordsResponseType.class, new ByteArrayInputStream(xml.getBytes()));
     // Assert the GetRecordsResponse elements and attributes
     assertThat(response, not(nullValue()));
     SearchResultsType resultsType = response.getSearchResults();
@@ -735,7 +701,7 @@ public class GetRecordsResponseConverterTest {
       final int totalResults,
       final int expectedNext,
       final int expectedReturn)
-      throws JAXBException, UnsupportedEncodingException {
+      throws ParserException, UnsupportedEncodingException {
     XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
     GetRecordsType query = new GetRecordsType();
     query.setMaxRecords(BigInteger.valueOf(maxRecords));
@@ -745,13 +711,8 @@ public class GetRecordsResponseConverterTest {
 
     String xml = xstream.toXML(collection);
 
-    JAXBElement<GetRecordsResponseType> jaxb =
-        (JAXBElement<GetRecordsResponseType>)
-            getJaxBContext()
-                .createUnmarshaller()
-                .unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-
-    GetRecordsResponseType response = jaxb.getValue();
+    GetRecordsResponseType response =
+        parser.unmarshal(GetRecordsResponseType.class, new ByteArrayInputStream(xml.getBytes()));
     assertThat(
         response.getSearchResults().getNumberOfRecordsMatched().intValue(), is(totalResults));
     assertThat(
@@ -847,22 +808,6 @@ public class GetRecordsResponseConverterTest {
     }
 
     return list;
-  }
-
-  private JAXBContext getJaxBContext() throws JAXBException {
-    JAXBContext context;
-    String contextPath =
-        StringUtils.join(
-            new String[] {
-              CswConstants.OGC_CSW_PACKAGE,
-              CswConstants.OGC_FILTER_PACKAGE,
-              CswConstants.OGC_GML_PACKAGE,
-              CswConstants.OGC_OWS_PACKAGE
-            },
-            ":");
-
-    context = JAXBContext.newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
-    return context;
   }
 
   private XStream createXstream(HierarchicalStreamDriver streamDriver) {

@@ -13,26 +13,11 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
 import java.util.List;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import net.opengis.ows.v_1_0_0.ExceptionType;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
-import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Maps the exception report returned as a response from a CSW service into a {@link CswException}.
@@ -61,65 +46,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author rodgersh
  */
-public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswException> {
+public class CswResponseExceptionMapper {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CswResponseExceptionMapper.class);
-
-  @Override
-  public CswException fromResponse(Response response) {
-    CswException cswException = null;
-
-    if (response != null) {
-      if (response.getEntity() instanceof InputStream) {
-        String msg = null;
-        try {
-          InputStream is = (InputStream) response.getEntity();
-          if (is.markSupported()) {
-            is.reset();
-          }
-          msg = IOUtils.toString(is);
-        } catch (IOException e) {
-          LOGGER.info("Unable to parse exception report: {}", e.getMessage());
-          LOGGER.debug("Unable to parse exception report", e);
-        }
-        if (msg != null) {
-          try {
-            JAXBElementProvider<ExceptionReport> provider = new JAXBElementProvider<>();
-            Unmarshaller um =
-                provider
-                    .getJAXBContext(ExceptionReport.class, ExceptionReport.class)
-                    .createUnmarshaller();
-            XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
-            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-            xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
-            XMLStreamReader xmlStreamReader =
-                xmlInputFactory.createXMLStreamReader(new StringReader(msg));
-            ExceptionReport report = (ExceptionReport) um.unmarshal(xmlStreamReader);
-            cswException = convertToCswException(report);
-          } catch (JAXBException | XMLStreamException e) {
-            cswException = new CswException("Error received from remote Csw server: " + msg, e);
-            LOGGER.info("Error parsing the exception report: {}", e.getMessage());
-            LOGGER.debug("Error parsing the exception report", e);
-          }
-        } else {
-          cswException = new CswException("Error received from remote Csw server.");
-        }
-      } else {
-        cswException =
-            new CswException(
-                "Error reading response, entity type not understood: "
-                    + response.getEntity().getClass().getName());
-      }
-      cswException.setHttpStatus(response.getStatus());
-    } else {
-      cswException = new CswException("Error handling response, response is null");
+  public static CswException convertToCswException(ExceptionReport report) {
+    if (report == null) {
+      return new CswException("Error handling response, response is null");
     }
-
-    return cswException;
-  }
-
-  private CswException convertToCswException(ExceptionReport report) {
 
     CswException cswException = null;
     List<ExceptionType> list = report.getException();
@@ -142,7 +74,7 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
         exceptionMsg.append("locator = " + locator + "\n");
       }
 
-      if (!CollectionUtils.isEmpty(exceptionText)) {
+      if (exceptionText != null && !exceptionText.isEmpty()) {
         for (String text : exceptionText) {
           exceptionMsg.append(text);
         }

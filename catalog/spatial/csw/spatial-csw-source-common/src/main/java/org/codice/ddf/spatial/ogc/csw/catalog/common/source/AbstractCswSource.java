@@ -54,10 +54,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.math.BigInteger;
-import java.net.ConnectException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,21 +72,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.net.ssl.SSLHandshakeException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
-import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -104,30 +93,24 @@ import net.opengis.filter.v_1_1_0.SortPropertyType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
+import net.opengis.ows.v_1_0_0.AcceptVersionsType;
 import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.OperationsMetadata;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.PropertyResolver;
+import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.source.reader.GetRecordsMessageBodyReader;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -149,7 +132,6 @@ public abstract class AbstractCswSource extends MaskableImpl
   @SuppressWarnings("squid:S2068")
   protected static final String PASSWORD_PROPERTY = "password";
 
-  protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
   protected static final String CSWURL_PROPERTY = "cswUrl";
   protected static final String ID_PROPERTY = "id";
   protected static final String AUTHENTICATION_TYPE = "authenticationType";
@@ -166,13 +148,9 @@ public abstract class AbstractCswSource extends MaskableImpl
   protected static final String QUERY_TYPE_NAME_PROPERTY = "queryTypeName";
   protected static final String QUERY_TYPE_NAMESPACE_PROPERTY = "queryTypeNamespace";
   protected static final String USE_POS_LIST_PROPERTY = "usePosList";
-  protected static final String EVENT_SERVICE_ADDRESS = "eventServiceAddress";
-  protected static final String REGISTER_FOR_EVENTS = "registerForEvents";
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCswSource.class);
   private static final String DEFAULT_CSW_TRANSFORMER_ID = "csw";
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
-
-  private static final String BASIC_AUTH_TYPE = "basic";
 
   @SuppressWarnings("squid:S1845")
   private static final String DESCRIPTION = "description";
@@ -181,12 +159,11 @@ public abstract class AbstractCswSource extends MaskableImpl
   private static final String VERSION = "version";
   private static final String TITLE = "name";
   private static final int CONTENT_TYPE_SAMPLE_SIZE = 50;
-  private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
-
-  private static final String BYTES_SKIPPED = "bytes-skipped";
 
   private static final String OCTET_STREAM_OUTPUT_SCHEMA =
       "http://www.iana.org/assignments/media-types/application/octet-stream";
+  private static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+  private static final String APPLICATION_XML = "application/xml";
   private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Error retrieving resource for ID: %s";
   private static Properties describableProperties = new Properties();
   private static Map<String, Consumer<Object>> consumerMap = new HashMap<>();
@@ -209,39 +186,41 @@ public abstract class AbstractCswSource extends MaskableImpl
   protected FilterBuilder filterBuilder;
   protected FilterAdapter filterAdapter;
   protected CapabilitiesType capabilities;
-  protected JAXRSClientFactoryBean factory;
-  protected JAXRSClientFactoryBean subscribeClientFactory;
-  protected CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
+  protected CswClient cswClient;
+  protected CswXmlParser parser = new CswXmlParser(new XmlParser());
+  //  protected CswXmlParser parser =
+  //      new CswXmlParser(
+  //          new XmlParser(),
+  //          List.of("ddf.catalog.transformer.xml.binding",
+  // "ddf.catalog.transformer.xml.adapter"));
   protected QueryFilterTransformerProvider cswQueryFilterTransformerProvider;
-  protected List<String> jaxbElementClassNames = new ArrayList<>();
-  protected Map<String, String> jaxbElementClassMap = new HashMap<>();
-  protected String filterlessSubscriptionId = null;
   private Set<SourceMonitor> sourceMonitors = new HashSet<>();
   private Map<String, ContentType> contentTypes = new ConcurrentHashMap<>();
   private ResourceReader resourceReader;
   private DomainType supportedOutputSchemas;
   private Set<ElementSetType> detailLevels;
   private BundleContext context;
+  private ObjectFactory objectFactory = new ObjectFactory();
 
   @SuppressWarnings("squid:S1845")
   private String description = null;
 
-  private String cswVersion;
   private ScheduledExecutorService scheduler;
   private AvailabilityTask availabilityTask;
   private boolean isConstraintCql;
 
-  /**
-   * Instantiates a CswSource. This constructor is for unit tests
-   *
-   * @param context The {@link BundleContext} from the OSGi Framework
-   * @param cswSourceConfiguration the configuration of this source
-   * @param provider transform provider to transform results
-   */
+  /** Instantiates a CswSource. This constructor is for unit tests */
   public AbstractCswSource(
-      BundleContext context, CswSourceConfiguration cswSourceConfiguration, Converter provider) {
+      BundleContext context,
+      CswSourceConfiguration cswSourceConfiguration,
+      CswXmlParser parser,
+      Converter provider,
+      CswClient cswClient) {
     this.context = context;
     this.cswSourceConfiguration = cswSourceConfiguration;
+    this.parser = parser;
+    this.cswTransformConverter = provider;
+    this.cswClient = cswClient;
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
@@ -256,55 +235,16 @@ public abstract class AbstractCswSource extends MaskableImpl
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
   }
 
-  private static JAXBContext initJaxbContext() {
-
-    JAXBContext jaxbContext = null;
-
-    String contextPath =
-        StringUtils.join(
-            new String[] {
-              CswConstants.OGC_CSW_PACKAGE,
-              CswConstants.OGC_FILTER_PACKAGE,
-              CswConstants.OGC_GML_PACKAGE,
-              CswConstants.OGC_OWS_PACKAGE
-            },
-            ":");
-
-    try {
-      jaxbContext = JAXBContext.newInstance(contextPath, AbstractCswSource.class.getClassLoader());
-    } catch (JAXBException e) {
-      LOGGER.info("Failed to initialize JAXBContext", e);
-    }
-
-    return jaxbContext;
-  }
-
   /** Initializes the CswSource by connecting to the Server */
   public void init() {
     setConsumerMap();
     LOGGER.debug("{}: Entering init()", cswSourceConfiguration.getId());
-    factory = initClientFactory(Csw.class);
+    cswClient = createCswClient();
     setupAvailabilityPoll();
-
-    configureEventService();
   }
 
-  protected JAXRSClientFactoryBean initClientFactory(Class clazz) {
-
-    JAXRSClientFactoryBean clientFactory = new JAXRSClientFactoryBean();
-    clientFactory.setClassLoader(clazz.getClassLoader());
-    clientFactory.setServiceClass(clazz);
-    clientFactory.setAddress(cswSourceConfiguration.getCswUrl());
-    clientFactory.setProviders(initProviders(cswTransformConverter, cswSourceConfiguration));
-
-    if (BASIC_AUTH_TYPE.equals(cswSourceConfiguration.getAuthenticationType())
-        && StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
-        && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
-      clientFactory.setUsername(cswSourceConfiguration.getUsername());
-      clientFactory.setPassword(cswSourceConfiguration.getPassword());
-    }
-
-    return clientFactory;
+  protected CswClient createCswClient() {
+    return new CswClient(parser, objectFactory, cswTransformConverter, cswSourceConfiguration);
   }
 
   /** Sets the consumerMap to manipulate cswSourceConfiguration when refresh is called. */
@@ -355,13 +295,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     consumerMap.put(
         IS_CQL_FORCED_PROPERTY, value -> cswSourceConfiguration.setIsCqlForced((Boolean) value));
 
-    consumerMap.put(
-        REGISTER_FOR_EVENTS, value -> cswSourceConfiguration.setRegisterForEvents((Boolean) value));
-
-    consumerMap.put(
-        EVENT_SERVICE_ADDRESS,
-        value -> cswSourceConfiguration.setEventServiceAddress((String) value));
-
     consumerMap.putAll(getAdditionalConsumers());
   }
 
@@ -391,9 +324,10 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   /** Consumer function that sets the cswSourceConfiguration CswUrl if it is changed. */
   private void setConsumerUrlProp(String newCswUrlProp) {
-    if (!newCswUrlProp.equals(cswSourceConfiguration.getCswUrl())) {
-      cswSourceConfiguration.setCswUrl(newCswUrlProp);
-      LOGGER.debug("Setting url : {}.", newCswUrlProp);
+    String newCswUrl = PropertyResolver.resolveProperties(newCswUrlProp);
+    if (!newCswUrl.equals(cswSourceConfiguration.getCswUrl())) {
+      cswSourceConfiguration.setCswUrl(newCswUrl);
+      LOGGER.debug("Setting url : {}.", newCswUrl);
     }
   }
 
@@ -402,54 +336,6 @@ public abstract class AbstractCswSource extends MaskableImpl
       availabilityPollFuture.cancel(true);
     }
     setupAvailabilityPoll();
-  }
-
-  protected List<Object> initProviders(
-      Converter cswTransformProvider, CswSourceConfiguration cswSourceConfiguration) {
-    getRecordsTypeProvider = new CswJAXBElementProvider<>();
-    getRecordsTypeProvider.setMarshallAsJaxbElement(true);
-
-    // Adding class names that need to be marshalled/unmarshalled to
-    // jaxbElementClassNames list
-    jaxbElementClassNames.add(GetRecordsType.class.getName());
-    jaxbElementClassNames.add(CapabilitiesType.class.getName());
-    jaxbElementClassNames.add(GetCapabilitiesType.class.getName());
-    jaxbElementClassNames.add(GetRecordsResponseType.class.getName());
-    jaxbElementClassNames.add(AcknowledgementType.class.getName());
-
-    getRecordsTypeProvider.setJaxbElementClassNames(jaxbElementClassNames);
-
-    // Adding map entry of <Class Name>,<Qualified Name> to jaxbElementClassMap
-    String expandedName =
-        new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS).toString();
-    String message = "{} expanded name: {}";
-    LOGGER.debug(message, CswConstants.GET_RECORDS, expandedName);
-    jaxbElementClassMap.put(GetRecordsType.class.getName(), expandedName);
-
-    String getCapsExpandedName =
-        new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_CAPABILITIES).toString();
-    LOGGER.debug(message, CswConstants.GET_CAPABILITIES, expandedName);
-    jaxbElementClassMap.put(GetCapabilitiesType.class.getName(), getCapsExpandedName);
-
-    String capsExpandedName =
-        new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CAPABILITIES).toString();
-    LOGGER.debug(message, CswConstants.CAPABILITIES, capsExpandedName);
-    jaxbElementClassMap.put(CapabilitiesType.class.getName(), capsExpandedName);
-
-    String caps201ExpandedName =
-        new QName("http://www.opengis.net/cat/csw", CswConstants.CAPABILITIES).toString();
-    LOGGER.debug(message, CswConstants.CAPABILITIES, caps201ExpandedName);
-    jaxbElementClassMap.put(CapabilitiesType.class.getName(), caps201ExpandedName);
-
-    String acknowledgmentName =
-        new QName("http://www.opengis.net/cat/csw/2.0.2", "Acknowledgement").toString();
-    jaxbElementClassMap.put(AcknowledgementType.class.getName(), acknowledgmentName);
-    getRecordsTypeProvider.setJaxbElementClassMap(jaxbElementClassMap);
-
-    GetRecordsMessageBodyReader grmbr =
-        new GetRecordsMessageBodyReader(cswTransformProvider, cswSourceConfiguration);
-
-    return Arrays.asList(getRecordsTypeProvider, new CswResponseExceptionMapper(), grmbr);
   }
 
   /**
@@ -480,15 +366,6 @@ public abstract class AbstractCswSource extends MaskableImpl
       cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, CswConstants.CSW_TYPE);
     }
 
-    // if the event service address has changed attempt to remove the subscription before changing
-    // to the new event service address
-    if (cswSourceConfiguration.getEventServiceAddress() != null
-        && cswSourceConfiguration.isRegisterForEvents()
-        && !cswSourceConfiguration
-            .getEventServiceAddress()
-            .equals(configuration.get(EVENT_SERVICE_ADDRESS))) {
-      removeEventServiceSubscription();
-    }
     // Filter Configuration Map
     Map<String, Object> filteredConfiguration = filter(configuration);
 
@@ -504,8 +381,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     configureCswSource();
 
-    factory = initClientFactory(Csw.class);
-    configureEventService();
+    cswClient = createCswClient();
 
     forcePoll();
   }
@@ -622,13 +498,11 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   @Override
   public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
-    Csw csw = factory.create(Csw.class);
-
-    return query(queryRequest, ElementSetType.FULL, null, csw);
+    return query(queryRequest, ElementSetType.FULL, null);
   }
 
   protected SourceResponse query(
-      QueryRequest queryRequest, ElementSetType elementSetName, List<QName> elementNames, Csw csw)
+      QueryRequest queryRequest, ElementSetType elementSetName, List<QName> elementNames)
       throws UnsupportedQueryException {
 
     Query query = queryRequest.getQuery();
@@ -636,13 +510,6 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     GetRecordsType getRecordsType =
         createGetRecordsRequest(queryRequest, elementSetName, elementNames);
-
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(
-          "{}: GetRecords request:\n {}",
-          cswSourceConfiguration.getId(),
-          getGetRecordsTypeAsXml(getRecordsType));
-    }
 
     LOGGER.debug(
         "{}: Sending query to: {}",
@@ -652,33 +519,18 @@ public abstract class AbstractCswSource extends MaskableImpl
     List<Result> results;
     Long totalHits;
 
-    try {
+    CswRecordCollection cswRecordCollection = cswClient.getRecords(getRecordsType);
 
-      CswRecordCollection cswRecordCollection = csw.getRecords(getRecordsType);
+    this.availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
+    LOGGER.debug(
+        "{}: Received [{}] record(s) of the [{}] record(s) matched from {}.",
+        cswSourceConfiguration.getId(),
+        cswRecordCollection.getNumberOfRecordsReturned(),
+        cswRecordCollection.getNumberOfRecordsMatched(),
+        cswSourceConfiguration.getCswUrl());
 
-      if (cswRecordCollection == null) {
-        throw new UnsupportedQueryException("Invalid results returned from server");
-      }
-      this.availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
-      LOGGER.debug(
-          "{}: Received [{}] record(s) of the [{}] record(s) matched from {}.",
-          cswSourceConfiguration.getId(),
-          cswRecordCollection.getNumberOfRecordsReturned(),
-          cswRecordCollection.getNumberOfRecordsMatched(),
-          cswSourceConfiguration.getCswUrl());
-
-      results = createResults(cswRecordCollection);
-      totalHits = cswRecordCollection.getNumberOfRecordsMatched();
-    } catch (CswException cswe) {
-      LOGGER.info(CSW_SERVER_ERROR, cswe);
-      throw new UnsupportedQueryException(CSW_SERVER_ERROR, cswe);
-    } catch (WebApplicationException wae) {
-      String msg = handleWebApplicationException(wae);
-      throw new UnsupportedQueryException(msg, wae);
-    } catch (Exception ce) {
-      String msg = handleClientException(ce);
-      throw new UnsupportedQueryException(msg, ce);
-    }
+    results = createResults(cswRecordCollection);
+    totalHits = cswRecordCollection.getNumberOfRecordsMatched();
 
     LOGGER.debug(
         "{}: Adding {} result(s) to the source response.",
@@ -741,9 +593,6 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   @Override
   public String getVersion() {
-    if (StringUtils.isNotBlank(cswVersion)) {
-      return cswVersion;
-    }
     return describableProperties.getProperty(VERSION);
   }
 
@@ -765,15 +614,8 @@ public abstract class AbstractCswSource extends MaskableImpl
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
 
     Serializable serializableId = null;
-    String username = cswSourceConfiguration.getUsername();
-    String password = cswSourceConfiguration.getPassword();
-
     if (requestProperties != null) {
       serializableId = requestProperties.get(Core.ID);
-      if (StringUtils.isNotBlank(username)) {
-        requestProperties.put(USERNAME_PROPERTY, username);
-        requestProperties.put(PASSWORD_PROPERTY, password);
-      }
     }
 
     if (canRetrieveResourceById()) {
@@ -784,7 +626,7 @@ public abstract class AbstractCswSource extends MaskableImpl
       }
       String metacardId = serializableId.toString();
       LOGGER.debug("Retrieving resource for ID : {}", metacardId);
-      ResourceResponse response = retrieveResourceById(requestProperties, metacardId);
+      ResourceResponse response = retrieveResourceById(metacardId);
       if (response != null) {
         return response;
       }
@@ -798,40 +640,22 @@ public abstract class AbstractCswSource extends MaskableImpl
     return resourceReader.retrieveResource(resourceUri, requestProperties);
   }
 
-  private ResourceResponse retrieveResourceById(
-      Map<String, Serializable> requestProperties, String metacardId)
+  private ResourceResponse retrieveResourceById(String metacardId)
       throws ResourceNotFoundException {
-    Csw csw = factory.create(Csw.class);
-    GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+    GetRecordByIdType getRecordByIdRequest = objectFactory.createGetRecordByIdType();
     getRecordByIdRequest.setService(CswConstants.CSW);
+    getRecordByIdRequest.setVersion(CswConstants.VERSION_2_0_2);
     getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
-    getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
-    getRecordByIdRequest.setId(metacardId);
+    getRecordByIdRequest.setOutputFormat(APPLICATION_OCTET_STREAM);
 
-    String rangeValue = "";
-    long requestedBytesToSkip = 0;
-    if (requestProperties.containsKey(CswConstants.BYTES_TO_SKIP)) {
-      requestedBytesToSkip = (Long) requestProperties.get(CswConstants.BYTES_TO_SKIP);
-      rangeValue =
-          String.format(
-              "%s%s-",
-              CswConstants.BYTES_EQUAL,
-              requestProperties.get(CswConstants.BYTES_TO_SKIP).toString());
-      LOGGER.debug("Range: {}", rangeValue);
-    }
+    getRecordByIdRequest.setId(List.of(metacardId));
+
     CswRecordCollection recordCollection;
     try {
-      recordCollection = csw.getRecordById(getRecordByIdRequest, rangeValue);
+      recordCollection = cswClient.getRecordById(getRecordByIdRequest);
 
       Resource resource = recordCollection.getResource();
       if (resource != null) {
-
-        long responseBytesSkipped = 0L;
-        if (recordCollection.getResourceProperties().get(BYTES_SKIPPED) != null) {
-          responseBytesSkipped = (Long) recordCollection.getResourceProperties().get(BYTES_SKIPPED);
-        }
-        alignStream(resource.getInputStream(), requestedBytesToSkip, responseBytesSkipped);
-
         return new ResourceResponseImpl(
             new ResourceImpl(
                 new BufferedInputStream(resource.getInputStream()),
@@ -840,47 +664,17 @@ public abstract class AbstractCswSource extends MaskableImpl
       } else {
         return null;
       }
-    } catch (CswException | IOException e) {
+    } catch (UnsupportedQueryException e) {
       throw new ResourceNotFoundException(String.format(ERROR_ID_PRODUCT_RETRIEVAL, metacardId), e);
     }
   }
 
-  private void alignStream(InputStream in, long requestedBytesToSkip, long responseBytesSkipped)
-      throws IOException {
-    long misalignment = requestedBytesToSkip - responseBytesSkipped;
-
-    if (misalignment == 0) {
-      LOGGER.trace("Server responded with the correct byte range.");
-      return;
-    }
-
-    try {
-      if (requestedBytesToSkip > responseBytesSkipped) {
-        LOGGER.debug(
-            "Server returned incorrect byte range, skipping first [{}] bytes", misalignment);
-        if (in.skip(misalignment) != misalignment) {
-          throw new IOException(
-              String.format("Input Stream could not be skipped %d bytes.", misalignment));
-        }
-
-      } else {
-        throw new IOException("Server skipped more bytes than requested in the range header.");
-      }
-    } catch (IOException e) {
-      /*In the event an IOException is thrown, the InputStream should be closed to prevent resource
-      leakage. Otherwise the stream should be kept open to pass into the ResourceImpl constructor.*/
-      IOUtils.closeQuietly(in);
-      throw new IOException(
-          String.format(
-              "Unable to align input stream with the requested byteOffset of %d",
-              requestedBytesToSkip));
-    }
-  }
-
   public void setCswUrl(String cswUrl) {
-    LOGGER.debug("Setting cswUrl to {}", cswUrl);
-
-    cswSourceConfiguration.setCswUrl(cswUrl);
+    String newCswUrl = PropertyResolver.resolveProperties(cswUrl);
+    if (!newCswUrl.equals(cswSourceConfiguration.getCswUrl())) {
+      cswSourceConfiguration.setCswUrl(newCswUrl);
+      LOGGER.debug("Setting cswUrl to {}", cswUrl);
+    }
   }
 
   public String getAuthenticationType() {
@@ -983,12 +777,12 @@ public abstract class AbstractCswSource extends MaskableImpl
       throws UnsupportedQueryException {
     Query query = queryRequest.getQuery();
     GetRecordsType getRecordsType = new GetRecordsType();
-    getRecordsType.setVersion(cswVersion);
+    getRecordsType.setVersion(CswConstants.VERSION_2_0_2);
     getRecordsType.setService(CswConstants.CSW);
     getRecordsType.setResultType(ResultType.RESULTS);
     getRecordsType.setStartPosition(BigInteger.valueOf(query.getStartIndex()));
     getRecordsType.setMaxRecords(BigInteger.valueOf(query.getPageSize()));
-    getRecordsType.setOutputFormat(MediaType.APPLICATION_XML);
+    getRecordsType.setOutputFormat(APPLICATION_XML);
     if (!isOutputSchemaSupported()) {
       String msg =
           "CSW Source: "
@@ -1065,7 +859,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     if (null != constraint) {
       queryType.setConstraint(constraint);
     }
-    ObjectFactory objectFactory = new ObjectFactory();
     return objectFactory.createQuery(queryType);
   }
 
@@ -1247,62 +1040,30 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
   }
 
-  private String getGetRecordsTypeAsXml(GetRecordsType getRecordsType) {
-    Writer writer = new StringWriter();
-    try {
-      Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-      JAXBElement<GetRecordsType> jaxbElement =
-          new JAXBElement<>(
-              new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS),
-              GetRecordsType.class,
-              getRecordsType);
-      marshaller.marshal(jaxbElement, writer);
-    } catch (JAXBException e) {
-      LOGGER.debug(
-          "{}: Unable to marshall {} to XML.",
-          cswSourceConfiguration.getId(),
-          GetRecordsType.class,
-          e);
-    }
-    return writer.toString();
-  }
-
   protected CapabilitiesType getCapabilities() {
     CapabilitiesType caps = null;
-    Csw csw = factory.create(Csw.class);
 
     try {
       LOGGER.debug("Doing getCapabilities() call for CSW");
-      GetCapabilitiesRequest request = new GetCapabilitiesRequest(CswConstants.CSW);
-      request.setAcceptVersions(CswConstants.VERSION_2_0_2 + "," + CswConstants.VERSION_2_0_1);
-      caps = csw.getCapabilities(request);
-    } catch (CswException cswe) {
-      LOGGER.info(
-          CSW_SERVER_ERROR
-              + " Received HTTP code '{}' from server for source with id='{}'. Set Logging to DEBUG for details.",
-          cswe.getHttpStatus(),
-          cswSourceConfiguration.getId());
-      LOGGER.debug(CSW_SERVER_ERROR, cswe);
-    } catch (WebApplicationException wae) {
-      LOGGER.debug(handleWebApplicationException(wae), wae);
-    } catch (Exception ce) {
-      handleClientException(ce);
+      GetCapabilitiesType request = objectFactory.createGetCapabilitiesType();
+      request.setService(CswConstants.CSW);
+
+      AcceptVersionsType acceptVersions = new AcceptVersionsType();
+      acceptVersions.setVersion(List.of(CswConstants.VERSION_2_0_2));
+      request.setAcceptVersions(acceptVersions);
+
+      caps = cswClient.getCapabilities(request);
+    } catch (Exception e) {
+      LOGGER.debug("Unable to get Capabilities.", e);
     }
     return caps;
   }
 
   public void configureCswSource() {
     detailLevels = EnumSet.noneOf(ElementSetType.class);
-
     capabilities = getCapabilities();
 
-    if (null != capabilities) {
-      cswVersion = capabilities.getVersion();
-      if (CswConstants.VERSION_2_0_1.equals(cswVersion)) {
-        setCsw201();
-      }
+    if (capabilities != null) {
       if (capabilities.getFilterCapabilities() == null) {
         return;
       }
@@ -1452,6 +1213,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     cswFilterDelegate =
         new CswFilterDelegate(
+            parser,
             getRecordsOp,
             filterCapabilities,
             outputFormatValues,
@@ -1525,59 +1287,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     return null;
   }
 
-  protected String handleWebApplicationException(WebApplicationException wae) {
-    Response response = wae.getResponse();
-    CswException cswException = new CswResponseExceptionMapper().fromResponse(response);
-
-    // Add the CswException message to the error message being logged. Do
-    // not include the CswException stack trace because it will not be
-    // meaningful since it will not show the root cause of the exception
-    // because the ExceptionReport was sent from CSW as an "OK" JAX-RS
-    // status rather than an error status.
-
-    return CSW_SERVER_ERROR
-        + " "
-        + cswSourceConfiguration.getId()
-        + "\n"
-        + cswException.getMessage();
-  }
-
-  @SuppressWarnings("squid:S1192")
-  protected String handleClientException(Exception ce) {
-    String msg;
-    Throwable cause = ce.getCause();
-    String sourceId = cswSourceConfiguration.getId();
-    if (cause instanceof WebApplicationException) {
-      msg = handleWebApplicationException((WebApplicationException) cause);
-    } else if (cause instanceof IllegalArgumentException) {
-      msg =
-          CSW_SERVER_ERROR
-              + " Source '"
-              + sourceId
-              + "'. The URI '"
-              + cswSourceConfiguration.getCswUrl()
-              + "' does not specify a valid protocol or could not be correctly parsed. "
-              + ce.getMessage();
-    } else if (cause instanceof SSLHandshakeException) {
-      msg =
-          CSW_SERVER_ERROR
-              + " Source '"
-              + sourceId
-              + "' with URL '"
-              + cswSourceConfiguration.getCswUrl()
-              + "': "
-              + cause;
-    } else if (cause instanceof ConnectException) {
-      msg = CSW_SERVER_ERROR + " Source '" + sourceId + "' may not be running.\n" + ce.getMessage();
-    } else {
-      msg = CSW_SERVER_ERROR + " Source '" + sourceId + "'\n" + ce;
-    }
-
-    LOGGER.info(msg);
-    LOGGER.debug(msg, ce);
-    return msg;
-  }
-
   protected void availabilityChanged(boolean isAvailable) {
 
     if (isAvailable) {
@@ -1644,103 +1353,6 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   public void setMetacardTypes(List<MetacardType> types) {}
 
-  /**
-   * Set the version to CSW 2.0.1. The schemas don't vary much between 2.0.2 and 2.0.1. The largest
-   * difference is the namespace itself. This method tells CXF JAX-RS to transform outgoing messages
-   * CSW namespaces to 2.0.1.
-   */
-  public void setCsw201() {
-    Map<String, String> outTransformElements = new HashMap<>();
-    outTransformElements.put(
-        "{" + CswConstants.CSW_OUTPUT_SCHEMA + "}*", "{http://www.opengis.net/cat/csw}*");
-    getRecordsTypeProvider.setOutTransformElements(outTransformElements);
-  }
-
-  private void configureEventService() {
-
-    if (!cswSourceConfiguration.isRegisterForEvents()) {
-      LOGGER.debug("registerForEvents = false - do not configure site {} for events", this.getId());
-      removeEventServiceSubscription();
-      return;
-    }
-
-    if (StringUtils.isEmpty(cswSourceConfiguration.getEventServiceAddress())) {
-      LOGGER.debug(
-          "eventServiceAddress is NULL or empty - do not configure site {} for events",
-          this.getId());
-      return;
-    }
-
-    // If filterless subscription has already been configured then do not
-    // try to configure
-    // another one (because the DDF will allow it and you will get multiple
-    // events sent when
-    // a single event should be sent)
-    if (filterlessSubscriptionId != null) {
-      LOGGER.debug(
-          "filterless subscription already configured for site {}", filterlessSubscriptionId);
-      return;
-    }
-
-    subscribeClientFactory = initClientFactory(CswSubscribe.class);
-    CswSubscribe cswSubscribe = subscribeClientFactory.create(CswSubscribe.class);
-    GetRecordsType request = createSubscriptionGetRecordsRequest();
-    try (Response response = cswSubscribe.createRecordsSubscription(request)) {
-      if (Response.Status.OK.getStatusCode() == response.getStatus()) {
-        AcknowledgementType acknowledgementType = response.readEntity(AcknowledgementType.class);
-        filterlessSubscriptionId = acknowledgementType.getRequestId();
-      }
-    } catch (CswException e) {
-      LOGGER.info(
-          "Failed to register a subscription for events from csw source with id of {} ",
-          this.getId());
-    }
-  }
-
-  private GetRecordsType createSubscriptionGetRecordsRequest() {
-    GetRecordsType getRecordsType = new GetRecordsType();
-    getRecordsType.setVersion(cswVersion);
-    getRecordsType.setService(CswConstants.CSW);
-    getRecordsType.setResultType(ResultType.RESULTS);
-    getRecordsType.setStartPosition(BigInteger.ONE);
-    getRecordsType.setMaxRecords(BigInteger.TEN);
-    getRecordsType.setOutputFormat(MediaType.APPLICATION_XML);
-    getRecordsType.setOutputSchema("urn:catalog:metacard");
-    getRecordsType
-        .getResponseHandler()
-        .add(SystemBaseUrl.EXTERNAL.constructUrl("csw/subscription/event", true));
-    QueryType queryType = new QueryType();
-    queryType.setElementSetName(createElementSetName(ElementSetType.FULL));
-    ObjectFactory objectFactory = new ObjectFactory();
-    getRecordsType.setAbstractQuery(objectFactory.createQuery(queryType));
-    return getRecordsType;
-  }
-
-  private void removeEventServiceSubscription() {
-
-    if (filterlessSubscriptionId != null && subscribeClientFactory != null) {
-      CswSubscribe cswSubscribe = subscribeClientFactory.create(CswSubscribe.class);
-      try {
-        cswSubscribe.deleteRecordsSubscription(filterlessSubscriptionId);
-
-      } catch (CswException e) {
-        LOGGER.info(
-            "Failed to remove filterless subscription registered for id {} for csw source with id of {}",
-            filterlessSubscriptionId,
-            this.getId());
-      }
-      filterlessSubscriptionId = null;
-    }
-  }
-
-  public void setRegisterForEvents(Boolean registerForEvents) {
-    this.cswSourceConfiguration.setRegisterForEvents(registerForEvents);
-  }
-
-  public void setEventServiceAddress(String eventServiceAddress) {
-    this.cswSourceConfiguration.setEventServiceAddress(eventServiceAddress);
-  }
-
   protected void addSourceMonitor(SourceMonitor sourceMonitor) {
     sourceMonitors.add(sourceMonitor);
   }
@@ -1752,7 +1364,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     LOGGER.debug("{}: Entering destroy()", cswSourceConfiguration.getId());
     availabilityPollFuture.cancel(true);
     scheduler.shutdownNow();
-    removeEventServiceSubscription();
   }
 
   /**

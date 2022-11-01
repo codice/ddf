@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.activation.MimeType;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
@@ -110,8 +109,8 @@ public class OgcUrlResourceReader implements ResourceReader {
       if (UNKNOWN_MIME_TYPES.contains(mimeTypeStr)) {
         detectedMimeType = tika.detect(resourceURI.toURL());
       }
-      if (StringUtils.contains(detectedMimeType, MediaType.TEXT_HTML)
-          || StringUtils.contains(mimeTypeStr, MediaType.TEXT_HTML)) {
+      if (StringUtils.contains(detectedMimeType, "text/html")
+          || StringUtils.contains(mimeTypeStr, "text/html")) {
         LOGGER.debug("Detected \"text\\html\". Building redirect script");
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("<html><script type=\"text/javascript\">window.location.replace(\"");

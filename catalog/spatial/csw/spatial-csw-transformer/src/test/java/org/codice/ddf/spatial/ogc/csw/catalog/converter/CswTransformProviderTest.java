@@ -44,7 +44,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import javax.activation.MimeType;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -76,7 +75,7 @@ public class CswTransformProviderTest {
         .thenReturn(
             new BinaryContentImpl(
                 IOUtils.toInputStream(getRecord(), StandardCharsets.UTF_8),
-                new MimeType(MediaType.APPLICATION_XML)));
+                new MimeType("application/xml")));
 
     StringWriter stringWriter = new StringWriter();
     HierarchicalStreamWriter writer = new WstxDriver().createWriter(stringWriter);
@@ -104,7 +103,7 @@ public class CswTransformProviderTest {
         .thenReturn(
             new BinaryContentImpl(
                 IOUtils.toInputStream(getRecord(), StandardCharsets.UTF_8),
-                new MimeType(MediaType.APPLICATION_XML)));
+                new MimeType("application/xml")));
 
     StringWriter stringWriter = new StringWriter();
     HierarchicalStreamWriter writer = new WstxDriver().createWriter(stringWriter);

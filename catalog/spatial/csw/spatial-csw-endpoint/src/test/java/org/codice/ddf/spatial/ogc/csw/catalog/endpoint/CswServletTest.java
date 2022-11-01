@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
 import org.codice.ddf.parser.xml.XmlParser;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader.TransactionMessageBodyReader;

@@ -36,6 +36,7 @@ import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;

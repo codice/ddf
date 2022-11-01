@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ws.rs.ext.MessageBodyWriter;
 import javax.xml.bind.JAXBElement;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
@@ -59,11 +58,11 @@ import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
 import net.opengis.filter.v_1_1_0.FilterType;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.source.writer.CswTransactionRequestConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
@@ -76,18 +75,27 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
 
   protected TransformerManager schemaTransformerManager;
 
-  protected MessageBodyWriter<CswTransactionRequest> cswTransactionWriter;
+  protected CswTransactionRequestConverter cswTransactionConverter;
 
   /**
    * Instantiates a CswStore. This constructor is for unit tests
    *
    * @param context The {@link BundleContext} from the OSGi Framework
    * @param cswSourceConfiguration the configuration of this source
+   * @param parser XML parser to transform results
    * @param provider transform provider to transform results
    */
   public AbstractCswStore(
-      BundleContext context, CswSourceConfiguration cswSourceConfiguration, Converter provider) {
-    super(context, cswSourceConfiguration, provider);
+      BundleContext context,
+      CswSourceConfiguration cswSourceConfiguration,
+      CswXmlParser parser,
+      Converter provider,
+      CswClient cswClient) {
+    super(context, cswSourceConfiguration, parser, provider, cswClient);
+  }
+
+  public AbstractCswStore() {
+    super();
   }
 
   @Override
@@ -96,7 +104,6 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
 
     validateOperation();
 
-    Csw csw = factory.create(Csw.class);
     CswTransactionRequest transactionRequest = getTransactionRequest();
 
     List<Metacard> metacards = createRequest.getMetacards();
@@ -119,7 +126,8 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
         .getInsertActions()
         .add(new InsertActionImpl(insertTypeName, null, metacards));
     try {
-      TransactionResponseType response = csw.transaction(transactionRequest);
+      TransactionResponseType response =
+          cswClient.transaction(cswTransactionConverter.convert(transactionRequest));
       Set<String> processedIds = new HashSet<>();
       // dive down into the response to get the created ID's. We need these so we can query
       // the source again to get the created metacards and put them in the result
@@ -145,7 +153,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
               .map(id -> new ProcessingDetailsImpl(id, null, "Failed to create metacard"))
               .collect(Collectors.toList()));
 
-    } catch (CswException e) {
+    } catch (UnsupportedQueryException e) {
       throw new IngestException("Csw Transaction Failed : ", e);
     }
 
@@ -165,7 +173,6 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
 
     validateOperation();
 
-    Csw csw = factory.create(Csw.class);
     CswTransactionRequest transactionRequest = getTransactionRequest();
 
     OperationTransaction opTrans =
@@ -199,12 +206,13 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
           .add(new UpdateActionImpl(metacard, insertTypeName, null));
     }
     try {
-      TransactionResponseType response = csw.transaction(transactionRequest);
+      TransactionResponseType response =
+          cswClient.transaction(cswTransactionConverter.convert(transactionRequest));
       if (response.getTransactionSummary().getTotalUpdated().longValue()
           != updateRequest.getUpdates().size()) {
         errors.add(new ProcessingDetailsImpl(this.getId(), null, "One or more updates failed"));
       }
-    } catch (CswException e) {
+    } catch (UnsupportedQueryException e) {
       throw new IngestException("Csw Transaction Failed.", e);
     }
 
@@ -228,7 +236,6 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
 
     validateOperation();
 
-    Csw csw = factory.create(Csw.class);
     CswTransactionRequest transactionRequest = getTransactionRequest();
 
     OperationTransaction opTrans =
@@ -267,13 +274,14 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
     }
 
     try {
-      TransactionResponseType response = csw.transaction(transactionRequest);
+      TransactionResponseType response =
+          cswClient.transaction(cswTransactionConverter.convert(transactionRequest));
       if (response.getTransactionSummary().getTotalDeleted().intValue()
           != deleteRequest.getAttributeValues().size()) {
         throw new IngestException(
             "Csw Transaction Failed. Number of metacards deleted did not match number requested.");
       }
-    } catch (CswException e) {
+    } catch (UnsupportedQueryException e) {
       throw new IngestException("Csw Transaction Failed", e);
     }
 
@@ -281,27 +289,16 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
         deleteRequest, properties, new ArrayList(opTrans.getPreviousStateMetacards()));
   }
 
-  @Override
-  protected List<Object> initProviders(
-      Converter cswTransformProvider, CswSourceConfiguration cswSourceConfiguration) {
-
-    List providers =
-        new ArrayList(super.initProviders(cswTransformProvider, cswSourceConfiguration));
-    providers.add(cswTransactionWriter);
-    return providers;
-  }
-
   public void setSchemaTransformerManager(TransformerManager schemaTransformerManager) {
     this.schemaTransformerManager = schemaTransformerManager;
   }
 
-  public MessageBodyWriter<CswTransactionRequest> getCswTransactionWriter() {
-    return cswTransactionWriter;
+  public CswTransactionRequestConverter getCswTransactionConverter() {
+    return cswTransactionConverter;
   }
 
-  public void setCswTransactionWriter(
-      MessageBodyWriter<CswTransactionRequest> cswTransactionWriter) {
-    this.cswTransactionWriter = cswTransactionWriter;
+  public void setCswTransactionConverter(CswTransactionRequestConverter cswTransactionConverter) {
+    this.cswTransactionConverter = cswTransactionConverter;
   }
 
   private List<Metacard> transactionQuery(List<Filter> idFilters) throws UnsupportedQueryException {

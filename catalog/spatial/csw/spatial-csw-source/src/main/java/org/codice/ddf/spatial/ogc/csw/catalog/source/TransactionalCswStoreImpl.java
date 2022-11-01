@@ -18,7 +18,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.AbstractCswStore;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.source.CswClient;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -28,8 +30,16 @@ import org.osgi.framework.BundleContext;
 public class TransactionalCswStoreImpl extends AbstractCswStore {
 
   public TransactionalCswStoreImpl(
-      BundleContext context, CswSourceConfiguration cswSourceConfiguration, Converter provider) {
-    super(context, cswSourceConfiguration, provider);
+      BundleContext context,
+      CswSourceConfiguration cswSourceConfiguration,
+      CswXmlParser parser,
+      Converter provider,
+      CswClient cswClient) {
+    super(context, cswSourceConfiguration, parser, provider, cswClient);
+  }
+
+  public TransactionalCswStoreImpl() {
+    super();
   }
 
   @Override

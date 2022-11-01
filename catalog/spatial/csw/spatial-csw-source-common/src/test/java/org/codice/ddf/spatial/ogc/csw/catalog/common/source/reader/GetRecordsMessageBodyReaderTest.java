@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -28,7 +27,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.net.HttpHeaders;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -51,26 +49,31 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import org.apache.tika.io.IOUtils;
+import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 public class GetRecordsMessageBodyReaderTest {
 
   private Converter mockProvider = mock(Converter.class);
+
+  CswXmlParser parser =
+      new CswXmlParser(
+          new XmlParser(),
+          List.of("ddf.catalog.transformer.xml.binding", "ddf.catalog.transformer.xml.adapter"));
 
   @Before
   public void setUp() {
@@ -87,15 +90,14 @@ public class GetRecordsMessageBodyReaderTest {
     config.putMetacardCswMapping(Core.THUMBNAIL, CswConstants.CSW_REFERENCES);
     config.putMetacardCswMapping(Core.RESOURCE_URI, CswConstants.CSW_SOURCE);
 
-    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
+    GetRecordsMessageBodyReader reader =
+        new GetRecordsMessageBodyReader(parser, mockProvider, config);
     ArgumentCaptor<UnmarshallingContext> captor =
         ArgumentCaptor.forClass(UnmarshallingContext.class);
 
     try (InputStream is =
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/getRecordsResponse.xml")) {
-      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-
-      reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+      reader.readFrom(Collections.emptyMap(), is);
     }
 
     // Verify the context arguments were set correctly
@@ -151,15 +153,13 @@ public class GetRecordsMessageBodyReaderTest {
 
     CswSourceConfiguration config = createConfig();
 
-    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(provider, config);
+    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(parser, provider, config);
     CswRecordCollection cswRecords = null;
 
     try (InputStream is =
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/getRecordsResponse.xml")) {
 
-      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-
-      cswRecords = reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+      cswRecords = reader.readFrom(Collections.emptyMap(), is);
     }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards, hasSize(3));
@@ -193,16 +193,14 @@ public class GetRecordsMessageBodyReaderTest {
 
     CswSourceConfiguration config = createConfig();
 
-    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(provider, config);
+    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(parser, provider, config);
     CswRecordCollection cswRecords = null;
 
     try (InputStream is =
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream(
             "/getRecordsResponse-alt-prefixes.xml")) {
 
-      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-
-      cswRecords = reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+      cswRecords = reader.readFrom(Collections.emptyMap(), is);
     }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards.size(), is(3));
@@ -223,14 +221,14 @@ public class GetRecordsMessageBodyReaderTest {
     CswSourceConfiguration config = new CswSourceConfiguration();
     config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
+    GetRecordsMessageBodyReader reader =
+        new GetRecordsMessageBodyReader(parser, mockProvider, config);
 
     CswRecordCollection cswRecords = null;
     try (InputStream is =
         GetRecordsMessageBodyReaderTest.class.getResourceAsStream(
             "/geomaticsGetRecordsResponse.xml")) {
-      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-      cswRecords = reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
+      cswRecords = reader.readFrom(Collections.emptyMap(), is);
     }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards, contains(metacard));
@@ -241,114 +239,119 @@ public class GetRecordsMessageBodyReaderTest {
     CswSourceConfiguration config = new CswSourceConfiguration();
     config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
     config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
+    GetRecordsMessageBodyReader reader =
+        new GetRecordsMessageBodyReader(parser, mockProvider, config);
 
     String sampleData = "SampleData";
     byte[] data = sampleData.getBytes();
     CswRecordCollection cswRecords = null;
     try (ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data)) {
-      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-      httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
-      httpHeaders.add(
-          HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
-      MediaType mediaType = new MediaType("text", "plain");
+      Map<String, List<String>> httpHeaders = new HashMap<>();
+      httpHeaders.put(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, List.of("TRUE"));
+      httpHeaders.put(
+          "Content-Disposition", List.of(String.format("inline; filename=ResourceName")));
+      httpHeaders.put("Content-Type", List.of(String.format("text/plain")));
 
-      cswRecords =
-          reader.readFrom(
-              CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
+      cswRecords = reader.readFrom(httpHeaders, dataInputStream);
     }
 
     Resource resource = cswRecords.getResource();
     assertThat(resource, notNullValue());
     assertThat(resource.getName(), is("ResourceName"));
-    assertThat(resource.getMimeType().toString(), is(MediaType.TEXT_PLAIN));
+    assertThat(resource.getMimeType().toString(), is("text/plain"));
     assertThat(resource.getByteArray(), is(data));
   }
 
   @Test
-  public void testPartialContentResponseHandling() throws Exception {
-    CswSourceConfiguration config = new CswSourceConfiguration();
-    config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
-    config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
+  @Ignore
+  public void testMetacardCswRecordCollection() throws Exception {
+    Metacard metacard = createMetacard();
+    List<Metacard> inputMetacards = Collections.singletonList(metacard);
+    CswRecordCollection collection = new CswRecordCollection();
+    collection.setCswRecords(inputMetacards);
 
-    String sampleData = "SampleData";
-    byte[] data = sampleData.getBytes();
+    MetacardType cswMetacardType =
+        new MetacardTypeImpl(
+            CswConstants.CSW_METACARD_TYPE_NAME,
+            Arrays.asList(
+                new ContactAttributes(),
+                new LocationAttributes(),
+                new MediaAttributes(),
+                new TopicAttributes(),
+                new AssociationsAttributes()));
+
+    CswRecordConverter recordConverter = new CswRecordConverter(cswMetacardType);
+    TransformerManager mockInputManager = mock(TransformerManager.class);
+    when(mockInputManager.getTransformerByProperty(anyString(), anyString()))
+        .thenReturn(recordConverter);
+    CswTransformProvider metacardProvider = new CswTransformProvider(null, mockInputManager);
+    GetRecordsResponseConverter provider = new GetRecordsResponseConverter(metacardProvider);
+
+    CswSourceConfiguration config = createConfig();
+    config.setOutputSchema("urn:catalog:metacard");
+
+    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(parser, provider, config);
     CswRecordCollection cswRecords = null;
-    try (ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data)) {
-      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-      httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
-      httpHeaders.add(
-          HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
-      httpHeaders.add(
-          HttpHeaders.CONTENT_RANGE,
-          String.format("bytes 1-%d/%d", sampleData.length() - 1, sampleData.length()));
-      MediaType mediaType = new MediaType("text", "plain");
 
-      cswRecords =
-          reader.readFrom(
-              CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
-    }
+    String xml =
+        "<?xml version='1.0' encoding='UTF-8'?>\n"
+            + "<csw:GetRecordsResponse xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" version=\"2.0.2\">\n"
+            + "    <csw:SearchStatus timestamp=\"2022-10-26T10:14:30.212-05:00\"/>\n"
+            + "    <csw:SearchResults numberOfRecordsMatched=\"1\" numberOfRecordsReturned=\"1\" nextRecord=\"1\" recordSchema=\"urn:catalog:metacard\" elementSet=\"full\">\n"
+            + "        <metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:smil=\"http://www.w3.org/2001/SMIL20/\" xmlns:smillang=\"http://www.w3.org/2001/SMIL20/Language\" gml:id=\"7eb1b4e4aca5416fbd065b8295e253c8\">\n"
+            + "            <type>ddf.metacard</type>\n"
+            + "            <source>ddf.distribution</source>\n"
+            + "            <string name=\"title\">\n"
+            + "                <value>title 1</value>\n"
+            + "            </string>\n"
+            + "            <dateTime name=\"created\">\n"
+            + "                <value>2014-12-21T03:00:33.000+00:00</value>\n"
+            + "            </dateTime>\n"
+            + "            <dateTime name=\"modified\">\n"
+            + "                <value>2016-03-16T17:00:29.614+00:00</value>\n"
+            + "            </dateTime>\n"
+            + "            <ns3:geometry xmlns:ns1=\"http://www.opengis.net/gml\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" name=\"location\">\n"
+            + "                <ns3:value>\n"
+            + "                    <ns1:Point>\n"
+            + "                        <ns1:pos>5.121 52.139</ns1:pos>\n"
+            + "                    </ns1:Point>\n"
+            + "                </ns3:value>\n"
+            + "            </ns3:geometry>\n"
+            + "        </metacard>\n"
+            + "        <metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:smil=\"http://www.w3.org/2001/SMIL20/\" xmlns:smillang=\"http://www.w3.org/2001/SMIL20/Language\" gml:id=\"fbd065b8295e253c87eb1b4e4aca5416\">\n"
+            + "            <type>ddf.metacard</type>\n"
+            + "            <source>ddf.distribution</source>\n"
+            + "            <string name=\"title\">\n"
+            + "                <value>title 2</value>\n"
+            + "            </string>\n"
+            + "            <dateTime name=\"created\">\n"
+            + "                <value>2015-12-21T03:00:33.000+00:00</value>\n"
+            + "            </dateTime>\n"
+            + "            <dateTime name=\"modified\">\n"
+            + "                <value>2017-03-16T17:00:29.614+00:00</value>\n"
+            + "            </dateTime>\n"
+            + "            <ns3:geometry xmlns:ns1=\"http://www.opengis.net/gml\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" name=\"location\">\n"
+            + "                <ns3:value>\n"
+            + "                    <ns1:Point>\n"
+            + "                        <ns1:pos>52.139 5.121</ns1:pos>\n"
+            + "                    </ns1:Point>\n"
+            + "                </ns3:value>\n"
+            + "            </ns3:geometry>\n"
+            + "        </metacard>\n"
+            + "    </csw:SearchResults>\n"
+            + "</csw:GetRecordsResponse>";
+    InputStream is = IOUtils.toInputStream(xml);
 
-    Resource resource = cswRecords.getResource();
+    //    try (InputStream is =
+    //
+    // GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/getRecordsResponse.xml")) {
 
-    // assert that the CswRecordCollection properly extracted the bytes skipped from the Partial
-    // Content response
-    assertThat(
-        cswRecords.getResourceProperties().get(GetRecordsMessageBodyReader.BYTES_SKIPPED), is(1L));
-
-    // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has
-    // the number
-    // of bytes that was attempted to be skipped, the stream must be aligned there instead.
-    assertThat(resource.getByteArray(), is(data));
-  }
-
-  @Test
-  public void testPartialContentNotSupportedHandling() throws Exception {
-    CswSourceConfiguration config = new CswSourceConfiguration();
-    config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
-    config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-    GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
-
-    String sampleData = "SampleData";
-    byte[] data = sampleData.getBytes();
-    CswRecordCollection cswRecords = null;
-    try (ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data)) {
-      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-      httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
-      httpHeaders.add(
-          HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=ResourceName"));
-      MediaType mediaType = new MediaType("text", "plain");
-
-      cswRecords =
-          reader.readFrom(
-              CswRecordCollection.class, null, null, mediaType, httpHeaders, dataInputStream);
-    }
-
-    Resource resource = cswRecords.getResource();
-
-    // assert that the CswRecordCollection property is not set if the server does not support
-    // Partial Content responses
-    assertThat(
-        cswRecords.getResourceProperties().get(GetRecordsMessageBodyReader.BYTES_SKIPPED),
-        nullValue());
-
-    // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has
-    // the number
-    // of bytes that was attempted to be skipped, the stream must be aligned there instead.
-    assertThat(resource.getByteArray(), is(data));
-  }
-
-  @Test(expected = WebApplicationException.class)
-  public void testExceptionReport() throws Exception {
-    GetRecordsMessageBodyReader reader =
-        new GetRecordsMessageBodyReader(mockProvider, new CswSourceConfiguration());
-
-    try (InputStream is =
-        GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/exceptionReport.xml")) {
-      MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
-      reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
-    }
+    cswRecords = reader.readFrom(Collections.emptyMap(), is);
+    //    }
+    List<Metacard> metacards = cswRecords.getCswRecords();
+    assertThat(metacards, hasSize(2));
+    assertThat(metacards.get(0).getMetacardType().getName(), is("ddf.metacard"));
+    assertThat(metacards.get(0).getTitle(), containsString("title 1"));
   }
 
   private Metacard createMetacard() {

@@ -26,7 +26,8 @@
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
     <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
                filter="(shortname=URLResourceReader)"/>
-    <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
+    <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"
+               filter="(id=csw)"/>
     <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
 
     <bean id="metacardTypes" class="org.codice.ddf.platform.util.SortedServiceList"/>
@@ -47,8 +48,8 @@
           class="org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager">
         <argument ref="metacardTransformers"/>
     </bean>
-    <bean id="cswTransactionWriter"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.common.source.writer.CswTransactionRequestWriter">
+    <bean id="cswTransactionConverter"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.source.writer.CswTransactionRequestConverter">
         <argument ref="cswTransformProvider"/>
     </bean>
 
@@ -90,8 +91,6 @@
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
             <property name="metacardTypes" ref="metacardTypes"/>
-            <property name="eventServiceAddress" value=""/>
-            <property name="registerForEvents" value="false"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -111,8 +110,6 @@
             <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
-            <property name="eventServiceAddress" value=""/>
-            <property name="registerForEvents" value="false"/>
 
             <!-- These are defaulted for convenience -->
             <property name="context" ref="blueprintBundleContext"/>
@@ -183,8 +180,6 @@
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
             <property name="metacardTypes" ref="metacardTypes"/>
-            <property name="eventServiceAddress" value=""/>
-            <property name="registerForEvents" value="false"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -228,11 +223,9 @@
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
             <property name="metacardTypes" ref="metacardTypes"/>
-            <property name="eventServiceAddress" value=""/>
-            <property name="registerForEvents" value="false"/>
             <!-- CSW Store Properties -->
             <property name="schemaTransformerManager" ref="metacardTransformerManager"/>
-            <property name="cswTransactionWriter" ref="cswTransactionWriter"/>
+            <property name="cswTransactionConverter" ref="cswTransactionConverter"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

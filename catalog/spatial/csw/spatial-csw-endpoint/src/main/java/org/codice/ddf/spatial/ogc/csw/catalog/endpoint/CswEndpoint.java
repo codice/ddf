@@ -139,6 +139,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
@@ -275,6 +276,8 @@ public class CswEndpoint {
 
   private String cswUrl;
 
+  private final CswXmlParser parser = new CswXmlParser();
+
   /** JAX-RS Server that represents a CSW v2.0.2 Server. */
   public CswEndpoint(
       CatalogFramework ddf,
@@ -386,7 +389,7 @@ public class CswEndpoint {
 
     LOGGER.trace("Exiting getRecords");
 
-    return getRecords(request.get202RecordsType());
+    return getRecords(request.get202RecordsType(parser));
   }
 
   public CswRecordCollection getRecords(GetRecordsType request) throws CswException {

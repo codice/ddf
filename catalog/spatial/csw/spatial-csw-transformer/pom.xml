@@ -51,12 +51,6 @@
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-ogc-common</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-                    <groupId>org.apache.cxf</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>

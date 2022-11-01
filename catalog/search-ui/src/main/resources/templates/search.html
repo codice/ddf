@@ -33,7 +33,7 @@
         <div th:if="${!#strings.isEmpty(header)}" class="banner header" th:text="${header}">
             UNCLASSIFIED
         </div>
-        <blockquote class="warn" th:if="${!#lists.isEmpty(results.errors)}">
+        <blockquote class="warn" th:if="${results != null && results.errors != null && !#lists.isEmpty(results.errors)}">
             <p><b>There was a problem</b></p>
             <ul th:each="error : ${results.errors}">
                 <li th:text="${error}">Error Message</li>
@@ -73,7 +73,7 @@
                 </div>
             </div>
         </form>
-        <div th:if="${!#lists.isEmpty(results.metacards)}">
+        <div th:if="${results != null && !#lists.isEmpty(results.metacards)}">
             <p>Total results: <span th:text="${results.totalResults}">1</span></p>
             <table>
                 <thead>

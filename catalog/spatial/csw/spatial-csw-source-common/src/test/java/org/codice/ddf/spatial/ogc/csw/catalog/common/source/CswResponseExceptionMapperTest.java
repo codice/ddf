@@ -19,57 +19,25 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import java.io.ByteArrayInputStream;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import net.opengis.ows.v_1_0_0.ExceptionReport;
+import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.junit.Test;
 
 public class CswResponseExceptionMapperTest {
 
+  private CswXmlParser parser = new CswXmlParser();
+
   @Test
   public void testCswExceptionWithNullResponse() {
-    CswException cswException = new CswResponseExceptionMapper().fromResponse(null);
+    CswException cswException = CswResponseExceptionMapper.convertToCswException(null);
 
     assertThat(cswException.getMessage(), is("Error handling response, response is null"));
   }
 
   @Test
-  public void testCswExceptionWithInvalidEntityType() {
-    String exceptionReportXml =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
-            + "<ows:ExceptionReport version=\"1.2.0\" xmlns:ns16=\"http://www.opengis.net/ows/1.1\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:cat=\"http://www.opengis.net/cat/csw\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:fra=\"http://www.cnig.gouv.fr/2005/fra\" xmlns:ins=\"http://www.inspire.org\" xmlns:gmx=\"http://www.isotc211.org/2005/gmx\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:gmi=\"http://www.isotc211.org/2005/gmi\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
-            + "    <ows:Exception exceptionCode=\"INVALID_PARAMETER_VALUE\" locator=\"QueryConstraint\">\r\n"
-            + "        <ows:ExceptionText>Only dc:title,dct:modified,dc:subject,dct:dateSubmitted,dct:alternative,dc:format,dct:created,dc:type,dct:abstract,dc:identifier,dc:creator  are currently supported</ows:ExceptionText>\r\n"
-            + "    </ows:Exception>\r\n"
-            + "</ows:ExceptionReport>";
-    ResponseBuilder responseBuilder = Response.ok(exceptionReportXml);
-    responseBuilder.type("text/xml");
-    Response response = responseBuilder.build();
-
-    CswException cswException = new CswResponseExceptionMapper().fromResponse(response);
-
-    assertThat(
-        cswException.getMessage(),
-        is("Error reading response, entity type not understood: java.lang.String"));
-  }
-
-  @Test
-  public void testInvalidCswException() {
-    String exceptionReportXml =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
-            + "<ows:ExceptionReport version=\"1.2.0\" xmlns:ns16=\"http://www.opengis.net/ows/1.1\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:cat=\"http://www.opengis.net/cat/csw\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:fra=\"http://www.cnig.gouv.fr/2005/fra\" xmlns:ins=\"http://www.inspire.org\" xmlns:gmx=\"http://www.isotc211.org/2005/gmx\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:gmi=\"http://www.isotc211.org/2005/gmi\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
-            + "    <ows:Invalid exceptionCode=\"INVALID_PARAMETER_VALUE\" locator=\"QueryConstraint\">\r\n"
-            + "        <ows:ExceptionText>Only dc:title,dct:modified,dc:subject,dct:dateSubmitted,dct:alternative,dc:format,dct:created,dc:type,dct:abstract,dc:identifier,dc:creator  are currently supported</ows:ExceptionText>\r\n"
-            + "    </ows:Exception>\r\n"
-            + "</ows:ExceptionReport>";
-
-    CswException cswException = createCswException(exceptionReportXml);
-
-    assertThat(cswException.getMessage(), containsString("Error received from remote Csw server"));
-  }
-
-  @Test
-  public void testEmptyCswException() {
+  public void testEmptyCswException() throws Exception {
     String exceptionReportXml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
             + "<ows:ExceptionReport version=\"1.2.0\" xmlns:ns16=\"http://www.opengis.net/ows/1.1\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:cat=\"http://www.opengis.net/cat/csw\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:fra=\"http://www.cnig.gouv.fr/2005/fra\" xmlns:ins=\"http://www.inspire.org\" xmlns:gmx=\"http://www.isotc211.org/2005/gmx\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:gmi=\"http://www.isotc211.org/2005/gmi\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
@@ -82,7 +50,7 @@ public class CswResponseExceptionMapperTest {
   }
 
   @Test
-  public void testCswExceptionWithCodeOnly() {
+  public void testCswExceptionWithCodeOnly() throws Exception {
     String exceptionReportXml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
             + "<ows:ExceptionReport version=\"1.2.0\" xmlns:ns16=\"http://www.opengis.net/ows/1.1\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:cat=\"http://www.opengis.net/cat/csw\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:fra=\"http://www.cnig.gouv.fr/2005/fra\" xmlns:ins=\"http://www.inspire.org\" xmlns:gmx=\"http://www.isotc211.org/2005/gmx\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:gmi=\"http://www.isotc211.org/2005/gmi\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
@@ -103,7 +71,7 @@ public class CswResponseExceptionMapperTest {
   }
 
   @Test
-  public void testCswExceptionWithLocatorOnly() {
+  public void testCswExceptionWithLocatorOnly() throws Exception {
     String exceptionReportXml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
             + "<ows:ExceptionReport version=\"1.2.0\" xmlns:ns16=\"http://www.opengis.net/ows/1.1\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:cat=\"http://www.opengis.net/cat/csw\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:fra=\"http://www.cnig.gouv.fr/2005/fra\" xmlns:ins=\"http://www.inspire.org\" xmlns:gmx=\"http://www.isotc211.org/2005/gmx\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:gmi=\"http://www.isotc211.org/2005/gmi\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
@@ -123,7 +91,7 @@ public class CswResponseExceptionMapperTest {
   }
 
   @Test
-  public void testCswExceptionWithCodeAndLocator() {
+  public void testCswExceptionWithCodeAndLocator() throws Exception {
     String exceptionReportXml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
             + "<ows:ExceptionReport version=\"1.2.0\" xmlns:ns16=\"http://www.opengis.net/ows/1.1\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:cat=\"http://www.opengis.net/cat/csw\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:fra=\"http://www.cnig.gouv.fr/2005/fra\" xmlns:ins=\"http://www.inspire.org\" xmlns:gmx=\"http://www.isotc211.org/2005/gmx\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:gmi=\"http://www.isotc211.org/2005/gmi\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
@@ -144,7 +112,7 @@ public class CswResponseExceptionMapperTest {
   }
 
   @Test
-  public void testCswExceptionWithMultipleExceptionTexts() {
+  public void testCswExceptionWithMultipleExceptionTexts() throws Exception {
     String exceptionReportXml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
             + "<ows:ExceptionReport version=\"1.2.0\" xmlns:ns16=\"http://www.opengis.net/ows/1.1\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:cat=\"http://www.opengis.net/cat/csw\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:fra=\"http://www.cnig.gouv.fr/2005/fra\" xmlns:ins=\"http://www.inspire.org\" xmlns:gmx=\"http://www.isotc211.org/2005/gmx\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:gmi=\"http://www.isotc211.org/2005/gmi\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
@@ -166,12 +134,11 @@ public class CswResponseExceptionMapperTest {
     assertThat(cswException.getMessage(), containsString("Second exception text"));
   }
 
-  private CswException createCswException(String exceptionReportXml) {
-    ByteArrayInputStream bis = new ByteArrayInputStream(exceptionReportXml.getBytes());
-    ResponseBuilder responseBuilder = Response.ok(bis);
-    responseBuilder.type("text/xml");
-    Response response = responseBuilder.build();
+  private CswException createCswException(String exceptionReportXml) throws ParserException {
+    ExceptionReport exceptionReport =
+        parser.unmarshal(
+            ExceptionReport.class, new ByteArrayInputStream(exceptionReportXml.getBytes()));
 
-    return new CswResponseExceptionMapper().fromResponse(response);
+    return CswResponseExceptionMapper.convertToCswException(exceptionReport);
   }
 }

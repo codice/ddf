@@ -28,9 +28,9 @@ import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import org.codice.ddf.parser.ParserException;
-import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,7 +45,7 @@ public class CswExceptionMapperTest {
   private static final String XML_PARSE_FAIL_MSG =
       "Error parsing the request.  XML parameters may be missing or invalid.";
 
-  private CswXmlParser xmlParser = new CswXmlParser(new XmlParser());
+  private CswXmlParser xmlParser = new CswXmlParser();
 
   private HttpServletResponse response = mock(HttpServletResponse.class);
 

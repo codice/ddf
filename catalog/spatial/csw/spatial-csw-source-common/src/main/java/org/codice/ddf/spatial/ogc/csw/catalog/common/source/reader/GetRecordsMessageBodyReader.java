@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source.reader;
 
-import com.google.common.net.HttpHeaders;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -21,7 +20,7 @@ import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.QNameMap;
 import com.thoughtworks.xstream.io.xml.StaxReader;
-import com.thoughtworks.xstream.io.xml.XppDriver;
+import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.impl.ResourceImpl;
 import java.io.ByteArrayInputStream;
@@ -29,45 +28,51 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.ext.MessageBodyReader;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.xml.bind.JAXBElement;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
+import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
+import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Custom JAX-RS MessageBodyReader for parsing a CSW GetRecords response, extracting the search
- * results and CSW records.
+ * Parses a CSW GetRecords response, extracting the record resource or the search results and CSW
+ * records.
  */
-public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordCollection> {
+public class GetRecordsMessageBodyReader {
   private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsMessageBodyReader.class);
 
   public static final String BYTES_SKIPPED = "bytes-skipped";
+
+  private CswXmlParser parser;
 
   private XStream xstream;
 
   private DataHolder argumentHolder;
 
-  public GetRecordsMessageBodyReader(Converter converter, CswSourceConfiguration configuration) {
-    xstream = new XStream(new XppDriver());
+  private Pattern filenamePattern = Pattern.compile(".*filename=\\\"?([^\\\"]+)\\\"?.*");
+
+  public GetRecordsMessageBodyReader(
+      CswXmlParser parser, Converter converter, CswSourceConfiguration configuration) {
+    this.parser = parser;
+    xstream = new XStream(new Xpp3Driver());
     xstream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     xstream.setClassLoader(this.getClass().getClassLoader());
     xstream.registerConverter(converter);
@@ -91,27 +96,20 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     argumentHolder.put(CswConstants.TRANSFORMER_LOOKUP_VALUE, configuration.getOutputSchema());
   }
 
-  @Override
-  public boolean isReadable(
-      Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return CswRecordCollection.class.isAssignableFrom(type);
-  }
+  public CswRecordCollection readFrom(Map<String, List<String>> httpHeaders, InputStream inStream)
+      throws IOException {
 
-  @Override
-  public CswRecordCollection readFrom(
-      Class<CswRecordCollection> type,
-      Type genericType,
-      Annotation[] annotations,
-      MediaType mediaType,
-      MultivaluedMap<String, String> httpHeaders,
-      InputStream inStream)
-      throws IOException, WebApplicationException {
+    String mediaType =
+        Optional.ofNullable(getFirst(httpHeaders, "Content-Type"))
+            .orElse("application/octet-stream")
+            .split(";")[0]
+            .trim();
 
     CswRecordCollection cswRecords = null;
     Map<String, Serializable> resourceProperties = new HashMap<>();
     // Check if the server returned a Partial Content response (hopefully in response to a range
     // header)
-    String contentRangeHeader = httpHeaders.getFirst(HttpHeaders.CONTENT_RANGE);
+    String contentRangeHeader = getFirst(httpHeaders, "Content-Range");
     if (StringUtils.isNotBlank(contentRangeHeader)) {
       contentRangeHeader =
           StringUtils.substringBetween(contentRangeHeader.toLowerCase(), "bytes ", "-");
@@ -122,11 +120,11 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     // If the following HTTP header exists and its value is true, the input stream will contain
     // raw product data
     String productRetrievalHeader =
-        httpHeaders.getFirst(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER);
+        getFirst(httpHeaders, CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER);
     if (productRetrievalHeader != null && productRetrievalHeader.equalsIgnoreCase("TRUE")) {
       String fileName = handleContentDispositionHeader(httpHeaders);
       cswRecords = new CswRecordCollection();
-      cswRecords.setResource(new ResourceImpl(inStream, mediaType.toString(), fileName));
+      cswRecords.setResource(new ResourceImpl(inStream, mediaType, fileName));
       cswRecords.setResourceProperties(resourceProperties);
       return cswRecords;
     }
@@ -136,8 +134,39 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     String originalCswResponse = IOUtils.toString(inStream, StandardCharsets.UTF_8);
     LOGGER.debug("Converting to CswRecordCollection: \n {}", originalCswResponse);
 
+    //    if ("urn:catalog:metacard"
+    //        .equalsIgnoreCase((String) argumentHolder.get(CswConstants.TRANSFORMER_LOOKUP_VALUE)))
+    // {
+    //      cswRecords = unmarshall(originalCswResponse);
+    //    } else {
     cswRecords = unmarshalWithStaxReader(originalCswResponse);
+    //    }
     return cswRecords;
+  }
+
+  private CswRecordCollection unmarshall(String getRecordsXml) throws IOException {
+    JAXBElement<?> element;
+    try {
+      element = parser.unmarshal(JAXBElement.class, getRecordsXml);
+    } catch (ParserException e) {
+      throw new IOException("Unable to parse response from CSW server.", e);
+    }
+
+    CswRecordCollection cswRecords = new CswRecordCollection();
+    if (GetRecordsResponseType.class.equals(element.getDeclaredType())) {
+      GetRecordsResponseType response = (GetRecordsResponseType) element.getValue();
+      SearchResultsType searchResults = response.getSearchResults();
+
+      cswRecords.setOutputSchema(searchResults.getRecordSchema());
+      cswRecords.setNumberOfRecordsReturned(searchResults.getNumberOfRecordsReturned().longValue());
+      cswRecords.setNumberOfRecordsMatched(searchResults.getNumberOfRecordsMatched().longValue());
+
+      cswRecords.getCswRecords().addAll((List) searchResults.getAny());
+
+      return cswRecords;
+    } else {
+      throw new IOException("Unexpected response from CSW server.");
+    }
   }
 
   private CswRecordCollection unmarshalWithStaxReader(String originalInputStream)
@@ -156,16 +185,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
       HierarchicalStreamReader reader = new StaxReader(new QNameMap(), xmlStreamReader);
       cswRecords = (CswRecordCollection) xstream.unmarshal(reader, null, argumentHolder);
     } catch (XMLStreamException | XStreamException e) {
-      // If an ExceptionReport is sent from the remote CSW site it will be sent with an
-      // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.
-      // Instead the ExceptionReport will come here and be treated like a GetRecords
-      // response, resulting in an XStreamException since ExceptionReport cannot be
-      // unmarshalled. So this catch clause is responsible for catching that XStream
-      // exception and creating a JAX-RS response containing the original stream
-      // (with the ExceptionReport) and rethrowing it as a WebApplicatioNException,
-      // which CXF will wrap as a ClientException that the CswSource catches, converts
-      // to a CswException, and logs.
-      throw new WebApplicationException(e, createResponse(originalInputStream));
+      throw new IOException("Unable to parse response from CSW server.", e);
     } finally {
       IOUtils.closeQuietly(inStream);
       try {
@@ -179,34 +199,32 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     return cswRecords;
   }
 
-  private Response createResponse(String originalCswResponse) {
-    ResponseBuilder responseBuilder;
-    try (ByteArrayInputStream bis =
-        new ByteArrayInputStream(originalCswResponse.getBytes(StandardCharsets.UTF_8))) {
-      responseBuilder = Response.ok(bis);
-    } catch (IOException e) {
-      responseBuilder = Response.ok();
-    }
-    responseBuilder.type("text/xml");
-    return responseBuilder.build();
-  }
-
   /**
    * Check Content-Disposition header for filename and return it
    *
    * @param httpHeaders The HTTP headers
    * @return the filename
    */
-  private String handleContentDispositionHeader(MultivaluedMap<String, String> httpHeaders) {
-    String contentDispositionHeader = httpHeaders.getFirst(HttpHeaders.CONTENT_DISPOSITION);
+  private String handleContentDispositionHeader(Map<String, List<String>> httpHeaders) {
+    String contentDispositionHeader = getFirst(httpHeaders, "Content-Disposition");
     if (StringUtils.isNotBlank(contentDispositionHeader)) {
-      ContentDisposition contentDisposition = new ContentDisposition(contentDispositionHeader);
-      String filename = contentDisposition.getParameter("filename");
-      if (StringUtils.isNotBlank(filename)) {
-        LOGGER.debug("Found Content-Disposition header, changing resource name to {}", filename);
-        return filename;
+      Matcher filenameMatcher = filenamePattern.matcher(contentDispositionHeader);
+      if (filenameMatcher.matches() && filenameMatcher.groupCount() > 0) {
+        String filename = filenameMatcher.group(1);
+        if (StringUtils.isNotBlank(filename)) {
+          LOGGER.debug("Found Content-Disposition header, changing resource name to {}", filename);
+          return filename;
+        }
       }
     }
     return "";
+  }
+
+  private String getFirst(Map<String, List<String>> httpHeaders, String key) {
+    String result = null;
+    if (httpHeaders.containsKey(key)) {
+      result = httpHeaders.get(key).get(0);
+    }
+    return result;
   }
 }

@@ -83,6 +83,7 @@ import net.opengis.gml.v_3_1_1.PolygonType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
@@ -945,7 +946,7 @@ public class CswQueryFactoryTest {
     grr.setConstraint(constraint);
 
     QueryImpl frameworkQuery =
-        (QueryImpl) queryFactory.getQuery(grr.get202RecordsType()).getQuery();
+        (QueryImpl) queryFactory.getQuery(grr.get202RecordsType(new CswXmlParser())).getQuery();
     Filter queryFilter = ((QueryImpl) frameworkQuery.getFilter()).getFilter();
     assertThat(queryFilter, instanceOf(clz));
     @SuppressWarnings("unchecked")

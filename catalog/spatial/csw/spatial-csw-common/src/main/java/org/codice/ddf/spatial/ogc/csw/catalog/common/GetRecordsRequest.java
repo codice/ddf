@@ -13,19 +13,14 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
 import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -49,29 +44,6 @@ import org.slf4j.LoggerFactory;
 public class GetRecordsRequest extends CswRequest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsRequest.class);
-
-  private static final JAXBContext JAX_BCONTEXT;
-
-  static {
-    JAXBContext context = null;
-    String contextPath =
-        StringUtils.join(
-            new String[] {
-              CswConstants.OGC_FILTER_PACKAGE,
-              CswConstants.OGC_GML_PACKAGE,
-              CswConstants.OGC_OWS_PACKAGE
-            },
-            ":");
-
-    try {
-      LOGGER.debug("Creating JAXB context with context path: {}", contextPath);
-      context = JAXBContext.newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
-    } catch (JAXBException e) {
-      LOGGER.info("Unable to create JAXB context using contextPath: {}", contextPath, e);
-    }
-
-    JAX_BCONTEXT = context;
-  }
 
   /**
    * Should not set default values for these fields. Otherwise those values will be used by the
@@ -266,7 +238,7 @@ public class GetRecordsRequest extends CswRequest {
    * @throws CswException An exception when some field cannot be converted to the equivalent
    *     GetRecordsType value
    */
-  public GetRecordsType get202RecordsType() throws CswException {
+  public GetRecordsType get202RecordsType(CswXmlParser parser) throws CswException {
     GetRecordsType getRecords = new GetRecordsType();
 
     getRecords.setOutputSchema(getOutputSchema());
@@ -375,21 +347,13 @@ public class GetRecordsRequest extends CswRequest {
         queryConstraint.setCqlText(getConstraint());
       } else if (getConstraintLanguage()
           .equalsIgnoreCase(CswConstants.CONSTRAINT_LANGUAGE_FILTER)) {
-        try {
-          XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
-          xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-          xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-          XMLStreamReader xmlStreamReader =
-              xmlInputFactory.createXMLStreamReader(new StringReader(constraint));
-
-          Unmarshaller unmarshaller = JAX_BCONTEXT.createUnmarshaller();
-          @SuppressWarnings("unchecked")
-          JAXBElement<FilterType> jaxbFilter =
-              (JAXBElement<FilterType>) unmarshaller.unmarshal(xmlStreamReader);
-          queryConstraint.setFilter(jaxbFilter.getValue());
-        } catch (JAXBException e) {
-          LOGGER.debug("JAXBException parsing OGC Filter:", e);
-          throw new CswException("JAXBException parsing OGC Filter:" + getConstraint());
+        try (ByteArrayInputStream input = new ByteArrayInputStream(constraint.getBytes())) {
+          JAXBElement<?> jaxbFilter = parser.unmarshal(JAXBElement.class, input);
+          if (FilterType.class.equals(jaxbFilter.getDeclaredType())) {
+            queryConstraint.setFilter((FilterType) jaxbFilter.getValue());
+          } else {
+            throw new CswException("Unable to unmarshal Constraint: " + constraint);
+          }
         } catch (Exception e) {
           LOGGER.debug("Unable to parse OGC Filter:", e);
           throw new CswException("Unable to parse OGC Filter:" + getConstraint());

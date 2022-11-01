@@ -20,8 +20,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -30,7 +28,6 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.transform.CatalogTransformerException;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -39,21 +36,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
 import net.opengis.cat.csw.v_2_0_2.AbstractRecordType;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.RecordType;
 import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 import net.opengis.cat.csw.v_2_0_2.SummaryRecordType;
@@ -68,14 +61,12 @@ import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.OperationsMetadata;
 import net.opengis.ows.v_1_0_0.ServiceIdentification;
 import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswXmlParser;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -98,22 +89,6 @@ public class TestCswSourceBase {
   protected static final String USERNAME = "myUsername";
 
   protected static final String PASSWORD = "myPass";
-
-  protected static final String AUTH_TYPE = "saml";
-
-  protected static final String DISCOVERY_URL = "http://example.com/oauth/auth";
-
-  protected static final String CLIENT_ID = "clientId";
-
-  protected static final String SECRET = "secret";
-
-  protected static final String FLOW = "code";
-
-  protected static final String CERT_ALIAS = "testCert";
-
-  protected static final String KEYSTORE_PATH = "/path/to/keystore";
-
-  protected static final String SSL_PROTOCOL = "TLSv1.2";
 
   protected static final Integer CONNECTION_TIMEOUT = 11;
 
@@ -141,23 +116,15 @@ public class TestCswSourceBase {
 
   protected static final Integer POLL_INTERVAL = 100;
 
-  private static final List<String> JAXB_ELEMENT_CLASS_NAMES =
-      ImmutableList.of(GetRecordsType.class.getName());
-
-  private static final Map<String, String> JAXB_ELEMENT_CLASS_MAP =
-      ImmutableMap.of(
-          GetRecordsType.class.getName(),
-          new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS).toString());
-
   protected final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
-  protected Csw mockCsw = mock(Csw.class);
+  protected CswClient mockCswClient = mock(CswClient.class);
 
   protected BundleContext mockContext = mock(BundleContext.class);
 
   protected AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
 
-  protected List<MetacardType> mockRegistry = new ArrayList<>();
+  protected CswXmlParser parser = new CswXmlParser();
 
   protected String getRecordsControlXml202 =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -291,15 +258,16 @@ public class TestCswSourceBase {
     return contentTypes;
   }
 
-  protected Csw createMockCsw() throws CswException {
-    Csw mockCsw = mock(Csw.class);
+  protected CswClient createMockCswClient() throws Exception {
+    CswClient mockCswClient = mock(CswClient.class);
+
     InputStream stream = getClass().getResourceAsStream("/getCapabilities.xml");
     CapabilitiesType capabilities = parseXml(stream);
-    when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(capabilities);
+    when(mockCswClient.getCapabilities(any())).thenReturn(capabilities);
 
     CswRecordCollection collection = generateCswCollection("/getBriefRecordsResponse.xml");
-    when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
-    return mockCsw;
+    when(mockCswClient.getRecords(any(GetRecordsType.class))).thenReturn(collection);
+    return mockCswClient;
   }
 
   protected CswRecordCollection generateCswCollection(String file) {
@@ -365,29 +333,15 @@ public class TestCswSourceBase {
     return jaxb.getValue();
   }
 
-  protected String getGetRecordsTypeAsXml(GetRecordsType getRecordsType) throws IOException {
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-    CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider = new CswJAXBElementProvider<>();
-    getRecordsTypeProvider.setMarshallAsJaxbElement(true);
-    getRecordsTypeProvider.setJaxbElementClassNames(JAXB_ELEMENT_CLASS_NAMES);
-    getRecordsTypeProvider.setJaxbElementClassMap(JAXB_ELEMENT_CLASS_MAP);
-    getRecordsTypeProvider.writeTo(
-        getRecordsType,
-        GenericType.class,
-        GetRecordsType.class.getAnnotations(),
-        MediaType.APPLICATION_XML_TYPE,
-        new MultivaluedHashMap<>(0),
-        outputStream);
-    return outputStream.toString();
+  protected String getGetRecordsTypeAsXml(GetRecordsType getRecordsType)
+      throws IOException, ParserException {
+    ObjectFactory objectFactory = new ObjectFactory();
+    return parser.marshal(objectFactory.createGetRecords(getRecordsType));
   }
 
-  protected void configureMockCsw() throws CswException {
-    configureMockCsw(0, 0L, CswConstants.VERSION_2_0_2);
-  }
-
-  protected void configureMockCsw(int numRecordsReturned, long numRecordsMatched, String cswVersion)
-      throws CswException {
+  protected void configureMockCswClient(
+      int numRecordsReturned, long numRecordsMatched, String cswVersion) throws Exception {
+    mockCswClient = createMockCswClient();
 
     ServiceIdentification mockServiceIdentification = mock(ServiceIdentification.class);
     when(mockServiceIdentification.getAbstract()).thenReturn("myDescription");
@@ -396,7 +350,7 @@ public class TestCswSourceBase {
     when(mockCapabilities.getVersion()).thenReturn(cswVersion);
     when(mockCapabilities.getServiceIdentification()).thenReturn(mockServiceIdentification);
     when(mockCapabilities.getServiceIdentification()).thenReturn(mockServiceIdentification);
-    when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilities);
+    when(mockCswClient.getCapabilities(any())).thenReturn(mockCapabilities);
 
     FilterCapabilities mockFilterCapabilities = mock(FilterCapabilities.class);
     when(mockCapabilities.getFilterCapabilities()).thenReturn(mockFilterCapabilities);
@@ -493,7 +447,7 @@ public class TestCswSourceBase {
       when(mockCswRecordCollection.getNumberOfRecordsMatched()).thenReturn(numRecordsMatched);
       when(mockCswRecordCollection.getNumberOfRecordsReturned())
           .thenReturn((long) numRecordsReturned);
-      when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(mockCswRecordCollection);
+      when(mockCswClient.getRecords(any())).thenReturn(mockCswRecordCollection);
     }
   }
 
