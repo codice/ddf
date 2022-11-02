@@ -128,12 +128,6 @@
         logging.-->
         <Logger name="graphql.execution" level="fatal"/>
         <Logger name="org.apache.aries.spifly" level="warn"/>
-        <Logger name="org.apache.cxf" level="warn"/>
-        <Logger name="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper" level="error"/>
-        <Logger name="org.apache.cxf.phase.PhaseInterceptorChain" level="error"/>
-        <!--Suppress a NPE that can be disregarded that occurs when a null file is passed through
-        the Camel exchange on a delete event of a WebDav entry.-->
-        <Logger name="org.apache.camel.impl.DefaultUnitOfWork" level="error"/>
         <Logger name="org.ops4j.pax.web" level="warn"/>
         <!--Logging for the UnregisterWebAppVisitorWC has been set to ERROR as paxweb logs
         stacktraces at WARN on startup. This may be related to PAXWEB-1117. When Karaf upgrades

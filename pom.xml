@@ -126,7 +126,7 @@
         <pax.logging.version>2.1.3</pax.logging.version>
         <pax.url.version>2.6.11</pax.url.version>
         <pax.web.version>8.0.6</pax.web.version>
-        <restito.version>0.9.4</restito.version>
+        <restito.version>1.1.0</restito.version>
         <restassured.version>3.3.0</restassured.version>
         <groovy.version>3.0.7</groovy.version>
         <xmlunit.version>1.6</xmlunit.version>
@@ -180,7 +180,6 @@
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.1.8</countryconverter.version>
         <cryptomator.version>1.4.4</cryptomator.version>
-        <cxf.version>3.5.3</cxf.version>
         <decanter.version>2.9.0</decanter.version>
         <dropwizard.version>4.1.25</dropwizard.version>
         <equinox.version>3.18.0</equinox.version>
@@ -209,7 +208,6 @@
         <javax.annotation-api.version>1.3.5</javax.annotation-api.version>
         <javax.inject.version>1</javax.inject.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-        <javax.ws.rs.version>2.1</javax.ws.rs.version>
         <javax-el.version>3.0.0</javax-el.version>
         <soap-api.version>1.4.2</soap-api.version>
         <jaxb.version>2.3.2</jaxb.version>
@@ -222,7 +220,8 @@
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
         <dev.failsafe.version>3.2.4</dev.failsafe.version>
-        <joda-time.version>2.10.11</joda-time.version>
+        <joda-convert.version>2.2.2</joda-convert.version>
+        <joda-time.version>2.11.2</joda-time.version>
         <johnzon.version>1.2.14</johnzon.version>
         <jpeg2000.version>1.3.1_CODICE_3</jpeg2000.version>
         <json-simple.version>1.1.1</json-simple.version>
@@ -304,7 +303,6 @@
         <woodstox.core.version>6.2.8</woodstox.core.version>
         <woodstox.stax2-api.version>4.2.1</woodstox.stax2-api.version>
         <wss4j.neethi.version>3.1.1</wss4j.neethi.version>
-        <wss4j.version>2.3.3</wss4j.version>
         <xalan.bundle.version>2.7.2_3</xalan.bundle.version>
         <xalan.version>2.7.2</xalan.version>
         <xerces.version>2.12.2</xerces.version>
@@ -364,31 +362,6 @@
                 <version>${jackson.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-bom</artifactId>
-                <version>${cxf.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <!-- Not declared in cxf-bom. Remove if that changes -->
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
-                <version>${cxf.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>jakarta.servlet</groupId>
-                        <artifactId>jakarta.servlet-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <!-- Not declared in cxf-bom. Remove if that changes -->
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-security-xml</artifactId>
-                <version>${cxf.version}</version>
             </dependency>
             <!-- TODO: Use the OpenSAML BOM instead of declaring these individually. Can't do that
                        right now because the BOM manages a bunch of other thirdparty dependencies,

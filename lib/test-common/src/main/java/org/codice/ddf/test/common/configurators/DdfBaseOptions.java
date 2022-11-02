@@ -57,9 +57,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class DdfBaseOptions implements ApplicationOptions {
 
-  /** Servlet context system property key */
-  public static final String SERVLET_CONTEXT_KEY = "org.apache.cxf.servlet.context";
-
   /** Root context value */
   public static final String ROOT_CONTEXT = "/services";
 
@@ -197,11 +194,6 @@ public abstract class DdfBaseOptions implements ApplicationOptions {
             SYSTEM_PROPERTIES_FILE, SystemBaseUrl.EXTERNAL_PROTOCOL, "http://"),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_FILE, SystemBaseUrl.INTERNAL_ROOT_CONTEXT, ROOT_CONTEXT),
-        editConfigurationFilePut("etc/org.apache.cxf.osgi.cfg", SERVLET_CONTEXT_KEY, ROOT_CONTEXT),
-        editConfigurationFilePut(
-            "etc/org.apache.cxf.osgi.cfg",
-            "org.apache.cxf.servlet.disable-address-updates",
-            "true"),
         editConfigurationFilePut(
             PAX_WEB_CONFIG_FILE,
             OSGI_SERVICE_HTTP_PORT_KEY,

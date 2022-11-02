@@ -72,9 +72,9 @@ public class SortedServiceList<T> implements List<T> {
   public SortedServiceList() {}
 
   protected BundleContext getContext() {
-    Bundle cxfBundle = FrameworkUtil.getBundle(SortedServiceList.class);
-    if (cxfBundle != null) {
-      return cxfBundle.getBundleContext();
+    Bundle bundle = FrameworkUtil.getBundle(SortedServiceList.class);
+    if (bundle != null) {
+      return bundle.getBundleContext();
     }
     return null;
   }

@@ -43,12 +43,12 @@
     <feature name="catalog-core-impl" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
         <feature>catalog-core-api</feature>
-        <feature version="${cxf.version}">cxf-jaxrs</feature>
 
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${jdom2.bundle.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.3_1</bundle>
+        <bundle>wrap:mvn:joda-time/joda-time/${joda-time.version}$Bundle-Name=joda-time&amp;Bundle-SymbolicName=joda-time</bundle>
         <!-- for GeoTools -->
         <feature>jts</feature>
         <feature prerequisite="true">geotools</feature>
@@ -104,8 +104,6 @@
 
     <feature name="catalog-rest-endpoint" version="${project.version}"
              description="REST Endpoint provides CRUD operations on the Catalog Framework.">
-<!--        <bundle>mvn:ddf.catalog.rest/catalog-rest-api/${project.version}</bundle>-->
-<!--        <bundle>mvn:ddf.catalog.rest/catalog-rest-service-impl/${project.version}</bundle>-->
         <bundle>mvn:commons-fileupload/commons-fileupload/${commons.fileupload.version}</bundle>
         <bundle>mvn:ddf.catalog.rest/catalog-rest-impl/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.rest/catalog-rest-endpoint/${project.version}</bundle>
@@ -129,6 +127,8 @@
         <feature>abdera</feature>
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
+        <bundle>mvn:org.codehaus.woodstox/stax2-api/${woodstox.stax2-api.version}</bundle>
+        <bundle>mvn:com.fasterxml.woodstox/woodstox-core/${woodstox.core.version}</bundle>
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-source/${project.version}</bundle>
     </feature>
 

@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import javax.ws.rs.core.MediaType;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -82,8 +81,7 @@ public class MimeTypeToTransformerMapperImplTest {
             return context;
           }
         };
-    List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_ATOM_XML));
+    List<Object> matches = matcher.findMatches(Object.class, new MimeType("application/atom+xml"));
 
     // then
     assertThat(matches.isEmpty(), is(true));
@@ -201,9 +199,8 @@ public class MimeTypeToTransformerMapperImplTest {
 
     // given
     final BundleContext context = mock(BundleContext.class);
-    ServiceReference ref1 =
-        createMockReference(1, Arrays.asList(MediaType.APPLICATION_ATOM_XML), null);
-    ServiceReference ref2 = createMockReference(2, Arrays.asList(MediaType.APPLICATION_JSON), null);
+    ServiceReference ref1 = createMockReference(1, Arrays.asList("application/atom+xml"), null);
+    ServiceReference ref2 = createMockReference(2, Arrays.asList("application/json"), null);
 
     ServiceReference[] refs = {ref1, ref2};
 
@@ -222,8 +219,7 @@ public class MimeTypeToTransformerMapperImplTest {
             return context;
           }
         };
-    List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_XML));
+    List<Object> matches = matcher.findMatches(Object.class, new MimeType("application/xml"));
 
     // then
     assertThat(matches.size(), is(0));
@@ -252,8 +248,7 @@ public class MimeTypeToTransformerMapperImplTest {
     // given
     final BundleContext context = mock(BundleContext.class);
 
-    ServiceReference ref1 =
-        createMockReference(1, Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
+    ServiceReference ref1 = createMockReference(1, Arrays.asList("application/atom+xml"), "a1");
     ServiceReference[] refs = {ref1};
 
     Object simpleTransformer1 = new Object();
@@ -269,8 +264,7 @@ public class MimeTypeToTransformerMapperImplTest {
             return context;
           }
         };
-    List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_XML));
+    List<Object> matches = matcher.findMatches(Object.class, new MimeType("application/xml"));
 
     // then
     assertThat(matches.size(), is(0));
@@ -298,8 +292,7 @@ public class MimeTypeToTransformerMapperImplTest {
     // given
     final BundleContext context = mock(BundleContext.class);
 
-    ServiceReference ref1 =
-        createMockReference(1, Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
+    ServiceReference ref1 = createMockReference(1, Arrays.asList("application/atom+xml"), "a1");
     ServiceReference[] refs = {ref1};
 
     Object simpleTransformer1 = new Object();
@@ -316,7 +309,7 @@ public class MimeTypeToTransformerMapperImplTest {
           }
         };
     List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_ATOM_XML + "; id=a2"));
+        matcher.findMatches(Object.class, new MimeType("application/atom+xml" + "; id=a2"));
 
     // then
     assertThat(matches.size(), is(0));
@@ -334,9 +327,8 @@ public class MimeTypeToTransformerMapperImplTest {
     // given
     final BundleContext context = mock(BundleContext.class);
 
-    ServiceReference ref1 =
-        createMockReference(1, Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
-    ServiceReference ref2 = createMockReference(2, Arrays.asList(MediaType.APPLICATION_JSON), "a2");
+    ServiceReference ref1 = createMockReference(1, Arrays.asList("application/atom+xml"), "a1");
+    ServiceReference ref2 = createMockReference(2, Arrays.asList("application/json"), "a2");
     ServiceReference ref3 = createMockReference(3, null, null);
     ServiceReference[] refs = {ref2, ref3, ref1};
 
@@ -357,8 +349,7 @@ public class MimeTypeToTransformerMapperImplTest {
             return context;
           }
         };
-    List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON));
+    List<Object> matches = matcher.findMatches(Object.class, new MimeType("application/json"));
 
     // then
     assertThat(matches.size(), is(1));
@@ -377,10 +368,9 @@ public class MimeTypeToTransformerMapperImplTest {
     // given
     final BundleContext context = mock(BundleContext.class);
 
-    ServiceReference ref1 =
-        createMockReference(1, Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
-    ServiceReference ref2 = createMockReference(2, Arrays.asList(MediaType.APPLICATION_JSON), "a2");
-    ServiceReference ref3 = createMockReference(3, Arrays.asList(MediaType.APPLICATION_JSON), "a3");
+    ServiceReference ref1 = createMockReference(1, Arrays.asList("application/atom+xml"), "a1");
+    ServiceReference ref2 = createMockReference(2, Arrays.asList("application/json"), "a2");
+    ServiceReference ref3 = createMockReference(3, Arrays.asList("application/json"), "a3");
     ServiceReference[] refs = {ref2, ref3, ref1};
 
     Object simpleTransformer1 = new Object();
@@ -406,8 +396,7 @@ public class MimeTypeToTransformerMapperImplTest {
             return context;
           }
         };
-    List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON));
+    List<Object> matches = matcher.findMatches(Object.class, new MimeType("application/json"));
 
     // then
     assertThat(matches.size(), is(2));
@@ -427,10 +416,9 @@ public class MimeTypeToTransformerMapperImplTest {
     // given
     final BundleContext context = mock(BundleContext.class);
 
-    ServiceReference ref1 = createMockReference(1, Arrays.asList(MediaType.APPLICATION_JSON), "");
+    ServiceReference ref1 = createMockReference(1, Arrays.asList("application/json"), "");
     ServiceReference ref2 =
-        createMockReference(
-            2, Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON), "a1");
+        createMockReference(2, Arrays.asList("application/json", "application/json"), "a1");
     ServiceReference ref3 = createMockReference(3, null, null);
     ServiceReference[] refs = {ref2, ref3, ref1};
 
@@ -452,7 +440,7 @@ public class MimeTypeToTransformerMapperImplTest {
           }
         };
     List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
+        matcher.findMatches(Object.class, new MimeType("application/json" + "; id=a1"));
 
     // then
     assertThat(matches.size(), is(1));
@@ -482,7 +470,7 @@ public class MimeTypeToTransformerMapperImplTest {
           }
         };
     List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
+        matcher.findMatches(Object.class, new MimeType("application/json" + "; id=a1"));
 
     // then
     assertThat(matches.size(), is(0));
@@ -506,8 +494,7 @@ public class MimeTypeToTransformerMapperImplTest {
     ServiceReference[] refs = {ref};
 
     when(ref.getProperty(Constants.SERVICE_RANKING)).thenReturn(0);
-    when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY))
-        .thenReturn(MediaType.APPLICATION_JSON);
+    when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY)).thenReturn("application/json");
 
     Object simpleTransformer1 = new Object();
 
@@ -522,8 +509,7 @@ public class MimeTypeToTransformerMapperImplTest {
             return context;
           }
         };
-    List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON));
+    List<Object> matches = matcher.findMatches(Object.class, new MimeType("application/json"));
 
     // then
     assertThat(matches.size(), is(1));
@@ -538,8 +524,7 @@ public class MimeTypeToTransformerMapperImplTest {
 
     ServiceReference ref1 = createMockReference(1, Arrays.asList("!INVALID!"), null);
     ServiceReference ref2 =
-        createMockReference(
-            2, Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON), "a1");
+        createMockReference(2, Arrays.asList("application/json", "application/json"), "a1");
     ServiceReference[] refs = {ref2, ref1};
 
     Object simpleTransformer1 = new Object();
@@ -558,7 +543,7 @@ public class MimeTypeToTransformerMapperImplTest {
           }
         };
     List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
+        matcher.findMatches(Object.class, new MimeType("application/json" + "; id=a1"));
 
     // then
     assertThat(matches.size(), is(1));
@@ -578,10 +563,9 @@ public class MimeTypeToTransformerMapperImplTest {
     // given
     final BundleContext context = mock(BundleContext.class);
 
-    ServiceReference ref1 = createMockReference(1, Arrays.asList(MediaType.APPLICATION_JSON), "a1");
+    ServiceReference ref1 = createMockReference(1, Arrays.asList("application/json"), "a1");
     ServiceReference ref2 =
-        createMockReference(
-            2, Arrays.asList(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_JSON), "a1");
+        createMockReference(2, Arrays.asList("application/atom+xml", "application/json"), "a1");
     ServiceReference ref3 = createMockReference(3, null, null);
     ServiceReference[] refs = {ref3, ref2, ref1};
 
@@ -612,7 +596,7 @@ public class MimeTypeToTransformerMapperImplTest {
         };
     List<Object> matches =
         matcher.findMatches(
-            Object.class, new MimeType(MediaType.APPLICATION_JSON + "; id=a1;charset=UTF-8"));
+            Object.class, new MimeType("application/json" + "; id=a1;charset=UTF-8"));
 
     // then
     assertThat(matches.size(), is(2));
@@ -643,8 +627,7 @@ public class MimeTypeToTransformerMapperImplTest {
             return context;
           }
         };
-    List<Object> matches =
-        matcher.findMatches(Object.class, new MimeType(MediaType.APPLICATION_ATOM_XML));
+    List<Object> matches = matcher.findMatches(Object.class, new MimeType("application/atom+xml"));
 
     // then
     assertThat(matches.isEmpty(), is(true));

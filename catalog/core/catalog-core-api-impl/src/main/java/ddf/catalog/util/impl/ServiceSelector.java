@@ -119,10 +119,10 @@ public class ServiceSelector<T> {
   }
 
   BundleContext getBundleContext() {
-    Bundle cxfBundle = FrameworkUtil.getBundle(ServiceSelector.class);
+    Bundle bundle = FrameworkUtil.getBundle(ServiceSelector.class);
 
-    if (cxfBundle != null) {
-      return cxfBundle.getBundleContext();
+    if (bundle != null) {
+      return bundle.getBundleContext();
     }
 
     return null;

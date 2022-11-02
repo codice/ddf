@@ -18,7 +18,6 @@
 
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
-    <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
     <repository>mvn:ddf.catalog.solr/catalog-solr-app/${project.version}/xml/features</repository>
@@ -26,7 +25,6 @@
     <feature name="ddf-core" version="${project.version}"
              description="Features that will be started on container startup.">
         <feature>kernel</feature>
-        <feature>cxf</feature>
         <feature>pax-web-http-war</feature>
         <feature>pax-web-http-whiteboard</feature>
         <feature>branding-app</feature>
@@ -62,7 +60,7 @@
     </feature>
 
     <feature name="platform-app" version="${project.version}"
-             description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Action Framework, MIME Framework, Metrics">
+             description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Action Framework, MIME Framework, Metrics">
         <feature>platform-core</feature>
         <feature>platform-solr-app</feature>
         <feature>tika</feature>

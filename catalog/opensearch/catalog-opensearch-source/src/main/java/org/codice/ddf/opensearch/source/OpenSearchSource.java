@@ -239,6 +239,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     try {
       HttpRequest head =
           HttpRequest.newBuilder()
+              .version(HttpClient.Version.HTTP_1_1)
               .method("HEAD", HttpRequest.BodyPublishers.noBody())
               .uri(new URI(getEndpointUrl()))
               .timeout(Duration.of(getReceiveTimeout(), ChronoUnit.MILLIS))
@@ -460,6 +461,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       clientResponse =
           httpClient.send(
               HttpRequest.newBuilder()
+                  .version(HttpClient.Version.HTTP_1_1)
                   .GET()
                   .uri(uri)
                   .timeout(Duration.of(getReceiveTimeout(), ChronoUnit.MILLIS))

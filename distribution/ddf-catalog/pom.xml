@@ -78,7 +78,6 @@
                             <addTransitiveFeatures>true</addTransitiveFeatures>
                             <resolveDefinedRepositoriesRecursively>false</resolveDefinedRepositoriesRecursively>
                             <descriptors>
-                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</descriptor>
@@ -184,8 +183,8 @@
                         <configuration>
                             <rules>
                                 <requireFilesSize>
-                                    <maxsize>190000000</maxsize>
-                                    <minsize>160000000</minsize>
+                                    <maxsize>160000000</maxsize>
+                                    <minsize>120000000</minsize>
                                     <files>
                                         <file>${project.build.directory}/${distribution.file.name}.zip</file>
                                     </files>
@@ -209,13 +208,6 @@
                     <groupId>*</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf.karaf</groupId>
-            <artifactId>apache-cxf</artifactId>
-            <version>${cxf.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>ddf.features</groupId>

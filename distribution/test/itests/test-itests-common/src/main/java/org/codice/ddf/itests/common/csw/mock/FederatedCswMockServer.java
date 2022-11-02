@@ -134,11 +134,7 @@ public class FederatedCswMockServer {
 
   /** Resets the Restito server by stopping and starting it. */
   public void reset() {
-    // There is no way in version 0.7 of Restito to clear the calls and reset the
-    // StubServer so we need to stop the current one and create a new instance.
-    // TODO - Replace this code when the new version of Restito is used.
-    stop();
-    start();
+    cswStubServer.clear();
   }
 
   /**
@@ -194,6 +190,10 @@ public class FederatedCswMockServer {
     LOGGER.debug("Capability response: \n{}", document);
 
     whenHttp()
+        .match(post("/services/csw"), withPostBodyContaining("GetCapabilities"))
+        .then(ok(), contentType("text/xml"), bytesContent(document.getBytes()));
+
+    whenHttp()
         .match(get("/services/csw"), parameter("request", "GetCapabilities"))
         .then(ok(), contentType("text/xml"), bytesContent(document.getBytes()));
   }
@@ -205,6 +205,10 @@ public class FederatedCswMockServer {
 
     whenHttp()
         .match(post("/services/csw"), withPostBodyContaining("GetRecords"))
+        .then(ok(), contentType("text/xml"), bytesContent(document.getBytes()));
+
+    whenHttp()
+        .match(get("/services/csw"), parameter("request", "GetRecords"))
         .then(ok(), contentType("text/xml"), bytesContent(document.getBytes()));
   }
 

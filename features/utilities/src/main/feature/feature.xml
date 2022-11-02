@@ -142,8 +142,6 @@
 
     <!-- Start of app features -->
 
-    <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
-
     <feature name="tika" version="${project.version}"
              description="Provides Tika as a bundle.">
         <feature prerequisite="true">wrap</feature>

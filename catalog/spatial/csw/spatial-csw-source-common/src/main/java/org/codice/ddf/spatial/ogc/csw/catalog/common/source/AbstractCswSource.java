@@ -423,7 +423,7 @@ public abstract class AbstractCswSource extends MaskableImpl
       // This is necessary to allow the catalog framework to have the correct
       // availability when the source is bound
       availabilityTask.run();
-      // Schedule the availability check every 1 second. The actually call to
+      // Schedule the availability check every 1 second. The actual call to
       // the remote server will only occur if the pollInterval has
       // elapsed.
       availabilityPollFuture =

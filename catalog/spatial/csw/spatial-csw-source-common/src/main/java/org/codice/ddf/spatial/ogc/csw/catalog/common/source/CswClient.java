@@ -124,6 +124,10 @@ public class CswClient {
   private <T> T post(Class<T> clazz, Object request) throws UnsupportedQueryException {
     HttpResponse<String> clientResponse = post(request);
 
+    if (clientResponse == null || clientResponse.statusCode() != 200) {
+      throw new UnsupportedQueryException("Unable to make CSW request.");
+    }
+
     if (clazz.equals(CswRecordCollection.class)) {
       return clazz.cast(convert(clientResponse));
     }
@@ -146,7 +150,9 @@ public class CswClient {
       }
       return httpClient.send(
           HttpRequest.newBuilder()
+              .version(HttpClient.Version.HTTP_1_1)
               .POST(HttpRequest.BodyPublishers.ofString(requestXml))
+              .header("Content-Type", "application/xml")
               .uri(new URI(cswSourceConfiguration.getCswUrl()))
               .timeout(Duration.of(cswSourceConfiguration.getReceiveTimeout(), ChronoUnit.MILLIS))
               .build(),

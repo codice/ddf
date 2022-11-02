@@ -62,10 +62,10 @@
                             com.xebialabs.restito.resources,
                             com.xebialabs.restito.semantics,
                             com.xebialabs.restito.server,
-                            com.xebialabs.restito.server.secure,
-                            com.xebialabs.restito.support.behavior,
+                            com.xebialabs.restito.support.file,
                             com.xebialabs.restito.support.junit,
-                            com.xebialabs.restito.support.log
+                            com.xebialabs.restito.support.log,
+                            com.xebialabs.restito.support.resource
                         </Export-Package>
                         <!-- This is not a good practice DO NOT use *;resolution:=optional in any
                         code that will touch production that being said this is a bundle that

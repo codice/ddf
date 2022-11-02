@@ -30,8 +30,6 @@ import io.restassured.filter.log.LogDetail;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import java.io.IOException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
@@ -71,7 +69,7 @@ public class CatalogTestCommons {
           .preemptive()
           .basic("admin", "admin")
           .body(data)
-          .header(HttpHeaders.CONTENT_TYPE, mimeType)
+          .header("Content-Type", mimeType)
           .when()
           .post(REST_PATH.getUrl())
           .getHeader("id");
@@ -90,7 +88,7 @@ public class CatalogTestCommons {
         .preemptive()
         .basic("admin", "admin")
         .body(data)
-        .header(HttpHeaders.CONTENT_TYPE, mimeType)
+        .header("Content-Type", mimeType)
         .expect()
         .statusCode(expectedStatusCode)
         .log()
@@ -124,7 +122,7 @@ public class CatalogTestCommons {
       String data, String mimeType, String username, String password, int expectedStatusCode) {
     return given()
         .body(data)
-        .header(HttpHeaders.CONTENT_TYPE, mimeType)
+        .header("Content-Type", mimeType)
         .auth()
         .preemptive()
         .basic(username, password)
@@ -183,7 +181,7 @@ public class CatalogTestCommons {
           new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
       ValidatableResponse response =
           given()
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+              .header("Content-Type", "application/xml")
               .auth()
               .preemptive()
               .basic("admin", "admin")
@@ -208,7 +206,7 @@ public class CatalogTestCommons {
     ValidatableResponse response =
         given()
             .body(transactionRequest)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+            .header("Content-Type", "application/xml")
             .auth()
             .preemptive()
             .basic("admin", "admin")
@@ -301,7 +299,7 @@ public class CatalogTestCommons {
    */
   public static void update(String id, String data, String mimeType, int expectedStatusCode) {
     given()
-        .header(HttpHeaders.CONTENT_TYPE, mimeType)
+        .header("Content-Type", mimeType)
         .body(data)
         .expect()
         .log()
@@ -337,7 +335,7 @@ public class CatalogTestCommons {
       String password,
       int expectedStatusCode) {
     given()
-        .header(HttpHeaders.CONTENT_TYPE, mimeType)
+        .header("Content-Type", mimeType)
         .auth()
         .preemptive()
         .basic(username, password)

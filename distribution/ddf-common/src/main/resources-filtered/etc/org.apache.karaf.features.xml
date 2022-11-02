@@ -26,8 +26,6 @@
         <feature>pax-web-jetty-http2</feature>
         <feature>decanter-appender-cassandra</feature>
         <feature>decanter-appender-cassandra-core</feature>
-        <feature>cxf-http-undertow</feature>
-        <feature>cxf-rs-description-openapi-v3</feature>
     </blacklistedFeatures>
 
     <!-- A list of blacklisted bundle URIs that are not installed even if they are part of some features -->

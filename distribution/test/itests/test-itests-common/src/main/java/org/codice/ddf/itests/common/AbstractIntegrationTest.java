@@ -62,8 +62,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -903,7 +901,7 @@ public abstract class AbstractIntegrationTest {
           new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
       ValidatableResponse response =
           given()
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+              .header("Content-Type", "application/xml")
               .body(query)
               .auth()
               .preemptive()

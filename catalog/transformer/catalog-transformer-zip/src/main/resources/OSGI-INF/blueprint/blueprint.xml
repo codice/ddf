@@ -18,11 +18,6 @@
 
     <ext:property-placeholder/>
 
-    <bean id="zipValidation" class="org.codice.ddf.catalog.transformer.zip.ZipValidator" init-method="init">
-        <property name="signaturePropertiesPath"
-                  value="${ddf.etc}/ws-security/server/signature.properties"/>
-    </bean>
-
     <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
     <reference-list id="metacardTransformerList" member-type="service-reference"
       interface="ddf.catalog.transform.MetacardTransformer">

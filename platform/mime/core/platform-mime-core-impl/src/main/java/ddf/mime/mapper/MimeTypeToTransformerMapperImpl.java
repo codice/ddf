@@ -43,9 +43,9 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
   public MimeTypeToTransformerMapperImpl() {}
 
   protected BundleContext getContext() {
-    Bundle cxfBundle = FrameworkUtil.getBundle(MimeTypeToTransformerMapperImpl.class);
-    if (cxfBundle != null) {
-      return cxfBundle.getBundleContext();
+    Bundle bundle = FrameworkUtil.getBundle(MimeTypeToTransformerMapperImpl.class);
+    if (bundle != null) {
+      return bundle.getBundleContext();
     }
     return null;
   }

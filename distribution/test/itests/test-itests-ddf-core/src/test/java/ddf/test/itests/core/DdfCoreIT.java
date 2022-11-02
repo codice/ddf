@@ -20,7 +20,6 @@ import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
-import static org.codice.ddf.itests.common.csw.CswTestCommons.GMD_CSW_FEDERATED_SOURCE_FACTORY_PID;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
@@ -37,7 +36,6 @@ import static org.hamcrest.xml.HasXPath.hasXPath;
 
 import com.google.common.collect.ImmutableMap;
 import com.xebialabs.restito.server.StubServer;
-import com.xebialabs.restito.server.secure.SecureStubServer;
 import ddf.catalog.data.Metacard;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -52,8 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.DictionaryMap;
@@ -92,21 +88,18 @@ public class DdfCoreIT extends AbstractIntegrationTest {
   private static final DynamicUrl CSW_STUB_SERVER_PATH =
       new DynamicUrl(INSECURE_ROOT, CSW_STUB_SERVER_PORT, "/services/csw");
   private static final String POLL_INTERVAL = "pollInterval";
-  private static final int CSW_SOURCE_POLL_INTERVAL = 10;
+  private static final int CSW_SOURCE_POLL_INTERVAL = 1;
   private static final String CSW_SOURCE_WITH_METACARD_XML_ID = "cswSource2";
-  private static final String GMD_SOURCE_ID = "gmdSource";
 
   @BeforeExam
   public void beforeExam() throws Exception {
     setupOpenSearch();
     setupCswServer();
-    setupGmd();
 
     getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
     getCatalogBundle().waitForFederatedSource(CSW_STUB_SOURCE_ID);
     getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
     getCatalogBundle().waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
-    getCatalogBundle().waitForFederatedSource(GMD_SOURCE_ID);
 
     getServiceManager()
         .waitForSourcesToBeAvailable(
@@ -114,8 +107,7 @@ public class DdfCoreIT extends AbstractIntegrationTest {
             OPENSEARCH_SOURCE_ID,
             CSW_STUB_SOURCE_ID,
             CSW_SOURCE_ID,
-            CSW_SOURCE_WITH_METACARD_XML_ID,
-            GMD_SOURCE_ID);
+            CSW_SOURCE_WITH_METACARD_XML_ID);
 
     LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body().prettyPrint());
   }
@@ -131,7 +123,7 @@ public class DdfCoreIT extends AbstractIntegrationTest {
   public void setup() throws Exception {
     urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
 
-    server = new SecureStubServer(Integer.parseInt(RESTITO_STUB_SERVER_PORT.getPort())).run();
+    server = new StubServer(Integer.parseInt(RESTITO_STUB_SERVER_PORT.getPort())).run();
     server.start();
 
     cswServer.reset();
@@ -179,7 +171,7 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     ingestCswRecord();
 
     given()
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+        .header("Content-Type", "application/xml")
         .auth()
         .preemptive()
         .basic("admin", "admin")
@@ -198,7 +190,7 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     Response secondResponse = ingestCswRecord();
 
     given()
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+        .header("Content-Type", "application/xml")
         .auth()
         .preemptive()
         .basic("admin", "admin")
@@ -312,7 +304,7 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     String uuid = UUID.randomUUID().toString().replaceAll("-", "");
 
     return given()
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+        .header("Content-Type", "application/xml")
         .auth()
         .preemptive()
         .basic("admin", "admin")
@@ -436,10 +428,14 @@ public class DdfCoreIT extends AbstractIntegrationTest {
             CSW_STUB_SOURCE_ID, INSECURE_ROOT, Integer.parseInt(CSW_STUB_SERVER_PORT.getPort()));
     cswServer.start();
 
+    getServiceManager()
+        .waitForHttpEndpoint(
+            CSW_STUB_SERVER_PATH.getUrl() + "?service=CSW&version=2.0.2&request=GetCapabilities");
+
     Map<String, Object> cswStubServerProperties =
         getCswSourceProperties(CSW_STUB_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
-    cswStubServerProperties.put("cswUrl", CSW_STUB_SERVER_PATH.getUrl());
     cswStubServerProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
+    cswStubServerProperties.put("cswUrl", CSW_STUB_SERVER_PATH.getUrl());
     getServiceManager()
         .createManagedService(
             CSW_FEDERATED_SOURCE_FACTORY_PID, new DictionaryMap<>(cswStubServerProperties))
@@ -463,21 +459,6 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     cswProperties2.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
     getServiceManager()
         .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, new DictionaryMap<>(cswProperties2))
-        .getPid();
-  }
-
-  private void setupGmd() throws IOException {
-    Map<String, Object> gmdProperties =
-        getCswSourceProperties(
-            GMD_SOURCE_ID,
-            GMD_CSW_FEDERATED_SOURCE_FACTORY_PID,
-            CSW_PATH.getUrl(),
-            getServiceManager());
-
-    gmdProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-    getServiceManager()
-        .createManagedService(
-            GMD_CSW_FEDERATED_SOURCE_FACTORY_PID, new DictionaryMap<>(gmdProperties))
         .getPid();
   }
 }

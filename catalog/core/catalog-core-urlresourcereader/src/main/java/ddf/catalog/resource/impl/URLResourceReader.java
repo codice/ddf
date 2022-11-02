@@ -30,10 +30,13 @@ import java.io.Serializable;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.security.AccessController;
@@ -45,7 +48,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -255,10 +257,21 @@ public class URLResourceReader implements ResourceReader {
         if (qualifierSerializable instanceof String) {
           final String qualifier = (String) qualifierSerializable;
           if (StringUtils.isNotBlank(qualifier)) {
-            resourceURI =
-                UriBuilder.fromUri(resourceURI)
-                    .queryParam(ContentItem.QUALIFIER_KEYWORD, qualifier)
-                    .build();
+            try {
+              String delimiter = "?";
+              if (resourceURI.getQuery() != null && !resourceURI.getQuery().isBlank()) {
+                delimiter = "&";
+              }
+              resourceURI =
+                  new URI(
+                      resourceURI
+                          + delimiter
+                          + ContentItem.QUALIFIER_KEYWORD
+                          + "="
+                          + URLEncoder.encode(qualifier, StandardCharsets.UTF_8));
+            } catch (URISyntaxException e) {
+              LOGGER.warn("Unable to add qualifier to resource URI.");
+            }
           }
         }
 

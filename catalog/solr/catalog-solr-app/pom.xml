@@ -82,5 +82,15 @@
             <artifactId>catalog-solr-commands</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>stax2-api</artifactId>
+            <version>${woodstox.stax2-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>${woodstox.core.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -169,14 +169,6 @@
 
     <suppress>
         <notes>
-            httpd vulnerabilities do not apply to CXF
-        </notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-transports\-http\-netty\-server@.*$</packageUrl>
-        <cpe>cpe:/a:apache:http_server</cpe>
-    </suppress>
-
-    <suppress>
-        <notes>
             Karaf vulnerabilities do not apply to CXF (the "org.apache.cxf.karaf" group is used by
             CXF artifacts providing Karaf-specific functionality)
         </notes>

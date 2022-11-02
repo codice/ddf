@@ -46,11 +46,6 @@
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.wss4j</groupId>
-            <artifactId>wss4j-ws-security-common</artifactId>
-            <version>${wss4j.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>osgi.core</artifactId>
         </dependency>

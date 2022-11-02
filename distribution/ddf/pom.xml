@@ -63,7 +63,6 @@
                             <addTransitiveFeatures>true</addTransitiveFeatures>
                             <resolveDefinedRepositoriesRecursively>false</resolveDefinedRepositoriesRecursively>
                             <descriptors>
-                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</descriptor>
@@ -79,8 +78,6 @@
                                 <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
-                                <!-- conditional features -->
-                                <feature>cxf-commands</feature>
                                 <!-- profile features -->
                                 <feature>profile-minimum</feature>
                                 <feature>profile-catalog</feature>
@@ -143,13 +140,6 @@
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf.karaf</groupId>
-            <artifactId>apache-cxf</artifactId>
-            <version>${cxf.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>ddf.features</groupId>

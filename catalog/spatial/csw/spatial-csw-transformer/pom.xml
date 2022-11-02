@@ -144,6 +144,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>${woodstox.core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>osgi.core</artifactId>
         </dependency>
