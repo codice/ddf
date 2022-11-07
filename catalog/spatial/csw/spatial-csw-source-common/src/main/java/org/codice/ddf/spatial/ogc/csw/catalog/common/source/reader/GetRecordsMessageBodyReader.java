@@ -17,16 +17,14 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.xml.QNameMap;
-import com.thoughtworks.xstream.io.xml.StaxReader;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.impl.ResourceImpl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -35,15 +33,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.bind.JAXBElement;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
-import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
@@ -63,6 +54,8 @@ public class GetRecordsMessageBodyReader {
 
   private CswXmlParser parser;
 
+  private HierarchicalStreamDriver driver;
+
   private XStream xstream;
 
   private DataHolder argumentHolder;
@@ -72,7 +65,8 @@ public class GetRecordsMessageBodyReader {
   public GetRecordsMessageBodyReader(
       CswXmlParser parser, Converter converter, CswSourceConfiguration configuration) {
     this.parser = parser;
-    xstream = new XStream(new Xpp3Driver());
+    driver = new Xpp3Driver(new GetRecordsResponseNameCoder());
+    xstream = new XStream(driver);
     xstream.allowTypesByWildcard(new String[] {"ddf.**", "org.codice.**"});
     xstream.setClassLoader(this.getClass().getClassLoader());
     xstream.registerConverter(converter);
@@ -134,68 +128,22 @@ public class GetRecordsMessageBodyReader {
     String originalCswResponse = IOUtils.toString(inStream, StandardCharsets.UTF_8);
     LOGGER.debug("Converting to CswRecordCollection: \n {}", originalCswResponse);
 
-    //    if ("urn:catalog:metacard"
-    //        .equalsIgnoreCase((String) argumentHolder.get(CswConstants.TRANSFORMER_LOOKUP_VALUE)))
-    // {
-    //      cswRecords = unmarshall(originalCswResponse);
-    //    } else {
     cswRecords = unmarshalWithStaxReader(originalCswResponse);
-    //    }
     return cswRecords;
-  }
-
-  private CswRecordCollection unmarshall(String getRecordsXml) throws IOException {
-    JAXBElement<?> element;
-    try {
-      element = parser.unmarshal(JAXBElement.class, getRecordsXml);
-    } catch (ParserException e) {
-      throw new IOException("Unable to parse response from CSW server.", e);
-    }
-
-    CswRecordCollection cswRecords = new CswRecordCollection();
-    if (GetRecordsResponseType.class.equals(element.getDeclaredType())) {
-      GetRecordsResponseType response = (GetRecordsResponseType) element.getValue();
-      SearchResultsType searchResults = response.getSearchResults();
-
-      cswRecords.setOutputSchema(searchResults.getRecordSchema());
-      cswRecords.setNumberOfRecordsReturned(searchResults.getNumberOfRecordsReturned().longValue());
-      cswRecords.setNumberOfRecordsMatched(searchResults.getNumberOfRecordsMatched().longValue());
-
-      cswRecords.getCswRecords().addAll((List) searchResults.getAny());
-
-      return cswRecords;
-    } else {
-      throw new IOException("Unexpected response from CSW server.");
-    }
   }
 
   private CswRecordCollection unmarshalWithStaxReader(String originalInputStream)
       throws IOException {
     CswRecordCollection cswRecords;
-    XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
-    xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-    xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-    xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
 
-    InputStream inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
-    XMLStreamReader xmlStreamReader = null;
-    try (InputStreamReader inputStreamReader =
-        new InputStreamReader(inStream, StandardCharsets.UTF_8)) {
-      xmlStreamReader = xmlInputFactory.createXMLStreamReader(inputStreamReader);
-      HierarchicalStreamReader reader = new StaxReader(new QNameMap(), xmlStreamReader);
+    try (InputStream inputStream =
+        new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"))) {
+      HierarchicalStreamReader reader = driver.createReader(inputStream);
       cswRecords = (CswRecordCollection) xstream.unmarshal(reader, null, argumentHolder);
-    } catch (XMLStreamException | XStreamException e) {
+    } catch (XStreamException e) {
       throw new IOException("Unable to parse response from CSW server.", e);
-    } finally {
-      IOUtils.closeQuietly(inStream);
-      try {
-        if (xmlStreamReader != null) {
-          xmlStreamReader.close();
-        }
-      } catch (XMLStreamException e) {
-        // ignore
-      }
     }
+
     return cswRecords;
   }
 

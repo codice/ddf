@@ -1,0 +1,58 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<csw:GetRecordsResponse xmlns:dct="http://purl.org/dc/terms/" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0.2">
+    <csw:SearchStatus timestamp="2022-10-26T10:14:30.212-05:00"/>
+    <csw:SearchResults numberOfRecordsMatched="1" numberOfRecordsReturned="1" nextRecord="1" recordSchema="urn:catalog:metacard" elementSet="full">
+        <metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="7eb1b4e4aca5416fbd065b8295e253c8">
+            <type>ddf.metacard</type>
+            <source>ddf.distribution</source>
+            <string name="title">
+                <value>title 1</value>
+            </string>
+            <dateTime name="created">
+                <value>2014-12-21T03:00:33.000+00:00</value>
+            </dateTime>
+            <dateTime name="modified">
+                <value>2016-03-16T17:00:29.614+00:00</value>
+            </dateTime>
+            <ns3:geometry xmlns:ns1="http://www.opengis.net/gml" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ns3="urn:catalog:metacard" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" name="location">
+                <ns3:value>
+                    <ns1:Point>
+                        <ns1:pos>5.121 52.139</ns1:pos>
+                    </ns1:Point>
+                </ns3:value>
+            </ns3:geometry>
+        </metacard>
+        <metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="fbd065b8295e253c87eb1b4e4aca5416">
+            <type>ddf.metacard</type>
+            <source>ddf.distribution</source>
+            <string name="title">
+                <value>title 2</value>
+            </string>
+            <dateTime name="created">
+                <value>2015-12-21T03:00:33.000+00:00</value>
+            </dateTime>
+            <dateTime name="modified">
+                <value>2017-03-16T17:00:29.614+00:00</value>
+            </dateTime>
+            <ns3:geometry xmlns:ns1="http://www.opengis.net/gml" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ns3="urn:catalog:metacard" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" name="location">
+                <ns3:value>
+                    <ns1:Point>
+                        <ns1:pos>52.139 5.121</ns1:pos>
+                    </ns1:Point>
+                </ns3:value>
+            </ns3:geometry>
+        </metacard>
+    </csw:SearchResults>
+</csw:GetRecordsResponse>

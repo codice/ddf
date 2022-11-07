@@ -41,6 +41,8 @@ import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.Resource;
+import ddf.catalog.transform.InputTransformer;
+import ddf.catalog.transformer.xml.XmlInputTransformer;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -49,7 +51,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.tika.io.IOUtils;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -62,7 +63,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -70,10 +70,7 @@ public class GetRecordsMessageBodyReaderTest {
 
   private Converter mockProvider = mock(Converter.class);
 
-  CswXmlParser parser =
-      new CswXmlParser(
-          new XmlParser(),
-          List.of("ddf.catalog.transformer.xml.binding", "ddf.catalog.transformer.xml.adapter"));
+  CswXmlParser parser = new CswXmlParser();
 
   @Before
   public void setUp() {
@@ -263,27 +260,11 @@ public class GetRecordsMessageBodyReaderTest {
   }
 
   @Test
-  @Ignore
   public void testMetacardCswRecordCollection() throws Exception {
-    Metacard metacard = createMetacard();
-    List<Metacard> inputMetacards = Collections.singletonList(metacard);
-    CswRecordCollection collection = new CswRecordCollection();
-    collection.setCswRecords(inputMetacards);
-
-    MetacardType cswMetacardType =
-        new MetacardTypeImpl(
-            CswConstants.CSW_METACARD_TYPE_NAME,
-            Arrays.asList(
-                new ContactAttributes(),
-                new LocationAttributes(),
-                new MediaAttributes(),
-                new TopicAttributes(),
-                new AssociationsAttributes()));
-
-    CswRecordConverter recordConverter = new CswRecordConverter(cswMetacardType);
+    InputTransformer xmlInputTransformer = new XmlInputTransformer(new XmlParser());
     TransformerManager mockInputManager = mock(TransformerManager.class);
     when(mockInputManager.getTransformerByProperty(anyString(), anyString()))
-        .thenReturn(recordConverter);
+        .thenReturn(xmlInputTransformer);
     CswTransformProvider metacardProvider = new CswTransformProvider(null, mockInputManager);
     GetRecordsResponseConverter provider = new GetRecordsResponseConverter(metacardProvider);
 
@@ -291,67 +272,21 @@ public class GetRecordsMessageBodyReaderTest {
     config.setOutputSchema("urn:catalog:metacard");
 
     GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(parser, provider, config);
-    CswRecordCollection cswRecords = null;
 
-    String xml =
-        "<?xml version='1.0' encoding='UTF-8'?>\n"
-            + "<csw:GetRecordsResponse xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" version=\"2.0.2\">\n"
-            + "    <csw:SearchStatus timestamp=\"2022-10-26T10:14:30.212-05:00\"/>\n"
-            + "    <csw:SearchResults numberOfRecordsMatched=\"1\" numberOfRecordsReturned=\"1\" nextRecord=\"1\" recordSchema=\"urn:catalog:metacard\" elementSet=\"full\">\n"
-            + "        <metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:smil=\"http://www.w3.org/2001/SMIL20/\" xmlns:smillang=\"http://www.w3.org/2001/SMIL20/Language\" gml:id=\"7eb1b4e4aca5416fbd065b8295e253c8\">\n"
-            + "            <type>ddf.metacard</type>\n"
-            + "            <source>ddf.distribution</source>\n"
-            + "            <string name=\"title\">\n"
-            + "                <value>title 1</value>\n"
-            + "            </string>\n"
-            + "            <dateTime name=\"created\">\n"
-            + "                <value>2014-12-21T03:00:33.000+00:00</value>\n"
-            + "            </dateTime>\n"
-            + "            <dateTime name=\"modified\">\n"
-            + "                <value>2016-03-16T17:00:29.614+00:00</value>\n"
-            + "            </dateTime>\n"
-            + "            <ns3:geometry xmlns:ns1=\"http://www.opengis.net/gml\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" name=\"location\">\n"
-            + "                <ns3:value>\n"
-            + "                    <ns1:Point>\n"
-            + "                        <ns1:pos>5.121 52.139</ns1:pos>\n"
-            + "                    </ns1:Point>\n"
-            + "                </ns3:value>\n"
-            + "            </ns3:geometry>\n"
-            + "        </metacard>\n"
-            + "        <metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:smil=\"http://www.w3.org/2001/SMIL20/\" xmlns:smillang=\"http://www.w3.org/2001/SMIL20/Language\" gml:id=\"fbd065b8295e253c87eb1b4e4aca5416\">\n"
-            + "            <type>ddf.metacard</type>\n"
-            + "            <source>ddf.distribution</source>\n"
-            + "            <string name=\"title\">\n"
-            + "                <value>title 2</value>\n"
-            + "            </string>\n"
-            + "            <dateTime name=\"created\">\n"
-            + "                <value>2015-12-21T03:00:33.000+00:00</value>\n"
-            + "            </dateTime>\n"
-            + "            <dateTime name=\"modified\">\n"
-            + "                <value>2017-03-16T17:00:29.614+00:00</value>\n"
-            + "            </dateTime>\n"
-            + "            <ns3:geometry xmlns:ns1=\"http://www.opengis.net/gml\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" name=\"location\">\n"
-            + "                <ns3:value>\n"
-            + "                    <ns1:Point>\n"
-            + "                        <ns1:pos>52.139 5.121</ns1:pos>\n"
-            + "                    </ns1:Point>\n"
-            + "                </ns3:value>\n"
-            + "            </ns3:geometry>\n"
-            + "        </metacard>\n"
-            + "    </csw:SearchResults>\n"
-            + "</csw:GetRecordsResponse>";
-    InputStream is = IOUtils.toInputStream(xml);
+    CswRecordCollection cswRecords;
+    try (InputStream is =
+        GetRecordsMessageBodyReaderTest.class.getResourceAsStream(
+            "/getRecordsResponseMetacard.xml")) {
+      cswRecords = reader.readFrom(Collections.emptyMap(), is);
+    }
 
-    //    try (InputStream is =
-    //
-    // GetRecordsMessageBodyReaderTest.class.getResourceAsStream("/getRecordsResponse.xml")) {
-
-    cswRecords = reader.readFrom(Collections.emptyMap(), is);
-    //    }
     List<Metacard> metacards = cswRecords.getCswRecords();
     assertThat(metacards, hasSize(2));
+    assertThat(metacards.get(0).getSourceId(), is("ddf.distribution"));
     assertThat(metacards.get(0).getMetacardType().getName(), is("ddf.metacard"));
     assertThat(metacards.get(0).getTitle(), containsString("title 1"));
+    assertThat(metacards.get(0).getLocation(), containsString("POINT (5.121 52.139)"));
+    assertThat(metacards.get(1).getTitle(), containsString("title 2"));
   }
 
   private Metacard createMetacard() {
