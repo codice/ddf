@@ -50,9 +50,9 @@ Distributed Data Framework (DDF) is an open source, modular catalog framework.
  
 ## Building
 ### What you need ###
-* [Install OpenJDK 11](https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot).
+* [Install OpenJDK 17](https://adoptium.net/temurin/releases/?version=17).
 * Make sure that your JAVA\_HOME environment variable is set to the newly installed JDK location, and that your PATH includes %JAVA\_HOME%\bin (Windows) or $JAVA\_HOME$/bin (\*NIX).
-* [Install Maven 3.6.3 \(or later\)](http://maven.apache.org/download.html). Make sure that your PATH includes the MVN\_HOME/bin directory.
+* [Install Maven 3.8.5 \(or later\)](http://maven.apache.org/download.html). Make sure that your PATH includes the MVN\_HOME/bin directory.
 * Set the MAVEN_OPTS variable with the appropriate memory settings
 ### Optional 
 * If you do not wish to run formatting from the commandline (see below) you may use an IDE to format the code for you with the google-java-format plugins.

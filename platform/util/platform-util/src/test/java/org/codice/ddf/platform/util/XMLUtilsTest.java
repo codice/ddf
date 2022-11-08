@@ -179,12 +179,8 @@ public class XMLUtilsTest {
   }
 
   @Test
-  public void testXMLInputFactoryLimitsEntityExpansion()
-      throws XMLStreamException, ClassNotFoundException, IllegalAccessException,
-          InstantiationException {
-    XMLOutputFactory outputFactory =
-        (XMLOutputFactory)
-            Class.forName("com.sun.xml.internal.stream.XMLOutputFactoryImpl").newInstance();
+  public void testXMLInputFactoryLimitsEntityExpansion() throws XMLStreamException {
+    XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
 
     StringReader stringReader = new StringReader(XML_XXE_EXPANSION);
     StringWriter stringWriter = new StringWriter();
@@ -202,15 +198,11 @@ public class XMLUtilsTest {
   }
 
   @Test
-  public void testXMLInputFactoryDisallowsEntityInjection()
-      throws XMLStreamException, ClassNotFoundException, IllegalAccessException,
-          InstantiationException {
+  public void testXMLInputFactoryDisallowsEntityInjection() throws XMLStreamException {
     URL resource = XMLUtilsTest.class.getClassLoader().getResource("xxe_injection.txt");
     String xmlStr = String.format(XML_XXE_INJECTION, resource.toString());
 
-    XMLOutputFactory outputFactory =
-        (XMLOutputFactory)
-            Class.forName("com.sun.xml.internal.stream.XMLOutputFactoryImpl").newInstance();
+    XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
 
     StringReader stringReader = new StringReader(xmlStr);
     StringWriter stringWriter = new StringWriter();

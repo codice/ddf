@@ -18,7 +18,7 @@ import static org.codice.ddf.rest.impl.action.RestEndpointUrl.SOURCES_PATH;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import ddf.action.Action;
@@ -35,13 +35,16 @@ import java.util.Collections;
 import org.apache.commons.lang.CharEncoding;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import org.mockito.quality.Strictness;
 
-@RunWith(MockitoJUnitRunner.class)
 public class MetacardTransformerActionProviderTest extends AbstractActionProviderTest {
+
+  @Rule public MockitoRule rule = MockitoJUnit.rule().strictness(Strictness.LENIENT);
 
   private static final String SAMPLE_TRANSFORMER_ID = "XML";
 
@@ -104,7 +107,7 @@ public class MetacardTransformerActionProviderTest extends AbstractActionProvide
 
   @Test
   public void createMetacardActionValidAttributes() throws MalformedURLException {
-    when(metacard.getAttribute(any(String.class))).thenReturn(attribute);
+    when(metacard.getAttribute(anyString())).thenReturn(attribute);
     when(attribute.getValue()).thenReturn("attribute");
     Action action = actionProviderWithAttr.getAction(metacard);
     assertThat(action.getId(), is(ACTION_PROVIDER_ID));

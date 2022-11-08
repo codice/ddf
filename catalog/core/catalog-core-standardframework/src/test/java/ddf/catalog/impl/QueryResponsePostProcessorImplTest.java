@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import ddf.action.Action;
@@ -128,7 +128,7 @@ public class QueryResponsePostProcessorImplTest {
         new QueryResponsePostProcessor(null, null);
     queryResponsePostProcessor.processResponse(queryResponse);
 
-    verifyZeroInteractions(queryResponse);
+    verifyNoInteractions(queryResponse);
   }
 
   @Test
@@ -139,7 +139,7 @@ public class QueryResponsePostProcessorImplTest {
 
     queryResponsePostProcessor.processResponse(queryResponse);
 
-    verifyZeroInteractions(metacards[0], metacards[1]);
+    verifyNoInteractions(metacards[0], metacards[1]);
   }
 
   @Test

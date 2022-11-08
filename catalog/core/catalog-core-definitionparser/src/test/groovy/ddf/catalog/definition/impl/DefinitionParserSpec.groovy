@@ -28,8 +28,6 @@ import spock.lang.Specification
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-import static org.mockito.Matchers.isNull
-
 @RunWith(JUnitPlatform.class)
 class DefinitionParserSpec extends Specification {
 
@@ -467,7 +465,7 @@ class DefinitionParserSpec extends Specification {
         definitionParser.install(file)
 
         then:
-        1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull()) >> {
+        1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, null) >> {
             arguments -> validator = arguments.get(1)
         }
 
@@ -492,7 +490,7 @@ class DefinitionParserSpec extends Specification {
         definitionParser.install(file)
 
         then:
-        0 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull())
+        0 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, null)
     }
 
     def "test invalid metacard validators"() {
@@ -503,7 +501,7 @@ class DefinitionParserSpec extends Specification {
         definitionParser.install(file)
 
         then:
-        0 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull())
+        0 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, null)
     }
 
     def "test match_any validator "() {

@@ -98,7 +98,7 @@ class MockOsgiServiceField {
         field.getType().getName(),
         annotation.answer(),
         serviceProperties);
-    return mock(field.getType(), annotation.answer().get());
+    return mock(field.getType(), annotation.answer());
   }
 
   private void assignToField(Object mockService) throws IllegalAccessException {

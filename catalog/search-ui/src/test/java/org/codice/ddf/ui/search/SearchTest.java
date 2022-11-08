@@ -43,13 +43,18 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import org.mockito.quality.Strictness;
 
 public class SearchTest {
+
+  @Rule public MockitoRule rule = MockitoJUnit.rule().strictness(Strictness.LENIENT);
 
   @Mock private HttpServletRequest request;
 
@@ -70,11 +75,8 @@ public class SearchTest {
 
   private final Map<String, Object> requestAttributes = new HashMap<>();
 
-  private AutoCloseable closeable;
-
   @Before
   public void setUp() throws Exception {
-    closeable = MockitoAnnotations.openMocks(this);
     Catalog catalog = new Catalog(catalogFramework, filterBuilder);
     search = new Search(catalog);
     search.init(servletConfig);

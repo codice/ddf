@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.CatalogFramework;
@@ -168,7 +168,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
     newRemoveAllCommand(command).execute();
 
     // then
-    verifyZeroInteractions(catalogFrameworkMock);
+    verifyNoInteractions(catalogFrameworkMock);
   }
 
   @Test
@@ -192,7 +192,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
     newRemoveAllCommand(command).execute();
 
     // then
-    verifyZeroInteractions(catalogFrameworkMock);
+    verifyNoInteractions(catalogFrameworkMock);
   }
 
   @Test
@@ -216,7 +216,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
     newRemoveAllCommand(command).execute();
 
     // then
-    verifyZeroInteractions(catalogFrameworkMock);
+    verifyNoInteractions(catalogFrameworkMock);
   }
 
   private RemoveAllCommand newRemoveAllCommand(RemoveAllCommand removeAllCommand) {

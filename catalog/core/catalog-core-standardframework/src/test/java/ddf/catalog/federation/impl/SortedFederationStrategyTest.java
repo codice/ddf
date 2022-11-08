@@ -23,7 +23,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
@@ -395,7 +395,7 @@ public class SortedFederationStrategyTest {
     strategy.federate(Arrays.asList(mock(Source.class)), fedQueryRequest);
     // First plugin throws exception, so second plugin is untouched
     verify(mockPlug).process(any(Source.class), any(QueryRequest.class));
-    verifyZeroInteractions(mockPlug2);
+    verifyNoInteractions(mockPlug2);
   }
 
   @Test

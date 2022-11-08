@@ -16,10 +16,13 @@ package ddf.platform.resource.bundle.locator;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import com.google.common.io.Files;
+import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,10 +32,19 @@ public class ResourceBundleLocatorImplTest {
 
   private static final String TEST_BASE_NAME = "TestResourceBundle";
 
+  private File tempDdfHome;
+
   @Before
-  public void setup() {
+  public void setup() throws Exception {
+    tempDdfHome = Files.createTempDir();
+    System.setProperty("ddf.home", tempDdfHome.getAbsolutePath());
     this.resourceBundleLocator = new ResourceBundleLocatorImpl();
     resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
+  }
+
+  @After
+  public void teardown() throws Exception {
+    tempDdfHome.delete();
   }
 
   @Test
