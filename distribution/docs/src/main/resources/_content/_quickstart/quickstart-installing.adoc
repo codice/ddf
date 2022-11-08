@@ -83,7 +83,7 @@ ${branding-lowercase}${at-symbol}local>
 
 ----
 
-=== Quick Install of ${branding} on a remote headless server
+==== Quick Install of ${branding} on a remote headless server
 (((Quick Install of ${branding} on a remote headless server)))
 
 If ${branding} is being installed on a remote server that has no user interface, the hostname must be updated in the configuration files and certificates.

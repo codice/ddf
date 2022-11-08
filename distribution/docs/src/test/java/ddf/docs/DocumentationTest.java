@@ -37,8 +37,6 @@ public class DocumentationTest {
 
   private static final String UNRESOLVED_DIRECTORY_MSG = "unresolved directive";
 
-  private static final String FREEMARKER_MSG = "freemarker template error";
-
   private static final String DOCS_DIRECTORY = "docs";
 
   private static final String HTML_DIRECTORY = "html";
@@ -56,11 +54,6 @@ public class DocumentationTest {
   @Test
   public void testUnresolvedDirectives() throws IOException, URISyntaxException {
     assertFilesDoNotContain("Unresolved directives", UNRESOLVED_DIRECTORY_MSG);
-  }
-
-  @Test
-  public void testFreeMarkerReferences() throws IOException, URISyntaxException {
-    assertFilesDoNotContain("Broken FreeMarker references", FREEMARKER_MSG);
   }
 
   @Test

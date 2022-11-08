@@ -1,2 +1,0 @@
-:type: documentation
-:status: published

@@ -5,7 +5,7 @@
 :priority: 1
 :order: 00
 
-== {title}
+=== {title}
 
 ${branding} is comprised of several modular applications, to be installed or uninstalled as needed.
 

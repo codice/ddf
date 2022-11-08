@@ -34,6 +34,7 @@
         <module>ddf-catalog</module>
         <module>ddf</module>
         <module>docker</module>
+        <module>docs</module>
         <!--Test needs to be the last module because it depends on artifacts from earlier modules-->
         <module>test</module>
     </modules>

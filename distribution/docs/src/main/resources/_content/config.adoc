@@ -15,7 +15,7 @@ Version ${project.version}. Copyright (c) Codice Foundation
 :branding: DDF
 :download-url: https://github.com/codice/ddf/releases
 :release-notes-url: https://codice.atlassian.net/wiki/spaces/DDF/pages/71275152/Release+Notes
-:adoc-include: ${project.build.directory}/doc-contents/_contents
+:adoc-include: ${project.build.directory}/doc-contents/_content
 :hardening-step: Required Step for Security Hardening
 :title-logo-image: image::logo_ddf.png[]
 :external-link: image:external-link.png[This link is outside the ${branding} documentation]
@@ -24,18 +24,6 @@ Version ${project.version}. Copyright (c) Codice Foundation
 This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). +
 This page last updated:
 
-ifdef::backend-pdf[]
-[colophon]
-:sectnums!:
-== License
-:sectnums:
-Copyright (c) Codice Foundation. +
-This work is licensed under a http://creativecommons.org/licenses/by/4.0[Creative Commons Attribution 4.0 International License].
-
-This document last updated: ${timestamp}.
-
-<<<
-endif::[]
 // workaround to remove "table of contents" blocks from table cells
 :toc!:
 

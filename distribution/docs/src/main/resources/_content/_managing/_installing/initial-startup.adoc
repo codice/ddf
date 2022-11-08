@@ -5,7 +5,7 @@
 :project: ${branding}
 :order: 02
 
-== Initial Startup
+=== Initial Startup
 (((Initial Startup)))
 
 Run the ${branding} using the appropriate script.
@@ -27,7 +27,7 @@ The distribution takes a few moments to load depending on the hardware configura
 To run ${branding} as a service, see <<{managing-prefix}managed_services,Starting as a Service>>.
 ====
 
-=== Verifying Startup
+==== Verifying Startup
 
 At this point, ${branding} should be configured and running with a Solr Catalog Provider.
 New features (endpoints, services, and sites) can be added as needed.
@@ -60,7 +60,7 @@ Bundle fragments remain in the *Resolved* state and can never move to the *Activ
 
 After successfully completing these steps, the ${branding} is ready to be configured.
 
-=== ${branding} Directory Contents after Installation and Initial Startup
+==== ${branding} Directory Contents after Installation and Initial Startup
 
 During ${branding} installation, the major directories and files shown in the table below are created, modified, or replaced in the destination directory.
 
@@ -109,6 +109,6 @@ During ${branding} installation, the major directories and files shown in the ta
 
 |===
 
-=== Completing Installation
+==== Completing Installation
 
 Upon startup, complete installation from either the ${admin-console} or the ${command-console}.

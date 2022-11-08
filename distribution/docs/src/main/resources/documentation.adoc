@@ -1,0 +1,2365 @@
+= ${branding-expanded} Documentation
+:title: ${branding-expanded} Documentation
+include::_content/config.adoc[]
+:architecture-prefix: _
+:developing-prefix: _
+:integrating-prefix: _
+:introduction-prefix: _
+:managing-prefix: _
+:metadata-prefix: _
+:quickstart-prefix: _
+:reference-prefix: _
+:using-prefix: _
+:reference: appendix
+
+:sectnums!:
+== Introduction
+:sectnums:
+
+== About DDF
+include::_content/_introduction/introduction.adoc[]
+
+include::_content/_introduction/applications.adoc[leveloffset=+1]
+
+include::_content/_introduction/documentation-notes.adoc[]
+
+include::_content/_introduction/core-concepts-intro.adoc[]
+
+include::_content/_introduction/_coreConcepts/search-intro.adoc[leveloffset=+1]
+
+include::_content/_introduction/_coreConcepts/metadata-intro.adoc[leveloffset=+1]
+
+include::_content/_introduction/_coreConcepts/ingest-intro.adoc[leveloffset=+1]
+
+include::_content/_introduction/_coreConcepts/resources-intro.adoc[leveloffset=+1]
+
+include::_content/_introduction/_coreConcepts/catalog-framework-intro.adoc[leveloffset=+1]
+
+include::_content/_introduction/_coreConcepts/federation-intro.adoc[leveloffset=+1]
+
+include::_content/_introduction/_coreConcepts/events-subscriptions-intro.adoc[leveloffset=+1]
+
+include::_content/_introduction/_coreConcepts/endpoints-intro.adoc[leveloffset=+1]
+
+include::_content/_introduction/_coreConcepts/high-availability-intro.adoc[leveloffset=+1]
+
+include::_content/_introduction/_coreConcepts/high-availability-supported-capabilities.adoc[leveloffset=+2]
+
+include::_content/_introduction/_coreConcepts/standards-intro.adoc[leveloffset=+1]
+
+include::_content/_introduction/_coreConcepts/service-standards.adoc[leveloffset=+2]
+
+include::_content/_introduction/_coreConcepts/data-standards.adoc[leveloffset=+2]
+
+include::_content/_introduction/_coreConcepts/security-standards.adoc[leveloffset=+2]
+
+include::_content/_introduction/_coreConcepts/attribute-stores.adoc[leveloffset=+2]
+
+include::_content/_introduction/_coreConcepts/cryptography-standards.adoc[leveloffset=+2]
+
+include::_content/_introduction/_coreConcepts/transport-protocols.adoc[leveloffset=+2]
+
+include::_content/_introduction/_coreConcepts/sso-standards.adoc[leveloffset=+2]
+
+include::_content/_introduction/_coreConcepts/security-sso-endpoints.adoc[leveloffset=+2]
+
+include::_content/_introduction/_coreConcepts/authentication-standards.adoc[leveloffset=+2]
+
+include::_content/_quickstart/quickstart-intro.adoc[]
+
+include::_content/_quickstart/quickstart-installing.adoc[leveloffset=+1]
+
+include::_content/_quickstart/quickstart-certificates.adoc[leveloffset=+1]
+
+include::_content/_quickstart/quickstart-configuring.adoc[leveloffset=+1]
+
+include::_content/_quickstart/quickstart-adding-roles.adoc[leveloffset=+1]
+
+:sectnums!:
+== Managing
+:sectnums:
+
+include::_content/_managing/managing-intro.adoc[]
+
+include::_content/_managing/_securing/securing-intro.adoc[]
+
+include::_content/_managing/_securing/hardening-intro.adoc[leveloffset=+1]
+
+include::_content/_managing/_securing/auditing.adoc[leveloffset=+1]
+
+include::_content/_managing/_installing/installing-intro.adoc[]
+
+include::_content/_managing/_installing/install-prereqs.adoc[leveloffset=+1]
+
+include::_content/_managing/_installing/hardware-reqs.adoc[leveloffset=+2]
+
+include::_content/_managing/_installing/java-reqs.adoc[leveloffset=+2]
+
+include::_content/_managing/_installing/install-with-zip.adoc[leveloffset=+1]
+
+include::_content/_managing/_installing/file-system-access.adoc[leveloffset=+2]
+
+include::_content/_managing/_securing/managing-certificates.adoc[leveloffset=+2]
+
+include::_content/_managing/_securing/managing-keystores.adoc[leveloffset=+2]
+
+include::_content/_managing/_installing/initial-startup.adoc[leveloffset=+1]
+
+include::_content/_managing/_installing/installing-from-admin-console.adoc[leveloffset=+1]
+
+
+
+include::_content/_managing/_installing/ddf-setup-types.adoc[leveloffset=+1]
+
+
+
+include::_content/_managing/_installing/guest-claims-attributes.adoc[leveloffset=+1]
+
+
+
+include::_content/_managing/_installing/system-configuration-settings.adoc[leveloffset=+1]
+
+
+
+include::_content/_managing/_installing/finish-page.adoc[leveloffset=+1]
+
+
+
+include::_content/_managing/_installing/configure-single-sign-on.adoc[leveloffset=+1]
+
+
+
+include::_content/_managing/_installing/installing-from-the-command-line.adoc[leveloffset=+1]
+
+
+
+include::_content/_managing/_installing/ie11-configuration.adoc[leveloffset=+1]
+
+
+
+include::_content/_managing/_installing/firewall-config.adoc[leveloffset=+1]
+
+
+
+include::_content/_managing/_installing/high-availability-initial-setup.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_installing/high-availability-initial-setup-exceptions.adoc[leveloffset=+2]
+
+
+
+
+include::_content/_managing/_configuring/configuring-intro.adoc[]
+
+
+include::_content/_managing/_configuring/admin-console-tutorial.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/admin-wizard-placeholder.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/console-commands-ref.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/feature-commands.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/configuration-files.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/global-settings.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/config-files.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/configuring-user-access.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/configuring-guest-access.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/configuring-rest-for-users.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/configuring-oidc.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/connecting-to-external-idp.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/no-idp.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/configuring-multi-factor-auth.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/ldap-server.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/updating-system-users.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/securing-admin-console.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/restricting-app-access.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/remove-default-users.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/remove-default-users-cont.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_securing/disallowing-login-wo-certs.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_securing/managing-crl.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/configuring-data-management.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/configuring-solr.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/solr-synonyms.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/hardening-solr.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/solr-admin-ui.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/catalog-provider.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/changing-hostname.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/errors-and-warnings.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/enforcing-errors.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/hiding-errors.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/hiding-errors-by-role.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/configuring-product-caching.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/content-directory-monitor.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/configuring-system-message.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/configuring-data-policy-plugins.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/configuring-access-plugins.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/configuring-security-policies.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/web-context-policy-manager.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/catalog-filtering.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/setting-internal-policies.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/setting-xacml-policies.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/filter-policy-plugins.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/configuring-uis.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/environment-hardening.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/configuring-federation.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/enabling-ssl.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/http-port.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/_sources/federation-strategy.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/connecting-to-sources.adoc[leveloffset=+2]
+
+
+
+.Available Federated Sources
+The following Federated Sources are available in a standard installation of DDF:
+
+<<_opensearch_source,OpenSearch Source>>:: Performs OpenSearch queries for metadata.
+
+<<_wfs_1_1_source,WFS 1.1 Source>>:: Allows for requests for geographical features across the web.
+
+<<_wfs_2_0_source,WFS 2.0 Source>>:: Allows for requests for geographical features across the web.
+
+<<_csw_specification_profile_federated_source,CSW Specification Profile Federated Source>>:: Queries a CSW version 2.0.2 compliant service.
+
+<<_csw_federation_profile_source,CSW Federation Profile Source>>:: Queries a CSW version 2.0.2 compliant service.
+
+<<_gmd_csw_source,GMD CSW Source>>:: Queries a GMD CSW APISO compliant service.
+
+<<_federated_source_for_atlassian_confluence,Federated Source for Atlassian Confluence (R)>>:: Retrieve pages, comments, and attachments from an Atlassian Confluence(R) REST API.
+
+
+.Available Connected Sources
+The following Connected Sources are available in a standard installation of DDF:
+
+<<_wfs_1_1_source,WFS 1.1 Source>>:: Allows for requests for geographical features across the web.
+
+<<_wfs_2_0_source,WFS 2.0 Source>>:: Allows for requests for geographical features across the web.
+
+
+.Available Catalog Stores
+The following Catalog Stores are available in a standard installation of DDF:
+
+None.
+
+.Available Catalog Providers
+The following Catalog Providers are available in a standard installation of DDF:
+
+<<_solr_catalog_provider,Solr Catalog Provider>>:: Uses Solr as a catalog.
+
+
+.Available Storage Providers
+The following Storage Providers are available in a standard installation of DDF:
+
+<<{managing-prefix}content_file_system_storage_provider,Content File System Storage Provider>>::
+
+.Sources Details
+Availability and configuration details of available sources.
+
+
+include::_content/_managing/_configuring/_sources/opensearch-source.adoc[leveloffset=+3]
+
+'''
+
+include::_content/_managing/_configuring/_sources/solr-catalog-provider.adoc[leveloffset=+3]
+
+'''
+
+include::_content/_managing/_configuring/_sources/wfs-11-source.adoc[leveloffset=+3]
+
+'''
+
+include::_content/_managing/_configuring/_sources/wfs-20-source.adoc[leveloffset=+3]
+
+'''
+
+include::_content/_managing/_configuring/_sources/csw-federated-source.adoc[leveloffset=+3]
+
+'''
+
+include::_content/_managing/_configuring/_sources/default-storage-provider.adoc[leveloffset=+3]
+
+'''
+
+include::_content/_managing/_configuring/_sources/csw-federation-profile-source.adoc[leveloffset=+3]
+
+'''
+
+include::_content/_managing/_configuring/_sources/gmd-csw-source.adoc[leveloffset=+3]
+
+'''
+
+include::_content/_managing/_configuring/_sources/confluence-federated-source.adoc[leveloffset=+3]
+
+'''
+
+include::_content/_managing/_configuring/configuring-endpoints.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/configuring-catalog-rest-endpoint.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/configuring-csw-endpoint.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/configuring-kml-endpoint.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/configuring-opensearch-endpoint.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/special-configurations.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/multiple-installations.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/isolating-solrcloud-zookeeper.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_configuring/configuring-fanout-proxy.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/high-availability-config.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/admin-theming-configurations.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/landing-page.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/logout-theming.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/platform-ui-theming.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/miscellaneous-config.adoc[leveloffset=+1]
+
+
+include::_content/_managing/_configuring/thread-pools.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/jetty-threadpool-settings.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/decanter-services.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_configuring/encryption-service.adoc[leveloffset=+2]
+
+
+== Running
+
+include::_content/_managing/_running/running-intro.adoc[]
+
+=== Starting
+
+include::_content/_managing/_running/ddf-service.adoc[leveloffset=+2]
+
+include::_content/_managing/_running/os-services.adoc[leveloffset=+2]
+
+include::_content/_managing/_running/starting-intro.adoc[leveloffset=+2]
+
+include::_content/_managing/_running/solr-service.adoc[leveloffset=+2]
+
+
+=== Maintaining
+
+
+include::_content/_managing/_running/console-commands.adoc[leveloffset=+2]
+
+
+include::_content/_managing/_running/console-commands-help.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_running/cql-syntax.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_running/available-console-commands.adoc[leveloffset=+3]
+
+
+include::_content/_managing/_running/catalog-commands.adoc[leveloffset=+4]
+
+
+include::_content/_managing/_running/solr-commands.adoc[leveloffset=+4]
+
+
+include::_content/_managing/_running/subscription-commands.adoc[leveloffset=+4]
+
+
+include::_content/_managing/_running/platform-commands.adoc[leveloffset=+4]
+
+
+include::_content/_managing/_running/store-commands.adoc[leveloffset=+4]
+
+
+include::_content/_managing/_running/command-scheduler.adoc[leveloffset=+3]
+
+
+=== Monitoring
+
+include::_content/_managing/_running/monitoring.adoc[leveloffset=+2]
+
+
+=== Troubleshooting
+
+include::_content/_managing/_running/troubleshooting.adoc[leveloffset=+2]
+
+include::_content/_managing/_running/troubleshooting-ui.adoc[leveloffset=+2]
+
+
+== Data Management
+
+include::_content/_managing/_running/ingesting.adoc[leveloffset=+1]
+
+include::_content/_managing/_running/ingest-command.adoc[leveloffset=+2]
+include::_content/_managing/_running/directory-monitor-ingest.adoc[leveloffset=+2]
+include::_content/_managing/_running/external-ingest.adoc[leveloffset=+2]
+include::_content/_managing/_running/forms-commands.adoc[leveloffset=+2]
+include::_content/_managing/_running/other-ingest.adoc[leveloffset=+2]
+include::_content/_managing/_running/catalog-backup.adoc[leveloffset=+1]
+
+include::_content/_managing/_datamanagement/validating-data.adoc[leveloffset=+1]
+
+include::_content/_managing/_running/validator-plugins.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/schematron-validation.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/injecting-attributes.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/overriding-attributes.adoc[leveloffset=+2]
+include::_content/_managing/_running/removing-expired-records.adoc[leveloffset=+1]
+
+include::_content/_managing/_datamanagement/automatically-added-metacard-attributes.adoc[leveloffset=+1]
+
+include::_content/_managing/_datamanagement/attributes-added-on-ingest.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/attributes-added-by-input-transformers.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/attributes-added-by-attribute-injection.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/attributes-added-by-default-attribute-types.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/attributes-added-by-attribute-overrides-ingest.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/attributes-added-by-pre-authorization-plugins.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/attributes-added-by-pre-ingest-plugins.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/attributes-added-on-query.adoc[leveloffset=+2]
+include::_content/_managing/_datamanagement/attributes-added-by-attribute-overrides-query.adoc[leveloffset=+2]
+
+
+:sectnums!:
+== Using
+:sectnums:
+
+
+include::_content/_using/using-simple-search-ui.adoc[]
+
+
+
+
+:sectnums!:
+== Integrating
+:sectnums:
+
+
+include::_content/_integrating/high-availability-integrating-warning.adoc[]
+
+include::_content/_integrating/integrating-intro.adoc[]
+
+
+== Endpoints
+
+include::_content/_integrating/_endpoints/endpoint-intro.adoc[leveloffset=+1]
+
+
+include::_content/_integrating/_endpoints/ingest-endpoints-intro.adoc[leveloffset=+1]
+
+<<_catalog_rest_endpoint,Catalog REST Endpoint>>:: Uses REST to interact with the catalog.
+<<_csw_endpoint,CSW Endpoint>>:: Searches collections of descriptive information (metadata) about geospatial data and services.
+
+include::_content/_integrating/_endpoints/crud-endpoints-intro.adoc[leveloffset=+1]
+
+<<_catalog_rest_endpoint,Catalog REST Endpoint>>:: Uses REST to interact with the catalog.
+<<_csw_endpoint,CSW Endpoint>>:: Searches collections of descriptive information (metadata) about geospatial data and services.
+
+include::_content/_integrating/_endpoints/query-endpoints-intro.adoc[leveloffset=+1]
+
+<<_queries_endpoint,Queries Endpoint>>:: To perform CRUD (Create, Read, Update, Delete) operations on query metacards in the catalog, work with one of these endpoints.
+<<_opensearch_endpoint,OpenSearch Endpoint>>:: Sends query parameters and receives search results.
+<<_csw_endpoint,CSW Endpoint>>:: Searches collections of descriptive information (metadata) about geospatial data and services.
+
+include::_content/_integrating/_endpoints/content-endpoints-intro.adoc[leveloffset=+1]
+
+<<_catalog_rest_endpoint,Catalog REST Endpoint>>:: Uses REST to interact with the catalog.
+
+include::_content/_integrating/_endpoints/pub-sub-endpoints-intro.adoc[leveloffset=+1]
+
+<<_csw_endpoint,CSW Endpoint>>:: Searches collections of descriptive information (metadata) about geospatial data and services.
+
+=== Endpoint Details
+
+
+include::_content/_integrating/_endpoints/query-endpoints.adoc[leveloffset=+2]
+
+
+include::_content/_integrating/_endpoints/prometheus-endpoint.adoc[leveloffset=+2]
+
+
+include::_content/_integrating/_endpoints/opensearch-endpoint.adoc[leveloffset=+2]
+
+
+include::_content/_integrating/_endpoints/catalog-rest-endpoint.adoc[leveloffset=+2]
+
+
+include::_content/_integrating/_endpoints/csw-endpoint.adoc[leveloffset=+2]
+
+
+:sectnums!:
+== Developing
+:sectnums:
+
+include::_content/_introduction/developing-intro.adoc[]
+
+include::_content/_introduction/high-availability-developing-warning.adoc[]
+
+
+
+== Catalog Framework API
+include::_content/_architectures/_catalogFrameworks/catalog-architecture.adoc[]
+
+include::_content/_architectures/_catalogFrameworks/catalog-framework-intro.adoc[]
+
+include::_content/_architectures/_catalogFrameworks/catalog-api.adoc[]
+
+
+=== Included Catalog Frameworks, Associated Components, and Configurations
+
+These catalog frameworks are available in a standard DDF installation:
+
+<<_standard_catalog_framework,Standard Catalog Framework>>:: Reference implementation of a Catalog Framework that implements all requirements of the Catalog API.
+
+<<_catalog_framework_camel_component,Catalog Framework Camel Component>>:: Supports creating, updating, and deleting metacards using the Catalog Framework from a Camel route.
+
+
+
+==== Standard Catalog Framework
+
+include::_content/_architectures/_catalogFrameworks/standard-catalog-framework.adoc[leveloffset=+3]
+
+
+==== Catalog Framework Camel Component
+
+include::_content/_architectures/_catalogFrameworks/catalog-framework-camel-component.adoc[leveloffset=+3]
+
+
+
+== Transformers
+include::_content/_architectures/_transformers/xformers-intro.adoc[]
+
+=== Available Input Transformers
+
+The following input transformers are available in a standard installation of DDF:
+
+<<_video_input_transformer,Video Input Transformer>>:: Creates Catalog metacards from certain video file types.
+
+<<_pdf_input_transformer,PDF Input Transformer>>:: Translates a PDF document into a Catalog Metacard.
+
+<<{developing-prefix}xml_input_transformer,XML Input Transformer>>:: Translates an XML document into a Catalog Metacard.
+
+<<_pptx_input_transformer,PPTX Input Transformer>>:: Translates Microsoft PowerPoint (OOXML only) documents into Catalog Metacards.
+
+<<_geojson_input_transformer,GeoJSON Input Transformer>>:: Translates GeoJSON into a Catalog metacard.
+
+<<_tika_input_transformer,Tika Input Transformer>>:: Translates Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into Catalog records.
+
+
+=== Available Metacard Transformers
+
+The following metacard transformers are available in a standard installation of DDF:
+
+<<_resource_metacard_transformer,Resource Metacard Transformer>>:: Retrieves the resource bytes of a metacard by returning the resource associated with the metacard.
+
+<<_xml_metacard_transformer,XML Metacard Transformer>>:: Translates a metacard into an XML-formatted document.
+
+<<_kml_metacard_transformer,KML Metacard Transformer>>:: Translates a metacard into a KML-formatted document.
+
+<<_metadata_metacard_transformer,Metadata Metacard Transformer>>:: returns the `Metacard.METADATA` attribute when given a metacard.
+
+<<_geojson_metacard_transformer,GeoJSON Metacard Transformer>>:: Translates a metacard into GeoJSON.
+
+<<_kml_style_mapper,KML Style Mapper>>:: Maps a KML Style URL to a metacard based on that metacard's attributes.
+
+<<_thumbnail_metacard_transformer,Thumbnail Metacard Transformer>>:: Retrieves the thumbnail bytes of a Metacard by returning the `Metacard.THUMBNAIL` attribute value.
+
+
+=== Available Query Response Transformers
+
+The following query response transformers are available in a standard installation of DDF:
+
+<<_csw_query_response_transformer,CSW Query Response Transformer>>:: Transforms a query response into a http://www.opengeospatial.org/standards/cat[CSW-formatted] document.
+
+<<_query_response_transformer_consumer,Query Response Transformer Consumer>>:: Translates a query response into a Catalog Metacard.
+
+<<_xml_query_response_transformer,XML Query Response Transformer>>:: Translates a query response into an XML-formatted document.
+
+<<_geojson_query_response_transformer,GeoJSON Query Response Transformer>>:: Translates a query response into a GeoJSON-formatted document.
+
+<<_kml_query_response_transformer,KML Query Response Transformer>>:: Translates a query response into a KML-formatted document.
+
+<<_atom_query_response_transformer,Atom Query Response Transformer>>:: Transforms a query response into an http://tools.ietf.org/html/rfc4287[Atom 1.0] feed.
+
+
+=== Transformers Details
+
+Availability and configuration details of available transformers.
+
+
+==== Video Input Transformer
+
+include::_content/_architectures/_transformers/video-input-xformer.adoc[leveloffset=+3]
+
+
+==== CSW Query Response Transformer
+
+include::_content/_architectures/_transformers/csw-queryresp-xformer.adoc[leveloffset=+3]
+
+
+==== Query Response Transformer Consumer
+
+include::_content/_architectures/_transformers/queryresp-xformer-consumer.adoc[leveloffset=+3]
+
+
+==== PDF Input Transformer
+
+include::_content/_architectures/_transformers/pdf-input-xformer.adoc[leveloffset=+3]
+
+
+==== Resource Metacard Transformer
+
+include::_content/_architectures/_transformers/resource-metacard-xformer.adoc[leveloffset=+3]
+
+
+==== XML Input Transformer
+
+include::_content/_architectures/_transformers/xml-input-xformer.adoc[leveloffset=+3]
+
+
+==== XML Metacard Transformer
+
+include::_content/_architectures/_transformers/xml-metacard-xformer.adoc[leveloffset=+3]
+
+
+==== PPTX Input Transformer
+
+include::_content/_architectures/_transformers/pptx-input-xformer.adoc[leveloffset=+3]
+
+
+==== GeoJSON Input Transformer
+
+include::_content/_architectures/_transformers/geojson-input-xformer.adoc[leveloffset=+3]
+
+
+==== XML Query Response Transformer
+
+include::_content/_architectures/_transformers/xml-queryresp-xformer.adoc[leveloffset=+3]
+
+
+==== GeoJSON Query Response Transformer
+
+include::_content/_architectures/_transformers/geojson-queryresp-xformer.adoc[leveloffset=+3]
+
+
+==== KML Metacard Transformer
+
+include::_content/_architectures/_transformers/kml-metacard-xformer.adoc[leveloffset=+3]
+
+
+==== Metadata Metacard Transformer
+
+include::_content/_architectures/_transformers/metadata-metacard-xformer.adoc[leveloffset=+3]
+
+
+==== Tika Input Transformer
+
+include::_content/_architectures/_transformers/tika-input-xformer.adoc[leveloffset=+3]
+
+
+==== GeoJSON Metacard Transformer
+
+include::_content/_architectures/_transformers/geojson-metacard-xformer.adoc[leveloffset=+3]
+
+
+==== KML Query Response Transformer
+
+include::_content/_architectures/_transformers/kml-queryresp-xformer.adoc[leveloffset=+3]
+
+
+==== Atom Query Response Transformer
+
+include::_content/_architectures/_transformers/atom-queryresp-xformer.adoc[leveloffset=+3]
+
+
+==== KML Style Mapper
+
+include::_content/_architectures/_transformers/kml-style-mapper.adoc[leveloffset=+3]
+
+
+==== Thumbnail Metacard Transformer
+
+include::_content/_architectures/_transformers/thumbnail-metacard-xformer.adoc[leveloffset=+3]
+
+
+=== Mime Type Mapper
+
+include::_content/_architectures/_transformers/mime-type-mapper-intro.adoc[]
+
+<<_ddf_mime_type_mapper,DDF Mime Type Mapper>>:: Core implementation of the DDF Mime API.
+
+
+
+==== DDF Mime Type Mapper
+
+include::_content/_architectures/_transformers/ddf-mime-type-mapper.adoc[leveloffset=+3]
+
+
+=== Mime Type Resolver
+
+
+include::_content/_architectures/_transformers/mime-type-resolver-intro.adoc[]
+
+
+
+<<_custom_mime_type_resolver,Custom Mime Type Resolver>>:: The Custom Mime Type Resolver is a `MimeTypeResolver` that defines the custom mime types that DDF will support.
+
+<<_tika_mime_type_resolver,Tika Mime Type Resolver>>:: Provides support for resolving over 1300 mime types.
+
+
+
+==== Custom Mime Type Resolver
+
+include::_content/_architectures/_transformers/custom-mime-type-resolver.adoc[leveloffset=+3]
+
+
+==== Tika Mime Type Resolver
+
+include::_content/_architectures/_transformers/tika-mime-type-resolver.adoc[leveloffset=+3]
+
+
+
+== Catalog Plugins
+
+include::_content/_architectures/_plugins/plugins-intro.adoc[leveloffset=+1]
+
+<<{architecture-prefix}pre_authorization_plugins,Pre-Authorization Plugins>>:: Perform any changes needed before security rules are applied.
+
+<<_policy_plugins,Policy Plugins>>:: Allows or denies access to the Catalog operation or response.
+
+<<_access_plugins,Access Plugins>>:: Used to build policy information for requests.
+
+<<{architecture-prefix}pre_ingest_plugins,Pre-Ingest Plugins>>:: Perform any changes to a metacard prior to ingest.
+
+<<_post_ingest_plugins,Post-Ingest Plugins>>:: Perform actions after ingest is completed.
+
+<<_post_process_plugins,Post-Process Plugins>>:: Performs additional processing after ingest.
+
+<<_pre_query_plugins,Pre-Query Plugins>>:: Perform any changes to a query before execution.
+
+<<_pre_federated_query_plugins,Pre-Federated-Query Plugins>>:: Perform any changes to a federated query before execution.
+
+<<_post_query_plugins,Post-Query Plugins>>:: Perform any changes to a response after query completes.
+
+<<_post_federated_query_plugins,Post-Federated-Query Plugins>>:: Perform any changes to a response after federated query completes.
+
+<<_pre_resource_plugins,Pre-Resource Plugins>>:: Perform any changes to a request associated with a metacard prior to download.
+
+<<_post_resource_plugins,Post-Resource Plugins>>:: Perform any changes to a resource after download.
+
+<<_pre_create_storage_plugins,Pre-Create Storage Plugins>>:: Perform any changes before creating a resource.
+
+<<_post_create_storage_plugins,Post-Create Storage Plugins>>:: Perform any changes after creating a resource.
+
+<<_pre_update_storage_plugins,Pre-Update Storage Plugins>>:: Perform any changes before updating a resource.
+
+<<_post_update_storage_plugins,Post-Update Storage Plugins>>:: Perform any changes after updating a resource.
+
+<<_pre_subscription_plugins,Pre-Subscription Plugins>>:: Perform any changes before creating a subscription.
+
+<<_pre_delivery_plugins,Pre-Delivery Plugins>>:: Perform any changes before delivering a subscribed event.
+
+include::_content/_architectures/_plugins/plugin-invocation.adoc[]
+
+
+.[[_catalog_plugin_compatibility]]Catalog Plugin Compatibility
+[cols="9" options="header"]
+|===
+
+|Plugin
+|<<_pre_authorization_plugins,Pre-Authorization Plugins>>
+|<<_policy_plugins,Policy Plugins>>
+|<<_access_plugins,Access Plugins>>
+|<<_pre_ingest_plugins,Pre-Ingest Plugins>>
+|<<_post_ingest_plugins,Post-Ingest Plugins>>
+|<<_pre_query_plugins,Pre-Query Plugins>>
+|<<_post_query_plugins,Post-Query Plugins>>
+|<<_post_process_plugins,Post-Process Plugins>>
+
+|<<{architecture-prefix}geocoder_plugin,GeoCoder Plugin>>
+||||x
+||||
+|<<{developing-prefix}filter_plugin,Filter Plugin>>
+|||x
+|||||
+|<<_metacard_resource_size_plugin,Metacard Resource Size Plugin>>
+|||||||x
+|
+
+|<<_catalog_policy_plugin,Catalog Policy Plugin>>
+||x
+||||||
+
+|<<{developing-prefix}metacard_attribute_security_policy_plugin,Metacard Attribute Security Policy Plugin>>
+||x
+||||||
+|<<_content_uri_access_plugin,Content URI Access Plugin>>
+|||x
+|||||
+|<<{architecture-prefix}metacard_ingest_network_plugin,Metacard Ingest Network Plugin>>
+|x
+|||||||
+|<<_workspace_access_plugin,Workspace Access Plugin>>
+|||x
+|||||
+|<<_security_audit_plugin,Security Audit Plugin>>
+|||x
+|||||
+
+|<<{developing-prefix}catalog_backup_plugin,Catalog Backup Plugin>>
+|||||x
+|||
+|<<_operation_plugin,Operation Plugin>>
+|||x
+|||||
+|<<_client_info_plugin,Client Info Plugin>>
+|x
+|||||||
+|<<{architecture-prefix}metacard_groomer,Metacard Groomer>>
+||||x
+||||
+|<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>
+||||x
+|x
+|x
+|x
+|
+|<<_security_plugin,Security Plugin>>
+|||x
+|||||
+|<<{architecture-prefix}expiration_date_pre_ingest_plugin,Expiration Date Pre-Ingest Plugin>>
+||||x
+||||
+|<<_resource_uri_policy_plugin,Resource URI Policy Plugin>>
+||x
+||||||
+|<<_metacard_validity_marker,Metacard Validity Marker>>
+||||x
+||||
+|<<_workspace_pre_ingest_plugin,Workspace Pre-Ingest Plugin>>
+||||x
+||||
+|<<_metacard_backup_file_storage_provider,Metacard Backup File Storage Provider>>
+|||||x
+|||
+|<<_workspace_pre_ingest_plugin,Workspace Sharing Policy Plugin>>
+||x
+||||||
+|<<{developing-prefix}xml_attribute_security_policy_plugin,XML Attribute Security Policy Plugin>>
+||x
+||||||
+|<<_metacard_validity_filter_plugin,Metacard Validity Filter Plugin>>
+||x
+||||||
+|<<_jpeg2000_thumbnail_converter,JPEG2000 Thumbnail Converter>>
+|||||||x
+|
+|<<_event_processor,Event Processor>>
+|||||x
+|||
+|<<_historian_policy_plugin,Historian Policy Plugin>>
+||x
+||||||
+|<<_processing_post_ingest_plugin,Processing Post-Ingest Plugin>>
+|||||x
+|||
+|<<_point_of_contact_policy_plugin,Point of Contact Policy Plugin>>
+||x
+||||||
+|<<_metacard_backup_s3_storage_provider,Metacard Backup S3 Storage Provider>>
+|||||x
+|||
+|===
+
+.Catalog Plugin Compatibility, Cont.
+[cols="11" options="header"]
+|===
+
+|Plugin
+|<<_pre_federated_query_plugins,Pre-Federated-Query Plugins>>
+|<<_post_federated_query_plugins,Post-Federated-Query Plugins>>
+|<<_pre_resource_plugins,Pre-Resource Plugins>>
+|<<_post_resource_plugins,Post-Resource Plugins>>
+|<<_pre_create_storage_plugins,Pre-Create Storage Plugins>>
+|<<_post_create_storage_plugins,Post-Create Storage Plugins>>
+|<<_pre_update_storage_plugins,Pre-Update Storage Plugins>>
+|<<_post_update_storage_plugins,Post-Update Storage Plugins>>
+|<<_pre_subscription_plugins,Pre-Subscription Plugins>>
+|<<_pre_delivery_plugins,Pre-Delivery Plugins>>
+
+
+
+
+
+
+|<<_checksum_plugin,Checksum Plugin>>
+|||||x
+||x
+|||
+
+
+
+
+
+|<<_video_thumbnail_plugin,Video Thumbnail Plugin>>
+||||||x
+||x
+||
+
+
+
+
+|<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>
+|x!
+|x
+|x
+|x
+|x
+|x
+|x
+|x
+||
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+|===
+
+
+==== Pre-Authorization Plugins 
+
+include::_content/_architectures/_plugins/pre-authorization-intro.adoc[leveloffset=+3]
+
+===== Available Pre-Authorization Plugins
+
+<<_client_info_plugin,Client Info Plugin>>:: Injects request-specific network information into a request.
+<<{architecture-prefix}metacard_ingest_network_plugin,Metacard Ingest Network Plugin>>:: Adds attributes for network info from ingest request.
+
+==== Policy Plugins 
+
+include::_content/_architectures/_plugins/policy-intro.adoc[leveloffset=+3]
+
+===== Available Policy Plugins
+
+<<_catalog_policy_plugin,Catalog Policy Plugin>>:: Configures user attributes required for catalog operations.
+<<_historian_policy_plugin,Historian Policy Plugin>>:: Protects metacard history from being edited by users without the history role.
+<<{developing-prefix}metacard_attribute_security_policy_plugin,Metacard Attribute Security Policy Plugin>>:: Collects attributes into a security field for the metacard.
+<<_metacard_validity_filter_plugin,Metacard Validity Filter Plugin>>:: Determines whether to filter metacards with validation errors or warnings.
+<<_point_of_contact_policy_plugin,Point of Contact Policy Plugin>>:: Adds a policy if Point of Contact is updated.
+<<_resource_uri_policy_plugin,Resource URI Policy Plugin>>:: Configures required user attributes for setting or altering a resource URI.
+<<_workspace_pre_ingest_plugin,Workspace Sharing Policy Plugin>>:: Collects attributes for a workspace to identify the appropriate policy to allow sharing.
+<<{developing-prefix}xml_attribute_security_policy_plugin,XML Attribute Security Policy Plugin>>:: Finds security attributes contained in a metacard's metadata.
+
+==== Access Plugins 
+
+include::_content/_architectures/_plugins/access-intro.adoc[leveloffset=+3]
+
+===== Available Access Plugins
+
+<<_content_uri_access_plugin,Content URI Access Plugin>>:: Prevents a Metacard's resource URI from being overridden by an incoming UpdateRequest.
+<<{developing-prefix}filter_plugin,Filter Plugin>>:: Performs filtering on query responses as they pass through the framework.
+<<_operation_plugin,Operation Plugin>>:: Validates a user or subject's security attributes.
+<<_security_audit_plugin,Security Audit Plugin>>:: Audits specific metacard attributes.
+<<_security_plugin,Security Plugin>>:: Identifies the subject for an operation.
+<<_workspace_access_plugin,Workspace Access Plugin>>:: Prevents non-owner users from changing workspace permissions.
+
+==== Pre-Ingest Plugins 
+
+include::_content/_architectures/_plugins/pre-ingest-intro.adoc[leveloffset=+3]
+
+===== Available Pre-Ingest Plugins
+
+<<{architecture-prefix}expiration_date_pre_ingest_plugin,Expiration Date Pre-Ingest Plugin>>:: Adds or updates expiration dates for the resource.
+<<{architecture-prefix}geocoder_plugin,GeoCoder Plugin>>:: Populates the `Location.COUNTRY_CODE` attribute if the Metacard has an associated location.
+<<{architecture-prefix}metacard_groomer,Metacard Groomer>>:: Modifies metacards when created or updated.
+<<_metacard_validity_marker,Metacard Validity Marker>>:: Modifies metacards when created or ingested according to metacard validator services.
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+<<_workspace_pre_ingest_plugin,Workspace Pre-Ingest Plugin>>:: Verifies that a workspace has an associated email to enable sharing.
+
+==== Post-Ingest Plugins 
+
+include::_content/_architectures/_plugins/post-ingest-intro.adoc[leveloffset=+3]
+
+===== Available Post-Ingest Plugins
+
+<<{developing-prefix}catalog_backup_plugin,Catalog Backup Plugin>>:: Enables backup of the catalog and its metacards.
+<<_event_processor,Event Processor>>:: Creates, updates, and deletes subscriptions.
+<<_metacard_backup_file_storage_provider,Metacard Backup File Storage Provider>>:: Stores backed-up metacards.
+<<_metacard_backup_s3_storage_provider,Metacard Backup S3 Storage Provider>>:: Stores backed-up metacards in a specified S3 bucket and key.
+<<_processing_post_ingest_plugin,Processing Post-Ingest Plugin>>:: Submits catalog Create, Update, or Delete requests to the Processing Framework.
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+
+==== Post-Process Plugins 
+
+include::_content/_architectures/_plugins/post-process-intro.adoc[leveloffset=+3]
+
+===== Available Post-Process Plugins
+
+None.
+
+==== Pre-Query Plugins 
+
+include::_content/_architectures/_plugins/pre-query-intro.adoc[leveloffset=+3]
+
+===== Available Pre-Query Plugins
+
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+
+==== Pre-Federated-Query Plugins 
+
+include::_content/_architectures/_plugins/pre-federated-query-intro.adoc[leveloffset=+3]
+
+===== Available Pre-Federated-Query Plugins
+
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+<<_tags_filter_plugin,Tags Filter Plugin>>:: Updates queries without filters.
+
+==== Post-Query Plugins 
+
+include::_content/_architectures/_plugins/post-query-intro.adoc[leveloffset=+3]
+
+===== Available Post-Query Plugins
+
+<<_jpeg2000_thumbnail_converter,JPEG2000 Thumbnail Converter>>:: Creates thumbnails for jpeg2000 images.
+<<_metacard_resource_size_plugin,Metacard Resource Size Plugin>>:: Updates the resource size attribute of a metacard.
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+
+==== Post-Federated-Query Plugins 
+
+include::_content/_architectures/_plugins/post-federated-query-intro.adoc[leveloffset=+3]
+
+===== Available Post-Federated-Query Plugins
+
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+
+==== Pre-Resource Plugins 
+
+include::_content/_architectures/_plugins/pre-resource-intro.adoc[leveloffset=+3]
+
+===== Available Pre-Resource Plugins
+
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+
+==== Post-Resource Plugins 
+
+include::_content/_architectures/_plugins/post-resource-intro.adoc[leveloffset=+3]
+
+===== Available Post-Resource Plugins
+
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+
+==== Pre-Create Storage Plugins 
+
+include::_content/_architectures/_plugins/pre-create-storage-intro.adoc[leveloffset=+3]
+
+===== Available Pre-Create Storage Plugins
+
+<<_checksum_plugin,Checksum Plugin>>:: Creates a unique checksum for ingested resources.
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+
+==== Post-Create Storage Plugins 
+
+include::_content/_architectures/_plugins/postcreatestorage-intro.adoc[leveloffset=+3]
+
+===== Available Post-Create Storage Plugins
+
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+<<_video_thumbnail_plugin,Video Thumbnail Plugin>>:: Generates thumbnails for video files.
+
+==== Pre-Update Storage Plugins 
+
+include::_content/_architectures/_plugins/pre-update-storage-intro.adoc[leveloffset=+3]
+
+===== Available Pre-Update Storage Plugins
+
+<<_checksum_plugin,Checksum Plugin>>:: Creates a unique checksum for ingested resources.
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+
+==== Post-Update Storage Plugins 
+
+include::_content/_architectures/_plugins/post-update-storage-intro.adoc[leveloffset=+3]
+
+===== Available Post-Update Storage Plugins
+
+<<{developing-prefix}security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
+<<_video_thumbnail_plugin,Video Thumbnail Plugin>>:: Generates thumbnails for video files.
+
+==== Pre-Subscription Plugins 
+
+include::_content/_architectures/_plugins/pre-subscription-intro.adoc[leveloffset=+3]
+
+===== Available Pre-Subscription Plugins
+
+None.
+
+==== Pre-Delivery Plugins 
+
+include::_content/_architectures/_plugins/pre-delivery-intro.adoc[leveloffset=+3]
+
+===== Available Pre-Delivery Plugins
+
+None.
+
+=== Catalog Plugin Details
+
+Installation and configuration details listed by plugin name.
+
+
+==== Catalog Backup Plugin
+
+include::_content/_architectures/_plugins/catalog-backup-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Catalog Policy Plugin
+
+include::_content/_architectures/_plugins/catalog-policy-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Checksum Plugin
+
+include::_content/_architectures/_plugins/checksum-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Client Info Plugin
+
+include::_content/_architectures/_plugins/client-info-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Content URI Access Plugin
+
+include::_content/_architectures/_plugins/content-uri-access-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Event Processor
+
+include::_content/_architectures/_plugins/event-processor.adoc[leveloffset=+3]
+
+'''
+
+==== Expiration Date Pre-Ingest Plugin
+
+include::_content/_architectures/_plugins/expiration-date-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Filter Plugin
+
+include::_content/_architectures/_plugins/filter-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== GeoCoder Plugin
+
+include::_content/_architectures/_plugins/geocoder-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Historian Policy Plugin
+
+include::_content/_architectures/_plugins/historian-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== JPEG2000 Thumbnail Converter
+
+include::_content/_architectures/_plugins/jpeg2000-thumbnail-converter.adoc[leveloffset=+3]
+
+'''
+
+==== Metacard Attribute Security Policy Plugin
+
+include::_content/_architectures/_plugins/metacard-attribute-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Metacard Backup File Storage Provider
+
+include::_content/_architectures/_plugins/metacard-backup-filestorage.adoc[leveloffset=+3]
+
+'''
+
+==== Metacard Backup S3 Storage Provider
+
+include::_content/_architectures/_plugins/metacard-backup-s3-storage.adoc[leveloffset=+3]
+
+'''
+
+==== Metacard Groomer
+
+include::_content/_architectures/_plugins/metacard-groomer.adoc[leveloffset=+3]
+
+'''
+
+==== Metacard Ingest Network Plugin
+
+include::_content/_architectures/_plugins/metacardingest-network.adoc[leveloffset=+3]
+
+'''
+
+==== Metacard Resource Size Plugin
+
+include::_content/_architectures/_plugins/metacard-resource-size-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Metacard Validity Filter Plugin
+
+include::_content/_architectures/_plugins/metacard-validity-filter.adoc[leveloffset=+3]
+
+'''
+
+==== Metacard Validity Marker
+
+include::_content/_architectures/_plugins/metacard-validity-marker.adoc[leveloffset=+3]
+
+'''
+
+==== Operation Plugin
+
+include::_content/_architectures/_plugins/operation-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Point of Contact Policy Plugin
+
+include::_content/_architectures/_plugins/point-of-contact-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Processing Post-Ingest Plugin
+
+include::_content/_architectures/_plugins/processing-post-ingest-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Resource URI Policy Plugin
+
+include::_content/_architectures/_plugins/resource-uri-policy-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Security Audit Plugin
+
+include::_content/_architectures/_plugins/security-audit-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Security Logging Plugin
+
+include::_content/_architectures/_plugins/security-logging-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Security Plugin
+
+include::_content/_architectures/_plugins/security-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Tags Filter Plugin
+
+include::_content/_architectures/_plugins/tags-filter-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Video Thumbnail Plugin
+
+include::_content/_architectures/_plugins/video-thumbnail-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Workspace Access Plugin
+
+include::_content/_architectures/_plugins/workspace-access-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Workspace Pre-Ingest Plugin
+
+include::_content/_architectures/_plugins/workspace-pre-ingest-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== Workspace Sharing Policy Plugin
+
+include::_content/_architectures/_plugins/workspace-sharing-plugin.adoc[leveloffset=+3]
+
+'''
+
+==== XML Attribute Security Policy Plugin
+
+include::_content/_architectures/_plugins/xml-attribute-plugin.adoc[leveloffset=+3]
+
+'''
+
+
+
+== Data
+
+include::_content/_architectures/_data/data-intro.adoc[leveloffset=+1]
+
+'''
+
+== Operations
+
+include::_content/_architectures/_operations/operations-intro.adoc[leveloffset=+1]
+
+'''
+
+== Resources
+
+include::_content/_architectures/_resources/resources-intro.adoc[leveloffset=+1]
+
+'''
+
+=== Content Item
+
+include::_content/_architectures/_resources/content-item.adoc[leveloffset=+2]
+
+==== Retrieving Resources
+
+include::_content/_architectures/_resources/retrieving-resources.adoc[leveloffset=+3]
+
+
+==== Retrieving Resource Options
+
+include::_content/_architectures/_resources/retrieving-resources-options.adoc[leveloffset=+3]
+
+
+==== Storing Resources
+
+include::_content/_architectures/_resources/storing-resources.adoc[leveloffset=+3]
+
+
+=== Resource Components
+
+include::_content/_architectures/_resources/resource-components-intro.adoc[leveloffset=+2]
+
+=== Resource Readers
+
+include::_content/_architectures/_resources/resource-readers-intro.adoc[leveloffset=+2]
+
+==== URL Resource Reader
+
+include::_content/_architectures/_resources/url-resource-reader.adoc[leveloffset=+3]
+
+
+=== Resource Writers
+
+include::_content/_architectures/_resources/resource-writers-intro.adoc[leveloffset=+2]
+
+== Queries
+
+include::_content/_architectures/_queries/queries-intro.adoc[leveloffset=+1]
+
+'''
+
+=== Filters
+
+include::_content/_architectures/_queries/filter-intro.adoc[leveloffset=+2]
+
+==== FilterBuilder API
+
+include::_content/_architectures/_queries/filterbuilder-api.adoc[leveloffset=+3]
+
+
+== Action Framework
+
+include::_content/_architectures/_actionFramework/action-framework-intro.adoc[leveloffset=+1]
+
+'''
+
+=== Action Providers
+
+include::_content/_architectures/_actionFramework/action-providers.adoc[leveloffset=+2]
+
+== Asynchronous Processing Framework
+
+include::_content/_architectures/_asyncFramework/processing-framework-intro.adoc[leveloffset=+1]
+
+'''
+
+== Eventing
+
+include::_content/_architectures/_eventing/eventing-intro.adoc[leveloffset=+1]
+
+'''
+
+
+
+include::_content/_architectures/_securityFramework/security-framework-intro.adoc[]
+
+
+
+include::_content/_architectures/_securityFramework/subject.adoc[leveloffset=+1]
+
+
+include::_content/_architectures/_securityFramework/security-manager.adoc[leveloffset=+2]
+
+
+include::_content/_architectures/_securityFramework/realms.adoc[leveloffset=+2]
+
+
+
+include::_content/_architectures/_securityFramework/security-core-intro.adoc[leveloffset=+1]
+
+
+include::_content/_architectures/_securityFramework/security-core-api.adoc[leveloffset=+2]
+
+
+include::_content/_architectures/_securityFramework/security-core-implementation.adoc[leveloffset=+2]
+
+
+include::_content/_architectures/_securityFramework/security-core-commons.adoc[leveloffset=+2]
+
+
+
+include::_content/_architectures/_securityFramework/security-encryption-intro.adoc[leveloffset=+1]
+
+
+include::_content/_architectures/_securityFramework/security-encryption-api.adoc[leveloffset=+2]
+
+
+include::_content/_architectures/_securityFramework/security-encryption-impl.adoc[leveloffset=+2]
+
+
+include::_content/_architectures/_securityFramework/security-encryption-commands.adoc[leveloffset=+2]
+
+
+
+include::_content/_architectures/_securityFramework/security-ldap-intro.adoc[leveloffset=+1]
+
+
+include::_content/_architectures/_securityFramework/security-ldap-embedded-server.adoc[leveloffset=+2]
+
+
+
+include::_content/_architectures/_securityFramework/security-pdp-intro.adoc[leveloffset=+1]
+
+
+include::_content/_architectures/_securityFramework/security-pdp-authz-realm.adoc[leveloffset=+2]
+
+
+include::_content/_architectures/_securityFramework/guest-interceptor.adoc[leveloffset=+2]
+
+
+
+include::_content/_architectures/_securityFramework/security-wss-intro.adoc[leveloffset=+1]
+
+
+include::_content/_architectures/_securityFramework/security-rest-intro.adoc[leveloffset=+2]
+
+
+
+include::_content/_architectures/_securityFramework/security-pep-intro.adoc[leveloffset=+1]
+
+
+include::_content/_architectures/_securityFramework/security-pep-interceptor.adoc[leveloffset=+2]
+
+
+
+include::_content/_architectures/_securityFramework/security-filtering.adoc[leveloffset=+1]
+
+
+
+include::_content/_architectures/_securityFramework/security-expansion-service.adoc[leveloffset=+1]
+
+
+
+include::_content/_architectures/_securityFramework/federated-identity.adoc[leveloffset=+1]
+
+
+
+== Developing DDF Components
+
+Create custom implementations of DDF components.
+
+
+=== Developing Complementary Catalog Frameworks
+
+include::_content/_developing/_devComponents/custom-catalog-frameworks.adoc[leveloffset=+2]
+
+
+=== Developing Metacard Types
+
+include::_content/_developing/_devComponents/metacard-type.adoc[leveloffset=+2]
+
+
+=== Developing Metacard Validators
+
+include::_content/_developing/_devComponents/metacard-validators.adoc[leveloffset=+2]
+
+
+=== Developing Global Attribute Validators
+
+include::_content/_developing/_devComponents/global-attribute-validators.adoc[leveloffset=+2]
+
+
+=== Developing Attribute Types
+
+include::_content/_developing/_devComponents/attribute-type.adoc[leveloffset=+2]
+
+
+=== Developing Default Attribute Types
+
+include::_content/_developing/_devComponents/default-attribute-values.adoc[leveloffset=+2]
+
+
+=== Developing Attribute Injections
+
+include::_content/_developing/_devComponents/attribute-injection.adoc[leveloffset=+2]
+
+
+=== Developing Endpoints
+
+include::_content/_developing/_devComponents/custom-endpoints.adoc[leveloffset=+2]
+
+
+=== Developing Input Transformers
+
+include::_content/_developing/_devComponents/custom-transformers-input.adoc[leveloffset=+2]
+
+
+=== Developing Metacard Transformers
+
+include::_content/_developing/_devComponents/custom-transformers-metacard.adoc[leveloffset=+2]
+
+
+=== Developing Query Response Transformers
+
+include::_content/_developing/_devComponents/transformers-query-response.adoc[leveloffset=+2]
+
+
+=== Developing Sources
+
+include::_content/_developing/_devComponents/custom-sources.adoc[leveloffset=+2]
+
+
+=== Developing Catalog Plugins
+
+include::_content/_developing/_devComponents/custom-plugins.adoc[leveloffset=+2]
+
+
+=== Developing Token Validators
+
+include::_content/_developing/_devComponents/custom-token-validators.adoc[leveloffset=+2]
+
+
+=== Developing STS Claims Handlers
+
+include::_content/_developing/_devComponents/custom-sts-claims-handlers.adoc[leveloffset=+2]
+
+
+=== Developing Registry Clients
+
+include::_content/_developing/_devComponents/custom-registry-clients.adoc[leveloffset=+2]
+
+
+=== Developing Resource Readers
+
+include::_content/_developing/_devComponents/custom-resource-readers.adoc[leveloffset=+2]
+
+
+=== Developing Resource Writers
+
+include::_content/_developing/_devComponents/custom-resource-writers.adoc[leveloffset=+2]
+
+
+=== Developing Filters
+
+include::_content/_developing/_devComponents/custom-filters.adoc[leveloffset=+2]
+
+
+=== Developing Filter Delegates
+
+include::_content/_developing/_devComponents/filter-delegates.adoc[leveloffset=+2]
+
+
+=== Developing Action Components
+
+include::_content/_developing/_devComponents/custom-action-components.adoc[leveloffset=+2]
+
+
+=== Developing Query Options
+
+include::_content/_developing/_devComponents/custom-query-options.adoc[leveloffset=+2]
+
+
+=== Configuring Managed Service Factory Bundles
+
+include::_content/_developing/_devComponents/managed-service-factories.adoc[leveloffset=+2]
+
+
+=== Developing XACML Policies
+
+include::_content/_developing/_devComponents/custom-xacml-policies.adoc[leveloffset=+2]
+
+
+=== Assuring Authenticity of Bundles and Applications
+
+include::_content/_developing/_devComponents/assuring-bundles-and-apps.adoc[leveloffset=+2]
+
+
+=== WFS Services
+
+include::_content/_managing/_configuring/_sources/wfs-sources-services.adoc[leveloffset=+2]
+
+
+=== Developing Subscriptions
+
+include::_content/_integrating/_eventing/subscriptions.adoc[leveloffset=+2]
+
+
+=== JSON Definition Files
+
+include::_content/_developing/_devComponents/json-definition-files.adoc[leveloffset=+2]
+
+
+=== Contributing to Documentation
+
+include::_content/_developing/_devComponents/editing-docs.adoc[leveloffset=+2]
+
+
+
+== Development Guidelines
+
+
+=== Contributing
+
+include::_content/_developing/_devGuidelines/contributing-intro.adoc[leveloffset=+2]
+
+
+=== OSGi Basics
+
+include::_content/_developing/_devGuidelines/osgi-basics.adoc[leveloffset=+2]
+
+
+=== High Availability Guidance
+
+include::_content/_developing/_devGuidelines/high-availability-guidance.adoc[leveloffset=+2]
+
+
+:sectnums!:
+== Appendices
+:sectnums:
+
+[appendix]
+== Application References
+
+
+== Application Reference
+
+====
+Installation and configuration details by application.
+====
+
+
+
+include::_content/_reference/_appReferences/mg-admin.adoc[leveloffset=+1]
+
+
+
+==== Configuring the Admin Application
+
+To configure the Admin Application:
+
+. Navigate to the Admin Console.
+. Select the *Admin* application.
+. Select the *Configuration* tab.
+
+.Admin Available Configurations
+[cols="3" options="header"]
+|===
+|Name
+|Property
+|Description
+
+|<<{reference-prefix}org.codice.admin.ui.configuration,Admin UI>>
+|org.codice.admin.ui.configuration
+|Admin UI configurations.
+
+|<<{reference-prefix}org.codice.ddf.admin.config.policy.AdminConfigPolicy,Admin Configuration Policy>>
+|org.codice.ddf.admin.config.policy.AdminConfigPolicy
+|Admin Configuration Policy configurations.
+
+|===
+include::_content/_reference/_tables/admin.ui.configuration.adoc[]
+include::_content/_reference/_tables/AdminConfigPolicy.adoc[]
+
+
+include::_content/_reference/_appReferences/mg-catalog.adoc[leveloffset=+1]
+
+
+
+==== Configuring the Catalog Application
+
+To configure the Catalog Application:
+
+. Navigate to the Admin Console.
+. Select the *Catalog* application.
+. Select the *Configuration* tab.
+
+.Catalog Available Configurations
+[cols="3" options="header"]
+|===
+|Name
+|Property
+|Description
+
+|<<{reference-prefix}ddf.services.schematron.SchematronValidationService,Schematron Validation Services>>
+|ddf.services.schematron.SchematronValidationService
+|Schematron Validation Services configurations.
+
+|<<{reference-prefix}ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin,Metacard Validation Marker Plugin>>
+|ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin
+|Metacard Validation Marker Plugin.
+
+|<<{reference-prefix}org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin,Security Audit Plugin>>
+|org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin
+|Security Audit Plugin.
+
+|<<{reference-prefix}ddf.catalog.metacard.validation.MetacardValidityFilterPlugin,Metacard Validation Filter Plugin>>
+|ddf.catalog.metacard.validation.MetacardValidityFilterPlugin
+|Metacard Validation Filter Plugin.
+
+|<<{reference-prefix}ddf.catalog.CatalogFrameworkImpl,Catalog Standard Framework>>
+|ddf.catalog.CatalogFrameworkImpl
+|Catalog Standard Framework configurations.
+
+|<<{reference-prefix}Confluence_Federated_Source,Confluence Federated Source>>
+|Confluence_Federated_Source
+|Confluence Federated Source.
+
+|<<{reference-prefix}ddf.catalog.federation.impl.CachingFederationStrategy,Catalog Federation Strategy>>
+|ddf.catalog.federation.impl.CachingFederationStrategy
+|Catalog Federation Strategy.
+
+|<<{reference-prefix}Metacard_File_Storage_Route,Metacard Backup File Storage Provider>>
+|Metacard_File_Storage_Route
+|Enable data backup of metacards using a configurable transformer.
+
+|<<{reference-prefix}ddf.catalog.backup.CatalogBackupPlugin,Catalog Backup Plugin>>
+|ddf.catalog.backup.CatalogBackupPlugin
+|Catalog Backup Plugin configurations.
+
+|<<{reference-prefix}org.codice.ddf.transformer.preview,Catalog Preview>>
+|org.codice.ddf.transformer.preview
+|Allow Preview to be Extracted From Metadata.
+
+|<<{reference-prefix}org.codice.ddf.catalog.security.CatalogPolicy,Catalog Policy Plugin>>
+|org.codice.ddf.catalog.security.CatalogPolicy
+|Catalog Policy Plugin.
+
+|<<{reference-prefix}Csw_Connected_Source,CSW Connected Source>>
+|Csw_Connected_Source
+|CSW Connected Source.
+
+|<<{reference-prefix}org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin,Video Thumbnail Plugin>>
+|org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin
+|Video Thumbnail Plugin.
+
+|<<{reference-prefix}org.codice.ddf.catalog.content.impl.FileSystemStorageProvider,Content File System Storage Provider>>
+|org.codice.ddf.catalog.content.impl.FileSystemStorageProvider
+|Content File System Storage Provider.
+
+|<<{reference-prefix}ddf.catalog.transformer.input.pdf.PdfInputTransformer,PDF Input Transformer>>
+|ddf.catalog.transformer.input.pdf.PdfInputTransformer
+|PDF Input Transformer configurations.
+
+|<<{reference-prefix}org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner,Status Source Poller Runner>>
+|org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner
+|Status Source Poller Runner.
+
+|<<{reference-prefix}ddf.catalog.resource.impl.URLResourceReader,URL Resource Reader>>
+|ddf.catalog.resource.impl.URLResourceReader
+|URL Resource Reader
+
+|<<{reference-prefix}ddf.catalog.history.Historian,Historian>>
+|ddf.catalog.history.Historian
+|Enables versioning of both metacards and content.
+
+|<<{reference-prefix}ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings>>
+|ddf.catalog.resource.download.ReliableResourceDownloadManager
+|Resource Download configurations.
+
+|<<{reference-prefix}org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor,Content Directory Monitor>>
+|org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor
+|Content Directory Monitor configurations.
+
+|<<{reference-prefix}OpenSearchSource,Catalog OpenSearch Federated Source>>
+|OpenSearchSource
+|Catalog OpenSearch Federated Source.
+
+|<<{reference-prefix}org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin,Catalog Metacard Ingest Network Plugin>>
+|org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin
+|Catalog Metacard Ingest Network Plugin.
+
+|<<{reference-prefix}ddf.catalog.transformer.input.tika.TikaInputTransformer,Tika Input Transformer>>
+|ddf.catalog.transformer.input.tika.TikaInputTransformer
+|Tika Input Transformer.
+
+|<<{reference-prefix}org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard Attribute Security Policy Plugin>>
+|org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin
+|Metacard Attribute Security Policy Plugin.
+
+|<<{reference-prefix}org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin,XML Attribute Security Policy Plugin>>
+|org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin
+|XML Attribute Security Policy Plugin.
+
+|<<{reference-prefix}org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin,Expiration Date Pre-Ingest Plugin>>
+|org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin
+|Catalog pre-ingest plugin to set an expiration date on metacards.
+
+|<<{reference-prefix}Metacard_S3_Storage_Route,Resource Download Settings>>
+|Metacard_S3_Storage_Route
+|Resource Download Configuration.
+
+|<<{reference-prefix}org.codice.ddf.catalog.security.ResourceUriPolicy,Resource URI Policy Plugin>>
+|org.codice.ddf.catalog.security.ResourceUriPolicy
+|Resource URI Policy Plugin.
+
+|<<{reference-prefix}ddf.catalog.transformer.xml.XmlResponseQueueTransformer,Xml Query Transformer>>
+|ddf.catalog.transformer.xml.XmlResponseQueueTransformer
+|Xml Response Query Transformer.
+
+|===
+include::_content/_reference/_tables/SchematronValidationService.adoc[]
+include::_content/_reference/_tables/MetacardValidityMarkerPlugin.adoc[]
+include::_content/_reference/_tables/SecurityAuditPlugin.adoc[]
+include::_content/_reference/_tables/MetacardValidityFilterPlugin.adoc[]
+include::_content/_reference/_tables/CatalogFrameworkImpl.adoc[]
+include::_content/_reference/_tables/Confluence_Federated_Source.adoc[]
+include::_content/_reference/_tables/CachingFederationStrategy.adoc[]
+include::_content/_reference/_tables/Metacard_File_Storage_Route.adoc[]
+include::_content/_reference/_tables/CatalogBackupPlugin.adoc[]
+include::_content/_reference/_tables/org.codice.ddf.transformer.preview.adoc[]
+include::_content/_reference/_tables/security.CatalogPolicy.adoc[]
+include::_content/_reference/_tables/Csw_Connected_Source.adoc[]
+include::_content/_reference/_tables/VideoThumbnailPlugin.adoc[]
+include::_content/_reference/_tables/ContentFileSystemStorageProvider.adoc[]
+include::_content/_reference/_tables/ddf.catalog.transformer.input.pdf.PdfInputTransformer.adoc[]
+include::_content/_reference/_tables/sourcePoller.adoc[]
+include::_content/_reference/_tables/URLResourceReader.adoc[]
+include::_content/_reference/_tables/Historian.adoc[]
+include::_content/_reference/_tables/ReliableResourceDownload.adoc[]
+include::_content/_reference/_tables/ContentDirectoryMonitor.adoc[]
+include::_content/_reference/_tables/OpenSearchSource.adoc[]
+include::_content/_reference/_tables/MetacardIngestNetworkPlugin.adoc[]
+include::_content/_reference/_tables/TikaInputTransformer.adoc[]
+include::_content/_reference/_tables/MetacardAttributePlugin.adoc[]
+include::_content/_reference/_tables/XmlAttributePlugin.adoc[]
+include::_content/_reference/_tables/ExpirationDatePlugin.adoc[]
+include::_content/_reference/_tables/Metacard_S3_Storage_Route.adoc[]
+include::_content/_reference/_tables/security.ResourceUriPolicy.adoc[]
+include::_content/_reference/_tables/XmlResponseQueueTransformer.adoc[]
+
+
+include::_content/_reference/_appReferences/mg-platform.adoc[leveloffset=+1]
+
+
+
+==== Configuring the Platform Application
+
+To configure the Platform Application:
+
+. Navigate to the Admin Console.
+. Select the *Platform* application.
+. Select the *Configuration* tab.
+
+.Platform Available Configurations
+[cols="3" options="header"]
+|===
+|Name
+|Property
+|Description
+
+|<<{reference-prefix}ddf.platform.ui.config,Platform UI>>
+|ddf.platform.ui.config
+|Platform UI configurations.
+
+|<<{reference-prefix}org.codice.ddf.security.response.filter.ResponseHeaderConfig,HTTP Response Security>>
+|org.codice.ddf.security.response.filter.ResponseHeaderConfig
+|HTTP Response Security response configurations.
+
+|<<{reference-prefix}org.codice.ddf.distribution.landingpage.properties,Landing Page>>
+|org.codice.ddf.distribution.landingpage.properties
+|Starting page for users to interact with DDF.
+
+|<<{reference-prefix}org.codice.ddf.platform.email.impl.SmtpClientImpl,Email Service>>
+|org.codice.ddf.platform.email.impl.SmtpClientImpl
+|Email Service configurations.
+
+|<<{reference-prefix}org.codice.ddf.platform.logging.LoggingService,Logging Service>>
+|org.codice.ddf.platform.logging.LoggingService
+|Logging Service configurations.
+
+|<<{reference-prefix}ddf.platform.scheduler.Command,Platform Command Scheduler>>
+|ddf.platform.scheduler.Command
+|Platform Command Scheduler.
+
+|<<{reference-prefix}DDF_Custom_Mime_Type_Resolver,MIME Custom Types>>
+|DDF_Custom_Mime_Type_Resolver
+|DDF Custom Mime Types.
+
+|===
+include::_content/_reference/_tables/platform.ui.config.adoc[]
+include::_content/_reference/_tables/ResponseHeaderConfig.adoc[]
+include::_content/_reference/_tables/landingpage.properties.adoc[]
+include::_content/_reference/_tables/SmtpClientImpl.adoc[]
+include::_content/_reference/_tables/LoggingService.adoc[]
+include::_content/_reference/_tables/scheduler.Command.adoc[]
+include::_content/_reference/_tables/DDF_Custom_Mime_Type_Resolver.adoc[]
+
+
+include::_content/_reference/_appReferences/mg-security.adoc[leveloffset=+1]
+
+
+
+==== Configuring the Security Application
+
+To configure the Security Application:
+
+. Navigate to the Admin Console.
+. Select the *Security* application.
+. Select the *Configuration* tab.
+
+.Security Available Configurations
+[cols="3" options="header"]
+|===
+|Name
+|Property
+|Description
+
+|<<{reference-prefix}org.codice.ddf.security.validator.pki,Security STS PKI Token Validator>>
+|org.codice.ddf.security.validator.pki
+|STS PKI Token Validator configurations.
+
+|<<{reference-prefix}org.codice.ddf.security.idp.client.IdpMetadata,IdP Client>>
+|org.codice.ddf.security.idp.client.IdpMetadata
+|IdP Client configurations.
+
+|<<{reference-prefix}org.codice.ddf.security.handler.oidc.OidcHandler,OIDC Handler>>
+|org.codice.ddf.security.handler.oidc.OidcHandler
+|OIDC Handler configurations.
+
+|<<{reference-prefix}org.codice.ddf.security.idp.client.IdpHandler,SAML Handler>>
+|org.codice.ddf.security.idp.client.IdpHandler
+|IdP Handler configurations.
+
+|<<{reference-prefix}org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler,File Based Claims Handler>>
+|org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler
+|File Based Claims Handler.
+
+|<<{reference-prefix}org.codice.ddf.security.interceptor.GuestInterceptor,Security SOAP Guest Interceptor>>
+|org.codice.ddf.security.interceptor.GuestInterceptor
+|Security SOAP Guest Interceptor.
+
+|<<{reference-prefix}ddf.security.sts,Security STS Server>>
+|ddf.security.sts
+|STS configurations.
+
+|<<{reference-prefix}org.codice.ddf.security.idp.client.LogoutRequestService,Logout Page>>
+|org.codice.ddf.security.idp.client.LogoutRequestService
+|Logout Page configurations.
+
+|<<{reference-prefix}ddf.security.pdp.realm.AuthzRealm,Security AuthZ Realm>>
+|ddf.security.pdp.realm.AuthzRealm
+|AuthZ Security configurations.
+
+|<<{reference-prefix}org.codice.ddf.security.filter.login.Session,Session>>
+|org.codice.ddf.security.filter.login.Session
+|Session configurations.
+
+|<<{reference-prefix}ddf.security.guest.realm,Guest Claims Configuration>>
+|ddf.security.guest.realm
+|Guest Claims configurations.
+
+|<<{reference-prefix}ddf.security.service.SecurityManager,SAML NameID Policy>>
+|ddf.security.service.SecurityManager
+|SAML NameID Policy.
+
+|<<{reference-prefix}Claims_Handler_Manager,Security STS LDAP and Roles Claims Handler>>
+|Claims_Handler_Manager
+|STS Ldap and Roles Claims Handler Configuration.
+
+|<<{reference-prefix}ddf.security.sts.client.configuration,Security STS Client>>
+|ddf.security.sts.client.configuration
+|STS Client configurations.
+
+|<<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager,Web Context Policy Manager>>
+|org.codice.ddf.security.policy.context.impl.PolicyManager
+|Web Context Security Policies.
+
+|===
+include::_content/_reference/_tables/validator.pki.adoc[]
+include::_content/_reference/_tables/IdpMetadata.adoc[]
+include::_content/_reference/_tables/OidcHandler.adoc[]
+include::_content/_reference/_tables/idpHandler.adoc[]
+include::_content/_reference/_tables/PropertyFileClaimsHandler.adoc[]
+include::_content/_reference/_tables/GuestInterceptor.adoc[]
+include::_content/_reference/_tables/sts.adoc[]
+include::_content/_reference/_tables/LogoutRequestService.adoc[]
+include::_content/_reference/_tables/pdp.realm.AuthzRealm.adoc[]
+include::_content/_reference/_tables/Session.adoc[]
+include::_content/_reference/_tables/sts.guestclaims.adoc[]
+include::_content/_reference/_tables/service.SecurityManager.adoc[]
+include::_content/_reference/_tables/Claims_Handler_Manager.adoc[]
+include::_content/_reference/_tables/sts.client.configuration.adoc[]
+include::_content/_reference/_tables/PolicyManager.adoc[]
+
+
+include::_content/_reference/_appReferences/mg-solr.adoc[leveloffset=+1]
+
+
+
+==== Configuring the Solr Catalog Application
+
+To configure the Solr Catalog Application:
+
+. Navigate to the Admin Console.
+. Select the *Solr Catalog* application.
+. Select the *Configuration* tab.
+
+.Solr Catalog Available Configurations
+[cols="3" options="header"]
+|===
+|Name
+|Property
+|Description
+
+|<<{reference-prefix}ddf.catalog.solr.provider.SolrCatalogProvider,Solr Catalog Provider>>
+|ddf.catalog.solr.provider.SolrCatalogProvider
+|Solr Catalog Provider.
+
+|===
+include::_content/_reference/_tables/SolrCatalogProvider.adoc[]
+
+
+include::_content/_reference/_appReferences/mg-spatial.adoc[leveloffset=+1]
+
+
+
+==== Configuring the Spatial Application
+
+To configure the Spatial Application:
+
+. Navigate to the Admin Console.
+. Select the *Spatial* application.
+. Select the *Configuration* tab.
+
+.Spatial Available Configurations
+[cols="3" options="header"]
+|===
+|Name
+|Property
+|Description
+
+|<<{reference-prefix}org.codice.ddf.spatial.kml.style,Spatial KML Style Map Entry>>
+|org.codice.ddf.spatial.kml.style
+|Spatial KML Style Map Entry.
+
+|<<{reference-prefix}Gmd_Csw_Federated_Source,GMD CSW ISO Federated Source>>
+|Gmd_Csw_Federated_Source
+|CSW Federated Source using the Geographic MetaData (GMD) format (ISO 19115:2003).
+
+|<<{reference-prefix}org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin,GeoCoder Plugin>>
+|org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin
+|GeoCoder Plugin.
+
+|<<{reference-prefix}Wfs_v2_0_0_Connected_Source,WFS 2.0.0 Connected Source>>
+|Wfs_v2_0_0_Connected_Source
+|WFS 2.0.0 Connected Source.
+
+|<<{reference-prefix}Csw_Federation_Profile_Source,CSW Federation Profile Source>>
+|Csw_Federation_Profile_Source
+|DDF's full-fidelity CSW Federation Profile. Use this when federating to a DDF-based system.
+
+|<<{reference-prefix}org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper,Metacard to WFS Feature Map>>
+|org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper
+|Metacard to WFS Feature Map.
+
+|<<{reference-prefix}Csw_Transactional_Federated_Source,CSW Transactional Profile Federated Source>>
+|Csw_Transactional_Federated_Source
+|CSW Federated Source that supports transactions (create, update, delete).
+
+|<<{reference-prefix}Csw_Federated_Source,CSW Specification Profile Federated Source>>
+|Csw_Federated_Source
+|CSW Specification Profile Federated Source should be used when federating to an external CSW service.
+
+|<<{reference-prefix}Wfs_v1_1_0_Federated_Source,WFS 1.1.0 Federated Source>>
+|Wfs_v1_1_0_Federated_Source
+|WFS 1.1.0 Federated Source.
+
+|<<{reference-prefix}Wfs_v2_0_0_Federated_Source,WFS 2.0.0 Federated Source>>
+|Wfs_v2_0_0_Federated_Source
+|WFS 2.0.0 Federated Source.
+
+|<<{reference-prefix}org.codice.ddf.spatial.kml.endpoint.KmlEndpoint,Spatial KML Endpoint>>
+|org.codice.ddf.spatial.kml.endpoint.KmlEndpoint
+|Spatial KML Endpoint.
+
+|===
+include::_content/_reference/_tables/spatial.kml.style.adoc[]
+include::_content/_reference/_tables/Gmd_Csw_Federated_Source.adoc[]
+include::_content/_reference/_tables/GeoCoderPlugin.adoc[]
+include::_content/_reference/_tables/Wfs_v2_0_0_Connected_Source.adoc[]
+include::_content/_reference/_tables/Csw_Federation_Profile_Source.adoc[]
+include::_content/_reference/_tables/MetacardMapper.adoc[]
+include::_content/_reference/_tables/Csw_Xactional_Fed_Source.adoc[]
+include::_content/_reference/_tables/Csw_Federated_Source.adoc[]
+include::_content/_reference/_tables/Wfs_v1_1_0_Federated_Source.adoc[]
+include::_content/_reference/_tables/Wfs_v2_0_0_Federated_Source.adoc[]
+include::_content/_reference/_tables/KmlEndpoint.adoc[]
+
+
+include::_content/_reference/_appReferences/mg-ui.adoc[leveloffset=+1]
+
+
+
+==== Configuring the Search UI Application
+
+To configure the Search UI Application:
+
+. Navigate to the Admin Console.
+. Select the *Search UI* application.
+. Select the *Configuration* tab.
+
+.Search UI Available Configurations
+[cols="3" options="header"]
+|===
+|Name
+|Property
+|Description
+
+|<<{reference-prefix}org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist,Facet Attribute Whitelist>>
+|org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist
+|Facet Attribute Whitelist
+
+|<<{reference-prefix}org.codice.ddf.catalog.ui.security,Catalog UI Search Workspace Security>>
+|org.codice.ddf.catalog.ui.security
+|Catalog UI Search Workspace Security.
+
+|<<{reference-prefix}org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier,Email Notifier>>
+|org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier
+|Email Notifier.
+
+|<<{reference-prefix}org.codice.ddf.catalog.ui.transformer.TransformerDescriptors,Catalog UI Search Transformer Blacklists>>
+|org.codice.ddf.catalog.ui.transformer.TransformerDescriptors
+|Catalog UI Search Transformer Blacklists.
+
+|<<{reference-prefix}org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl,Catalog UI Search Workspace Service>>
+|org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl
+|Catalog UI Search Workspace Service.
+
+|<<{reference-prefix}org.codice.ddf.ui.searchui.filter.RedirectServlet,Search UI Redirect>>
+|org.codice.ddf.ui.searchui.filter.RedirectServlet
+|Search UI redirect.
+
+|<<{reference-prefix}org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService,Catalog UI Search Workspace Query Monitor>>
+|org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService
+|Catalog UI Search Workspace Query Monitor.
+
+|===
+include::_content/_reference/_tables/FacetWhitelist.adoc[]
+include::_content/_reference/_tables/ui.security.adoc[]
+include::_content/_reference/_tables/EmailNotifier.adoc[]
+include::_content/_reference/_tables/TransformerDescriptors.adoc[]
+include::_content/_reference/_tables/WorkspaceServiceImpl.adoc[]
+include::_content/_reference/_tables/RedirectServlet.adoc[]
+include::_content/_reference/_tables/WorkspaceQueryService.adoc[]
+
+[appendix]
+include::_content/_reference/_whitelists/whitelist-intro.adoc[]
+
+
+include::_content/_reference/_whitelists/removed-whitelist.adoc[leveloffset=+1]
+
+include::_content/_reference/_whitelists/catalog-whitelist.adoc[leveloffset=+1]
+
+include::_content/_reference/_whitelists/platform-whitelist.adoc[leveloffset=+1]
+
+include::_content/_reference/_whitelists/security-whitelist.adoc[leveloffset=+1]
+
+include::_content/_reference/_whitelists/solr-whitelist.adoc[leveloffset=+1]
+
+include::_content/_reference/_whitelists/ui-whitelist.adoc[leveloffset=+1]
+
+include::_content/_reference/dependency-list-intro.adoc[]
+
+include::_content/_reference/_dependencyList/ddf-dependency-list.adoc[leveloffset=+1]
+
+include::_content/_managing/_securing/hardening-checklist.adoc[]
+
+
+
+[appendix]
+include::_content/_metadataReference/metadata-attributes-intro.adoc[]
+
+
+include::_content/_metadataReference/supported-file-formats.adoc[leveloffset=+1]
+
+
+include::_content/_metadataReference/format-specific-attributes.adoc[leveloffset=+1]
+
+
+include::_content/_metadataReference/mp4-attributes.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/complete-list-file-types.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/catalog-taxonomy-intro.adoc[leveloffset=+1]
+
+
+include::_content/_metadataReference/core-attributes-table.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/associations-attributes-table.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/contact-attributes-table.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/datetime-attributes-table.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/history-attributes-table.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/location-attributes-table.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/media-attributes-table.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/metacard-attributes-table.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/security-attributes-table.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/topic-attributes-table.adoc[leveloffset=+2]
+
+include::_content/_metadataReference/validation-attributes-table.adoc[leveloffset=+2]
