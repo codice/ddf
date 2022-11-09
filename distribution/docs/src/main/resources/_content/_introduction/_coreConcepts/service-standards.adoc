@@ -20,23 +20,13 @@ Standards marked *Experimental* are functional and have been tested, but are sub
 |Sources
 |Status
 
-|http://www.opengeospatial.org/standards/cat[Open Geospatial Consortium Catalog Service for the Web (OGC CSW) 2.0.1/2.0.2] {external-link}
+|http://www.opengeospatial.org/standards/cat[Open Geospatial Consortium Catalog Service for the Web (OGC CSW) 2.0.2] {external-link}
 |<<{integrating-prefix}csw_endpoint,CSW Endpoint>>
 |<<{managing-prefix}gmd_csw_source,Geographic MetaData extensible markup language (GMD) CSW Source>>
-|Supported
-
-|http://www.opengeospatial.org/standards/wfs[OGC Web Feature Service WFS 1.1/2.0] {external-link}
-|
-|<<{managing-prefix}wfs_1_1_source,WFS 1.1 Source>>, <<{managing-prefix}wfs_2_0_source,WFS 2.0 Source>>
 |Supported
 
 |http://www.opensearch.org/Home[OpenSearch] {external-link}
 |<<{integrating-prefix}opensearch_endpoint,OpenSearch Endpoint>>
 |<<{managing-prefix}opensearch_source,OpenSearch Source>>
-|Supported
-
-|Atlassian Confluence®
-|
-|<<{managing-prefix}federated_source_for_atlassian_confluence,Atlassian Confluence® Federated Source>>
 |Supported
 |===

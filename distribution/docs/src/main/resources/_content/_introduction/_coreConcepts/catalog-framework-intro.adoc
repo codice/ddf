@@ -7,11 +7,11 @@
 
 == {title}
 
-The Catalog Framework wires all the Catalog components together.
+The Catalog Framework wires all the Catalog components together.
 
-It is responsible for routing Catalog requests and responses to the appropriate source, destination, federated system, etc. 
+It is responsible for routing Catalog requests and responses to the appropriate source, destination, federated system, etc.
 
-<<{integrating-prefix}endpoints,Endpoints>> send Catalog requests to the Catalog Framework.
-The Catalog Framework then invokes <<{developing-prefix}types_of_plugins,Catalog Plugins>>, <<{developing-prefix}transformers,Transformers>>, and <<{developing-prefix}resources,Resource Components>> as needed before sending requests to the intended destination, such as one or more <<{introduction-prefix}introduction_to_federation_and_sources,Sources>>. 
+<<{integrating-prefix}endpoints,Endpoints>> send Catalog requests to the Catalog Framework.
+The Catalog Framework then invokes <<{developing-prefix}types_of_plugins,Catalog Plugins>>, <<{developing-prefix}transformers,Transformers>>, and <<{developing-prefix}resources,Resource Components>> as needed before sending requests to the intended destination, such as one or more <<{introduction-prefix}introduction_to_federation_and_sources,Sources>>.
 
-The Catalog Framework decouples clients from service implementations and provides integration points for Catalog Plugins and convenience methods for Endpoint developers.
+The Catalog Framework decouples clients from service implementations and provides integration points for Catalog Plugins and convenience methods for Endpoint developers.

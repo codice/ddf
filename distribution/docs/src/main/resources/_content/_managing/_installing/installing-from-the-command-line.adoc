@@ -7,20 +7,10 @@
 
 ==== Completing Installation from the ${command-console}
 
-In order to install ${branding} from the ${command-console}, use the command `profile:install <profile-name>`.
-The `<profile-name>` should be the desired <<{managing-prefix}setup_types, Setup Type>> in lowercase letters.
-To see the available profiles, use the command `profile:list`.
+In order to install ${branding} from the ${command-console}, use the command `feature:install <profile-name>`.
+To see the available profiles, use the command `feature:list | grep profile-`.
 
-[NOTE]
-====
-This only installs the desired Setup Type. There are other components that can be set up in the ${admin-console} Installer that cannot be setup on the ${command-console}.
-After installing the Setup Type, these other components can be set up as described below.
-====
-
-The Guest Claim Attributes can be configured via the ${admin-console} after running the `profile:install` command.
-See <<{managing-prefix}configuring_guest_claim_attributes,Configuring Guest Claim Attributes>>.
-
-System Settings and Contact Info, as described in <<{managing-prefix}configuring_system_settings, System Configuration Settings>>, can be changed in `${home_directory}/etc/custom.system.properties`.
+System Settings and Contact Info can be changed in `${home_directory}/etc/custom.system.properties`.
 The certificates must be set up manually as described in <<{managing-prefix}managing_keystores_and_certificates,Managing Keystores and Certificates>>.
 
 [NOTE]

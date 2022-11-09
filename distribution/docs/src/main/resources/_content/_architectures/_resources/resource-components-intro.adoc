@@ -20,6 +20,6 @@ Examples of resources include:
 * Audio recording
 * Document
 
-A resource object in ${branding} contains an `InputStream` with the binary data of the resource. 
-It describes that resource with a name, which could be a file name, URI, or another identifier. 
-It also contains a mime type or content type that a client can use to interpret the binary data.  
+A resource object in ${branding} contains an `InputStream` with the binary data of the resource.
+It describes that resource with a name, which could be a file name, URI, or another identifier.
+It also contains a mime type or content type that a client can use to interpret the binary data.

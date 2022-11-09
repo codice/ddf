@@ -1,9 +1,0 @@
-:title: ${branding} Dependency List
-:type: referenceIntro
-:status: published
-:order: 02
-:summary: Introduction to dependency list reference.
-
-== {title}
-
-This list of ${branding} dependencies is automatically generated:

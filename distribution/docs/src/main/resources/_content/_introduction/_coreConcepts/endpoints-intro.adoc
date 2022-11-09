@@ -17,9 +17,9 @@ Endpoint interface formats encompass a variety of protocols, including (but not 
 * JSON
 * OpenSearch
 
-The endpoint may transform a client request into a compatible Catalog format and then transform the response into a compatible client format.
-Endpoints may use <<{developing-prefix}transformers,Transformers>> to perform these transformations.
-This allows an endpoint to interact with Source(s) that have different interfaces.
-For example, an OpenSearch Endpoint can send a query to the Catalog Framework, which could then query a federated source that has no OpenSearch interface.
+The endpoint may transform a client request into a compatible Catalog format and then transform the response into a compatible client format.
+Endpoints may use <<{developing-prefix}transformers,Transformers>> to perform these transformations.
+This allows an endpoint to interact with Source(s) that have different interfaces.
+For example, an OpenSearch Endpoint can send a query to the Catalog Framework, which could then query a federated source that has no OpenSearch interface.
 
 Endpoints are meant to be the only client-accessible components in the Catalog.

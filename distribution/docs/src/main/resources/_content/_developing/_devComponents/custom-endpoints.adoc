@@ -9,19 +9,19 @@
 ((Custom endpoints)) can be created, if necessary.
 See <<{integrating-prefix}endpoint_details,Endpoints>> for descriptions of provided endpoints.
 
-Complete the following procedure to create an endpoint. 
+Complete the following procedure to create an endpoint.
 
 . Create a Java class that implements the endpoint's business logic. Example: Creating a web service that external clients can invoke.
 
-. Add the endpoint's business logic, invoking `CatalogFramework` calls as needed.  
+. Add the endpoint's business logic, invoking `CatalogFramework` calls as needed.
 
-. Import the ${branding} packages to the bundle's manifest for run-time (in addition to any other required packages): +
+. Import the ${branding} packages to the bundle's manifest for run-time (in addition to any other required packages): +
 `Import-Package: ddf.catalog, ddf.catalog.*`
 
-. Retrieve an instance of `CatalogFramework` from the OSGi registry. (Refer to <<{developing-prefix}osgi_basics,OSGi Basics - Service Registry>> for examples.)
+. Retrieve an instance of `CatalogFramework` from the OSGi registry. (Refer to <<{developing-prefix}osgi_basics,OSGi Basics - Service Registry>> for examples.)
 
-. Deploy the packaged service to ${branding}.
-(Refer to <<{developing-prefix}osgi_basics,OSGi Basics - Bundles>>.)
+. Deploy the packaged service to ${branding}.
+(Refer to <<{developing-prefix}osgi_basics,OSGi Basics - Bundles>>.)
 
 [NOTE]
 ====
@@ -41,12 +41,12 @@ Unlike other ${branding} components that require you to implement a standard int
 |Use
 
 |Ingest
-|Add, modify, and remove metadata using the ingest-related `CatalogFramework` methods: 
+|Add, modify, and remove metadata using the ingest-related `CatalogFramework` methods:
 
-create, update, and delete. 
+create, update, and delete.
 
 |Query
-|Request metadata using the `query` method.
+|Request metadata using the `query` method.
 
 |Source
 |Get available `Source` information.

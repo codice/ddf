@@ -13,10 +13,6 @@ Security is an important consideration for ${branding}, so it is imperative to u
 [IMPORTANT]
 ====
 ${branding} is enabled with an ((Insecure Defaults Service)) which warns users/admins if the system is configured with insecure defaults.
-
-A banner is displayed on the admin console notifying "The system is insecure because default configuration values are in use."
-
-A detailed view is available of the properties to update.
 ====
 
 Security concerns are highlighted in the configuration sections to follow.

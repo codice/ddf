@@ -22,7 +22,6 @@ Capability:: A general term used to refer to an ability of the system.
 Component:: Represents a portion of an Application that can be extended.
 Bundle:: Java Archives (JARs) with special OSGi manifest entries.
 Feature:: One or more bundles that form an installable unit; defined by Apache Karaf but portable to other OSGi containers.
-Application:: A JSON file defining a collection of bundles with configurations to be displayed in the ${admin-console}.
 
 == Packaging Capabilities as Bundles
 
@@ -112,7 +111,7 @@ According to Karaf documentation, "Karaf supports hot deployment of OSGi bundles
 Each time a JAR is copied in this folder, it is installed inside the runtime.
 It can be updated or deleted and changes are handled automatically.
 In addition, Karaf also supports exploded bundles and custom deployers (Blueprint and Spring DM are included by default)."
-Once deployed, the bundle should come up in the Active state, if all of the dependencies were properly met.
+Once deployed, the bundle should come up in the Active state, if all the dependencies were properly met.
 When this occurs, the service is available to be used.
 
 === Verifying Bundle State
@@ -127,7 +126,7 @@ The example below shows how to verify if a Client is deployed and running.
 .Verifying with grep
 ----
 ${ddf-branding-lowercase}${at-symbol}local>list | grep -i example
-[ 162] [Active    ] [       ] [  ] [ 80] ${ddf-branding} :: Registry :: example Client (2.0.0)
+[ 162] [Active    ] [       ] [  ] [ 80] ${ddf-branding} :: Registry :: example Client (3.0.0)
 ----
 
 The state is `Active`, indicating that the bundle is ready for program execution.

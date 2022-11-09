@@ -3,7 +3,7 @@
 :order: 03
 :parent: Catalog Taxonomy Definitions
 :status: published
-:summary: Attributes in this group reflect temporal aspects about the resource.  
+:summary: Attributes in this group reflect temporal aspects about the resource.
 
 == {title}
 
@@ -15,24 +15,24 @@
 |Datatype
 |Constraints
 |Example Value
- 
+
 |[[_datetime.start]]datetime.start
 |Start times for the resource.
 |List of Dates
-| 
-| 
+|
+|
 
 |[[_datetime.end]]datetime.end
 |End times for the resource.
 |List of Dates
-| 
-| 
- 
+|
+|
+
 |[[_datetime.name]]datetime.name
 |A descriptive name for the corresponding temporal
 attributes. See <<{metadata-prefix}datetime.start,datetime.start>> and <<{metadata-prefix}datetime.end,datetime.end>>.
 |List of Strings
 |< 1024 characters per entry
-| 
+|
 
 |===

@@ -7,7 +7,7 @@
 
 === {title}
 
-<<_injecting_attributes,Attribute Injection>> is the act of adding attributes to a metacard's <<{integrating-prefix}metacard_type,Metacard Type>>.
+Attribute Injection is the act of adding attributes to a metacard's <<{integrating-prefix}metacard_type,Metacard Type>>.
 A <<{integrating-prefix}metacard_type,Metacard Type>> indicates the attributes available for a particular metacard, and is created at the same time as the metacard. +
 
 

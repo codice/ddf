@@ -9,67 +9,6 @@
 
 The ((${admin-console})) is the centralized location for administering the system.
 The ${admin-console} allows an administrator to configure and tailor system services and properties.
-The default address for the ${admin-console} is \${secure_url}/admin.
+The default address for the ${admin-console} is \${secure_url}/system/console.
 
-.System Settings Tab
-The configuration and features installed can be viewed and edited from the *System* tab of the *${admin-console}*.
-
-.Managing Federation in the ${admin-console}
-It is recommended to use the *${ddf-catalog} App -> Sources* tab to configure and manage sites/sources.
-
-.Viewing Currently Active Applications from ${admin-console}
-${branding} displays all active applications in the ${admin-console}.
-This view can be configured according to preference.
-Either view has an `>` arrow icon to view more information about the application as currently configured.
-
-.${admin-console} Views
-[cols="1,4", options="header"]
-|===
-|View
-|Description
-
-|Tile View
-|The first view presented is the Tile View, displaying all active applications as individual tiles.
-
-|List View
-|Optionally, active applications can be displayed in a list format by clicking the list view button.
-
-|===
-
-.Application Detailed View
-Each individual application has a detailed view to modify configurations specific to that application.
-All applications have a standard set of tabs, although some apps may have additional ones with further information.
-
-.Individual Application Views
-[cols="1,4", options="header"]
-|===
-|Tab
-|Explanation
-
-|Configuration
-|The Configuration tab lists all bundles associated with the application as links to configure any configurable properties of that bundle.
-
-|===
-
-.Managing Features Using the ${admin-console}
-${branding} includes many components, packaged as _features_, that can be installed and/or uninstalled without restarting the system.
-Features are collections of OSGi bundles, configuration data, and/or other features.
-
-.Transitive Dependencies
-[NOTE]
-====
-Features may have dependencies on other features and auto-install them as needed.
-====
-
-In the ${admin-console}, Features are found on the *Features* tab of the *System* tab.
-
-. Navigate to the *${admin-console}*.
-. Select the *System* tab.
-. Select the *Features* tab.
-. Uninstalled features are shown with a *play* arrow under the *Actions* column.
-.. Select the *play* arrow for the desired feature.
-.. The *Status* changes from *Uninstalled* to *Installed*.
-. Installed features are shown with a *stop* icon under the *Actions* column.
-.. Select the *stop* icon for the desired feature.
-.. The *Status* changes from *Installed* to *Uninstalled*.
-
+Refer to the WebConsole documentation for Karaf ${karaf.version} at https://karaf.apache.org/documentation.html[Karaf documentation] {external-link} for more information.

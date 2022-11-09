@@ -33,7 +33,6 @@ It is recommended to use the Whiteboard pattern over the Listener pattern in OSG
 ** MetaType
 * Utilize the sub-frameworks available in ${branding}.
 ** Karaf
-** CXF
 ** PAX Web and Jetty
 
 == Catalog Framework Reference
@@ -62,7 +61,7 @@ public UpdateResponse update(UpdateRequest updateRequest) throws IngestException
 public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException, SourceUnavailableException;
 ----
 
-CUD operations process `PolicyPlugin`, `AccessPlugin`, and `PreIngestPlugin` instances before execution and `PostIngestPlugin` instances after execution.
+CUD operations process `PreIngestPlugin` instances before execution and `PostIngestPlugin` instances after execution.
 
 ==== Query Methods
 
@@ -75,7 +74,7 @@ Sources could include Catalog Provider, Connected Sources, and Federated Sources
 public QueryResponse query(QueryRequest query) throws UnsupportedQueryException,SourceUnavailableException, FederationException;
 public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy) throws SourceUnavailableException, UnsupportedQueryException, FederationException;
 ----
-Query requests process  `PolicyPlugin`, `AccessPlugin`, and `PreQueryPlugin` instances before execution and  `PolicyPlugin`, `AccessPlugin`, and `PostQueryPlugin` instances after execution.
+Query requests process `PreQueryPlugin` instances before execution and `PostQueryPlugin` instances after execution.
 
 ==== Resource Methods
 
@@ -88,7 +87,7 @@ public ResourceResponse getEnterpriseResource(ResourceRequest request) throwsIOE
 public ResourceResponse getLocalResource(ResourceRequest request) throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
 public ResourceResponse getResource(ResourceRequest request, String resourceSiteName) throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
 ----
-Resource requests process ``PreResourcePlugin``s before execution and ``PostResourcePlugin``s after execution.
+Resource requests process `PreResourcePlugin``s before execution and ``PostResourcePlugin``s after execution.
 
 ==== Source Methods
 

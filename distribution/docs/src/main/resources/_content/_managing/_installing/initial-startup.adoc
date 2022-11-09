@@ -36,7 +36,7 @@ Verification is achieved by checking that all of the ${branding} bundles are in 
 
 [NOTE]
 ====
-It may take a few moments for all bundles to start so it may be necessary to wait a few minutes before verifying installation.
+It may take a few moments for all bundles to start, so it may be necessary to wait a few minutes before verifying installation.
 ====
 
 Execute the following command to display the status of all the ${branding} bundles:
@@ -55,7 +55,7 @@ Bundle fragments remain in the *Resolved* state and can never move to the *Activ
 
 .Example Bundle Fragment in the Command Line Console
 ----
-96 | Resolved |  80 | 2.10.0.SNAPSHOT | DDF :: Platform :: PaxWeb :: Jetty Config, Hosts: 90
+144 │ Resolved │  20 │ 1.0.0                 │ Apache Aries Blueprint Core Compatiblity Fragment Bundle, Hosts: 143
 ----
 
 After successfully completing these steps, the ${branding} is ready to be configured.
@@ -90,13 +90,13 @@ During ${branding} installation, the major directories and files shown in the ta
 |Hot-deploy directory – KARs and bundles added to this directory are hot-deployed (Empty upon ${branding} installation)
 
 |`documentation`
-|HTML and PDF copies of ${branding} documentation.
+|HTML of ${branding} documentation.
 
 |`etc`
 |Directory monitored for addition/modification/deletion of `.config` configuration files or third party `.cfg` configuration files.
 
 |`etc/templates`
-|Template `.config` files for use in configuring ${branding} sources, settings, etc., by copying to the etc directory.
+|Template `.config` files for use in configuring ${branding} sources, settings, etc., by copying to the `etc` directory.
 
 |`lib`
 |The system's bootstrap libraries. Includes the `${branding-lowercase}-branding.jar` file which is used to brand the system console with the ${branding} logo.
@@ -105,7 +105,7 @@ During ${branding} installation, the major directories and files shown in the ta
 |Licensing information related to the system.
 
 |`system`
-|Local bundle repository. Contains all of the JARs required by ${branding}, including third-party JARs.
+|Local bundle repository. Contains all the JARs required by ${branding}, including third-party JARs.
 
 |===
 

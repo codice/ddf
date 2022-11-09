@@ -39,7 +39,7 @@ Additional Custom Mime Type Resolvers can be added for other custom mime types.
 The configurable properties for the Custom Mime Type Resolver are accessed from the *MIME Custom Types* configuration in the ${admin-console}.
 
 * Navigate to the ${admin-console}.
-* Select the *${ddf-platform}* application.
+* Select the *OSGi*.
 * Select *Configuration*.
 * Select *MIME Custom Types*.
 

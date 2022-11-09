@@ -4,7 +4,7 @@
 :summary: Introduction to Developing sections.
 :order: 00
 
-Developers build or extend the functionality of the applications. 
+Developers build or extend the functionality of the applications.
 
 ${branding} includes several extension points where external developers can add functionality to support individual use cases.
 

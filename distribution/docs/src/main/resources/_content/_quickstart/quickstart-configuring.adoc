@@ -12,20 +12,6 @@
 
 Set the configurations needed to run ${branding}.
 
-. In a browser, navigate to the ${admin-console} at \${secure_url}/admin.
+. In a browser, navigate to the ${admin-console} at \${secure_url}/system/console/configMgr.
 .. The ${admin-console} may take a few minutes to start up.
 . Enter the default username of `admin` and the password of `admin`.
-. Follow the installer prompts for a standard installation.
-.. Click start to begin the setup process.
-.. Configure <<{managing-prefix}guest_interceptor,guest claims attributes>> or use defaults.
-... See <<{managing-prefix}configuring_guest_access,Configuring Guest Access>> for more information about the Guest user.
-... *All users are automatically granted these permissions.*
-... *Guest users are not able to ingest data with more restrictive markings than the guest claims.*
-... *Any data ingested that has more restrictive markings than these guest claims is not visible to Guest users.*
-.. Select *Standard Installation*.
-... This step may take several minutes to complete.
-.. On the System Configuration page, configure any port or protocol changes desired and add any keystores/truststores needed.
-... See <<{quickstart-prefix}certificates_quick_start,Certificates (Quick Start)>> for more details.
-.. Click *Next*
-.. Click *Finish*
-

@@ -42,15 +42,15 @@ The console output should show an entry similar to the following:
 
 ----
 State         Version          Name                          Repository  		   Description
-[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-core                      ddf-${project.version}
-[uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-sts                       ddf-${project.version}
-[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-security-common           ddf-${project.version}
-[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-resource-impl             ddf-${project.version}
-[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-source-dummy              ddf-${project.version}
+framework-security                │ 4.4.1            │          │ Started     │ standard-4.4.1                  │ OSGi Security for Karaf
+service-security                  │ 4.4.1            │          │ Uninstalled │ standard-4.4.1                  │ Services Security for Karaf
+aries-proxy                       │ 4.4.1            │          │ Started     │ standard-4.4.1                  │ Aries Proxy
+aries-blueprint                   │ 4.4.1            │          │ Started     │ standard-4.4.1                  │ Aries Blueprint
+feature                           │ 4.4.1            │          │ Started     │ standard-4.4.1                  │ Features Support
 ----
 
 . Uninstall the feature. +
-`${branding-lowercase}${at-symbol}local>feature:uninstall ${branding-lowercase}-source-dummy`
+`${branding-lowercase}${at-symbol}local>feature:uninstall framework-security`
 
 [WARNING]
 ====
@@ -62,9 +62,9 @@ Dependencies that were auto-installed by the feature are not automatically unins
 
 ----
 State         Version          Name                          Repository  Description
-[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-core                      ddf-${project.version}
-[uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-sts                       ddf-${project.version}
-[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-security-common           ddf-${project.version}
-[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-resource-impl             ddf-${project.version}
-[uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-source-dummy              ddf-${project.version}
+framework-security                │ 4.4.1            │          │ Uninstalled │ standard-4.4.1                  │ OSGi Security for Karaf
+service-security                  │ 4.4.1            │          │ Uninstalled │ standard-4.4.1                  │ Services Security for Karaf
+aries-proxy                       │ 4.4.1            │          │ Started     │ standard-4.4.1                  │ Aries Proxy
+aries-blueprint                   │ 4.4.1            │          │ Started     │ standard-4.4.1                  │ Aries Blueprint
+feature                           │ 4.4.1            │          │ Started     │ standard-4.4.1                  │ Features Support
 ----

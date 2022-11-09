@@ -20,25 +20,25 @@
 |Altitude of the resource in meters.
 |List of Doubles
 |> 0
-| 
- 
+|
+
 |[[_location.country-code]]location.country-code
 |One or more country codes associated with the resource.
 |List of Strings
 |http://www.iso.org/iso/country_codes[ISO_3166-1] alpha-3
 codes
-| 
+|
 
 |[[_location.crs-code]]location.crs-code
 |Coordinate reference system code of the resource.
 |List of Strings
 |< 1024 characters per entry
 |EPSG:4326
- 
+
 |[[_location.crs-name]]location.crs-name
 |Coordinate reference system name of the resource.
 |List of Strings
 |< 1024 characters per entry
 |WGS 84
- 
+
 |===

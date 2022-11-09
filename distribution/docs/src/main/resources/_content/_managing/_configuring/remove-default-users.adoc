@@ -12,15 +12,8 @@
 
 The default security configuration uses a property file located at `${home_directory}/etc/users.properties` to store users and passwords.
 A hardened system removes this file and manage all users externally, via an LDAP server or by other means.
-
-.Default Users are an Insecure Default
-[NOTE]
-====
-The ${admin-console} has an insecure default warning if the default users are not removed.
-====
+Refer to the Security documentation for Karaf ${karaf.version} at https://karaf.apache.org/documentation.html[Karaf documentation] {external-link} for more information.
 
 Once ${branding} is configured to use an external user (such as LDAP), remove the `users.properties` file from the `${home_directory}/etc` directory.
 Use of a `users.properties` file should be limited to emergency recovery operations and replaced as soon as effectively possible.
 
-The deletion of the default users in the `users.properties` file can be done automatically after 72 hours.
-This feature can be found at *${admin-console} -> Admin -> Default Users Deletion Scheduler  -> Enable default users automatic deletion*.

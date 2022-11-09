@@ -24,6 +24,6 @@ To use the ${ddf-catalog} Application, the following applications/features must 
 Install the ${ddf-catalog} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
-. Select the *System* tab.
+. Select the *Main* tab.
 . Select the *Features* tab.
 . Install the `catalog-app` feature.

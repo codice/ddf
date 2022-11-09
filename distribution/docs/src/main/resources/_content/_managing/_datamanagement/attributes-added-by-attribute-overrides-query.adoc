@@ -7,11 +7,10 @@
 
 === {title}
 
-<<{managing-prefix}overriding_attributes,Attribute Overriding>> is the act of replacing existing attribute values with a new value.
+Attribute Overriding is the act of replacing existing attribute values with a new value.
 
 Attribute overrides can be configured for query results from the following <<{managing-prefix}connecting_to_sources,Sources>>:
 
-* <<{managing-prefix}federated_source_for_atlassian_confluence,Federated Source For Atlassian Confluence>>.
 * <<{managing-prefix}csw_specification_profile_federated_source,CSW Specification Profile Federated Source>>.
 * <<{managing-prefix}gmd_csw_source,GMD CSW Federated Source>>.
 

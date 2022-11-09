@@ -9,7 +9,7 @@
 
 The ((OpenSearch Endpoint)) enables a client to send query parameters and receive search results.
 This endpoint uses the input query parameters to create an OpenSearch query.
-The client does not need to specify all of the query parameters, only the query parameters of interest.
+The client does not need to specify all the query parameters, only the query parameters of interest.
 
 The OpenSearch specification defines a file format to describe an OpenSearch endpoint.
 This file is XML-based and is used to programatically retrieve a site's endpoint, as well as the different parameter options a site holds.
@@ -73,7 +73,7 @@ https://<FQDN>:<PORT>/services/catalog/query?q="Aliquam"&count=20
 ==== Complex OpenSearch Contextual Query Format
 
 The OpenSearch Endpoint supports the following operators: `AND`, `OR`, and `NOT`.
-These operators are case sensitive.
+These operators are case sensitive.
 Implicit `ANDs` are also supported.
 
 Use parentheses to change the order of operations.
@@ -131,7 +131,7 @@ The start and end temporal criteria must be of the format specified above. Other
 === OpenSearch Geospatial Queries
 Query by location.
 
-Use geospatial query parameters to create a geospatial `INTERSECTS` query, where `INTERSECTS` means geometries that are not `DISJOINT` to the given geospatial parameters. 
+Use geospatial query parameters to create a geospatial `INTERSECTS` query, where `INTERSECTS` means geometries that are not `DISJOINT` to the given geospatial parameters.
 
 .Opensearch Geospatial Parameters
 [cols="4", options="header"]
@@ -164,7 +164,7 @@ default: `5000`
 |`polygon`
 |Comma-delimited list of lat/lon (`EPSG:4326 (WGS84)` decimal degrees) pairs, in clockwise order around the polygon, where the last point is the same as the first in order to close the polygon.
 (for example, `-80,-170,0,-170,80,-170,80,170,0,170,-80,170,-80,-170`)
-|According to the OpenSearch Geo Specification this is *deprecated*. Use the `geometry` parameter instead.
+|According to the OpenSearch Geo Specification this is *deprecated*. Use the `geometry` parameter instead.
 
 |`box`
 |`bbox`
@@ -172,7 +172,7 @@ default: `5000`
 |
 
 |`geometry`
-|`geometry` 
+|`geometry`
 |WKT Geometries
 
 Examples:

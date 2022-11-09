@@ -94,7 +94,7 @@ STANAG 4559 NC, NM, C1, M1, I1, C3, M3, C4, M4, C5, M5, C8, M8
 |
 
 |[[_media.scanning-mode]]media.scanning-mode (MPEG2)
-|Indicate if progressive or interlaced scans are being applied. 
+|Indicate if progressive or interlaced scans are being applied.
 |String
 |PROGRESSIVE, INTERLACED
 |

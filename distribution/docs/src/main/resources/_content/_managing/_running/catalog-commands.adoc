@@ -10,7 +10,7 @@
 [WARNING]
 ====
 Most commands can bypass the Catalog framework and interact directly with the Catalog provider if given the `--provider` option, if available.
-No pre/post plugins are executed and no message validation is performed if the `--provider` option is used.
+No pre- / post-plugins are executed and no message validation is performed if the `--provider` option is used.
 ====
 
 .[[_catalog_command_descriptions]]Catalog Command Descriptions
@@ -62,7 +62,7 @@ Provides a list of environment variables.
 |Replicates data from a federated source into the local Catalog.
 
 |catalog:search
-|Searches records in the local Catalog.
+|Search records in the local Catalog.
 
 |catalog:spatial
 |Searches spatially the local Catalog.
@@ -71,7 +71,7 @@ Provides a list of environment variables.
 |Provides information on available transformers.
 
 |catalog:validate
-|Validates an XML file against all installed validators and prints out human readable errors and warnings.
+|Validates an XML file against all installed validators and prints out human-readable errors and warnings.
 
 |===
 
@@ -80,7 +80,7 @@ The `catalog:dump` command provides selective export of metacards based on date 
 The `--created-after` and `--created-before` options allow filtering on the date and time that the metacard was created, while `--modified-after` and `--modified-before` options allow filtering on the date and time that the metacard was last modified (which is the created date if no other modifications were made).
 These date ranges are exclusive (that is, if the date and time match exactly, the
 metacard is not included).
-[[_date_filtering_options]]The date filtering options (`--created-after`, `--created-before`, `--modified-after`, and `--modified-before`) can be used in any combination, with the export result including only metacards that match all of the provided conditions.
+[[_date_filtering_options]]The date filtering options (`--created-after`, `--created-before`, `--modified-after`, and `--modified-before`) can be used in any combination, with the export result including only metacards that match all the provided conditions.
 
 If no date filtering options are provided, `created` and `modified` dates are ignored, so that all metacards match.
 

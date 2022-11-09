@@ -48,11 +48,6 @@ All of these sources must also be able to return their availability and the list
 
 ((Catalog Provider)):: `ddf.catalog.source.CatalogProvider` _is used to communicate with back-end storage and allows for Query and Create/Update/Delete operations._
 ((Federated Source)):: `ddf.catalog.source.FederatedSource` _is used to communicate with remote systems and only allows query operations._
-((Connected Source)):: `ddf.catalog.source.ConnectedSource` _is similar to a Federated Source with the following exceptions:_
-* _Queried on all local queries_
-* ``SiteName`` _is hidden (masked with the ${branding} sourceId) in query results_
-* ``SiteService`` _does not show this Source's information separate from ${branding}'s._
-((Catalog Store)):: `catalog.store.interface` _is used to store data._
 
 The procedure for implementing any of the source types follows a similar format:
 
@@ -110,30 +105,6 @@ See the <<{managing-prefix}connecting_to_sources,existing Catalog Provider list>
 <service ref="TestFederatedSource" interface="ddf.catalog.source.FederatedSource" />
 ----
 
-=== Developing Connected Sources
-
-Create a custom implementation of a connected source.
-
-. Create a Java class that implements `ConnectedSource` and `ConfiguredService`. +
-`public class TestConnectedSource implements ddf.catalog.source.ConnectedSource, ddf.catalog.service.ConfiguredService`
-. Implement the required methods of the `ddf.catalog.source.ConnectedSource` and `ddf.catalog.service.ConfiguredService` interfaces.
-. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog, ddf.catalog.source`
-. Export the service to the OSGi registry.
-
-.Connected Source Blueprint example
-[source,xml,linenums]
-----
-<service ref="TestConnectedSource" interface="ddf.catalog.source.ConnectedSource" />
-----
-[IMPORTANT]
-====
-In some Providers that are created, there is a need to make Web Service calls through JAXB clients.
-It is best to NOT create a JAXB client as a global variable.
-There may be intermittent failures with the creation of Providers and federated sources when clients are created in this manner.
-To avoid this issue, create any JAXB within the methods requiring it.
-====
-
 === Exception Handling
 
 In general, sources should only send information back related to the call, not implementation details.
@@ -146,6 +117,3 @@ Follow these guidelines for effective exception handling:
 * If the caller issues a malformed search request, return an error describing the right form, or specifically what was not recognized in the request. Do not return the exception and stack trace where the parsing broke.
 * If the caller leaves something out, do not return the null pointer exception with a stack trace, rather return a generic exception with the message "xyz was missing."
 
-==== External Resources for Developing Sources
-
-* http://today.java.net/pub/a/today/2003/12/04/exceptions.html[Three Rules for Effective Exception Handling] {external-link}.

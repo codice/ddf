@@ -22,7 +22,7 @@ Federated sources also expose an event service, which allows the Catalog Framewo
 ${ddf-catalog} instances can also be federated to each other.
 Therefore, a ${ddf-catalog} can also act as a federated source to another ${ddf-catalog}.
 
-[[_connected_sources]]((Connected Sources)):: A Connected Source is a local or remote source that is always included in every local and enterprise query, but is hidden from being queried individually. A connected source's identifier is removed in all query results by replacing it with ${branding}'s source identifier. The Catalog Framework does not reveal a connected source as a separate source when returning source information responses.
+[[_connected_sources]]((Connected Sources)):: A Connected Source is a local or remote source that is always included in every local and enterprise query, but is hidden from being queried individually. A connected source's identifier is removed in all query results by replacing it with ${branding}'s source identifier. The Catalog Framework does not reveal a connected source as a separate source when returning source information responses.
 
 [[_catalog_providers]]((Catalog Providers)):: A Catalog Provider is used to interact with data providers, such as files systems or databases, to query, create, update, or delete data. The provider also translates between ${branding} objects and native data formats.
 +

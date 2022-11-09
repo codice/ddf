@@ -15,21 +15,6 @@ Plugins are called in a specific order during different operations. <<{developin
 ||Request cDEF  |       |                      |
 |\--------------/       v                      |
 | /------------------------------------------\ |
-| |     PreAuthorization.processPreQuery c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |       PolicyPlugin.processPreQuery   c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |       AccessPlugin.processPreQuery   c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
 | |          PreQueryPlugin.process   c369   | |
 | \------------------------------------------/ |
 |                       |                      |
@@ -41,16 +26,6 @@ Plugins are called in a specific order during different operations. <<{developin
 |                       v                      |
 | /------------------------------------------\ |
 | |    PostFederatedQueryPlugin.process c369 | |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |PolicyPlugin.processPostQuery.process c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |      AccessPlugin.processPostQuery   c369| |
 | \------------------------------------------/ |
 |                       |                      |
 |                       v                      |
@@ -72,21 +47,6 @@ Plugins are called in a specific order during different operations. <<{developin
 ||Create        |       |                      |
 ||Request   cDEF|       |                      |
 |\--------------/       v                      |
-| /------------------------------------------\ |
-| |    PreAuthorization.processPreCreate c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |       PolicyPlugin.processPreCreate  c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |      AccessPlugin.processPreCreate   c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
 | /------------------------------------------\ |
 | |          PreIngestPlugin.process     c369| |
 | \------------------------------------------/ |
@@ -111,21 +71,6 @@ Plugins are called in a specific order during different operations. <<{developin
 ||Request cDEF  |       |                      |
 |\--------------/       v                      |
 | /------------------------------------------\ |
-| |    PreAuthorization.processPreUpdate c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |       PolicyPlugin.processPreUpdate  c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |      AccessPlugin.processPreUpdate  c369 | |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
 | |         PreIngestPlugin.process     c369 | |
 | \------------------------------------------/ |
 |                       |                      |
@@ -149,32 +94,12 @@ Plugins are called in a specific order during different operations. <<{developin
 ||Request cDEF  |       |                      |
 |\--------------/       v                      |
 | /------------------------------------------\ |
-| |    PreAuthorization.processPreDelete c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |       PolicyPlugin.processPreDelete  c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |      AccessPlugin.processPreDelete   c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
 | |         PreIngestPlugin.process      c369| |
 | \------------------------------------------/ |
 |                       |                      |
 |                       v                      |
 | /------------------------------------------\ |
 | |      PolicyPlugin.processPostDelete  c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |      AccessPlugin.processPostDelete  c369| |
 | \------------------------------------------/ |
 |                       |                      |
 |                       v                      |
@@ -196,32 +121,7 @@ Plugins are called in a specific order during different operations. <<{developin
 ||Request cDEF  |       |                      |
 |\--------------/       v                      |
 | /------------------------------------------\ |
-| |   PreAuthorization.processPreResourcec369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |     PolicyPlugin.processPreResource  c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |     AccessPlugin.processPostResource c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
 | |        PreResourcePlugin.process     c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |     PolicyPlugin.processPostResource c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
-| /------------------------------------------\ |
-| |     AccessPlugin.processPostResource c369| |
 | \------------------------------------------/ |
 |                       |                      |
 |                       v                      |
@@ -241,11 +141,6 @@ Plugins are called in a specific order during different operations. <<{developin
 ||Storage Create|       |                      |
 ||Request cDEF  |       |                      |
 |\--------------/       v                      |
-| /------------------------------------------\ |
-| |   PreAuthorization.processPreCreate  c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
 | /------------------------------------------\ |
 | |      PreCreateStoragePlugin.process  c369| |
 | \------------------------------------------/ |
@@ -273,11 +168,6 @@ Plugins are called in a specific order during different operations. <<{developin
 ||Storage Update|       |                      |
 ||Request cDEF  |       |                      |
 |\--------------/       v                      |
-| /------------------------------------------\ |
-| |    PreAuthorization.processPreUpdate c369| |
-| \------------------------------------------/ |
-|                       |                      |
-|                       v                      |
 | /------------------------------------------\ |
 | |      PreUpdateStoragePlugin.process  c369| |
 | \------------------------------------------/ |

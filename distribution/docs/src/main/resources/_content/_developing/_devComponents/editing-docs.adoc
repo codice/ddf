@@ -15,23 +15,18 @@ ${branding} documentation is included in the source code, so it is edited and ma
 |Directory
 |Contents
 
-|content
+|_content
 |Asciidoctor-formatted files containing documentation contents and the header information needed to organize them.
 
 |images
 |Screenshots, icons, and other image files used in documentation.
 
-|templates
-|Template files used to compile the documentation for display.
-
-|jbake.properties
-|Properties file defining content types and other parameters.
 |===
 
 == Editing Existing Documentation
 
 Update existing content when code behavior changes, new capabilities are added to features, or the configuration process changes.
-Content is organized within the `content` directory in sub directories according to the audience and purpose for each document in the documentation library.
+Content is organized within the `_content` directory in subdirectories according to the audience and purpose for each document in the documentation library.
 Use this list to determine placement of new content.
 
 .Documentation Sections
@@ -53,49 +48,8 @@ Reference:: This section is a comprehensive list of features and possible config
 
 Metadata Reference:: This section details how metadata is extracted and normalized by ${branding}.
 
-Documentation:: This is a collection of all of the individual documentation pages in one html or pdf file.
-
-See the https://codice.atlassian.net/wiki/spaces/DDF/pages/6291516/Documentation+Style+Guide[style guide] for more guidance on stylistic and formatting concerns.
+Documentation:: This is a collection of all the individual documentation pages in one html or pdf file.
 
 == Adding New Documentation Content
 
 If creating a new section is required, there are some minimal requirements for a new `.adoc` file.
-
-.Header content
-The templates scan the header information to place it into the correct place within the documentation.
-Different sections have different headers required, but some common attributes are always required.
-
-* `type`: roughly maps to the section or subSection of the documentation.
-* `title`: title of the section or subsection contained in the file.
-* `status`: set to `published` to include within the documentation, set to `draft` to hide a work-in-progress section.
-* `order`: used in sections where order needs to be enforced.
-* `summary`: brief summary of section contents. Some, but not all, summaries are included by templates.
-
-== Creating a New Documentation Template
-
-To create a new, standalone documentation page, create a new template in the `templates` directory.
-Optionally, this template can `include` some of the internal templates in the `templates/build` directory, but this is not required.
-
-For guidance on using the freemarker syntax, see the https://freemarker.apache.org/docs/ref.html[Freemarker documentation] {external-link}.
-
-== Extending Documentation in Downstream Distributions
-
-By mimicking the build and directory structure of the documentation, downstream projects are able to leverage the existing documentation and insert content before and after sections of the ${branding} documentation.
-
-.Documentation Module Directory Structure
-[source]
-----
--docs
-  -src
-    -main
-      -resources
-        -content
-        -images
-        -templates
-----
-
-`content`:: Contains the .adoc files that make up the content.
-Sub-directories are organized according to the documents that make up the main library.
-`images`:: any pre-existing images, such as screenshots, to be included in the documentation.
-`templates`:: template files used to create documentation artifacts.
-A `build` sub-directory holds the templates that are not standalone documents to render specific sections.

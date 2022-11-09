@@ -13,7 +13,7 @@
 
 a|https://tools.ietf.org/html/rfc5246[Transport Layer Security (TLS) v1.1 & v1.2] {external-link}
 |Supported
-a|https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SupportedCipherSuites[Cipher Suites] {external-link}
+a|https://docs.oracle.com/en/java/javase/17/docs/specs/security/standard-names.html#jsse-cipher-suite-names[Cipher Suites] {external-link}
 
 * TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
 * TLS_DHE_RSA_WITH_AES_128_CBC_SHA256

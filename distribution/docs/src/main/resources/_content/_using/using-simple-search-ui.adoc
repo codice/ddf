@@ -1,4 +1,4 @@
-:title: Using the Simple Search
+:title: Using the Search UI
 :type: usingIntro
 :status: published
 :parent: Using ${catalog-ui}
@@ -7,8 +7,8 @@
 
 == {title}
 
-The ${branding} ((Simple Search UI)) application provides a low-bandwidth option for searching records in the local Catalog (provider) and federated sources.
-Results are returned in HTML format.
+The ${branding} ((Search UI)) application provides a low-bandwidth option for searching records in the local Catalog (provider) and federated sources.
+Results are in HTML format.
 
 === Search
 
@@ -20,11 +20,8 @@ It also allows the user to select the sources to search and the number of result
 Enter one or more of the available search criteria to execute a query:
 
 Keyword Search:: A text box allowing the user to enter a textual query. This supports the use of (*) wildcards. If blank, the query contains a contextual component.
-Temporal Query:: Select from *any*, *relative*, or *absolute*. Selecting *Any* results in no temporal restrictions on the query, selecting *relative* allows the user to query a period from some length of time in the past until now, and selecting *absolute* allows the user to specify a *start* and *stop* date range.
-Spatial Search:: Select from *any*, *point-radius*, and *bounding box*. Selecting *Any* results in no spatial restrictions on the query, selecting *point-radius* allows the user to specify a *lat/lon* and *radius* to search, and selecting a *bounding box* allows the user to specify an *eastern*, *western*, *southern*, and *northern* boundary to search within.
-Type Search:: Select from *any*, or a specific type. Selecting *Any* results in no type restrictions on the query, and Selecting *Specific Types* shows a list of known content types on the federation, and allows the user to select a specific type to search for.
-Sources:: Select from *none*, *all sources*, or *specific sources*. Selelcting *None* results in querying only the local provider, Selecting *All Sources* results in an enterprise search where all federations are queried, and selecting *Specific Sources* allows the user to select which sources are queried.
-Results per Page:: Select the number of results to be returned by a single query.
+Sort Order:: Select from *Last Modified*, *Title*, *ID*, or *Keyword Relevance*.
+Date Range:: Select from *Any Time*, *Past Day*, *Past Week*, *Past Month*, or *Past Year*.
 
 ==== Results
 
@@ -33,7 +30,7 @@ The table of results shows the details of the results found, as well as a link t
 ===== Results  Summary
 
 Total Results:: Total Number of Results available for this query. If there are more results than the number displayed per page then a page navigation link appears to the right.
-Pages:: Provides page navigation, which generate queries for requesting additional pages of results.
+Previous and Next:: Provides page navigation, which generate queries for requesting additional pages of results.
 
 ===== Results Table
 
@@ -42,16 +39,13 @@ The table consists of these columns:
 
 Title:: Displays title of the metacard. This is a link which can clicked to view the metacard in the Metacard View.
 Source:: Displays where the metadata came from, which could be the local provider or a federated source.
-Location:: Displays the WKT Location of the metacard, if available.
-Time:: Shows the Received (Created) and Effective times of the metacard, if available.
-Thumbnail:: Shows the thumbnail of the metacard, if available.
+Preview:: Shows the thumbnail of the metacard, if available.
 Download:: A download link to retrieve the resource associated with the metacard, when applicable, if available.
 
 ==== Result View
 
-This view shows more detailed look at a result.
+This view shows more detailed look at a result. Use the browser's back page button to return to the Results table.
 
-Back to Results Button:: Returns the view back to the Results Table.
-Previous & Next:: Navigation to page through the results one by one.
+Preview:: Shows the thumbnail of the metacard, if available.
+Download:: A download link to retrieve the resource associated with the metacard, when applicable, if available.
 Result Table:: Provides the list of properties and associated values of a single search result.
-Metadata:: The metadata, when expanded, displays a tree structure representing the result's custom metadata.

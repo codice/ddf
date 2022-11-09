@@ -24,8 +24,7 @@ Finally, configurations are stored in <<{managing-prefix}configuration_files,con
 While many configurations can be set or changed in any order, for ease of use of this documentation, similar subjects have been grouped together sequentially.
 
 See <<{managing-prefix}managing_keystores_and_certificates,Keystores and certificates>> to set up the certificates needed for messaging integrity and authentication.
-Set up <<{managing-prefix}configuring_user_access,Users>> with security attributes, then configure <<{managing-prefix}configuring_data_management,data>> attribute handling, and finally, define the <<{managing-prefix}configuring_security_policies,Security Policies>> that map between users and data and make decisions about access.
 
 Connecting ${branding} to other data sources, including other instances of ${branding} is covered in the <<{managing-prefix}configuring_federation,Configuring Federation>> section.
 
-Lastly, see the <<{managing-prefix}configuring_for_special_deployments,Configuring for Special Deployments>> section for guidance on common specialized installations, such as <<{managing-prefix}configuring_for_a_fanout_proxy,fanout>>.
+Lastly, see the <<{managing-prefix}configuring_for_special_deployments,Configuring for Special Deployments>> section for guidance on common specialized installations.

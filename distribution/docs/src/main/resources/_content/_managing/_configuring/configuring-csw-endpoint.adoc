@@ -12,7 +12,7 @@ The ((CSW endpoint)) enables a client to search collections of descriptive infor
 To install the CSW endpoint:
 
 . Navigate to the *${admin-console}*.
-. Select *System*.
+. Select *Main*.
 . Select *Features*.
 . Install the `csw-endpoint` feature.
 

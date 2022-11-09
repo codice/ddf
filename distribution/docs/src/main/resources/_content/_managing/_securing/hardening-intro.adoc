@@ -12,7 +12,7 @@
 (((Security Hardening)))
 To harden ${branding}, extra security precautions are required.
 
-Where available, necessary migitations to harden an installation of ${branding} are called out in the following configuration steps.
+Where available, necessary mitigations to harden an installation of ${branding} are called out in the following configuration steps.
 
 Refer to the <<{reference-prefix}hardening_checklist,Hardening Checklist>> for a compilation of these mitigations.
 ****
@@ -25,6 +25,6 @@ The  security precautions are best performed as configuration is taking place, s
 This is to avoid setting an insecure configuration and having to revisit during hardening.
 Most configurations have a security component to them, and important considerations for hardening are labeled as such during configuration as well as provided in a checklist format.
 
-Some of the items on the checklist are performed during <<{managing-prefix}installing,installation>> and others during <<{managing-prefix}configuring,configuration>>.
+Some items on the checklist are performed during <<{managing-prefix}installing,installation>> and others during <<{managing-prefix}configuring,configuration>>.
 Steps required for hardening are marked as *Required for Hardening* and are collected here for convenience.
 Refer to the checklist during system setup.

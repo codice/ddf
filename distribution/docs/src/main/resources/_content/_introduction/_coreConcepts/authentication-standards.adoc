@@ -17,10 +17,4 @@
 |https://www.ietf.org/rfc/rfc2617.txt[Basic Authentication] {external-link}
 |Supported
 
-|https://www.oasis-open.org/standards#samlv2.0[SAML] {external-link}
-|Supported
-
-|https://apereo.github.io/cas/5.1.x/protocol/CAS-Protocol.html[Central Authentication Service (CAS)] {external-link}
-|Supported
-
 |===

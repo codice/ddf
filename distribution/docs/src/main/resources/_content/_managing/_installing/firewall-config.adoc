@@ -8,7 +8,7 @@
 === Firewall Port Configuration
 (((Firewall Port Configuration)))
 
-Below is a table listing all of the default ports that ${branding} uses and a description of what they are used for.
+Below is a table listing all the default ports that ${branding} uses and a description of what they are used for.
 Firewalls need to be configured to open these ports in order for external systems to communicate with ${branding}.
 
 .Port List

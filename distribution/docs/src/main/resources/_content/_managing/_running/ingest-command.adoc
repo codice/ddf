@@ -36,7 +36,7 @@ This can be the path to a file or a directory containing the desired files.
 On Windows, put the file path in quotes: `"path/to/file"`.
 ====
 
-Successful command line ingest operations are accompanied with messaging indicating how many files were ingested and how long the operations took.
+Successful command line ingest operations are accompanied by messaging indicating how many files were ingested and how long the operations took.
 The ingest command also prints which files could not be ingested with additional details recorded in the ingest log.
 The default location of the log is `${home_directory}/data/log/ingest_error.log`.
 

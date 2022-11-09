@@ -221,13 +221,6 @@ This value should not be changed from the factory default.
 |Codice Foundation
 |Yes
 
-|Registry ID
-|org.codice.ddf.system.registry-id
-|String
-|The registry id for this installation of ${branding}.
-|
-|No
-
 6+^h|Thread Pool Settings
 
 |Thread Pool Size
@@ -262,20 +255,6 @@ TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 |Protocols to allow for secure connections
 |TLSv1.1,TLSv1.2
 |No
-
-|Allow Basic Auth Over Http
-|org.codice.allowBasicAuthOverHttp
-|Boolean
-|Set to true to allow Basic Auth credentials to be sent over HTTP unsecurely. This should only be done in a test environment. These events are audited.
-|false
-|Yes
-
-|Restrict the Security Token Service to allow connections only from DNs matching these patterns
-|ws-security.subject.cert.constraints
-|String
-|Set to a comma separated list of regex patterns to define which hosts are allowed to connect to the STS
-|.*
-|Yes
 
 6+^h|XML Settings
 

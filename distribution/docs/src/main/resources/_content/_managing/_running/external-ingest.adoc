@@ -40,7 +40,7 @@ Location: ${secure_url}/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b
 Server: Jetty(7.5.4.v20111024)
 ----
 
-. Use a web browser to verify a file was successfully ingested. Enter the URL returned in the response's HTTP header in a web browser. For instance in the example, it was `/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b`. The browser displays the catalog entry as XML in the browser.
+. Use a web browser to verify a file was successfully ingested. Enter the URL returned to the response's HTTP header in a web browser. For instance in the example, it was `/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b`. The browser displays the catalog entry as XML in the browser.
 . Verify the catalog entry exists by executing a query via the OpenSearch endpoint.
 . Enter the following URL in a browser `/services/catalog/query?q=${branding-lowercase}`. A single result, in Atom format, should be returned.
 

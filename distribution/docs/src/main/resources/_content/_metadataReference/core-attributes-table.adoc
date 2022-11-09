@@ -32,19 +32,19 @@
 |Content type of the resource.
 |String
 |< 1024 characters
-| 
+|
 
 |metadata-content-type-version *[deprecated]* _see <<_media_attributes,Media Attributes>>_
 |Version of the metadata content type of the resource.
 |String
 |< 1024 characters
-| 
+|
 
 |metadata-target-namespace *[deprecated]* _see <<_media_attributes,Media Attributes>>_
 |Target namespace of the metadata.
 |String
 |< 1024 characters
-| 
+|
 
 |[[_metadata]]metadata
 |Additional XML metadata describing the resource.
@@ -68,7 +68,7 @@ __Coordinates must be in *lon-lat* coordinate order__
 |[[_effective]]effective *[deprecated]*
 |The `effective` time of the event or resource  represented by the metacard. Deprecated in favor of <<{metadata-prefix}created,created>> and <<{metadata-prefix}modified,modified>>.
 |Date
-| 
+|
 |
 
 |point-of-contact *[deprecated]*

@@ -7,15 +7,11 @@
 == {title} Application Reference
 ((({title})))
 
-The ${ddf-platform} application is considered to be a core application of the distribution.
+The ${ddf-platform} application is considered to be a core application of the distribution.
 The Platform application provides the fundamental building blocks that the distribution needs to run.
 These building blocks include subsets of:
 
 * http://karaf.apache.org/[Karaf] {external-link}
-* http://cxf.apache.org/CXF[CXF] {external-link}
-* http://camel.apache.org/[Camel] {external-link}
-
-A <<{managing-prefix}command_scheduler,Command Scheduler>> is also included as part of the Platform application to allow users to schedule Command Line Shell Commands.
 
 ===  ${ddf-platform} Application Prerequisites
 
@@ -26,6 +22,6 @@ None.
 Install the ${ddf-platform} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
-. Select the *System* tab.
+. Select the *Main* tab.
 . Select the *Features* tab.
 . Install the `platform-app` feature.

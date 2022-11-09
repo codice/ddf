@@ -32,9 +32,6 @@ For example, type `catalog`, then press *TAB*.
 |<<{managing-prefix}store_command_descriptions, store>>
 |The Persistence Shell Commands are meant to be used with any `PersistentStore` implementations. They provide the ability to query and delete entries from the persistence store.
 
-|<<{managing-prefix}subscription_command_descriptions, subscription>>
-|The ${branding} PubSub shell commands provide functions to list the registered subscriptions in ${branding} and to delete subscriptions.
-
 |<<{managing-prefix}solr_command_descriptions, solr>>
 |The Solr commands are used for the Solr `CatalogProvider` implementation. They provide commands specific to that provider.
 

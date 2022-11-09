@@ -13,7 +13,7 @@ See <<{metadata-prefix}file_format_specific_attributes,File Format Specific Attr
 {branding} chooses which input transformer to use by:
 
 . Resolving the mimetype for the resource.
-. Gathering all of the input transformers associated with the resolved mimetype. See <<{metadata-prefix}all_file_formats_supported,Supported File Formats>> for a list of supported mimetypes.
+. Gathering all the input transformers associated with the resolved mimetype. See <<{metadata-prefix}all_file_formats_supported,Supported File Formats>> for a list of supported mimetypes.
 . Iterating through the transformers until a successful transformation is performed.
 
 The first transformer that can successfully create a metacard from the ingested resource is chosen.

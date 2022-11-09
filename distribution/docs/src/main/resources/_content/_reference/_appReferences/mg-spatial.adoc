@@ -7,87 +7,7 @@
 == {title} Application Reference
 ((({title})))
 
-The ${ddf-spatial} Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
-
-=== Offline Gazetteer Service
-
-In the ${ddf-spatial} Application, the `offline-gazetteer` is installed by default.
-This feature enables you to use an offline source of GeoNames data (as an alternative to the GeoNames Web service enabled by the `webservice-gazetteer` feature) to perform searches via the gazetteer search box in the Search UI.
-
-Installing the `offline-gazetteer-index` feature provides a small set of GeoNames data to use with the offline gazetteer. The GeoNames data is stored as metacards in the core catalog and are tagged with `geonames` and `gazetteer`. This collection of GeoNames metacards can be expanded or updated by using the `gazetteer:update` command.
-
-==== ${ddf-spatial} Gazetteer Console Commands
-
-The `gazetteer` commands provide the ability to interact with the local GeoNames metacard collection in the core catalog. These GeoNames metacards are used by the `offline-gazetteer` feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the `offline-gazetteer` feature is installed.
-
-.Gazetteer Command Descriptions
-[cols="2,8a" options="header"]
-|===
-|Command
-|Description
-
-|`gazetteer:update`
-|Adds new gazetteer metacards to the core catalog from a resource.
-
-The resource argument can be one of three types:
-
-* a local file path to a `.txt`, `.zip`, or `.geo.json` GeoNames data file. If a path to a file ends in .geo.json, it is processed as a geoJSON feature collection and imported as supplementary shape data for GeoNames entries.
-* a URL to a `.txt` or `.zip` GeoNames data file. GeoJSON URLs are not supported.
-* a keyword to automatically process a GeoNames file from from http://download.geonames.org/export/dump. Valid keywords include
-  ** a country code, which adds the country as GeoNames metacards in the core catalog. The full list of country codes available can be found in http://download.geonames.org/export/dump/countryInfo.txt.
-  ** `cities1000`, `cities5000`, and `cities15000`, which adds cities to the index that have at least 1000, 5000, or 15000 people, respectively.
-  ** `all`, which downloads all of the current country codes. This process may take some time.
-
-The `-c` or `--create` flag can be used to clear out the existing gazetteer metacards before adding new entries.
-
-|`build-suggester-index`
-|Builds the Solr suggester index used for placename autocompletion when using the
-offline gazetteer. This index is built automatically whenever gazetteer metacards are created,
-updated, or deleted, but if those builds fail then this command can be used to attempt to build the
-index again.
-
-|===
-
-=== Standalone Solr Offline Gazetteer Feature
-
-The Standalone Solr Offline Gazetteer is a reflection of the gazetteer data stored
-in the catalog but separated from other data. This allows the suggester to be separately rebuilt
-much quicker than for the entire catalog collection.
-
-
-
-====  Installing Standalone Solr Offline Gazetteer
-
-The Standalone Solr Offline Gazetteer is not installed by default but can be installed by running
-`feature:install catalog-solr-offline-gazetteer`. This installs:
-
-* The plugin that intercepts gazetteer metacard creates/updates/deletes to the catalog collection
-(and stores them in the standalone solr gazetteer collection)
-* The gazetteer query service which registers the Query component that responds to requests from
-the UI gazetteer search box
-* The `offline-solr-gazetteer:removeall` command which deletes all records in the gazetteer
-collection.
-* The `offline-solr-gazetteer:synccatalog` command which syncs with the catalog and updates all
-records in the gazetteer collection to reflect it (or add them if they are not yet
-created)
-
-==== Special Note Regarding Installation
-
-If the Spatial Geocoding Offline Catalog bundle and the bundle using the Gazetteer query service
-(for example, Intrigue) are both already running, you must restart the bundles consuming the service
-(for example, Intrigue) in order to pick up the correct one.
-
-==== Building the suggester index on Standalone Solr Offline Gazetteer
-
-The suggester index is built when any of the other methods of building the catalog gazetteer
-are run, along with on initial install. So you can run `gazetteer:build-suggester-index` or
-`offline-solr-gazetteer:build-suggester-index` to build the suggester.
-
-Another option is to send a build request via a solr client. An example of this is done through
-the Solr Dashboard after selecting the `gazetteer` collection and clicking `query`.
-Ensure that the Request-Handler (qt) is set to `/suggest` and then in the 'Extra Parameters' field
-add `suggest.build=true&suggest.dictionary=suggestPlace&suggest.q=bla`.
-
+The ${ddf-spatial} Application provides OGC services.
 
 ===  ${ddf-spatial} Prerequisites
 
@@ -101,6 +21,6 @@ To use the ${ddf-spatial} Application, the following apps/features must be insta
 Install the ${ddf-spatial} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
-. Select the *System* tab.
-. Select the *Features* tab.
+. Select the *Main*.
+. Select the *Features*.
 . Install the `spatial-app` feature.

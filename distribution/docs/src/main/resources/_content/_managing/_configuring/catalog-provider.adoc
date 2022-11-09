@@ -14,12 +14,12 @@ This scenario assumes ${branding} is already running.
 
 .Uninstall Catalog Provider (if installed).
 . Navigate to the *${admin-console}*.
-. Select the *System* tab.
-. Select the *Features* tab.
+. Select the *Main* menu.
+. Select the *Features* menu.
 . Find and Stop the installed Catalog Provider
 
 .Install the new Catalog Provider
 . Navigate to the *${admin-console}*.
-. Select the *System* tab.
-. Select the *Features* tab.
+. Select the *Main* menu.
+. Select the *Features* menu.
 . Find and Start the desired Catalog Provider.

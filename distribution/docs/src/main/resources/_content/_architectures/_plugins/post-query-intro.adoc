@@ -6,7 +6,7 @@
 :plugintypes: postquery
 :order: 08
 
-((Post-query plugins)) are invoked after a query has been executed successfully, but before the response is returned to the endpoint. 
+((Post-query plugins)) are invoked after a query has been executed successfully, but before the response is returned to the endpoint.
 This is an opportunity to take any action on the query response, including but not limited to:
 
 * logging.

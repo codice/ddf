@@ -19,18 +19,6 @@ The following types of plugins can be created:
 |Plugin Interface
 |Invocation Order
 
-|<<{architecture-prefix}pre_authorization_plugins,Pre-Authorization>>
-|ddf.catalog.plugin.PreAuthorizationPlugin
-|Before any security rules are applied.
-
-|<<{architecture-prefix}policy_plugins,Policy>>
-|ddf.catalog.plugin.PolicyPlugin
-|After pre-authorization plugins, but before other catalog plugins to establish the policy for requests/responses.
-
-|<<{architecture-prefix}access_plugins,Access>>
-|ddf.catalog.plugin.AccessPlugin
-|Directly after any policy plugins
-
 |<<{architecture-prefix}pre_ingest_plugins,Pre-Ingest>>
 |ddf.catalog.plugin.PreIngestPlugin
 |Before the Create/Update/Delete method is sent to the Catalog Provider.
@@ -65,27 +53,19 @@ The following types of plugins can be created:
 
 |<<{architecture-prefix}pre_create_storage_plugins,Pre-Create Storage>>
 |ddf.catalog.content.plugin.PreCreateStoragePlugin
-|<<{reference-prefix}packages_removed_from_whitelist,Experimental >>Before an item is created in the content repository.
+|Before an item is created in the content repository.
 
 |<<{architecture-prefix}post_create_storage_plugins,Post-Create Storage>>
 |ddf.catalog.content.plugin.PostCreateStoragePlugin
-|<<{reference-prefix}packages_removed_from_whitelist,Experimental >>After an item is created in the content repository.
+|After an item is created in the content repository.
 
 |<<{architecture-prefix}pre_update_storage_plugins,Pre-Update Storage>>
 |ddf.catalog.content.plugin.PreUpdateStoragePlugin
-|<<{reference-prefix}packages_removed_from_whitelist,Experimental >>Before an item is updated in the content repository.
+|Before an item is updated in the content repository.
 
 |<<{architecture-prefix}post_update_storage_plugins,Post-Update Storage>>
 |ddf.catalog.content.plugin.PostUpdateStoragePlugin
-|<<{reference-prefix}packages_removed_from_whitelist,Experimental >>After an item is updated in the content repository.
-
-|<<{architecture-prefix}pre_subscription_plugins,Pre-Subscription>>
-|ddf.catalog.plugin.PreSubscriptionPlugin
-|Prior to a Subscription being created or updated.
-
-|<<{architecture-prefix}pre_delivery_plugins,Pre-Delivery>>
-|ddf.catalog.plugin.PreDeliveryPlugin
-|Prior to the delivery of a Metacard when an event is posted.
+|After an item is updated in the content repository.
 
 |===
 
@@ -191,37 +171,6 @@ Develop a custom Post-Query Plugin
 . Export the service to the OSGi registry. +
 `<service ref="SamplePostQueryPlugin" interface="ddf.catalog.plugin.PostQueryPlugin" />`
 
-=== Implementing Pre-Delivery Plugins
-
-Develop a custom Pre-Delivery Plugin.
-
-. Create a Java class that implements `PreDeliveryPlugin`. +
-`public class SamplePreDeliveryPlugin implements ddf.catalog.plugin.PreDeliveryPlugin`
-
-. Implement the required methods. +
-`public Metacard processCreate(Metacard metacard) throws PluginExecutionException, StopProcessingException;`
-`public Update processUpdateMiss(Update update) throws PluginExecutionException,
-StopProcessingException;`
- * `public Update processUpdateHit(Update update) throws PluginExecutionException, StopProcessingException;`
- * `public Metacard processCreate(Metacard metacard) throws PluginExecutionException, StopProcessingException;`
-
-. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation,ddf.catalog.event`
-
-. Export the service to the OSGi registry. +
-*Blueprint descriptor example* +
-`<service ref="SamplePreDeliveryPlugin" interface="ddf.catalog.plugin.PreDeliveryPlugin" />`
-
-=== Implementing Pre-Subscription Plugins
-
-Develop a custom Pre-Subscription Plugin.
-
-. Create a Java class that implements `PreSubscriptionPlugin`. +
-`public class SamplePreSubscriptionPlugin implements ddf.catalog.plugin.PreSubscriptionPlugin`
-
-. Implement the required method.
- * `public Subscription process(Subscription input) throws PluginExecutionException, StopProcessingException;`
-
 === Implementing Pre-Resource Plugins
 
 Develop a custom Pre-Resource Plugin.
@@ -262,45 +211,3 @@ Develop a custom Post-Resource Plugin.
 ----
 <]]" inter"[[SamplePostResourcePlugin" interface="ddf.catalog.plugin.PostResourcePlugin" />
 ----
-
-=== Implementing Policy Plugins
-
-Develop a custom Policy Plugin.
-
-. Create a Java class that implements `PolicyPlugin`. +
-`public class SamplePolicyPlugin implements ddf.catalog.plugin.PolicyPlugin`
-
-. Implement the required methods. +
- * `PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties) throws StopProcessingException;`
- * `PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties) throws StopProcessingException;`
- * `PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues, Map<String, Serializable> properties) throws StopProcessingException;`
- * `PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties) throws StopProcessingException;`
- * `PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties) throws StopProcessingException;`
-
-. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
-
-. Export the service to the OSGi registry.  +
-*Blueprint descriptor example* +
-`<]]" inter"[[SamplePolicyPlugin" interface="ddf.catalog.plugin.PolicyPlugin" />`
-
-=== Implementing Access Plugins
-
-Develop a custom Access Plugin.
-
-. Create a Java class that implements `AccessPlugin`. +
-`public class SamplePostResourcePlugin implements ddf.catalog.plugin.AccessPlugin`
-
-. Implement the required methods. +
- * `CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException;`
- * `UpdateRequest processPreUpdate(UpdateRequest input) throws StopProcessingException;`
- * `DeleteRequest processPreDelete(DeleteRequest input) throws StopProcessingException;`
- * `QueryRequest processPreQuery(QueryRequest input) throws StopProcessingException;`
- * `QueryResponse processPostQuery(QueryResponse input) throws StopProcessingException;`
-
-. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
-
-. Export the service to the OSGi registry.  +
-*Blueprint descriptor example* +
-`<]]" inter"[[SampleAccessPlugin" interface="ddf.catalog.plugin.AccessPlugin" />`

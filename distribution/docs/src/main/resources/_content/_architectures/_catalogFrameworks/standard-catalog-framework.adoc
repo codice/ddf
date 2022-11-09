@@ -112,18 +112,6 @@ See <<{reference-prefix}ddf.catalog.CatalogFrameworkImpl, Catalog Standard Frame
 |optional
 |true
 
-|ddf.catalog.plugin.PreSubscriptionPlugin
-|optional
-|true
-
-|ddf.catalog.plugin.PolicyPlugin
-|optional
-|true
-
-|ddf.catalog.plugin.AccessPlugin
-|optional
-|true
-
 |ddf.catalog.resource.ResourceReader
 |optional
 |true
@@ -132,21 +120,9 @@ See <<{reference-prefix}ddf.catalog.CatalogFrameworkImpl, Catalog Standard Frame
 |optional
 |true
 
-|ddf.catalog.source.ConnectedSource
-|optional
-|true
-
 |ddf.catalog.source.FederatedSource
 |optional
 |true
-
-|ddf.cache.CacheManager
-|
-|false
-
-|org.osgi.service.event.EventAdmin
-|
-|false
 
 |===
 

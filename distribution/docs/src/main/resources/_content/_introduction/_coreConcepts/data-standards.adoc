@@ -67,10 +67,6 @@ Metadata standards use XML or JSON, or both.
 |avi
 |<<{metadata-prefix}common_metadata_attributes,Standard attributes>>
 
-|http://www.opengeospatial.org/standards/kml[Keyhole Markup Language (KML) ] {external-link}
-|kml
-|<<{metadata-prefix}common_metadata_attributes,Standard attributes>>
-
 |http://dublincore.org/[Dublin Core] {external-link}
 |n/a
 |<<{metadata-prefix}common_metadata_attributes,Standard attributes>>

@@ -8,7 +8,7 @@
 == {title}
 
 . Configure a desired catalog provider.
-. From the command line of ${branding} console, use the `dump` command to export all metacards from the catalog provider into serialized data files dump. 
+. From the command line of ${branding} console, use the `dump` command to export all metacards from the catalog provider into serialized data files dump.
 
 .*Nix
 ----

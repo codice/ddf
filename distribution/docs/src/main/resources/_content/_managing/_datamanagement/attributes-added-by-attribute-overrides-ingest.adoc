@@ -7,9 +7,7 @@
 
 === {title}
 
-<<_overriding_attributes,Attribute Overriding>> is the act of replacing existing attribute values with a new value.
-
-Attribute overrides can be configured for the <<_content_directory_monitor,Content Directory Monitor>>.
+Attribute Overriding is the act of replacing existing attribute values with a new value.
 
 Note that the attribute must be part of the metacard's <<{integrating-prefix}metacard_type,Metacard Type>> before it can be overridden. +
 See <<{managing-prefix}attributes_added_by_attribute_injection,Attributes Added By Attribute Injection>> for more information about injecting attributes into the metacard type.

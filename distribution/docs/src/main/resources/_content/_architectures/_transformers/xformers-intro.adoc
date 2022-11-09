@@ -42,7 +42,7 @@ Multiple endpoints can use the same transformer, a different transformer, or the
 [WARNING]
 ====
 The current transformers only work for UTF-8 characters and do not support Non-Western Characters (for example, Hebrew).
-It is recommend not to use international character sets, as they may not be displayed properly.
+It is recommended not to use international character sets, as they may not be displayed properly.
 ====
 
 .Communication Diagram

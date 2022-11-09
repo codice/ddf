@@ -37,8 +37,8 @@
 |WebGL capable GPU
 
 |Additional Software
-|JRE 8 x64
-|JDK 8 x64
+|JRE 17 x64
+|JDK 17 x64
 
 |===
 
@@ -59,13 +59,11 @@ Other operating systems or browsers may be used but have not been officially tes
 |Browsers
 
 |Windows Server 2012 R2 +
-Windows Server 2008 R2 Service Pack 1 +
-Windows 10 +
-Linux CentOS 7 +
-Debian 9
+Windows 11 +
+Linux CentOS 8 +
+Debian 11
 
-|Internet Explorer 11 +
-Microsoft Edge +
+|Microsoft Edge +
 Firefox +
 Chrome
 |===

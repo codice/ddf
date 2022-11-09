@@ -15,9 +15,6 @@ It is recommended to apply the following security mitigations to the ${branding}
 ====
 
 === Known Issues with Environment Hardening
-The session timeout should be configured longer than the UI polling time or you may get session
-timeout errors in the UI.
-
 
 [cols="1,3,6",options="header]
 |===
@@ -33,22 +30,6 @@ a|* Stop the management feature using the command line console: `feature:stop ma
 |File System Access
 |tampering, information disclosure, and denial of service
 a|Set OS File permissions under the `${home_directory}` directory (for example, `/deploy` or `/etc`) to ensure unauthorized viewing and writing is not allowed.
-
- If Caching is installed:
-
-* <<{managing-prefix}setting_directory_permissions,Set permissions>> for the installation directory `/data/product-cache` such that only the ${branding} process and users with the appropriate permissions can view any stored product. +
-* Caching can be turned off as well to mitigate this risk. +
-** To disable caching, navigate to ${admin-console}. +
-** Select the *${ddf-catalog}* application. +
-** Select *Resource Download Settings*. +
-** Uncheck the `Enable Product Caching` box. +
-* Install ${ddf-security} to ensure only the appropriate users are accessing the resources. +
-** Navigate to the ${admin-console} +
-** Select *Manage*. +
-** Install the ${ddf-security} application, if applicable. +
-* Cached files are written by the user running the ${branding} `process/application`. +
-
-On system: ensure that not everyone can change ACLs on your object.
 
 |SSH
 |tampering, information disclosure, and denial of service
@@ -92,16 +73,6 @@ Setting this configuration may break compatibility to legacy systems that do not
 ====
 Setting this configuration requires a certificate to be installed in the browser.
 ====
-
-|Session Inactivity Timeout
-|unauthorized access
-a|Update the Session configuration to have no greater than a 10 minute Session Timeout. +
-
- * Navigate to the *${admin-console}*. +
- * Select the *${ddf-security}* application. +
- * Select the *Configuration* tab. +
- * Select `Session`. +
- * Set `Session Timeout (in minutes)` to `10` (or less). +
 
 |Shell Command Access
 |command injection

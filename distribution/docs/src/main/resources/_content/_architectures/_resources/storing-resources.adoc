@@ -5,14 +5,14 @@
 :order: 02
 :summary: Storing Resources.
 
-((Resources)) are saved using a `ResourceWriter`. 
-`${ddf-branding}.catalog.resource.ResourceWriter` instances can be discovered via the OSGi Service Registry.
-Once retrieved, the `ResourceWriter` instance provides clients with a way to store resources and get a corresponding URI that can be used to subsequently retrieve the resource via a `ResourceReader`. 
-Simply invoke either of the `storeResource` methods with a resource and any potential arguments.
- 
-The `ResourceWriter` implementation is responsible for determining where the resource is saved and how it is saved. 
-This allows flexibility for a resource to be saved in any one of a variety of data stores or file systems. 
-The following is an example of how to use a generic implementation of `ResourceWriter`.
+((Resources)) are saved using a `ResourceWriter`. 
+`${ddf-branding}.catalog.resource.ResourceWriter` instances can be discovered via the OSGi Service Registry.
+Once retrieved, the `ResourceWriter` instance provides clients with a way to store resources and get a corresponding URI that can be used to subsequently retrieve the resource via a `ResourceReader`. 
+Simply invoke either of the `storeResource` methods with a resource and any potential arguments.
+ 
+The `ResourceWriter` implementation is responsible for determining where the resource is saved and how it is saved. 
+This allows flexibility for a resource to be saved in any one of a variety of data stores or file systems. 
+The following is an example of how to use a generic implementation of `ResourceWriter`.
 
 .Using a ResourceWriter
 [source,java,linenums]

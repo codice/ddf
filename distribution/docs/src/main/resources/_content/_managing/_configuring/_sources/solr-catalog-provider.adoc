@@ -59,7 +59,7 @@ Configuration shared between Solr Server instances is managed by Zookeeper.
 
 * https://lucene.apache.org/solr/downloads.html[Solr ${solr.version}] {external-link}
 * https://zookeeper.apache.org/releases.html#download[ZooKeeper ${solr.zookeeper.version}] {external-link}
-* JRE 8 or greater
+* JRE 17 or greater
 
 [NOTE]
 ====
