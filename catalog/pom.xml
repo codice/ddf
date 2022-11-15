@@ -29,7 +29,6 @@
         <cglib.version>3.2.0</cglib.version>
         <logkit.version>1.0.1</logkit.version>
         <cdi-api.version>1.2</cdi-api.version>
-        <xalan.version>2.7.2</xalan.version>
         <axiom.version>1.2.14</axiom.version>
         <!--
             Remove restlet.version property and restlet dependencies from the dependencyManagement section when
@@ -66,12 +65,6 @@
                 <version>${woodstox.stax2-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.springframework.osgi</groupId>
-                <artifactId>spring-osgi-mock</artifactId>
-                <version>${spring-osgi-mock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>ddf.admin.core</groupId>
                 <artifactId>admin-core-api</artifactId>
                 <version>${project.version}</version>
@@ -82,11 +75,6 @@
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>xml-apis</groupId>
-                <artifactId>xml-apis</artifactId>
-                <version>${xml-apis.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
@@ -249,11 +237,6 @@
                 <version>${json-smart.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>${commons-beanutils.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-weaver-privilizer-api</artifactId>
                 <version>${commons-weaver-privilizer-api.version}</version>
@@ -277,11 +260,6 @@
                 <groupId>javax.enterprise</groupId>
                 <artifactId>cdi-api</artifactId>
                 <version>${cdi-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.el</groupId>
-                <artifactId>el-api</artifactId>
-                <version>${javax-el.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.validation</groupId>
