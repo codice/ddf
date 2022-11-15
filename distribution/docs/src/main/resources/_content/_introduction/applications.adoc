@@ -7,10 +7,7 @@
 
 === {title}
 
-${branding} is comprised of several modular applications, to be installed or uninstalled as needed.
-
-((${ddf-admin} Application))::
-Enhances administrative capabilities when installing and managing ${branding}. It contains various services and interfaces that allow administrators more control over their systems.
+${branding} comprises several modular applications, to be installed or uninstalled as needed.
 
 ((${ddf-catalog} Application))::
 Provides a framework for storing, searching, processing, and transforming information.
@@ -20,10 +17,6 @@ At the core of the Catalog functionality is the *Catalog Framework*, which route
 ((${ddf-platform} Application))::
 The Core application of the distribution.
 The Platform application contains the fundamental building blocks to run the distribution.
-
-((${ddf-security} Application))::
-Provides authentication, authorization, and auditing services for the ${branding}.
-It is both a framework that developers and integrators can extend and a reference implementation that meets security requirements.
 
 ((${ddf-solr} Application))::
 Includes the Solr Catalog Provider, an implementation of the Catalog Provider using http://solr.apache.org/[Apache Solr] {external-link} as a data store.

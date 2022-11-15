@@ -12,20 +12,22 @@ Individual features can also be added via the ${command-console}.
 
 . Determine which feature to install by viewing the available features on ${branding}. +
 `${branding-lowercase}${at-symbol}local>feature:list`
-. The console outputs a list of all features available (installed and uninstalled). A snippet of the list output is shown below (the versions may differ):
+. The console outputs a list of all features available (started and uninstalled). A snippet of the list output is shown below (the versions may differ):
 
 ----
-State         Version            Name                                     Repository                           Description
-[installed  ] [${project.version}  ] security-handler-api                     security-services-app-${project.version} API for authentication handlers for web applications.
-[installed  ] [${project.version}  ] security-core                            security-services-app-${project.version} DDF Security Core
-[uninstalled] [${project.version}  ] security-expansion                       security-services-app-${project.version} DDF Security Expansion
-[installed  ] [${project.version}  ] security-pdp-authz                       security-services-app-${project.version} DDF Security PDP.
-[uninstalled] [${project.version}  ] security-pep-serviceauthz                security-services-app-${project.version} DDF Security PEP Service AuthZ
-[uninstalled] [${project.version}  ] security-expansion-user-attributes       security-services-app-${project.version} DDF Security Expansion User Attributes Expansion
-[uninstalled] [${project.version}  ] security-expansion-metacard-attributes   security-services-app-${project.version} DDF Security Expansion Metacard Attributes Expansion
-[installed  ] [${project.version}  ] security-realm-saml                       security-services-app-${project.version} DDF Security SAML Realm.
-[uninstalled] [${project.version}  ] security-jaas-ldap                   security-services-app-${project.version} DDF Security JAAS LDAP Login.
-[uninstalled] [${project.version}  ] security-claims-ldap           security-services-app-${project.version} Retrieves claims attributes from an LDAP store.
+Name                              │ Version          │ Required │ State       │ Repository                      │ Description
+──────────────────────────────────┼──────────────────┼──────────┼─────────────┼─────────────────────────────────┼───────────────────────────────────────────────────
+catalog-core-api                  │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │ Catalog API interfaces and simple implementations.
+catalog-core-impl                 │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │ Catalog Core feature containing the API, third pa
+catalog-core-attachment           │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │ Generate Filenames for Ingested Attachments
+catalog-transformer-xlsx          │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │
+catalog-core-plugins              │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │ Catalog core plugins
+catalog-core-content              │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │ Core features for content
+catalog-rest                      │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │
+catalog-rest-endpoint             │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │ REST Endpoint provides CRUD operations on the Cat
+catalog-opensearch                │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │
+catalog-opensearch-endpoint       │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │ OpenSearch Query Endpoint with Atom Transformer.
+catalog-opensearch-source         │ 3.0.0.SNAPSHOT   │          │ Started     │ catalog-app-X.0.0               │ OpenSearch Federated Source queries a Federated S
 ----
 . Check the bundle status to verify the service is started. +
 `${branding-lowercase}${at-symbol}local>list`

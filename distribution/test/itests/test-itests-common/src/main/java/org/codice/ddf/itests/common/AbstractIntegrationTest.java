@@ -498,8 +498,6 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(
             "etc/org.apache.karaf.management.cfg", "rmiServerPort", RMI_SERVER_PORT.getPort()),
         installStartupFile(
-            getClass().getClassLoader().getResource("hazelcast.xml"), "/etc/hazelcast.xml"),
-        installStartupFile(
             getClass().getClassLoader().getResource("collection.properties"),
             "/etc/solr/configsets/default/collection.properties"),
         installStartupFile(
@@ -706,33 +704,11 @@ public abstract class AbstractIntegrationTest {
           installStartupFile(
               getClass().getResource("/etc/test-users.attributes"), "/etc/users.attributes"),
           installStartupFile(
-              getClass().getResource("/injections.json"), "/etc/definitions/injections.json"),
-          // Catalog-ui custom forms
-          installStartupFile(
-              getClass().getResource("/etc/forms/forms.json"), "/etc/forms/forms.json"),
-          installStartupFile(
-              getClass().getResource("/etc/forms/results.json"), "/etc/forms/results.json"),
-          installStartupFile(
-              getClass().getResource("/etc/forms/imagery.xml"), "/etc/forms/imagery.xml"),
-          installStartupFile(
-              getClass().getResource("/etc/forms/contact-name.xml"), "/etc/forms/contact-name.xml"),
-          getFilePermissionsOption());
+              getClass().getResource("/injections.json"), "/etc/definitions/injections.json"));
     } catch (IOException e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
     }
     return new Option[0];
-  }
-
-  protected Option getFilePermissionsOption() throws IOException {
-    return installStartupFile(
-        String.format(
-            FILE_PERMISSIONS,
-            new File("target" + File.separator + "solr")
-                .getAbsolutePath()
-                .replace("/", "${/}")
-                .replace("\\", "${/}"),
-            "${/}"),
-        "/security/itests-solr.policy");
   }
 
   private Option[] configureSolr() {

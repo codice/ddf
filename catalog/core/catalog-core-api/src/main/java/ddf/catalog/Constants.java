@@ -121,11 +121,7 @@ public final class Constants {
   /** Constant for the String representation of the MIME type for a JPEG image */
   public static final String MIME_TYPE_JPEG = "image/jpeg";
 
-  public static final String OAUTH_RESOURCE_OWNER_USERNAME = "resource.owner.username";
-
   public static final String INGEST_LOGGER_NAME = "ingestLogger";
-
-  public static final String CDM_LOGGER_NAME = "cdmLogger";
 
   public static final String REMOTE_DESTINATION_KEY = "remote-destination";
 

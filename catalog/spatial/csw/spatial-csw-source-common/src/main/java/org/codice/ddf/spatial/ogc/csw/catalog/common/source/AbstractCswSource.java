@@ -44,7 +44,6 @@ import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
-import ddf.catalog.source.OAuthFederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -121,7 +120,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * AbstractCswSource provides a DDF {@link OAuthFederatedSource} and {@link ConnectedSource} for CSW
+ * AbstractCswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW
  * 2.0.2 services.
  */
 public abstract class AbstractCswSource extends MaskableImpl
