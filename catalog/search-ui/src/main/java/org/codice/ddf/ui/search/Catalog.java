@@ -147,6 +147,7 @@ public class Catalog {
     int start = getStart(request.getParameter("start"));
     String sort = request.getParameter("sort");
     String past = request.getParameter("past");
+    String src = request.getParameter("src");
 
     QueryResult result = new QueryResult();
     result.start = start;
@@ -160,7 +161,12 @@ public class Catalog {
     query.setRequestsTotalResultsCount(true);
     setSort(sort, query);
 
-    QueryRequestImpl queryRequest = new QueryRequestImpl(query);
+    QueryRequestImpl queryRequest;
+    if (src != null && !src.isBlank() && !src.equalsIgnoreCase("all")) {
+      queryRequest = new QueryRequestImpl(query, List.of(src));
+    } else {
+      queryRequest = new QueryRequestImpl(query, true);
+    }
 
     QueryResponse queryResponse;
     try {
@@ -175,6 +181,10 @@ public class Catalog {
     result.errors.addAll(getErrorMessages(queryResponse));
     setPaging(queryResponse, result);
     return result;
+  }
+
+  public Set<String> getSourceIds() {
+    return catalog.getSourceIds();
   }
 
   private void updateResults(QueryResult result, QueryResponse queryResponse) {

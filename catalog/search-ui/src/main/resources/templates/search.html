@@ -51,7 +51,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <select name="sort" class="float-right">
+                    <select name="sort">
                         <optgroup label="Sort Order">
                             <option value="modified" th:selected="${sort} == 'modified'">Last modified</option>
                             <option value="title" th:selected="${sort} == 'title'">Title</option>
@@ -68,6 +68,14 @@
                             <option value="week" th:selected="${past} == 'week'">Past Week</option>
                             <option value="month" th:selected="${past} == 'month'">Past Month</option>
                             <option value="year" th:selected="${past} == 'year'">Past Year</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="col">
+                    <select name="src">
+                        <optgroup label="Source">
+                            <option value="all" th:selected="${src} == 'all'">All Sources</option>
+                            <option th:each="s : ${sources}" value="source-id" th:value="${s}" th:selected="${src} == ${s}" th:text="${s}">source-id</option>
                         </optgroup>
                     </select>
                 </div>

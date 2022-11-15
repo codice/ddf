@@ -2,6 +2,12 @@
     margin-top: 0.4rem;
 }
 
+.col > select {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 td {
     overflow: clip;
     text-overflow: ellipsis;

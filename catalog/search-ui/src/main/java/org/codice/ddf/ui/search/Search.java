@@ -115,6 +115,8 @@ public class Search extends HttpServlet {
     ctx.setVariable("q", req.getParameter("q"));
     ctx.setVariable("sort", req.getParameter("sort"));
     ctx.setVariable("past", req.getParameter("past"));
+    ctx.setVariable("src", req.getParameter("src"));
+    ctx.setVariable("sources", catalog.getSourceIds());
 
     if (catalog.hasQuery(req)) {
       Catalog.QueryResult results = catalog.query(req);
