@@ -148,7 +148,7 @@
         <feature>jackson</feature>
         <bundle>mvn:com.github.luben/zstd-jni/${zstd-jni.version}</bundle>
         <bundle>mvn:com.github.openjson/openjson/${openjson.version}</bundle>
-        <bundle>wrap:mvn:net.sf.jwordnet/jwnl/${jwnl.version}</bundle>
+        <bundle>wrap:mvn:net.sf.jwordnet/jwnl/${jwnl.version}$Bundle-Name=jwnl&amp;Bundle-SymbolicName=jwnl</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
     </feature>
@@ -172,13 +172,13 @@
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-math3/${commons-math3.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-compress/${commons-compress.version}</bundle>
-        <bundle>wrap:mvn:org.apache.xmlgraphics/batik-all/1.14</bundle>
-        <bundle>wrap:mvn:xml-apis/xml-apis-ext/1.3.04</bundle>
+        <bundle>wrap:mvn:org.apache.xmlgraphics/batik-all/1.14$Bundle-Name=batik-all&amp;Bundle-SymbolicName=batik-all</bundle>
+        <bundle>wrap:mvn:xml-apis/xml-apis-ext/1.3.04$Bundle-Name=xml-apis-ext&amp;Bundle-SymbolicName=xml-apis-ext</bundle>
         <bundle>mvn:org.apache.santuario/xmlsec/${xmlsec.version}</bundle>
-        <bundle>wrap:mvn:org.apache.xmlgraphics/xmlgraphics-commons/2.7</bundle>
+        <bundle>wrap:mvn:org.apache.xmlgraphics/xmlgraphics-commons/2.7$Bundle-Name=xmlgraphics-commons&amp;Bundle-SymbolicName=xmlgraphics-commons</bundle>
         <bundle>mvn:org.apache.pdfbox/pdfbox/${pdfbox.version}</bundle>
         <bundle>mvn:org.apache.pdfbox/fontbox/${pdfbox.version}</bundle>
-        <bundle>wrap:mvn:de.rototor.pdfbox/graphics2d/0.38</bundle>
+        <bundle>wrap:mvn:de.rototor.pdfbox/graphics2d/0.38$Bundle-Name=graphics2d&amp;Bundle-SymbolicName=graphics2d</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/${servicemix.bundles.poi.version}</bundle>
     </feature>
 
