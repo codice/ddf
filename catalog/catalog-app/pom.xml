@@ -154,17 +154,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.rest</groupId>
             <artifactId>catalog-rest-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-service-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -378,11 +368,6 @@
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>

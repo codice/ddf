@@ -108,11 +108,6 @@
             <version>${commons-digester.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-csw-connectedsource</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-streaming-api</artifactId>
             <version>${project.version}</version>
