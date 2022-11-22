@@ -36,6 +36,17 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj-zookeeper</artifactId>
+            <version>${solr.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
@@ -109,7 +120,9 @@
                         </Export-Package>
                         <Embed-Dependency>
                             solr-solrj,
+                            solr-solrj-zookeeper,
                             commons-io,
+                            http2-client,
                             httpmime,
                             zookeeper,
                             zookeeper-jute

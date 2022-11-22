@@ -137,6 +137,7 @@ public abstract class SolrCommandTest {
   }
 
   protected static void createMiniSolrCloudCluster() throws Exception {
+    System.setProperty("solr.install.dir", Paths.get("target/test-classes/data").toString());
     System.setProperty(
         "pkiHandlerPrivateKeyPath",
         SolrTestCaseJ4.class
@@ -151,6 +152,7 @@ public abstract class SolrCommandTest {
             .toExternalForm());
     System.setProperty("jetty.testMode", "true");
     System.setProperty("solr.allowPaths", "*");
+    System.setProperty("zookeeper.4lw.commands.whitelist", "*");
     miniSolrCloud =
         new MiniSolrCloudCluster.Builder(1, getBaseDirPath())
             .withJettyConfig(jetty -> jetty.setContext("/solr"))
