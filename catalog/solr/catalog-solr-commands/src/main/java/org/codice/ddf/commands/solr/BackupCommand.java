@@ -242,8 +242,8 @@ public class BackupCommand extends SolrCommands {
       optimizeCollection(client, coreName);
       if (asyncBackup) {
         String requestId = backupAsync(client, coreName, backupLocation, backupName);
-        printInfoMessage("Solr Cloud backup request Id: " + requestId);
-        LOGGER.trace("Solr Cloud backup request Id: {}", requestId);
+        printInfoMessage("Solr Cloud backup request Id [" + requestId + "]");
+        LOGGER.trace("Solr Cloud backup request Id [{}]", requestId);
       } else {
         boolean isSuccess = backup(client, coreName, backupLocation, backupName);
         if (isSuccess) {

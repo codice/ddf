@@ -80,6 +80,7 @@ public class SolrProviderTest {
   public static void beforeClass() throws Exception {
     Path solrDataPath = Paths.get("target/test-classes/data");
     System.setProperty("ddf.home", solrDataPath.toString());
+    System.setProperty("solr.install.dir", solrDataPath.toString());
 
     ConfigurationStore store = ConfigurationStore.getInstance();
     store.setForceAutoCommit(true);
@@ -109,6 +110,9 @@ public class SolrProviderTest {
 
     System.setProperty("jetty.testMode", "true");
     System.setProperty("jute.maxbuffer", "20000000"); // windows solution
+
+    System.setProperty("zookeeper.4lw.commands.whitelist", "*");
+    System.setProperty("solr.allowPaths", "*");
 
     miniSolrCloud =
         new MiniSolrCloudCluster.Builder(1, baseDir.getRoot().toPath())
@@ -153,10 +157,13 @@ public class SolrProviderTest {
   @AfterClass
   public static void afterClass() throws Exception {
     System.clearProperty("ddf.home");
+    System.clearProperty("solr.install.dir");
     System.clearProperty("pkiHandlerPrivateKeyPath");
     System.clearProperty("pkiHandlerPublicKeyPath");
     System.clearProperty("jetty.testMode");
     System.clearProperty("jute.maxbuffer");
+    System.clearProperty("zookeeper.4lw.commands.whitelist");
+    System.clearProperty("solr.allowPaths");
     System.clearProperty("solr.cloud.shardCount");
     System.clearProperty("solr.cloud.replicationFactor");
     System.clearProperty("solr.cloud.zookeeper.chroot");
