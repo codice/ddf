@@ -71,8 +71,7 @@
         <!-- for SpatialFilter's PrimitiveFactoryImpl class -->
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-jts-wrapper</artifactId>
-            <version>${org.geotools.version}</version>
+            <artifactId>gt-main</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>

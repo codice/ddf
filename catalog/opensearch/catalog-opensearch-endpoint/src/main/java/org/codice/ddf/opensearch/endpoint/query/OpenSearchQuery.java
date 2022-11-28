@@ -39,13 +39,13 @@ import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
-import org.opengis.geometry.Geometry;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.parboiled.Parboiled;
@@ -64,7 +64,7 @@ public class OpenSearchQuery implements Query {
   public static final String CARET = "^";
 
   // TODO remove this and only use filterbuilder
-  private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
+  private static final FilterFactory2 FILTER_FACTORY = new FilterFactoryImpl();
 
   private static final Pattern SELECTOR_PATTERN =
       Pattern.compile(OpenSearchConstants.SELECTORS_DELIMITER);
@@ -319,8 +319,8 @@ public class OpenSearchQuery implements Query {
     if (geometry != null) {
       Filter filter =
           FILTER_FACTORY.dwithin(
-              OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM,
-              geometry,
+              FILTER_FACTORY.property(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM),
+              FILTER_FACTORY.literal(geometry),
               Double.parseDouble(radius),
               UomOgcMapping.METRE.name());
       LOGGER.trace("Adding spatial filter");
@@ -333,7 +333,9 @@ public class OpenSearchQuery implements Query {
 
     if (geometry != null) {
       Filter filter =
-          FILTER_FACTORY.intersects(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM, geometry);
+          FILTER_FACTORY.intersects(
+              FILTER_FACTORY.property(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM),
+              FILTER_FACTORY.literal(geometry));
       LOGGER.trace("Adding spatial filter");
       spatialFilters.add(filter);
     }

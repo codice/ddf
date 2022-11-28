@@ -27,30 +27,27 @@ import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.catalog.source.UnsupportedQueryException;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.FilterFactoryImpl;
-import org.geotools.geometry.GeometryBuilder;
-import org.geotools.geometry.iso.text.WKTParser;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.PrimitiveFactoryImpl;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.geotools.temporal.object.DefaultPosition;
 import org.junit.Test;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
-import org.opengis.geometry.Geometry;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.opengis.temporal.PeriodDuration;
@@ -60,7 +57,9 @@ import org.slf4j.LoggerFactory;
 public class CopyFilterDelegateTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(CopyFilterDelegateTest.class);
 
-  private static final FilterFactory FF = new FilterFactoryImpl();
+  private static final FilterFactory2 FF = new FilterFactoryImpl();
+
+  private static final WKTReader WKT_READER = new WKTReader();
 
   private static final String TEST_PROPERTY_VALUE = "Test";
 
@@ -177,27 +176,27 @@ public class CopyFilterDelegateTest {
 
   @Test
   public void testPropertyIsEqualToInt() {
-    assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new Integer(5))));
+    assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsEqualToLong() {
-    assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new Long(5))));
+    assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(Long.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsEqualToShort() {
-    assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new Short((short) 5))));
+    assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(Short.valueOf((short) 5))));
   }
 
   @Test
   public void testPropertyIsEqualToFloat() {
-    assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new Float(5.0))));
+    assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(Float.valueOf(5.0f))));
   }
 
   @Test
   public void testPropertyIsEqualToDouble() {
-    assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new Double(5.0))));
+    assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(Double.valueOf(5.0))));
   }
 
   @Test
@@ -237,27 +236,27 @@ public class CopyFilterDelegateTest {
 
   @Test
   public void testPropertyIsNotEqualToInt() {
-    assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new Integer(5))));
+    assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsNotEqualToLong() {
-    assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new Long(5))));
+    assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(Long.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsNotEqualToShort() {
-    assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new Short((short) 5))));
+    assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(Short.valueOf((short) 5))));
   }
 
   @Test
   public void testPropertyIsNotEqualToFloat() {
-    assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new Float(5.0))));
+    assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(Float.valueOf(5.0f))));
   }
 
   @Test
   public void testPropertyIsNotEqualToDouble() {
-    assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new Double(5.0))));
+    assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(Double.valueOf(5.0))));
   }
 
   @Test
@@ -287,27 +286,27 @@ public class CopyFilterDelegateTest {
 
   @Test
   public void testPropertyIsGreaterThanInt() {
-    assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(new Integer(5))));
+    assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsGreaterThanLong() {
-    assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(new Long(5))));
+    assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(Long.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsGreaterThanShort() {
-    assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(new Short((short) 5))));
+    assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(Short.valueOf((short) 5))));
   }
 
   @Test
   public void testPropertyIsGreaterThanFloat() {
-    assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(new Float(5.0))));
+    assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(Float.valueOf(5.0f))));
   }
 
   @Test
   public void testPropertyIsGreaterThanDouble() {
-    assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(new Double(5.0))));
+    assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(Double.valueOf(5.0))));
   }
 
   @Test
@@ -328,27 +327,27 @@ public class CopyFilterDelegateTest {
 
   @Test
   public void testPropertyIsGreaterThanOrEqualToInt() {
-    assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(new Integer(5))));
+    assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsGreaterThanOrEqualToLong() {
-    assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(new Long(5))));
+    assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(Long.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsGreaterThanOrEqualToShort() {
-    assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(new Short((short) 5))));
+    assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(Short.valueOf((short) 5))));
   }
 
   @Test
   public void testPropertyIsGreaterThanOrEqualToFloat() {
-    assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(new Float(5.0))));
+    assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(Float.valueOf(5.0f))));
   }
 
   @Test
   public void testPropertyIsGreaterThanOrEqualToDouble() {
-    assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(new Double(5.0))));
+    assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(Double.valueOf(5.0))));
   }
 
   @Test
@@ -368,27 +367,27 @@ public class CopyFilterDelegateTest {
 
   @Test
   public void testPropertyIsLesserThanInt() {
-    assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(new Integer(5))));
+    assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsLesserThanLong() {
-    assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(new Long(5))));
+    assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(Long.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsLesserThanShort() {
-    assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(new Short((short) 5))));
+    assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(Short.valueOf((short) 5))));
   }
 
   @Test
   public void testPropertyIsLesserThanFloat() {
-    assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(new Float(5.0))));
+    assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(Float.valueOf(5.0f))));
   }
 
   @Test
   public void testPropertyIsLesserThanDouble() {
-    assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(new Double(5.0))));
+    assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(Double.valueOf(5.0))));
   }
 
   @Test
@@ -409,27 +408,27 @@ public class CopyFilterDelegateTest {
 
   @Test
   public void testPropertyIsLesserThanOrEqualToInt() {
-    assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(new Integer(5))));
+    assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsLesserThanOrEqualToLong() {
-    assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(new Long(5))));
+    assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(Long.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsLesserThanOrEqualToShort() {
-    assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(new Short((short) 5))));
+    assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(Short.valueOf((short) 5))));
   }
 
   @Test
   public void testPropertyIsLesserThanOrEqualToFloat() {
-    assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(new Float(5.0))));
+    assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(Float.valueOf(5.0f))));
   }
 
   @Test
   public void testPropertyIsLesserThanOrEqualToDouble() {
-    assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(new Double(5.0))));
+    assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(Double.valueOf(5.0))));
   }
 
   @Test
@@ -450,31 +449,36 @@ public class CopyFilterDelegateTest {
   @Test
   public void testPropertyIsBetweenInts() throws Exception {
     assertFilterEquals(
-        FF.between(TEST_PROPERTY, FF.literal(new Integer(1)), FF.literal(new Integer(5))));
+        FF.between(TEST_PROPERTY, FF.literal(Integer.valueOf(1)), FF.literal(Integer.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsBetweenShorts() throws Exception {
     assertFilterEquals(
         FF.between(
-            TEST_PROPERTY, FF.literal(new Short((short) 1)), FF.literal(new Short((short) 5))));
+            TEST_PROPERTY,
+            FF.literal(Short.valueOf((short) 1)),
+            FF.literal(Short.valueOf((short) 5))));
   }
 
   @Test
   public void testPropertyIsBetweenLongs() throws Exception {
-    assertFilterEquals(FF.between(TEST_PROPERTY, FF.literal(new Long(1)), FF.literal(new Long(5))));
+    assertFilterEquals(
+        FF.between(TEST_PROPERTY, FF.literal(Long.valueOf(1)), FF.literal(Long.valueOf(5))));
   }
 
   @Test
   public void testPropertyIsBetweenFloats() throws Exception {
     assertFilterEquals(
-        FF.between(TEST_PROPERTY, FF.literal(new Float(1.0)), FF.literal(new Float(5.0))));
+        FF.between(
+            TEST_PROPERTY, FF.literal(Float.valueOf(1.0f)), FF.literal(Float.valueOf(5.0f))));
   }
 
   @Test
   public void testPropertyIsBetweenDoubles() throws Exception {
     assertFilterEquals(
-        FF.between(TEST_PROPERTY, FF.literal(new Double(1.0)), FF.literal(new Double(5.0))));
+        FF.between(
+            TEST_PROPERTY, FF.literal(Double.valueOf(1.0)), FF.literal(Double.valueOf(5.0))));
   }
 
   @Test
@@ -543,58 +547,70 @@ public class CopyFilterDelegateTest {
 
   @Test
   public void testSpatialBeyond() {
-    Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
     assertFilterEquals(
-        FF.beyond(TEST_PROPERTY_VALUE, polygonGeometry, DISTANCE_10, UomOgcMapping.METRE.name()));
+        FF.beyond(
+            FF.property(TEST_PROPERTY_VALUE),
+            wktToGeometry(POLYGON_WKT),
+            DISTANCE_10,
+            UomOgcMapping.METRE.name()));
   }
 
   @Test
   public void testSpatialContains() {
-    Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
-    assertFilterEquals(FF.contains(TEST_PROPERTY_VALUE, polygonGeometry));
+    assertFilterEquals(FF.contains(FF.property(TEST_PROPERTY_VALUE), wktToGeometry(POLYGON_WKT)));
   }
 
   @Test
   public void testSpatialDWithin() {
-    Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
     assertFilterEquals(
-        FF.dwithin(TEST_PROPERTY_VALUE, polygonGeometry, DISTANCE_10, UomOgcMapping.METRE.name()));
+        FF.dwithin(
+            FF.property(TEST_PROPERTY_VALUE),
+            wktToGeometry(POLYGON_WKT),
+            DISTANCE_10,
+            UomOgcMapping.METRE.name()));
   }
 
   @Test
   public void testSpatialIntersects() {
-    Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
-    assertFilterEquals(FF.intersects(TEST_PROPERTY_VALUE, polygonGeometry));
+    assertFilterEquals(FF.intersects(FF.property(TEST_PROPERTY_VALUE), wktToGeometry(POLYGON_WKT)));
   }
 
   @Test
   public void testSpatialWithin() {
-    Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
-    assertFilterEquals(FF.within(TEST_PROPERTY_VALUE, polygonGeometry));
+    assertFilterEquals(FF.within(FF.property(TEST_PROPERTY_VALUE), wktToGeometry(POLYGON_WKT)));
   }
 
   @Test
   public void testSpatialCrosses() {
-    Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
-    assertFilterException(FF.crosses(TEST_PROPERTY_VALUE, polygonGeometry));
+    assertFilterException(FF.crosses(FF.property(TEST_PROPERTY_VALUE), wktToGeometry(POLYGON_WKT)));
   }
 
   @Test
   public void testSpatialDisjoint() {
-    Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
-    assertFilterException(FF.disjoint(TEST_PROPERTY_VALUE, polygonGeometry));
+    assertFilterException(
+        FF.disjoint(FF.property(TEST_PROPERTY_VALUE), wktToGeometry(POLYGON_WKT)));
   }
 
   @Test
   public void testSpatialTouches() {
-    Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
-    assertFilterException(FF.touches(TEST_PROPERTY_VALUE, polygonGeometry));
+    assertFilterException(FF.touches(FF.property(TEST_PROPERTY_VALUE), wktToGeometry(POLYGON_WKT)));
   }
 
   @Test
   public void testSpatialOverlaps() {
-    Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
-    assertFilterException(FF.overlaps(TEST_PROPERTY_VALUE, polygonGeometry));
+    assertFilterException(
+        FF.overlaps(FF.property(TEST_PROPERTY_VALUE), wktToGeometry(POLYGON_WKT)));
+  }
+
+  protected Literal wktToGeometry(String wkt) {
+    Geometry geometry = null;
+    try {
+      geometry = WKT_READER.read(wkt);
+    } catch (ParseException e) {
+      LOGGER.debug("Unable to compute geometry for WKT = {}", wkt, e);
+    }
+
+    return FF.literal(geometry);
   }
 
   @Test
@@ -719,19 +735,5 @@ public class CopyFilterDelegateTest {
     assertNotNull(filterInString);
     assertNotNull(filterCopyString);
     assertEquals(filterInString, filterCopyString);
-  }
-
-  private Geometry wktToGeometry(String wkt) {
-    GeometryBuilder geometryBuilder = new GeometryBuilder(DefaultGeographicCRS.WGS84);
-
-    WKTParser wktParser = new WKTParser(geometryBuilder);
-    wktParser.setFactory(new PrimitiveFactoryImpl(DefaultGeographicCRS.WGS84));
-    Geometry geometry = null;
-    try {
-      geometry = wktParser.parse(wkt);
-    } catch (ParseException e) {
-      fail();
-    }
-    return geometry;
   }
 }

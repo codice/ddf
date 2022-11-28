@@ -26,11 +26,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.geotools.filter.FilterFactoryImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.geotools.util.Converters;
 import org.joda.time.DateTime;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.And;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.ExcludeFilter;
@@ -824,12 +824,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     String wkt;
     // TODO should support OpenGIS Geometry interface and reconstruct the
     // WKT from the getBoundary method
-    if (literal instanceof GeometryImpl) {
-      GeometryImpl surface = (GeometryImpl) literal;
-      org.locationtech.jts.geom.Geometry jtsGeometry = surface.getJTSGeometry();
-      wkt = jtsGeometry.toText();
-    } else if (literal instanceof org.locationtech.jts.geom.Geometry) {
-      org.locationtech.jts.geom.Geometry jtsGeometry = (org.locationtech.jts.geom.Geometry) literal;
+    if (literal instanceof Geometry) {
+      Geometry jtsGeometry = (Geometry) literal;
       wkt = jtsGeometry.toText();
     } else {
       throw new UnsupportedOperationException(

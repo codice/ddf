@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import ddf.catalog.data.Metacard;
@@ -46,25 +45,20 @@ import org.geotools.filter.OrImpl;
 import org.geotools.filter.spatial.DWithinImpl;
 import org.geotools.filter.spatial.IntersectsImpl;
 import org.geotools.filter.temporal.DuringImpl;
-import org.geotools.geometry.GeometryBuilder;
-import org.geotools.geometry.iso.text.WKTParser;
-import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.PrimitiveFactoryImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.xml.filter.FilterTransformer;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.WKTWriter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.spatial.DWithin;
 import org.opengis.filter.spatial.Intersects;
-import org.opengis.geometry.Geometry;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.temporal.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -606,26 +600,27 @@ public class OpenSearchQueryTest {
     // The geometric point is wrapped in a <Literal> element, so have to
     // get geometry expression as literal and then evaluate it to get the
     // geometry.
-    // Example:
-    // <ogc:Literal>org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl@64a7c45e</ogc:Literal>
     Literal literalWrapper = (Literal) containsFilter.getExpression2();
 
     // Luckily we know what type the geometry expression should be, so we can cast it
-    SurfaceImpl bbox = (SurfaceImpl) literalWrapper.evaluate(null);
+    Polygon bbox = (Polygon) literalWrapper.evaluate(null);
 
     String[] expectedCoords = bboxCorners.split(",");
 
-    double[] lowerCornerCoords = bbox.getEnvelope().getLowerCorner().getCoordinate();
+    Coordinate[] envelopeCoords = bbox.getEnvelope().getCoordinates();
     LOGGER.debug(
-        "lowerCornerCoords:  [0] = {},   [1] = {}", lowerCornerCoords[0], lowerCornerCoords[1]);
-    assertEquals(Double.parseDouble(expectedCoords[0]), lowerCornerCoords[0], DOUBLE_DELTA);
-    assertEquals(Double.parseDouble(expectedCoords[1]), lowerCornerCoords[1], DOUBLE_DELTA);
+        "lowerCornerCoords:  [0] = {},   [1] = {}",
+        envelopeCoords[0].getX(),
+        envelopeCoords[0].getY());
+    assertEquals(Double.parseDouble(expectedCoords[0]), envelopeCoords[0].getX(), DOUBLE_DELTA);
+    assertEquals(Double.parseDouble(expectedCoords[1]), envelopeCoords[0].getY(), DOUBLE_DELTA);
 
-    double[] upperCornerCoords = bbox.getEnvelope().getUpperCorner().getCoordinate();
     LOGGER.debug(
-        "upperCornerCoords:  [0] = {},   [1] = {}", upperCornerCoords[0], upperCornerCoords[1]);
-    assertEquals(Double.parseDouble(expectedCoords[2]), upperCornerCoords[0], DOUBLE_DELTA);
-    assertEquals(Double.parseDouble(expectedCoords[3]), upperCornerCoords[1], DOUBLE_DELTA);
+        "upperCornerCoords:  [0] = {},   [1] = {}",
+        envelopeCoords[2].getX(),
+        envelopeCoords[2].getY());
+    assertEquals(Double.parseDouble(expectedCoords[2]), envelopeCoords[2].getX(), DOUBLE_DELTA);
+    assertEquals(Double.parseDouble(expectedCoords[3]), envelopeCoords[2].getY(), DOUBLE_DELTA);
   }
 
   @Test
@@ -658,12 +653,12 @@ public class OpenSearchQueryTest {
     Literal literalWrapper = (Literal) dwithinFilter.getExpression2();
 
     // Luckily we know what type the geometry expression should be, so we can cast it
-    PointImpl point = (PointImpl) literalWrapper.evaluate(null);
-    double[] coords = point.getCentroid().getCoordinate();
+    Point point = (Point) literalWrapper.evaluate(null);
+    Coordinate[] coords = point.getCentroid().getCoordinates();
 
-    LOGGER.debug("coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
-    assertEquals(Double.parseDouble(lon), coords[0], DOUBLE_DELTA);
-    assertEquals(Double.parseDouble(lat), coords[1], DOUBLE_DELTA);
+    LOGGER.debug("coords[0] = {},   coords[1] = {}", coords[0].getX(), coords[0].getY());
+    assertEquals(Double.parseDouble(lon), coords[0].getX(), DOUBLE_DELTA);
+    assertEquals(Double.parseDouble(lat), coords[0].getY(), DOUBLE_DELTA);
     LOGGER.debug("dwithinFilter.getDistance() = {}", dwithinFilter.getDistance());
     assertEquals(Double.parseDouble(radius), dwithinFilter.getDistance(), DOUBLE_DELTA);
   }
@@ -702,11 +697,11 @@ public class OpenSearchQueryTest {
     Literal literalWrapper = (Literal) containsFilter.getExpression2();
 
     // Luckily we know what type the geometry expression should be, so we can cast it
-    SurfaceImpl polygon = (SurfaceImpl) literalWrapper.evaluate(null);
+    Polygon polygon = (Polygon) literalWrapper.evaluate(null);
 
     // WKT is lon/lat, polygon is lat/lon
     String[] expectedCoords = lonLat.split(",");
-    Coordinate[] coords = polygon.getJTSGeometry().getCoordinates();
+    Coordinate[] coords = polygon.getCoordinates();
     int i = 0;
     for (Coordinate coord : coords) {
       LOGGER.debug("coord {}: x = {},   y = {}", (i + 1), coord.x, coord.y);
@@ -726,9 +721,8 @@ public class OpenSearchQueryTest {
     Intersects intersects = (Intersects) filter;
     Literal literalWrapper = (Literal) intersects.getExpression2();
     Object geometryExpression = literalWrapper.getValue();
-    assertThat(geometryExpression, instanceOf(GeometryImpl.class));
-    org.locationtech.jts.geom.Geometry polygon =
-        ((GeometryImpl) geometryExpression).getJTSGeometry();
+    assertThat(geometryExpression, instanceOf(GeometryCollection.class));
+    GeometryCollection polygon = ((GeometryCollection) geometryExpression);
     assertThat(WKT_WRITER.write(polygon), is(GEOMETRY_WKT));
   }
 
@@ -755,23 +749,16 @@ public class OpenSearchQueryTest {
         DWithinImpl dWithin = (DWithinImpl) spatialFilter;
         assertThat(dWithin.getDistance(), is(5000.0));
         Literal literal = (Literal) dWithin.getExpression2();
-        PointImpl point = (PointImpl) literal.getValue();
-        String wkt = WKT_WRITER.write(point.getJTSGeometry());
+        Point point = (Point) literal.getValue();
+        String wkt = WKT_WRITER.write(point);
         assertThat(wkt, is(POINT_WKT));
       } else if (spatialFilter instanceof IntersectsImpl) {
         assertThat(spatialFilter, notNullValue());
         IntersectsImpl intersects = (IntersectsImpl) spatialFilter;
         Literal literal = (Literal) intersects.getExpression2();
-        Object geometryExpression = literal.getValue();
-        if (geometryExpression instanceof SurfaceImpl) {
-          SurfaceImpl surface = (SurfaceImpl) literal.getValue();
-          String wkt = WKT_WRITER.write(surface.getJTSGeometry());
-          assertThat(wkt, anyOf(is(POLYGON_WKT), is(POLYGON_WKT_2)));
-        } else if (geometryExpression instanceof GeometryImpl) {
-          org.locationtech.jts.geom.Geometry polygon =
-              ((GeometryImpl) geometryExpression).getJTSGeometry();
-          assertThat(WKT_WRITER.write(polygon), is(GEOMETRY_WKT));
-        }
+        Geometry surface = (Geometry) literal.getValue();
+        String wkt = WKT_WRITER.write(surface);
+        assertThat(wkt, anyOf(is(GEOMETRY_WKT), is(POLYGON_WKT), is(POLYGON_WKT_2)));
       }
     }
   }
@@ -919,62 +906,6 @@ public class OpenSearchQueryTest {
     assertEquals(2, filters.size());
 
     verifyEqualsFilter(filters.get(1), "id", "456");
-  }
-
-  @Test
-  public void testWktParser() throws Exception {
-    String geometryWkt = "POINT( 48.44 -123.37)";
-    GeometryBuilder builder = new GeometryBuilder(DefaultGeographicCRS.WGS84);
-    WKTParser parser = new WKTParser(builder);
-
-    // This fixed the NPE in parser.parse() - seems GeoTools has bug with
-    // keeping the CRS hint set ...
-    parser.setFactory(new PrimitiveFactoryImpl(DefaultGeographicCRS.WGS84));
-
-    Geometry geometry = parser.parse(geometryWkt);
-    CoordinateReferenceSystem crs = geometry.getCoordinateReferenceSystem();
-    assertNotNull(crs);
-
-    String geometryWkt2 = "POINT( 48.44 -123.37)";
-    builder = new GeometryBuilder(DefaultGeographicCRS.WGS84);
-    WKTParser parser2 = new WKTParser(builder);
-    Geometry geometry2 = parser2.parse(geometryWkt2);
-
-    assertTrue(geometry2.intersects(geometry));
-    double[] coords = geometry.getCentroid().getCoordinate();
-    LOGGER.debug("coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
-  }
-
-  @Test
-  @Ignore
-  public void testWktParserPolygon() throws Exception {
-    String geometryWkt = "POLYGON(( 0 10, 0 30, 20 30, 20 10, 0 10 ))";
-    GeometryBuilder builder = new GeometryBuilder(DefaultGeographicCRS.WGS84);
-    WKTParser parser = new WKTParser(builder);
-
-    // This fixed the NPE in parser.parse() - seems GeoTools has bug with
-    // keeping the CRS hint set ...
-    parser.setFactory(new PrimitiveFactoryImpl(DefaultGeographicCRS.WGS84));
-
-    Geometry geometry = parser.parse(geometryWkt);
-    CoordinateReferenceSystem crs = geometry.getCoordinateReferenceSystem();
-    assertNotNull(crs);
-    double[] coords = geometry.getCentroid().getCoordinate();
-    LOGGER.debug("coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
-
-    // String geometryWkt2 = "POINT( 10 20 )";
-    String geometryWkt2 = "POLYGON(( 10 15, 10 25, 15 25, 15 15, 10 15 ))";
-    builder = new GeometryBuilder(DefaultGeographicCRS.WGS84);
-    WKTParser parser2 = new WKTParser(builder);
-    // This fixed the NPE in parser.parse() - seems GeoTools has bug with
-    // keeping the CRS hint set ...
-    parser2.setFactory(new PrimitiveFactoryImpl(DefaultGeographicCRS.WGS84));
-    Geometry geometry2 = parser2.parse(geometryWkt2);
-    double[] coords2 = geometry2.getCentroid().getCoordinate();
-    LOGGER.debug("coords[0] = {},   coords[1] = {}", coords2[0], coords2[1]);
-
-    // This fails - why?
-    assertTrue(geometry.contains(geometry2));
   }
 
   @Test

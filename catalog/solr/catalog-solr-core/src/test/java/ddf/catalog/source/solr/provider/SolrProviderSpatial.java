@@ -46,15 +46,14 @@ import java.util.Collections;
 import java.util.List;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.SortByImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.UomOgcMapping;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.mockito.internal.util.collections.Sets;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -66,7 +65,9 @@ public class SolrProviderSpatial {
 
   private static final double METERS_PER_KM = 1000.0;
 
-  private final FilterFactory filterFactory = new FilterFactoryImpl();
+  private final FilterFactory2 filterFactory = new FilterFactoryImpl();
+
+  private final WKTReader wktReader = new WKTReader();
 
   private static SolrCatalogProviderImpl provider;
 
@@ -173,12 +174,11 @@ public class SolrProviderSpatial {
     assertEquals("Should have not found any records.", 0, sourceResponse.getResults().size());
 
     // FEET
-    double[] coords = {-111.67121887207031, 35.138454437255859};
     query =
         new QueryImpl(
             filterFactory.dwithin(
-                Metacard.ANY_GEO,
-                new PointImpl(new DirectPositionImpl(coords), DefaultGeographicCRS.WGS84),
+                filterFactory.property(Metacard.ANY_GEO),
+                filterFactory.literal(wktReader.read(Library.FLAGSTAFF_AIRPORT_POINT_WKT)),
                 195000,
                 UomOgcMapping.FOOT.name()));
 
@@ -854,15 +854,13 @@ public class SolrProviderSpatial {
   }
 
   /** Creates a point radius {@link QueryImpl} with units of measurement of meters. */
-  private QueryImpl pointRadius(double x, double y, double distance) {
-
-    double[] coords = {x, y};
+  private QueryImpl pointRadius(double x, double y, double distance) throws ParseException {
 
     QueryImpl query =
         new QueryImpl(
             filterFactory.dwithin(
-                Metacard.ANY_GEO,
-                new PointImpl(new DirectPositionImpl(coords), DefaultGeographicCRS.WGS84),
+                filterFactory.property(Metacard.ANY_GEO),
+                filterFactory.literal(wktReader.read("POINT (" + x + " " + y + ")")),
                 distance,
                 UomOgcMapping.METRE.name()));
 

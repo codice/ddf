@@ -28,6 +28,7 @@ import java.util.Date;
 import org.geotools.filter.visitor.DefaultExpressionVisitor;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.junit.Test;
+import org.locationtech.jts.geom.Geometry;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.opengis.filter.And;
@@ -50,7 +51,6 @@ import org.opengis.filter.spatial.Within;
 import org.opengis.filter.temporal.After;
 import org.opengis.filter.temporal.Before;
 import org.opengis.filter.temporal.During;
-import org.opengis.geometry.Geometry;
 import org.opengis.temporal.Instant;
 
 public class FilterBuilderTest {

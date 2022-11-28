@@ -182,11 +182,6 @@
             <artifactId>gt-cql</artifactId>
             <version>${org.geotools.version}</version>
         </dependency>
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-jts-wrapper</artifactId>
-			<version>${org.geotools.version}</version>
-		</dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-xml</artifactId>
