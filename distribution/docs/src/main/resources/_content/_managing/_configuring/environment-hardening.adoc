@@ -23,6 +23,10 @@ It is recommended to apply the following security mitigations to the ${branding}
 |Risk
 |Mitigation
 
+|Password Encryption
+|tampering, information disclosure, and unauthorized access
+a|Set `ENCRYPTION_PASSWORD` environment variable or configure `encryption.password` system property.
+
 |JMX
 |tampering, information disclosure, and unauthorized access
 a|* Stop the management feature using the command line console: `feature:stop management`. +
@@ -76,26 +80,15 @@ Setting this configuration requires a certificate to be installed in the browser
 
 |Shell Command Access
 |command injection
-a|By default, some shell commands are disabled in order to secure the system.
+a|By default, all default shell commands are enabled.
 ${branding} includes a whitelist of allowed shell commands in
 `${home_directory}/etc/org.apache.karaf.command.acl.shell.cfg`.
 
 By default, this list includes commands that are whitelisted only to administrators:
 
-* `complete`
-* `echo`
-* `format`
-* `grep`
-* `if`
-* `keymap`
-* `less`
-* `set`
-* `setopt`
-* `sleep`
-* `tac`
-* `wc`
-* `while`
-* `.invoke`
-* `unsetopt`
+* `nano`
+* `exec`
+* `new`
+* `java`
 
 |===

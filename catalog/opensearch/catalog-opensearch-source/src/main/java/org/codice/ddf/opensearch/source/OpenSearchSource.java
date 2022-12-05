@@ -83,6 +83,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.codehaus.stax2.XMLInputFactory2;
+import org.codice.ddf.configuration.PropertyEncryptor;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.opensearch.OpenSearchConstants;
@@ -162,6 +163,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected String password = "";
 
+  private PropertyEncryptor encryptor;
+
   private XMLInputFactory xmlInputFactory;
 
   protected ResourceReader resourceReader;
@@ -205,6 +208,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     this.filterAdapter = filterAdapter;
     this.openSearchFilterVisitor = openSearchFilterVisitor;
     this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
+    this.encryptor = new PropertyEncryptor();
   }
 
   /**
@@ -294,7 +298,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
           new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-              return new PasswordAuthentication(username, password.toCharArray());
+              char[] pass = encryptor.decrypt(password).toCharArray();
+              return new PasswordAuthentication(username, pass);
             }
           });
     }

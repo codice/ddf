@@ -47,13 +47,14 @@ public class SecurityFilter implements Filter {
 
   public static final String KARAF_SUBJECT_RUN_AS = "karaf.subject.runas";
 
-  public static final String DDF_REALM = "ddf";
-
   // Applications, such as Hawtio, are specifically looking for this property. Do not change it.
   public static final String JAVA_SUBJECT = "subject";
 
   public static final String JAVAX_SERVLET_REQUEST_X_509_CERTIFICATE =
       "javax.servlet.request.X509Certificate";
+
+  private final String realm =
+      System.getProperty("org.codice.ddf.security.http.realm", "karaf").trim();
 
   // The default inactive HTTP session limit is unlimited
   private final int sessionTimeout =
@@ -250,7 +251,8 @@ public class SecurityFilter implements Filter {
       Subject subject = new Subject();
       subject.getPrincipals().add(new ClientPrincipal("http", address));
 
-      LoginContext loginContext = loginContextFactory.create(subject, username, identityProof);
+      LoginContext loginContext =
+          loginContextFactory.create(realm, subject, username, identityProof);
       loginContext.login();
       return subject;
     } catch (GeneralSecurityException e) {
@@ -267,7 +269,7 @@ public class SecurityFilter implements Filter {
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     try {
       if (isBasicAuthEnabled) {
-        response.setHeader(WWW_AUTHENTICATE_HEADER, "Basic realm=\"" + DDF_REALM + "\"");
+        response.setHeader(WWW_AUTHENTICATE_HEADER, "Basic realm=\"" + realm + "\"");
         response.setContentLength(0);
       } else {
         response.getOutputStream().println("401 Unauthorized");

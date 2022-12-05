@@ -75,6 +75,15 @@ Changing these values without also changing the passwords of the JKS causes unde
 |jks
 |Yes
 
+6+^h|Password Encryption
+
+|Encryption Password
+|encryption.password
+|String
+|Password for Password-Based Encryption (PBE)
+|changit
+|No
+
 6+^h|Headless mode
 
 |Headless Mode

@@ -12,22 +12,7 @@
  **/ -->
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:jaas="http://karaf.apache.org/xmlns/jaas/v1.1.0"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
-
-    <ext:property-placeholder/>
-
-    <jaas:config name="ddf" rank="-1">
-        <jaas:module className="org.apache.karaf.jaas.modules.properties.PropertiesLoginModule"
-                     flags="optional">
-            users = ${karaf.etc}/users.properties
-        </jaas:module>
-        <jaas:module className="org.apache.karaf.jaas.modules.publickey.PublickeyLoginModule"
-                     flags="optional">
-            users = ${karaf.etc}/keys.properties
-        </jaas:module>
-    </jaas:config>
 
     <service interface="org.apache.karaf.jaas.modules.BackingEngineFactory">
         <bean class="org.apache.karaf.jaas.modules.properties.PropertiesBackingEngineFactory"/>

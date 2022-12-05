@@ -30,6 +30,7 @@
                 <exclude>etc/profile.cfg</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.apache.karaf.features.xml</exclude>
+                <exclude>etc/org.apache.karaf.jaas.cfg</exclude>
                 <exclude>etc/org.apache.karaf.shell.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>

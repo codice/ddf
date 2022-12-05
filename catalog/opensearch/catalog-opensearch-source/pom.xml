@@ -41,6 +41,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-xml</artifactId>
             <version>${org.geotools.version}</version>

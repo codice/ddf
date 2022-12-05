@@ -51,6 +51,10 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
@@ -75,15 +79,6 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-ogc-common</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>ddf.jaxb</groupId>-->
-<!--            <artifactId>catalog-transformer-xml-binding</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>ddf.catalog.transformer</groupId>-->
-<!--            <artifactId>catalog-transformer-xml</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-csw-common</artifactId>
@@ -176,9 +171,6 @@
                             spatial-ogc-common,
                             spatial-csw-transformer,
                             catalog-core-api-impl,
-<!--                            catalog-transformer-xml-binding,-->
-<!--                            catalog-transformer-xml,-->
-<!--                            gml-v_3_1_1-schema;inline=true,-->
                             commons-collections4,
                             ogc-tools-gml-jts,
                             jaxb2-basics-runtime,

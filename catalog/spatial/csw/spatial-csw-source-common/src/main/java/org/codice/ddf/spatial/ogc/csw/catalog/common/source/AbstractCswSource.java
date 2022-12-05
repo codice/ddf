@@ -99,6 +99,7 @@ import net.opengis.ows.v_1_0_0.OperationsMetadata;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.PropertyEncryptor;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
@@ -187,11 +188,6 @@ public abstract class AbstractCswSource extends MaskableImpl
   protected CapabilitiesType capabilities;
   protected CswClient cswClient;
   protected CswXmlParser parser = new CswXmlParser(new XmlParser());
-  //  protected CswXmlParser parser =
-  //      new CswXmlParser(
-  //          new XmlParser(),
-  //          List.of("ddf.catalog.transformer.xml.binding",
-  // "ddf.catalog.transformer.xml.adapter"));
   protected QueryFilterTransformerProvider cswQueryFilterTransformerProvider;
   private Set<SourceMonitor> sourceMonitors = new HashSet<>();
   private Map<String, ContentType> contentTypes = new ConcurrentHashMap<>();
@@ -200,6 +196,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   private Set<ElementSetType> detailLevels;
   private BundleContext context;
   private ObjectFactory objectFactory = new ObjectFactory();
+  private PropertyEncryptor encryptor;
 
   @SuppressWarnings("squid:S1845")
   private String description = null;
@@ -220,6 +217,8 @@ public abstract class AbstractCswSource extends MaskableImpl
     this.parser = parser;
     this.cswTransformConverter = provider;
     this.cswClient = cswClient;
+
+    this.encryptor = new PropertyEncryptor();
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
@@ -229,6 +228,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   /** Instantiates a CswSource. */
   public AbstractCswSource() {
     cswSourceConfiguration = new CswSourceConfiguration();
+    encryptor = new PropertyEncryptor();
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
@@ -254,7 +254,9 @@ public abstract class AbstractCswSource extends MaskableImpl
     consumerMap.put(
         AUTHENTICATION_TYPE, value -> cswSourceConfiguration.setAuthenticationType((String) value));
 
-    consumerMap.put(PASSWORD_PROPERTY, value -> cswSourceConfiguration.setPassword((String) value));
+    consumerMap.put(
+        PASSWORD_PROPERTY,
+        value -> cswSourceConfiguration.setPassword(encryptor.decrypt((String) value)));
 
     consumerMap.put(USERNAME_PROPERTY, value -> cswSourceConfiguration.setUsername((String) value));
 
@@ -689,7 +691,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   }
 
   public void setPassword(String password) {
-    cswSourceConfiguration.setPassword(password);
+    cswSourceConfiguration.setPassword(encryptor.decrypt(password));
   }
 
   public void setDisableCnCheck(Boolean disableCnCheck) {

@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.security.filter;
 
-import static org.codice.ddf.security.filter.SecurityFilter.DDF_REALM;
-
 import java.security.PublicKey;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -26,10 +24,10 @@ import javax.security.auth.login.LoginException;
 import org.apache.karaf.jaas.modules.publickey.PublickeyCallback;
 
 public class LoginContextFactory {
-  public LoginContext create(Subject subject, String username, Object identityProof)
+  public LoginContext create(String realm, Subject subject, String username, Object identityProof)
       throws LoginException {
     return new LoginContext(
-        DDF_REALM,
+        realm,
         subject,
         callbacks -> {
           for (Callback callback : callbacks) {

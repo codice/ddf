@@ -72,7 +72,7 @@ public class SecurityFilterTest {
 
     filter = new SecurityFilter();
     filter.setLoginContextFactory(loginContextFactory);
-    when(loginContextFactory.create(subjectCaptor.capture(), any(), any()))
+    when(loginContextFactory.create(anyString(), subjectCaptor.capture(), any(), any()))
         .thenReturn(loginContext);
     when(request.getSession(false)).thenReturn(null);
     when(request.getSession(true)).thenReturn(session);
@@ -158,7 +158,7 @@ public class SecurityFilterTest {
 
     filter.doFilter(request, response, filterChain);
 
-    verify(loginContextFactory).create(subjectCaptor.getValue(), "admin", "admin");
+    verify(loginContextFactory).create("karaf", subjectCaptor.getValue(), "admin", "admin");
     verify(request).setAttribute(JAVA_SUBJECT, subjectCaptor.getValue());
     verify(session).setAttribute(KARAF_SUBJECT_RUN_AS, subjectCaptor.getValue());
   }
@@ -176,7 +176,7 @@ public class SecurityFilterTest {
         .thenReturn(new X509Certificate[] {cert});
 
     filter.doFilter(request, response, filterChain);
-    verify(loginContextFactory).create(subjectCaptor.getValue(), "CN=localhost", key);
+    verify(loginContextFactory).create("karaf", subjectCaptor.getValue(), "CN=localhost", key);
     verify(request).setAttribute(JAVA_SUBJECT, subjectCaptor.getValue());
     verify(session).setAttribute(KARAF_SUBJECT_RUN_AS, subjectCaptor.getValue());
   }
