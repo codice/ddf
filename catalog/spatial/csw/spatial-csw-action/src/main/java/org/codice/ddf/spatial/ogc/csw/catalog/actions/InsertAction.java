@@ -22,6 +22,7 @@ import java.util.List;
  *
  * <p>An InsertAction represents a single insert action within a CSW transaction.
  */
+@Deprecated
 public interface InsertAction {
 
   /**

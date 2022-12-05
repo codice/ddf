@@ -17,6 +17,7 @@ package ddf.catalog.event;
  * The exception thrown when problems creating a subscription are detected due to invalid data in
  * the {@link Subscription}, such as a missing {@link DeliveryMethod}.
  */
+@Deprecated
 public class InvalidSubscriptionException extends EventException {
 
   /** The constant serialVersionUID. */

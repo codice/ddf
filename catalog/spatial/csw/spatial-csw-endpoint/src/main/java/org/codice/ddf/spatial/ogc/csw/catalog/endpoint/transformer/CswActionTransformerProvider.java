@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
  * <p>Manages a reference list of {@link CswActionTransformer}'s by mapping them to the typenames
  * they apply to.
  */
+@Deprecated
 public interface CswActionTransformerProvider {
 
   Optional<CswActionTransformer> getTransformer(@Nullable String typeName);

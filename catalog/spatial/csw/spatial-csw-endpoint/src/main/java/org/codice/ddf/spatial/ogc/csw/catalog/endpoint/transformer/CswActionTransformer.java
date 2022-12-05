@@ -26,6 +26,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
  * it modifies {@link UpdateAction}, {@link DeleteAction}, and {@link InsertAction} objects before
  * they are processed by the framework.
  */
+@Deprecated
 public interface CswActionTransformer {
 
   /**

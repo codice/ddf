@@ -33,6 +33,7 @@ import java.util.Map;
  * <p><b> This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library. </b>
  */
+@Deprecated
 public interface PreAuthorizationPlugin {
 
   /**

@@ -17,6 +17,7 @@ package ddf.catalog.resource;
  * Custom exception class for the Data Usage Plugin that is thrown when a user exceeds their daily
  * data usage limit.
  */
+@Deprecated
 public class DataUsageLimitExceededException extends RuntimeException {
 
   public DataUsageLimitExceededException(String msg) {

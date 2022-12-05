@@ -22,6 +22,7 @@ import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
  *
  * <p>A DeleteAction represents a single delete action within a CSW transaction.
  */
+@Deprecated
 public interface DeleteAction {
 
   /**

@@ -17,6 +17,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /** Maps property names from a CSW query to catalog taxonomy */
+@Deprecated
 public interface CswRecordMap {
 
   /**

@@ -23,6 +23,7 @@ import java.util.List;
  * original metacards. This also provides the framework with the ability to rollback a failed ingest
  * request.
  */
+@Deprecated
 public interface OperationTransaction extends Serializable {
 
   /**

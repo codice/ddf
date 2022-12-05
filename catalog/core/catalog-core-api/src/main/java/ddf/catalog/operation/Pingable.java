@@ -13,6 +13,7 @@
  */
 package ddf.catalog.operation;
 
+@Deprecated
 public interface Pingable {
 
   /** This method can be called to get the status of a service. */

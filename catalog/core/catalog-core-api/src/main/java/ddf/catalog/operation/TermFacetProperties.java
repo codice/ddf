@@ -25,6 +25,7 @@ import java.util.Set;
  * TermFacetPropertiesImpl object using the supplied parameters to facet on the provided attributes,
  * returning results sorted by the provided key.
  */
+@Deprecated
 public interface TermFacetProperties extends Serializable {
 
   enum SortFacetsBy {

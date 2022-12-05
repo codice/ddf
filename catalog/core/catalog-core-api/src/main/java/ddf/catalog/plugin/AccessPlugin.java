@@ -28,6 +28,7 @@ import java.util.Map;
  * An AccessPlugin allows or denies access to the Catalog operation or response. AccessPlugin are
  * independent and should not rely on ordering of other plugins
  */
+@Deprecated
 public interface AccessPlugin {
 
   /**

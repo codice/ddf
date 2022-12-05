@@ -20,6 +20,7 @@ import javax.xml.namespace.QName;
  * Provider interface to obtain the appropriate {@link QueryFilterTransformer} given qName or
  * typeName
  */
+@Deprecated
 public interface QueryFilterTransformerProvider {
 
   /**

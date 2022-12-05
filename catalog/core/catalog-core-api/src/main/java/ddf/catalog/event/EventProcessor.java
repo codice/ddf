@@ -23,6 +23,7 @@ import ddf.catalog.data.Metacard;
  *   <li>a method of broadcasting events when {@link Metacard}s are created, updated, or deleted.
  * </ul>
  */
+@Deprecated
 public interface EventProcessor {
 
   // TODO move to implementation and undeprecate - not part of specification.

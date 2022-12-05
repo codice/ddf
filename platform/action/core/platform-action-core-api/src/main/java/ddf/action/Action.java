@@ -20,6 +20,7 @@ import java.net.URL;
  * provide some resource or business logic. An example would be providing a link to a product or a
  * link to calculate information about a specific resource.
  */
+@Deprecated
 public interface Action {
 
   /**

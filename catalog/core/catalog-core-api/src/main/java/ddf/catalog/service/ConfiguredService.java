@@ -18,6 +18,7 @@ package ddf.catalog.service;
  *
  * @author Scott Tustison
  */
+@Deprecated
 public interface ConfiguredService {
   /**
    * Returns the PID of the configuration that corresponds to this service

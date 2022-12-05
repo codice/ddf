@@ -19,6 +19,7 @@ package ddf.catalog.operation;
  */
 
 /** A value and count pairing of a facet response. */
+@Deprecated
 public interface FacetValueCount {
 
   long getCount();

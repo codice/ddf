@@ -24,4 +24,5 @@ import ddf.catalog.util.Maskable;
  * @see Source
  * @see ddf.catalog.operation.Query
  */
+@Deprecated
 public interface ConnectedSource extends RemoteSource, Maskable {}

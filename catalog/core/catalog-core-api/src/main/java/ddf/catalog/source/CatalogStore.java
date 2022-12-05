@@ -25,6 +25,7 @@ import ddf.catalog.operation.UpdateResponse;
  * removed in a future version of the library. </b> A CatalogStore represents an editable store that
  * is either local or remote
  */
+@Deprecated
 public interface CatalogStore extends FederatedSource {
 
   /**

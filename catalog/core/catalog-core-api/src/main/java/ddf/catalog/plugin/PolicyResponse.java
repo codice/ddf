@@ -21,6 +21,7 @@ import java.util.Set;
  * ddf.catalog.operation.Operation} and individual items, such as {@link ddf.catalog.data.Metacard}
  * or {@link ddf.catalog.data.Result}
  */
+@Deprecated
 public interface PolicyResponse {
 
   /**

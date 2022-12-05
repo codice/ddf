@@ -21,6 +21,7 @@ package ddf.action;
  * @see Action
  * @see ActionRegistry
  */
+@Deprecated
 public interface ActionProvider {
 
   /**

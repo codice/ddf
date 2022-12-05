@@ -23,6 +23,7 @@ import java.util.Map;
  * The {@code InputCollectionTransformer} is used to transform an {@link InputStream} into a list of
  * {@code Metacard}s.
  */
+@Deprecated
 public interface InputCollectionTransformer {
 
   /**

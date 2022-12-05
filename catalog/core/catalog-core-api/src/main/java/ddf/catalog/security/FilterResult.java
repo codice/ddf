@@ -17,6 +17,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.Response;
 
 /** Result of performing filtering on a {@link Metacard} or {@link Response}. */
+@Deprecated
 public interface FilterResult {
   /**
    * Returns a filtered {@link Metacard}.

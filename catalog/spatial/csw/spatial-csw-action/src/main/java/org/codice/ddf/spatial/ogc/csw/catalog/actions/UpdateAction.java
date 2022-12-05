@@ -24,6 +24,7 @@ import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
  *
  * <p>An UpdateAction represents a single update action within a CSW transaction.
  */
+@Deprecated
 public interface UpdateAction {
 
   /**

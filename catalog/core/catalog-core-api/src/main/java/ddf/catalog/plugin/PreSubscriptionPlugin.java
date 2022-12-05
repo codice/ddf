@@ -19,6 +19,7 @@ import ddf.catalog.event.Subscription;
  * The Interface PreSubscriptionPlugin provides the capability to execute a plugin prior to a {@link
  * Subscription} being created.
  */
+@Deprecated
 public interface PreSubscriptionPlugin {
 
   /**

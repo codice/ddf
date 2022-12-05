@@ -30,6 +30,7 @@ import java.util.Map;
  * Set<String>>. Where the key is some attribute that you wish to assert against a Subject and
  * Set<String> would be the values associated with that key.
  */
+@Deprecated
 public interface PolicyPlugin {
 
   String OPERATION_SECURITY = "operation.security";

@@ -21,6 +21,7 @@ import ddf.catalog.data.Metacard;
  *
  * @see Subscription
  */
+@Deprecated
 public interface DeliveryMethod {
 
   /**

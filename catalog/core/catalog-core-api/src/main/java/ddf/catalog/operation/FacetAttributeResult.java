@@ -25,6 +25,7 @@ import java.util.List;
  * FacetAttributeResult is representative of a single attribute's faceting results, and zero to many
  * {@link FacetAttributeResult}s may make up a complete faceted query result.
  */
+@Deprecated
 public interface FacetAttributeResult {
 
   String getAttributeName();

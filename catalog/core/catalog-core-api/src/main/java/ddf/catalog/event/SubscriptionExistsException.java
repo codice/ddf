@@ -17,6 +17,7 @@ package ddf.catalog.event;
  * The exception thrown when problems creating a subscription are detected due to a {@link
  * Subscription} with the same ID already existing in the OSGi registry.
  */
+@Deprecated
 public class SubscriptionExistsException extends EventException {
 
   /** The constant serialVersionUID. */

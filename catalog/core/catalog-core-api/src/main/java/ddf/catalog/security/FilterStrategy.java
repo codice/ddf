@@ -17,6 +17,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.Response;
 
 /** A strategy for filtering a Metacard. */
+@Deprecated
 public interface FilterStrategy {
   /**
    * Returns a {@link FilterResult} with a processed or unprocessed {@link Metacard} or {@link

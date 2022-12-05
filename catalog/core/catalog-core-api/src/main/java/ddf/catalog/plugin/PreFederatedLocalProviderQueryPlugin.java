@@ -26,6 +26,7 @@ import java.util.List;
  * provides the {@link #isLocalSource} method to check if a given {@link Source} is a local {@link
  * Source}.
  */
+@Deprecated
 public abstract class PreFederatedLocalProviderQueryPlugin implements PreFederatedQueryPlugin {
 
   protected final List<CatalogProvider> catalogProviders;

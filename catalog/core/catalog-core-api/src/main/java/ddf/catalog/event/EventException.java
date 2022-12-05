@@ -17,6 +17,7 @@ package ddf.catalog.event;
  * The exception thrown to capture problems during the PubSub operations create, update, and delete
  * of subscriptions.
  */
+@Deprecated
 public class EventException extends Exception {
 
   /** The constant serialVersionUID. */

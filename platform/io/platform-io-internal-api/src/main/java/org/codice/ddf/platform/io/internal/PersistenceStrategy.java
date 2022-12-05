@@ -33,6 +33,7 @@ import java.util.Dictionary;
  * <p><i>This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library.</i>
  */
+@Deprecated
 public interface PersistenceStrategy {
 
   /** Service property key to get the file extension a particular strategy can operate upon. */

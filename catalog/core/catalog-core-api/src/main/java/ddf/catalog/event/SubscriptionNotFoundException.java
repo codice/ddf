@@ -17,6 +17,7 @@ package ddf.catalog.event;
  * The exception thrown when problems updating or deleting a subscription are detected due to the
  * {@link Subscription} not being found in the OSGi registry.
  */
+@Deprecated
 public class SubscriptionNotFoundException extends EventException {
 
   /** The constant serialVersionUID. */

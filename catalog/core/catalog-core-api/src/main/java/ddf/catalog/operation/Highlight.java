@@ -21,6 +21,7 @@ package ddf.catalog.operation;
  * <p><b> This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library. </b>
  */
+@Deprecated
 public interface Highlight {
   int getValueIndex();
 

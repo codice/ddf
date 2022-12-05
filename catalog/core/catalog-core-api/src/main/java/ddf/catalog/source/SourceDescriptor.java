@@ -58,6 +58,7 @@ public interface SourceDescriptor extends Describable {
    *
    * @return list of actions
    */
+  @Deprecated
   default List<Action> getActions() {
     return Collections.emptyList();
   }

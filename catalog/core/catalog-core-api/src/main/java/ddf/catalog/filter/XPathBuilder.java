@@ -20,6 +20,7 @@ import org.opengis.filter.Filter;
  *
  * @author Michael Menousek
  */
+@Deprecated
 public interface XPathBuilder extends XPathBasicBuilder {
 
   /**

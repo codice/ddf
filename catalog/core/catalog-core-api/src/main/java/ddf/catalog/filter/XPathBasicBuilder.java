@@ -18,6 +18,7 @@ package ddf.catalog.filter;
  *
  * @author Michael Menousek
  */
+@Deprecated
 public interface XPathBasicBuilder {
 
   /**

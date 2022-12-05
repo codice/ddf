@@ -18,6 +18,7 @@ package ddf.catalog.event;
  * Subscriber must have created the subscription being deleted and maintained a reference to its
  * ServiceRegistration in order to be able to delete the subscription.
  */
+@Deprecated
 public interface Subscriber {
   /**
    * Deletes a subscription with the specified ID. Subscription deletion includes unregistering the
