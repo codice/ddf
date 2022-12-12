@@ -17,6 +17,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
@@ -41,9 +42,13 @@ public class SecureWebSocketServlet extends WebSocketServlet {
 
   private final ExecutorService executor;
 
-  public SecureWebSocketServlet(ExecutorService executor, WebSocket ws) {
+  private final List<SessionPlugin> sessionPlugins;
+
+  public SecureWebSocketServlet(
+      ExecutorService executor, WebSocket ws, List<SessionPlugin> sessionPlugins) {
     this.ws = ws;
     this.executor = executor;
+    this.sessionPlugins = sessionPlugins;
   }
 
   @Override
@@ -53,7 +58,8 @@ public class SecureWebSocketServlet extends WebSocketServlet {
 
   @Override
   public void configure(WebSocketServletFactory factory) {
-    factory.setCreator((req, resp) -> new SocketWrapper(executor, ws, req.getSession()));
+    factory.setCreator(
+        (req, resp) -> new SocketWrapper(executor, ws, sessionPlugins, req.getSession()));
   }
 
   @org.eclipse.jetty.websocket.api.annotations.WebSocket
@@ -65,9 +71,16 @@ public class SecureWebSocketServlet extends WebSocketServlet {
 
     private final HttpSession httpSession;
 
-    SocketWrapper(ExecutorService executor, WebSocket ws, HttpSession httpSession) {
+    private final List<SessionPlugin> sessionPlugins;
+
+    SocketWrapper(
+        ExecutorService executor,
+        WebSocket ws,
+        List<SessionPlugin> sessionPlugins,
+        HttpSession httpSession) {
       this.ws = ws;
       this.executor = executor;
+      this.sessionPlugins = sessionPlugins;
       this.httpSession = httpSession;
     }
 
@@ -126,6 +139,18 @@ public class SecureWebSocketServlet extends WebSocketServlet {
         clientHost = session.getRemoteAddress().getHostName();
       }
       ThreadContextProperties.addClientInfo(clientIP, clientHost, clientPort, requestUri);
+      callSessionPlugins(session);
+    }
+
+    private void callSessionPlugins(Session session) {
+      sessionPlugins.forEach(
+          sessionPlugin -> {
+            try {
+              sessionPlugin.handle(session);
+            } catch (Exception e) {
+              LOGGER.debug("The session plugin {} failed (continuing)", sessionPlugin, e);
+            }
+          });
     }
 
     @OnWebSocketMessage
