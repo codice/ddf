@@ -82,11 +82,31 @@ export EXTRA_JAVA_OPTS
 export DDF_ON_ERROR="bin/ddf_on_error.sh script "
 
 # Defines the special on-error Java options
-JAVA_ERROR_OPTS="-XX:OnOutOfMemoryError=\${DDF_ON_ERROR}%p -XX:OnError=\${DDF_ON_ERROR}%p"
+if [ -z "$JAVA_ERROR_OPTS" ]; then
+   JAVA_ERROR_OPTS="-XX:OnOutOfMemoryError=\${DDF_ON_ERROR}%p -XX:OnError=\${DDF_ON_ERROR}%p"
+fi
 
 # Defines java garbage collection logging options
-GC_OPTS="-Xlog:gc*=info:file=${DDF_HOME}/data/log/gc.log:time,uptime,level,tags:filecount=9,filesize=20m"
+if [ -z "$GC_OPTS" ]; then
+   GC_OPTS="-Xlog:gc*=info:file=${DDF_HOME}/data/log/gc.log:time,uptime,level,tags:filecount=9,filesize=20m"
+fi
 
-export KARAF_OPTS="-Dfile.encoding=UTF8"
+if [ -z "$JAVA_MEM" ]; then
+   JAVA_MEM="-Xms2g -Xmx6g"
+fi
 
-export JAVA_OPTS="-Xms2g -Xmx6g -XX:+UnlockDiagnosticVMOptions -Dddf.home=${DDF_HOME} -Dddf.home.perm=${DDF_HOME}/ -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS $GC_OPTS --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-opens java.desktop/java.awt.font=ALL-UNNAMED"
+if [ -z "$KARAF_DEBUG" ]; then
+   JAVA_ATTACH="-XX:+DisableAttachMechanism"
+fi
+
+if [ -z "$DDF_OPTS" ]; then
+   DDF_OPTS="$JAVA_MEM -XX:+UnlockDiagnosticVMOptions -Dddf.home=${DDF_HOME} -Dddf.home.perm=${DDF_HOME}/ $JAVA_ATTACH $JAVA_ERROR_OPTS $GC_OPTS --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-opens java.desktop/java.awt.font=ALL-UNNAMED -Dfile.encoding=UTF8"
+fi
+
+if [ -z "$JAVA_OPTS" ]; then
+   JAVA_OPTS="$DDF_OPTS"
+else
+   JAVA_OPTS="$JAVA_OPTS $DDF_OPTS"
+fi
+
+export JAVA_OPTS

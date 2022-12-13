@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrClient;
@@ -77,8 +76,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   public SolrClient newClient(String collection) {
     Validate.notNull(collection, "invalid null Solr core name");
 
-    String zookeeperHosts = System.getProperty("solr.cloud.zookeeper");
-    checkConfig(zookeeperHosts);
+    String zookeeperHosts = System.getProperty("solr.cloud.zookeeper", "localhost:2181");
 
     LOGGER.debug(
         "Solr({}): Creating a Solr Cloud client with configuration using Zookeeper hosts [{}]",
@@ -259,18 +257,6 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     } catch (FailsafeException e) {
       LOGGER.debug("Solr({}): Retry failure waiting for collection shards to start", collection, e);
       return false;
-    }
-  }
-
-  protected void checkConfig(String zookeeperHosts) {
-    if (StringUtils.isBlank(zookeeperHosts)) {
-      zookeeperHosts = System.getProperty("solr.cloud.zookeeper");
-    }
-
-    if (StringUtils.isBlank(zookeeperHosts)) {
-      LOGGER.warn(
-          "Cannot create Solr Cloud client without Zookeeper host list system property [solr.cloud.zookeeper] being set.");
-      throw new IllegalStateException("system property 'solr.cloud.zookeeper' is not configured");
     }
   }
 
