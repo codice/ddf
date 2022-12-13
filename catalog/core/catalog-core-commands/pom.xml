@@ -92,16 +92,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>${ant.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant-launcher</artifactId>
-            <version>${ant.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
         </dependency>
@@ -115,8 +105,6 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            ant,
-                            ant-launcher,
                             joda-time;scope=runtime|compile,
                             joda-convert;scope=runtime|compile,
                             catalog-core-api-impl,
@@ -132,19 +120,6 @@
                         <Import-Package>
                             org.osgi.framework;version="[1.5,2)",
                             !javax.activation,
-                            com.sun.tools.apt;resolution:=optional,
-                            com.sun.tools.javac;resolution:=optional,
-                            com.sun.tools.javah;resolution:=optional,
-                            com.sun.tools.javah.oldjavah;resolution:=optional,
-                            gnu.classpath;resolution:=optional,
-                            gnu.gcj;resolution:=optional,
-                            kaffe.util;resolution:=optional,
-                            org.apache.env;resolution:=optional,
-                            org.apache.harmony.luni.util;resolution:=optional,
-                            sun.rmi.rmic;resolution:=optional,
-                            sun.tools.javac;resolution:=optional,
-                            sun.tools.native2ascii;resolution:=optional,
-                            weblogic;resolution:=optional,
                             *
                         </Import-Package>
                         <Karaf-Commands>*</Karaf-Commands>

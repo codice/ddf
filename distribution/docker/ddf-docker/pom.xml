@@ -24,11 +24,6 @@
     <packaging>pom</packaging>
     <name>DDF :: Distribution :: Docker :: DDF</name>
 
-    <properties>
-        <!-- Set the version of the codice/ddf-base docker image to build on top of here -->
-        <docker.ddf.base.version>2.27-alpine</docker.ddf.base.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.codice.ddf</groupId>

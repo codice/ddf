@@ -22,14 +22,10 @@
     <blacklistedRepositories/>
 
     <!-- A list of blacklisted feature identifiers that can't be installed in Karaf and are not part of the distribution -->
-    <blacklistedFeatures>
-        <feature>pax-web-jetty-http2</feature>
-    </blacklistedFeatures>
+    <blacklistedFeatures />
 
     <!-- A list of blacklisted bundle URIs that are not installed even if they are part of some features -->
-    <blacklistedBundles>
-        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.saaj-api-1.3</bundle>
-    </blacklistedBundles>
+    <blacklistedBundles />
 
     <!-- A list of repository URIs, feature identifiers and bundle URIs to override "dependency" flag -->
     <overrideBundleDependency/>

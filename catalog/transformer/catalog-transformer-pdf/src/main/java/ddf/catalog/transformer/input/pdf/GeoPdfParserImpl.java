@@ -82,7 +82,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
       if (lgiDictObject instanceof COSArray) {
         for (int i = 0; i < ((COSArray) lgiDictObject).size(); i++) {
           COSDictionary lgidict =
-              (COSDictionary) cosObject.getObjectFromPath(LGIDICT + "/[" + i + "]");
+              (COSDictionary) cosObject.getObjectFromPath(LGIDICT + "/\\[" + i + "\\]");
 
           COSDictionary projectionArray = (COSDictionary) lgidict.getDictionaryObject(PROJECTION);
           if (projectionArray != null) {
@@ -90,7 +90,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
                 ((COSString) projectionArray.getItem(PROJECTION_TYPE)).getString();
             if (GEOGRAPHIC.equals(projectionType)) {
               COSArray neatlineArray =
-                  (COSArray) cosObject.getObjectFromPath(LGIDICT + "/[" + i + "]/" + NEATLINE);
+                  (COSArray) cosObject.getObjectFromPath(LGIDICT + "/\\[" + i + "\\]/" + NEATLINE);
               getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).ifPresent(polygons::add);
             } else {
               LOGGER.debug(
@@ -197,7 +197,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
 
     double[] points = new double[CTM_SIZE];
     for (int i = 0; i < CTM_SIZE; i++) {
-      Object obj = lgidict.getObjectFromPath(CTM + "/[" + i + "]").accept(toDoubleVisitor);
+      Object obj = lgidict.getObjectFromPath(CTM + "/\\[" + i + "\\]").accept(toDoubleVisitor);
       if (obj != null) {
         points[i] = (Double) obj;
       } else {
