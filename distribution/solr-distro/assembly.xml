@@ -46,15 +46,9 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>org.apache.logging.log4j:log4j-core</include>
+                <include>org.apache.commons:commons-text</include>
             </includes>
-            <outputDirectory>/server/lib/ext</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.apache.logging.log4j:log4j-core</include>
-            </includes>
-            <outputDirectory>/contrib/prometheus-exporter/lib</outputDirectory>
+            <outputDirectory>/server/solr-webapp/webapp/WEB-INF/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
     <fileSets>
@@ -85,7 +79,7 @@
             <directory>${project.build.directory}/solr-${solr.version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
-                <exclude>**/log4j-core-2.16.0.jar*</exclude>
+                <exclude>**/commons-text-1.6.jar*</exclude>
             </excludes>
         </fileSet>
     </fileSets>
