@@ -69,7 +69,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            gson
                         </Embed-Dependency>
                         <Import-Package>
                             com.sun.management;resolution:=optional,
