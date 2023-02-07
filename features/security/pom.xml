@@ -453,9 +453,9 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel.karaf</groupId>
-            <artifactId>apache-camel</artifactId>
-            <version>${camel.version}</version>
+            <groupId>ddf.features</groupId>
+            <artifactId>camel-karaf</artifactId>
+            <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

@@ -25,6 +25,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>camel-karaf</module>
         <module>kernel</module>
         <module>test-utilities</module>
         <module>utilities</module>
