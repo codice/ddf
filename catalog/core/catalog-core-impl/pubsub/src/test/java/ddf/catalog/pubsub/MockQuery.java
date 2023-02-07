@@ -44,7 +44,7 @@ import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.expression.Expression;
@@ -56,7 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MockQuery implements FederatedSource, Query {
-  public static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
+  public static final FilterFactory2 FILTER_FACTORY = new FilterFactoryImpl();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MockQuery.class);
 
@@ -199,19 +199,28 @@ public class MockQuery implements FederatedSource, Query {
       SpatialFilter spatialFilter = new SpatialFilter(geometryWkt);
 
       if (spatialType.equals("CONTAINS")) {
-        filter = FILTER_FACTORY.within(Metacard.ANY_GEO, spatialFilter.getGeometry());
+        filter =
+            FILTER_FACTORY.within(
+                FILTER_FACTORY.property(Metacard.ANY_GEO),
+                FILTER_FACTORY.literal(spatialFilter.getGeometry()));
       } else if (spatialType.equals("OVERLAPS")) {
-        filter = FILTER_FACTORY.intersects(Metacard.ANY_GEO, spatialFilter.getGeometry());
+        filter =
+            FILTER_FACTORY.intersects(
+                FILTER_FACTORY.property(Metacard.ANY_GEO),
+                FILTER_FACTORY.literal(spatialFilter.getGeometry()));
       } else if (spatialType.equals("NEAREST_NEIGHBOR")) {
         filter =
             FILTER_FACTORY.beyond(
-                Metacard.ANY_GEO, spatialFilter.getGeometry(), 0.0, UomOgcMapping.METRE.name());
+                FILTER_FACTORY.property(Metacard.ANY_GEO),
+                FILTER_FACTORY.literal(spatialFilter.getGeometry()),
+                0.0,
+                UomOgcMapping.METRE.name());
       } else if (spatialType.equals("POINT_RADIUS")) {
         Double normalizedRadius = convertRadius(linearUnit, inputRadius);
         filter =
             FILTER_FACTORY.dwithin(
-                Metacard.ANY_GEO,
-                spatialFilter.getGeometry(),
+                FILTER_FACTORY.property(Metacard.ANY_GEO),
+                FILTER_FACTORY.literal(spatialFilter.getGeometry()),
                 normalizedRadius,
                 UomOgcMapping.METRE.name());
       } else {

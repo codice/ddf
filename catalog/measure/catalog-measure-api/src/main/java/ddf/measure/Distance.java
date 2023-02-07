@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import si.uom.SI;
 import systems.uom.common.USCustomary;
+import tech.units.indriya.function.DefaultNumberSystem;
 
 /** This class currently relies on JScience 4.3.1 to perform all distance conversions. */
 public final class Distance {
@@ -34,8 +35,13 @@ public final class Distance {
    * @param unitOfMeasure the units of measure of the scalar distance
    */
   public Distance(double distance, LinearUnit unitOfMeasure) {
-
-    this.distanceInMeters = getAsMeters(distance, unitOfMeasure);
+    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(DefaultNumberSystem.class.getClassLoader());
+    try {
+      this.distanceInMeters = getAsMeters(distance, unitOfMeasure);
+    } finally {
+      Thread.currentThread().setContextClassLoader(tccl);
+    }
   }
 
   private double getAsMeters(double distance, LinearUnit unitOfMeasure) {

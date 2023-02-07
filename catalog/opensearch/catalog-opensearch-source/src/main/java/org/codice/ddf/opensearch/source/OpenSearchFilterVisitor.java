@@ -482,7 +482,10 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     Literal literalWrapper = (Literal) filter.getExpression2();
     Object geometryExpression = literalWrapper.getValue();
 
-    if (geometryExpression instanceof SurfaceImpl) {
+    if (geometryExpression instanceof Geometry) {
+      Geometry polygon = (Geometry) literalWrapper.evaluate(null);
+      openSearchFilterVisitorObject.addGeometrySearch(polygon);
+    } else if (geometryExpression instanceof SurfaceImpl) {
       SurfaceImpl surface = (SurfaceImpl) literalWrapper.evaluate(null);
       Geometry polygon = surface.getJTSGeometry();
       openSearchFilterVisitorObject.addGeometrySearch(polygon);

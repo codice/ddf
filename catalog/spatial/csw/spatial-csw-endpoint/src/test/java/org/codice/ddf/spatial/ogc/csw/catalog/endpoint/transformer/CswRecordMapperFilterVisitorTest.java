@@ -19,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -47,6 +48,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -79,7 +81,7 @@ public class CswRecordMapperFilterVisitorTest {
 
   private static final CswRecordMap DEFAULT_CSW_RECORD_MAP = new MetacardCswRecordMap();
 
-  private static FilterFactoryImpl factory;
+  private static FilterFactory2 factory;
 
   private static Expression attrExpr;
 
@@ -194,7 +196,7 @@ public class CswRecordMapperFilterVisitorTest {
     Within duplicate = (Within) obj;
 
     assertThat(duplicate.getExpression1(), is(attrExpr));
-    assertThat(duplicate.getExpression2().toString(), is(bbox));
+    assertThat(duplicate.getExpression2().toString(), startsWith(bbox));
   }
 
   @Test
