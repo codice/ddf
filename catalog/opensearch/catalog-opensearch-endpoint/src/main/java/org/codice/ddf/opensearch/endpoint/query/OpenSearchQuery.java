@@ -39,12 +39,13 @@ import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.FilterVisitor;
+import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
-import org.opengis.geometry.Geometry;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.parboiled.Parboiled;
@@ -63,7 +64,7 @@ public class OpenSearchQuery implements Query {
   public static final String CARET = "^";
 
   // TODO remove this and only use filterbuilder
-  private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
+  private static final FilterFactory2 FILTER_FACTORY = new FilterFactoryImpl();
 
   private static final Pattern SELECTOR_PATTERN =
       Pattern.compile(OpenSearchConstants.SELECTORS_DELIMITER);
@@ -77,17 +78,17 @@ public class OpenSearchQuery implements Query {
 
   private final Integer count;
 
-  private long maxTimeout;
+  private final long maxTimeout;
 
   private boolean isEnterprise;
 
   private Set<String> siteIds;
 
-  private SortBy sortBy;
+  private final SortBy sortBy;
 
-  private List<Filter> filters;
+  private final List<Filter> filters;
 
-  private List<Filter> spatialFilters;
+  private final List<Filter> spatialFilters;
 
   /**
    * Creates an Implementation of a DDF Query interface. This object is passed from the endpoint to
@@ -318,8 +319,8 @@ public class OpenSearchQuery implements Query {
     if (geometry != null) {
       Filter filter =
           FILTER_FACTORY.dwithin(
-              OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM,
-              geometry,
+              FILTER_FACTORY.property(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM),
+              FILTER_FACTORY.literal(geometry),
               Double.parseDouble(radius),
               UomOgcMapping.METRE.name());
       LOGGER.trace("Adding spatial filter");
@@ -332,7 +333,9 @@ public class OpenSearchQuery implements Query {
 
     if (geometry != null) {
       Filter filter =
-          FILTER_FACTORY.intersects(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM, geometry);
+          FILTER_FACTORY.intersects(
+              FILTER_FACTORY.property(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM),
+              FILTER_FACTORY.literal(geometry));
       LOGGER.trace("Adding spatial filter");
       spatialFilters.add(filter);
     }
@@ -380,6 +383,27 @@ public class OpenSearchQuery implements Query {
     if (filter != null) {
       LOGGER.trace("Adding type filter");
       filters.add(filter);
+    }
+  }
+
+  public void addRecordIds(String recordIds) {
+    if (recordIds == null || recordIds.isBlank()) {
+      return;
+    }
+
+    String[] ids = recordIds.split(",");
+
+    List<Filter> idFilteres = new ArrayList<>();
+    for (String id : ids) {
+      PropertyIsEqualTo idFilter =
+          FILTER_FACTORY.equals(FILTER_FACTORY.property(Metacard.ID), FILTER_FACTORY.literal(id));
+      idFilteres.add(idFilter);
+    }
+
+    if (idFilteres.size() > 1) {
+      filters.add(FILTER_FACTORY.or(idFilteres));
+    } else if (idFilteres.size() == 1) {
+      filters.add(idFilteres.get(0));
     }
   }
 
@@ -496,7 +520,7 @@ public class OpenSearchQuery implements Query {
     if (queryFilter == null) {
       return "OpenSearchQuery: FILTERS:{ NULL }";
     } else {
-      return "OpenSearchQuery: " + "FILTERS:{" + queryFilter.toString() + "}";
+      return "OpenSearchQuery: FILTERS:{" + queryFilter + "}";
     }
   }
 }

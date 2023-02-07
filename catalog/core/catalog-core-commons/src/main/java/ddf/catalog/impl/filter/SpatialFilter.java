@@ -13,23 +13,19 @@
  */
 package ddf.catalog.impl.filter;
 
-import java.text.ParseException;
-import java.util.Locale;
-import org.geotools.geometry.GeometryBuilder;
-import org.geotools.geometry.iso.text.WKTParser;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.PrimitiveFactoryImpl;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-import org.opengis.geometry.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SpatialFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SpatialFilter.class);
 
-  protected String geometryWkt;
+  private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
-  private WKTParser parser;
+  protected String geometryWkt;
 
   private WKTReader reader;
 
@@ -40,13 +36,7 @@ public class SpatialFilter {
   public SpatialFilter(String geometryWkt) {
     this.geometryWkt = geometryWkt;
 
-    GeometryBuilder builder = new GeometryBuilder(DefaultGeographicCRS.WGS84);
-    this.parser = new WKTParser(builder);
-    this.reader = new WKTReader();
-
-    // This fixed the NPE in parser.parse() - seems GeoTools has bug with
-    // keeping the CRS hint set ...
-    parser.setFactory(new PrimitiveFactoryImpl(DefaultGeographicCRS.WGS84));
+    this.reader = new WKTReader(GEOMETRY_FACTORY);
   }
 
   public String getGeometryWkt() {
@@ -61,21 +51,9 @@ public class SpatialFilter {
     Geometry geometry = null;
 
     try {
-      if (geometryWkt.toLowerCase(Locale.US).startsWith("multi")
-          || geometryWkt.toLowerCase(Locale.US).trim().indexOf("geometrycollection") != -1) {
-        // WKTParser does not currently support MultiPolygon,
-        // MultiLineString, or MultiPoint
-        org.locationtech.jts.geom.Geometry geo = reader.read(geometryWkt);
-
-        geometry = new JTSGeometryWrapper(geo);
-      } else {
-        geometry = parser.parse(geometryWkt);
-      }
-
+      geometry = reader.read(geometryWkt);
     } catch (ParseException e) {
-      LOGGER.debug("Unable to compute geometry for WKT = {}", this.geometryWkt, e);
-    } catch (org.locationtech.jts.io.ParseException e) {
-      LOGGER.debug("Unable to read multi geometry for WKT = {}", this.geometryWkt, e);
+      LOGGER.debug("Unable to read geometry for WKT = {}", this.geometryWkt, e);
     }
 
     return geometry;
