@@ -98,7 +98,6 @@
              description="Catalog core plugins">
         <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/catalog-core-tagsfilterplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-commands/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/${project.version}</bundle>
     </feature>
@@ -162,6 +161,15 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${dom4j.bundle.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${jdom.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
+    </feature>
+
+    <feature name="catalog-transformer-atom" version="${project.version}"
+             description="Atom Query Response Transformer.">
+        <feature>dev-failsafe</feature>
+        <bundle>mvn:org.apache.abdera/abdera-extensions-opensearch/${abdera.version}</bundle>
+        <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
+        <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
+        <bundle>mvn:ddf.catalog.transformer/service-atom-transformer/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-metadata" version="${project.version}"
@@ -265,6 +273,7 @@
         <feature>catalog-transformer-json</feature>
         <feature>catalog-transformer-csv</feature>
         <feature>catalog-transformer-xml</feature>
+        <feature>catalog-transformer-atom</feature>
         <feature>catalog-security-filter</feature>
         <feature>catalog-security-operationplugin</feature>
         <feature>catalog-security-plugin</feature>
@@ -275,13 +284,14 @@
 
     <!-- Start of app features -->
 
-    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
+    <repository>mvn:ddf.features/camel-karaf/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/admin/${project.version}/xml/features</repository>
 
     <feature name="catalog-plugins" version="${project.version}"
              description="Catalog core plugins">
         <feature>security-core-services</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcestatusplugin/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-tagsfilterplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-eventcommands/${project.version}</bundle>
     </feature>
@@ -415,16 +425,6 @@
              description="Input transformer that handles video files.">
         <bundle>mvn:ddf.catalog.transformer/video-input-transformer/${project.version}</bundle>
     </feature>
-
-    <feature name="catalog-transformer-atom" version="${project.version}"
-             description="Atom Query Response Transformer.">
-        <feature>dev-failsafe</feature>
-        <bundle>mvn:org.apache.abdera/abdera-extensions-opensearch/${abdera.version}</bundle>
-        <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
-        <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
-        <bundle>mvn:ddf.catalog.transformer/service-atom-transformer/${project.version}</bundle>
-    </feature>
-
 
     <feature name="catalog-transformer-zip" version="${project.version}"
              description="ZIP Transformer">
@@ -678,7 +678,6 @@
         <feature>catalog-transformer-xsltengine</feature>
         <feature>catalog-transformer-tika</feature>
         <feature>catalog-transformer-video</feature>
-        <feature>catalog-transformer-atom</feature>
         <feature>catalog-transformer-zip</feature>
         <feature>catalog-transformer-rtf</feature>
         <feature>catalog-security-resourceplugin</feature>
