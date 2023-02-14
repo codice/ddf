@@ -119,11 +119,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>cxf</artifactId>
+            <groupId>org.apache.cxf.karaf</groupId>
+            <artifactId>apache-cxf</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
-            <version>${project.version}</version>
+            <version>${cxf.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

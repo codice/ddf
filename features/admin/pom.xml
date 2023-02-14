@@ -193,9 +193,9 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>cxf</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.cxf.karaf</groupId>
+            <artifactId>apache-cxf</artifactId>
+            <version>${cxf.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
