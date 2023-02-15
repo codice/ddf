@@ -17,7 +17,7 @@
     <parent>
         <artifactId>kernel</artifactId>
         <groupId>org.codice.ddf</groupId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.29.0</version>
         <relativePath>../kernel/pom.xml</relativePath>
     </parent>
     <!--
@@ -111,9 +111,7 @@
                         </goals>
                         <configuration>
                             <target>
-                                <replaceregexp
-                                        file="${project.basedir}/target/dependencies/apache-karaf-${karaf.version}/system/org/apache/camel/karaf/apache-camel/${camel.version}/apache-camel-${camel.version}-features.xml"
-                                        match="(&lt;repository&gt;.*&lt;/repository&gt;)" replace="" byline="true" />
+                                <replaceregexp file="${project.basedir}/target/dependencies/apache-karaf-${karaf.version}/system/org/apache/camel/karaf/apache-camel/${camel.version}/apache-camel-${camel.version}-features.xml" match="(&lt;repository&gt;.*&lt;/repository&gt;)" replace="" byline="true" />
                             </target>
                         </configuration>
                     </execution>
