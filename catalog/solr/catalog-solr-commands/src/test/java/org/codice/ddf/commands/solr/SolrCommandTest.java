@@ -251,8 +251,8 @@ public abstract class SolrCommandTest {
         backupCommand.asyncBackupReqId = requestId;
       }
       return backupCommand;
-    } catch (Exception ex) {
-      LOGGER.error("Failed to create BackupCommand with test Solr cluster.", ex);
+    } catch (Throwable throwable) {
+      LOGGER.error("Failed to create BackupCommand with test Solr cluster.", throwable);
       fail();
     }
     return null;
