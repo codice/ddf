@@ -24,11 +24,6 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-dependencies</artifactId>
             <version>${project.version}</version>
