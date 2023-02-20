@@ -119,9 +119,9 @@
         <spock.version>2.3-groovy-3.0</spock.version>
         <mockito.version>4.9.0</mockito.version>
         <pax.exam.version>4.13.5</pax.exam.version>
-        <pax.logging.version>2.1.3</pax.logging.version>
+        <pax.logging.version>2.2.0</pax.logging.version>
         <pax.url.version>2.6.12</pax.url.version>
-        <pax.web.version>8.0.11</pax.web.version>
+        <pax.web.version>8.0.15</pax.web.version>
         <restito.version>1.1.0</restito.version>
         <restassured.version>3.3.0</restassured.version>
         <groovy.version>3.0.12</groovy.version>
@@ -164,7 +164,7 @@
         <countryconverter.version>0.1.8</countryconverter.version>
         <dependency-check-maven.version>8.1.0</dependency-check-maven.version>
         <equinox.version>3.18.0</equinox.version>
-        <felix.configadmin.version>1.9.24</felix.configadmin.version>
+        <felix.configadmin.version>1.9.26</felix.configadmin.version>
         <felix.coordinator.version>1.0.2</felix.coordinator.version>
         <felix.fileinstall.version>3.7.4</felix.fileinstall.version>
         <felix.metatype.version>1.2.4</felix.metatype.version>
@@ -176,7 +176,7 @@
         <httpcore.version>4.4.16</httpcore.version>
         <httpmime.version>${httpclient.version}</httpmime.version>
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
-        <jackson.version>2.14.0</jackson.version>
+        <jackson.version>2.14.1</jackson.version>
         <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.mail.version>1.6.6</jakarta.mail.version>
@@ -204,7 +204,7 @@
         <jts.geotools.version>1.19.0</jts.geotools.version>
         <jts.spatial4j.version>1.17.0</jts.spatial4j.version>
         <jwnl.version>1.3.3</jwnl.version>
-        <karaf.version>4.4.2</karaf.version>
+        <karaf.version>4.4.3</karaf.version>
         <jansi.version>2.4.0</jansi.version>
         <org.osgi.util.promise.version>1.2.0</org.osgi.util.promise.version>
         <org.osgi.util.function.version>1.2.0</org.osgi.util.function.version>
@@ -255,6 +255,7 @@
         <xalan.version>2.7.2</xalan.version>
         <xerces.version>2.12.2</xerces.version>
         <xerces.bundle.version>2.12.2_1</xerces.bundle.version>
+        <xml-apis.version>1.3.04</xml-apis.version>
         <xmlbeans.version>5.0.3</xmlbeans.version>
         <xmlsec.version>2.3.1</xmlsec.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
@@ -773,7 +774,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
