@@ -36,8 +36,13 @@ import org.apache.solr.common.util.NamedList;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class SolrCommandTest {
+
+  protected static final Logger LOGGER = LoggerFactory.getLogger(SolrCommandTest.class);
+
   protected static final String DEFAULT_ZK_HOSTS =
       "zookeeperhost1:2181,zookeeperhost2:2181,zookeeperhost3:2181";
 
@@ -212,38 +217,45 @@ public abstract class SolrCommandTest {
       boolean asyncBackupStatus,
       String requestId,
       SolrClient solrClient) {
-    BackupCommand backupCommand =
-        new BackupCommand() {
-          @Override
-          protected SolrClient getCloudSolrClient() {
-            return solrClient;
-          }
+    try {
+      BackupCommand backupCommand =
+          new BackupCommand() {
+            @Override
+            protected SolrClient getCloudSolrClient() {
+              return solrClient;
+            }
 
-          // We get the solr client from the MiniSolrCloudCluster, so we don't
-          // want to shut it down after each test as there is no way to restart it.
-          // We don't create a MiniSolrCloudCluster for each test to reduce the
-          // time it takes to run the tests.
-          @Override
-          protected void shutdown(SolrClient client) {
-            // do nothing
-          }
-        };
-    if (backupLocation != null) {
-      backupCommand.backupLocation = getBackupLocation();
+            // We get the solr client from the MiniSolrCloudCluster, so we don't
+            // want to shut it down after each test as there is no way to restart it.
+            // We don't create a MiniSolrCloudCluster for each test to reduce the
+            // time it takes to run the tests.
+            @Override
+            protected void shutdown(SolrClient client) {
+              // do nothing
+            }
+          };
+
+      if (backupLocation != null) {
+        backupCommand.backupLocation = getBackupLocation();
+      }
+      if (collection != null) {
+        backupCommand.coreName = collection;
+      }
+      if (asyncBackup) {
+        backupCommand.asyncBackup = true;
+      }
+      if (asyncBackupStatus) {
+        backupCommand.asyncBackupStatus = true;
+      }
+      if (requestId != null) {
+        backupCommand.asyncBackupReqId = requestId;
+      }
+      return backupCommand;
+    } catch (Exception ex) {
+      LOGGER.error("Failed to create BackupCommand with test Solr cluster.", ex);
+      fail();
     }
-    if (collection != null) {
-      backupCommand.coreName = collection;
-    }
-    if (asyncBackup) {
-      backupCommand.asyncBackup = true;
-    }
-    if (asyncBackupStatus) {
-      backupCommand.asyncBackupStatus = true;
-    }
-    if (requestId != null) {
-      backupCommand.asyncBackupReqId = requestId;
-    }
-    return backupCommand;
+    return null;
   }
 
   protected BackupCommand getSynchronousBackupCommand(

@@ -40,12 +40,12 @@
     </Appenders>
     <Loggers>
         <!-- Use <AsyncLogger/<AsyncRoot and <Logger/<Root for asynchronous logging or synchonous logging respectively -->
-        <Logger name="org.apache.zookeeper" level="WARN"/>
-        <Logger name="org.apache.directory" level="WARN"/>
-        <Logger name="org.eclipse.jetty" level="INFO"/>
+        <Logger name="org.apache.zookeeper" level="ERROR"/>
+        <Logger name="org.apache.directory" level="ERROR"/>
+        <Logger name="org.eclipse.jetty" level="ERROR"/>
         <Logger name="org.apache.solr" level="ERROR"/>
 
-        <Root level="INFO">
+        <Root level="ERROR">
             <AppenderRef ref="STDERR"/>
         </Root>
     </Loggers>
