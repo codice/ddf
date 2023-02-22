@@ -67,7 +67,7 @@ pipeline {
             steps {
                 withMaven(maven: 'maven-latest', jdk: 'jdk17', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                     sh 'mvn install -B -DskipStatic=true -DskipTests=true $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                    sh 'mvn clean install -B -P !itests -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                    sh 'mvn clean install -B -P !itests -Dgib.enabled=true -Dgib.referenceBranch=refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                 }
             }
         }
@@ -97,26 +97,6 @@ pipeline {
                         unset JAVA_TOOL_OPTIONS
                         mvn install -B -pl $ITCORE -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
                     '''
-                }
-            }
-        }
-
-        stage('Dependency Check') {
-            steps {
-                withMaven(maven: 'maven-latest', jdk: 'jdk17', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
-                    script {
-                        // If this build is not a pull request, run owasp scan on the distribution. Otherwise run incremental scan
-                        if (env.CHANGE_ID == null) {
-                            sh 'mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories dependency-check:aggregate -q -B -pl !$DOCS -P !itests,owasp-dist $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                        } else {
-                            sh 'mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories dependency-check:aggregate -q -B -pl !$DOCS -P !itests $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                        }
-                    }
-                }
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: 'target/dependency-check-report.html'
                 }
             }
         }

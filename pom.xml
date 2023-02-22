@@ -162,7 +162,7 @@
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-net.version>3.5</commons-net.version>
         <countryconverter.version>0.1.8</countryconverter.version>
-        <dependency-check-maven.version>7.3.1</dependency-check-maven.version>
+        <dependency-check-maven.version>8.1.0</dependency-check-maven.version>
         <equinox.version>3.18.0</equinox.version>
         <felix.configadmin.version>1.9.24</felix.configadmin.version>
         <felix.coordinator.version>1.0.2</felix.coordinator.version>
@@ -747,7 +747,7 @@
                 <plugin>
                     <groupId>org.commonjava.maven.plugins</groupId>
                     <artifactId>directory-maven-plugin</artifactId>
-                    <version>0.3.1</version>
+                    <version>1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
