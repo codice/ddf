@@ -48,6 +48,7 @@ module.exports = Marionette.LayoutView.extend({
     this.childView = new SortItemCollectionView({
       collection: this.collection,
       showBestTextOption: this.options.showBestTextOption,
+      filter: this.options.filter,
     })
   },
   onBeforeShow() {

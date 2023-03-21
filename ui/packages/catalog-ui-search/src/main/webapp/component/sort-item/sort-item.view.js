@@ -82,6 +82,7 @@ module.exports = Marionette.LayoutView.extend({
   initialize(options) {
     this.index = options.childIndex
     this.collection = options.collection
+    this.filter = options.filter || []
   },
   removeModel() {
     this.model.destroy()
@@ -92,6 +93,7 @@ module.exports = Marionette.LayoutView.extend({
       .filter(type => !properties.isHidden(type.id))
       .filter(type => !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id))
       .filter(type => blacklist.indexOf(type.id) === -1)
+      .filter(type => this.filter.length === 0 || this.filter.includes(type.id))
       .map(metacardType => ({
         label: metacardType.alias || metacardType.id,
         value: metacardType.id,

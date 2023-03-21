@@ -33,6 +33,7 @@ module.exports = Marionette.CollectionView.extend({
       collection: this.collection,
       childIndex: index,
       showBestTextOption: this.options.showBestTextOption,
+      filter: this.options.filter,
     }
   },
 })
