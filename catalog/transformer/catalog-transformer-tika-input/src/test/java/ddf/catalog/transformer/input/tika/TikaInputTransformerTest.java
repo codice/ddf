@@ -472,6 +472,8 @@ public class TikaInputTransformerTest {
         containsString("<meta name=\"xmpDM:artist\" content=\"Test Artist\" />"));
     assertThat(metacard.getContentTypeName(), is("audio/mpeg"));
     assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(SOUND));
+    assertThat(
+        metacard.getMetadata(), containsString("<meta name=\"xmpDM:duration\" content=\"2.4"));
   }
 
   @Test

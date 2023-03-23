@@ -304,8 +304,8 @@
         <spatial4j.version>0.7</spatial4j.version>
         <spring.version>5.2.5.RELEASE</spring.version>
         <spring-osgi.version>1.2.1</spring-osgi.version>
-        <tika.thirdparty.bundle.version>1.24.1_1</tika.thirdparty.bundle.version>
-        <tika.version>1.24.1</tika.version>
+        <tika.thirdparty.bundle.version>1.26.0_1</tika.thirdparty.bundle.version>
+        <tika.version>1.26</tika.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
         <woodstox.core.version>6.2.1</woodstox.core.version>
