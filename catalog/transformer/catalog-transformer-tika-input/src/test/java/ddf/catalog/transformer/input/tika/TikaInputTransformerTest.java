@@ -16,6 +16,7 @@ package ddf.catalog.transformer.input.tika;
 import static java.util.stream.Collectors.toList;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
@@ -50,6 +51,7 @@ import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Media;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.data.types.constants.core.DataType;
 import ddf.catalog.data.types.experimental.Extracted;
@@ -474,6 +476,7 @@ public class TikaInputTransformerTest {
     assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(SOUND));
     assertThat(
         metacard.getMetadata(), containsString("<meta name=\"xmpDM:duration\" content=\"2.4"));
+    assertTrue(metacard.getAttribute(Media.DURATION).getValue().toString().startsWith("2.4"));
   }
 
   @Test
