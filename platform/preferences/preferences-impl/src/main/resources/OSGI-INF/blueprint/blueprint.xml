@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+  <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+
+  <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+
+  <reference-list id="postRetrievalPlugins" interface="org.codice.ddf.preferences.PostRetrievalPlugin" availability="optional"/>
+
+  <reference-list id="defaultPreferenceSettings" interface="org.codice.ddf.preferences.DefaultPreferencesSupplier" availability="optional"/>
+
+  <bean id="preferences" class="org.codice.ddf.preferences.impl.PreferencesImpl">
+    <argument ref="catalogFramework"/>
+    <argument ref="filterBuilder"/>
+    <argument ref="postRetrievalPlugins"/>
+    <argument ref="defaultPreferenceSettings"/>
+    <argument>
+      <reference-list interface="ddf.catalog.data.InjectableAttribute" availability="optional"/>
+    </argument>
+  </bean>
+
+  <service ref="preferences" interface="org.codice.ddf.preferences.Preferences"/>
+
+  <bean id="metacardType" class="org.codice.ddf.preferences.impl.PreferencesMetacardType"/>
+
+  <service ref="metacardType" interface="ddf.catalog.data.MetacardType">
+    <service-properties>
+      <entry key="name" value="ddf.preferences"/>
+    </service-properties>
+  </service>
+
+</blueprint>
