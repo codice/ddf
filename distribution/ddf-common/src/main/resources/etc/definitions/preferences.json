@@ -1,0 +1,451 @@
+{
+  "metacardTypes": [
+    {
+      "type": "ddf.preferences",
+      "extendsTypes": [ "core" ],
+      "attributes": {
+        "user": {
+          "required": false
+        },
+        "mapLayers": {
+          "required": false
+        },
+        "resultDisplay": {
+          "required": false
+        },
+        "resultPreview": {
+          "required": false
+        },
+        "resultFilter": {
+          "required": false
+        },
+        "resultSort": {
+          "required": false
+        },
+        "inspector-summaryShown": {
+          "required": false
+        },
+        "inspector-summaryOrder": {
+          "required": false
+        },
+        "inspector-detailsOrder": {
+          "required": false
+        },
+        "inspector-detailsHidden": {
+          "required": false
+        },
+        "results-attributesShownTable": {
+          "required": false
+        },
+        "results-attributesShownList": {
+          "required": false
+        },
+        "homeFilter": {
+          "required": false
+        },
+        "homeSort": {
+          "required": false
+        },
+        "homeDisplay": {
+          "required": false
+        },
+        "alerts": {
+          "required": false
+        },
+        "alertPersistence": {
+          "required": false
+        },
+        "alertExpiration": {
+          "required": false
+        },
+        "visualization": {
+          "required": false
+        },
+        "columnHide": {
+          "required": false
+        },
+        "columnOrder": {
+          "required": false
+        },
+        "hasSelectedColumns": {
+          "required": false
+        },
+        "uploads": {
+          "required": false
+        },
+        "oauth": {
+          "required": false
+        },
+        "fontSize": {
+          "required": false
+        },
+        "resultCount": {
+          "required": false
+        },
+        "dateTimeFormat": {
+          "required": false
+        },
+        "timeZone": {
+          "required": false
+        },
+        "coordinateFormat": {
+          "required": false
+        },
+        "autoPan": {
+          "required": false
+        },
+        "goldenLayout": {
+          "required": false
+        },
+        "goldenLayoutUpload": {
+          "required": false
+        },
+        "goldenLayoutMetacard": {
+          "required": false
+        },
+        "goldenLayoutAlert": {
+          "required": false
+        },
+        "theme": {
+          "required": false
+        },
+        "animation": {
+          "required": false
+        },
+        "hoverPreview": {
+          "required": false
+        },
+        "querySettings": {
+          "required": false
+        },
+        "mapHome": {
+          "required": false
+        },
+        "actingRole": {
+          "required": false
+        },
+        "columnWidths": {
+          "required": false
+        },
+        "inspector-hideEmpty": {
+          "required": false
+        },
+        "layoutId": {
+          "required": false
+        }
+      }
+    }
+  ],
+  "attributeTypes": {
+    "layoutId": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "columnWidths": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "inspector-hideEmpty": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "user": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "mapLayers": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "resultDisplay": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "resultPreview": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": true
+    },
+    "resultFilter": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "resultSort": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "inspector-summaryShown": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "inspector-summaryOrder": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "inspector-detailsOrder": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": true
+    },
+    "inspector-detailsHidden": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "results-attributesShownTable": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "results-attributesShownList": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "homeFilter": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "homeSort": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "homeDisplay": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "alerts": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "alertPersistence": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "alertExpiration": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "visualization": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "columnHide": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "columnOrder": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "hasSelectedColumns": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "uploads": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "oauth": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "fontSize": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "resultCount": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "dateTimeFormat": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "timeZone": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "coordinateFormat": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "autoPan": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "goldenLayout": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "goldenLayoutUpload": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "goldenLayoutMetacard": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "goldenLayoutAlert": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "theme": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "animation": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "hoverPreview": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "querySettings": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "mapHome": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "actingRole": {
+      "type": "STRING",
+      "stored": true,
+      "indexed": true,
+      "tokenized": false,
+      "multivalued": false
+    }
+  },
+  "defaults": [
+    {
+      "attribute": "metacard-tags",
+      "value": "ddf-preferences",
+      "metacardTypes": [
+        "ddf.preferences"
+      ]
+    }
+  ]
+}
