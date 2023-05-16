@@ -43,6 +43,7 @@
         <property name="preAuthorizationPlugins" ref="preAuthSortedList"/>
         <property name="policyPlugins" ref="policySortedList"/>
         <property name="accessPlugins" ref="accessSortedList"/>
+        <property name="sourcePlugins" ref="sourceSortedList"/>
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
