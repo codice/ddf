@@ -445,12 +445,42 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
+  public void testAndNoValidFilters() {
+    final WfsFilterDelegate delegate = createTextualDelegate();
+    final ArrayList<FilterType> filters = new ArrayList<>();
+    filters.add(null);
+    filters.add(null);
+    final FilterType filterToCheck = delegate.and(filters);
+    assertThat(filterToCheck, is(nullValue()));
+  }
+
+  @Test
+  public void testAndContainsInvalidFilter() {
+    final WfsFilterDelegate delegate = createDelegate();
+    final List<FilterType> filters = new ArrayList<>();
+    filters.add(new FilterType());
+    filters.add(null);
+    final FilterType filterToCheck = delegate.and(filters);
+    assertThat(filterToCheck, is(nullValue()));
+  }
+
+  @Test
   public void testOr() {
     WfsFilterDelegate delegate = createTextualDelegate();
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
     FilterType filterToCheck = delegate.or(asList(filter, filter));
     assertThat(filterToCheck, notNullValue());
     assertThat(filterToCheck.isSetLogicOps(), is(true));
+  }
+
+  @Test
+  public void testOrNoValidFilters() {
+    final WfsFilterDelegate delegate = createTextualDelegate();
+    final ArrayList<FilterType> filters = new ArrayList<>();
+    filters.add(null);
+    filters.add(null);
+    final FilterType filterToCheck = delegate.or(filters);
+    assertThat(filterToCheck, is(nullValue()));
   }
 
   @Test

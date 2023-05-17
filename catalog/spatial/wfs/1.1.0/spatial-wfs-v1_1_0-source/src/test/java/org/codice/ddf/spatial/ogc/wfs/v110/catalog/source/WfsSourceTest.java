@@ -581,6 +581,42 @@ public class WfsSourceTest {
     assertThat(query.getFilter().getLogicOps().getValue(), is(instanceOf(BinaryLogicOpType.class)));
   }
 
+  // See testQueryTwoFeaturesOneInvalid() for a test with the same setup but with an OR at the top
+  // of the filter
+  @Test
+  public void testAndQueryFailsWithInvalidFeatureProperty() throws Exception {
+    expectedEx.expect(UnsupportedQueryException.class);
+    expectedEx.expectMessage(
+        "Unable to build query. No filters could be created from query criteria.");
+
+    mapSchemaToSingleFeature(TWO_TEXT_PROPERTY_SCHEMA, 0);
+    mapSchemaToSingleFeature(ONE_TEXT_PROPERTY_SCHEMA_PERSON, 1);
+
+    setUpMocks(null, null, TWO_FEATURES, TWO_FEATURES);
+    Filter orderDogFilter = builder.attribute(ORDER_DOG).is().like().text(LITERAL);
+    Filter mctFeature1Filter =
+        builder
+            .attribute(Metacard.CONTENT_TYPE)
+            .is()
+            .like()
+            .text(sampleFeatures.get(0).getLocalPart());
+    Filter feature1Filter = builder.allOf(Arrays.asList(orderDogFilter, mctFeature1Filter));
+    Filter fakeFilter = builder.attribute("FAKE").is().like().text(LITERAL);
+    Filter mctFeature2Filter =
+        builder
+            .attribute(Metacard.CONTENT_TYPE)
+            .is()
+            .like()
+            .text(sampleFeatures.get(1).getLocalPart());
+    Filter feature2Filter = builder.allOf(Arrays.asList(fakeFilter, mctFeature2Filter));
+    Filter totalFilter = builder.allOf(Arrays.asList(feature1Filter, feature2Filter));
+
+    QueryImpl inQuery = new QueryImpl(totalFilter);
+    inQuery.setPageSize(MAX_FEATURES);
+
+    source.query(new QueryRequestImpl(inQuery));
+  }
+
   @Test
   public void testIntersectQuery() throws Exception {
     mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
