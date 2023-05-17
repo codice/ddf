@@ -163,7 +163,18 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   @Override
   public FilterType and(List<FilterType> filtersToBeAnded) {
-    filtersToBeAnded.removeAll(Collections.singleton(null));
+    final boolean isAnyNull = filtersToBeAnded.removeAll(Collections.singleton(null));
+
+    if (filtersToBeAnded.isEmpty()) {
+      LOGGER.debug("Attempted to AND some filters, but none were valid.");
+      return null;
+    }
+
+    if (isAnyNull) {
+      LOGGER.debug(
+          "Attempted to AND some filters, but at least one was invalid. As a result, the entire AND will be dropped from the query. ");
+      return null;
+    }
 
     return buildAndOrFilter(
         filtersToBeAnded, filterObjectFactory.createAnd(new BinaryLogicOpType()));
@@ -172,6 +183,11 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   @Override
   public FilterType or(List<FilterType> filtersToBeOred) {
     filtersToBeOred.removeAll(Collections.singleton(null));
+
+    if (filtersToBeOred.isEmpty()) {
+      LOGGER.debug("Attempted to OR some filters, but none were valid.");
+      return null;
+    }
 
     return buildAndOrFilter(filtersToBeOred, filterObjectFactory.createOr(new BinaryLogicOpType()));
   }
@@ -241,9 +257,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private FilterType buildAndOrFilter(
       List<FilterType> filters, JAXBElement<BinaryLogicOpType> andOrFilter) {
 
-    if (filters.isEmpty()) {
-      return null;
-    }
     removeEmptyFilters(filters);
 
     // Check if these filters contain featureID(s)
