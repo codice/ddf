@@ -51,15 +51,8 @@ import org.junit.Test;
 public class CsvTransformerTest {
 
   private static final List<AttributeDescriptor> ATTRIBUTE_DESCRIPTOR_LIST = new ArrayList<>();
-
-  private static Map<String, Attribute> metacardDataMap = new HashMap<>();
-
-  private static List<Metacard> metacardList = new ArrayList<>();
-
   private static final int METACARD_COUNT = 2;
-
   private static final String CSV_ITEM_SEPARATOR_REGEX = "[\\n\\r,]";
-
   private static final List<ImmutableTriple<Object, Object, Object>> ATTRIBUTE_DATA =
       Arrays.asList(
           new ImmutableTriple<Object, Object, Object>(
@@ -76,7 +69,10 @@ public class CsvTransformerTest {
           new ImmutableTriple<Object, Object, Object>(
               "attribute7", "OBJECT", BasicTypes.OBJECT_TYPE),
           new ImmutableTriple<Object, Object, Object>(
-              "attribute8", "BINARY", BasicTypes.BINARY_TYPE));
+              "attribute8", "BINARY", BasicTypes.BINARY_TYPE),
+          new ImmutableTriple<Object, Object, Object>("attribute9", "", BasicTypes.STRING_TYPE));
+  private static Map<String, Attribute> metacardDataMap = new HashMap<>();
+  private static List<Metacard> metacardList = new ArrayList<>();
 
   @Before
   public void setup() {
@@ -89,13 +85,19 @@ public class CsvTransformerTest {
   public void getAllCsvAttributeDescriptors() {
     Set<AttributeDescriptor> allAttributes =
         CsvTransformer.getAllCsvAttributeDescriptors(metacardList);
-    assertThat(allAttributes, hasSize(6));
+    assertThat(allAttributes, hasSize(7));
     Set<String> allAttributeNames =
         allAttributes.stream().map(AttributeDescriptor::getName).collect(Collectors.toSet());
     // Binary and Object types are filtered
     final Set<String> expectedAttributes =
         Sets.newHashSet(
-            "attribute1", "attribute2", "attribute3", "attribute4", "attribute5", "attribute6");
+            "attribute1",
+            "attribute2",
+            "attribute3",
+            "attribute4",
+            "attribute5",
+            "attribute6",
+            "attribute9");
     assertThat(allAttributeNames, is(expectedAttributes));
   }
 
@@ -173,6 +175,30 @@ public class CsvTransformerTest {
     assertThat(scanner.hasNext(), is(true));
     assertThat(scanner.next(), is(""));
     assertThat(scanner.hasNext(), is(false));
+  }
+
+  @Test
+  public void filterEmptyValueAttributes() {
+    AttributeDescriptor attr9 = buildAttributeDescriptor("attribute9", BasicTypes.STRING_TYPE);
+    Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(ATTRIBUTE_DESCRIPTOR_LIST);
+    attributeDescriptors.add(attr9);
+    MetacardType metacardType = new MetacardTypeImpl("", attributeDescriptors);
+    Metacard metacard = new MetacardImpl(metacardType);
+    for (Attribute a : metacardDataMap.values()) {
+      metacard.setAttribute(a);
+    }
+    metacard.setAttribute(new AttributeImpl("attribute9", ""));
+    List<Metacard> metacards = metacardList.stream().collect(Collectors.toList());
+    metacards.add(metacard);
+    Set<AttributeDescriptor> nonEmptyValues = CsvTransformer.getNonEmptyValueAttributes(metacards);
+
+    assertThat(nonEmptyValues, hasSize(6));
+    final Optional<AttributeDescriptor> attributeDescriptorOptional =
+        nonEmptyValues.stream().findFirst();
+    assertThat(attributeDescriptorOptional.isPresent(), is(true));
+
+    final AttributeDescriptor attributeDescriptor = attributeDescriptorOptional.get();
+    assertThat(attributeDescriptor, notNullValue());
   }
 
   private Metacard buildMetacard() {

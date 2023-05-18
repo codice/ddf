@@ -22,12 +22,16 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +41,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,5 +181,51 @@ public class CsvTransformer {
     attributes.removeIf(attrDesc -> !requestedAttributes.contains(attrDesc.getName()));
 
     return attributes;
+  }
+
+  /**
+   * Given a list of {@link Metacard}s, return only the attribute descriptors that have a non-empty
+   * value. Returns a set of {@link AttributeDescriptor}s containing the attributes with non-empty
+   * values.
+   */
+  public static Set<AttributeDescriptor> getNonEmptyValueAttributes(
+      final List<Metacard> metacards) {
+    final Set<AttributeDescriptor> attributes = getAllCsvAttributeDescriptors(metacards);
+
+    Set<AttributeDescriptor> nonEmptyAttributes = new HashSet<>();
+    loop:
+    for (AttributeDescriptor attribute : attributes) {
+      for (Metacard m : metacards) {
+        switch (attribute.getType().getAttributeFormat()) {
+          case STRING:
+          case XML:
+          case GEOMETRY:
+            if (StringUtils.isNotEmpty(m.getAttribute(attribute.getName()).getValue().toString())) {
+              nonEmptyAttributes.add(attribute);
+              continue loop;
+            }
+            break;
+          case INTEGER:
+          case LONG:
+          case DOUBLE:
+          case FLOAT:
+          case SHORT:
+          case DATE:
+          case BOOLEAN:
+            if (Objects.nonNull(m.getAttribute(attribute.getName()).getValue())) {
+              nonEmptyAttributes.add(attribute);
+              continue loop;
+            }
+            break;
+          case BINARY:
+          case OBJECT:
+          default:
+            // do nothing
+            break;
+        }
+      }
+    }
+
+    return nonEmptyAttributes;
   }
 }
