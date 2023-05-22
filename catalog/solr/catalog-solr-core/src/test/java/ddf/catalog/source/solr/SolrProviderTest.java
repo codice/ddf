@@ -80,6 +80,7 @@ public class SolrProviderTest {
   public static void beforeClass() throws Exception {
     Path solrDataPath = Paths.get("target/test-classes/data");
     System.setProperty("ddf.home", solrDataPath.toString());
+    System.setProperty("solr.solr.home", solrDataPath.toString());
     System.setProperty("solr.install.dir", solrDataPath.toString());
 
     ConfigurationStore store = ConfigurationStore.getInstance();

@@ -290,11 +290,12 @@
         <servicemix.specs.version>2.9.0</servicemix.specs.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <smtp.client.version>1.7.1</smtp.client.version>
-        <solr.version>9.1.1</solr.version>
-        <solr.docs.version>9_1</solr.docs.version>
-        <solr.httpclient.version>4.5.13</solr.httpclient.version>
-        <solr.httpcore.version>4.4.15</solr.httpcore.version>
-        <solr.httpmime.version>4.5.13</solr.httpmime.version>
+        <solr.version>9.2.1</solr.version>
+        <solr.docs.version>9_2</solr.docs.version>
+        <solr.httpclient.version>4.5.14</solr.httpclient.version>
+        <solr.httpcore.version>4.4.16</solr.httpcore.version>
+        <solr.httpmime.version>4.5.14</solr.httpmime.version>
+        <solr.jetty.version>10.0.12</solr.jetty.version>
         <solr.zookeeper.version>3.8.4</solr.zookeeper.version>
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
         <spark.version>2.9.4</spark.version>

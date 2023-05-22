@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.eclipse.jetty.http2</groupId>
             <artifactId>http2-client</artifactId>
-            <version>${jetty.version}</version>
+            <version>${solr.jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -183,8 +183,10 @@
                             org.eclipse.jetty.http;resolution:=optional,
                             org.eclipse.jetty.http2.client;resolution:=optional,
                             org.eclipse.jetty.http2.client.http;resolution:=optional,
+                            org.eclipse.jetty.io;resolution:=optional,
+                            org.eclipse.jetty.io.*;resolution:=optional,
                             org.eclipse.jetty.util;resolution:=optional,
-                            org.eclipse.jetty.util.ssl;resolution:=optional,
+                            org.eclipse.jetty.util.*;resolution:=optional,
 
                             <!--
                                 There are ddf dependencies using both this solr-dependencies and httpclient/httpcore.
