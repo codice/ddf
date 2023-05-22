@@ -189,7 +189,6 @@
         <jcodec.version>0.2.0_1</jcodec.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
         <jdom2.bundle.version>2.0.6.1_1</jdom2.bundle.version>
-        <jetty.version>9.4.46.v20220331</jetty.version>
         <joda-convert.version>1.7</joda-convert.version>
         <dev.failsafe.version>3.2.4</dev.failsafe.version>
         <joda-convert.version>2.2.2</joda-convert.version>
@@ -239,12 +238,13 @@
         <servicemix.specs.jaxb.version>2.3_3</servicemix.specs.jaxb.version>
         <servicemix.specs.version>2.9.0</servicemix.specs.version>
         <servlet-api.version>3.1.0</servlet-api.version>
-        <solr.version>9.1.1</solr.version>
-        <solr.docs.version>9_1</solr.docs.version>
-        <solr.httpclient.version>4.5.13</solr.httpclient.version>
-        <solr.httpcore.version>4.4.15</solr.httpcore.version>
-        <solr.httpmime.version>4.5.13</solr.httpmime.version>
-        <solr.zookeeper.version>3.8.0</solr.zookeeper.version>
+        <solr.version>9.2.1</solr.version>
+        <solr.docs.version>9_2</solr.docs.version>
+        <solr.httpclient.version>4.5.14</solr.httpclient.version>
+        <solr.httpcore.version>4.4.16</solr.httpcore.version>
+        <solr.httpmime.version>4.5.14</solr.httpmime.version>
+        <solr.jetty.version>10.0.12</solr.jetty.version>
+        <solr.zookeeper.version>3.8.1</solr.zookeeper.version>
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
         <spatial4j.version>0.8</spatial4j.version>
         <tika.version>1.28.4</tika.version>
@@ -321,7 +321,7 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-bom</artifactId>
-                <version>${jetty.version}</version>
+                <version>${solr.jetty.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>

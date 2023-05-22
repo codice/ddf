@@ -20,11 +20,15 @@
 
     <feature name="solr-dependencies" version="${project.version}" >
         <feature>pax-web-jetty</feature>
-        <bundle>mvn:org.eclipse.jetty/jetty-alpn-client/${jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-hpack/${jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-common/${jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-client/${jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-http-client-transport/${jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-client/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-alpn-client/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-http/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-io/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-util/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty.http2/http2-hpack/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty.http2/http2-common/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty.http2/http2-client/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty.http2/http2-http-client-transport/${solr.jetty.version}</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${solr.httpcore.version}</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${solr.httpclient.version}</bundle>
         <bundle>mvn:com.sun.mail/jakarta.mail/${jakarta.mail.version}</bundle>
