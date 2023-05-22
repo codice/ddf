@@ -219,7 +219,7 @@
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
         <objenesis.version>3.2</objenesis.version>
         <ogc-tools-gml-jts.version>1.2.0</ogc-tools-gml-jts.version>
-        <org.geotools.version>28.0</org.geotools.version>
+        <org.geotools.version>28.3</org.geotools.version>
         <!-- Note: The swissbox version needs to match the version used by pax-exam . -->
         <org.ops4j.pax.swissbox.version>1.8.5</org.ops4j.pax.swissbox.version>
         <org.slf4j.version>1.7.29</org.slf4j.version>
