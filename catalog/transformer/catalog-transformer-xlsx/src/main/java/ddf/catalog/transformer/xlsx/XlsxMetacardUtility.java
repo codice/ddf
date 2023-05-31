@@ -20,10 +20,14 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.transformer.csv.common.CsvTransformer;
+import ddf.catalog.transformer.csv.common.MetacardIterator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.activation.MimeType;
@@ -61,40 +65,51 @@ class XlsxMetacardUtility {
       return null;
     }
 
-    Set<AttributeDescriptor> attributeDescriptors =
-        metacards.get(0).getMetacardType().getAttributeDescriptors();
-
-    int rowIndex = 0;
-    int cellIndex = 0;
+    // TODO: change this to getNonEmptyValueAttributes once #6738 is merged
+    List<AttributeDescriptor> attributeDescriptors =
+        new ArrayList<>(CsvTransformer.getAllCsvAttributeDescriptors(metacards));
 
     Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet();
-    Row row = sheet.createRow(rowIndex++);
 
+    Sheet sheet = writeHeaderRow(attributeDescriptors, workbook);
+
+    writeMetacardValues(metacards, attributeDescriptors, sheet);
+
+    return writeWorkbook(workbook);
+  }
+
+  private static Sheet writeHeaderRow(
+      List<AttributeDescriptor> orderedAttributeDescriptors, Workbook workbook) {
     CellStyle style = workbook.createCellStyle();
     Font font = workbook.createFont();
     font.setBold(true);
     style.setFont(font);
-
-    // Write header row.
-    for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
+    Sheet sheet = workbook.createSheet();
+    Row row = sheet.createRow(0);
+    int cellIndex = 0;
+    for (AttributeDescriptor attributeDescriptor : orderedAttributeDescriptors) {
       String attributeName = attributeDescriptor.getName();
       Cell cell = row.createCell(cellIndex++);
       cell.setCellValue(attributeName);
       cell.setCellStyle(style);
     }
+    return sheet;
+  }
 
+  private static void writeMetacardValues(
+      List<Metacard> metacards,
+      List<AttributeDescriptor> orderedAttributeDescriptors,
+      Sheet sheet) {
+    int rowIndex = 1; // start at 1 since the header is row 0
     for (Metacard metacard : metacards) {
-      List<String> values = getMetacardValues(metacard);
-      row = sheet.createRow(rowIndex++);
-
-      cellIndex = 0;
-      for (String value : values) {
-        row.createCell(cellIndex++).setCellValue(value);
+      Row row = sheet.createRow(rowIndex++);
+      int cellIndex = 0;
+      Iterator<Serializable> metacardIterator =
+          new MetacardIterator(metacard, orderedAttributeDescriptors);
+      while (metacardIterator.hasNext()) {
+        row.createCell(cellIndex++).setCellValue(String.valueOf(metacardIterator.next()));
       }
     }
-
-    return writeWorkbook(workbook);
   }
 
   private static BinaryContent writeWorkbook(Workbook workbook) {

@@ -64,6 +64,11 @@
             <artifactId>catalog-core-api-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-csv-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -74,7 +79,8 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            catalog-core-api-impl
+                            catalog-core-api-impl,
+                            catalog-transformer-csv-common
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                     </instructions>
