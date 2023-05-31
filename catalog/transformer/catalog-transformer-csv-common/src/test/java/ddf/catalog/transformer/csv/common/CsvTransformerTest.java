@@ -188,17 +188,14 @@ public class CsvTransformerTest {
       metacard.setAttribute(a);
     }
     metacard.setAttribute(new AttributeImpl("attribute9", ""));
-    List<Metacard> metacards = metacardList.stream().collect(Collectors.toList());
+    List<Metacard> metacards = new ArrayList<>(metacardList);
     metacards.add(metacard);
     Set<AttributeDescriptor> nonEmptyValues = CsvTransformer.getNonEmptyValueAttributes(metacards);
 
     assertThat(nonEmptyValues, hasSize(6));
-    final Optional<AttributeDescriptor> attributeDescriptorOptional =
-        nonEmptyValues.stream().findFirst();
-    assertThat(attributeDescriptorOptional.isPresent(), is(true));
-
-    final AttributeDescriptor attributeDescriptor = attributeDescriptorOptional.get();
-    assertThat(attributeDescriptor, notNullValue());
+    for (AttributeDescriptor descriptor: nonEmptyValues){
+      assertThat(metacardList.stream().anyMatch(m -> m.getAttribute(descriptor.getName()) != null), is(true));
+    }
   }
 
   private Metacard buildMetacard() {

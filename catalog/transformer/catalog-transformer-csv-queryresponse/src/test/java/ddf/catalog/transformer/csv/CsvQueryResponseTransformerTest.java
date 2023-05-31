@@ -131,7 +131,7 @@ public class CsvQueryResponseTransformerTest {
     scanner.useDelimiter("\\n|\\r|,");
 
     /*
-     * OBJECT types, BINARY types and hidden attributes will be filtered out
+     * OBJECT types, BINARY types, empty values, and hidden attributes will be filtered out
      * We want to ensure that the only output data matches the explicitly requested headers
      */
 

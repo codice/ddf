@@ -16,6 +16,7 @@ package ddf.catalog.transformer.csv.common;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
@@ -191,41 +192,34 @@ public class CsvTransformer {
   public static Set<AttributeDescriptor> getNonEmptyValueAttributes(
       final List<Metacard> metacards) {
     final Set<AttributeDescriptor> attributes = getAllCsvAttributeDescriptors(metacards);
+    final Set<AttributeDescriptor> nonEmptyAttributes = new HashSet<>();
 
-    Set<AttributeDescriptor> nonEmptyAttributes = new HashSet<>();
-    loop:
-    for (AttributeDescriptor attribute : attributes) {
-      for (Metacard m : metacards) {
-        switch (attribute.getType().getAttributeFormat()) {
-          case STRING:
-          case XML:
-          case GEOMETRY:
-            if (StringUtils.isNotEmpty(m.getAttribute(attribute.getName()).getValue().toString())) {
-              nonEmptyAttributes.add(attribute);
-              continue loop;
-            }
-            break;
-          case INTEGER:
-          case LONG:
-          case DOUBLE:
-          case FLOAT:
-          case SHORT:
-          case DATE:
-          case BOOLEAN:
-            if (Objects.nonNull(m.getAttribute(attribute.getName()).getValue())) {
-              nonEmptyAttributes.add(attribute);
-              continue loop;
-            }
-            break;
-          case BINARY:
-          case OBJECT:
-          default:
-            // do nothing
-            break;
-        }
+    for (final AttributeDescriptor attribute : attributes) {
+      final boolean hasNonEmptyValue = metacards.stream().anyMatch(metacard -> isNonEmptyValue(metacard, attribute));
+      if (hasNonEmptyValue) {
+        nonEmptyAttributes.add(attribute);
       }
     }
-
     return nonEmptyAttributes;
+  }
+
+  private static boolean isNonEmptyValue(Metacard metacard, AttributeDescriptor descriptor) {
+    final Attribute attribute = metacard.getAttribute(descriptor.getName());
+    switch (descriptor.getType().getAttributeFormat()) {
+      case STRING:
+      case XML:
+      case GEOMETRY:
+        return attribute != null && StringUtils.isNotEmpty((String) attribute.getValue());
+      case INTEGER:
+      case LONG:
+      case DOUBLE:
+      case FLOAT:
+      case SHORT:
+      case DATE:
+      case BOOLEAN:
+        return attribute != null && attribute.getValue() != null;
+      default:
+        return false;
+    }
   }
 }
