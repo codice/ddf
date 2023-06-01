@@ -14,8 +14,10 @@
 package ddf.catalog.transformer.csv.common;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -193,9 +195,11 @@ public class CsvTransformerTest {
     Set<AttributeDescriptor> nonEmptyValues = CsvTransformer.getNonEmptyValueAttributes(metacards);
 
     assertThat(nonEmptyValues, hasSize(6));
-    for (AttributeDescriptor descriptor: nonEmptyValues){
-      assertThat(metacardList.stream().anyMatch(m -> m.getAttribute(descriptor.getName()) != null), is(true));
-    }
+    Set<String> nonEmptyAttributes =
+        nonEmptyValues.stream().map(AttributeDescriptor::getName).collect(Collectors.toSet());
+    assertThat(nonEmptyAttributes, not(hasItem("attribute7")));
+    assertThat(nonEmptyAttributes, not(hasItem("attribute8")));
+    assertThat(nonEmptyAttributes, not(hasItem("attribute9")));
   }
 
   private Metacard buildMetacard() {

@@ -195,7 +195,8 @@ public class CsvTransformer {
     final Set<AttributeDescriptor> nonEmptyAttributes = new HashSet<>();
 
     for (final AttributeDescriptor attribute : attributes) {
-      final boolean hasNonEmptyValue = metacards.stream().anyMatch(metacard -> isNonEmptyValue(metacard, attribute));
+      final boolean hasNonEmptyValue =
+          metacards.stream().anyMatch(metacard -> isNonEmptyValue(metacard, attribute));
       if (hasNonEmptyValue) {
         nonEmptyAttributes.add(attribute);
       }
