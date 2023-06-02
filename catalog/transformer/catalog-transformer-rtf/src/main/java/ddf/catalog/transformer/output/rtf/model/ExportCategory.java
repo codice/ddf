@@ -89,6 +89,7 @@ public class ExportCategory implements RtfCategory {
   @Override
   public Map<String, ExportValue> toExportMap(Metacard metacard) {
     return attributes.stream()
+        .filter(s -> metacard.getAttribute(s) != null)
         .map(
             key ->
                 new AbstractMap.SimpleEntry<>(
