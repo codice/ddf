@@ -140,6 +140,17 @@
         <bundle>mvn:org.codice.ddf.security/security-filter/${project.version}</bundle>
     </feature>
 
+    <feature name="health-checks" version="${project.version}" description="Felix Health Checks">
+        <feature>eventadmin</feature>
+        <feature>scr</feature>
+        <feature>webconsole</feature>
+        <bundle>mvn:org.apache.felix/org.apache.felix.healthcheck.api/2.0.4</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.healthcheck.core/2.0.14</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.healthcheck.generalchecks/3.0.4</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.healthcheck.webconsoleplugin/2.0.2</bundle>
+        <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
+    </feature>
+
     <!-- Start of app features -->
 
     <feature name="tika" version="${project.version}"
