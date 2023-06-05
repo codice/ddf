@@ -59,6 +59,12 @@ public class Crypter {
   private static final int ASSOCIATED_DATA_BYTE_SIZE = 10;
   @VisibleForTesting static final int CHUNK_SIZE = 256;
 
+  private final boolean isEncrypted =
+      AccessController.doPrivileged(
+          (PrivilegedAction<Boolean>)
+              () ->
+                  Boolean.parseBoolean(
+                      System.getProperty("ddf.catalog.storage.local.encrypted", "true").trim()));
   private final String keysetDir =
       AccessController.doPrivileged(
           (PrivilegedAction<String>) () -> System.getProperty("keyset.dir"));
@@ -79,6 +85,10 @@ public class Crypter {
    * @throws Crypter.CrypterException
    */
   public Crypter(String keysetFileName) throws Crypter.CrypterException {
+    if (!isEncrypted) {
+      return;
+    }
+
     String keysetLocation = Paths.get(keysetDir, keysetFileName + KEYSET_FILE_EXTENSION).toString();
     String streamingKeysetLocation =
         Paths.get(
@@ -133,6 +143,10 @@ public class Crypter {
    * @param plainBytes The value to encrypt.
    */
   public byte[] encrypt(byte[] plainBytes) throws Crypter.CrypterException {
+    if (!isEncrypted) {
+      return plainBytes;
+    }
+
     if (plainBytes == null || plainBytes.length < 1) {
       throw new Crypter.CrypterException("Bytes to encrypt cannot be null or empty.");
     }
@@ -153,6 +167,10 @@ public class Crypter {
    * @param encryptedBytes The value to decrypt.
    */
   public byte[] decrypt(byte[] encryptedBytes) throws Crypter.CrypterException {
+    if (!isEncrypted) {
+      return encryptedBytes;
+    }
+
     if (encryptedBytes == null || encryptedBytes.length < 1) {
       throw new Crypter.CrypterException("Bytes to decrypt cannot be null or empty.");
     }
@@ -173,6 +191,10 @@ public class Crypter {
    * @param plainTextValue The value to encrypt.
    */
   public String encrypt(String plainTextValue) throws Crypter.CrypterException {
+    if (!isEncrypted) {
+      return plainTextValue;
+    }
+
     if (isBlank(plainTextValue)) {
       throw new Crypter.CrypterException("Value to encrypt cannot be null or blank.");
     }
@@ -194,6 +216,10 @@ public class Crypter {
    * @param encryptedValue The value to decrypt.
    */
   public String decrypt(String encryptedValue) throws Crypter.CrypterException {
+    if (!isEncrypted) {
+      return encryptedValue;
+    }
+
     if (isBlank(encryptedValue)) {
       throw new Crypter.CrypterException("Value to decrypt cannot be null or blank.");
     }
@@ -215,6 +241,10 @@ public class Crypter {
    * @param plainInputStream The InputStream to encrypt.
    */
   public InputStream encrypt(InputStream plainInputStream) throws Crypter.CrypterException {
+    if (!isEncrypted) {
+      return plainInputStream;
+    }
+
     if (associatedData == null) {
       throw new Crypter.CrypterException(NULL_DATA_MSG);
     }
@@ -265,6 +295,10 @@ public class Crypter {
    * @param encryptedInputStream The InputStream to decrypt.
    */
   public InputStream decrypt(InputStream encryptedInputStream) throws Crypter.CrypterException {
+    if (!isEncrypted) {
+      return encryptedInputStream;
+    }
+
     if (associatedData == null) {
       throw new Crypter.CrypterException(NULL_DATA_MSG);
     }

@@ -274,7 +274,7 @@
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
 
         <fabric8.docker.plugin.version>0.36.1</fabric8.docker.plugin.version>
-        <tink.version>1.7.0</tink.version>
+        <tink.version>1.9.0</tink.version>
         <org.json.version>20170516</org.json.version>
 
         <!--temporary solr download url> -->
