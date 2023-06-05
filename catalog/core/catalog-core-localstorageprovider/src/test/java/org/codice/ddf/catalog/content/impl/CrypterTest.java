@@ -17,6 +17,7 @@ import static org.codice.ddf.catalog.content.impl.Crypter.CHUNK_SIZE;
 import static org.codice.ddf.catalog.content.impl.Crypter.CrypterException;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import com.google.common.io.ByteStreams;
@@ -25,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -65,10 +67,32 @@ public class CrypterTest {
     final Crypter crypter = new Crypter();
 
     final byte[] encryptedBytes = crypter.encrypt(plainBytes);
+    assertFalse(Arrays.equals(plainBytes, encryptedBytes));
 
     final byte[] decryptedBytes = crypter.decrypt(encryptedBytes);
+    assertFalse(Arrays.equals(encryptedBytes, decryptedBytes));
 
     assertArrayEquals(plainBytes, decryptedBytes);
+  }
+
+  @Test
+  public void testWithEncryptionDisabled() throws Exception {
+    try {
+      System.setProperty("ddf.catalog.storage.local.encrypted", "false");
+
+      final byte[] plainBytes = new byte[16];
+      final Crypter crypter = new Crypter();
+
+      final byte[] encryptedBytes = crypter.encrypt(plainBytes);
+      assertArrayEquals(plainBytes, encryptedBytes);
+
+      final byte[] decryptedBytes = crypter.decrypt(encryptedBytes);
+      assertArrayEquals(encryptedBytes, decryptedBytes);
+
+      assertArrayEquals(plainBytes, decryptedBytes);
+    } finally {
+      System.clearProperty("ddf.catalog.storage.local.encrypted");
+    }
   }
 
   @Test
