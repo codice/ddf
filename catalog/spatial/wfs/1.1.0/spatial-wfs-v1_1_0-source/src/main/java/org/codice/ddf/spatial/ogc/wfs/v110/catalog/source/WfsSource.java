@@ -845,7 +845,7 @@ public class WfsSource extends AbstractWfsSource {
       throws UnsupportedQueryException {
     List<ContentType> contentTypes = getContentTypesFromQuery(query);
     List<QueryType> queries = new ArrayList<>();
-    Map<String, Serializable> properties = Collections.emptyMap();
+    Map<String, Serializable> properties = null;
 
     for (Entry<QName, WfsFilterDelegate> filterDelegateEntry : featureTypeFilters.entrySet()) {
       if (contentTypes.isEmpty()
@@ -909,7 +909,7 @@ public class WfsSource extends AbstractWfsSource {
     if (isSortByValid(sortByType)) {
       logSortBy(sortByType);
       wfsQuery.setSortBy(sortByType);
-      return Collections.emptyMap();
+      return null;
     }
 
     Map<String, Serializable> properties = new HashMap<>();
