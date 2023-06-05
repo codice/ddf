@@ -41,6 +41,7 @@
         <feature>mime-tika-resolver</feature>
         <feature>util-uuidgenerator</feature>
         <feature>solr-core</feature>
+        <feature>health-checks</feature>
     </feature>
 
     <feature name="branding-app" version="${project.version}">
