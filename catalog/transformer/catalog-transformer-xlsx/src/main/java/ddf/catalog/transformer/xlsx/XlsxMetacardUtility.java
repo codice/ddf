@@ -15,7 +15,6 @@ package ddf.catalog.transformer.xlsx;
 
 import static com.google.common.net.MediaType.OOXML_SHEET;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -29,10 +28,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -65,9 +62,8 @@ class XlsxMetacardUtility {
       return null;
     }
 
-    // TODO: change this to getNonEmptyValueAttributes once #6738 is merged
     List<AttributeDescriptor> attributeDescriptors =
-        new ArrayList<>(CsvTransformer.getAllCsvAttributeDescriptors(metacards));
+        new ArrayList<>(CsvTransformer.getNonEmptyValueAttributes(metacards));
 
     Workbook workbook = new XSSFWorkbook();
 
@@ -123,30 +119,5 @@ class XlsxMetacardUtility {
 
     return new BinaryContentImpl(
         new ByteArrayInputStream(byteArrayOutputStream.toByteArray()), mimeType);
-  }
-
-  private static List<String> getMetacardValues(Metacard metacard) {
-    List<String> values = new ArrayList<>();
-
-    Set<AttributeDescriptor> attributeDescriptors =
-        metacard.getMetacardType().getAttributeDescriptors();
-
-    for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
-      String attributeName = attributeDescriptor.getName();
-      Attribute attribute = metacard.getAttribute(attributeName);
-
-      if (attribute != null) {
-        if (attributeDescriptor.isMultiValued()) {
-          String value = StringUtils.join(attribute.getValues(), ", ");
-          values.add(value);
-        } else {
-          values.add(attribute.getValue().toString());
-        }
-      } else {
-        values.add("");
-      }
-    }
-
-    return values;
   }
 }
