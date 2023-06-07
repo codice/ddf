@@ -15,7 +15,7 @@
 package ddf.catalog.transformer.csv;
 
 import static ddf.catalog.transformer.csv.common.CsvTransformer.createResponse;
-import static ddf.catalog.transformer.csv.common.CsvTransformer.getAllCsvAttributeDescriptors;
+import static ddf.catalog.transformer.csv.common.CsvTransformer.getNonEmptyValueAttributes;
 import static ddf.catalog.transformer.csv.common.CsvTransformer.getOnlyRequestedAttributes;
 import static ddf.catalog.transformer.csv.common.CsvTransformer.sortAttributes;
 import static ddf.catalog.transformer.csv.common.CsvTransformer.writeMetacardsToCsv;
@@ -94,7 +94,7 @@ public class CsvQueryResponseTransformer implements QueryResponseTransformer {
 
     Set<AttributeDescriptor> requestedAttributeDescriptors =
         requestedFields.isEmpty()
-            ? getAllCsvAttributeDescriptors(metacards)
+            ? getNonEmptyValueAttributes(metacards)
             : getOnlyRequestedAttributes(metacards, requestedFields);
 
     Set<AttributeDescriptor> filteredAttributeDescriptors =

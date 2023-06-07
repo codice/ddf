@@ -63,7 +63,7 @@ public class CsvAttributeDescriptorComparatorTest {
     assertThat(comparison, is(1));
 
     comparison = comparator.compare(nonExistendAttribute1, nonExistendAttribute2);
-    assertThat(comparison, is(0));
+    assertThat(comparison, is(-1));
 
     comparison = comparator.compare(nonExistendAttribute1, null);
     assertThat(comparison, is(1));

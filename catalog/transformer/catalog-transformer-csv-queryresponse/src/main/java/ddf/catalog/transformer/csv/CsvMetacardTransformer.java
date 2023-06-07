@@ -62,7 +62,7 @@ public class CsvMetacardTransformer implements MetacardTransformer {
             .collect(Collectors.toList());
     List<AttributeDescriptor> allAttributes =
         new ArrayList(
-            CsvTransformer.getAllCsvAttributeDescriptors(Collections.singletonList(metacard)));
+            CsvTransformer.getNonEmptyValueAttributes(Collections.singletonList(metacard)));
     List<AttributeDescriptor> descriptors =
         CollectionUtils.isEmpty(attributes)
             ? allAttributes
