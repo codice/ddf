@@ -80,6 +80,7 @@ import net.opengis.filter.v_1_1_0.FilterCapabilities;
 import net.opengis.filter.v_1_1_0.GeometryOperandsType;
 import net.opengis.filter.v_1_1_0.LogicOpsType;
 import net.opengis.filter.v_1_1_0.PropertyIsLikeType;
+import net.opengis.filter.v_1_1_0.SortPropertyType;
 import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorType;
@@ -1682,7 +1683,14 @@ public class WfsSourceTest {
     source.setMetacardMappers(metacardMappers);
     propertyIsLikeQuery.setSortBy(new SortByImpl(null, "ASC"));
 
+    ArgumentCaptor<ExtendedGetFeatureType> argumentCaptor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
+
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
+
+    verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
+
+    assertThat(argumentCaptor.getAllValues().get(1).getQuery().get(0).getSortBy(), is(nullValue()));
   }
 
   @Test
@@ -1712,7 +1720,19 @@ public class WfsSourceTest {
     source.setMetacardMappers(metacardMappers);
     propertyIsLikeQuery.setSortBy(new SortByImpl(Result.TEMPORAL, "foo"));
 
-    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    ArgumentCaptor<ExtendedGetFeatureType> argumentCaptor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
+
+    SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    assertThat(
+        sourceResponse
+            .getProperties()
+            .get(Wfs11Constants.UNSUPPORTED_SORT_BY_REMOVED + "." + WFS_ID),
+        is(Result.TEMPORAL));
+
+    verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
+
+    assertThat(argumentCaptor.getAllValues().get(1).getQuery().get(0).getSortBy(), is(nullValue()));
   }
 
   @Test
@@ -1731,7 +1751,24 @@ public class WfsSourceTest {
     source.setDefaultSortName(Result.TEMPORAL);
     source.setDefaultSortOrder(SortOrder.ASCENDING.name());
 
-    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    ArgumentCaptor<ExtendedGetFeatureType> argumentCaptor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
+
+    SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    assertThat(
+        sourceResponse
+            .getProperties()
+            .get(Wfs11Constants.UNSUPPORTED_SORT_BY_REMOVED + "." + WFS_ID),
+        is(Result.TEMPORAL));
+
+    verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
+
+    SortPropertyType sortPropertyType =
+        argumentCaptor.getAllValues().get(1).getQuery().get(0).getSortBy().getSortProperty().get(0);
+
+    assertThat(
+        sortPropertyType.getPropertyName().getContent().get(0), is(MOCK_TEMPORAL_SORT_PROPERTY));
+    assertThat(sortPropertyType.getSortOrder().value(), is("ASC"));
   }
 
   @Test

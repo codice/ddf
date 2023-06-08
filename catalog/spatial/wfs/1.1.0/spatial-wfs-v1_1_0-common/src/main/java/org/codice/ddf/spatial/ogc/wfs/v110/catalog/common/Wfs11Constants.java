@@ -57,7 +57,7 @@ public class Wfs11Constants extends WfsConstants {
 
   /**
    * This is a list of sort-by attribute names that were removed from the query because they are
-   * known to be unsupported by the source. In practice, this value will be appended with
+   * known to be unsupported by the source. In practice, this value will be suffixed with
    * ".SOURCE_ID".
    */
   public static final String UNSUPPORTED_SORT_BY_REMOVED = "unsupported-sort-by-removed";
