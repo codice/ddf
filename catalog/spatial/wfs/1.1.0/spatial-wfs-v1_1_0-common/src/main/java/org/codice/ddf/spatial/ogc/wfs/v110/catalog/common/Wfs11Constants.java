@@ -55,6 +55,13 @@ public class Wfs11Constants extends WfsConstants {
 
   public static final QName MULTI_POLYGON = new QName(GML_3_1_1_NAMESPACE, "MultiPolygon");
 
+  /**
+   * This is a list of sort-by attribute names that were removed from the query because they are
+   * known to be unsupported by the source. In practice, this value will be suffixed with
+   * ".SOURCE_ID".
+   */
+  public static final String UNSUPPORTED_SORT_BY_REMOVED = "unsupported-sort-by-removed";
+
   public static List<QName> wktOperandsAsList() {
     return Arrays.asList(
         LINEAR_RING,
