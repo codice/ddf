@@ -17,7 +17,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.transformer.output.rtf.model.ExportCategory;
 import ddf.catalog.transformer.output.rtf.model.RtfCategory;
@@ -121,6 +125,8 @@ public abstract class BaseTestConfiguration {
 
   Metacard createMockMetacard(String title, Attribute mediaAttribute) {
     Metacard metacard = mock(Metacard.class);
+    MetacardType mockMetacardType = createMockMetacardType();
+    when(metacard.getMetacardType()).thenReturn(mockMetacardType);
     when(metacard.getTitle()).thenReturn(title);
 
     when(metacard.getId()).thenReturn("mock-id");
@@ -167,5 +173,31 @@ public abstract class BaseTestConfiguration {
     when(mockAttribute.getValue()).thenReturn("Simple value");
 
     return mockAttribute;
+  }
+
+  MetacardType createMockMetacardType() {
+    MetacardType mockType = mock(MetacardType.class);
+    AttributeDescriptor mockThumbnailDesc =
+        createMockAttributeDescriptor(Core.THUMBNAIL, BasicTypes.BINARY_TYPE);
+    when(mockType.getAttributeDescriptor(Core.THUMBNAIL)).thenReturn(mockThumbnailDesc);
+    AttributeDescriptor mockEmptyDesc =
+        createMockAttributeDescriptor(EMPTY_ATTRIBUTE, BasicTypes.STRING_TYPE);
+    when(mockType.getAttributeDescriptor(EMPTY_ATTRIBUTE)).thenReturn(mockEmptyDesc);
+    AttributeDescriptor mockSimpleDesc =
+        createMockAttributeDescriptor(SIMPLE_ATTRIBUTE, BasicTypes.STRING_TYPE);
+    when(mockType.getAttributeDescriptor(SIMPLE_ATTRIBUTE)).thenReturn(mockSimpleDesc);
+    AttributeDescriptor mockExtendedDesc =
+        createMockAttributeDescriptor(EXTENDED_ATTRIBUTE, BasicTypes.STRING_TYPE);
+    when(mockType.getAttributeDescriptor(EXTENDED_ATTRIBUTE)).thenReturn(mockExtendedDesc);
+    AttributeDescriptor mockUnknownDesc =
+        createMockAttributeDescriptor(UNKNOWN_ATTRIBUTE, BasicTypes.INTEGER_TYPE);
+    when(mockType.getAttributeDescriptor(UNKNOWN_ATTRIBUTE)).thenReturn(mockUnknownDesc);
+    return mockType;
+  }
+
+  AttributeDescriptor createMockAttributeDescriptor(String name, AttributeType type) {
+    AttributeDescriptor mockDescriptor = mock(AttributeDescriptor.class);
+    when(mockDescriptor.getType()).thenReturn(type);
+    return mockDescriptor;
   }
 }

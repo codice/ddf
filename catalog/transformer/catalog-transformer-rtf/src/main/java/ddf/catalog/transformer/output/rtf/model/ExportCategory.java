@@ -14,6 +14,7 @@
 package ddf.catalog.transformer.output.rtf.model;
 
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import java.util.AbstractMap;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
 public class ExportCategory implements RtfCategory {
@@ -89,6 +91,7 @@ public class ExportCategory implements RtfCategory {
   @Override
   public Map<String, ExportValue> toExportMap(Metacard metacard) {
     return attributes.stream()
+        .filter(a -> isNonEmptyValue(metacard, a))
         .map(
             key ->
                 new AbstractMap.SimpleEntry<>(
@@ -111,10 +114,6 @@ public class ExportCategory implements RtfCategory {
   }
 
   private ExportValue attributeExportValueFrom(String attributeKey, Attribute attribute) {
-    if (attributeKey == null || attribute == null) {
-      return emptyValue();
-    }
-
     if (attributeKey.equals(Core.THUMBNAIL)) {
       byte[] image = (byte[]) attribute.getValue();
 
@@ -136,5 +135,28 @@ public class ExportCategory implements RtfCategory {
     return new JustValue(
         Optional.ofNullable(attribute.getValue()).map(Object::toString).orElse(null),
         ValueType.SIMPLE);
+  }
+
+  private static boolean isNonEmptyValue(Metacard metacard, String attrName) {
+    final AttributeDescriptor descriptor =
+        metacard.getMetacardType().getAttributeDescriptor(attrName);
+    final Attribute attribute = metacard.getAttribute(attrName);
+    switch (descriptor.getType().getAttributeFormat()) {
+      case STRING:
+      case XML:
+      case GEOMETRY:
+        return attribute != null && StringUtils.isNotEmpty((String) attribute.getValue());
+      case INTEGER:
+      case LONG:
+      case DOUBLE:
+      case FLOAT:
+      case SHORT:
+      case DATE:
+      case BOOLEAN:
+      case BINARY:
+        return attribute != null && attribute.getValue() != null;
+      default:
+        return false;
+    }
   }
 }

@@ -15,12 +15,15 @@ package ddf.catalog.transformer.output.rtf;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 import com.tutego.jrtf.Rtf;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -56,5 +59,49 @@ public class RtfTemplateTest extends BaseTestConfiguration {
         String.format("RTF document must contain section with title: %s", METACARD_TITLE),
         finishedDoc,
         containsString(METACARD_TITLE));
+  }
+
+  @Test
+  public void testBuildingRtfWithEmptyCategoryFromTemplate() {
+    when(mockMetacard.getAttribute(Core.THUMBNAIL)).thenReturn(null);
+    when(mockMetacard.getAttribute(EMPTY_ATTRIBUTE)).thenReturn(null);
+    when(mockMetacard.getAttribute(SIMPLE_ATTRIBUTE)).thenReturn(null);
+    when(mockMetacard.getAttribute(EXTENDED_ATTRIBUTE)).thenReturn(null);
+    RtfTemplate template =
+        new RtfTemplate.Builder().withMetacard(mockMetacard).withCategories(MOCK_CATEGORY).build();
+
+    assertThat("Template cannot be null", template, notNullValue());
+    assertThat("There should be 5 categories", MOCK_CATEGORY.get(0).getAttributes(), hasSize(5));
+
+    Rtf doc = Rtf.rtf();
+
+    Rtf generatedTemplate = template.rtf(doc);
+
+    assertThat("Rtf template instance cannot be null", generatedTemplate, notNullValue());
+
+    String finishedDoc = generatedTemplate.out().toString();
+
+    assertThat("RTF output cannot be null", finishedDoc, notNullValue());
+    assertThat("RTF document must start with {\\rtf1", finishedDoc, startsWith("{\\rtf1"));
+    assertThat(
+        String.format("RTF document must contain section with title: %s", METACARD_TITLE),
+        finishedDoc,
+        containsString(METACARD_TITLE));
+    assertThat(
+        String.format("RTF document must NOT contain section with title: %s", Core.THUMBNAIL),
+        finishedDoc,
+        not(containsString(Core.THUMBNAIL)));
+    assertThat(
+        String.format("RTF document must NOT contain section with title: %s", EMPTY_ATTRIBUTE),
+        finishedDoc,
+        not(containsString(EMPTY_ATTRIBUTE)));
+    assertThat(
+        String.format("RTF document must NOT contain section with title: %s", SIMPLE_ATTRIBUTE),
+        finishedDoc,
+        not(containsString(SIMPLE_ATTRIBUTE)));
+    assertThat(
+        String.format("RTF document must NOT contain section with title: %s", EXTENDED_ATTRIBUTE),
+        finishedDoc,
+        not(containsString(EXTENDED_ATTRIBUTE)));
   }
 }
