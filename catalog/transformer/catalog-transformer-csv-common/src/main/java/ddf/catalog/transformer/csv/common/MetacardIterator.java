@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see java.util.Iterator
  */
-class MetacardIterator implements Iterator<Serializable> {
+public class MetacardIterator implements Iterator<Serializable> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardIterator.class);
 
@@ -62,7 +62,7 @@ class MetacardIterator implements Iterator<Serializable> {
    * @param attributeDescriptorList the list of attributeDescriptors used to determine which
    *     metacard attributes to return.
    */
-  MetacardIterator(
+  public MetacardIterator(
       final Metacard metacard, final List<AttributeDescriptor> attributeDescriptorList) {
     this.metacard = metacard;
     this.attributeDescriptorList = Collections.unmodifiableList(attributeDescriptorList);

@@ -25,6 +25,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 import javax.activation.MimeType;
@@ -74,7 +75,7 @@ public class XlsxMetacardUtilityTest {
   @Test
   public void testNonNullMetacardAttribute() {
     Metacard metacard = new MetacardImpl();
-    metacard.setAttribute(new AttributeImpl(Metacard.ID, UUID.randomUUID()));
+    metacard.setAttribute(new AttributeImpl(Metacard.ID, UUID.randomUUID().toString()));
 
     BinaryContent binaryContent =
         XlsxMetacardUtility.buildSpreadSheet(Collections.singletonList(metacard));
@@ -85,7 +86,9 @@ public class XlsxMetacardUtilityTest {
   @Test
   public void testMultiValueMetacardAttribute() {
     Metacard metacard = new MetacardImpl();
-    metacard.setAttribute(new AttributeImpl(Core.LANGUAGE, new String[] {"english", "spanish"}));
+
+    metacard.setAttribute(
+        AttributeImpl.fromMultipleValues(Core.LANGUAGE, Arrays.asList("english", "spanish")));
 
     BinaryContent binaryContent =
         XlsxMetacardUtility.buildSpreadSheet(Collections.singletonList(metacard));

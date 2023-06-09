@@ -15,20 +15,21 @@ package ddf.catalog.transformer.xlsx;
 
 import static com.google.common.net.MediaType.OOXML_SHEET;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.transformer.csv.common.CsvTransformer;
+import ddf.catalog.transformer.csv.common.MetacardIterator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -61,40 +62,50 @@ class XlsxMetacardUtility {
       return null;
     }
 
-    Set<AttributeDescriptor> attributeDescriptors =
-        metacards.get(0).getMetacardType().getAttributeDescriptors();
-
-    int rowIndex = 0;
-    int cellIndex = 0;
+    List<AttributeDescriptor> attributeDescriptors =
+        new ArrayList<>(CsvTransformer.getNonEmptyValueAttributes(metacards));
 
     Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet();
-    Row row = sheet.createRow(rowIndex++);
 
+    Sheet sheet = writeHeaderRow(attributeDescriptors, workbook);
+
+    writeMetacardValues(metacards, attributeDescriptors, sheet);
+
+    return writeWorkbook(workbook);
+  }
+
+  private static Sheet writeHeaderRow(
+      List<AttributeDescriptor> orderedAttributeDescriptors, Workbook workbook) {
     CellStyle style = workbook.createCellStyle();
     Font font = workbook.createFont();
     font.setBold(true);
     style.setFont(font);
-
-    // Write header row.
-    for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
+    Sheet sheet = workbook.createSheet();
+    Row row = sheet.createRow(0);
+    int cellIndex = 0;
+    for (AttributeDescriptor attributeDescriptor : orderedAttributeDescriptors) {
       String attributeName = attributeDescriptor.getName();
       Cell cell = row.createCell(cellIndex++);
       cell.setCellValue(attributeName);
       cell.setCellStyle(style);
     }
+    return sheet;
+  }
 
+  private static void writeMetacardValues(
+      List<Metacard> metacards,
+      List<AttributeDescriptor> orderedAttributeDescriptors,
+      Sheet sheet) {
+    int rowIndex = 1; // start at 1 since the header is row 0
     for (Metacard metacard : metacards) {
-      List<String> values = getMetacardValues(metacard);
-      row = sheet.createRow(rowIndex++);
-
-      cellIndex = 0;
-      for (String value : values) {
-        row.createCell(cellIndex++).setCellValue(value);
+      Row row = sheet.createRow(rowIndex++);
+      int cellIndex = 0;
+      Iterator<Serializable> metacardIterator =
+          new MetacardIterator(metacard, orderedAttributeDescriptors);
+      while (metacardIterator.hasNext()) {
+        row.createCell(cellIndex++).setCellValue(String.valueOf(metacardIterator.next()));
       }
     }
-
-    return writeWorkbook(workbook);
   }
 
   private static BinaryContent writeWorkbook(Workbook workbook) {
@@ -108,30 +119,5 @@ class XlsxMetacardUtility {
 
     return new BinaryContentImpl(
         new ByteArrayInputStream(byteArrayOutputStream.toByteArray()), mimeType);
-  }
-
-  private static List<String> getMetacardValues(Metacard metacard) {
-    List<String> values = new ArrayList<>();
-
-    Set<AttributeDescriptor> attributeDescriptors =
-        metacard.getMetacardType().getAttributeDescriptors();
-
-    for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
-      String attributeName = attributeDescriptor.getName();
-      Attribute attribute = metacard.getAttribute(attributeName);
-
-      if (attribute != null) {
-        if (attributeDescriptor.isMultiValued()) {
-          String value = StringUtils.join(attribute.getValues(), ", ");
-          values.add(value);
-        } else {
-          values.add(attribute.getValue().toString());
-        }
-      } else {
-        values.add("");
-      }
-    }
-
-    return values;
   }
 }
