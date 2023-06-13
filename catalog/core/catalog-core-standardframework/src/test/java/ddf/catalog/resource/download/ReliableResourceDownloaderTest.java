@@ -34,6 +34,7 @@ import ddf.catalog.cache.MockInputStream;
 import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
@@ -84,6 +85,8 @@ public class ReliableResourceDownloaderTest {
 
   private Metacard mockMetacard;
 
+  private DownloadStatusInfoImpl downloadStatusInfo;
+
   @BeforeClass
   public static void oneTimeSetup() {
     String workingDir = System.getProperty("user.dir");
@@ -99,6 +102,8 @@ public class ReliableResourceDownloaderTest {
     // Don't wait between attempts
     downloaderConfig.setDelayBetweenAttemptsMS(0);
     mockMetacard = getMockMetacard(DOWNLOAD_ID, "sauce");
+    downloadStatusInfo = spy(new DownloadStatusInfoImpl());
+    downloadStatusInfo.setSubjectOperations(new SubjectUtils());
   }
 
   @Test
@@ -116,11 +121,14 @@ public class ReliableResourceDownloaderTest {
 
     ReliableResourceDownloader downloader =
         new ReliableResourceDownloader(
-            downloaderConfig, new AtomicBoolean(), DOWNLOAD_ID, mockResponse, getMockRetriever());
+            downloaderConfig,
+            new AtomicBoolean(),
+            DOWNLOAD_ID,
+            mockResponse,
+            getMockRetriever(),
+            downloadStatusInfo);
 
-    DownloadStatusInfoImpl downloadStatusInfo = new DownloadStatusInfoImpl();
-    downloadStatusInfo.setSubjectOperations(new SubjectUtils());
-    downloader.setupDownload(metacard, downloadStatusInfo);
+    downloader.setupDownload(metacard);
     verify(mockCache, never()).addPendingCacheEntry(any(ReliableResource.class));
   }
 
@@ -131,13 +139,16 @@ public class ReliableResourceDownloaderTest {
 
     int retries = 5;
     downloaderConfig.setMaxRetryAttempts(retries);
-    DownloadStatusInfoImpl downloadStatusInfo = new DownloadStatusInfoImpl();
-    downloadStatusInfo.setSubjectOperations(new SubjectUtils());
 
     ReliableResourceDownloader downloader =
         new ReliableResourceDownloader(
-            downloaderConfig, new AtomicBoolean(), DOWNLOAD_ID, mockResponse, getMockRetriever());
-    downloader.setupDownload(mockMetacard, downloadStatusInfo);
+            downloaderConfig,
+            new AtomicBoolean(),
+            DOWNLOAD_ID,
+            mockResponse,
+            getMockRetriever(),
+            downloadStatusInfo);
+    downloader.setupDownload(mockMetacard);
     downloader.run();
 
     verify(mockPublisher, times(retries))
@@ -148,6 +159,7 @@ public class ReliableResourceDownloaderTest {
             anyString(),
             anyLong(),
             eq(DOWNLOAD_ID));
+    verify(downloadStatusInfo, times(1)).removeDownloadInfo(eq(DOWNLOAD_ID));
   }
 
   @Test
@@ -165,10 +177,13 @@ public class ReliableResourceDownloaderTest {
 
     ReliableResourceDownloader downloader =
         new ReliableResourceDownloader(
-            downloaderConfig, new AtomicBoolean(), "123", mockResponse, getMockRetriever());
-    DownloadStatusInfoImpl downloadStatusInfo = new DownloadStatusInfoImpl();
-    downloadStatusInfo.setSubjectOperations(new SubjectUtils());
-    downloader.setupDownload(mockMetacard, downloadStatusInfo);
+            downloaderConfig,
+            new AtomicBoolean(),
+            "123",
+            mockResponse,
+            getMockRetriever(),
+            downloadStatusInfo);
+    downloader.setupDownload(mockMetacard);
 
     FileOutputStream mockFos = mock(FileOutputStream.class);
     doThrow(new IOException()).when(mockFos).write(any(byte[].class), anyInt(), anyInt());
@@ -186,6 +201,7 @@ public class ReliableResourceDownloaderTest {
             eq(DOWNLOAD_ID));
     verify(mockCache, times(1)).removePendingCacheEntry(anyString());
     assertThat(downloaderConfig.isCacheEnabled(), is(false));
+    verify(downloadStatusInfo, times(1)).removeDownloadInfo(eq(DOWNLOAD_ID));
   }
 
   @Test
@@ -205,8 +221,13 @@ public class ReliableResourceDownloaderTest {
 
     ReliableResourceDownloader downloader =
         new ReliableResourceDownloader(
-            downloaderConfig, new AtomicBoolean(), "123", mockResponse, getMockRetriever());
-    downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
+            downloaderConfig,
+            new AtomicBoolean(),
+            "123",
+            mockResponse,
+            getMockRetriever(),
+            downloadStatusInfo);
+    downloader.setupDownload(mockMetacard);
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     CountingOutputStream mockCountingFbos = new CountingOutputStream(baos);
@@ -226,6 +247,7 @@ public class ReliableResourceDownloaderTest {
             eq(DOWNLOAD_ID));
     verify(mockCache, times(1)).removePendingCacheEntry(anyString());
     assertThat(downloaderConfig.isCacheEnabled(), is(false));
+    verify(downloadStatusInfo, times(1)).removeDownloadInfo(eq(DOWNLOAD_ID));
   }
 
   @Test
@@ -251,7 +273,8 @@ public class ReliableResourceDownloaderTest {
                 new AtomicBoolean(),
                 DOWNLOAD_ID,
                 mockResponse,
-                mockResourceRetriever));
+                mockResourceRetriever,
+                downloadStatusInfo));
 
     doReturn(mockCallable)
         .when(downloader)
@@ -263,9 +286,7 @@ public class ReliableResourceDownloaderTest {
             any(Object.class));
     doThrow(new CancellationException()).when(downloader).constructResourceRetrievalMonitor();
 
-    DownloadStatusInfoImpl downloadStatusInfo = new DownloadStatusInfoImpl();
-    downloadStatusInfo.setSubjectOperations(new SubjectUtils());
-    downloader.setupDownload(mockMetacard, downloadStatusInfo);
+    downloader.setupDownload(mockMetacard);
     downloader.run();
 
     verify(mockPublisher, times(retries))
@@ -276,6 +297,7 @@ public class ReliableResourceDownloaderTest {
             anyString(),
             anyLong(),
             eq(DOWNLOAD_ID));
+    verify(downloadStatusInfo, times(1)).removeDownloadInfo(eq(DOWNLOAD_ID));
   }
 
   private Metacard getMockMetacard(String id, String source) {
