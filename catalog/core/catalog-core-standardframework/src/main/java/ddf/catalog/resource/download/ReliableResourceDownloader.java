@@ -103,6 +103,8 @@ public class ReliableResourceDownloader implements Runnable {
 
   private ResourceRetriever retriever;
 
+  private DownloadStatusInfo downloadStatusInfo;
+
   /**
    * Only set to true if cacheEnabled is true *AND* product being downloaded is not already pending
    * caching, e.g., another client has already started downloading and caching it.
@@ -114,12 +116,14 @@ public class ReliableResourceDownloader implements Runnable {
       AtomicBoolean downloadStarted,
       String downloadIdentifier,
       ResourceResponse resourceResponse,
-      ResourceRetriever retriever) {
+      ResourceRetriever retriever,
+      DownloadStatusInfo downloadStatusInfo) {
     this.downloadStarted = downloadStarted;
     this.downloaderConfig = downloaderConfig;
     this.downloadIdentifier = downloadIdentifier;
     this.resourceResponse = resourceResponse;
     this.retriever = retriever;
+    this.downloadStatusInfo = downloadStatusInfo;
 
     this.downloadState = new DownloadManagerState();
     this.downloadState.setDownloadState(DownloadManagerState.DownloadState.NOT_STARTED);
@@ -134,7 +138,7 @@ public class ReliableResourceDownloader implements Runnable {
     this.downloadState.setContinueCaching(this.downloaderConfig.isCacheWhenCanceled());
   }
 
-  public ResourceResponse setupDownload(Metacard metacard, DownloadStatusInfo downloadStatusInfo) {
+  public ResourceResponse setupDownload(Metacard metacard) {
     Resource resource = resourceResponse.getResource();
     MimeType mimeType = resource.getMimeType();
     String resourceName = resource.getName();
@@ -505,6 +509,7 @@ public class ReliableResourceDownloader implements Runnable {
       postFailedDownloadState(reliableResourceStatus);
     } finally {
       cleanupAfterDownload(reliableResourceStatus);
+      downloadStatusInfo.removeDownloadInfo(downloadIdentifier);
       downloadExecutor.shutdown();
     }
   }
