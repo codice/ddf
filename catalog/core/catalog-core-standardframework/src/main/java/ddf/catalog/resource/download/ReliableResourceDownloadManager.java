@@ -204,9 +204,14 @@ public class ReliableResourceDownloadManager implements DownloadManager {
     AtomicBoolean downloadStarted = new AtomicBoolean(Boolean.FALSE);
     ReliableResourceDownloader downloader =
         new ReliableResourceDownloader(
-            downloaderConfig, downloadStarted, downloadIdentifier, resourceResponse, retriever);
+            downloaderConfig,
+            downloadStarted,
+            downloadIdentifier,
+            resourceResponse,
+            retriever,
+            downloadStatusInfo);
 
-    ResourceResponse response = downloader.setupDownload(metacard, downloadStatusInfo);
+    ResourceResponse response = downloader.setupDownload(metacard);
     response.getProperties().put(DOWNLOAD_ID_PROPERTY_KEY, downloadIdentifier);
 
     // Start download in separate thread so can return ResourceResponse with
