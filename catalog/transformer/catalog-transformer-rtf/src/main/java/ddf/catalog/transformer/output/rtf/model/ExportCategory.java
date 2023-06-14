@@ -138,9 +138,14 @@ public class ExportCategory implements RtfCategory {
   }
 
   private static boolean isNonEmptyValue(Metacard metacard, String attrName) {
-    final AttributeDescriptor descriptor =
-        metacard.getMetacardType().getAttributeDescriptor(attrName);
+    AttributeDescriptor descriptor = metacard.getMetacardType().getAttributeDescriptor(attrName);
     final Attribute attribute = metacard.getAttribute(attrName);
+    if (descriptor == null) {
+      return attribute != null
+          && attribute.getValue() != null
+          && StringUtils.isNotEmpty(attribute.getValue().toString());
+    }
+
     switch (descriptor.getType().getAttributeFormat()) {
       case STRING:
       case XML:
