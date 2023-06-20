@@ -893,13 +893,11 @@ public class WfsSource extends AbstractWfsSource {
   }
 
   /**
-   * If the query-supplied sort parameters are valid, then use them. If they are not valid, then
-   * fallback to the default sort parameters. If the default sort parameters are unset, then return
-   * without error. If the default sort parameters are valid, then use them. If the default sort
-   * parameters are invalid, then throw an exception.
-   *
-   * <p>Returns a properties map that includes information indicating if the sort parameters were
-   * changed to the default.
+   * If sorting is disabled, then skip sorting and add a warning message to the ProcessingDetails.
+   * If the query-supplied sort parameters are valid, then use them. Otherwise, add a warning
+   * message to the ProcessingDetails. If they are not valid, then fallback to the default sort
+   * parameters. If the default sort parameters are unset, then skip sorting. If the default sort
+   * parameters are valid, then use them. If the default sort parameters are invalid, skip sorting.
    */
   private void setSortBy(
       SortBy sortBy, QName key, QueryType wfsQuery, Set<SourceProcessingDetails> details) {
@@ -920,24 +918,21 @@ public class WfsSource extends AbstractWfsSource {
       return;
     }
 
-    message =
-        String.format(
-            "Source does not support specified sort property [%s]",
-            sortBy.getPropertyName().getPropertyName());
+    message = "Source does not support specified sort.";
+    details.add(new ProcessingDetailsImpl(this.getId(), null, message));
+    LOGGER.debug(message);
 
     if (defaultSortName == null || defaultSortOrder == null) {
-      details.add(new ProcessingDetailsImpl(this.getId(), null, message));
       LOGGER.debug("Skipping sorting because sort properties are not supplied by admin.");
       return;
     }
 
     sortByType = buildSortBy(key, new SortByImpl(defaultSortName, defaultSortOrder));
     if (isSortByValid(sortByType)) {
-      details.add(new ProcessingDetailsImpl(this.getId(), null, message));
+      LOGGER.debug("Using admin supplied sort properties.");
       logSortBy(sortByType);
       wfsQuery.setSortBy(sortByType);
     } else {
-      details.add(new ProcessingDetailsImpl(this.getId(), null, message));
       LOGGER.debug("Skipping sorting because admin supplied sort properties are not valid.");
     }
   }

@@ -45,6 +45,7 @@ import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.SourceProcessingDetails;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -58,6 +59,7 @@ import java.io.Writer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -248,6 +250,8 @@ public class WfsSourceTest {
   private static final String MOCK_TEMPORAL_SORT_PROPERTY = "myTemporalSortProperty";
   private static final String MOCK_RELEVANCE_SORT_PROPERTY = "myRelevanceSortProperty";
   private static final String MOCK_DISTANCE_SORT_PROPERTY = "myDistanceSortProperty";
+
+  private static final String UNSUPPORTED_SORT_WARNING = "Source does not support specified sort.";
 
   private static final String WFS_ID = "WFS_ID";
 
@@ -1724,7 +1728,13 @@ public class WfsSourceTest {
         ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
 
     SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    assertThat(sourceResponse.getProcessingDetails().size(), is(1));
+    assertThat(
+        sourceResponse.getProcessingDetails().stream()
+            .map(SourceProcessingDetails::getWarnings)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList())
+            .contains(UNSUPPORTED_SORT_WARNING),
+        is(true));
 
     verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
 
@@ -1750,7 +1760,13 @@ public class WfsSourceTest {
         ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
 
     SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    assertThat(sourceResponse.getProcessingDetails().size(), is(1));
+    assertThat(
+        sourceResponse.getProcessingDetails().stream()
+            .map(SourceProcessingDetails::getWarnings)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList())
+            .contains(UNSUPPORTED_SORT_WARNING),
+        is(true));
 
     verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
 
@@ -1780,7 +1796,13 @@ public class WfsSourceTest {
         ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
 
     SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    assertThat(sourceResponse.getProcessingDetails().size(), is(1));
+    assertThat(
+        sourceResponse.getProcessingDetails().stream()
+            .map(SourceProcessingDetails::getWarnings)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList())
+            .contains(UNSUPPORTED_SORT_WARNING),
+        is(true));
 
     verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
 
