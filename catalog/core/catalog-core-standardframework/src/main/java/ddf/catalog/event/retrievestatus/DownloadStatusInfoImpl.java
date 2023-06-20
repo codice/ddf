@@ -58,6 +58,7 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
       ReliableResourceDownloader downloader,
       ResourceResponse resourceResponse) {
     downloaders.put(downloadIdentifier, downloader);
+    LOGGER.debug("Added download info for {}", downloadIdentifier);
     org.apache.shiro.subject.Subject shiroSubject = null;
     try {
       shiroSubject = SecurityUtils.getSubject();
@@ -125,6 +126,8 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
   public void removeDownloadInfo(String downloadIdentifier) {
     downloaders.remove(downloadIdentifier);
     downloadUsers.remove(downloadIdentifier);
+    LOGGER.debug("Deleted download info for {}", downloadIdentifier);
+    LOGGER.debug("downloaders: count={} users: count={}", downloaders.size(), downloadUsers.size());
   }
 
   @Override
