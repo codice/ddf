@@ -740,13 +740,13 @@ public class WfsSource extends AbstractWfsSource {
     }
 
     final ExtendedGetFeatureType getHits = buildGetFeatureRequestHits(modifiedQuery);
-    final Pair<ExtendedGetFeatureType, Map<String, Serializable>> getResults =
+    final Pair<ExtendedGetFeatureType, Set<SourceProcessingDetails>> getResults =
         buildGetFeatureRequestResults(modifiedQuery);
+
+    Set<SourceProcessingDetails> sourceProcessingDetails = getResults.getRight();
 
     try {
       LOGGER.debug("WFS Source {}: Getting hits.", getId());
-
-      Set<SourceProcessingDetails> sourceProcessingDetails = null;
 
       long totalHits;
 
@@ -806,8 +806,7 @@ public class WfsSource extends AbstractWfsSource {
         }
       }
 
-      return new SourceResponseImpl(
-          request, getResults.getRight(), results, totalHits, sourceProcessingDetails);
+      return new SourceResponseImpl(request, null, results, totalHits, sourceProcessingDetails);
     } catch (WfsException wfse) {
       LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
       throw new UnsupportedQueryException("Error received from WFS Server", wfse);
@@ -834,18 +833,18 @@ public class WfsSource extends AbstractWfsSource {
     return buildGetFeatureRequest(query, ResultTypeType.HITS, null).getLeft();
   }
 
-  private Pair<ExtendedGetFeatureType, Map<String, Serializable>> buildGetFeatureRequestResults(
+  private Pair<ExtendedGetFeatureType, Set<SourceProcessingDetails>> buildGetFeatureRequestResults(
       final Query query) throws UnsupportedQueryException {
     return buildGetFeatureRequest(
         query, ResultTypeType.RESULTS, BigInteger.valueOf(query.getPageSize()));
   }
 
-  private Pair<ExtendedGetFeatureType, Map<String, Serializable>> buildGetFeatureRequest(
+  private Pair<ExtendedGetFeatureType, Set<SourceProcessingDetails>> buildGetFeatureRequest(
       Query query, ResultTypeType resultType, BigInteger maxFeatures)
       throws UnsupportedQueryException {
     List<ContentType> contentTypes = getContentTypesFromQuery(query);
     List<QueryType> queries = new ArrayList<>();
-    Map<String, Serializable> properties = null;
+    Set<SourceProcessingDetails> details = new HashSet<>();
 
     for (Entry<QName, WfsFilterDelegate> filterDelegateEntry : featureTypeFilters.entrySet()) {
       if (contentTypes.isEmpty()
@@ -860,13 +859,12 @@ public class WfsSource extends AbstractWfsSource {
           if (areAnyFiltersSet(filter)) {
             wfsQuery.setFilter(filter);
           }
-          if (!this.disableSorting
-              && query.getSortBy() != null
+          if (query.getSortBy() != null
               && query.getSortBy().getPropertyName() != null
               && query.getSortBy().getPropertyName().getPropertyName() != null) {
-            properties = setSortBy(query.getSortBy(), filterDelegateEntry.getKey(), wfsQuery);
+            setSortBy(query.getSortBy(), filterDelegateEntry.getKey(), wfsQuery, details);
           } else {
-            LOGGER.debug("Sorting is disabled or sort not specified.");
+            LOGGER.debug("Sort not specified.");
           }
           queries.add(wfsQuery);
         } else {
@@ -887,7 +885,7 @@ public class WfsSource extends AbstractWfsSource {
         getFeatureType.setStartIndex(BigInteger.valueOf(query.getStartIndex() - 1));
       }
       logMessage(getFeatureType);
-      return Pair.of(getFeatureType, properties);
+      return Pair.of(getFeatureType, details);
     } else {
       throw new UnsupportedQueryException(
           "Unable to build query. No filters could be created from query criteria.");
@@ -903,38 +901,44 @@ public class WfsSource extends AbstractWfsSource {
    * <p>Returns a properties map that includes information indicating if the sort parameters were
    * changed to the default.
    */
-  private Map<String, Serializable> setSortBy(SortBy sortBy, QName key, QueryType wfsQuery)
-      throws UnsupportedQueryException {
-    SortByType sortByType = buildSortBy(key, sortBy);
+  private void setSortBy(
+      SortBy sortBy, QName key, QueryType wfsQuery, Set<SourceProcessingDetails> details) {
+    SortByType sortByType;
+    String message;
+
+    if (this.disableSorting) {
+      message = "Source has sorting disabled.";
+      details.add(new ProcessingDetailsImpl(this.getId(), null, message));
+      LOGGER.debug(message);
+      return;
+    }
+
+    sortByType = buildSortBy(key, sortBy);
     if (isSortByValid(sortByType)) {
       logSortBy(sortByType);
       wfsQuery.setSortBy(sortByType);
-      return null;
+      return;
     }
 
-    Map<String, Serializable> properties = new HashMap<>();
-    properties.put(
-        Wfs11Constants.UNSUPPORTED_SORT_BY_REMOVED + "." + getId(),
-        sortBy.getPropertyName().getPropertyName());
+    message =
+        String.format(
+            "Source does not support specified sort property [%s]",
+            sortBy.getPropertyName().getPropertyName());
 
     if (defaultSortName == null || defaultSortOrder == null) {
-      LOGGER.debug(
-          "Skipping sorting because the query-supplied sort property [{}] is not supported and the default sort property and default sort order are not set.",
-          sortBy.getPropertyName().getPropertyName());
-      return properties;
+      details.add(new ProcessingDetailsImpl(this.getId(), null, message));
+      LOGGER.debug("Skipping sorting because sort properties are not supplied by admin.");
+      return;
     }
 
     sortByType = buildSortBy(key, new SortByImpl(defaultSortName, defaultSortOrder));
     if (isSortByValid(sortByType)) {
+      details.add(new ProcessingDetailsImpl(this.getId(), null, message));
       logSortBy(sortByType);
       wfsQuery.setSortBy(sortByType);
-      return properties;
     } else {
-      throw new UnsupportedQueryException(
-          "Source "
-              + this.getId()
-              + " does not support the default sort property "
-              + defaultSortName);
+      details.add(new ProcessingDetailsImpl(this.getId(), null, message));
+      LOGGER.debug("Skipping sorting because admin supplied sort properties are not valid.");
     }
   }
 

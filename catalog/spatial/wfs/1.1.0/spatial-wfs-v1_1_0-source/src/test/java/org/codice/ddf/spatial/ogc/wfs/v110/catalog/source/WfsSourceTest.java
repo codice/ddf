@@ -1724,11 +1724,7 @@ public class WfsSourceTest {
         ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
 
     SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    assertThat(
-        sourceResponse
-            .getProperties()
-            .get(Wfs11Constants.UNSUPPORTED_SORT_BY_REMOVED + "." + WFS_ID),
-        is(Result.TEMPORAL));
+    assertThat(sourceResponse.getProcessingDetails().size(), is(1));
 
     verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
 
@@ -1737,7 +1733,6 @@ public class WfsSourceTest {
 
   @Test
   public void testSortingBadSortOrderWithDefault() throws Exception {
-
     // query is still valid even if sort property bad
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
     setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
@@ -1755,11 +1750,7 @@ public class WfsSourceTest {
         ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
 
     SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    assertThat(
-        sourceResponse
-            .getProperties()
-            .get(Wfs11Constants.UNSUPPORTED_SORT_BY_REMOVED + "." + WFS_ID),
-        is(Result.TEMPORAL));
+    assertThat(sourceResponse.getProcessingDetails().size(), is(1));
 
     verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
 
@@ -1773,11 +1764,6 @@ public class WfsSourceTest {
 
   @Test
   public void testSortingBadSortOrderWithBadDefault() throws Exception {
-
-    // if sort order is invalid throw UnsupportedQueryException
-    expectedEx.expect(UnsupportedQueryException.class);
-    expectedEx.expectMessage("Source WFS_ID does not support the default sort property xyz");
-
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
     setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     final QueryImpl propertyIsLikeQuery =
@@ -1790,7 +1776,15 @@ public class WfsSourceTest {
     source.setDefaultSortName("xyz");
     source.setDefaultSortOrder(SortOrder.ASCENDING.name());
 
-    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    ArgumentCaptor<ExtendedGetFeatureType> argumentCaptor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
+
+    SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    assertThat(sourceResponse.getProcessingDetails().size(), is(1));
+
+    verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
+
+    assertThat(argumentCaptor.getAllValues().get(1).getQuery().get(0).getSortBy(), is(nullValue()));
   }
 
   private void assertFeature(
