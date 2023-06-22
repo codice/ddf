@@ -509,7 +509,6 @@ public class ReliableResourceDownloader implements Runnable {
       postFailedDownloadState(reliableResourceStatus);
     } finally {
       cleanupAfterDownload(reliableResourceStatus);
-      downloadStatusInfo.removeDownloadInfo(downloadIdentifier);
       downloadExecutor.shutdown();
     }
   }
@@ -588,6 +587,7 @@ public class ReliableResourceDownloader implements Runnable {
         // successful downloads since client reading from this InputStream will lag when
         // Callable finishes reading product's InputStream
       }
+      downloadStatusInfo.removeDownloadInfo(downloadIdentifier);
     }
     IOUtils.closeQuietly(countingFbos);
     if (doCaching) {
