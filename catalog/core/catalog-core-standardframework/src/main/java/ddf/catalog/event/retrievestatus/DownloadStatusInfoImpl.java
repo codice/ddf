@@ -35,9 +35,9 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
   private static final String UNKNOWN = "UNKNOWN";
 
   private Map<String, ReliableResourceDownloader> downloaders =
-      new HashMap<String, ReliableResourceDownloader>();
+          new HashMap<>();
 
-  private Map<String, String> downloadUsers = new HashMap<String, String>();
+  private Map<String, String> downloadUsers = new HashMap<>();
 
   private EventAdmin eventAdmin;
 
