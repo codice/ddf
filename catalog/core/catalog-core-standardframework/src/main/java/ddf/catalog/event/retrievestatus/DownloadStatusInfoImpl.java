@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.activities.ActivityEvent;
 import org.osgi.service.event.Event;
@@ -36,9 +35,9 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
   private static final String UNKNOWN = "UNKNOWN";
 
   private Map<String, ReliableResourceDownloader> downloaders =
-      new ConcurrentHashMap<String, ReliableResourceDownloader>();
+      new HashMap<String, ReliableResourceDownloader>();
 
-  private Map<String, String> downloadUsers = new ConcurrentHashMap<String, String>();
+  private Map<String, String> downloadUsers = new HashMap<String, String>();
 
   private EventAdmin eventAdmin;
 
