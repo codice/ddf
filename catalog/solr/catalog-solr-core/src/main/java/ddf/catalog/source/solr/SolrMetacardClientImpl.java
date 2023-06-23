@@ -38,6 +38,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.FacetAttributeResult;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.TermFacetProperties;
@@ -193,12 +194,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     try {
       QueryResponse solrResponse;
-      boolean doRealTimeGet =
-          (boolean) request.getProperties().getOrDefault(DO_REALTIME_GET, false)
-              || BooleanUtils.toBoolean(
-                  filterAdapter.adapt(request.getQuery(), new RealTimeGetDelegate()));
 
-      if (doRealTimeGet) {
+      if (shouldDoRealTimeGet(request)) {
         LOGGER.debug("Performing real time query");
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
@@ -230,6 +227,18 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     }
 
     return new SourceResponseImpl(request, responseProps, results, totalHits);
+  }
+
+  private boolean shouldDoRealTimeGet(QueryRequest request) throws UnsupportedQueryException {
+    Query query = request.getQuery();
+    if (query.getStartIndex() > 1) {
+      // solr doesn't support paging of real time get requests so if a paging request is received
+      // here, it is safe to assume that we should not be doing a real time get to solr
+      return false;
+    }
+
+    return (boolean) request.getProperties().getOrDefault(DO_REALTIME_GET, false)
+        || BooleanUtils.toBoolean(filterAdapter.adapt(query, new RealTimeGetDelegate()));
   }
 
   private List<SolrDocument> getSolrDocs(Set<String> ids) throws UnsupportedQueryException {
