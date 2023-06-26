@@ -587,8 +587,8 @@ public class ReliableResourceDownloader implements Runnable {
         // successful downloads since client reading from this InputStream will lag when
         // Callable finishes reading product's InputStream
       }
-      downloadStatusInfo.removeDownloadInfo(downloadIdentifier);
     }
+
     IOUtils.closeQuietly(countingFbos);
     if (doCaching) {
       IOUtils.closeQuietly(fos);
@@ -596,6 +596,7 @@ public class ReliableResourceDownloader implements Runnable {
     LOGGER.debug("Closing source InputStream");
     IOUtils.closeQuietly(resourceInputStream);
     LOGGER.debug("Closed source InputStream");
+    downloadStatusInfo.removeDownloadInfo(downloadIdentifier);
   }
 
   private void delay() throws InterruptedException {
