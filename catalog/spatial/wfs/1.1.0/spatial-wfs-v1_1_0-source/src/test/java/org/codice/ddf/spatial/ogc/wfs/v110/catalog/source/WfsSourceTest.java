@@ -45,6 +45,7 @@ import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.SourceProcessingDetails;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -58,6 +59,7 @@ import java.io.Writer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -248,6 +250,8 @@ public class WfsSourceTest {
   private static final String MOCK_TEMPORAL_SORT_PROPERTY = "myTemporalSortProperty";
   private static final String MOCK_RELEVANCE_SORT_PROPERTY = "myRelevanceSortProperty";
   private static final String MOCK_DISTANCE_SORT_PROPERTY = "myDistanceSortProperty";
+
+  private static final String UNSUPPORTED_SORT_WARNING = "Source does not support specified sort.";
 
   private static final String WFS_ID = "WFS_ID";
 
@@ -1725,10 +1729,12 @@ public class WfsSourceTest {
 
     SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
     assertThat(
-        sourceResponse
-            .getProperties()
-            .get(Wfs11Constants.UNSUPPORTED_SORT_BY_REMOVED + "." + WFS_ID),
-        is(Result.TEMPORAL));
+        sourceResponse.getProcessingDetails().stream()
+            .map(SourceProcessingDetails::getWarnings)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList())
+            .contains(UNSUPPORTED_SORT_WARNING),
+        is(true));
 
     verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
 
@@ -1737,7 +1743,6 @@ public class WfsSourceTest {
 
   @Test
   public void testSortingBadSortOrderWithDefault() throws Exception {
-
     // query is still valid even if sort property bad
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
     setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
@@ -1756,10 +1761,12 @@ public class WfsSourceTest {
 
     SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
     assertThat(
-        sourceResponse
-            .getProperties()
-            .get(Wfs11Constants.UNSUPPORTED_SORT_BY_REMOVED + "." + WFS_ID),
-        is(Result.TEMPORAL));
+        sourceResponse.getProcessingDetails().stream()
+            .map(SourceProcessingDetails::getWarnings)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList())
+            .contains(UNSUPPORTED_SORT_WARNING),
+        is(true));
 
     verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
 
@@ -1773,11 +1780,6 @@ public class WfsSourceTest {
 
   @Test
   public void testSortingBadSortOrderWithBadDefault() throws Exception {
-
-    // if sort order is invalid throw UnsupportedQueryException
-    expectedEx.expect(UnsupportedQueryException.class);
-    expectedEx.expectMessage("Source WFS_ID does not support the default sort property xyz");
-
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
     setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     final QueryImpl propertyIsLikeQuery =
@@ -1790,7 +1792,21 @@ public class WfsSourceTest {
     source.setDefaultSortName("xyz");
     source.setDefaultSortOrder(SortOrder.ASCENDING.name());
 
-    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    ArgumentCaptor<ExtendedGetFeatureType> argumentCaptor =
+        ArgumentCaptor.forClass(ExtendedGetFeatureType.class);
+
+    SourceResponse sourceResponse = source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    assertThat(
+        sourceResponse.getProcessingDetails().stream()
+            .map(SourceProcessingDetails::getWarnings)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList())
+            .contains(UNSUPPORTED_SORT_WARNING),
+        is(true));
+
+    verify(mockWfs, times(2)).getFeature(argumentCaptor.capture());
+
+    assertThat(argumentCaptor.getAllValues().get(1).getQuery().get(0).getSortBy(), is(nullValue()));
   }
 
   private void assertFeature(
