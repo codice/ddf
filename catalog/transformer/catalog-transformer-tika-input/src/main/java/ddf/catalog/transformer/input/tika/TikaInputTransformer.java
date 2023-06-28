@@ -56,10 +56,10 @@ import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.CloseShieldInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.io.CloseShieldInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MediaTypeRegistry;
@@ -603,7 +603,7 @@ public class TikaInputTransformer implements InputTransformer {
 
   private void createThumbnail(InputStream input, Metacard metacard) {
     try {
-      Image image = ImageIO.read(new CloseShieldInputStream(input));
+      Image image = ImageIO.read(CloseShieldInputStream.wrap(input));
 
       if (null != image) {
         BufferedImage bufferedImage =

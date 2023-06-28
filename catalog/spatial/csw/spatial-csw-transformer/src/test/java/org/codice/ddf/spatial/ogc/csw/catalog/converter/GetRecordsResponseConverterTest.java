@@ -53,6 +53,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -71,7 +72,7 @@ import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
-import org.apache.tika.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -168,7 +169,7 @@ public class GetRecordsResponseConverterTest {
             + "    </csw:Record>\r\n"
             + "  </csw:SearchResults>\r\n"
             + "</csw:GetRecordsResponse>";
-    InputStream inStream = IOUtils.toInputStream(xml);
+    InputStream inStream = IOUtils.toInputStream(xml, StandardCharsets.UTF_8);
     CswRecordCollection cswRecords = (CswRecordCollection) xstream.fromXML(inStream);
     IOUtils.closeQuietly(inStream);
 

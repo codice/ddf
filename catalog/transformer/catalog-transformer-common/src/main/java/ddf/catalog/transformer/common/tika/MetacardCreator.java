@@ -169,7 +169,7 @@ public class MetacardCreator {
 
     setAttribute(metacard, Contact.CREATOR_NAME, metadata.get(TikaCoreProperties.CREATOR));
 
-    setMultipleAttributes(metacard, Topic.KEYWORD, metadata.getValues(TikaCoreProperties.KEYWORDS));
+    setMultipleAttributes(metacard, Topic.KEYWORD, metadata.getValues(TikaCoreProperties.SUBJECT));
 
     setAttribute(
         metacard,

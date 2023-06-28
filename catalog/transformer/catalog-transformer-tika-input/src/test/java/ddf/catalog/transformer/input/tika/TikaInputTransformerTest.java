@@ -435,7 +435,7 @@ public class TikaInputTransformerTest {
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getMetadata(),
-        containsString("<meta name=\"Keywords\" content=\"grazelands\" />"));
+        containsString("<meta name=\"dc:subject\" content=\"grazelands\" />"));
     assertThat(metacard.getContentTypeName(), is("image/jpeg"));
     assertThat(convertDate(metacard.getCreatedDate()), is("2010-07-28 11:02:00 UTC"));
 
