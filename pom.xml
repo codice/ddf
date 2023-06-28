@@ -141,13 +141,13 @@
         <abdera.osgi.version>1.1.3_2</abdera.osgi.version>
         <abdera.version>1.1.3</abdera.version>
         <antlr.version>4.3</antlr.version>
-        <asm.version>9.4</asm.version>
+        <asm.version>9.5</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
         <bouncy.version>1.70</bouncy.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
-        <commons-compress.version>1.22</commons-compress.version>
-        <commons.fileupload.version>1.4</commons.fileupload.version>
+        <commons-compress.version>1.23.0</commons-compress.version>
+        <commons.fileupload.version>1.5</commons.fileupload.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-collections4.version>4.1</commons-collections4.version>
@@ -155,7 +155,7 @@
         <commons-csv.version>1.4</commons-csv.version>
         <commons-digester.version>1.8.1</commons-digester.version>
         <commons-exec.version>1.3</commons-exec.version>
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.13.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
@@ -176,10 +176,10 @@
         <httpcore.version>4.4.16</httpcore.version>
         <httpmime.version>${httpclient.version}</httpmime.version>
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
-        <jackson.version>2.14.1</jackson.version>
+        <jackson.version>2.15.2</jackson.version>
         <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
-        <jakarta.mail.version>1.6.6</jakarta.mail.version>
+        <jakarta.mail.version>1.6.7</jakarta.mail.version>
         <jasypt.version>1.9.3</jasypt.version>
         <javax.annotation-api.version>1.3.5</javax.annotation-api.version>
         <javax.inject.version>1</javax.inject.version>
@@ -213,26 +213,26 @@
         <mariadb.version>2.4.1</mariadb.version>
         <maven.failsafe.version>2.22.2</maven.failsafe.version>
         <maven.surefire.version>2.22.2</maven.surefire.version>
-        <mime4j.version>0.8.7</mime4j.version>
+        <mime4j.version>0.8.9</mime4j.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
         <objenesis.version>3.2</objenesis.version>
         <ogc-tools-gml-jts.version>1.2.0</ogc-tools-gml-jts.version>
-        <org.geotools.version>28.3</org.geotools.version>
+        <org.geotools.version>28.4</org.geotools.version>
         <!-- Note: The swissbox version needs to match the version used by pax-exam . -->
         <org.ops4j.pax.swissbox.version>1.8.5</org.ops4j.pax.swissbox.version>
-        <org.slf4j.version>1.7.29</org.slf4j.version>
+        <org.slf4j.version>1.7.32</org.slf4j.version>
         <osgi.compendium.version>7.0.0</osgi.compendium.version>
         <owasp-html-sanitizer.version>20220608.1</owasp-html-sanitizer.version>
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
         <openjson.version>1.0.12</openjson.version>
-        <pdfbox.version>2.0.27</pdfbox.version>
-        <poi.version>5.2.2</poi.version>
+        <pdfbox.version>2.0.28</pdfbox.version>
+        <poi.version>5.2.3</poi.version>
         <xlsx.transformer.poi.version>5.2.2</xlsx.transformer.poi.version>
         <protobuf.version>3.19.6</protobuf.version>
         <saxon.version>9.9.1-6</saxon.version>
-        <servicemix.bundles.poi.version>${poi.version}_2</servicemix.bundles.poi.version>
+        <servicemix.bundles.poi.version>${poi.version}_1</servicemix.bundles.poi.version>
         <servicemix.bundles.jaxb.version>${jaxb.version}_3</servicemix.bundles.jaxb.version>
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
         <servicemix.specs.jaxb.version>2.3_3</servicemix.specs.jaxb.version>
@@ -247,26 +247,27 @@
         <solr.zookeeper.version>3.8.1</solr.zookeeper.version>
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
         <spatial4j.version>0.8</spatial4j.version>
-        <tika.version>1.28.4</tika.version>
+        <tika.version>2.8.0</tika.version>
+        <tika.slf4j.version>2.0.7</tika.slf4j.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
         <woodstox.core.version>6.4.0</woodstox.core.version>
         <woodstox.stax2-api.version>4.2.1</woodstox.stax2-api.version>
-        <xalan.version>2.7.2</xalan.version>
+        <xalan.version>2.7.3</xalan.version>
         <xerces.version>2.12.2</xerces.version>
         <xerces.bundle.version>2.12.2_1</xerces.bundle.version>
         <xml-apis.version>1.3.04</xml-apis.version>
         <xmlbeans.version>5.0.3</xmlbeans.version>
         <xmlsec.version>2.3.1</xmlsec.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
-        <xstream.bundle.version>1.4.19_1</xstream.bundle.version>
-        <xstream.version>1.4.19</xstream.version>
+        <xstream.bundle.version>1.4.20_1</xstream.bundle.version>
+        <xstream.version>1.4.20</xstream.version>
         <micrometer.version>1.8.0</micrometer.version>
         <micrometer.hdrhistogram.version>2.1.12</micrometer.hdrhistogram.version>
         <micrometer.latencyutils.version>2.0.3</micrometer.latencyutils.version>
         <micrometer.prometheus-client.version>0.12.0</micrometer.prometheus-client.version>
         <micrometer.opentelemetry.version>1.9.1</micrometer.opentelemetry.version>
-        <zstd-jni.version>1.4.9-1</zstd-jni.version>
+        <zstd-jni.version>1.5.5-2</zstd-jni.version>
 
         <!-- Command line argument properties for the maven-surefire-plugin -->
         <surefire.argline.append />
@@ -369,15 +370,13 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
-                <artifactId>tika-parsers</artifactId>
+                <artifactId>tika-parsers-standard-package</artifactId>
                 <version>${tika.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <!-- excluding bzip2 due to CVE-2019-12900 https://nvd.nist.gov/vuln/detail/CVE-2019-12900 -->
-                        <groupId>org.itadaki</groupId>
-                        <artifactId>bzip2</artifactId>
-                    </exclusion>
-                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-bundle-standard</artifactId>
+                <version>${tika.version}</version>
             </dependency>
 
             <!-- BEGIN: JTS dependencies -->
@@ -560,7 +559,7 @@
                     <!-- mvn versions:display-dependency-updates > versions_upgrade.txt -->
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>versions-maven-plugin</artifactId>
-                    <version>2.13.0</version>
+                    <version>2.16.0</version>
                     <configuration>
                         <rulesUri>file:///${session.executionRootDirectory}/rules.xml</rulesUri>
                     </configuration>

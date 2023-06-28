@@ -120,7 +120,12 @@
         <!-- BEGIN: Tika dependencies -->
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-bundle</artifactId>
+            <artifactId>tika-core</artifactId>
+            <version>${tika.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-bundle-standard</artifactId>
             <version>${tika.version}</version>
         </dependency>
         <dependency>
@@ -134,9 +139,14 @@
             <version>${openjson.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.sf.jwordnet</groupId>
-            <artifactId>jwnl</artifactId>
-            <version>${jwnl.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${tika.slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>${tika.slf4j.version}</version>
         </dependency>
         <!-- END -->
         <!-- BEGIN: POI dependencies -->
@@ -276,7 +286,7 @@
         <dependency>
             <groupId>tech.units</groupId>
             <artifactId>indriya</artifactId>
-            <version>2.0.1</version>
+            <version>2.0.2</version>
         </dependency>
         <dependency>
             <groupId>tech.uom.lib</groupId>
@@ -301,7 +311,7 @@
         <dependency>
             <groupId>systems.uom</groupId>
             <artifactId>systems-common</artifactId>
-            <version>2.0.1</version>
+            <version>2.0.2</version>
         </dependency>
         <dependency>
             <groupId>javax.measure</groupId>

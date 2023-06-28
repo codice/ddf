@@ -17,6 +17,7 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.features/specs/${karaf.version}/xml/features</repository>
 
     <feature name="platform-util" version="${project.version}"
              description="Platform Utilities">
@@ -68,9 +69,13 @@
         <feature>common-system</feature>
         <feature>slf4j</feature>
         <feature>platform-util</feature>
+        <feature>spifly</feature>
+        <bundle>mvn:org.slf4j/slf4j-api/2.0.7</bundle>
+        <bundle>mvn:org.slf4j/slf4j-nop/2.0.7</bundle>
+        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-csw.config">
             mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-csw
         </configfile>
@@ -156,12 +161,15 @@
     <feature name="tika" version="${project.version}"
              description="Provides Tika as a bundle.">
         <feature prerequisite="true">wrap</feature>
-        <feature>jackson</feature>
+        <feature>spifly</feature>
+        <feature version="${project.version}">jackson</feature>
+        <bundle>mvn:org.slf4j/slf4j-api/${tika.slf4j.version}</bundle>
+        <bundle>mvn:org.slf4j/slf4j-nop/${tika.slf4j.version}</bundle>
+        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:com.github.luben/zstd-jni/${zstd-jni.version}</bundle>
         <bundle>mvn:com.github.openjson/openjson/${openjson.version}</bundle>
-        <bundle>wrap:mvn:net.sf.jwordnet/jwnl/${jwnl.version}$Bundle-Name=jwnl&amp;Bundle-SymbolicName=jwnl</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
+        <bundle>wrap:mvn:org.apache.tika/tika-bundle-standard/${tika.version}$overwrite=merge&amp;Import-Package=!org.junit,!org.junit.*,!junit.*,org.apache.tika.*,org.slf4j,org.slf4j.event,org.slf4j.helpers,*;resolution:=optional</bundle>
     </feature>
 
     <feature name="io" version="${project.version}" description="I/O Utilities">
