@@ -17,7 +17,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>3.0.0</version>
     </parent>
     <artifactId>catalog-core-commands</artifactId>
     <name>DDF :: Catalog :: Core :: Commands</name>

@@ -17,7 +17,7 @@
     <parent>
         <artifactId>distribution</artifactId>
         <groupId>ddf</groupId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>3.0.0</version>
     </parent>
     <!--
     Packages the DDF configured Karaf.
@@ -233,10 +233,8 @@
                         </goals>
                         <configuration>
                             <target>
-                                <replaceregexp
-                                        file="${project.basedir}/target/dependencies/apache-karaf-${karaf.version}/etc/jre.properties"
-                                        match="java.nio.file," byline="true">
-                                    <substitution expression="java.nio.file, \\\\${line.separator} java.nio.file.spi,"/>
+                                <replaceregexp file="${project.basedir}/target/dependencies/apache-karaf-${karaf.version}/etc/jre.properties" match="java.nio.file," byline="true">
+                                    <substitution expression="java.nio.file, \\\\${line.separator} java.nio.file.spi," />
                                 </replaceregexp>
                             </target>
                         </configuration>
