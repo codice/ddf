@@ -17,7 +17,7 @@
     <parent>
         <artifactId>platform</artifactId>
         <groupId>ddf.platform</groupId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.codice.ddf.security</groupId>

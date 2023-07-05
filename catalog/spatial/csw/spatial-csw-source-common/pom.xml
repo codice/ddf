@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
         <artifactId>csw</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>spatial-csw-source-common</artifactId>
     <packaging>jar</packaging>

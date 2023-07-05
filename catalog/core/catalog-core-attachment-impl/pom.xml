@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.catalog.core</groupId>
         <artifactId>core</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>catalog-core-attachment-impl</artifactId>
     <name>DDF :: Catalog :: Core :: Attachment :: Impl</name>

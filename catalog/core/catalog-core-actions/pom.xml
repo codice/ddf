@@ -18,7 +18,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>catalog-core-actions</artifactId>

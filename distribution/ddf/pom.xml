@@ -17,7 +17,7 @@
     <parent>
         <artifactId>kernel</artifactId>
         <groupId>org.codice.ddf</groupId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
         <relativePath>../kernel/pom.xml</relativePath>
     </parent>
     <!--

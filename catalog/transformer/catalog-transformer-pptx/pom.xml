@@ -15,7 +15,7 @@
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
 
     <name>DDF :: Catalog :: Transformer :: PPTX</name>

@@ -17,7 +17,7 @@
     <parent>
         <artifactId>common</artifactId>
         <groupId>ddf.catalog.common</groupId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>geo-formatter</artifactId>
     <name>DDF :: Catalog :: Common :: Geo Formatter</name>

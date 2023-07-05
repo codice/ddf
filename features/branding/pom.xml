@@ -17,7 +17,7 @@
     <parent>
         <artifactId>features</artifactId>
         <groupId>ddf.features</groupId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
     <name>DDF :: Features :: Branding</name>
     <artifactId>branding</artifactId>
