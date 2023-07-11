@@ -18,6 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -36,8 +37,10 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,11 +66,17 @@ public class CsvMetacardTransformerTest {
           new AttributeImpl("intAtt", 101),
           new AttributeImpl("doubleAtt", 3.14159));
 
+  private static final Map<Integer, String> COLUMN_ORDER =
+      ImmutableMap.of(
+          0, "doubleAtt",
+          1, "stringAtt",
+          2, "intAtt");
+
   @Before
   public void setUp() {
     this.transformer = new CsvMetacardTransformer();
     this.arguments = new HashMap<>();
-    arguments.put("columnOrder", "stringAtt,intAtt,doubleAtt");
+    arguments.put("columnOrder", COLUMN_ORDER.values().stream().collect(Collectors.joining(",")));
     normalMC = buildMetacard();
   }
 
@@ -88,6 +97,10 @@ public class CsvMetacardTransformerTest {
     List<String> attributes = Arrays.asList(new String(binaryContent.getByteArray()).split("\r\n"));
     List<String> attNames = Arrays.asList(attributes.get(0).split(","));
     List<String> attValues = Arrays.asList(attributes.get(1).split(","));
+
+    for (int i = 0; i < COLUMN_ORDER.size(); i++){
+      assertThat(attNames.get(i), is(COLUMN_ORDER.get(i)));
+    }
 
     for (int i = 0; i < attNames.size(); i++) {
       String attributeValue = attValues.get(i);

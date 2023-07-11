@@ -29,9 +29,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -60,26 +62,25 @@ public class CsvMetacardTransformer implements MetacardTransformer {
         Arrays.asList((attributeString).split(",")).stream()
             .filter(s -> !s.isEmpty())
             .collect(Collectors.toList());
-    List<AttributeDescriptor> allAttributes =
-        new ArrayList(
-            CsvTransformer.getNonEmptyValueAttributes(Collections.singletonList(metacard)));
-    List<AttributeDescriptor> descriptors =
+    Set<AttributeDescriptor> allAttributes =
+            CsvTransformer.getNonEmptyValueAttributes(Collections.singletonList(metacard));
+    Set<AttributeDescriptor> descriptors =
         CollectionUtils.isEmpty(attributes)
             ? allAttributes
             : allAttributes.stream()
                 .filter(attr -> attributes.contains(attr.getName()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
     if (shouldInjectMetacardType(attributes)) {
       injectMetacardType(descriptors);
     }
-
+    List<AttributeDescriptor> sortedAttributeDescriptors = CsvTransformer.sortAttributes(descriptors, attributes);
     Appendable appendable =
-        writeMetacardsToCsv(Collections.singletonList(metacard), descriptors, aliases);
+        writeMetacardsToCsv(Collections.singletonList(metacard), sortedAttributeDescriptors, aliases);
     return createResponse(appendable);
   }
 
-  private void injectMetacardType(List<AttributeDescriptor> descriptors) {
+  private void injectMetacardType(Set<AttributeDescriptor> descriptors) {
     descriptors.add(
         new AttributeDescriptorImpl(
             MetacardType.METACARD_TYPE, false, false, false, false, BasicTypes.STRING_TYPE));
