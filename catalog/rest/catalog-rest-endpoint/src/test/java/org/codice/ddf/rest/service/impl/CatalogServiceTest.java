@@ -14,6 +14,7 @@
 package org.codice.ddf.rest.service.impl;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.notNullValue;
@@ -88,7 +89,6 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
@@ -98,6 +98,7 @@ import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -162,6 +163,32 @@ public class CatalogServiceTest {
     CatalogFramework framework = givenCatalogFramework();
     CatalogService catalogService =
         new CatalogService(framework, attachmentParser, attributeRegistry);
+    FileItem fileItem = mock(FileItem.class);
+    when(fileItem.getInputStream())
+        .thenReturn(InputStream.nullInputStream(), InputStream.nullInputStream());
+
+    addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
+    UuidGenerator uuidGenerator = mock(UuidGenerator.class);
+    catalogService.setUuidGenerator(uuidGenerator);
+    when(uuidGenerator.generateUuid()).thenReturn("12345678900987654321abcdeffedcba");
+
+    String response =
+        catalogService.addDocument(
+            List.of("application/json"), List.of(fileItem), null, InputStream.nullInputStream());
+
+    assertThat(response, equalTo(SAMPLE_ID));
+  }
+
+  @Test
+  public void testAddDocumentPositiveCaseWithOverrides() throws Exception {
+
+    CatalogFramework framework = givenCatalogFramework();
+    CatalogService catalogService =
+        new CatalogService(framework, attachmentParser, attributeRegistry);
+    FileItem fileItem1 =
+        createFileItemMock("parse.resource", "text/plain", null, "C:\\DDF\\metacard.txt");
+    FileItem fileItem2 =
+        createFileItemMock("parse.title", "application/octet-stream", "test", null);
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
     UuidGenerator uuidGenerator = mock(UuidGenerator.class);
@@ -171,11 +198,9 @@ public class CatalogServiceTest {
     String response =
         catalogService.addDocument(
             List.of("application/json"),
-            List.of(mock(FileItem.class)),
+            List.of(fileItem1, fileItem2),
             null,
-            new ByteArrayInputStream("".getBytes()));
-
-    LOGGER.debug(ToStringBuilder.reflectionToString(response));
+            InputStream.nullInputStream());
 
     assertThat(response, equalTo(SAMPLE_ID));
   }
@@ -226,9 +251,7 @@ public class CatalogServiceTest {
             List.of("application/json"),
             List.of(fileItem1, fileItem2),
             null,
-            new ByteArrayInputStream("".getBytes()));
-
-    LOGGER.debug(ToStringBuilder.reflectionToString(response));
+            InputStream.nullInputStream());
 
     ArgumentCaptor<CreateStorageRequest> captor =
         ArgumentCaptor.forClass(CreateStorageRequest.class);
@@ -249,7 +272,12 @@ public class CatalogServiceTest {
     FileItem result = mock(FileItem.class);
     when(result.getFieldName()).thenReturn(fieldName);
     when(result.getContentType()).thenReturn(contentType);
-    when(result.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes()));
+    if (content == null) {
+      when(result.getInputStream())
+          .thenReturn(InputStream.nullInputStream(), InputStream.nullInputStream());
+    } else {
+      when(result.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes()));
+    }
     if (filename != null) {
       when(result.getName()).thenReturn(filename);
     }
@@ -305,9 +333,7 @@ public class CatalogServiceTest {
             List.of("application/json"),
             List.of(fileItem1, fileItem2, fileItem3),
             null,
-            new ByteArrayInputStream("".getBytes()));
-
-    LOGGER.debug(ToStringBuilder.reflectionToString(response));
+            InputStream.nullInputStream());
 
     assertThat(response, equalTo(SAMPLE_ID));
   }
@@ -693,7 +719,7 @@ public class CatalogServiceTest {
         List.of("application/json"),
         List.of(fileItem1, fileItem2),
         null,
-        new ByteArrayInputStream("".getBytes()));
+        InputStream.nullInputStream());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -711,13 +737,12 @@ public class CatalogServiceTest {
     UuidGenerator uuidGenerator = mock(UuidGenerator.class);
     catalogService.setUuidGenerator(uuidGenerator);
     when(uuidGenerator.generateUuid()).thenReturn("12345678900987654321abcdeffedcba");
+    FileItem fileItem = mock(FileItem.class);
+    when(fileItem.getInputStream()).thenReturn(InputStream.nullInputStream());
 
     try {
       catalogService.addDocument(
-          List.of("application/json"),
-          List.of(mock(FileItem.class)),
-          null,
-          new ByteArrayInputStream("".getBytes()));
+          List.of("application/json"), List.of(fileItem), null, InputStream.nullInputStream());
     } catch (ServletException e) {
       if (thrown.getClass().getName().equals(SourceUnavailableException.class.getName())) {
         assertEquals(
@@ -744,7 +769,19 @@ public class CatalogServiceTest {
         .thenReturn(new CreateResponseImpl(null, null, Collections.singletonList(returnMetacard)));
 
     when(framework.create(isA(CreateStorageRequest.class)))
-        .thenReturn(new CreateResponseImpl(null, null, Collections.singletonList(returnMetacard)));
+        .thenAnswer(
+            (Answer<CreateResponseImpl>)
+                invocationOnMock -> {
+                  assertThat(
+                      ((CreateStorageRequest) invocationOnMock.getArguments()[0])
+                          .getContentItems()
+                          .get(0)
+                          .getInputStream()
+                          .available(),
+                      greaterThanOrEqualTo(0));
+                  return new CreateResponseImpl(
+                      null, null, Collections.singletonList(returnMetacard));
+                });
 
     return framework;
   }

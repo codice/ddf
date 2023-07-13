@@ -573,11 +573,15 @@ public class CatalogService {
     if (fileItems.size() == 1) {
       FileItem fileItem = Iterables.get(fileItems, 0);
 
-      try (InputStream inputStream = fileItem.getInputStream()) {
-        return new ImmutablePair<>(
-            attachmentParser.generateAttachmentInfo(
-                inputStream, fileItem.getContentType(), fileItem.getName()),
-            null);
+      try (InputStream temporaryFileItemStream = fileItem.getInputStream()) {
+        if (temporaryFileItemStream == null || temporaryFileItemStream.available() < 0) {
+          LOGGER.debug("Mime attachment unavailable.");
+        } else {
+          return new ImmutablePair<>(
+              attachmentParser.generateAttachmentInfo(
+                  fileItem.getInputStream(), fileItem.getContentType(), fileItem.getName()),
+              null);
+        }
       } catch (IOException e) {
         LOGGER.debug("IOException reading stream from file attachment in multipart body.", e);
       }
@@ -591,26 +595,22 @@ public class CatalogService {
       String name = fileItem.getFieldName();
       String parsedName = (name.startsWith("parse.")) ? name.substring(6) : name;
 
-      try (InputStream inputStream = fileItem.getInputStream()) {
-        switch (name) {
-          case "parse.resource":
-            attachmentInfo =
-                attachmentParser.generateAttachmentInfo(
-                    inputStream, fileItem.getContentType(), fileItem.getName());
-            break;
-          case "parse.metadata":
-            metacard =
-                parseMetacard(transformerParam, metacard, fileItem.getContentType(), inputStream);
-            break;
-          default:
-            parseOverrideAttributes(attributeMap, parsedName, inputStream);
-            break;
+      try (InputStream temporaryFileItemStream = fileItem.getInputStream()) {
+        if (temporaryFileItemStream == null || temporaryFileItemStream.available() < 0) {
+          LOGGER.debug("Mime attachment unavailable. Ignoring override attribute: {}", name);
+        } else if ("parse.resource".equals(name)) {
+          attachmentInfo =
+              attachmentParser.generateAttachmentInfo(
+                  fileItem.getInputStream(), fileItem.getContentType(), fileItem.getName());
+        } else if ("parse.metadata".equals(name)) {
+          metacard =
+              parseMetacard(
+                  transformerParam, metacard, fileItem.getContentType(), temporaryFileItemStream);
+        } else {
+          parseOverrideAttributes(attributeMap, parsedName, temporaryFileItemStream);
         }
       } catch (IOException e) {
-        LOGGER.debug(
-            "Unable to get input stream for mime attachment. Ignoring override attribute: {}",
-            name,
-            e);
+        LOGGER.debug("Could not read mime attachment. Ignoring override attribute: {}", name, e);
       }
     }
     if (attachmentInfo == null) {
