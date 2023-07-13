@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +35,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,10 +64,19 @@ public class RESTEndpoint extends HttpServlet {
 
   private CatalogService catalogService;
 
+  private ServletFileUpload upload;
+
   public RESTEndpoint(CatalogService catalogService) {
     LOGGER.trace("Constructing REST Endpoint");
     this.catalogService = catalogService;
     LOGGER.trace(("Rest Endpoint constructed successfully"));
+  }
+
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    super.init(config);
+
+    verifyUploadParser(config.getServletContext());
   }
 
   @Override
@@ -453,15 +465,26 @@ public class RESTEndpoint extends HttpServlet {
       return null;
     }
 
-    DiskFileItemFactory factory = new DiskFileItemFactory();
-    ServletFileUpload upload = new ServletFileUpload(factory);
+    verifyUploadParser(request.getServletContext());
+    return upload.parseRequest(request);
+  }
 
-    File repository =
-        (File) request.getServletContext().getAttribute("javax.servlet.context.tempdir");
-    if (repository != null) {
-      factory.setRepository(repository);
+  private void verifyUploadParser(ServletContext context) {
+    if (upload != null) {
+      return;
     }
 
-    return upload.parseRequest(request);
+    File tempDir = (File) context.getAttribute("javax.servlet.context.tempdir");
+    if (tempDir == null) {
+      LOGGER.debug(
+          "Unable to determine servlet temporary directory. Using system temporary directory instead.");
+
+      tempDir = FileUtils.getTempDirectory();
+    }
+
+    DiskFileItemFactory factory = new DiskFileItemFactory();
+    factory.setRepository(tempDir);
+
+    upload = new ServletFileUpload(factory);
   }
 }
