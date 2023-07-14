@@ -238,5 +238,6 @@
         <module>sync-installer</module>
         <module>resource-bundle-locator</module>
         <module>http-filter-api</module>
+        <module>preferences</module>
     </modules>
 </project>

@@ -277,6 +277,8 @@
         <feature>catalog-plugin-oauth</feature>
         <feature>catalog-security-policyplugin</feature>
         <feature>catalog-transformer-thumbnail</feature>
+        <bundle>mvn:ddf.platform/preferences-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/preferences-impl/${project.version}</bundle>
     </feature>
 
     <!-- Start of app features -->
