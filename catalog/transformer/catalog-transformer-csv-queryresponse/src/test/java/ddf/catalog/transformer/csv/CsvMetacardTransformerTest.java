@@ -34,10 +34,11 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -66,17 +67,15 @@ public class CsvMetacardTransformerTest {
           new AttributeImpl("intAtt", 101),
           new AttributeImpl("doubleAtt", 3.14159));
 
-  private static final Map<Integer, String> COLUMN_ORDER =
-      ImmutableMap.of(
-          0, "doubleAtt",
-          1, "stringAtt",
-          2, "intAtt");
+  private static final List<String> COLUMN_ORDER = Arrays.asList("doubleAtt",
+          "stringAtt",
+          "intAtt");
 
   @Before
   public void setUp() {
     this.transformer = new CsvMetacardTransformer();
     this.arguments = new HashMap<>();
-    arguments.put("columnOrder", COLUMN_ORDER.values().stream().collect(Collectors.joining(",")));
+    arguments.put("columnOrder", COLUMN_ORDER.stream().collect(Collectors.joining(",")));
     normalMC = buildMetacard();
   }
 
@@ -98,9 +97,7 @@ public class CsvMetacardTransformerTest {
     List<String> attNames = Arrays.asList(attributes.get(0).split(","));
     List<String> attValues = Arrays.asList(attributes.get(1).split(","));
 
-    for (int i = 0; i < COLUMN_ORDER.size(); i++){
-      assertThat(attNames.get(i), is(COLUMN_ORDER.get(i)));
-    }
+    assertThat(attNames, is(COLUMN_ORDER));
 
     for (int i = 0; i < attNames.size(); i++) {
       String attributeValue = attValues.get(i);
