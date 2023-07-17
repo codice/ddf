@@ -37,6 +37,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -101,6 +102,7 @@ class XlsxMetacardUtility {
     Font font = workbook.createFont();
     font.setBold(true);
     style.setFont(font);
+    style.setAlignment(HorizontalAlignment.CENTER);
     Sheet sheet = workbook.createSheet();
     Row row = sheet.createRow(0);
     int cellIndex = 0;
@@ -127,6 +129,9 @@ class XlsxMetacardUtility {
       while (metacardIterator.hasNext()) {
         row.createCell(cellIndex++).setCellValue(String.valueOf(metacardIterator.next()));
       }
+    }
+    for (int i = 0; i < sheet.getRow(0).getPhysicalNumberOfCells(); i++) {
+      sheet.autoSizeColumn(i);
     }
   }
 
