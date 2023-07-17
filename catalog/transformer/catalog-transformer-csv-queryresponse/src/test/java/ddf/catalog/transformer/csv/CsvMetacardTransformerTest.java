@@ -18,7 +18,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -34,9 +33,7 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,9 +64,8 @@ public class CsvMetacardTransformerTest {
           new AttributeImpl("intAtt", 101),
           new AttributeImpl("doubleAtt", 3.14159));
 
-  private static final List<String> COLUMN_ORDER = Arrays.asList("doubleAtt",
-          "stringAtt",
-          "intAtt");
+  private static final List<String> COLUMN_ORDER =
+      Arrays.asList("doubleAtt", "stringAtt", "intAtt");
 
   @Before
   public void setUp() {
