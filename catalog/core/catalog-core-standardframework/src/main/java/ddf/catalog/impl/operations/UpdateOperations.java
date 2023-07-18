@@ -631,7 +631,7 @@ public class UpdateOperations {
             null,
             false, /* total result count */
             0 /* timeout */);
-    Map<String, Serializable> properties = new HashMap<>();
+    Map<String, Serializable> properties = new HashMap<>(updateRequest.getProperties());
     properties.put(
         SecurityConstants.SECURITY_SUBJECT, opsSecuritySupport.getSubject(updateRequest));
     return new QueryRequestImpl(queryImpl, false, updateRequest.getStoreIds(), properties);
