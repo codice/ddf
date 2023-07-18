@@ -18,9 +18,12 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +40,25 @@ public class XlsxMetacardTransformer implements MetacardTransformer {
       throw new CatalogTransformerException("Null metacard cannot be transformed to XLSX");
     }
 
+    String aliasesArg = (String) arguments.getOrDefault("aliases", new String());
+    Map<String, String> aliases =
+        (StringUtils.isNotBlank(aliasesArg))
+            ? Arrays.stream(aliasesArg.split(","))
+                .map(s -> s.split("="))
+                .collect(Collectors.toMap(k -> k[0], k -> k[1]))
+            : Collections.EMPTY_MAP;
+    String attributeString =
+        arguments.get(XlsxMetacardUtility.COLUMN_ORDER_KEY) != null
+            ? (String) arguments.get(XlsxMetacardUtility.COLUMN_ORDER_KEY)
+            : "";
+
+    List<String> attributes =
+        Arrays.asList((attributeString).split(",")).stream()
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
+
     List<Metacard> metacards = Collections.singletonList(metacard);
 
-    return XlsxMetacardUtility.buildSpreadSheet(metacards);
+    return XlsxMetacardUtility.buildSpreadSheet(metacards, aliases, attributes);
   }
 }

@@ -25,14 +25,19 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -43,6 +48,10 @@ import org.slf4j.LoggerFactory;
 class XlsxMetacardUtility {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(XlsxMetacardUtility.class);
+
+  public static final String COLUMN_ORDER_KEY = "columnOrder";
+
+  public static final String COLUMN_ALIAS_KEY = "aliases";
 
   private static MimeType mimeType = new MimeType();
 
@@ -57,36 +66,51 @@ class XlsxMetacardUtility {
 
   private XlsxMetacardUtility() {}
 
-  public static BinaryContent buildSpreadSheet(List<Metacard> metacards) {
+  public static BinaryContent buildSpreadSheet(
+      List<Metacard> metacards, Map<String, String> aliases, List<String> attributeOrder) {
     if (metacards.isEmpty()) {
       return null;
     }
 
-    List<AttributeDescriptor> attributeDescriptors =
-        new ArrayList<>(CsvTransformer.getNonEmptyValueAttributes(metacards));
+    Set<AttributeDescriptor> attributeDescriptors =
+        CsvTransformer.getNonEmptyValueAttributes(metacards);
+
+    Set<AttributeDescriptor> descriptors =
+        CollectionUtils.isEmpty(attributeOrder)
+            ? attributeDescriptors
+            : attributeDescriptors.stream()
+                .filter(attr -> attributeOrder.contains(attr.getName()))
+                .collect(Collectors.toSet());
 
     Workbook workbook = new XSSFWorkbook();
 
-    Sheet sheet = writeHeaderRow(attributeDescriptors, workbook);
+    List<AttributeDescriptor> sortedAttributeDescriptors =
+        CsvTransformer.sortAttributes(descriptors, attributeOrder);
 
-    writeMetacardValues(metacards, attributeDescriptors, sheet);
+    Sheet sheet = writeHeaderRow(sortedAttributeDescriptors, aliases, workbook);
+
+    writeMetacardValues(metacards, sortedAttributeDescriptors, sheet);
 
     return writeWorkbook(workbook);
   }
 
-  private static Sheet writeHeaderRow(
-      List<AttributeDescriptor> orderedAttributeDescriptors, Workbook workbook) {
+  static Sheet writeHeaderRow(
+      List<AttributeDescriptor> orderedAttributeDescriptors,
+      Map<String, String> columnAliasMap,
+      Workbook workbook) {
     CellStyle style = workbook.createCellStyle();
     Font font = workbook.createFont();
     font.setBold(true);
     style.setFont(font);
+    style.setAlignment(HorizontalAlignment.CENTER);
     Sheet sheet = workbook.createSheet();
     Row row = sheet.createRow(0);
     int cellIndex = 0;
     for (AttributeDescriptor attributeDescriptor : orderedAttributeDescriptors) {
       String attributeName = attributeDescriptor.getName();
       Cell cell = row.createCell(cellIndex++);
-      cell.setCellValue(attributeName);
+      cell.setCellValue(
+          Optional.ofNullable(columnAliasMap.get(attributeName)).orElse(attributeName));
       cell.setCellStyle(style);
     }
     return sheet;
@@ -105,6 +129,9 @@ class XlsxMetacardUtility {
       while (metacardIterator.hasNext()) {
         row.createCell(cellIndex++).setCellValue(String.valueOf(metacardIterator.next()));
       }
+    }
+    for (int i = 0; i < sheet.getRow(0).getPhysicalNumberOfCells(); i++) {
+      sheet.autoSizeColumn(i);
     }
   }
 

@@ -176,7 +176,7 @@ public class CsvTransformer {
    */
   public static Set<AttributeDescriptor> getOnlyRequestedAttributes(
       final List<Metacard> metacards, final Set<String> requestedAttributes) {
-    final Set<AttributeDescriptor> attributes = getAllCsvAttributeDescriptors(metacards);
+    final Set<AttributeDescriptor> attributes = getNonEmptyValueAttributes(metacards);
 
     // Filter out attributes not requested.
     attributes.removeIf(attrDesc -> !requestedAttributes.contains(attrDesc.getName()));

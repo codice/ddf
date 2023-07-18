@@ -26,14 +26,14 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transformer.csv.common.CsvTransformer;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +50,13 @@ public class CsvMetacardTransformer implements MetacardTransformer {
       throw new CatalogTransformerException("Unable to transform null metacard");
     }
 
+    String aliasesArg = (String) arguments.getOrDefault("aliases", new String());
     Map<String, String> aliases =
-        (Map<String, String>) arguments.getOrDefault("aliases", new HashMap<>());
+        (StringUtils.isNotBlank(aliasesArg))
+            ? Arrays.stream(aliasesArg.split(","))
+                .map(s -> s.split("="))
+                .collect(Collectors.toMap(k -> k[0], k -> k[1]))
+            : Collections.EMPTY_MAP;
     String attributeString =
         arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY) != null
             ? (String) arguments.get(CsvQueryResponseTransformer.COLUMN_ORDER_KEY)
@@ -60,26 +65,27 @@ public class CsvMetacardTransformer implements MetacardTransformer {
         Arrays.asList((attributeString).split(",")).stream()
             .filter(s -> !s.isEmpty())
             .collect(Collectors.toList());
-    List<AttributeDescriptor> allAttributes =
-        new ArrayList(
-            CsvTransformer.getNonEmptyValueAttributes(Collections.singletonList(metacard)));
-    List<AttributeDescriptor> descriptors =
+    Set<AttributeDescriptor> allAttributes =
+        CsvTransformer.getNonEmptyValueAttributes(Collections.singletonList(metacard));
+    Set<AttributeDescriptor> descriptors =
         CollectionUtils.isEmpty(attributes)
             ? allAttributes
             : allAttributes.stream()
                 .filter(attr -> attributes.contains(attr.getName()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
     if (shouldInjectMetacardType(attributes)) {
       injectMetacardType(descriptors);
     }
-
+    List<AttributeDescriptor> sortedAttributeDescriptors =
+        CsvTransformer.sortAttributes(descriptors, attributes);
     Appendable appendable =
-        writeMetacardsToCsv(Collections.singletonList(metacard), descriptors, aliases);
+        writeMetacardsToCsv(
+            Collections.singletonList(metacard), sortedAttributeDescriptors, aliases);
     return createResponse(appendable);
   }
 
-  private void injectMetacardType(List<AttributeDescriptor> descriptors) {
+  private void injectMetacardType(Set<AttributeDescriptor> descriptors) {
     descriptors.add(
         new AttributeDescriptorImpl(
             MetacardType.METACARD_TYPE, false, false, false, false, BasicTypes.STRING_TYPE));

@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,11 +64,14 @@ public class CsvMetacardTransformerTest {
           new AttributeImpl("intAtt", 101),
           new AttributeImpl("doubleAtt", 3.14159));
 
+  private static final List<String> COLUMN_ORDER =
+      Arrays.asList("doubleAtt", "stringAtt", "intAtt");
+
   @Before
   public void setUp() {
     this.transformer = new CsvMetacardTransformer();
     this.arguments = new HashMap<>();
-    arguments.put("columnOrder", "stringAtt,intAtt,doubleAtt");
+    arguments.put("columnOrder", COLUMN_ORDER.stream().collect(Collectors.joining(",")));
     normalMC = buildMetacard();
   }
 
@@ -88,6 +92,8 @@ public class CsvMetacardTransformerTest {
     List<String> attributes = Arrays.asList(new String(binaryContent.getByteArray()).split("\r\n"));
     List<String> attNames = Arrays.asList(attributes.get(0).split(","));
     List<String> attValues = Arrays.asList(attributes.get(1).split(","));
+
+    assertThat(attNames, is(COLUMN_ORDER));
 
     for (int i = 0; i < attNames.size(); i++) {
       String attributeValue = attValues.get(i);
