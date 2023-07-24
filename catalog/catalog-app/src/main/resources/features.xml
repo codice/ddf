@@ -97,6 +97,25 @@
         <bundle>mvn:org.codice.ddf/checksum/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-plugin-metacard-validation" version="${project.version}"
+             description="Metacard Validator Plugins">
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-core-validator" version="${project.version}"
+             description="Metacard and attribute validation services">
+        <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-validator/${project.version}</bundle>
+        <feature>catalog-plugin-metacard-validation</feature>
+    </feature>
+
+    <feature name="catalog-core-definitionparser" version="${project.version}"
+             description="Provides the ability to define new metacard types, attributes, attribute validators, and default values via JSON files">
+        <feature>catalog-core-validator</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-definitionparser/${project.version}</bundle>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+    </feature>
+
     <feature name="catalog-rest" version="${project.version}">
         <feature>catalog-core-attachment</feature>
         <feature>catalog-rest-endpoint</feature>
@@ -216,6 +235,7 @@
         <feature>catalog-core-impl</feature>
         <feature>catalog-core-plugins</feature>
         <feature>catalog-core-content</feature>
+        <feature>catalog-core-definitionparser</feature>
         <feature>catalog-rest</feature>
         <feature>catalog-opensearch</feature>
         <feature>catalog-transformer-metadata</feature>

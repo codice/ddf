@@ -333,6 +333,21 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.codice.countrycode</groupId>
+            <artifactId>converter</artifactId>
+            <version>${countryconverter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-metacard-validation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-definitionparser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-content-uri</artifactId>
             <version>${project.version}</version>
