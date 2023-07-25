@@ -92,6 +92,20 @@ import org.slf4j.LoggerFactory;
 public class QueryOperations extends DescribableImpl {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryOperations.class);
 
+  private static final String QMB = "qm.";
+  private static final String QM_TRACEID = QMB + "trace-id";
+  private static final String QM_POSTQUERY = QMB + "postquery.";
+  private static final String QM_POSTQUERYACCESS = QMB + "postqueryaccess.";
+  private static final String QM_PREQUERY = QMB + "prequery.";
+  private static final String QM_PREQUERYACCESS = QMB + "prequeryaccess.";
+  private static final String QM_PREAUTH = QMB + "preauthorization.";
+  private static final String QM_RESPONSE_POLICY = QMB + "response-policy.";
+  private static final String QM_REQUEST_POLICYMAP = QMB + "request-policymap.";
+  private static final String QM_RESPONSE_POLICYMAP = QMB + "response-policymap.";
+  private static final String QM_ELAPSED = ".elapsed";
+
+  private static final String QM_RESPONSE_INJECTATTRIBUTES =
+      QMB + "response-injectattributes" + QM_ELAPSED;
   private static final String MAX_PAGE_SIZE_PROPERTY = "catalog.maxPageSize";
 
   private static final String ZERO_PAGESIZE_COMPATIBILITY_PROPERTY =
@@ -189,6 +203,7 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
 
     try {
+      queryRequest = addTraceId(queryRequest);
       queryRequest = validateQueryRequest(queryRequest);
       queryRequest = getFanoutQuery(queryRequest, fanoutEnabled);
       queryRequest = preProcessPreAuthorizationPlugins(queryRequest);
@@ -209,10 +224,11 @@ public class QueryOperations extends DescribableImpl {
         }
       }
 
-      long start = System.currentTimeMillis();
+      long start = System.nanoTime();
       queryResponse = doQuery(queryRequest, fedStrategy);
-      LOGGER.trace(
-          "After doQuery: trace-id {}, duration {}", traceId, System.currentTimeMillis() - start);
+      long elapsedTime = System.nanoTime() - start;
+      putMetricsDuration(queryResponse, QMB + "do-query" + QM_ELAPSED, elapsedTime);
+      LOGGER.trace("After doQuery: trace-id {}, duration {} ns", traceId, elapsedTime);
 
       // Allow callers to determine the total results returned from the query; this value
       // may differ from the number of filtered results after processing plugins have been run.
@@ -255,6 +271,64 @@ public class QueryOperations extends DescribableImpl {
         }
       }
     }
+    if (LOGGER.isDebugEnabled()) {
+      Map<String, Serializable> req_metrics = queryResponse.getRequest().getProperties();
+      Map<String, Serializable> resp_metrics = queryResponse.getProperties();
+      // Combine the request and response metrics to log
+      Map<String, Serializable> all_metrics = new HashMap<>();
+      all_metrics.putAll(filterMetrics(req_metrics, QMB));
+      all_metrics.putAll(filterMetrics(resp_metrics, QMB));
+
+      LOGGER.debug("QueryMetrics: {}", serializeMetrics(all_metrics, QMB));
+    }
+  }
+
+  private Map<String, Serializable> filterMetrics(Map<String, Serializable> src, String base) {
+    Map<String, Serializable> filtered =
+        src.entrySet().stream()
+            .filter(x -> x.getKey().startsWith(base))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    return filtered;
+  }
+
+  private String serializeMetrics(Map<String, Serializable> props, String base) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("trace-id: ");
+    sb.append(props.get(QM_TRACEID));
+    List<String> sortedKeys =
+        props.keySet().stream()
+            .filter(e -> !e.equals(QM_TRACEID))
+            .sorted()
+            .collect(Collectors.toList());
+    for (String key : sortedKeys) {
+      sb.append(", ");
+      sb.append(key);
+      sb.append(": ");
+      sb.append(props.get(key));
+    }
+    return sb.toString();
+  }
+
+  private QueryRequest addTraceId(QueryRequest queryRequest) {
+    String traceId = ThreadContextProperties.getTraceId();
+    queryRequest.getProperties().put(QM_TRACEID, traceId);
+    return queryRequest;
+  }
+
+  private String getMetric(String base, Object o, String suffix) {
+    return base + o.getClass().getSimpleName() + suffix;
+  }
+
+  private QueryResponse putMetricsDuration(QueryResponse response, String key, long value) {
+    putMetricsDuration(response.getRequest(), key, value);
+    return response;
+  }
+
+  private QueryRequest putMetricsDuration(QueryRequest request, String key, long value) {
+    if (request != null) {
+      request.getProperties().put(key, value);
+    }
+    return request;
   }
 
   /**
@@ -433,13 +507,16 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
     for (PostQueryPlugin service : frameworkProperties.getPostQuery()) {
       try {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         queryResponse = service.process(queryResponse);
+        long elapsedTime = System.nanoTime() - start;
+        putMetricsDuration(
+            queryResponse, getMetric(QM_POSTQUERY, service, QM_ELAPSED), elapsedTime);
         LOGGER.trace(
             "After PostQueryPlugin: trace-id {}, plugin {}, duration {}",
             traceId,
             service,
-            System.currentTimeMillis() - start);
+            elapsedTime);
       } catch (PluginExecutionException see) {
         LOGGER.debug("Error executing PostQueryPlugin: {}", see.getMessage(), see);
       } catch (StopProcessingException e) {
@@ -454,13 +531,16 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
     for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
       try {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         queryResponse = plugin.processPostQuery(queryResponse);
+        long elapsedTime = System.nanoTime() - start;
+        putMetricsDuration(
+            queryResponse, getMetric(QM_POSTQUERYACCESS, plugin, QM_ELAPSED), elapsedTime);
         LOGGER.trace(
             "After post-query AccessPlugin: trace-id {}, plugin {}, duration {}",
             traceId,
             plugin,
-            System.currentTimeMillis() - start);
+            elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -478,16 +558,19 @@ public class QueryOperations extends DescribableImpl {
       HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
       for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
         try {
-          long start = System.currentTimeMillis();
+          long start = System.nanoTime();
           PolicyResponse policyResponse = plugin.processPostQuery(result, unmodifiableProperties);
           opsSecuritySupport.buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy().entrySet());
           opsSecuritySupport.buildPolicyMap(
               responsePolicyMap, policyResponse.operationPolicy().entrySet());
+          long elapsedTime = System.nanoTime() - start;
+          putMetricsDuration(
+              queryResponse, getMetric(QM_RESPONSE_POLICYMAP, plugin, QM_ELAPSED), elapsedTime);
           LOGGER.trace(
               "After post-query PolicyPlugin: trace-id {}, plugin {}, duration {}",
               traceId,
               plugin,
-              System.currentTimeMillis() - start);
+              elapsedTime);
         } catch (StopProcessingException e) {
           throw new FederationException("Query could not be executed.", e);
         }
@@ -503,13 +586,15 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
     for (PreQueryPlugin service : frameworkProperties.getPreQuery()) {
       try {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         queryReq = service.process(queryReq);
+        long elapsedTime = System.nanoTime() - start;
+        putMetricsDuration(queryReq, getMetric(QM_PREQUERY, service, QM_ELAPSED), elapsedTime);
         LOGGER.trace(
             "After PreQueryPlugin: trace-id {}, plugin {}, duration {}",
             traceId,
             service,
-            System.currentTimeMillis() - start);
+            elapsedTime);
       } catch (PluginExecutionException see) {
         LOGGER.debug("Error executing PreQueryPlugin: {}", see.getMessage(), see);
       } catch (StopProcessingException e) {
@@ -524,13 +609,15 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
     for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
       try {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         queryReq = plugin.processPreQuery(queryReq);
+        long elapsedTime = System.nanoTime() - start;
+        putMetricsDuration(queryReq, getMetric(QM_POSTQUERY, plugin, QM_ELAPSED), elapsedTime);
         LOGGER.trace(
             "After pre-query AccessPlugin: trace-id {}, plugin {}, duration {}",
             traceId,
             plugin,
-            System.currentTimeMillis() - start);
+            elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -543,13 +630,16 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
     for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
       try {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         queryRequest = plugin.processPreQuery(queryRequest);
+        long elapsedTime = System.nanoTime() - start;
+        putMetricsDuration(queryRequest, getMetric(QM_PREAUTH, plugin, QM_ELAPSED), elapsedTime);
+
         LOGGER.trace(
             "After pre-query PreAuthorizationPlugin: trace-id {}, plugin {}, duration {}",
             traceId,
             plugin,
-            System.currentTimeMillis() - start);
+            elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -562,13 +652,16 @@ public class QueryOperations extends DescribableImpl {
     String traceId = ThreadContextProperties.getTraceId();
     for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
       try {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         queryResponse = plugin.processPostQuery(queryResponse);
+        long elapsedTime = System.nanoTime() - start;
+        putMetricsDuration(queryResponse, getMetric(QM_PREAUTH, plugin, QM_ELAPSED), elapsedTime);
+
         LOGGER.trace(
             "After post-query PreAuthorizationPlugin: trace-id {}, plugin {}, duration {}",
             traceId,
             plugin,
-            System.currentTimeMillis() - start);
+            elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -584,16 +677,20 @@ public class QueryOperations extends DescribableImpl {
         Collections.unmodifiableMap(queryReq.getProperties());
     for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
       try {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         PolicyResponse policyResponse =
             plugin.processPreQuery(queryReq.getQuery(), unmodifiableProperties);
         opsSecuritySupport.buildPolicyMap(
             requestPolicyMap, policyResponse.operationPolicy().entrySet());
+        long elapsedTime = System.nanoTime() - start;
+        putMetricsDuration(
+            queryReq, getMetric(QM_REQUEST_POLICYMAP, plugin, QM_ELAPSED), elapsedTime);
+
         LOGGER.trace(
             "After pre-query PolicyPlugin: trace-id {}, plugin {}, duration {}",
             traceId,
             plugin,
-            System.currentTimeMillis() - start);
+            elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -682,6 +779,7 @@ public class QueryOperations extends DescribableImpl {
   }
 
   private QueryResponse injectAttributes(QueryResponse response) {
+    long start = System.nanoTime();
     List<Result> results =
         response.getResults().stream()
             .map(
@@ -701,6 +799,8 @@ public class QueryOperations extends DescribableImpl {
         new QueryResponseImpl(
             response.getRequest(), results, true, response.getHits(), response.getProperties());
     queryResponse.setProcessingDetails(response.getProcessingDetails());
+    long elapsedTime = System.nanoTime() - start;
+    putMetricsDuration(queryResponse, QM_RESPONSE_INJECTATTRIBUTES, elapsedTime);
     return queryResponse;
   }
 
