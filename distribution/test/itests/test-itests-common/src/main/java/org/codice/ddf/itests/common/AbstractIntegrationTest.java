@@ -29,6 +29,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
@@ -714,6 +715,8 @@ public abstract class AbstractIntegrationTest {
   private Option[] configureSolr() {
 
     return options(
+        editConfigurationFileExtend(
+            SYSTEM_PROPERTIES_REL_PATH, "solr.client.forceAutoCommit", "true"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.client", "CloudSolrClient"),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", "localhost:10784"));
