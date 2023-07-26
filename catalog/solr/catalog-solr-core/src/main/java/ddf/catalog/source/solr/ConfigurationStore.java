@@ -25,7 +25,8 @@ public class ConfigurationStore {
 
   private String dataDirectoryPath;
 
-  private boolean forceAutoCommit;
+  private boolean forceAutoCommit =
+      Boolean.parseBoolean(System.getProperty("solr.client.forceAutoCommit", "false").trim());
 
   private boolean inMemory;
 
