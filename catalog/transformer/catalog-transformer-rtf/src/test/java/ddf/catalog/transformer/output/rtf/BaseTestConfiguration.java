@@ -30,7 +30,10 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
@@ -39,15 +42,32 @@ public abstract class BaseTestConfiguration {
 
   static final String REFERENCE_IMAGE_STRING_FILE = "test-image-string.txt";
   static final String REFERENCE_METACARD_RTF_FILE = "reference-metacard.rtf";
+  static final String REFERENCE_METACARD_WITH_ARGS_RTF_FILE = "reference-metacard-with-args.rtf";
   static final String REFERENCE_METACARD_RTF_WITH_EMPTY_THUMBNAIL_FILE =
       "reference-metacard-with-empty-thumbnail.rtf";
   static final String REFERENCE_SOURCE_RESPONSE_RTF_FILE = "reference-source-response.rtf";
+  static final String REFERENCE_SOURCE_RESPONSE_WITH_ARGS_RTF_FILE =
+      "reference-source-response-with-args.rtf";
 
   static final String EMPTY_ATTRIBUTE = "Empty";
   static final String SIMPLE_ATTRIBUTE = "Simple";
   static final String EXTENDED_ATTRIBUTE = "ext.extended-attribute";
 
   private static final String UNKNOWN_ATTRIBUTE = "Unknown";
+
+  static final List<String> COLUMN_ORDER =
+      Arrays.asList(UNKNOWN_ATTRIBUTE, EXTENDED_ATTRIBUTE, SIMPLE_ATTRIBUTE, EMPTY_ATTRIBUTE);
+
+  static final Map<String, String> COLUMN_ALIASES;
+
+  static {
+    Map<String, String> map = new HashMap<>();
+    map.put(EMPTY_ATTRIBUTE, "nothing");
+    map.put(SIMPLE_ATTRIBUTE, "easy");
+    map.put(EXTENDED_ATTRIBUTE, "extended");
+    map.put(UNKNOWN_ATTRIBUTE, "not_Known");
+    COLUMN_ALIASES = Collections.unmodifiableMap(map);
+  }
 
   public static final List<RtfCategory> MOCK_CATEGORY =
       Stream.of(
@@ -99,6 +119,18 @@ public abstract class BaseTestConfiguration {
   String getReferenceImageString() throws IOException {
     return inputStreamToString(
         getClass().getClassLoader().getResourceAsStream(REFERENCE_IMAGE_STRING_FILE));
+  }
+
+  String getReferenceMetacardWithArgsRtfFile() throws IOException {
+    return inputStreamToString(
+        getClass().getClassLoader().getResourceAsStream(REFERENCE_METACARD_WITH_ARGS_RTF_FILE));
+  }
+
+  String getReferenceSourceResponseWithArgsRtfFile() throws IOException {
+    return inputStreamToString(
+        getClass()
+            .getClassLoader()
+            .getResourceAsStream(REFERENCE_SOURCE_RESPONSE_WITH_ARGS_RTF_FILE));
   }
 
   String inputStreamToString(InputStream inputStream) throws IOException {
