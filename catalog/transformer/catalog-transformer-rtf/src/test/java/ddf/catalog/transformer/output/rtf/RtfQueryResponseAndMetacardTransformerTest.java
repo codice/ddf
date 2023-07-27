@@ -113,6 +113,33 @@ public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfigur
         equalToIgnoringWhiteSpace(referenceRtfWithEmptyThumbnail));
   }
 
+  @Test
+  public void testTransformMetacardWithGifThumbnail()
+      throws MimeTypeParseException, CatalogTransformerException, IOException {
+    RtfQueryResponseAndMetacardTransformer transformer = createTransformer();
+
+    Metacard mockMetacard = createMockMetacardWithGifImageData("Test Metacard With Gif Thumbnail");
+
+    BinaryContent content = transformer.transform(mockMetacard, Collections.emptyMap());
+
+    assertThat("Transformed content cannot be null", content, notNullValue());
+    assertThat(
+        "Content mime type must be 'application/rtf'",
+        content.getMimeType().toString(),
+        equalTo("application/rtf"));
+
+    String rtfResult = inputStreamToString(content.getInputStream());
+
+    assertThat("Content must not be empty", rtfResult, is(not(isEmptyOrNullString())));
+
+    String referenceRtfWithEmptyThumbnail = getReferenceMetacardWithGifRtfFile();
+
+    assertThat(
+        "Produced RTF document must match reference",
+        rtfResult,
+        equalToIgnoringWhiteSpace(referenceRtfWithEmptyThumbnail));
+  }
+
   @Test(expected = CatalogTransformerException.class)
   public void testTransformNullSourceResponse()
       throws CatalogTransformerException, MimeTypeParseException {

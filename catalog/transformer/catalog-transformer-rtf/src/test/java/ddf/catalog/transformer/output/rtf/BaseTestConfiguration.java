@@ -41,8 +41,10 @@ import org.apache.commons.io.IOUtils;
 public abstract class BaseTestConfiguration {
 
   static final String REFERENCE_IMAGE_STRING_FILE = "test-image-string.txt";
+  static final String REFERENCE_GIF_STRING_FILE = "test-gif-image-string.txt";
   static final String REFERENCE_METACARD_RTF_FILE = "reference-metacard.rtf";
   static final String REFERENCE_METACARD_WITH_ARGS_RTF_FILE = "reference-metacard-with-args.rtf";
+  static final String REFERENCE_METACARD_WITH_GIF_RTF_FILE = "reference-metacard-with-gif.rtf";
   static final String REFERENCE_METACARD_RTF_WITH_EMPTY_THUMBNAIL_FILE =
       "reference-metacard-with-empty-thumbnail.rtf";
   static final String REFERENCE_SOURCE_RESPONSE_RTF_FILE = "reference-source-response.rtf";
@@ -121,9 +123,19 @@ public abstract class BaseTestConfiguration {
         getClass().getClassLoader().getResourceAsStream(REFERENCE_IMAGE_STRING_FILE));
   }
 
+  String getReferenceGifString() throws IOException {
+    return inputStreamToString(
+        getClass().getClassLoader().getResourceAsStream(REFERENCE_GIF_STRING_FILE));
+  }
+
   String getReferenceMetacardWithArgsRtfFile() throws IOException {
     return inputStreamToString(
         getClass().getClassLoader().getResourceAsStream(REFERENCE_METACARD_WITH_ARGS_RTF_FILE));
+  }
+
+  String getReferenceMetacardWithGifRtfFile() throws IOException {
+    return inputStreamToString(
+        getClass().getClassLoader().getResourceAsStream(REFERENCE_METACARD_WITH_GIF_RTF_FILE));
   }
 
   String getReferenceSourceResponseWithArgsRtfFile() throws IOException {
@@ -140,6 +152,15 @@ public abstract class BaseTestConfiguration {
   Metacard createMockMetacardWithBadImageData(String title) {
     try {
       return createMockMetacard(title, createInvalidMediaAttribute());
+    } catch (IOException e) {
+      // Will be caught in the test as missing attribute
+      return null;
+    }
+  }
+
+  Metacard createMockMetacardWithGifImageData(String title) {
+    try {
+      return createMockMetacard(title, createGifThumbnailAttribute());
     } catch (IOException e) {
       // Will be caught in the test as missing attribute
       return null;
@@ -188,6 +209,14 @@ public abstract class BaseTestConfiguration {
   Attribute createInvalidMediaAttribute() throws IOException {
     Attribute mockAttribute = mock(Attribute.class);
     byte[] image = Base64.getDecoder().decode(getReferenceImageString().substring(0, 12));
+    when(mockAttribute.getValue()).thenReturn(image);
+
+    return mockAttribute;
+  }
+
+  Attribute createGifThumbnailAttribute() throws IOException {
+    Attribute mockAttribute = mock(Attribute.class);
+    byte[] image = Base64.getDecoder().decode(getReferenceGifString());
     when(mockAttribute.getValue()).thenReturn(image);
 
     return mockAttribute;
