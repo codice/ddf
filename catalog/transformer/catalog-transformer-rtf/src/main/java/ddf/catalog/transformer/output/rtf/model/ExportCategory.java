@@ -18,6 +18,8 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +36,7 @@ public class ExportCategory implements RtfCategory {
 
   private String title;
   private List<String> attributes;
+  private Map<String, String> aliases = Collections.EMPTY_MAP;
 
   public interface ExportValue<T, R extends ValueType> {
     T getValue();
@@ -97,11 +100,19 @@ public class ExportCategory implements RtfCategory {
                 new AbstractMap.SimpleEntry<>(
                     attributeKeyFrom(key),
                     attributeExportValueFrom(key, metacard.getAttribute(key))))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+  }
+
+  public void setAliases(Map<String, String> aliases) {
+    this.aliases = aliases;
   }
 
   private String attributeKeyFrom(String key) {
-    if (key.startsWith(EXTENDED_ATTRIBUTE_PREFIX)) {
+    if (aliases.containsKey(key)) {
+      return aliases.get(key);
+    } else if (key.startsWith(EXTENDED_ATTRIBUTE_PREFIX)) {
       key = key.replaceFirst(EXTENDED_ATTRIBUTE_PREFIX, "");
     }
 

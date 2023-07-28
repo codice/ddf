@@ -22,6 +22,7 @@ import static com.tutego.jrtf.RtfText.text;
 import static ddf.catalog.transformer.output.rtf.model.ExportCategory.EMPTY_VALUE;
 
 import com.tutego.jrtf.Rtf;
+import com.tutego.jrtf.RtfException;
 import com.tutego.jrtf.RtfPara;
 import com.tutego.jrtf.RtfPicture;
 import com.tutego.jrtf.RtfRow;
@@ -79,6 +80,7 @@ public class RtfTemplate {
     Collection<RtfPara> rows =
         category.toExportMap(metacard).entrySet().stream()
             .map(appendPropertyFunction)
+            .filter(r -> r != null)
             .collect(Collectors.toList());
 
     if (rows.isEmpty()) {
@@ -102,11 +104,17 @@ public class RtfTemplate {
               .map(this::imageFromStream)
               .orElse(text(EMPTY_VALUE));
 
-      return row(entry.getKey(), picture)
-          .topCellBorder()
-          .rightCellBorder()
-          .leftCellBorder()
-          .bottomCellBorder();
+      try {
+        return row(entry.getKey(), picture)
+            .topCellBorder()
+            .rightCellBorder()
+            .leftCellBorder()
+            .bottomCellBorder();
+      } catch (RtfException e) {
+        // Failed likely due to the fact this thumbnail is not a JPG or PNG
+        // return null and skip
+        return null;
+      }
     }
 
     return row(entry.getKey(), entry.getValue().getValue())
