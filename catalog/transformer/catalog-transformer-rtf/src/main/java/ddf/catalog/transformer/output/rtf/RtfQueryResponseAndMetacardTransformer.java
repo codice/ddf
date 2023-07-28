@@ -65,17 +65,16 @@ public class RtfQueryResponseAndMetacardTransformer
       throw new CatalogTransformerException("Null metacard cannot be transformed into RTF");
     }
 
-    String aliasesArg = (String) arguments.getOrDefault("aliases", new String());
+    String aliasesArg = (String) arguments.getOrDefault("aliases", "");
     Map<String, String> aliases =
         (StringUtils.isNotBlank(aliasesArg))
             ? Arrays.stream(aliasesArg.split(","))
                 .map(s -> s.split("="))
                 .collect(Collectors.toMap(k -> k[0], k -> k[1]))
             : Collections.EMPTY_MAP;
-    String attributeString =
-        arguments.get(COLUMN_ORDER_KEY) != null ? (String) arguments.get(COLUMN_ORDER_KEY) : "";
+    String attributeString = (String) arguments.getOrDefault(COLUMN_ORDER_KEY, "");
     List<String> attributes =
-        Arrays.asList((attributeString).split(",")).stream()
+        Arrays.stream(attributeString.split(","))
             .filter(s -> !s.isEmpty())
             .collect(Collectors.toList());
     final List<RtfCategory> categories =
