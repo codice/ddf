@@ -17,7 +17,7 @@
     <parent>
         <artifactId>ddf-reactor</artifactId>
         <groupId>ddf</groupId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.0.1</version>
     </parent>
     <name>DDF Features</name>
     <groupId>ddf.features</groupId>

@@ -15,7 +15,7 @@
     <parent>
         <groupId>ddf.catalog</groupId>
         <artifactId>catalog</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.0.1</version>
     </parent>
     <artifactId>catalog-opensearch</artifactId>
     <groupId>ddf.catalog.opensearch</groupId>

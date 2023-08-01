@@ -17,7 +17,7 @@
     <parent>
         <artifactId>features</artifactId>
         <groupId>ddf.features</groupId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.0.1</version>
     </parent>
     <name>DDF :: Features :: Solr</name>
     <artifactId>solr</artifactId>
