@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
-        <version>3.0.1</version>
+        <version>3.1.0-SNAPSHOT</version>
     </parent>
     <groupId>ddf.catalog.transformer</groupId>
     <artifactId>geojson-queryresponse-transformer</artifactId>
