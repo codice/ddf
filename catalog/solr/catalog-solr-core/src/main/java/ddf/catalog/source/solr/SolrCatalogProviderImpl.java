@@ -77,6 +77,10 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
 
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
+  private static final String SQMB = "qm.sp."; // query metric base for solr provider
+  private static final String QM_TRACEID = "qm.trace-id";
+  private static final String QM_ELAPSED = ".elapsed";
+
   private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
   static final int MAX_BOOLEAN_CLAUSES = 1024;
@@ -187,11 +191,12 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
 
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-    Serializable traceId = request.getProperties().get("metrics.query.trace-id");
+    Serializable traceId = request.getProperties().get(QM_TRACEID);
     long startTime = System.nanoTime();
     SourceResponse response = client.query(request);
-    LOGGER.debug(
-        "Time elapsed for Query with trace-id {} - {} ns", traceId, System.nanoTime() - startTime);
+    long elapsedTime = System.nanoTime() - startTime;
+    LOGGER.debug("Time elapsed for Query with trace-id {} - {} ns", traceId, elapsedTime);
+    response.getProperties().put(SQMB + "query" + QM_ELAPSED, elapsedTime);
     return response;
   }
 
