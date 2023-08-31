@@ -54,6 +54,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.List;
@@ -369,7 +370,7 @@ public abstract class AbstractIntegrationTest {
     adminConfig = new AdminConfig(configAdmin);
     Security security = new org.codice.ddf.security.impl.Security();
     ((org.codice.ddf.security.impl.Security) security)
-        .setSecurityLogger(new SecurityLoggerImpl(new SubjectUtils()));
+        .setSecurityLogger(new SecurityLoggerImpl(new SubjectUtils(), Collections.emptyList()));
 
     // This proxy runs the service manager as the system subject
     serviceManager =
