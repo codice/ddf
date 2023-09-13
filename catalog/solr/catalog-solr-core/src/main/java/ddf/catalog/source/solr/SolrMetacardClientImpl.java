@@ -197,12 +197,12 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         filterDelegateFactory.newInstance(resolver, request.getProperties());
 
     LOGGER.trace("Generate solr query for {}: query request {}", traceSource, request);
-    long start_query = System.nanoTime();
-    long start = start_query;
+    long startQuery = System.nanoTime();
+    long start = startQuery;
     SolrQuery query = getSolrQuery(request, solrFilterDelegate);
     long timer1 = System.nanoTime();
     LOGGER.trace("Done generating solr query for {}: solr query {}", traceSource, query);
-    metrics.put(SQCMB + "getsolrquery" + QM_ELAPSED, timer1 - start_query);
+    metrics.put(SQCMB + "getsolrquery" + QM_ELAPSED, timer1 - startQuery);
     boolean isFacetedQuery = handleFacetRequest(query, request);
     long timer2 = System.nanoTime();
     metrics.put(SQCMB + "handleFacetReq" + QM_ELAPSED, timer2 - timer1);
@@ -267,7 +267,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     }
 
     // add in all the solr query metrics to return
-    metrics.put(SQCMB + "solrquery" + QM_ELAPSED, System.nanoTime() - start_query);
+    metrics.put(SQCMB + "solrquery" + QM_ELAPSED, System.nanoTime() - startQuery);
     responseProps.putAll(metrics);
     return new SourceResponseImpl(request, responseProps, results, totalHits);
   }
@@ -766,7 +766,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     query.setRows(0);
     QueryResponse solrResponse = client.query(query, METHOD.POST);
     numRows = Math.toIntExact(solrResponse.getResults().getNumFound());
-    LOGGER.debug("Solr client - query for num rows - elapsed time: {}", System.nanoTime() - timer0);
+    LOGGER.debug(
+        "Solr client - query for num rows - elapsed time: {}ns", System.nanoTime() - timer0);
     return numRows;
   }
 

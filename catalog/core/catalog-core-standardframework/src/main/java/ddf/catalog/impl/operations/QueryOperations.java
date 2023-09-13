@@ -512,11 +512,6 @@ public class QueryOperations extends DescribableImpl {
         long elapsedTime = System.nanoTime() - start;
         putMetricsDuration(
             queryResponse, getMetric(QM_POSTQUERY, service, QM_ELAPSED), elapsedTime);
-        LOGGER.trace(
-            "After PostQueryPlugin: trace-id {}, plugin {}, duration {}",
-            traceId,
-            service,
-            elapsedTime);
       } catch (PluginExecutionException see) {
         LOGGER.debug("Error executing PostQueryPlugin: {}", see.getMessage(), see);
       } catch (StopProcessingException e) {
@@ -536,11 +531,6 @@ public class QueryOperations extends DescribableImpl {
         long elapsedTime = System.nanoTime() - start;
         putMetricsDuration(
             queryResponse, getMetric(QM_POSTQUERYACCESS, plugin, QM_ELAPSED), elapsedTime);
-        LOGGER.trace(
-            "After post-query AccessPlugin: trace-id {}, plugin {}, duration {}",
-            traceId,
-            plugin,
-            elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -566,11 +556,6 @@ public class QueryOperations extends DescribableImpl {
           long elapsedTime = System.nanoTime() - start;
           putMetricsDuration(
               queryResponse, getMetric(QM_RESPONSE_POLICYMAP, plugin, QM_ELAPSED), elapsedTime);
-          LOGGER.trace(
-              "After post-query PolicyPlugin: trace-id {}, plugin {}, duration {}",
-              traceId,
-              plugin,
-              elapsedTime);
         } catch (StopProcessingException e) {
           throw new FederationException("Query could not be executed.", e);
         }
@@ -590,11 +575,6 @@ public class QueryOperations extends DescribableImpl {
         queryReq = service.process(queryReq);
         long elapsedTime = System.nanoTime() - start;
         putMetricsDuration(queryReq, getMetric(QM_PREQUERY, service, QM_ELAPSED), elapsedTime);
-        LOGGER.trace(
-            "After PreQueryPlugin: trace-id {}, plugin {}, duration {}",
-            traceId,
-            service,
-            elapsedTime);
       } catch (PluginExecutionException see) {
         LOGGER.debug("Error executing PreQueryPlugin: {}", see.getMessage(), see);
       } catch (StopProcessingException e) {
@@ -613,11 +593,6 @@ public class QueryOperations extends DescribableImpl {
         queryReq = plugin.processPreQuery(queryReq);
         long elapsedTime = System.nanoTime() - start;
         putMetricsDuration(queryReq, getMetric(QM_POSTQUERY, plugin, QM_ELAPSED), elapsedTime);
-        LOGGER.trace(
-            "After pre-query AccessPlugin: trace-id {}, plugin {}, duration {}",
-            traceId,
-            plugin,
-            elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -634,12 +609,6 @@ public class QueryOperations extends DescribableImpl {
         queryRequest = plugin.processPreQuery(queryRequest);
         long elapsedTime = System.nanoTime() - start;
         putMetricsDuration(queryRequest, getMetric(QM_PREAUTH, plugin, QM_ELAPSED), elapsedTime);
-
-        LOGGER.trace(
-            "After pre-query PreAuthorizationPlugin: trace-id {}, plugin {}, duration {}",
-            traceId,
-            plugin,
-            elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -656,12 +625,6 @@ public class QueryOperations extends DescribableImpl {
         queryResponse = plugin.processPostQuery(queryResponse);
         long elapsedTime = System.nanoTime() - start;
         putMetricsDuration(queryResponse, getMetric(QM_PREAUTH, plugin, QM_ELAPSED), elapsedTime);
-
-        LOGGER.trace(
-            "After post-query PreAuthorizationPlugin: trace-id {}, plugin {}, duration {}",
-            traceId,
-            plugin,
-            elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
@@ -685,12 +648,6 @@ public class QueryOperations extends DescribableImpl {
         long elapsedTime = System.nanoTime() - start;
         putMetricsDuration(
             queryReq, getMetric(QM_REQUEST_POLICYMAP, plugin, QM_ELAPSED), elapsedTime);
-
-        LOGGER.trace(
-            "After pre-query PolicyPlugin: trace-id {}, plugin {}, duration {}",
-            traceId,
-            plugin,
-            elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException("Query could not be executed.", e);
       }
