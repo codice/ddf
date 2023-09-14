@@ -272,14 +272,14 @@ public class QueryOperations extends DescribableImpl {
       }
     }
     if (LOGGER.isDebugEnabled()) {
-      Map<String, Serializable> req_metrics = queryResponse.getRequest().getProperties();
-      Map<String, Serializable> resp_metrics = queryResponse.getProperties();
+      Map<String, Serializable> reqMetrics = queryResponse.getRequest().getProperties();
+      Map<String, Serializable> respMetrics = queryResponse.getProperties();
       // Combine the request and response metrics to log
-      Map<String, Serializable> all_metrics = new HashMap<>();
-      all_metrics.putAll(filterMetrics(req_metrics, QMB));
-      all_metrics.putAll(filterMetrics(resp_metrics, QMB));
+      Map<String, Serializable> allMetrics = new HashMap<>();
+      allMetrics.putAll(filterMetrics(reqMetrics, QMB));
+      allMetrics.putAll(filterMetrics(respMetrics, QMB));
 
-      LOGGER.debug("QueryMetrics: {}", serializeMetrics(all_metrics, QMB));
+      LOGGER.debug("QueryMetrics: {}", serializeMetrics(allMetrics, QMB));
     }
   }
 
