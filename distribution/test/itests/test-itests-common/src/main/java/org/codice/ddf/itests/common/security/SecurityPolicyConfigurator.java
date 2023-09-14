@@ -162,8 +162,7 @@ public class SecurityPolicyConfigurator {
     final ContextPolicyManager ctxPolicyMgr = services.getService(ContextPolicyManager.class);
 
     final PolicyManager targetPolicies = new PolicyManager();
-    targetPolicies.setSecurityLogger(
-        new SecurityLoggerImpl(new SubjectUtils(), Collections.emptyList()));
+    targetPolicies.setSecurityLogger(new SecurityLoggerImpl(new SubjectUtils()));
     targetPolicies.setPolicies(policyProperties);
 
     return () -> {

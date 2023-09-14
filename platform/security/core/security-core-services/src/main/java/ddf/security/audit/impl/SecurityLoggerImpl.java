@@ -20,10 +20,7 @@ import ddf.security.audit.AuditPropertiesPlugin;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.AccessController;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -60,11 +57,13 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
 
   private final SubjectOperations subjectOperations;
 
-  private final List<AuditPropertiesPlugin> auditPropertiesPlugins;
+  private List<AuditPropertiesPlugin> auditPropertiesPlugins = new LinkedList<>();
 
-  public SecurityLoggerImpl(
-      SubjectOperations subjectOperations, List<AuditPropertiesPlugin> auditPropertiesPlugins) {
+  public SecurityLoggerImpl(SubjectOperations subjectOperations) {
     this.subjectOperations = subjectOperations;
+  }
+
+  public void setAuditPropertiesPlugins(List<AuditPropertiesPlugin> auditPropertiesPlugins) {
     this.auditPropertiesPlugins = auditPropertiesPlugins;
   }
 
@@ -91,8 +90,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
     return NO_USER;
   }
 
-  private void appendAdditionalAttributes(
-      Message message, StringBuilder messageBuilder, String userSuppliedMessage) {
+  private void appendAdditionalAttributes(Message message, StringBuilder messageBuilder) {
     appendAdditionalAttributes(null, message, messageBuilder);
   }
 
@@ -237,7 +235,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message) {
     StringBuilder messageBuilder = new StringBuilder();
-    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder, message);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString());
   }
 
@@ -264,7 +262,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
-    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder, message);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), params);
   }
 
@@ -295,7 +293,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
-    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder, message);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), paramSuppliers);
   }
 
@@ -324,7 +322,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void audit(String message, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
-    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder, message);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.info(messageBuilder.append(cleanAndEncode(message)).toString(), t);
   }
 
@@ -349,7 +347,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message) {
     StringBuilder messageBuilder = new StringBuilder();
-    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder, message);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString());
   }
 
@@ -376,7 +374,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message, Object... params) {
     StringBuilder messageBuilder = new StringBuilder();
-    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder, message);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), params);
   }
 
@@ -407,7 +405,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message, Supplier... paramSuppliers) {
     StringBuilder messageBuilder = new StringBuilder();
-    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder, message);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), paramSuppliers);
   }
 
@@ -436,7 +434,7 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
   @Override
   public void auditWarn(String message, Throwable t) {
     StringBuilder messageBuilder = new StringBuilder();
-    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder, message);
+    appendAdditionalAttributes(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
     LOGGER.warn(messageBuilder.append(cleanAndEncode(message)).toString(), t);
   }
 }

@@ -42,7 +42,7 @@
 
     <bean id="securityLogger" class="ddf.security.audit.impl.SecurityLoggerImpl">
         <argument ref="subjectOperations" />
-        <argument ref="auditPropertiesSortedList"/>
+        <property name="auditPropertiesPlugins" ref="auditPropertiesSortedList"/>
     </bean>
 
     <service ref="securityLogger" interface="ddf.security.audit.SecurityLogger" />
