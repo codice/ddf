@@ -69,13 +69,16 @@ public class TimedSource implements Source {
     props.put("qm.timedsource.elapsed", endTime - startTime);
 
     // copy over all the original query metrics along with the new solr metrics
-    Map<String, Serializable> requestProps = result.getRequest().getProperties();
-    List<String> keys =
-        requestProps.keySet().stream()
-            .filter(e -> e.startsWith("qm."))
-            .collect(Collectors.toList());
-    for (String key : keys) {
-      props.put(key, requestProps.get(key));
+    QueryRequest qr = result.getRequest();
+    if (qr != null) {
+      Map<String, Serializable> requestProps = result.getRequest().getProperties();
+      List<String> keys =
+          requestProps.keySet().stream()
+              .filter(e -> e.startsWith("qm."))
+              .collect(Collectors.toList());
+      for (String key : keys) {
+        props.put(key, requestProps.get(key));
+      }
     }
 
     return result;

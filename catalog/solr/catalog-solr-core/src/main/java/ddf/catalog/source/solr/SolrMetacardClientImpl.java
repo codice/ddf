@@ -188,7 +188,11 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     long totalHits = 0;
     Serializable traceId = request.getProperties().get(QM_TRACEID);
-    String sourceId = request.getSourceIds().stream().collect(Collectors.joining(","));
+    Set<String> ids = request.getSourceIds();
+    String sourceId = "<empty>";
+    if (ids != null) {
+      sourceId = ids.stream().collect(Collectors.joining(","));
+    }
     String traceSource = "trace-id " + traceId + "source " + sourceId;
     Map<String, Serializable> responseProps = new HashMap<>();
     List<Result> results = new ArrayList<>();

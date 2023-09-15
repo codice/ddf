@@ -191,7 +191,11 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
 
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-    Serializable traceId = request.getProperties().get(QM_TRACEID);
+    Serializable traceId = "none";
+    if (request != null) {
+      Map<String, Serializable> props = request.getProperties();
+      traceId = props == null ? "none" : request.getProperties().get(QM_TRACEID);
+    }
     long startTime = System.nanoTime();
     SourceResponse response = client.query(request);
     long elapsedTime = System.nanoTime() - startTime;
