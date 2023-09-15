@@ -83,7 +83,7 @@
                               ${solr.download.url}/lucene/solr/${solr.version}/solr-${solr.version}.zip
                             </url>
                             <unpack>true</unpack>
-                            <skipCache>true</skipCache>
+                            <overwrite>true</overwrite>
                         </configuration>
                     </execution>
                 </executions>
