@@ -19,7 +19,11 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,15 +56,30 @@ public class TimedSource implements Source {
 
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-    long startTime = System.currentTimeMillis();
+    long startTime = System.nanoTime();
     SourceResponse result = source.query(request);
-    long endTime = System.currentTimeMillis();
+    long endTime = System.nanoTime();
 
-    int elapsedTime = Math.toIntExact(endTime - startTime);
-    String sourceLatencyMetricKey = METRICS_SOURCE_ELAPSED_PREFIX_API + source.getId();
-
-    result.getProperties().put(sourceLatencyMetricKey, elapsedTime);
+    // get the elapsed time in ms (rounded by adding 1/2 a ms -> 500000)
+    int elapsedTime = Math.toIntExact(((endTime + 500000) - startTime) / 1000000);
     LOGGER.trace("Query latency for source [{}] was {}ms.", source.getId(), elapsedTime);
+    String sourceLatencyMetricKey = METRICS_SOURCE_ELAPSED_PREFIX_API + source.getId();
+    Map<String, Serializable> props = result.getProperties();
+    props.put(sourceLatencyMetricKey, elapsedTime);
+    props.put("qm.timedsource.elapsed", endTime - startTime);
+
+    // copy over all the original query metrics along with the new solr metrics
+    QueryRequest qr = result.getRequest();
+    if (qr != null) {
+      Map<String, Serializable> requestProps = result.getRequest().getProperties();
+      List<String> keys =
+          requestProps.keySet().stream()
+              .filter(e -> e.startsWith("qm."))
+              .collect(Collectors.toList());
+      for (String key : keys) {
+        props.put(key, requestProps.get(key));
+      }
+    }
 
     return result;
   }
