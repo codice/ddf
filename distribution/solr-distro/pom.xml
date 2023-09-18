@@ -80,10 +80,12 @@
                         </goals>
                         <configuration>
                             <url>
-                              http://artifacts.phx.connexta.com/repository/archive.apache.org/lucene/solr/8.6.1/solr-8.6.1.zip
+                              ${solr.download.url}/lucene/solr/${solr.version}/solr-${solr.version}.zip
                             </url>
                             <unpack>true</unpack>
-                            <overwrite>true</overwrite>
+                            <failOnError>true</failOnError>
+                            <sha512>6f7250f080bfec71f1c373df1c354a342fdd2813927f8d5f853ed0ee479aae7eb9a95f22dfae74986eb7be362c95c2931db5be1fedca48cd8c6c14fff2282c44</sha512>
+                            <checkSignature>true</checkSignature>
                         </configuration>
                     </execution>
                 </executions>
