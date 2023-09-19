@@ -337,7 +337,7 @@
         <org.json.version>20170516</org.json.version>
 
         <!--temporary solr download url> -->
-        <solr.download.url>http://artifacts.phx.connexta.com/repository/archive.apache.org</solr.download.url>
+        <solr.download.url>https://archive.apache.org/dist</solr.download.url>
 
         <!-- SonarQube Properties -->
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/${project.report.output.directory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
