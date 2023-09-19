@@ -83,8 +83,9 @@
                               ${solr.download.url}/lucene/solr/${solr.version}/solr-${solr.version}.zip
                             </url>
                             <unpack>true</unpack>
+                            <skipCache>true</skipCache>
                             <failOnError>true</failOnError>
-                            <sha512>6f7250f080bfec71f1c373df1c354a342fdd2813927f8d5f853ed0ee479aae7eb9a95f22dfae74986eb7be362c95c2931db5be1fedca48cd8c6c14fff2282c44</sha512>
+                            <sha512>fd5aca06748b7902cc81f8d4ab66fb4c236fec0a0ab6b13b1c838e3f9ed2f36b72ddc9c045c4452e808956b514ba5ee5ac6d07c93535537036fdc17066762307</sha512>
                             <checkSignature>true</checkSignature>
                         </configuration>
                     </execution>
