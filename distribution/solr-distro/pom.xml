@@ -78,19 +78,22 @@
                         <goals>
                             <goal>wget</goal>
                         </goals>
-                        <configuration>
-                            <url>
-                              ${solr.download.url}/lucene/solr/${solr.version}/solr-${solr.version}.zip
-                            </url>
-                            <unpack>true</unpack>
-                            <skipCache>true</skipCache>
-                            <readTimeOut>5000</readTimeOut>
-                            <failOnError>true</failOnError>
-                            <sha512>fd5aca06748b7902cc81f8d4ab66fb4c236fec0a0ab6b13b1c838e3f9ed2f36b72ddc9c045c4452e808956b514ba5ee5ac6d07c93535537036fdc17066762307</sha512>
-                            <checkSignature>true</checkSignature>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <url>
+                        ${solr.download.url}/lucene/solr/${solr.version}/solr-${solr.version}.zip
+                    </url>
+                    <unpack>true</unpack>
+                    <skipCache>true</skipCache>
+                    <readTimeOut>10000</readTimeOut>
+                    <maxLockWaitTime>10000</maxLockWaitTime>
+                    <overwrite>true</overwrite>
+                    <retries>5</retries>
+                    <failOnError>true</failOnError>
+                    <sha512>fd5aca06748b7902cc81f8d4ab66fb4c236fec0a0ab6b13b1c838e3f9ed2f36b72ddc9c045c4452e808956b514ba5ee5ac6d07c93535537036fdc17066762307</sha512>
+                    <checkSignature>true</checkSignature>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
