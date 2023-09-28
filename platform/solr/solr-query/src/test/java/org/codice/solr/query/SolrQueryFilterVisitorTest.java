@@ -27,6 +27,7 @@ import java.util.Collections;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.util.NamedList;
 import org.codice.solr.client.solrj.SolrClient;
+import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +53,13 @@ public class SolrQueryFilterVisitorTest {
     when(solrClient.getClient()).thenReturn(solrjClient);
     when(solrjClient.request(any(), isNull())).thenReturn(namedList);
     solrVisitor = new SolrQueryFilterVisitor(solrClient, "alerts");
+  }
+
+  @Test
+  public void testPropertyDoesNotExist() throws Exception {
+    Filter filter = ECQL.toFilter("property DOES-NOT-EXIST");
+    SolrQuery solrQuery = (SolrQuery) filter.accept(solrVisitor, null);
+    assertThat(solrQuery.getQuery(), equalTo("-property_txt:[* TO *]"));
   }
 
   @Test
