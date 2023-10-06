@@ -225,14 +225,14 @@ public abstract class BaseTestConfiguration {
   Attribute createExtendedAttribute() {
     Attribute mockAttribute = mock(Attribute.class);
     when(mockAttribute.getValue()).thenReturn("Extended Value");
-
+    when(mockAttribute.getValues()).thenReturn(Collections.singletonList("Extended Value"));
     return mockAttribute;
   }
 
   Attribute createSimpleAttribute() {
     Attribute mockAttribute = mock(Attribute.class);
     when(mockAttribute.getValue()).thenReturn("Simple value");
-
+    when(mockAttribute.getValues()).thenReturn(Collections.singletonList("Simple value"));
     return mockAttribute;
   }
 
