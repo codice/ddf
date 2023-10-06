@@ -24,15 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.codice.solr.client.solrj.SolrClient;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
-import org.opengis.filter.And;
-import org.opengis.filter.BinaryComparisonOperator;
-import org.opengis.filter.Filter;
-import org.opengis.filter.Or;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.PropertyIsGreaterThan;
-import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
-import org.opengis.filter.PropertyIsLessThan;
-import org.opengis.filter.PropertyIsLessThanOrEqualTo;
+import org.opengis.filter.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,8 +124,27 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
   }
 
   @Override
+  public Object visit(Not filter, Object data) {
+    Map<String, Object> context = new HashMap<>();
+
+    Filter child = filter.getFilter();
+    Object childResult = null;
+    if (child != null) {
+      childResult = child.accept(this, context);
+    }
+
+    if(Boolean.TRUE.equals(context.get("isPropertyExists"))) {
+      return new SolrQuery("-" + ((SolrQuery) childResult).getQuery());
+    }
+
+    return super.visit(filter, data);
+  }
+
+  @Override
   public Object visit(PropertyIsEqualTo filter, Object data) {
     LOGGER.debug("ENTERING: PropertyIsEqualTo filter");
+
+    Map<String, Object> context = (Map<String, Object>) data;
 
     ExpressionValueVisitor expressionVisitor = new ExpressionValueVisitor();
 
@@ -141,6 +152,10 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     Object literalValue = filter.getExpression2().accept(expressionVisitor, data);
 
     String mappedPropertyName = getMappedPropertyName(propertyName);
+
+    if(Boolean.TRUE.equals(context.get("isPropertyExists"))) {
+      return new SolrQuery(mappedPropertyName + ":[* TO *]");
+    }
 
     return new SolrQuery(
         mappedPropertyName
@@ -168,6 +183,20 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
   @Override
   public Object visit(PropertyIsLessThanOrEqualTo filter, Object data) {
     return processComparisonOperator(filter, " %s:[ * TO %s ] ");
+  }
+
+  @Override
+  public Object visit(PropertyIsNull filter, Object data) {
+    return super.visit(filter, data);
+  }
+
+  public SolrQueryFilterVisitor() {
+    super();
+  }
+
+  @Override
+  public Object visit(PropertyIsNil filter, Object data) {
+    return super.visit(filter, data);
   }
 
   SolrQuery processComparisonOperator(BinaryComparisonOperator filter, String solrQuery) {

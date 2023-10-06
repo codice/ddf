@@ -15,8 +15,11 @@ package org.codice.solr.query;
 
 import org.apache.commons.lang.StringUtils;
 import org.geotools.filter.visitor.NullExpressionVisitor;
+import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
+
+import java.util.Map;
 
 public class ExpressionValueVisitor extends NullExpressionVisitor {
   @Override
@@ -35,5 +38,18 @@ public class ExpressionValueVisitor extends NullExpressionVisitor {
       throw new UnsupportedOperationException("PropertyName and Literal is required for search.");
     }
     return value;
+  }
+
+  @Override
+  public Object visit(Function expression, Object extraData) {
+    if("PropertyExists".equals(expression.getFunctionName().getName())) {
+      if(!(extraData instanceof Map)) {
+        throw new UnsupportedOperationException("The extra data parameter must be a map");
+      }
+      Map<String, Object> context = (Map<String, Object>) extraData;
+      context.put("isPropertyExists", true);
+      return ((PropertyName) ((Literal) expression.getParameters().get(0)).getValue()).getPropertyName(); // expression.getParameters().get(0)
+    }
+    return super.visit(expression, extraData);
   }
 }
