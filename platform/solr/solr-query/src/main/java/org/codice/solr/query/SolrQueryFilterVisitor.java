@@ -33,6 +33,7 @@ import org.opengis.filter.PropertyIsGreaterThan;
 import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
 import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLessThanOrEqualTo;
+import org.opengis.filter.PropertyIsNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +104,16 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
   public Object visit(Or filter, Object data) {
     List<Filter> childList = filter.getChildren();
     return logicalOperator(childList, OR, data);
+  }
+
+  @Override
+  public Object visit(PropertyIsNull filter, Object data) {
+    ExpressionValueVisitor expressionVisitor = new ExpressionValueVisitor();
+
+    String propertyName = (String) filter.getExpression().accept(expressionVisitor, null);
+    String mappedPropertyName = getMappedPropertyName(propertyName);
+
+    return new SolrQuery(String.format(" -%s:[ * TO * ] ", mappedPropertyName));
   }
 
   private Object logicalOperator(List<Filter> filters, String operator, Object data) {
