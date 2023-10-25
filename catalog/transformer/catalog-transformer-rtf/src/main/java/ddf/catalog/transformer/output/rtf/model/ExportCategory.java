@@ -144,7 +144,11 @@ public class ExportCategory implements RtfCategory {
 
   private ExportValue simpleValue(Attribute attribute) {
     return new JustValue(
-        Optional.ofNullable(attribute.getValue()).map(Object::toString).orElse(null),
+        Optional.ofNullable(
+                attribute.getValues().stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", ")))
+            .orElse(null),
         ValueType.SIMPLE);
   }
 
