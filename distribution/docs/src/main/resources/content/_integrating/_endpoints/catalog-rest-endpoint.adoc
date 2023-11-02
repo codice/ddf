@@ -221,11 +221,13 @@ If the metacard or resource is not returned successfully, check for these errors
 |`<pre>Unable to retrieve requested metacard.</pre>`
 |Invalid Metacard ID
 
-.3+.^|`500 Server Error`
+.4+.^|`500 Server Error`
 |`<pre>Unknown error occurred while processing request.</pre>`
 |Transformer is invalid, unsupported, or not configured.
 |`<pre>Unable to transform Metacard.  Try different transformer: </pre>`
 |Metacard does not have an associated resource (is metadata only).
+|`<pre>Resource file not available</pre>`
+|The resource file/data is not accessible or doesn't exist
 |`<pre>READ failed due to unexpected exception: </pre>`
 |Invalid source ID, or source unavailable.
 
