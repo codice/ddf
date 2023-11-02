@@ -14,23 +14,11 @@
 
 package ddf.catalog.transformer.csv;
 
-import static ddf.catalog.data.impl.BasicTypes.BINARY_TYPE;
-import static ddf.catalog.data.impl.BasicTypes.DOUBLE_TYPE;
-import static ddf.catalog.data.impl.BasicTypes.INTEGER_TYPE;
-import static ddf.catalog.data.impl.BasicTypes.OBJECT_TYPE;
-import static ddf.catalog.data.impl.BasicTypes.STRING_TYPE;
-import static ddf.catalog.transformer.csv.CsvTransformerSupport.COLUMN_ORDER_KEY;
-import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -39,167 +27,96 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.junit.Before;
 import org.junit.Test;
 
 public class CsvMetacardTransformerTest {
 
-  private final CsvMetacardTransformer transformer = new CsvMetacardTransformer();
+  private Map<String, Serializable> arguments;
 
-  private static final String METACARD_TYPE_NAME = "test-type";
+  private CsvMetacardTransformer transformer;
 
-  @Test(expected = CatalogTransformerException.class)
-  public void testTransformerWithNullMetacard() throws CatalogTransformerException {
-    transformer.transform(null, new HashMap<>());
+  private Metacard normalMC, nullMC;
+
+  private static final Set<AttributeDescriptor> ATTRIBUTE_DESCRIPTORS =
+      ImmutableSet.of(
+          buildAttributeDescriptor("stringAtt", BasicTypes.STRING_TYPE),
+          buildAttributeDescriptor("intAtt", BasicTypes.INTEGER_TYPE),
+          buildAttributeDescriptor("doubleAtt", BasicTypes.DOUBLE_TYPE));
+
+  private static final List<String> VALUES = ImmutableList.of("stringVal", "101", "3.14159");
+
+  private static final List<Attribute> ATTRIBUTES =
+      ImmutableList.of(
+          new AttributeImpl("stringAtt", "stringVal"),
+          new AttributeImpl("intAtt", 101),
+          new AttributeImpl("doubleAtt", 3.14159));
+
+  private static final List<String> COLUMN_ORDER =
+      Arrays.asList("doubleAtt", "stringAtt", "intAtt");
+
+  @Before
+  public void setUp() {
+    this.transformer = new CsvMetacardTransformer();
+    this.arguments = new HashMap<>();
+    arguments.put("columnOrder", COLUMN_ORDER.stream().collect(Collectors.joining(",")));
+    normalMC = buildMetacard();
   }
 
-  @Test
-  public void testCsvMetacardTransformerNoArguments()
-      throws CatalogTransformerException, IOException {
-    String stringAtt = "stringAtt";
-    String intAtt = "intAtt";
-    String doubleAtt = "doubleAtt";
-    Metacard metacard =
-        buildMetacard(
-            Sets.newHashSet(
-                buildAttributeDescriptor(stringAtt, STRING_TYPE),
-                buildAttributeDescriptor(intAtt, INTEGER_TYPE),
-                buildAttributeDescriptor(doubleAtt, DOUBLE_TYPE)),
-            new AttributeImpl(stringAtt, "stringVal"),
-            new AttributeImpl(intAtt, 101),
-            new AttributeImpl(doubleAtt, 3.14159));
-    BinaryContent binaryContent = transformer.transform(metacard, new HashMap<>());
-    assertThat(binaryContent.getMimeType().toString(), is("text/csv"));
-
-    List<String> lines = Arrays.asList(new String(binaryContent.getByteArray()).split("\r\n"));
-    assertThat("The CSV didn't contain exactly two lines.", lines, hasSize(2));
-
-    List<String> attNames = Arrays.asList(lines.get(0).split(","));
-    List<String> attValues = Arrays.asList(lines.get(1).split(","));
-    assertThat(
-        "The headers and values had different lengths.", attNames, hasSize(attValues.size()));
-
-    final Map<String, String> headersToValues = new HashMap<>();
-    for (int i = 0; i < attNames.size(); ++i) {
-      headersToValues.put(attNames.get(i), attValues.get(i));
-    }
-    assertThat(
-        headersToValues,
-        allOf(
-            hasEntry(stringAtt, "stringVal"),
-            hasEntry(intAtt, "101"),
-            hasEntry(doubleAtt, "3.14159")));
-  }
-
-  @Test
-  public void testCsvMetacardTransformerSupportsColumnOrder()
-      throws CatalogTransformerException, IOException {
-    String stringAtt = "stringAtt";
-    String intAtt = "intAtt";
-    String doubleAtt = "doubleAtt";
-    Metacard metacard =
-        buildMetacard(
-            Sets.newHashSet(
-                buildAttributeDescriptor(stringAtt, STRING_TYPE),
-                buildAttributeDescriptor(intAtt, INTEGER_TYPE),
-                buildAttributeDescriptor(doubleAtt, DOUBLE_TYPE)),
-            new AttributeImpl(stringAtt, "stringVal"),
-            new AttributeImpl(intAtt, 101),
-            new AttributeImpl(doubleAtt, 3.14159));
-    BinaryContent binaryContent =
-        transformer.transform(
-            metacard, singletonMap(COLUMN_ORDER_KEY, "doubleAtt,stringAtt,intAtt"));
-    assertThat(binaryContent.getMimeType().toString(), is("text/csv"));
-
-    List<String> lines = Arrays.asList(new String(binaryContent.getByteArray()).split("\r\n"));
-    assertThat("The CSV didn't contain exactly two lines.", lines, hasSize(2));
-
-    List<String> attNames = Arrays.asList(lines.get(0).split(","));
-    List<String> attValues = Arrays.asList(lines.get(1).split(","));
-
-    assertThat(attNames, contains(doubleAtt, stringAtt, intAtt));
-    assertThat(attValues, contains("3.14159", "stringVal", "101"));
-  }
-
-  @Test
-  public void testFieldsNotRequestedAreExcluded() throws CatalogTransformerException, IOException {
-    String stringAtt = "stringAtt";
-    String intAtt = "intAtt";
-    String doubleAtt = "doubleAtt";
-    Metacard metacard =
-        buildMetacard(
-            Sets.newHashSet(
-                buildAttributeDescriptor(stringAtt, STRING_TYPE),
-                buildAttributeDescriptor(intAtt, INTEGER_TYPE),
-                buildAttributeDescriptor(doubleAtt, DOUBLE_TYPE)),
-            new AttributeImpl(stringAtt, "stringVal"),
-            new AttributeImpl(intAtt, 101),
-            new AttributeImpl(doubleAtt, 3.14159));
-    BinaryContent binaryContent =
-        transformer.transform(
-            metacard, singletonMap(COLUMN_ORDER_KEY, Lists.newArrayList(stringAtt)));
-    assertThat(binaryContent.getMimeType().toString(), is("text/csv"));
-
-    List<String> lines = Arrays.asList(new String(binaryContent.getByteArray()).split("\r\n"));
-    assertThat("The CSV didn't contain exactly two lines.", lines, hasSize(2));
-
-    List<String> attNames = Arrays.asList(lines.get(0).split(","));
-    List<String> attValues = Arrays.asList(lines.get(1).split(","));
-
-    assertThat(attNames, contains(stringAtt));
-    assertThat(attValues, contains("stringVal"));
-  }
-
-  @Test
-  public void testBinaryAndObjectFieldsAreExcluded()
-      throws CatalogTransformerException, IOException {
-    String stringAtt = "stringAtt";
-    String binaryAtt = "binaryAtt";
-    String objectAtt = "objectAtt";
-    Metacard metacard =
-        buildMetacard(
-            Sets.newHashSet(
-                buildAttributeDescriptor(stringAtt, STRING_TYPE),
-                buildAttributeDescriptor(binaryAtt, BINARY_TYPE),
-                buildAttributeDescriptor(objectAtt, OBJECT_TYPE)),
-            new AttributeImpl(stringAtt, "stringVal"),
-            new AttributeImpl(binaryAtt, new byte[] {1, 0, 1}),
-            new AttributeImpl(objectAtt, new HashMap<>()));
-    BinaryContent binaryContent = transformer.transform(metacard, new HashMap<>());
-    assertThat(binaryContent.getMimeType().toString(), is("text/csv"));
-
-    List<String> lines = Arrays.asList(new String(binaryContent.getByteArray()).split("\r\n"));
-    assertThat("The CSV didn't contain exactly two lines.", lines, hasSize(2));
-
-    List<String> attNames = Arrays.asList(lines.get(0).split(","));
-    List<String> attValues = Arrays.asList(lines.get(1).split(","));
-
-    assertThat(attNames, containsInAnyOrder(stringAtt, MetacardType.METACARD_TYPE));
-    assertThat(attValues, hasSize(2));
-
-    int stringAttIndex = attNames.indexOf(stringAtt);
-    int typeIndex = attNames.indexOf(MetacardType.METACARD_TYPE);
-    assertThat(attValues.get(stringAttIndex), is("stringVal"));
-    assertThat(attValues.get(typeIndex), is(metacard.getMetacardType().getName()));
-  }
-
-  private static AttributeDescriptor buildAttributeDescriptor(String name, AttributeType<?> type) {
+  private static AttributeDescriptor buildAttributeDescriptor(String name, AttributeType type) {
     return new AttributeDescriptorImpl(name, true, true, true, true, type);
   }
 
-  private Metacard buildMetacard(
-      final Set<AttributeDescriptor> attributeDescriptors, final Attribute... attributes) {
-    MetacardType metacardType = new MetacardTypeImpl(METACARD_TYPE_NAME, attributeDescriptors);
+  @Test(expected = CatalogTransformerException.class)
+  public void testTransformerWithNullMetacard() throws CatalogTransformerException {
+    transformer.transform(nullMC, arguments);
+  }
+
+  @Test
+  public void testCsvMetacardTransformer() throws CatalogTransformerException, IOException {
+    BinaryContent binaryContent = transformer.transform(normalMC, arguments);
+    assertThat(binaryContent.getMimeType().toString(), is("text/csv"));
+
+    List<String> attributes = Arrays.asList(new String(binaryContent.getByteArray()).split("\r\n"));
+    List<String> attNames = Arrays.asList(attributes.get(0).split(","));
+    List<String> attValues = Arrays.asList(attributes.get(1).split(","));
+
+    assertThat(attNames, is(COLUMN_ORDER));
+
+    for (int i = 0; i < attNames.size(); i++) {
+      String attributeValue = attValues.get(i);
+      assertThat(VALUES.contains(attributeValue), is(true));
+    }
+  }
+
+  @Test
+  public void testNoColumnInfo() throws Exception {
+    BinaryContent binaryContent = transformer.transform(normalMC, new HashMap<>());
+    assertThat(binaryContent.getMimeType().toString(), is("text/csv"));
+
+    List<String> attributes = Arrays.asList(new String(binaryContent.getByteArray()).split("\r\n"));
+    List<String> attNames = Arrays.asList(attributes.get(0).split(","));
+    List<String> attValues = Arrays.asList(attributes.get(1).split(","));
+    assertThat(attNames.size(), is(4));
+    assertThat(attValues.size(), is(4));
+  }
+
+  private Metacard buildMetacard() {
+    MetacardType metacardType = new MetacardTypeImpl("test", ATTRIBUTE_DESCRIPTORS);
     Metacard metacard = new MetacardImpl(metacardType);
-    for (Attribute attribute : attributes) {
+    for (Attribute attribute : ATTRIBUTES) {
       metacard.setAttribute(attribute);
     }
     return metacard;

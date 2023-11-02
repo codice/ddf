@@ -28,8 +28,12 @@ import ddf.catalog.data.Result;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.activation.MimeTypeParseException;
@@ -108,6 +112,33 @@ public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfigur
         equalTo(referenceRtfWithEmptyThumbnail.length()));
   }
 
+  @Test
+  public void testTransformMetacardWithGifThumbnail()
+      throws MimeTypeParseException, CatalogTransformerException, IOException {
+    RtfQueryResponseAndMetacardTransformer transformer = createTransformer();
+
+    Metacard mockMetacard = createMockMetacardWithGifImageData("Test Metacard With Gif Thumbnail");
+
+    BinaryContent content = transformer.transform(mockMetacard, Collections.emptyMap());
+
+    assertThat("Transformed content cannot be null", content, notNullValue());
+    assertThat(
+        "Content mime type must be 'application/rtf'",
+        content.getMimeType().toString(),
+        equalTo("application/rtf"));
+
+    String rtfResult = inputStreamToString(content.getInputStream());
+
+    assertThat("Content must not be empty", rtfResult, is(not(isEmptyOrNullString())));
+
+    String referenceRtfWithEmptyThumbnail = getReferenceMetacardWithGifRtfFile();
+
+    assertThat(
+        "Produced RTF document must match reference",
+        rtfResult,
+        equalToIgnoringWhiteSpace(referenceRtfWithEmptyThumbnail));
+  }
+
   @Test(expected = CatalogTransformerException.class)
   public void testTransformNullSourceResponse()
       throws CatalogTransformerException, MimeTypeParseException {
@@ -145,6 +176,78 @@ public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfigur
         "Produced RTF document must be same length",
         rtfResult.length(),
         equalTo(referenceRtf.length()));
+  }
+
+  @Test
+  public void testTransformMetacardWithArgs()
+      throws CatalogTransformerException, IOException, MimeTypeParseException {
+    RtfQueryResponseAndMetacardTransformer transformer = createTransformer();
+
+    Metacard mockMetacard = createMockMetacard("Test Metacard Title");
+
+    Map<String, Serializable> arguments = new HashMap<>();
+    arguments.put(
+        RtfQueryResponseAndMetacardTransformer.COLUMN_ORDER_KEY,
+        COLUMN_ORDER.stream().collect(Collectors.joining(",")));
+    arguments.put(
+        RtfQueryResponseAndMetacardTransformer.COLUMN_ALIAS_KEY,
+        COLUMN_ALIASES.entrySet().stream()
+            .map(e -> String.format("%s=%s", e.getKey(), e.getValue()))
+            .collect(Collectors.joining(",")));
+
+    BinaryContent content = transformer.transform(mockMetacard, arguments);
+
+    assertThat("Transformed content cannot be null", content, notNullValue());
+    assertThat(
+        "Content mime type must be 'application/rtf'",
+        content.getMimeType().toString(),
+        equalTo("application/rtf"));
+
+    String rtfResult = inputStreamToString(content.getInputStream());
+
+    assertThat("Content must not be empty", rtfResult, is(not(isEmptyOrNullString())));
+
+    String referenceRtf = getReferenceMetacardWithArgsRtfFile();
+
+    assertThat(
+        "Produced RTF document must match reference",
+        rtfResult,
+        equalToIgnoringWhiteSpace(referenceRtf));
+  }
+
+  @Test
+  public void testTransformSourceResponseWithArgs()
+      throws CatalogTransformerException, IOException, MimeTypeParseException {
+    RtfQueryResponseAndMetacardTransformer transformer = createTransformer();
+
+    SourceResponse mockSourceResponse = mock(SourceResponse.class);
+
+    List<Result> results = createMockResults();
+    when(mockSourceResponse.getResults()).thenReturn(results);
+    Map<String, Serializable> arguments = new HashMap<>();
+    arguments.put(
+        RtfQueryResponseAndMetacardTransformer.COLUMN_ORDER_KEY, new LinkedList<>(COLUMN_ORDER));
+    arguments.put(
+        RtfQueryResponseAndMetacardTransformer.COLUMN_ALIAS_KEY, new HashMap<>(COLUMN_ALIASES));
+
+    BinaryContent content = transformer.transform(mockSourceResponse, arguments);
+
+    assertThat("Transformed content cannot be null", content, notNullValue());
+    assertThat(
+        "Content mime type must be 'application/rtf'",
+        content.getMimeType().toString(),
+        equalTo("application/rtf"));
+
+    String rtfResult = inputStreamToString(content.getInputStream());
+
+    assertThat("Content must not be empty", rtfResult, is(not(isEmptyOrNullString())));
+
+    String referenceRtf = getReferenceSourceResponseWithArgsRtfFile();
+
+    assertThat(
+        "Produced RTF document must match reference",
+        rtfResult,
+        equalToIgnoringWhiteSpace(referenceRtf));
   }
 
   private RtfQueryResponseAndMetacardTransformer createTransformer() throws MimeTypeParseException {

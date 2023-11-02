@@ -16,18 +16,23 @@ package ddf.catalog.transformer.csv.common;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +42,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,11 +176,51 @@ public class CsvTransformer {
    */
   public static Set<AttributeDescriptor> getOnlyRequestedAttributes(
       final List<Metacard> metacards, final Set<String> requestedAttributes) {
-    final Set<AttributeDescriptor> attributes = getAllCsvAttributeDescriptors(metacards);
+    final Set<AttributeDescriptor> attributes = getNonEmptyValueAttributes(metacards);
 
     // Filter out attributes not requested.
     attributes.removeIf(attrDesc -> !requestedAttributes.contains(attrDesc.getName()));
 
     return attributes;
+  }
+
+  /**
+   * Given a list of {@link Metacard}s, return only the attribute descriptors that have a non-empty
+   * value. Returns a set of {@link AttributeDescriptor}s containing the attributes with non-empty
+   * values.
+   */
+  public static Set<AttributeDescriptor> getNonEmptyValueAttributes(
+      final List<Metacard> metacards) {
+    final Set<AttributeDescriptor> attributes = getAllCsvAttributeDescriptors(metacards);
+    final Set<AttributeDescriptor> nonEmptyAttributes = new HashSet<>();
+
+    for (final AttributeDescriptor attribute : attributes) {
+      final boolean hasNonEmptyValue =
+          metacards.stream().anyMatch(metacard -> isNonEmptyValue(metacard, attribute));
+      if (hasNonEmptyValue) {
+        nonEmptyAttributes.add(attribute);
+      }
+    }
+    return nonEmptyAttributes;
+  }
+
+  private static boolean isNonEmptyValue(Metacard metacard, AttributeDescriptor descriptor) {
+    final Attribute attribute = metacard.getAttribute(descriptor.getName());
+    switch (descriptor.getType().getAttributeFormat()) {
+      case STRING:
+      case XML:
+      case GEOMETRY:
+        return attribute != null && StringUtils.isNotEmpty((String) attribute.getValue());
+      case INTEGER:
+      case LONG:
+      case DOUBLE:
+      case FLOAT:
+      case SHORT:
+      case DATE:
+      case BOOLEAN:
+        return attribute != null && attribute.getValue() != null;
+      default:
+        return false;
+    }
   }
 }
