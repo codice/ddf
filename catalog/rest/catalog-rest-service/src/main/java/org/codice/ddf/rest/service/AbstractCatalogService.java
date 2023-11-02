@@ -246,6 +246,12 @@ public abstract class AbstractCatalogService implements CatalogService {
         throw new InternalServerErrorException(exceptionMessage);
       } catch (CatalogTransformerException e) {
         String exceptionMessage = "Unable to transform Metacard.  Try different transformer: ";
+        Throwable cause = e.getCause();
+        if (cause instanceof ResourceNotFoundException) {
+          exceptionMessage = "Resource file is not available";
+        } else if (cause instanceof IOException) {
+          exceptionMessage = "Unable to read resource file";
+        }
         LOGGER.info(exceptionMessage, e);
         throw new InternalServerErrorException(exceptionMessage);
       } catch (SourceUnavailableException e) {
