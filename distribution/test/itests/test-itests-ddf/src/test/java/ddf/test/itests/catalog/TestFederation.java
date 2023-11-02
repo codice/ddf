@@ -640,7 +640,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .assertThat()
         .contentType("text/html")
         .statusCode(equalTo(500))
-        .body(containsString("Resource file not available"));
+        .body(containsString("Resource file is not available"));
   }
 
   @Test
