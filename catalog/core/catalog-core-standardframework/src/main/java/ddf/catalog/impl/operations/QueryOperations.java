@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,20 +93,22 @@ import org.slf4j.LoggerFactory;
 public class QueryOperations extends DescribableImpl {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryOperations.class);
 
-  private static final String QMB = "qm.";
-  private static final String QM_TRACEID = QMB + "trace-id";
-  private static final String QM_POSTQUERY = QMB + "postquery.";
-  private static final String QM_POSTQUERYACCESS = QMB + "postqueryaccess.";
-  private static final String QM_PREQUERY = QMB + "prequery.";
-  private static final String QM_PREQUERYACCESS = QMB + "prequeryaccess.";
-  private static final String QM_PREAUTH = QMB + "preauthorization.";
-  private static final String QM_RESPONSE_POLICY = QMB + "response-policy.";
-  private static final String QM_REQUEST_POLICYMAP = QMB + "request-policymap.";
-  private static final String QM_RESPONSE_POLICYMAP = QMB + "response-policymap.";
-  private static final String QM_ELAPSED = ".elapsed";
+  public static final String QMB = "qm.";
+  public static final String QM_TRACEID = QMB + "trace-id";
+  public static final String QM_POSTQUERY = QMB + "postquery.";
+  public static final String QM_POSTQUERYACCESS = QMB + "postqueryaccess.";
+  public static final String QM_PREQUERY = QMB + "prequery.";
+  public static final String QM_PREQUERYACCESS = QMB + "prequeryaccess.";
+  public static final String QM_PREAUTH = QMB + "preauthorization.";
+  public static final String QM_RESPONSE_POLICY = QMB + "response-policy.";
+  public static final String QM_REQUEST_POLICYMAP = QMB + "request-policymap.";
+  public static final String QM_RESPONSE_POLICYMAP = QMB + "response-policymap.";
+  public static final String QM_ELAPSED = ".elapsed";
 
-  private static final String QM_RESPONSE_INJECTATTRIBUTES =
+  public static final String QM_RESPONSE_INJECTATTRIBUTES =
       QMB + "response-injectattributes" + QM_ELAPSED;
+
+  public static final String NIL_UUID = "00000000-0000-0000-0000-000000000000".replaceAll("-", "");
   private static final String MAX_PAGE_SIZE_PROPERTY = "catalog.maxPageSize";
 
   private static final String ZERO_PAGESIZE_COMPATIBILITY_PROPERTY =
@@ -272,26 +275,56 @@ public class QueryOperations extends DescribableImpl {
       }
     }
     if (LOGGER.isDebugEnabled()) {
-      Map<String, Serializable> reqMetrics = queryResponse.getRequest().getProperties();
-      Map<String, Serializable> respMetrics = queryResponse.getProperties();
       // Combine the request and response metrics to log
-      Map<String, Serializable> allMetrics = new HashMap<>();
-      allMetrics.putAll(filterMetrics(reqMetrics, QMB));
-      allMetrics.putAll(filterMetrics(respMetrics, QMB));
-
+      Map<String, Serializable> allMetrics =
+          collectQueryMetrics(
+              queryResponse.getRequest().getProperties(), queryResponse.getProperties());
       LOGGER.debug("QueryMetrics: {}", serializeMetrics(allMetrics, QMB));
     }
   }
 
-  private Map<String, Serializable> filterMetrics(Map<String, Serializable> src, String base) {
+  protected static Map<String, Serializable> collectQueryMetrics(
+      Map<String, Serializable> requestMetrics, Map<String, Serializable> responseMetrics) {
+    Map<String, Serializable> allMetrics = new HashMap<>();
+    if (requestMetrics != null) {
+      allMetrics.putAll(filterMetrics(requestMetrics, QMB));
+    }
+    if (responseMetrics != null) {
+      allMetrics.putAll(filterMetrics(responseMetrics, QMB));
+    }
+    return allMetrics;
+  }
+
+  protected static Map<String, Serializable> filterMetrics(
+      Map<String, Serializable> src, String base) {
     Map<String, Serializable> filtered =
         src.entrySet().stream()
             .filter(x -> x.getKey().startsWith(base))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey, entry -> replaceNullWithNilID(entry, Map.Entry::getValue)));
     return filtered;
   }
 
-  private String serializeMetrics(Map<String, Serializable> props, String base) {
+  /**
+   * replaceNullWithNilID checks the values of a Map.Entry for null - if found, the value is
+   * replaced with the NIL UUID value (00000000-0000-0000-0000-00000000) with the "-"s removed. This
+   * can occur when queries don't originate from an endpoint and trace-ids are not injected before
+   * calling a query operation.
+   *
+   * @param entry the Map.Entry being processed
+   * @param valueExtractor method to retrieve the value from the entry
+   * @return the original value if non-null, or the NIL UUID value
+   * @param <K> Type of the key
+   * @param <V> Type of the value
+   */
+  private static <K, V> V replaceNullWithNilID(
+      Map.Entry<K, V> entry, Function<Map.Entry<K, V>, V> valueExtractor) {
+    V originalValue = valueExtractor.apply(entry);
+    return originalValue == null ? (V) NIL_UUID : originalValue;
+  }
+
+  protected static String serializeMetrics(Map<String, Serializable> props, String base) {
     StringBuilder sb = new StringBuilder();
     sb.append("trace-id: ");
     sb.append(props.get(QM_TRACEID));
@@ -311,6 +344,9 @@ public class QueryOperations extends DescribableImpl {
 
   private QueryRequest addTraceId(QueryRequest queryRequest) {
     String traceId = ThreadContextProperties.getTraceId();
+    if (traceId == null) {
+      traceId = NIL_UUID;
+    }
     queryRequest.getProperties().put(QM_TRACEID, traceId);
     return queryRequest;
   }
