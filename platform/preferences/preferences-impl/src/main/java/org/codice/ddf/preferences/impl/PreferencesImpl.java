@@ -167,11 +167,17 @@ public class PreferencesImpl implements Preferences {
         });
     try {
       catalogFramework.update(new UpdateRequestImpl(metacard.getId(), metacard));
-      LOGGER.info(
-          "Updated {} metacard for user {}. Metacard Id: {}",
-          PreferencesMetacardType.TAG,
-          metacard.getAttribute(PreferencesMetacardType.USER_ATTRIBUTE),
-          metacard.getId());
+      if (metacard.getAttribute(PreferencesMetacardType.USER_ATTRIBUTE) != null) {
+        LOGGER.info(
+            "Updated {} metacard for user {}. Metacard Id: {}",
+            PreferencesMetacardType.TAG,
+            metacard.getAttribute(PreferencesMetacardType.USER_ATTRIBUTE),
+            metacard.getId());
+      } else {
+        LOGGER.info(
+            "Updated {} metacard. Metacard Id: {}", PreferencesMetacardType.TAG, metacard.getId());
+      }
+
     } catch (IngestException | SourceUnavailableException e) {
       throw new PreferencesException(e);
     }
