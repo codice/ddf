@@ -220,7 +220,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       QueryResponse solrResponse;
       start = System.nanoTime();
       LOGGER.trace("Begin executing solr query for {}", traceSource);
-      if (shouldDoRealTimeGet(request)) {
+      if (!isFacetedQuery && shouldDoRealTimeGet(request)) {
         LOGGER.debug("Performing real time query for {}", traceSource);
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
@@ -279,6 +279,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private boolean shouldDoRealTimeGet(QueryRequest request) throws UnsupportedQueryException {
+
     if ((boolean) request.getProperties().getOrDefault(SKIP_REALTIME_GET, false)) {
       return false;
     }
@@ -289,7 +290,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       // here, it is safe to assume that we should not be doing a real time get to solr
       return false;
     }
-    // TODO property here
+
     return (boolean) request.getProperties().getOrDefault(DO_REALTIME_GET, false)
         || BooleanUtils.toBoolean(filterAdapter.adapt(query, new RealTimeGetDelegate()));
   }
