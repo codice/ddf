@@ -129,6 +129,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String DO_REALTIME_GET = "doRealtimeGet";
 
+  public static final String SKIP_REALTIME_GET = "skipRealtimeGet";
+
   private static final String RESOURCE_ATTRIBUTE = "resource";
 
   private final SolrClient client;
@@ -277,13 +279,17 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private boolean shouldDoRealTimeGet(QueryRequest request) throws UnsupportedQueryException {
+    if ((boolean) request.getProperties().getOrDefault(SKIP_REALTIME_GET, false)) {
+      return false;
+    }
+
     Query query = request.getQuery();
     if (query.getStartIndex() > 1) {
       // solr doesn't support paging of real time get requests so if a paging request is received
       // here, it is safe to assume that we should not be doing a real time get to solr
       return false;
     }
-
+    // TODO property here
     return (boolean) request.getProperties().getOrDefault(DO_REALTIME_GET, false)
         || BooleanUtils.toBoolean(filterAdapter.adapt(query, new RealTimeGetDelegate()));
   }
