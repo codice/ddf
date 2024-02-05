@@ -220,7 +220,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       QueryResponse solrResponse;
       start = System.nanoTime();
       LOGGER.trace("Begin executing solr query for {}", traceSource);
-      if (!isFacetedQuery && shouldDoRealTimeGet(request)) {
+      if (shouldDoRealTimeGet(request)) {
         LOGGER.debug("Performing real time query for {}", traceSource);
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
@@ -278,9 +278,20 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return new SourceResponseImpl(request, responseProps, results, totalHits);
   }
 
+  private boolean isFaceted(QueryRequest request) {
+    Serializable textFacetPropRaw = request.getPropertyValue(EXPERIMENTAL_FACET_PROPERTIES_KEY);
+    return textFacetPropRaw instanceof TermFacetProperties;
+  }
+
   private boolean shouldDoRealTimeGet(QueryRequest request) throws UnsupportedQueryException {
 
     if ((boolean) request.getProperties().getOrDefault(SKIP_REALTIME_GET, false)) {
+      return false;
+    }
+
+    if (isFaceted(request)) {
+      // real time get makes use of the update log
+      // and as a result does not support faceting
       return false;
     }
 
