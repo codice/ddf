@@ -104,7 +104,6 @@ public class PreferencesImpl implements Preferences {
     Filter filter = createFilter(userId);
 
     QueryResponse queryResponse = query(filter);
-
     if (queryResponse.getResults().size() > 1) {
       throw new PreferencesException("internal error: more than one preference metacard found");
     } else if (queryResponse.getResults().size() == 1) {
@@ -146,6 +145,11 @@ public class PreferencesImpl implements Preferences {
         });
     try {
       catalogFramework.create(new CreateRequestImpl(metacard));
+      LOGGER.info(
+          "Created new {} metacard for user {}. Metacard Id: {}",
+          PreferencesMetacardType.TAG,
+          userId,
+          metacard.getId());
     } catch (IngestException | SourceUnavailableException e) {
       throw new PreferencesException(e);
     }
@@ -163,6 +167,17 @@ public class PreferencesImpl implements Preferences {
         });
     try {
       catalogFramework.update(new UpdateRequestImpl(metacard.getId(), metacard));
+      if (metacard.getAttribute(PreferencesMetacardType.USER_ATTRIBUTE) != null) {
+        LOGGER.info(
+            "Updated {} metacard for user {}. Metacard Id: {}",
+            PreferencesMetacardType.TAG,
+            metacard.getAttribute(PreferencesMetacardType.USER_ATTRIBUTE),
+            metacard.getId());
+      } else {
+        LOGGER.info(
+            "Updated {} metacard. Metacard Id: {}", PreferencesMetacardType.TAG, metacard.getId());
+      }
+
     } catch (IngestException | SourceUnavailableException e) {
       throw new PreferencesException(e);
     }
