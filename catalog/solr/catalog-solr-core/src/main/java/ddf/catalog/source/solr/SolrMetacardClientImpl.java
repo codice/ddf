@@ -129,6 +129,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String DO_REALTIME_GET = "doRealtimeGet";
 
+  public static final String SKIP_REALTIME_GET = "skipRealtimeGet";
+
   private static final String RESOURCE_ATTRIBUTE = "resource";
 
   private final SolrClient client;
@@ -276,7 +278,23 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return new SourceResponseImpl(request, responseProps, results, totalHits);
   }
 
+  private boolean isFaceted(QueryRequest request) {
+    Serializable textFacetPropRaw = request.getPropertyValue(EXPERIMENTAL_FACET_PROPERTIES_KEY);
+    return textFacetPropRaw instanceof TermFacetProperties;
+  }
+
   private boolean shouldDoRealTimeGet(QueryRequest request) throws UnsupportedQueryException {
+
+    if ((boolean) request.getProperties().getOrDefault(SKIP_REALTIME_GET, false)) {
+      return false;
+    }
+
+    if (isFaceted(request)) {
+      // real time get makes use of the update log
+      // and as a result does not support faceting
+      return false;
+    }
+
     Query query = request.getQuery();
     if (query.getStartIndex() > 1) {
       // solr doesn't support paging of real time get requests so if a paging request is received
