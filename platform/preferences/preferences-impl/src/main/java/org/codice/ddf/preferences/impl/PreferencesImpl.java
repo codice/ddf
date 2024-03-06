@@ -221,13 +221,7 @@ public class PreferencesImpl implements Preferences {
           .filter(Objects::nonNull)
           .forEach(
               attribute -> {
-                String value = attribute.getValue().toString();
-                try {
-                  preferences.put(attribute.getName(), GSON.fromJson(value, Object.class));
-                } catch (JsonSyntaxException e) {
-                  LOGGER.info(
-                      "failed to parse json: name={} value={}", attribute.getName(), value, e);
-                }
+                preferences.put(attribute.getName(), attribute.getValue().toString());
               });
     }
 
