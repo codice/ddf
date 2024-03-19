@@ -211,5 +211,20 @@
         <argument ref="writerProvider"/>
     </bean>
 
+    <service ref="gmdInputTransformerTranformer"
+             interface="ddf.catalog.transform.QueryResponseTransformer">
+        <service-properties>
+            <entry key="id" value="gmd:MD_Metadata"/>
+            <entry key="mime-type" >
+                <list>
+                    <value>text/xml</value>
+                    <value>application/xml</value>
+                </list>
+            </entry>
+            <entry key="schema" value="http://www.isotc211.org/2005/gmd"/>
+            <entry key="displayName" value="GMD Metadata"/>
+
+        </service-properties>
+    </service>
 
 </blueprint>

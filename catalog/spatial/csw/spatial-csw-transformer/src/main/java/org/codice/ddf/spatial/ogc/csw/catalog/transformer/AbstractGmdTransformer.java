@@ -23,8 +23,10 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -36,7 +38,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 
-public class AbstractGmdTransformer implements MetacardTransformer {
+public class AbstractGmdTransformer implements MetacardTransformer, QueryResponseTransformer {
 
   public static final String GML_PREFIX = "gml:";
 
@@ -44,10 +46,23 @@ public class AbstractGmdTransformer implements MetacardTransformer {
 
   private Supplier<Converter> converterSupplier;
 
+  protected static final String TRANSFORM_EXCEPTION_MSG =
+      "Unable to transform from GMD Metadata to Metacard";
+
   /** @param converterSupplier must be non-null */
   public AbstractGmdTransformer(Supplier<Converter> converterSupplier) {
     notNull(converterSupplier, "converterSupplier must be non-null");
     this.converterSupplier = converterSupplier;
+  }
+
+  @Override
+  public BinaryContent transform(SourceResponse sourceResponse, Map<String, Serializable> map)
+      throws CatalogTransformerException {
+    if (sourceResponse.getResults() != null && sourceResponse.getResults().size() == 1) {
+      return transform(sourceResponse.getResults().get(0).getMetacard(), map);
+    } else {
+      throw new CatalogTransformerException(TRANSFORM_EXCEPTION_MSG);
+    }
   }
 
   @Override
