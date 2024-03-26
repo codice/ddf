@@ -799,6 +799,7 @@ public class SolrProviderSpatial {
       String metacardWkt, String positiveWkt, String negativeWkt) throws Exception {
     Filter positiveFilter =
         getFilterBuilder().attribute(Metacard.ANY_GEO).intersecting().wkt(positiveWkt);
+
     Filter negativeFilter =
         getFilterBuilder().attribute(Metacard.ANY_GEO).intersecting().wkt(negativeWkt);
     testSpatialWithWkt(metacardWkt, positiveFilter, negativeFilter);
