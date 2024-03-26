@@ -418,6 +418,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
       isLoggedIn = doLogin();
       if (!isLoggedIn) {
         securityLogger.audit("Username [" + user + "] failed LDAP authentication.");
+      } else {
+        securityLogger.audit("LDAP authentication successful for username [" + user + "].");
       }
       return isLoggedIn;
     } catch (InvalidCharactersException e) {
