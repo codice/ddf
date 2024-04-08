@@ -23,10 +23,18 @@
     <reference id="attachmentParser" interface="org.codice.ddf.attachment.AttachmentParser"/>
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
+    <bean id="storageProviderSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+
+    <reference-list id="storage" interface="ddf.catalog.content.StorageProvider" availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="storageProviderSortedList"/>
+    </reference-list>
+
     <bean id="catalogService" class="org.codice.ddf.rest.service.impl.CatalogServiceImpl">
         <argument ref="catalog"/>
         <argument ref="attachmentParser"/>
         <argument ref="attributeRegistry" />
+        <argument ref="storageProviderSortedList" />
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver"/>

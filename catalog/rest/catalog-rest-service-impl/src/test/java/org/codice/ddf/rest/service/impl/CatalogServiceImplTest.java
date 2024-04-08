@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Strings;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.data.AttributeDescriptor;
@@ -125,6 +126,8 @@ public class CatalogServiceImplTest {
 
   private AttributeRegistry attributeRegistry;
 
+  private final List<StorageProvider> storageProviders = Collections.emptyList();
+
   @Before
   public void setup() throws MimeTypeResolutionException {
     MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
@@ -142,7 +145,7 @@ public class CatalogServiceImplTest {
     CatalogFramework framework = mock(CatalogFramework.class);
 
     CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders);
 
     HttpHeaders headers = mock(HttpHeaders.class);
 
@@ -177,7 +180,7 @@ public class CatalogServiceImplTest {
     HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
 
     CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders);
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
 
@@ -217,7 +220,7 @@ public class CatalogServiceImplTest {
     when(attributeRegistry.lookup("custom.attribute")).thenReturn(Optional.of(descriptor));
 
     CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -288,7 +291,7 @@ public class CatalogServiceImplTest {
         .thenReturn(serviceReferences);
 
     CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -389,7 +392,7 @@ public class CatalogServiceImplTest {
         .thenReturn(serviceReferences);
 
     CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -461,7 +464,7 @@ public class CatalogServiceImplTest {
         .thenReturn(serviceReferences);
 
     CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -520,7 +523,7 @@ public class CatalogServiceImplTest {
       throws IngestException, SourceUnavailableException {
     CatalogFramework framework = givenCatalogFramework();
     CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders);
 
     when(attributeRegistry.lookup(Topic.KEYWORD))
         .thenReturn(Optional.of(new TopicAttributes().getAttributeDescriptor(Topic.KEYWORD)));
@@ -571,7 +574,7 @@ public class CatalogServiceImplTest {
   public void testParsePartsWithAttributeOverrides() throws Exception {
     CatalogFramework framework = givenCatalogFramework();
     CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders);
 
     when(attributeRegistry.lookup(Topic.KEYWORD))
         .thenReturn(Optional.of(new TopicAttributes().getAttributeDescriptor(Topic.KEYWORD)));
@@ -636,7 +639,7 @@ public class CatalogServiceImplTest {
         .thenReturn(serviceReferences);
 
     CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -709,7 +712,7 @@ public class CatalogServiceImplTest {
         .thenReturn(serviceReferences);
 
     CatalogServiceImpl catalogServiceImpl =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -812,7 +815,7 @@ public class CatalogServiceImplTest {
         .thenReturn(sourceInfoResponse);
 
     CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders);
 
     BinaryContent content = catalogService.getSourcesInfo();
     assertEquals(jsonMimeTypeString, content.getMimeTypeValue());
@@ -873,7 +876,7 @@ public class CatalogServiceImplTest {
     when(framework.transform(isA(Metacard.class), anyString(), isNull())).thenReturn(content);
 
     CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders);
 
     // Add a MimeTypeToINputTransformer that the REST endpoint will call to create the metacard
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
@@ -948,7 +951,7 @@ public class CatalogServiceImplTest {
         .thenReturn(serviceReferences);
 
     CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -999,7 +1002,7 @@ public class CatalogServiceImplTest {
     HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
 
     CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry, storageProviders);
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
 
