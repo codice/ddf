@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.Future;
+import org.apache.shiro.util.ThreadContext;
 
 class SortedQueryMonitorFactory {
 
@@ -31,6 +32,12 @@ class SortedQueryMonitorFactory {
       final QueryRequest request,
       List<PostFederatedQueryPlugin> postQuery) {
 
-    return new SortedQueryMonitor(completionService, futures, returnResults, request, postQuery);
+    return new SortedQueryMonitor(
+        ThreadContext.getResources(),
+        completionService,
+        futures,
+        returnResults,
+        request,
+        postQuery);
   }
 }

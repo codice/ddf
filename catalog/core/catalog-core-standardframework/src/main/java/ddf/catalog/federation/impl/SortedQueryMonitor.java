@@ -54,6 +54,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
+import org.apache.shiro.util.ThreadContext;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -80,12 +81,16 @@ class SortedQueryMonitor implements Runnable {
 
   private final long deadline;
 
+  private Map<Object, Object> originalThreadResources;
+
   public SortedQueryMonitor(
+      Map<Object, Object> originalThreadResources,
       CompletionService<SourceResponse> completionService,
       Map<Future<SourceResponse>, QueryRequest> futures,
       QueryResponseImpl returnResults,
       QueryRequest request,
       List<PostFederatedQueryPlugin> postQuery) {
+    this.originalThreadResources = originalThreadResources;
     this.completionService = completionService;
     this.returnResults = returnResults;
     this.request = request;
@@ -97,6 +102,11 @@ class SortedQueryMonitor implements Runnable {
 
   @Override
   public void run() {
+    if (originalThreadResources != null) {
+      ThreadContext.remove();
+      ThreadContext.setResources(originalThreadResources);
+    }
+
     List<SortBy> sortBys = new ArrayList<>();
     SortBy sortBy = query.getSortBy();
     if (sortBy != null && sortBy.getPropertyName() != null) {
@@ -226,6 +236,8 @@ class SortedQueryMonitor implements Runnable {
 
     returnResults.setHits(totalHits);
     returnResults.addResults(sortedResults(resultList, resultComparator), true);
+
+    ThreadContext.remove();
   }
 
   private Set<ProcessingDetails> sourceProcessingDetailsToProcessingDetails(
