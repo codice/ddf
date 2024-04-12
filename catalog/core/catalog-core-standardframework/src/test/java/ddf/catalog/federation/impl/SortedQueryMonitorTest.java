@@ -16,6 +16,7 @@ package ddf.catalog.federation.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.extractor.Extractors.byName;
 import static org.awaitility.Awaitility.with;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -36,9 +37,13 @@ import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.PostFederatedQueryPlugin;
+import ddf.catalog.plugin.StopProcessingException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +61,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.apache.shiro.util.ThreadContext;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -127,7 +133,7 @@ public class SortedQueryMonitorTest {
 
     SortedQueryMonitor queryMonitor =
         new SortedQueryMonitor(
-            completionService, futures, queryResponse, queryRequest, new ArrayList<>());
+            null, completionService, futures, queryResponse, queryRequest, new ArrayList<>());
 
     final Iterator<Future<SourceResponse>> futureIter =
         new ArrayList<>(futures.keySet()).iterator();
@@ -161,7 +167,7 @@ public class SortedQueryMonitorTest {
 
     SortedQueryMonitor queryMonitor =
         new SortedQueryMonitor(
-            completionService, futures, queryResponse, queryRequest, new ArrayList<>());
+            null, completionService, futures, queryResponse, queryRequest, new ArrayList<>());
 
     // Put the first two futures into the list and then set the third
     // value to be null in order to mock the effect of a null return from
@@ -202,7 +208,7 @@ public class SortedQueryMonitorTest {
 
     SortedQueryMonitor queryMonitor =
         new SortedQueryMonitor(
-            completionService, futures, queryResponse, queryRequest, new ArrayList<>());
+            null, completionService, futures, queryResponse, queryRequest, new ArrayList<>());
 
     final Iterator<Future<SourceResponse>> futureIter =
         new ArrayList<>(futures.keySet()).iterator();
@@ -273,7 +279,7 @@ public class SortedQueryMonitorTest {
 
     SortedQueryMonitor queryMonitor =
         new SortedQueryMonitor(
-            completionService, futures, queryResponse, queryRequest, new ArrayList<>());
+            null, completionService, futures, queryResponse, queryRequest, new ArrayList<>());
 
     final Iterator<Future<SourceResponse>> iterator = futures.keySet().iterator();
     when(completionService.take()).thenAnswer((invocationOnMock -> iterator.next()));
@@ -425,7 +431,7 @@ public class SortedQueryMonitorTest {
 
     SortedQueryMonitor queryMonitor =
         new SortedQueryMonitor(
-            completionService, futures, queryResponse, queryRequest, new ArrayList<>());
+            null, completionService, futures, queryResponse, queryRequest, new ArrayList<>());
 
     Future<SourceResponse> currFuture = futures.keySet().iterator().next();
     when(completionService.poll(anyLong(), any())).thenAnswer((invocationOnMock -> currFuture));
@@ -471,7 +477,7 @@ public class SortedQueryMonitorTest {
 
     SortedQueryMonitor queryMonitor =
         new SortedQueryMonitor(
-            completionService, futures, queryResponse, queryRequest, new ArrayList<>());
+            null, completionService, futures, queryResponse, queryRequest, new ArrayList<>());
 
     when(completionService.take()).thenReturn(futureMock, futureMock2);
     queryMonitor.run();
@@ -488,6 +494,60 @@ public class SortedQueryMonitorTest {
     assertThat(returnedSourceProperties.size()).isEqualTo(2);
     assertThat(returnedSourceProperties.get("Source1").get("test")).isEqualTo(1);
     assertThat(returnedSourceProperties.get("Source2").get("test")).isEqualTo(2);
+  }
+
+  @Test
+  public void testThreadPropertiesPassedThrough() throws Exception {
+    SortOrder sortOrder = SortOrder.ASCENDING;
+    Serializable[] inputArray = new Serializable[] {TEST_DATE_2, TEST_DATE_1};
+    Serializable[] outputArray = new Serializable[] {TEST_DATE_1, TEST_DATE_2};
+
+    PropertyName propertyName = mock(PropertyName.class);
+    when(propertyName.getPropertyName()).thenReturn(TEST_PROPERTY);
+
+    SortBy sortBy = mock(SortBy.class);
+    when(sortBy.getSortOrder()).thenReturn(sortOrder);
+    when(sortBy.getPropertyName()).thenReturn(propertyName);
+
+    CompletionService completionService = mock(CompletionService.class);
+    QueryRequest queryRequest = mock(QueryRequest.class);
+    Query query = mock(Query.class);
+    Map<Future<SourceResponse>, QueryRequest> futures = new LinkedHashMap<>();
+
+    Future futureMock = mock(Future.class);
+    SourceResponse sourceResponseMock = getMockedResponse(getResults(TEST_PROPERTY, inputArray));
+    when(futureMock.get()).thenReturn(sourceResponseMock);
+    when(query.getSortBy()).thenReturn(sortBy);
+    when(query.getTimeoutMillis()).thenReturn(5000L);
+    when(queryRequest.getQuery()).thenReturn(query);
+    when(queryRequest.getSourceIds()).thenReturn(Collections.singleton("Sort-Source"));
+    futures.put(futureMock, queryRequest);
+    QueryResponseImpl queryResponse = new QueryResponseImpl(queryRequest);
+
+    String traceIdKey = "trace-id";
+    String tradeId = "123-456-789";
+    TestPlugin plugin = new TestPlugin(traceIdKey);
+    Map<Object, Object> threadResources = new HashMap<>();
+    threadResources.put(traceIdKey, tradeId);
+
+    ThreadContext.put(traceIdKey, "some other key");
+
+    SortedQueryMonitor queryMonitor =
+        new SortedQueryMonitor(
+            threadResources,
+            completionService,
+            futures,
+            queryResponse,
+            queryRequest,
+            Arrays.asList(plugin));
+
+    Future<SourceResponse> currFuture = futures.keySet().iterator().next();
+    when(completionService.poll(anyLong(), any())).thenAnswer((invocationOnMock -> currFuture));
+    when(completionService.take()).thenAnswer((invocationOnMock -> currFuture));
+    queryMonitor.run();
+
+    assertResults(queryResponse.getResults(), TEST_PROPERTY, outputArray);
+    assertTrue(plugin.testValue.equals(tradeId));
   }
 
   private List<Result> getResults(String property, Serializable... values) {
@@ -524,5 +584,23 @@ public class SortedQueryMonitorTest {
 
   class TestSerial implements Serializable {
     public TestSerial() {}
+  }
+
+  class TestPlugin implements PostFederatedQueryPlugin {
+
+    private Object testValue;
+
+    private String contextKey;
+
+    public TestPlugin(String contextKey) {
+      this.contextKey = contextKey;
+    }
+
+    @Override
+    public QueryResponse process(QueryResponse input)
+        throws PluginExecutionException, StopProcessingException {
+      testValue = ThreadContext.get(contextKey);
+      return input;
+    }
   }
 }
