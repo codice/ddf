@@ -265,6 +265,30 @@ public class RESTEndpoint implements RESTService {
     }
   }
 
+  @GET
+  @Path("/doesExist/{id}/{sourceId}")
+  public Response doesResourceExist(
+      @PathParam("id") String encodedId,
+      @PathParam("sourceId") String encodedSourceId,
+      @Context UriInfo uriInfo,
+      @Context HttpServletRequest httpRequest) {
+    try {
+      Response.ResponseBuilder responseBuilder;
+      String id = URLDecoder.decode(encodedId, CharEncoding.UTF_8);
+      String sourceId = URLDecoder.decode(encodedSourceId, CharEncoding.UTF_8);
+
+      boolean doesExist = catalogService.doesLocalResourceExist(id, sourceId);
+
+      responseBuilder = doesExist ? Response.ok() : Response.status(Status.NOT_FOUND);
+
+      return responseBuilder.build();
+    } catch (UnsupportedEncodingException | CatalogServiceException e) {
+      String exceptionMessage = "Unknown error occurred while processing request: ";
+      LOGGER.info(exceptionMessage, e);
+      throw new InternalServerErrorException(exceptionMessage);
+    }
+  }
+
   @POST
   @Path("/metacard")
   public Response createMetacard(

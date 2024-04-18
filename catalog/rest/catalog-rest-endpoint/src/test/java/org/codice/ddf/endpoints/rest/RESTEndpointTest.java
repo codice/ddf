@@ -166,7 +166,10 @@ public class RESTEndpointTest {
 
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(
-            framework, new AttachmentParserImpl(mimeTypeMapper), mock(AttributeRegistry.class));
+            framework,
+            new AttachmentParserImpl(mimeTypeMapper),
+            mock(AttributeRegistry.class),
+            Collections.emptyList());
     catalogServiceImpl.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
     catalogServiceImpl.setFilterBuilder(filterBuilder);
@@ -378,7 +381,10 @@ public class RESTEndpointTest {
 
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(
-            framework, new AttachmentParserImpl(mimeTypeMapper), mock(AttributeRegistry.class));
+            framework,
+            new AttachmentParserImpl(mimeTypeMapper),
+            mock(AttributeRegistry.class),
+            Collections.emptyList());
 
     catalogServiceImpl.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();

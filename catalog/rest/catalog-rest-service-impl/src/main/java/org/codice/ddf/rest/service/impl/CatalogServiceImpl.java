@@ -14,6 +14,7 @@
 package org.codice.ddf.rest.service.impl;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.content.StorageProvider;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
@@ -41,8 +42,9 @@ public class CatalogServiceImpl extends AbstractCatalogService {
   public CatalogServiceImpl(
       CatalogFramework framework,
       AttachmentParser attachmentParser,
-      AttributeRegistry attributeRegistry) {
-    super(framework, attachmentParser, attributeRegistry);
+      AttributeRegistry attributeRegistry,
+      List<StorageProvider> storageProviders) {
+    super(framework, attachmentParser, attributeRegistry, storageProviders);
   }
 
   @Override

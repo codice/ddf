@@ -17,10 +17,15 @@ import com.google.common.collect.Iterables;
 import ddf.action.Action;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
+import ddf.catalog.content.StorageException;
+import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
+import ddf.catalog.content.operation.ReadStorageRequest;
+import ddf.catalog.content.operation.ReadStorageResponse;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
+import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -34,10 +39,12 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
@@ -172,14 +179,18 @@ public abstract class AbstractCatalogService implements CatalogService {
 
   protected CatalogFramework catalogFramework;
 
+  protected List<StorageProvider> storageProviders;
+
   public AbstractCatalogService(
       CatalogFramework framework,
       AttachmentParser attachmentParser,
-      AttributeRegistry attributeRegistry) {
+      AttributeRegistry attributeRegistry,
+      List<StorageProvider> storageProviders) {
     LOGGER.trace("Constructing CatalogServiceImpl");
     this.catalogFramework = framework;
     this.attachmentParser = attachmentParser;
     this.attributeRegistry = attributeRegistry;
+    this.storageProviders = storageProviders;
     LOGGER.trace(("CatalogServiceImpl constructed successfully"));
   }
 
@@ -286,6 +297,77 @@ public abstract class AbstractCatalogService implements CatalogService {
 
   @Override
   public abstract BinaryContent getSourcesInfo();
+
+  @Override
+  public boolean doesLocalResourceExist(String metacardId, String sourceId)
+      throws CatalogServiceException {
+
+    Filter filter = filterBuilder.attribute(Core.ID).is().text(metacardId);
+
+    QueryResponse queryResponse;
+
+    try {
+      queryResponse =
+          catalogFramework.query(
+              new QueryRequestImpl(new QueryImpl(filter), Collections.singletonList(sourceId)));
+    } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+      throw new CatalogServiceException(
+          String.format(
+              "Unable to query the framework for metacard %s and source %s", metacardId, sourceId),
+          e);
+    }
+
+    if (queryResponse.getResults().size() != 1) {
+      LOGGER.debug("metacard {} not found", metacardId);
+      return false;
+    }
+
+    Metacard metacard = queryResponse.getResults().get(0).getMetacard();
+
+    URI resourceUri = metacard.getResourceURI();
+
+    if (resourceUri == null) {
+      try {
+        resourceUri = new URI("content", metacardId, null);
+      } catch (URISyntaxException e) {
+        LOGGER.debug(
+            "Unable to determine if a local resource for metacard {} exists because the resource uri is invalid",
+            metacardId,
+            e);
+        return false;
+      }
+    }
+
+    ReadStorageRequest readStorageRequest =
+        new ReadStorageRequestImpl(resourceUri, Collections.emptyMap());
+
+    if (storageProviders.size() != 1) {
+      LOGGER.debug(
+          "Unable to determine if a local resource for metacard {} exists because there isn't exactly one storage provider.",
+          metacardId);
+      return false;
+    }
+
+    ReadStorageResponse readStorageResponse;
+    try {
+      readStorageResponse = storageProviders.get(0).read(readStorageRequest);
+    } catch (StorageException e) {
+      LOGGER.debug("Unable to read the resource {} (ignoring)", resourceUri, e);
+      return false;
+    }
+
+    if (containsErrors(readStorageResponse)) {
+      LOGGER.debug("Unable to read the resource {} because of processing errors", resourceUri);
+      return false;
+    }
+
+    return readStorageResponse.getContentItem() != null;
+  }
+
+  public boolean containsErrors(ReadStorageResponse response) {
+    return response.getProcessingErrors() != null
+        && response.getProcessingErrors().stream().anyMatch(ProcessingDetails::hasException);
+  }
 
   @Override
   public BinaryContent getDocument(
