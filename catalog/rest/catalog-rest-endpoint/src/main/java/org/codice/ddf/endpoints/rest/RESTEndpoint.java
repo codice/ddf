@@ -277,9 +277,10 @@ public class RESTEndpoint implements RESTService {
       String id = URLDecoder.decode(encodedId, CharEncoding.UTF_8);
       String sourceId = URLDecoder.decode(encodedSourceId, CharEncoding.UTF_8);
 
-      boolean doesExist = catalogService.doesLocalResourceExist(id, sourceId);
+      String checksum = catalogService.doesLocalResourceExist(id, sourceId);
 
-      responseBuilder = doesExist ? Response.ok() : Response.status(Status.NOT_FOUND);
+      responseBuilder =
+          checksum != null ? Response.ok(checksum) : Response.status(Status.NOT_FOUND);
 
       return responseBuilder.build();
     } catch (UnsupportedEncodingException | CatalogServiceException e) {

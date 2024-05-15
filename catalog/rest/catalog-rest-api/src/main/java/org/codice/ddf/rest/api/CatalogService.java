@@ -111,7 +111,7 @@ public interface CatalogService {
   String getFileExtensionForMimeType(String mimeType);
 
   /**
-   * Returns true if the local resource exists for the metacardId. Otherwise, false. Throws
+   * Returns checksum if the local resource exists for the metacardId. Otherwise, null. Throws
    * CatalogServiceException
    *
    * @param metacardId
@@ -119,5 +119,5 @@ public interface CatalogService {
    * @return
    * @throws CatalogServiceException
    */
-  boolean doesLocalResourceExist(String metacardId, String sourceId) throws CatalogServiceException;
+  String doesLocalResourceExist(String metacardId, String sourceId) throws CatalogServiceException;
 }

@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.Map;
 import javax.inject.Inject;
 import org.codice.ddf.attachment.AttachmentParser;
+import org.codice.ddf.checksum.ChecksumProvider;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.test.common.AbstractComponentTest;
@@ -104,6 +105,8 @@ public class RestEndpointIT extends AbstractComponentTest {
   @MockOsgiService private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
   @MockOsgiService private AttributeRegistry attributeRegistry;
+
+  @MockOsgiService private ChecksumProvider checksumProvider;
 
   @MockOsgiService(answer = Answers.RETURNS_DEEP_STUBS)
   private FilterBuilder filterBuilder;
@@ -204,7 +207,8 @@ public class RestEndpointIT extends AbstractComponentTest {
             .add("ddf.catalog.core", "catalog-core-attachment")
             .add("ddf.catalog.rest", "catalog-rest-api")
             .add("ddf.catalog.rest", "catalog-rest-service-impl")
-            .add("ddf.catalog.rest", "catalog-rest-impl");
+            .add("ddf.catalog.rest", "catalog-rest-impl")
+            .add("org.codice.ddf", "checksum");
       }
 
       @Override

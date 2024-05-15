@@ -19,6 +19,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.ReadStorageRequest;
@@ -74,6 +75,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -110,6 +112,7 @@ import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
+import org.codice.ddf.checksum.ChecksumProvider;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
@@ -157,6 +160,8 @@ public abstract class AbstractCatalogService implements CatalogService {
 
   private UuidGenerator uuidGenerator;
 
+  private ChecksumProvider checksumProvider;
+
   protected static MimeType jsonMimeType;
 
   static {
@@ -185,12 +190,14 @@ public abstract class AbstractCatalogService implements CatalogService {
       CatalogFramework framework,
       AttachmentParser attachmentParser,
       AttributeRegistry attributeRegistry,
-      List<StorageProvider> storageProviders) {
+      List<StorageProvider> storageProviders,
+      ChecksumProvider checksumProvider) {
     LOGGER.trace("Constructing CatalogServiceImpl");
     this.catalogFramework = framework;
     this.attachmentParser = attachmentParser;
     this.attributeRegistry = attributeRegistry;
     this.storageProviders = storageProviders;
+    this.checksumProvider = checksumProvider;
     LOGGER.trace(("CatalogServiceImpl constructed successfully"));
   }
 
@@ -299,7 +306,7 @@ public abstract class AbstractCatalogService implements CatalogService {
   public abstract BinaryContent getSourcesInfo();
 
   @Override
-  public boolean doesLocalResourceExist(String metacardId, String sourceId)
+  public String doesLocalResourceExist(String metacardId, String sourceId)
       throws CatalogServiceException {
 
     Filter filter = filterBuilder.attribute(Core.ID).is().text(metacardId);
@@ -319,7 +326,7 @@ public abstract class AbstractCatalogService implements CatalogService {
 
     if (queryResponse.getResults().size() != 1) {
       LOGGER.debug("metacard {} not found", metacardId);
-      return false;
+      return null;
     }
 
     Metacard metacard = queryResponse.getResults().get(0).getMetacard();
@@ -334,7 +341,7 @@ public abstract class AbstractCatalogService implements CatalogService {
             "Unable to determine if a local resource for metacard {} exists because the resource uri is invalid",
             metacardId,
             e);
-        return false;
+        return null;
       }
     }
 
@@ -345,7 +352,7 @@ public abstract class AbstractCatalogService implements CatalogService {
       LOGGER.debug(
           "Unable to determine if a local resource for metacard {} exists because there isn't exactly one storage provider.",
           metacardId);
-      return false;
+      return null;
     }
 
     ReadStorageResponse readStorageResponse;
@@ -353,15 +360,26 @@ public abstract class AbstractCatalogService implements CatalogService {
       readStorageResponse = storageProviders.get(0).read(readStorageRequest);
     } catch (StorageException e) {
       LOGGER.debug("Unable to read the resource {} (ignoring)", resourceUri, e);
-      return false;
+      return null;
     }
 
     if (containsErrors(readStorageResponse)) {
       LOGGER.debug("Unable to read the resource {} because of processing errors", resourceUri);
-      return false;
+      return null;
     }
 
-    return readStorageResponse.getContentItem() != null;
+    ContentItem resource = readStorageResponse.getContentItem();
+    if (resource == null) {
+      return null;
+    }
+
+    try {
+      return checksumProvider.calculateChecksum(resource.getInputStream());
+    } catch (IOException | NoSuchAlgorithmException e) {
+      LOGGER.debug("Unable to generate checksum for resource {}", resourceUri);
+    }
+
+    return null;
   }
 
   public boolean containsErrors(ReadStorageResponse response) {

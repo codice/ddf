@@ -103,6 +103,11 @@
             <artifactId>catalog-core-attachment</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>checksum</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Unit Tests -->
         <dependency>
