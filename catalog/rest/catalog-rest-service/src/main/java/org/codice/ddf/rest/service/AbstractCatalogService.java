@@ -379,7 +379,7 @@ public abstract class AbstractCatalogService implements CatalogService {
       LOGGER.debug("Unable to generate checksum for resource {}", resourceUri);
     }
 
-    return null;
+    return "";
   }
 
   public boolean containsErrors(ReadStorageResponse response) {
