@@ -31,6 +31,7 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.codice.ddf.attachment.AttachmentParser;
+import org.codice.ddf.checksum.ChecksumProvider;
 import org.codice.ddf.rest.service.AbstractCatalogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +44,9 @@ public class CatalogServiceImpl extends AbstractCatalogService {
       CatalogFramework framework,
       AttachmentParser attachmentParser,
       AttributeRegistry attributeRegistry,
-      List<StorageProvider> storageProviders) {
-    super(framework, attachmentParser, attributeRegistry, storageProviders);
+      List<StorageProvider> storageProviders,
+      ChecksumProvider checksumProvider) {
+    super(framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider);
   }
 
   @Override
