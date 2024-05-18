@@ -16,6 +16,7 @@ package ddf.catalog.history;
 import static ddf.catalog.core.versioning.MetacardVersion.SKIP_VERSIONING;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.io.ByteSource;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
@@ -36,7 +37,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Operation;
@@ -68,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -93,23 +94,33 @@ import org.slf4j.LoggerFactory;
 public class Historian {
   private static final Logger LOGGER = LoggerFactory.getLogger(Historian.class);
 
+  private static final String SKIP_UPDATE_PROPERTY =
+          "org.codice.ddf.history.update.blacklist.metacardTypes";
+
+  private static final String SKIP_DELETE_PROPERTY =
+          "org.codice.ddf.history.deletes.blacklist.metacardTypes";
+
+  private final Set<String> skipUpdateMetacardTypes =
+          Sets.newHashSet(System.getProperty(SKIP_UPDATE_PROPERTY, "").split("\\s*,\\s*"));
+
+  private final Set<String> skipDeleteMetacardTypes =
+          Sets.newHashSet(System.getProperty(SKIP_DELETE_PROPERTY, "").split("\\s*,\\s*"));
+
   private static final Collector<CharSequence, ?, String> TO_A_STRING =
-      Collectors.joining(", ", "[", "]");
+          Collectors.joining(", ", "[", "]");
 
   private boolean historyEnabled = true;
 
   private final Predicate<Metacard> isNotVersionNorDeleted =
-      ((Predicate<Metacard>) MetacardVersionImpl::isVersion)
-          .or(DeletedMetacardImpl::isDeleted)
-          .negate();
+          ((Predicate<Metacard>) MetacardVersionImpl::isVersion)
+                  .or(DeletedMetacardImpl::isDeleted)
+                  .negate();
 
   private List<StorageProvider> storageProviders;
 
   private List<CatalogProvider> catalogProviders;
 
   private List<MetacardType> metacardTypes;
-
-  private FilterBuilder filterBuilder;
 
   private Security security;
 
@@ -128,15 +139,15 @@ public class Historian {
       LOGGER.error("Could not get bundle to register history metacard types!");
     } else {
       DynamicMultiMetacardType versionType =
-          new DynamicMultiMetacardType(
-              MetacardVersionImpl.PREFIX,
-              metacardTypes,
-              MetacardVersionImpl.getMetacardVersionType());
+              new DynamicMultiMetacardType(
+                      MetacardVersionImpl.PREFIX,
+                      metacardTypes,
+                      MetacardVersionImpl.getMetacardVersionType());
       DynamicMultiMetacardType deleteType =
-          new DynamicMultiMetacardType(
-              DeletedMetacardImpl.PREFIX,
-              metacardTypes,
-              DeletedMetacardImpl.getDeletedMetacardType());
+              new DynamicMultiMetacardType(
+                      DeletedMetacardImpl.PREFIX,
+                      metacardTypes,
+                      DeletedMetacardImpl.getDeletedMetacardType());
       context.registerService(MetacardType.class, versionType, new Hashtable<>());
       context.registerService(MetacardType.class, deleteType, new Hashtable<>());
     }
@@ -160,10 +171,11 @@ public class Historian {
     }
 
     List<Metacard> inputMetacards =
-        updateResponse.getUpdatedMetacards().stream()
-            .map(Update::getOldMetacard)
-            .filter(isNotVersionNorDeleted)
-            .collect(Collectors.toList());
+            updateResponse.getUpdatedMetacards().stream()
+                    .map(Update::getOldMetacard)
+                    .filter(this::isNotBlackListedUpdate)
+                    .filter(isNotVersionNorDeleted)
+                    .collect(Collectors.toList());
 
     if (inputMetacards.isEmpty()) {
       LOGGER.trace("No updated metacards applicable to versioning");
@@ -171,21 +183,21 @@ public class Historian {
     }
 
     final Map<String, Metacard> versionedMetacards =
-        getVersionMetacards(
-            inputMetacards,
-            id -> Action.VERSIONED,
-            (Subject)
-                updateResponse
-                    .getRequest()
-                    .getProperties()
-                    .get(SecurityConstants.SECURITY_SUBJECT));
+            getVersionMetacards(
+                    inputMetacards,
+                    id -> Action.VERSIONED,
+                    (Subject)
+                            updateResponse
+                                    .getRequest()
+                                    .getProperties()
+                                    .get(SecurityConstants.SECURITY_SUBJECT));
 
     CreateResponse response = storeVersionMetacards(versionedMetacards);
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
-          "Successfully created metacard versions under ids: {}",
-          response.getCreatedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
+              "Successfully created metacard versions under ids: {}",
+              response.getCreatedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
     }
 
     return updateResponse;
@@ -203,10 +215,10 @@ public class Historian {
    * @throws IngestException
    */
   public UpdateStorageResponse version(
-      UpdateStorageRequest streamUpdateRequest,
-      UpdateStorageResponse updateStorageResponse,
-      UpdateResponse updateResponse)
-      throws UnsupportedQueryException, SourceUnavailableException, IngestException {
+          UpdateStorageRequest streamUpdateRequest,
+          UpdateStorageResponse updateStorageResponse,
+          UpdateResponse updateResponse)
+          throws UnsupportedQueryException, SourceUnavailableException, IngestException {
     if (doSkip(updateStorageResponse)) {
       return updateStorageResponse;
     }
@@ -218,35 +230,35 @@ public class Historian {
     }
 
     List<Metacard> updatedMetacards =
-        updateStorageResponse.getUpdatedContentItems().stream()
-            .filter(ci -> StringUtils.isBlank(ci.getQualifier()))
-            .map(ContentItem::getMetacard)
-            .filter(Objects::nonNull)
-            .filter(isNotVersionNorDeleted)
-            .collect(Collectors.toList());
+            updateStorageResponse.getUpdatedContentItems().stream()
+                    .filter(ci -> StringUtils.isBlank(ci.getQualifier()))
+                    .map(ContentItem::getMetacard)
+                    .filter(Objects::nonNull)
+                    .filter(isNotVersionNorDeleted)
+                    .collect(Collectors.toList());
 
     if (updatedMetacards.isEmpty()) {
       LOGGER.trace("No updated metacards applicable to versioning");
       securityLogger.audit(
-          "Skipping versioning updated metacards with ids: {}",
-          updateStorageResponse.getUpdatedContentItems().stream()
-              .map(ContentItem::getMetacard)
-              .filter(Objects::nonNull)
-              .map(Metacard::getId)
-              .collect(TO_A_STRING));
+              "Skipping versioning updated metacards with ids: {}",
+              updateStorageResponse.getUpdatedContentItems().stream()
+                      .map(ContentItem::getMetacard)
+                      .filter(Objects::nonNull)
+                      .map(Metacard::getId)
+                      .collect(TO_A_STRING));
       return updateStorageResponse;
     }
 
     Map<String, Metacard> originalMetacards =
-        updateResponse.getUpdatedMetacards().stream()
-            .map(Update::getOldMetacard)
-            .collect(
-                Collectors.toMap(
-                    Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
+            updateResponse.getUpdatedMetacards().stream()
+                    .map(Update::getOldMetacard)
+                    .collect(
+                            Collectors.toMap(
+                                    Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
-          "Found current data for the following metacards: {}", getList(originalMetacards));
+              "Found current data for the following metacards: {}", getList(originalMetacards));
     }
 
     Collection<ReadStorageRequest> ids = getReadStorageRequests(updatedMetacards);
@@ -257,13 +269,13 @@ public class Historian {
     }
 
     Function<String, Action> getAction =
-        id -> content.containsKey(id) ? Action.VERSIONED_CONTENT : Action.VERSIONED;
+            id -> content.containsKey(id) ? Action.VERSIONED_CONTENT : Action.VERSIONED;
 
     Map<String, Metacard> versionMetacards =
-        getVersionMetacards(
-            originalMetacards.values(),
-            getAction,
-            (Subject) updateResponse.getProperties().get(SecurityConstants.SECURITY_SUBJECT));
+            getVersionMetacards(
+                    originalMetacards.values(),
+                    getAction,
+                    (Subject) updateResponse.getProperties().get(SecurityConstants.SECURITY_SUBJECT));
 
     CreateStorageResponse createStorageResponse = versionContentItems(content, versionMetacards);
 
@@ -280,8 +292,8 @@ public class Historian {
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
-          "Successfully created metacard versions under ids: {}",
-          createResponse.getCreatedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
+              "Successfully created metacard versions under ids: {}",
+              createResponse.getCreatedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
     }
 
     return updateStorageResponse;
@@ -293,7 +305,8 @@ public class Historian {
    * @param deleteResponse Versions this responses deleted metacards
    */
   public DeleteResponse version(DeleteResponse deleteResponse)
-      throws SourceUnavailableException, IngestException {
+          throws SourceUnavailableException, IngestException {
+    // skip based on property for deletes
     if (doSkip(deleteResponse)) {
       return deleteResponse;
     }
@@ -304,65 +317,66 @@ public class Historian {
     }
 
     List<Metacard> originalMetacards =
-        deleteResponse.getDeletedMetacards().stream()
-            .filter(isNotVersionNorDeleted)
-            .collect(Collectors.toList());
+            deleteResponse.getDeletedMetacards().stream()
+                    .filter(this::isNotBlackListedDelete)
+                    .filter(isNotVersionNorDeleted)
+                    .collect(Collectors.toList());
 
     if (originalMetacards.isEmpty()) {
       LOGGER.trace("No deleted metacards applicable to versioning");
       securityLogger.audit(
-          "Skipping versioning deleted metacards with ids: {}",
-          deleteResponse.getDeletedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
+              "Skipping versioning deleted metacards with ids: {}",
+              deleteResponse.getDeletedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
       return deleteResponse;
     }
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
-          "Versioning following deleted metacards: {}",
-          originalMetacards.stream().map(Metacard::getId).collect(TO_A_STRING));
+              "Versioning following deleted metacards: {}",
+              originalMetacards.stream().map(Metacard::getId).collect(TO_A_STRING));
     }
 
     // [OriginalMetacardId: Original Metacard]
     Map<String, Metacard> originalMetacardsMap =
-        originalMetacards.stream()
-            .collect(
-                Collectors.toMap(
-                    Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
+            originalMetacards.stream()
+                    .collect(
+                            Collectors.toMap(
+                                    Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
 
     // [ContentItem.getId: content items]
     Map<String, List<ContentItem>> contentItems =
-        getContent(getReadStorageRequests(originalMetacards));
+            getContent(getReadStorageRequests(originalMetacards));
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
-          "Got content under the following ID's: {}",
-          contentItems.keySet().stream().collect(TO_A_STRING));
+              "Got content under the following ID's: {}",
+              contentItems.keySet().stream().collect(TO_A_STRING));
     }
 
     Function<String, Action> getAction =
-        id -> contentItems.containsKey(id) ? Action.DELETED_CONTENT : Action.DELETED;
+            id -> contentItems.containsKey(id) ? Action.DELETED_CONTENT : Action.DELETED;
     // VERSION_OF_ID is equivalent to the Original Metacard ID
     // [MetacardVersion.VERSION_OF_ID: versioned metacard]
     Map<String, Metacard> versionedMap =
-        getVersionMetacards(
-            originalMetacards,
-            getAction,
-            (Subject)
-                deleteResponse
-                    .getRequest()
-                    .getProperties()
-                    .get(SecurityConstants.SECURITY_SUBJECT));
+            getVersionMetacards(
+                    originalMetacards,
+                    getAction,
+                    (Subject)
+                            deleteResponse
+                                    .getRequest()
+                                    .getProperties()
+                                    .get(SecurityConstants.SECURITY_SUBJECT));
 
     if (LOGGER.isDebugEnabled() && !versionedMap.keySet().equals(originalMetacardsMap.keySet())) {
       LOGGER.debug(
-          "There is not a one to one mapping between original metacards and their versions!"
-              + " (Some metacards may not have been versioned or too many versions may have been created). "
-              + "More information regarding the IDs is available by setting log level to trace "
-              + "(log:set trace ddf.catalog.history)");
+              "There is not a one to one mapping between original metacards and their versions!"
+                      + " (Some metacards may not have been versioned or too many versions may have been created). "
+                      + "More information regarding the IDs is available by setting log level to trace "
+                      + "(log:set trace ddf.catalog.history)");
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace(
-            "Original Metacards: {}",
-            originalMetacards.stream().map(Metacard::getId).collect(TO_A_STRING));
+                "Original Metacards: {}",
+                originalMetacards.stream().map(Metacard::getId).collect(TO_A_STRING));
         LOGGER.trace("Version Metacards: {}", versionedMap.keySet().stream().collect(TO_A_STRING));
       }
     }
@@ -372,51 +386,59 @@ public class Historian {
       setResourceUriForContent(/*Mutable*/ versionedMap, createStorageResponse);
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace(
-            "Successfully stored content under ids: {}",
-            createStorageResponse.getCreatedContentItems());
+                "Successfully stored content under ids: {}",
+                createStorageResponse.getCreatedContentItems());
       }
     }
 
     executeAsSystem(
-        () ->
-            catalogProvider()
-                .create(new CreateRequestImpl(new ArrayList<>(versionedMap.values()))));
+            () ->
+                    catalogProvider()
+                            .create(new CreateRequestImpl(new ArrayList<>(versionedMap.values()))));
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
-          "Successfully created versioned metacards under ids: {}",
-          versionedMap.values().stream().map(Metacard::getId).collect(TO_A_STRING));
+              "Successfully created versioned metacards under ids: {}",
+              versionedMap.values().stream().map(Metacard::getId).collect(TO_A_STRING));
     }
 
     String userid =
-        subjectIdentity.getUniqueIdentifier(
-            (Subject) deleteResponse.getProperties().get(SecurityConstants.SECURITY_SUBJECT));
+            subjectIdentity.getUniqueIdentifier(
+                    (Subject) deleteResponse.getProperties().get(SecurityConstants.SECURITY_SUBJECT));
     List<Metacard> deletionMetacards =
-        versionedMap.entrySet().stream()
-            .map(
-                s ->
-                    new DeletedMetacardImpl(
-                        uuidGenerator.generateUuid(),
-                        s.getKey(),
-                        userid,
-                        s.getValue().getId(),
-                        originalMetacardsMap.get(s.getKey())))
-            .collect(Collectors.toList());
+            versionedMap.entrySet().stream()
+                    .map(
+                            s ->
+                                    new DeletedMetacardImpl(
+                                            uuidGenerator.generateUuid(),
+                                            s.getKey(),
+                                            userid,
+                                            s.getValue().getId(),
+                                            originalMetacardsMap.get(s.getKey())))
+                    .collect(Collectors.toList());
 
     CreateResponse deletionMetacardsCreateResponse =
-        executeAsSystem(
-            () ->
-                catalogProvider()
-                    .create(new CreateRequestImpl(deletionMetacards, new HashMap<>())));
+            executeAsSystem(
+                    () ->
+                            catalogProvider()
+                                    .create(new CreateRequestImpl(deletionMetacards, new HashMap<>())));
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
-          "Successfully created deletion metacards under ids: {}",
-          deletionMetacardsCreateResponse.getCreatedMetacards().stream()
-              .map(Metacard::getId)
-              .collect(TO_A_STRING));
+              "Successfully created deletion metacards under ids: {}",
+              deletionMetacardsCreateResponse.getCreatedMetacards().stream()
+                      .map(Metacard::getId)
+                      .collect(TO_A_STRING));
     }
 
     return deleteResponse;
+  }
+
+  private boolean isNotBlackListedUpdate(Metacard metacard) {
+    return !skipUpdateMetacardTypes.contains(metacard.getMetacardType().getName());
+  }
+
+  private boolean isNotBlackListedDelete(Metacard metacard) {
+    return !skipDeleteMetacardTypes.contains(metacard.getMetacardType().getName());
   }
 
   public boolean isHistoryEnabled() {
@@ -443,10 +465,6 @@ public class Historian {
     this.catalogProviders = catalogProviders;
   }
 
-  public void setFilterBuilder(FilterBuilder filterBuilder) {
-    this.filterBuilder = filterBuilder;
-  }
-
   public void setUuidGenerator(UuidGenerator uuidGenerator) {
     this.uuidGenerator = uuidGenerator;
   }
@@ -465,22 +483,22 @@ public class Historian {
 
   public void setSkipFlag(@Nullable Operation op) {
     Optional.ofNullable(op)
-        .map(Operation::getProperties)
-        .ifPresent(p -> p.put(SKIP_VERSIONING, true));
+            .map(Operation::getProperties)
+            .ifPresent(p -> p.put(SKIP_VERSIONING, true));
   }
 
   private Map<String, Metacard> query(Filter filter) throws UnsupportedQueryException {
     SourceResponse response =
-        catalogProvider()
-            .query(
-                new QueryRequestImpl(
-                    new QueryImpl(filter, 1, 250, null, false, TimeUnit.SECONDS.toMillis(10))));
+            catalogProvider()
+                    .query(
+                            new QueryRequestImpl(
+                                    new QueryImpl(filter, 1, 250, null, false, TimeUnit.SECONDS.toMillis(10))));
 
     return response.getResults().stream()
-        .map(Result::getMetacard)
-        .filter(Objects::nonNull)
-        .collect(
-            Collectors.toMap(Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
+            .map(Result::getMetacard)
+            .filter(Objects::nonNull)
+            .collect(
+                    Collectors.toMap(Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
   }
 
   /*
@@ -489,26 +507,26 @@ public class Historian {
    */
   private Map<String, List<ContentItem>> getContent(Collection<ReadStorageRequest> ids) {
     return ids.stream()
-        .map(this::getStorageItem)
-        .filter(Objects::nonNull)
-        .map(ReadStorageResponse::getContentItem)
-        .filter(Objects::nonNull)
-        .collect(
-            Collectors.toMap(
-                ContentItem::getId,
-                Lists::newArrayList,
-                (l, r) -> {
-                  l.addAll(r);
-                  return l;
-                }));
+            .map(this::getStorageItem)
+            .filter(Objects::nonNull)
+            .map(ReadStorageResponse::getContentItem)
+            .filter(Objects::nonNull)
+            .collect(
+                    Collectors.toMap(
+                            ContentItem::getId,
+                            Lists::newArrayList,
+                            (l, r) -> {
+                              l.addAll(r);
+                              return l;
+                            }));
   }
 
   private List<ReadStorageRequest> getReadStorageRequests(List<Metacard> metacards) {
     return metacards.stream()
-        .filter(m -> m.getResourceURI() != null)
-        .filter(m -> ContentItem.CONTENT_SCHEME.equals(m.getResourceURI().getScheme()))
-        .map(m -> new ReadStorageRequestImpl(m.getResourceURI(), m.getId(), new HashMap<>()))
-        .collect(Collectors.toList());
+            .filter(m -> m.getResourceURI() != null)
+            .filter(m -> ContentItem.CONTENT_SCHEME.equals(m.getResourceURI().getScheme()))
+            .map(m -> new ReadStorageRequestImpl(m.getResourceURI(), m.getId(), new HashMap<>()))
+            .collect(Collectors.toList());
   }
 
   private ReadStorageResponse getStorageItem(ReadStorageRequest r) {
@@ -516,23 +534,23 @@ public class Historian {
       return storageProvider().read(r);
     } catch (StorageException e) {
       LOGGER.debug(
-          "could not get storage item for metacard (id: {})(uri: {})",
-          LogSanitizer.sanitize(r.getId()),
-          LogSanitizer.sanitize(r.getResourceUri()),
-          e);
+              "could not get storage item for metacard (id: {})(uri: {})",
+              LogSanitizer.sanitize(r.getId()),
+              LogSanitizer.sanitize(r.getResourceUri()),
+              e);
     }
     return null;
   }
 
   @Nullable
   private CreateStorageResponse versionContentItems(
-      Map<String, List<ContentItem>> items, Map<String, Metacard> versionedMetacards)
-      throws SourceUnavailableException, IngestException {
+          Map<String, List<ContentItem>> items, Map<String, Metacard> versionedMetacards)
+          throws SourceUnavailableException, IngestException {
     List<ContentItem> contentItems =
-        items.entrySet().stream()
-            .map(e -> getVersionedContentItems(e.getValue(), versionedMetacards))
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            items.entrySet().stream()
+                    .map(e -> getVersionedContentItems(e.getValue(), versionedMetacards))
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
 
     if (contentItems.isEmpty()) {
       LOGGER.debug("No content items to version");
@@ -540,20 +558,20 @@ public class Historian {
     }
 
     CreateStorageResponse createStorageResponse =
-        executeAsSystem(
-            () ->
-                storageProvider()
-                    .create(new CreateStorageRequestImpl(contentItems, new HashMap<>())));
+            executeAsSystem(
+                    () ->
+                            storageProvider()
+                                    .create(new CreateStorageRequestImpl(contentItems, new HashMap<>())));
     tryCommitStorage(createStorageResponse);
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
-          "Successfully stored resources: {}", createStorageResponse.getCreatedContentItems());
+              "Successfully stored resources: {}", createStorageResponse.getCreatedContentItems());
     }
     return createStorageResponse;
   }
 
   private void tryCommitStorage(CreateStorageResponse createStorageResponse)
-      throws IngestException {
+          throws IngestException {
     try {
       storageProvider().commit(createStorageResponse.getStorageRequest());
     } catch (StorageException e) {
@@ -568,53 +586,53 @@ public class Historian {
   }
 
   private List<ContentItemImpl> getVersionedContentItems(
-      List<ContentItem> entry, Map<String, Metacard> versionedMetacards) {
+          List<ContentItem> entry, Map<String, Metacard> versionedMetacards) {
     return entry.stream()
-        .map(content -> createContentItem(content, versionedMetacards))
-        .collect(Collectors.toList());
+            .map(content -> createContentItem(content, versionedMetacards))
+            .collect(Collectors.toList());
   }
 
   private ContentItemImpl createContentItem(
-      ContentItem content, Map<String, Metacard> versionedMetacards) {
+          ContentItem content, Map<String, Metacard> versionedMetacards) {
     long size = 0;
     try {
       size = content.getSize();
     } catch (IOException e) {
       LOGGER.debug(
-          "Could not get size of file. (file: {}) (id: {})",
-          content.getFilename(),
-          content.getId(),
-          e);
+              "Could not get size of file. (file: {}) (id: {})",
+              content.getFilename(),
+              content.getId(),
+              e);
     }
     return new ContentItemImpl(
-        versionedMetacards.get(content.getId()).getId(),
-        content.getQualifier(),
-        new WrappedByteSource(content),
-        content.getMimeTypeRawData(),
-        content.getFilename(),
-        size,
-        versionedMetacards.get(content.getId()));
+            versionedMetacards.get(content.getId()).getId(),
+            content.getQualifier(),
+            new WrappedByteSource(content),
+            content.getMimeTypeRawData(),
+            content.getFilename(),
+            size,
+            versionedMetacards.get(content.getId()));
   }
 
   /*Map<MetacardVersion.VERSION_OF_ID -> MetacardVersion>*/
   private Map<String, Metacard> getVersionMetacards(
-      Collection<Metacard> metacards, Function<String, Action> action, Subject subject) {
+          Collection<Metacard> metacards, Function<String, Action> action, Subject subject) {
     return metacards.stream()
-        .filter(MetacardVersionImpl::isNotVersion)
-        .filter(DeletedMetacardImpl::isNotDeleted)
-        .map(
-            metacard ->
-                new MetacardVersionImpl(
-                    uuidGenerator.generateUuid(),
-                    metacard,
-                    action.apply(metacard.getId()),
-                    subject,
-                    subjectOperations))
-        .collect(
-            Collectors.toMap(
-                MetacardVersionImpl::getVersionOfId,
-                Function.identity(),
-                Historian::firstInWinsMerge));
+            .filter(MetacardVersionImpl::isNotVersion)
+            .filter(DeletedMetacardImpl::isNotDeleted)
+            .map(
+                    metacard ->
+                            new MetacardVersionImpl(
+                                    uuidGenerator.generateUuid(),
+                                    metacard,
+                                    action.apply(metacard.getId()),
+                                    subject,
+                                    subjectOperations))
+            .collect(
+                    Collectors.toMap(
+                            MetacardVersionImpl::getVersionOfId,
+                            Function.identity(),
+                            Historian::firstInWinsMerge));
   }
 
   /**
@@ -626,8 +644,8 @@ public class Historian {
    */
   private <T> T executeAsSystem(Callable<T> func) {
     Subject systemSubject =
-        AccessController.doPrivileged(
-            (PrivilegedAction<Subject>) () -> security.runAsAdmin(security::getSystemSubject));
+            AccessController.doPrivileged(
+                    (PrivilegedAction<Subject>) () -> security.runAsAdmin(security::getSystemSubject));
 
     if (systemSubject == null) {
       throw new IllegalStateException("Could not get systemSubject to version metacards.");
@@ -638,36 +656,36 @@ public class Historian {
 
   private boolean doSkip(@Nullable Operation op) {
     return !historyEnabled
-        || op == null
-        || ((boolean)
+            || op == null
+            || ((boolean)
             Optional.of(op)
-                .map(Operation::getProperties)
-                .orElse(Collections.emptyMap())
-                .getOrDefault(SKIP_VERSIONING, false));
+                    .map(Operation::getProperties)
+                    .orElse(Collections.emptyMap())
+                    .getOrDefault(SKIP_VERSIONING, false));
   }
 
   private CreateResponse storeVersionMetacards(Map<String, Metacard> versionMetacards) {
     return executeAsSystem(
-        () ->
-            catalogProvider()
-                .create(new CreateRequestImpl(new ArrayList<>(versionMetacards.values()))));
+            () ->
+                    catalogProvider()
+                            .create(new CreateRequestImpl(new ArrayList<>(versionMetacards.values()))));
   }
 
   private void setResourceUriForContent(
-      /*mutable*/ Map<String, Metacard> versionMetacards,
-      CreateStorageResponse createStorageResponse) {
+          /*mutable*/ Map<String, Metacard> versionMetacards,
+                      CreateStorageResponse createStorageResponse) {
     for (ContentItem contentItem : createStorageResponse.getCreatedContentItems()) {
       Metacard metacard =
-          versionMetacards.values().stream()
-              .filter(m -> contentItem.getId().equals(m.getId()))
-              .findFirst()
-              .orElse(null);
+              versionMetacards.values().stream()
+                      .filter(m -> contentItem.getId().equals(m.getId()))
+                      .findFirst()
+                      .orElse(null);
 
       if (metacard == null) {
         LOGGER.debug(
-            "Could not find version metacard to set resource URI for (contentItem id: {})."
-                + " This means a contentItem has been created and it is not linked to any metacard",
-            contentItem);
+                "Could not find version metacard to set resource URI for (contentItem id: {})."
+                        + " This means a contentItem has been created and it is not linked to any metacard",
+                contentItem);
         continue;
       }
       metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, contentItem.getUri()));
@@ -676,16 +694,16 @@ public class Historian {
 
   private StorageProvider storageProvider() {
     return storageProviders.stream()
-        .findFirst()
-        .orElseThrow(
-            () -> new IllegalStateException("Cannot version metacards without a storage provider"));
+            .findFirst()
+            .orElseThrow(
+                    () -> new IllegalStateException("Cannot version metacards without a storage provider"));
   }
 
   private CatalogProvider catalogProvider() {
     return catalogProviders.stream()
-        .findFirst()
-        .orElseThrow(
-            () -> new IllegalStateException("Cannot version metacards without a storage provider"));
+            .findFirst()
+            .orElseThrow(
+                    () -> new IllegalStateException("Cannot version metacards without a storage provider"));
   }
 
   /** Returns a String representation of the map Keys */
@@ -700,34 +718,34 @@ public class Historian {
   private static Metacard firstInWinsMerge(Metacard oldMetacard, Metacard newMetacard) {
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug(
-          "While merging results into a map, there was a duplicate (conflict) of metacards with the same id ({}). For full metacard set logging to trace `log:set TRACE ddf.catalog.history`.",
-          LogSanitizer.sanitize(oldMetacard.getId()));
+              "While merging results into a map, there was a duplicate (conflict) of metacards with the same id ({}). For full metacard set logging to trace `log:set TRACE ddf.catalog.history`.",
+              LogSanitizer.sanitize(oldMetacard.getId()));
     }
 
     if (LOGGER.isTraceEnabled()) {
       // TODO (DDF-3845) - This should be removed when we have a logging utility library.
       Function<Metacard, String> metacardToString =
-          (metacard) ->
-              metacard.getMetacardType().getAttributeDescriptors().stream()
-                  .map(AttributeDescriptor::getName)
-                  .map(oldMetacard::getAttribute)
-                  .filter(Objects::nonNull)
-                  .map(
-                      (attribute) ->
-                          new StringBuilder()
-                              .append(attribute.getName())
-                              .append("=")
-                              .append(
-                                  attribute.getValues() == null
-                                      ? "null"
-                                      : attribute.getValues().stream()
-                                          .map(Object::toString)
-                                          .collect(Collectors.joining(", ", "{", "}"))))
-                  .collect(Collectors.joining(", ", "{", "}"));
+              (metacard) ->
+                      metacard.getMetacardType().getAttributeDescriptors().stream()
+                              .map(AttributeDescriptor::getName)
+                              .map(oldMetacard::getAttribute)
+                              .filter(Objects::nonNull)
+                              .map(
+                                      (attribute) ->
+                                              new StringBuilder()
+                                                      .append(attribute.getName())
+                                                      .append("=")
+                                                      .append(
+                                                              attribute.getValues() == null
+                                                                      ? "null"
+                                                                      : attribute.getValues().stream()
+                                                                      .map(Object::toString)
+                                                                      .collect(Collectors.joining(", ", "{", "}"))))
+                              .collect(Collectors.joining(", ", "{", "}"));
       LOGGER.trace(
-          "Old Metacard: {}\nNew Metacard: {}",
-          LogSanitizer.sanitize(metacardToString.apply(oldMetacard)),
-          LogSanitizer.sanitize(metacardToString.apply(newMetacard)));
+              "Old Metacard: {}\nNew Metacard: {}",
+              LogSanitizer.sanitize(metacardToString.apply(oldMetacard)),
+              LogSanitizer.sanitize(metacardToString.apply(newMetacard)));
     }
 
     // return metacard already there (the first one or "old" metacard)
