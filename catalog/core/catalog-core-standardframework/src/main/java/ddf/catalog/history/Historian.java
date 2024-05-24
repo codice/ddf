@@ -105,17 +105,17 @@ public class Historian {
           .or(DeletedMetacardImpl::isDeleted)
           .negate();
 
-  private static final String SKIP_UPDATE_PROPERTY =
+  public static final String SKIP_UPDATE_PROPERTY =
       "org.codice.ddf.history.update.blacklist.metacardTypes";
 
-  private static final String SKIP_DELETE_PROPERTY =
+  public static final String SKIP_DELETE_PROPERTY =
       "org.codice.ddf.history.deletes.blacklist.metacardTypes";
 
   private final Set<String> skipUpdateMetacardTypes =
-      Sets.newHashSet(System.getProperty(SKIP_UPDATE_PROPERTY, "").split("\\s*,\\s*"));
+      Sets.newHashSet(System.getProperty(SKIP_UPDATE_PROPERTY, "").trim().split(","));
 
   private final Set<String> skipDeleteMetacardTypes =
-      Sets.newHashSet(System.getProperty(SKIP_DELETE_PROPERTY, "").split("\\s*,\\s*"));
+      Sets.newHashSet(System.getProperty(SKIP_DELETE_PROPERTY, "").trim().split(","));
 
   private List<StorageProvider> storageProviders;
 
@@ -237,6 +237,7 @@ public class Historian {
             .filter(ci -> StringUtils.isBlank(ci.getQualifier()))
             .map(ContentItem::getMetacard)
             .filter(Objects::nonNull)
+            .filter(this::isNotBlackListedUpdate)
             .filter(isNotVersionNorDeleted)
             .collect(Collectors.toList());
 
@@ -255,7 +256,6 @@ public class Historian {
     Map<String, Metacard> originalMetacards =
         updateResponse.getUpdatedMetacards().stream()
             .map(Update::getOldMetacard)
-            .filter(this::isNotBlackListedDelete)
             .collect(
                 Collectors.toMap(
                     Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
@@ -329,6 +329,7 @@ public class Historian {
 
     List<Metacard> originalMetacards =
         deleteResponse.getDeletedMetacards().stream()
+            .filter(this::isNotBlackListedDelete)
             .filter(isNotVersionNorDeleted)
             .collect(Collectors.toList());
 

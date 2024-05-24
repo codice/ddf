@@ -13,9 +13,11 @@
  */
 package ddf.catalog.history;
 
+import static ddf.catalog.data.impl.MetacardImpl.BASIC_METACARD;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,10 +44,13 @@ import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.core.versioning.impl.DeletedMetacardImpl;
 import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
@@ -70,13 +75,18 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.security.Security;
@@ -106,6 +116,9 @@ public class HistorianTest {
 
   @Before
   public void setup() {
+    System.setProperty(Historian.SKIP_UPDATE_PROPERTY, "blacklisted,no-way");
+    System.setProperty(Historian.SKIP_DELETE_PROPERTY, "blacklisted,no-way");
+
     historian = new Historian();
 
     uuidGenerator = mock(UuidGenerator.class);
@@ -160,13 +173,51 @@ public class HistorianTest {
   @Test
   public void testUpdateResponseSkipProperty() throws SourceUnavailableException, IngestException {
     Map<String, Serializable> properties = new HashMap<>();
-    properties.put(MetacardVersion.SKIP_VERSIONING, true);
 
     UpdateResponse updateResponse = createUpdateResponse(properties);
 
     historian.version(updateResponse);
     verifyZeroInteractions(catalogProvider);
   }
+
+  @Test
+  public void testUpdateResponseBlacklist() throws IngestException {
+    Map<String, Serializable> properties = new HashMap<>();
+    UpdateResponse updateResponse = createUpdateResponse(properties);
+
+    List<Update> updateList =
+        createUpdatedMetacardListTyped("allowed", "blacklisted", "right-this-way", "no-way");
+    when(updateResponse.getUpdatedMetacards()).thenReturn(updateList);
+
+    historian.version(updateResponse);
+    ArgumentCaptor<CreateRequest> createRequest = ArgumentCaptor.forClass(CreateRequest.class);
+    verify(catalogProvider).create(createRequest.capture());
+    List<String> versionedTypes = createRequest.getValue().getMetacards().stream().map(metacard -> (String) metacard.getAttribute("metacard.version.type").getValue()).collect(Collectors.toList());
+    assertThat(versionedTypes, not(hasItem("blacklisted")));
+    assertThat(versionedTypes, not(hasItem("no-way")));
+  }
+
+  @Test
+  public void testDeleteResponseBlacklist() throws IngestException, StorageException, SourceUnavailableException {
+    Metacard metacard = getMetacardUpdatePairTyped("allowed").get(0);
+    storeMetacard(metacard);
+
+    // Send a delete request
+    DeleteStorageRequest deleteStorageRequest =
+            new DeleteStorageRequestImpl(Collections.singletonList(metacard), new HashMap<>());
+    storageProvider.delete(deleteStorageRequest);
+
+    // Version delete request
+    DeleteRequest deleteRequest = new DeleteRequestImpl("deleteRequest");
+    DeleteResponse deleteResponse =
+            new DeleteResponseImpl(deleteRequest, new HashMap<>(), Collections.singletonList(metacard));
+    historian.version(deleteResponse);
+
+    // Only the version metacard is left
+    assertThat(storageProvider.storageMap.size(), equalTo(1));
+  }
+
+
 
   @Test
   public void testUpdateResponse() throws Exception {
@@ -574,6 +625,15 @@ public class HistorianTest {
     return Collections.singletonList(new UpdateImpl(metacards.get(1), metacards.get(0)));
   }
 
+  private List<Update> createUpdatedMetacardListTyped(String... metacardTypes) {
+    List<Update> updates = new ArrayList<>();
+    for (String type : metacardTypes) {
+      List<Metacard> metacards = getMetacardUpdatePairTyped(type);
+      updates.add(new UpdateImpl(metacards.get(1), metacards.get(0)));
+    }
+    return updates;
+  }
+
   private List<Metacard> getMetacardUpdatePair() {
     Metacard old = new MetacardImpl();
     old.setAttribute(new AttributeImpl(Metacard.ID, METACARD_ID));
@@ -581,6 +641,22 @@ public class HistorianTest {
 
     Metacard update = new MetacardImpl();
     update.setAttribute(new AttributeImpl(Metacard.ID, METACARD_ID));
+    update.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, RESOURCE_URI));
+    update.setAttribute(new AttributeImpl(Metacard.DESCRIPTION, UPDATE_DESCRIPTION));
+
+    return Arrays.asList(old, update);
+  }
+
+  private List<Metacard> getMetacardUpdatePairTyped(String metacardType) {
+    MetacardType type = new MetacardTypeImpl(metacardType, BASIC_METACARD.getAttributeDescriptors());
+
+    Metacard old = new MetacardImpl(type);
+    old.setAttribute(new AttributeImpl(Metacard.ID, METACARD_ID + metacardType));
+    old.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, RESOURCE_URI));
+
+
+    Metacard update = new MetacardImpl(type);
+    update.setAttribute(new AttributeImpl(Metacard.ID, METACARD_ID + metacardType));
     update.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, RESOURCE_URI));
     update.setAttribute(new AttributeImpl(Metacard.DESCRIPTION, UPDATE_DESCRIPTION));
 
