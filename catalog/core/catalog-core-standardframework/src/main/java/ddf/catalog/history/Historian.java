@@ -112,10 +112,12 @@ public class Historian {
       "org.codice.ddf.history.deletes.blacklist.metacardTypes";
 
   private final Set<String> skipUpdateMetacardTypes =
-      Sets.newHashSet(System.getProperty(SKIP_UPDATE_PROPERTY, "").trim().split(","));
+      Sets.newHashSet(
+          System.getProperty(SKIP_UPDATE_PROPERTY, "").replaceAll("\\s+", "").split(","));
 
   private final Set<String> skipDeleteMetacardTypes =
-      Sets.newHashSet(System.getProperty(SKIP_DELETE_PROPERTY, "").trim().split(","));
+      Sets.newHashSet(
+          System.getProperty(SKIP_DELETE_PROPERTY, "").replaceAll("\\s+", "").split(","));
 
   private List<StorageProvider> storageProviders;
 
@@ -176,8 +178,8 @@ public class Historian {
     List<Metacard> inputMetacards =
         updateResponse.getUpdatedMetacards().stream()
             .map(Update::getOldMetacard)
-            .filter(this::isNotBlackListedUpdate)
             .filter(isNotVersionNorDeleted)
+            .filter(this::isNotBlackListedUpdate)
             .collect(Collectors.toList());
 
     if (inputMetacards.isEmpty()) {
@@ -237,8 +239,8 @@ public class Historian {
             .filter(ci -> StringUtils.isBlank(ci.getQualifier()))
             .map(ContentItem::getMetacard)
             .filter(Objects::nonNull)
-            .filter(this::isNotBlackListedUpdate)
             .filter(isNotVersionNorDeleted)
+            .filter(this::isNotBlackListedUpdate)
             .collect(Collectors.toList());
 
     if (updatedMetacards.isEmpty()) {
@@ -329,8 +331,8 @@ public class Historian {
 
     List<Metacard> originalMetacards =
         deleteResponse.getDeletedMetacards().stream()
-            .filter(this::isNotBlackListedDelete)
             .filter(isNotVersionNorDeleted)
+            .filter(this::isNotBlackListedDelete)
             .collect(Collectors.toList());
 
     if (originalMetacards.isEmpty()) {
