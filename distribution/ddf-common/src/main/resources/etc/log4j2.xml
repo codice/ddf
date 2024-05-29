@@ -63,6 +63,16 @@
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
 
+        <RollingFile name="queryMetrics" append="true"
+                     fileName="${sys:karaf.log}/query_metrics.log"
+                     filePattern="${sys:karaf.log}/query_metrics.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+            <PatternLayout pattern="${log4j2.pattern}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
         <RollingFile name="securityMain" append="true" ignoreExceptions="false"
                      fileName="${sys:karaf.log}/security.log"
                      filePattern="${sys:karaf.log}/security.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
@@ -120,6 +130,12 @@
 
         <Logger name="cdmLogger" level="info" additivity="false">
             <AppenderRef ref="cdm"/>
+            <AppenderRef ref="syslog"/>
+            <AppenderRef ref="osgi-platformLogging"/>
+        </Logger>
+
+        <Logger name="queryLogger" level="info" additivity="false">
+            <AppenderRef ref="queryMetrics"/>
             <AppenderRef ref="syslog"/>
             <AppenderRef ref="osgi-platformLogging"/>
         </Logger>

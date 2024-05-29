@@ -127,6 +127,8 @@ public final class Constants {
 
   public static final String CDM_LOGGER_NAME = "cdmLogger";
 
+  public static final String QUERY_LOGGER_NAME = "queryLogger";
+
   public static final String REMOTE_DESTINATION_KEY = "remote-destination";
 
   public static final String LOCAL_DESTINATION_KEY = "local-destination";

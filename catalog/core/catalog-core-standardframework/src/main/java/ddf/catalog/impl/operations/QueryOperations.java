@@ -13,6 +13,8 @@
  */
 package ddf.catalog.impl.operations;
 
+import static ddf.catalog.Constants.QUERY_LOGGER_NAME;
+
 import ddf.catalog.Constants;
 import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
@@ -92,6 +94,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QueryOperations extends DescribableImpl {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryOperations.class);
+  private static final Logger QUERY_LOGGER = LoggerFactory.getLogger(QUERY_LOGGER_NAME);
 
   public static final String QMB = "qm.";
   public static final String QM_TRACEID = QMB + "trace-id";
@@ -231,7 +234,6 @@ public class QueryOperations extends DescribableImpl {
       queryResponse = doQuery(queryRequest, fedStrategy);
       long elapsedTime = System.nanoTime() - start;
       putMetricsDuration(queryResponse, QMB + "do-query" + QM_ELAPSED, elapsedTime);
-      LOGGER.trace("After doQuery: trace-id {}, duration {} ns", traceId, elapsedTime);
 
       // Allow callers to determine the total results returned from the query; this value
       // may differ from the number of filtered results after processing plugins have been run.
@@ -274,12 +276,12 @@ public class QueryOperations extends DescribableImpl {
         }
       }
     }
-    if (LOGGER.isDebugEnabled()) {
+    if (QUERY_LOGGER.isDebugEnabled()) {
       // Combine the request and response metrics to log
       Map<String, Serializable> allMetrics =
           collectQueryMetrics(
               queryResponse.getRequest().getProperties(), queryResponse.getProperties());
-      LOGGER.debug("QueryMetrics: {}", serializeMetrics(allMetrics, QMB));
+      QUERY_LOGGER.debug("QueryMetrics: {}", serializeMetrics(allMetrics, QMB));
     }
   }
 
