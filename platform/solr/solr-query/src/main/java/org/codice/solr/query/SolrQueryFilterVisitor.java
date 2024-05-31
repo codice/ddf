@@ -13,6 +13,8 @@
  */
 package org.codice.solr.query;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.filter.FilterDelegate;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,11 +35,14 @@ import org.opengis.filter.PropertyIsGreaterThan;
 import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
 import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLessThanOrEqualTo;
+import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.PropertyIsNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
+
+  private static final String SOLR_WILDCARD_CHAR = "*";
 
   public static final String TOKENIZED_METADATA_FIELD =
       "metadata_txt" + SchemaFieldResolver.TOKENIZED;
@@ -179,6 +184,65 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
   @Override
   public Object visit(PropertyIsLessThanOrEqualTo filter, Object data) {
     return processComparisonOperator(filter, " %s:[ * TO %s ] ");
+  }
+
+  @Override
+  public Object visit(PropertyIsLike filter, Object data) {
+
+    ExpressionValueVisitor expressionVisitor = new ExpressionValueVisitor();
+
+    String propertyName = (String) filter.getExpression().accept(expressionVisitor, null);
+
+    String wildcard = filter.getWildCard();
+    String singleChar = filter.getSingleChar();
+    String escapeChar = filter.getEscape();
+
+    String pattern = normalizePattern(filter.getLiteral(), wildcard, singleChar, escapeChar);
+
+    String mappedPropertyName = getMappedPropertyName(propertyName);
+
+    String searchPhrase = escapeSpecialCharacters(pattern);
+
+    boolean isAnyText = Metacard.ANY_TEXT.equals(propertyName);
+
+    if (isAnyText && SOLR_WILDCARD_CHAR.equals(searchPhrase)) {
+      return new SolrQuery("*:*");
+    }
+
+    return new SolrQuery(mappedPropertyName + SchemaFieldResolver.TOKENIZED + ":" + searchPhrase);
+  }
+
+  @SuppressWarnings("java:S127")
+  private String normalizePattern(
+      String pattern, String wildcard, String singleChar, String escapeChar) {
+    StringBuilder sb = new StringBuilder(pattern.length());
+    for (int i = 0; i < pattern.length(); i++) {
+      char c = pattern.charAt(i);
+      if (c == escapeChar.charAt(0)) {
+        if (i + 1 < pattern.length()) {
+          i++;
+          String next = Character.toString(pattern.charAt(i));
+          if (next.equals(FilterDelegate.WILDCARD_CHAR)
+              || next.equals(FilterDelegate.SINGLE_CHAR)
+              || next.equals(FilterDelegate.ESCAPE_CHAR)) {
+            // target normalized character needs to be escaped
+            sb.append(FilterDelegate.ESCAPE_CHAR);
+            sb.append(next);
+          } else {
+            // escaped character is not a normalized character
+            // and does not need to be escaped anymore
+            sb.append(next);
+          }
+        }
+      } else if (c == singleChar.charAt(0)) {
+        sb.append(FilterDelegate.SINGLE_CHAR);
+      } else if (c == wildcard.charAt(0)) {
+        sb.append(FilterDelegate.WILDCARD_CHAR);
+      } else {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
   }
 
   SolrQuery processComparisonOperator(BinaryComparisonOperator filter, String solrQuery) {
