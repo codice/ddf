@@ -160,20 +160,24 @@ public class HistorianTest {
   }
 
   @Test
-  public void testUpdateResponseSetSkipFlag() {
-    Map<String, Serializable> properties = new HashMap<>();
-    UpdateResponse updateResponse = createUpdateResponse(properties);
+  public void testUpdateResponseSetSkipFlag() throws SourceUnavailableException, IngestException {
+    UpdateResponse updateResponse = createUpdateResponse(null);
+    List<Update> updateList = createUpdatedMetacardList();
+    when(updateResponse.getUpdatedMetacards()).thenReturn(updateList);
 
     historian.version(updateResponse);
 
-    assertThat(properties, hasEntry(MetacardVersion.SKIP_VERSIONING, true));
+    assertThat(updateResponse.getProperties(), hasEntry(MetacardVersion.SKIP_VERSIONING, true));
   }
 
   @Test
-  public void testUpdateResponseSkipProperty() {
+  public void testUpdateResponseSkipProperty() throws SourceUnavailableException, IngestException {
     Map<String, Serializable> properties = new HashMap<>();
+    properties.put(MetacardVersion.SKIP_VERSIONING, true);
 
     UpdateResponse updateResponse = createUpdateResponse(properties);
+    List<Update> updateList = createUpdatedMetacardList();
+    when(updateResponse.getUpdatedMetacards()).thenReturn(updateList);
 
     historian.version(updateResponse);
     verifyZeroInteractions(catalogProvider);
@@ -475,8 +479,12 @@ public class HistorianTest {
     Map<String, Serializable> properties = new HashMap<>();
     properties.put(MetacardVersion.SKIP_VERSIONING, true);
 
-    DeleteResponse deleteResponse = mock(DeleteResponse.class);
-    when(deleteResponse.getProperties()).thenReturn(properties);
+    DeleteRequest deleteRequest = mock(DeleteRequest.class);
+    when(deleteRequest.getProperties()).thenReturn(properties);
+
+    Metacard metacard = getMetacardUpdatePair().get(0);
+    DeleteResponse deleteResponse =
+        new DeleteResponseImpl(deleteRequest, new HashMap<>(), Collections.singletonList(metacard));
 
     historian.version(deleteResponse);
     verifyZeroInteractions(catalogProvider);
@@ -678,10 +686,9 @@ public class HistorianTest {
     assertThat(update, equalTo(metacards.get(1)));
   }
 
-  private UpdateResponse createUpdateResponse(Map<String, Serializable> responseProperties) {
-    Map<String, Serializable> requestProperties = new HashMap<>();
-    if (responseProperties == null) {
-      responseProperties = new HashMap<>();
+  private UpdateResponse createUpdateResponse(Map<String, Serializable> requestProperties) {
+    if (requestProperties == null) {
+      requestProperties = new HashMap<>();
     }
 
     UpdateResponse updateResponse = mock(UpdateResponse.class);
@@ -689,7 +696,7 @@ public class HistorianTest {
 
     when(request.getProperties()).thenReturn(requestProperties);
     when(updateResponse.getRequest()).thenReturn(request);
-    when(updateResponse.getProperties()).thenReturn(responseProperties);
+    when(updateResponse.getProperties()).thenReturn(new HashMap<>());
 
     return updateResponse;
   }
