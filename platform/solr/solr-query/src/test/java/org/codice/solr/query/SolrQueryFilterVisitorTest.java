@@ -120,12 +120,6 @@ public class SolrQueryFilterVisitorTest {
     solrVisitor.visit(or, null);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testOrWithInvalidQuery() throws Exception {
-    Filter filter = ECQL.toFilter("property = 'val' OR otherProp LIKE 'val2'");
-    filter.accept(solrVisitor, null);
-  }
-
   @Test
   public void testInSingleParam() throws Exception {
     // this is effectively an or with a single param which is allowed
@@ -138,7 +132,7 @@ public class SolrQueryFilterVisitorTest {
   public void testUnsupportedQuery() throws Exception {
     Filter filter = ECQL.toFilter("property LIKE 'val*'");
     SolrQuery solrQuery = (SolrQuery) filter.accept(solrVisitor, null);
-    assertThat(solrQuery, equalTo(null));
+    assertThat(solrQuery.getQuery().trim(), equalTo("property_txt_tokenized:val*"));
   }
 
   @Test

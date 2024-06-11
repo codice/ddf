@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -138,13 +137,6 @@ public class PersistentStoreImplTest {
   @Test(expected = IllegalArgumentException.class)
   public void testGetWithInvalidPageSize() throws Exception {
     persistentStore.get("testcore", "", 0, 5000);
-  }
-
-  @Test(expected = PersistenceException.class)
-  public void testGetInvalidQuery() throws Exception {
-    List<Map<String, Object>> items = persistentStore.get("testcore", "property LIKE 'value'");
-    assertThat(items.size(), equalTo(1));
-    verify(solrClient, never()).query(any(), eq(SolrRequest.METHOD.POST));
   }
 
   private SolrDocumentList getSolrDocuments(int numDocuments) {
