@@ -199,7 +199,6 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
     long startTime = System.nanoTime();
     SourceResponse response = client.query(request);
     long elapsedTime = System.nanoTime() - startTime;
-    LOGGER.debug("Time elapsed for Query with trace-id {} - {} ns", traceId, elapsedTime);
     response.getProperties().put(SQMB + "query" + QM_ELAPSED, elapsedTime);
     return response;
   }

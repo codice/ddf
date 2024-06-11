@@ -62,7 +62,6 @@ public class TimedSource implements Source {
 
     // get the elapsed time in ms (rounded by adding 1/2 a ms -> 500000)
     int elapsedTime = Math.toIntExact(((endTime + 500000) - startTime) / 1000000);
-    LOGGER.trace("Query latency for source [{}] was {}ms.", source.getId(), elapsedTime);
     String sourceLatencyMetricKey = METRICS_SOURCE_ELAPSED_PREFIX_API + source.getId();
     Map<String, Serializable> props = result.getProperties();
     props.put(sourceLatencyMetricKey, elapsedTime);
