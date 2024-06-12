@@ -41,6 +41,7 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Operation;
+import ddf.catalog.operation.Response;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
@@ -663,11 +664,12 @@ public class Historian {
     return systemSubject.execute(func);
   }
 
-  private boolean doSkip(@Nullable Operation op) {
+  private boolean doSkip(@Nullable Response response) {
     return !historyEnabled
-        || op == null
+        || response == null
         || ((boolean)
-            Optional.of(op)
+            Optional.of(response)
+                .map(Response::getRequest)
                 .map(Operation::getProperties)
                 .orElse(Collections.emptyMap())
                 .getOrDefault(SKIP_VERSIONING, false));
