@@ -363,7 +363,7 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
       deleteListOfMetacards(deletedMetacards, identifierPaged, attributeName);
     }
 
-    return new DeleteResponseImpl(deleteRequest, deleteRequest.getProperties(), deletedMetacards);
+    return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
   }
 
   private void addFieldsFromClientToResolver(SolrClient client) {
