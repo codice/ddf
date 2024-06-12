@@ -664,16 +664,6 @@ public class Historian {
     return systemSubject.execute(func);
   }
 
-  //  private boolean doSkip(@Nullable Operation op) {
-  //    return !historyEnabled
-  //        || op == null
-  //        || ((boolean)
-  //            Optional.of(op)
-  //                .map(Operation::getProperties)
-  //                .orElse(Collections.emptyMap())
-  //                .getOrDefault(SKIP_VERSIONING, false));
-  //  }
-
   private boolean doSkip(@Nullable Response response) {
     return !historyEnabled
         || response == null
