@@ -13,9 +13,11 @@
  */
 package ddf.catalog.history;
 
+import static ddf.catalog.data.impl.MetacardImpl.BASIC_METACARD;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,9 +45,11 @@ import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.core.versioning.impl.DeletedMetacardImpl;
 import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
@@ -70,6 +74,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,9 +82,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.security.Security;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -94,6 +101,8 @@ public class HistorianTest {
 
   private static final String RESOURCE_URI = "content:example.com";
 
+  private static final String METACARD_VERSION_TYPE = "metacard.version.type";
+
   private static final String UPDATE_DESCRIPTION = "This is an updated description.";
 
   private CatalogProvider catalogProvider;
@@ -106,6 +115,9 @@ public class HistorianTest {
 
   @Before
   public void setup() {
+    System.setProperty(Historian.SKIP_UPDATE_PROPERTY, "blacklisted, no-way");
+    System.setProperty(Historian.SKIP_DELETE_PROPERTY, "blacklisted,no-way");
+
     historian = new Historian();
 
     uuidGenerator = mock(UuidGenerator.class);
@@ -148,7 +160,7 @@ public class HistorianTest {
   }
 
   @Test
-  public void testUpdateResponseSetSkipFlag() throws SourceUnavailableException, IngestException {
+  public void testUpdateResponseSetSkipFlag() {
     Map<String, Serializable> properties = new HashMap<>();
     UpdateResponse updateResponse = createUpdateResponse(properties);
 
@@ -158,14 +170,127 @@ public class HistorianTest {
   }
 
   @Test
-  public void testUpdateResponseSkipProperty() throws SourceUnavailableException, IngestException {
+  public void testUpdateResponseSkipProperty() {
     Map<String, Serializable> properties = new HashMap<>();
-    properties.put(MetacardVersion.SKIP_VERSIONING, true);
 
     UpdateResponse updateResponse = createUpdateResponse(properties);
 
     historian.version(updateResponse);
     verifyZeroInteractions(catalogProvider);
+  }
+
+  @Test
+  public void testUpdateResponseBlacklist() throws IngestException {
+    Map<String, Serializable> properties = new HashMap<>();
+    UpdateResponse updateResponse = createUpdateResponse(properties);
+
+    List<Update> updateList =
+        createUpdatedMetacardListTyped("allowed", "blacklisted", "right-this-way", "no-way");
+    when(updateResponse.getUpdatedMetacards()).thenReturn(updateList);
+
+    historian.version(updateResponse);
+    ArgumentCaptor<CreateRequest> createRequest = ArgumentCaptor.forClass(CreateRequest.class);
+    verify(catalogProvider).create(createRequest.capture());
+    List<String> versionedTypes =
+        createRequest.getValue().getMetacards().stream()
+            .map(metacard -> (String) metacard.getAttribute(METACARD_VERSION_TYPE).getValue())
+            .collect(Collectors.toList());
+    assertThat(versionedTypes, not(hasItem("blacklisted")));
+    assertThat(versionedTypes, not(hasItem("no-way")));
+  }
+
+  @Test
+  public void testDeleteResponseBlacklist()
+      throws IngestException, StorageException, SourceUnavailableException {
+    Metacard allowedMetacard = getMetacardUpdatePairTyped("allowed").get(0);
+    storeMetacard(allowedMetacard);
+
+    Metacard blacklistMetacard = getMetacardUpdatePairTyped("blacklisted").get(0);
+    storeMetacard(blacklistMetacard);
+
+    List<Metacard> storedMetacards = new ArrayList<>();
+    storedMetacards.add(allowedMetacard);
+    storedMetacards.add(blacklistMetacard);
+    // Send a delete request
+    DeleteStorageRequest deleteStorageRequest =
+        new DeleteStorageRequestImpl(storedMetacards, new HashMap<>());
+    storageProvider.delete(deleteStorageRequest);
+
+    // Version delete request
+    DeleteRequest deleteRequest = new DeleteRequestImpl("deleteRequest");
+    DeleteResponse deleteResponse =
+        new DeleteResponseImpl(deleteRequest, new HashMap<>(), storedMetacards);
+    historian.version(deleteResponse);
+
+    // Only the version metacard is left
+    List<String> storedTypes =
+        storageProvider.storageMap.values().stream()
+            .map(ContentItem::getMetacard)
+            .map(metacard -> (String) metacard.getAttribute(METACARD_VERSION_TYPE).getValue())
+            .collect(Collectors.toList());
+    assertThat(
+        storedTypes.contains(allowedMetacard.getMetacardType().getName()), Matchers.is(true));
+    assertThat(
+        storedTypes.contains(blacklistMetacard.getMetacardType().getName()), Matchers.is(false));
+  }
+
+  @Test
+  public void testUpdateStorageResponseBlacklistAllowed()
+      throws UnsupportedQueryException, SourceUnavailableException, IngestException,
+          URISyntaxException, StorageException {
+    // The metacard and updated metacard
+    List<Metacard> metacards = getMetacardUpdatePairTyped("allowed");
+
+    // Parameters for historian
+    UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
+    UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
+    UpdateResponse updateResponse = mock(UpdateResponse.class);
+    Update update1 = mock(Update.class);
+    when(update1.getOldMetacard()).thenReturn(metacards.get(0));
+    when(updateResponse.getUpdatedMetacards()).thenReturn(ImmutableList.of(update1));
+
+    storeMetacard(metacards.get(0));
+
+    // send a request to update the metacard
+    updateMetacard(storageRequest, storageResponse, metacards.get(1));
+    storageProvider.update(storageRequest);
+
+    mockQuery(metacards.get(1));
+    historian.version(storageRequest, storageResponse, updateResponse);
+
+    // Verify that the metacard updated
+    Metacard update = readMetacard(metacards.get(0).getResourceURI().toString());
+
+    assertThat(update, equalTo(metacards.get(1)));
+    assertThat(
+        storageResponse.getUpdatedContentItems().get(0).getUri(), not(equalTo(RESOURCE_URI)));
+  }
+
+  @Test
+  public void testUpdateStorageResponseBlacklisted()
+      throws UnsupportedQueryException, SourceUnavailableException, IngestException,
+          URISyntaxException, StorageException {
+    // The metacard and updated metacard
+    List<Metacard> metacards = getMetacardUpdatePairTyped("blacklisted");
+
+    // Parameters for historian
+    UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
+    UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
+    UpdateResponse updateResponse = mock(UpdateResponse.class);
+    Update update1 = mock(Update.class);
+    when(update1.getOldMetacard()).thenReturn(metacards.get(0));
+    when(updateResponse.getUpdatedMetacards()).thenReturn(ImmutableList.of(update1));
+
+    storeMetacard(metacards.get(0));
+
+    // send a request to update the metacard
+    updateMetacard(storageRequest, storageResponse, metacards.get(1));
+    storageProvider.update(storageRequest);
+
+    mockQuery(metacards.get(1));
+    historian.version(storageRequest, storageResponse, updateResponse);
+
+    verifyZeroInteractions(updateResponse);
   }
 
   @Test
@@ -270,7 +395,7 @@ public class HistorianTest {
     historian.version(storageRequest, storageResponse, updateResponse);
 
     // Verify that the metacard updated
-    Metacard update = readMetacard();
+    Metacard update = readMetacard(null);
 
     assertThat(update, equalTo(metacards.get(1)));
     assertThat(
@@ -548,7 +673,7 @@ public class HistorianTest {
     historian.version(storageRequest, storageResponse, updateResponse);
 
     // Verify that the metacard updated
-    Metacard update = readMetacard();
+    Metacard update = readMetacard(null);
 
     assertThat(update, equalTo(metacards.get(1)));
   }
@@ -574,6 +699,15 @@ public class HistorianTest {
     return Collections.singletonList(new UpdateImpl(metacards.get(1), metacards.get(0)));
   }
 
+  private List<Update> createUpdatedMetacardListTyped(String... metacardTypes) {
+    List<Update> updates = new ArrayList<>();
+    for (String type : metacardTypes) {
+      List<Metacard> metacards = getMetacardUpdatePairTyped(type);
+      updates.add(new UpdateImpl(metacards.get(1), metacards.get(0)));
+    }
+    return updates;
+  }
+
   private List<Metacard> getMetacardUpdatePair() {
     Metacard old = new MetacardImpl();
     old.setAttribute(new AttributeImpl(Metacard.ID, METACARD_ID));
@@ -583,6 +717,22 @@ public class HistorianTest {
     update.setAttribute(new AttributeImpl(Metacard.ID, METACARD_ID));
     update.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, RESOURCE_URI));
     update.setAttribute(new AttributeImpl(Metacard.DESCRIPTION, UPDATE_DESCRIPTION));
+
+    return Arrays.asList(old, update);
+  }
+
+  private List<Metacard> getMetacardUpdatePairTyped(String metacardType) {
+    MetacardType type =
+        new MetacardTypeImpl(metacardType, BASIC_METACARD.getAttributeDescriptors());
+
+    Metacard old = new MetacardImpl(type);
+    old.setAttribute(new AttributeImpl(Metacard.ID, METACARD_ID + metacardType));
+    old.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, RESOURCE_URI + metacardType));
+
+    Metacard update = new MetacardImpl(type);
+    update.setAttribute(new AttributeImpl(Metacard.ID, METACARD_ID + metacardType));
+    update.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, RESOURCE_URI + metacardType));
+    update.setAttribute(new AttributeImpl(Metacard.DESCRIPTION, UPDATE_DESCRIPTION + metacardType));
 
     return Arrays.asList(old, update);
   }
@@ -614,8 +764,8 @@ public class HistorianTest {
 
   private void storeMetacard(Metacard metacard) {
     ContentItem item = mock(ContentItem.class);
-    when(item.getId()).thenReturn(METACARD_ID);
-    when(item.getUri()).thenReturn(RESOURCE_URI);
+    when(item.getId()).thenReturn(metacard.getId());
+    when(item.getUri()).thenReturn(metacard.getResourceURI().toString());
     when(item.getMetacard()).thenReturn(metacard);
     storageProvider.storageMap.put(item.getUri(), item);
   }
@@ -630,8 +780,8 @@ public class HistorianTest {
     when(hasQualifier.getQualifier()).thenReturn("some-qualifier");
     when(emptyQualifier.getQualifier()).thenReturn("");
 
-    when(updatedItem.getId()).thenReturn(METACARD_ID);
-    when(updatedItem.getUri()).thenReturn(RESOURCE_URI);
+    when(updatedItem.getId()).thenReturn(update.getId());
+    when(updatedItem.getUri()).thenReturn(update.getResourceURI().toString());
     when(updatedItem.getMetacard()).thenReturn(update);
 
     when(request.getContentItems()).thenReturn(Collections.singletonList(updatedItem));
@@ -639,9 +789,10 @@ public class HistorianTest {
         .thenReturn(Arrays.asList(noMetacard, updatedItem, hasQualifier, emptyQualifier));
   }
 
-  private Metacard readMetacard() throws StorageException, URISyntaxException {
+  private Metacard readMetacard(String customUri) throws StorageException, URISyntaxException {
     ReadStorageRequest request = mock(ReadStorageRequest.class);
-    when(request.getResourceUri()).thenReturn(new URI(RESOURCE_URI));
+    when(request.getResourceUri())
+        .thenReturn(customUri != null ? new URI(customUri) : new URI(RESOURCE_URI));
     return storageProvider.read(request).getContentItem().getMetacard();
   }
 
