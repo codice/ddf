@@ -42,6 +42,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.apache.commons.lang3.Validate;
+import org.apache.shiro.util.ThreadContext;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,8 +196,12 @@ public class SortedFederationStrategy implements FederationStrategy {
         }
 
         QueryRequest finalSourceQueryRequest = sourceQueryRequest;
+        Map<Object, Object> originalThreadResources = ThreadContext.getResources();
         futures.put(
-            queryCompletion.submit(() -> new TimedSource(source).query(finalSourceQueryRequest)),
+            queryCompletion.submit(
+                () ->
+                    new TimedSource(source, originalThreadResources)
+                        .query(finalSourceQueryRequest)),
             sourceQueryRequest);
       }
     }
