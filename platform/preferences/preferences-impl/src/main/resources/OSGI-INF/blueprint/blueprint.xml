@@ -20,6 +20,9 @@
 
   <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
+  <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
+             filter="(id=uuidGenerator)"/>
+
   <reference-list id="postRetrievalPlugins" interface="org.codice.ddf.preferences.PostRetrievalPlugin" availability="optional"/>
 
   <reference-list id="defaultPreferenceSettings" interface="org.codice.ddf.preferences.DefaultPreferencesSupplier" availability="optional"/>
@@ -27,6 +30,7 @@
   <bean id="preferences" class="org.codice.ddf.preferences.impl.PreferencesImpl">
     <argument ref="catalogFramework"/>
     <argument ref="filterBuilder"/>
+    <argument ref="uuidGenerator"/>
     <argument ref="postRetrievalPlugins"/>
     <argument ref="defaultPreferenceSettings"/>
     <argument>
