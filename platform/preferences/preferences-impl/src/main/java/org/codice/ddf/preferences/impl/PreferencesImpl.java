@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.preferences.DefaultPreferencesSupplier;
 import org.codice.ddf.preferences.PostRetrievalPlugin;
 import org.codice.ddf.preferences.Preferences;
@@ -75,6 +76,8 @@ public class PreferencesImpl implements Preferences {
 
   private final FilterBuilder filterBuilder;
 
+  private final UuidGenerator uuidGenerator;
+
   /** These are the attributes that will be ignored from being added to the preferences metacard. */
   private static final Set<String> IGNORED_ATTRIBUTES =
       new HashSet<>(Arrays.asList(PreferencesMetacardType.USER_ATTRIBUTE, Metacard.ID));
@@ -88,11 +91,13 @@ public class PreferencesImpl implements Preferences {
   public PreferencesImpl(
       CatalogFramework catalogFramework,
       FilterBuilder filterBuilder,
+      UuidGenerator uuidGenerator,
       List<PostRetrievalPlugin> postRetrievalPlugins,
       List<DefaultPreferencesSupplier> defaultPreferencesSuppliers,
       List<InjectableAttribute> injectableAttributes) {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
+    this.uuidGenerator = uuidGenerator;
     this.postRetrievalPlugins = postRetrievalPlugins;
     this.defaultPreferencesSuppliers = defaultPreferencesSuppliers;
     this.injectableAttributes = injectableAttributes;
@@ -124,8 +129,9 @@ public class PreferencesImpl implements Preferences {
   }
 
   private Filter createFilter(String userId) {
+    String metacardId = uuidGenerator.generateKnownId(PreferencesMetacardType.TAG, userId);
     return filterBuilder.allOf(
-        filterBuilder.attribute(PreferencesMetacardType.USER_ATTRIBUTE).is().equalTo().text(userId),
+        filterBuilder.attribute(Metacard.ID).is().equalTo().text(metacardId),
         filterBuilder.attribute(Metacard.TAGS).is().equalTo().text(PreferencesMetacardType.TAG));
   }
 

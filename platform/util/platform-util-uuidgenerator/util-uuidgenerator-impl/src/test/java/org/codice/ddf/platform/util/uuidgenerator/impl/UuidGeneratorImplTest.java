@@ -15,6 +15,7 @@ package org.codice.ddf.platform.util.uuidgenerator.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +42,12 @@ public class UuidGeneratorImplTest {
           "fc3f1798fe1766fbbcc39dcfcb232e6---1",
           "fc3f1798fe17166fbbcc39dcfcb2232e61234");
 
+  private static final String TAG_ONE = "tag-one";
+
+  private static final String TAG_TWO = "tag-two";
+
+  private static final String USER_ID = "user1";
+
   @Before
   public void setUp() {
     uuidGenerator = new UuidGeneratorImpl();
@@ -59,6 +66,47 @@ public class UuidGeneratorImplTest {
     String uuid = uuidGenerator.generateUuid();
     assertThat(uuid.length(), is(36));
     assertThat(uuidGenerator.validateUuid(uuid), is(true));
+  }
+
+  @Test
+  public void testGenerateKnownIdRemoveHyphens() {
+    String uuid1 = uuidGenerator.generateKnownId(TAG_ONE, USER_ID, null);
+    String uuid2 = uuidGenerator.generateKnownId(TAG_ONE, USER_ID, null);
+    assertThat(uuidGenerator.validateUuid(uuid1), is(true));
+    assertThat(uuidGenerator.validateUuid(uuid2), is(true));
+    assertThat(uuid1, is(uuid2));
+
+    String uuid3 = uuidGenerator.generateKnownId(TAG_TWO, USER_ID, null);
+    assertThat(uuidGenerator.validateUuid(uuid3), is(true));
+    assertThat(uuid3, is(not(uuid1)));
+  }
+
+  @Test
+  public void testGenerateKnownIdHyphens() {
+    uuidGenerator.setUseHyphens(true);
+    String uuid1 = uuidGenerator.generateKnownId(TAG_ONE, USER_ID);
+    String uuid2 = uuidGenerator.generateKnownId(TAG_ONE, USER_ID);
+    assertThat(uuidGenerator.validateUuid(uuid1), is(true));
+    assertThat(uuidGenerator.validateUuid(uuid2), is(true));
+    assertThat(uuid1, is(uuid2));
+
+    String uuid3 = uuidGenerator.generateKnownId(TAG_TWO, USER_ID);
+    assertThat(uuidGenerator.validateUuid(uuid3), is(true));
+    assertThat(uuid3, is(not(uuid1)));
+  }
+
+  @Test
+  public void testGenerateKnownIdAdditional() {
+    uuidGenerator.setUseHyphens(true);
+    String uuid1 = uuidGenerator.generateKnownId(TAG_ONE, USER_ID, "additionalInput");
+    String uuid2 = uuidGenerator.generateKnownId(TAG_ONE, USER_ID, "additionalInput");
+    assertThat(uuidGenerator.validateUuid(uuid1), is(true));
+    assertThat(uuidGenerator.validateUuid(uuid2), is(true));
+    assertThat(uuid1, is(uuid2));
+
+    String uuid3 = uuidGenerator.generateKnownId(TAG_TWO, USER_ID, "differentInput");
+    assertThat(uuidGenerator.validateUuid(uuid3), is(true));
+    assertThat(uuid3, is(not(uuid1)));
   }
 
   @Test
