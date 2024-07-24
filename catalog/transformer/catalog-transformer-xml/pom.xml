@@ -128,6 +128,7 @@
                             ddf.catalog.transformer.thread,
                             ddf.catalog.data.impl.*,
                             ddf.catalog.operation.impl,
+                            ddf.catalog.filter.impl,
                             ddf.catalog.util.impl
                         </Private-Package>
                         <Export-Package>

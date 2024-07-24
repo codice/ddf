@@ -20,7 +20,9 @@ import static org.apache.commons.lang.Validate.notNull;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
@@ -41,6 +43,8 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 
 /**
  * Class used to iterate over the {@link Result} objects contained in a {@link
@@ -122,7 +126,8 @@ public class ResultIterable implements Iterable<Result> {
 
   /**
    * Creates an iterable that will call a {@link QueryFunction} to retrieve the results that match
-   * the {@link QueryRequest} provided.
+   * the {@link QueryRequest} provided. If the query request does not include a sort-by, then the
+   * code will default to sorting by the metacard ID in descending order.
    *
    * @param queryFunction reference to the {@link QueryFunction} to call to retrieve the results.
    * @param queryRequest request used to retrieve the results.
@@ -271,12 +276,17 @@ public class ResultIterable implements Iterable<Result> {
 
       int pageSize = query.getPageSize() > 1 ? query.getPageSize() : DEFAULT_PAGE_SIZE;
 
+      SortBy sortBy = query.getSortBy();
+      if (sortBy == null) {
+        sortBy = new SortByImpl(Core.ID, SortOrder.DESCENDING);
+      }
+
       this.queryCopy =
           new QueryImpl(
               query,
               query.getStartIndex(),
               pageSize,
-              query.getSortBy(),
+              sortBy,
               true,
               // always get the hit count
               query.getTimeoutMillis());
