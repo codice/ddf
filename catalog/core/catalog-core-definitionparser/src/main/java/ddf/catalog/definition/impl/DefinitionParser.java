@@ -33,6 +33,7 @@ import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.RequiredAttributesRegistry;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.InjectableAttributeImpl;
@@ -150,6 +151,8 @@ public class DefinitionParser {
 
   private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
+  private final RequiredAttributesRegistry requiredAttributesRegistry;
+
   private final Map<String, Changeset> changesetsByFile = new ConcurrentHashMap<>();
 
   private final Function<Class, Bundle> bundleLookup;
@@ -175,11 +178,13 @@ public class DefinitionParser {
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,
+      RequiredAttributesRegistry requiredAttributesRegistry,
       List<MetacardType> metacardTypes) {
     this(
         attributeRegistry,
         attributeValidatorRegistry,
         defaultAttributeValueRegistry,
+        requiredAttributesRegistry,
         metacardTypes,
         FrameworkUtil::getBundle);
 
@@ -216,11 +221,13 @@ public class DefinitionParser {
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,
+      RequiredAttributesRegistry requiredAttributesRegistry,
       List<MetacardType> metacardTypes,
       Function<Class, Bundle> bundleLookup) {
     this.attributeRegistry = attributeRegistry;
     this.attributeValidatorRegistry = attributeValidatorRegistry;
     this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
+    this.requiredAttributesRegistry = requiredAttributesRegistry;
     this.metacardTypes = metacardTypes;
     this.bundleLookup = bundleLookup;
   }
@@ -365,6 +372,14 @@ public class DefinitionParser {
                   context.registerService(MetacardValidator.class, validator, null);
               changeset.metacardValidatorServices.add(registration);
               return registration != null;
+            });
+
+        staged.add(
+            () -> {
+              requiredAttributesRegistry.addRequiredAttributes(
+                  metacardType.type, requiredAttributes);
+              changeset.metacardTypes.add(metacardType);
+              return true;
             });
       }
 
@@ -757,6 +772,7 @@ public class DefinitionParser {
       undoMetacardValidators(changeset.metacardValidatorServices);
       undoReportingMetacardValidators(changeset.reportingMetacardValidatorServices);
       undoAttributes(changeset.attributes);
+      undoRequiredAttributes(changeset.metacardTypes);
       undoDefaults(changeset.defaults);
       undoAttributeValidators(changeset.attributeValidators);
       undoInjectableAttributes(changeset.injectableAttributeServices);
@@ -793,6 +809,13 @@ public class DefinitionParser {
                 type ->
                     defaultAttributeValueRegistry.removeDefaultValue(type, theDefault.attribute));
           }
+        });
+  }
+
+  private void undoRequiredAttributes(List<Outer.MetacardType> metacardTypes) {
+    metacardTypes.forEach(
+        type -> {
+          requiredAttributesRegistry.removeRequiredAttributes(type.type);
         });
   }
 
@@ -902,6 +925,8 @@ public class DefinitionParser {
     private final Set<AttributeDescriptor> attributes = new HashSet<>();
 
     private final List<Outer.Default> defaults = new ArrayList<>();
+
+    private final List<Outer.MetacardType> metacardTypes = new ArrayList<>();
 
     private final Map<String, Set<AttributeValidator>> attributeValidators = new HashMap<>();
 

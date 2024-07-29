@@ -4,6 +4,7 @@ import ddf.catalog.data.AttributeRegistry
 import ddf.catalog.data.DefaultAttributeValueRegistry
 import ddf.catalog.data.InjectableAttribute
 import ddf.catalog.data.MetacardType
+import ddf.catalog.data.RequiredAttributesRegistry
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
 import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.AttributeRegistryImpl
@@ -22,6 +23,7 @@ import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceRegistration
 import spock.lang.Specification
+import ddf.catalog.data.requiredattributes.RequiredAttributesRegistryImpl
 
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -41,6 +43,8 @@ class DefinitionParserSpec extends Specification {
 
     DefaultAttributeValueRegistry defaultAttributeValueRegistry
 
+    RequiredAttributesRegistry requiredAttributesRegistry
+
     File file
 
     Bundle mockBundle = Mock(Bundle)
@@ -59,10 +63,14 @@ class DefinitionParserSpec extends Specification {
         attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", [new CoreAttributes()]))
 
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
+
+        requiredAttributesRegistry = new RequiredAttributesRegistryImpl()
+
         definitionParser = new DefinitionParser(
                 attributeRegistry,
                 attributeValidatorRegistry,
                 defaultAttributeValueRegistry,
+                requiredAttributesRegistry,
                 alreadyRegisteredTypes,
                 { clazz -> mockBundle })
 
