@@ -68,6 +68,7 @@ import org.joda.time.DateTimeZone;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
@@ -1071,42 +1072,75 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return returnFilter;
   }
 
+  String normalizeWktCoordinates(String wkt) {
+    String normalizedWkt;
+    try {
+      Coordinate[] coordinates = getCoordinatesFromWkt(wkt);
+      // keep coordinates within [-180,180]
+      for (Coordinate coord : coordinates) {
+        if (coord.x > 180) {
+          coord.x -= 360;
+        } else if (coord.x < -180) {
+          coord.x += 360;
+        }
+      }
+      Geometry geo = new GeometryFactory().createPolygon(coordinates);
+      normalizedWkt = WKT_WRITER_THREAD_LOCAL.get().write(geo);
+    } catch (Exception e) {
+      LOGGER.debug("Unable to adjust WKT. Continuing with original WKT.");
+      return wkt;
+    }
+    return normalizedWkt;
+  }
+
   private JAXBElement<? extends SpatialOpsType> createSpatialOpType(
       String operation, String propertyName, String wkt, Double distance) {
-
+    String adjustedWkt = normalizeWktCoordinates(wkt);
     switch (SPATIAL_OPERATORS.valueOf(operation)) {
       case BBOX:
-        return buildBBoxType(propertyName, wkt);
+        return buildBBoxType(propertyName, adjustedWkt);
       case CONTAINS:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createContains(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createContains(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case CROSSES:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createCrosses(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createCrosses(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case DISJOINT:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createDisjoint(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createDisjoint(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case INTERSECTS:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createIntersects(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createIntersects(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case EQUALS:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createEquals(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createEquals(new BinarySpatialOpType()), propertyName, adjustedWkt);
       case OVERLAPS:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createOverlaps(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createOverlaps(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case TOUCHES:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createTouches(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createTouches(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case WITHIN:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createWithin(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createWithin(new BinarySpatialOpType()), propertyName, adjustedWkt);
       case BEYOND:
         if (distance != null) {
           return buildDistanceBufferType(
               filterObjectFactory.createBeyond(new DistanceBufferType()),
               propertyName,
-              wkt,
+              adjustedWkt,
               distance);
         }
         throw new UnsupportedOperationException(
@@ -1118,7 +1152,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
           return buildDistanceBufferType(
               filterObjectFactory.createDWithin(new DistanceBufferType()),
               propertyName,
-              wkt,
+              adjustedWkt,
               distance);
         }
         throw new UnsupportedOperationException(
