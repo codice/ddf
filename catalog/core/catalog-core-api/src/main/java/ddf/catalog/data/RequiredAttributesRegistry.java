@@ -66,6 +66,16 @@ public interface RequiredAttributesRegistry {
   boolean isRequired(String metacardTypeName, String attributeName);
 
   /**
+   * Checks if the given attribute is required for the given metacard type.
+   *
+   * @param metacardTypeName the name of the metacard type, cannot be null
+   * @return a set of strings which contains all required attributes for the given {@param
+   *     metacardTypeName}.
+   * @throws IllegalArgumentException if either argument is null
+   */
+  Set<String> getRequiredAttributes(String metacardTypeName);
+
+  /**
    * Removes the required attribute for the given metacard type.
    *
    * @param metacardTypeName the name of the metacard type, cannot be null

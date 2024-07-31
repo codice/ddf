@@ -338,6 +338,7 @@ public class DefinitionParser {
     List<Callable<Boolean>> staged = new ArrayList<>();
     BundleContext context = getBundleContext();
     List<MetacardType> stagedTypes = new ArrayList<>();
+    Map<String, Set<String>> stagedRequiredAttributes = new HashMap<>();
 
     for (Outer.MetacardType metacardType : incomingMetacardTypes) {
       Set<AttributeDescriptor> attributeDescriptors =
@@ -349,6 +350,16 @@ public class DefinitionParser {
               .stream()
               .flatMap(getSpecifiedTypes(stagedTypes))
               .collect(Collectors.toSet());
+
+      if (metacardType.extendsTypes != null) {
+        for (String type : metacardType.extendsTypes) {
+          if (stagedRequiredAttributes.containsKey(type)) {
+            requiredAttributes.addAll(stagedRequiredAttributes.get(type));
+          } else {
+            requiredAttributes.addAll(requiredAttributesRegistry.getRequiredAttributes(type));
+          }
+        }
+      }
 
       attributeDescriptors.addAll(extendedAttributes);
 
@@ -381,6 +392,8 @@ public class DefinitionParser {
               changeset.metacardTypes.add(metacardType);
               return true;
             });
+
+        stagedRequiredAttributes.put(metacardType.type, requiredAttributes);
       }
 
       Dictionary<String, Object> properties = new DictionaryMap<>();

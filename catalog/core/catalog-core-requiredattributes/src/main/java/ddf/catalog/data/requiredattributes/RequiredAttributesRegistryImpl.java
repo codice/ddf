@@ -59,6 +59,11 @@ public class RequiredAttributesRegistryImpl implements RequiredAttributesRegistr
   }
 
   @Override
+  public Set<String> getRequiredAttributes(String metacardTypeName) {
+    return requiredAttributesMap.getOrDefault(metacardTypeName, Collections.emptySet());
+  }
+
+  @Override
   public boolean isRequired(String metacardTypeName, String attributeName) {
     notNull(metacardTypeName, "The metacard type name cannot be null.");
     notNull(attributeName, "The attribute name cannot be null.");
