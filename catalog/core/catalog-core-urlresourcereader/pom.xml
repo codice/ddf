@@ -114,6 +114,7 @@
                             ddf.catalog.operation.impl,
                             ddf.catalog.data.impl.*,
                             ddf.catalog.util.impl,
+                            ddf.catalog.filter.impl,
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
                         <Import-Package>

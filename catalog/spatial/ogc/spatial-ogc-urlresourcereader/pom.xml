@@ -106,6 +106,7 @@
                             ddf.catalog.operation.impl,
                             ddf.catalog.resource.impl,
                             ddf.catalog.util.impl,
+                            ddf.catalog.filter.impl,
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
                         <Export-Package>
