@@ -16,23 +16,7 @@ package ddf.catalog.data;
 import java.util.Set;
 
 /**
- * Manages default attribute values that apply to all metacard types and default attribute values
- * that apply to specific metacard types.
- *
- * <p>Default attribute values are separated into two categories:
- *
- * <ol>
- *   <li>'Global' default values (default values that are tied to an attribute but not to a specific
- *       metacard type)
- *   <li>Default values that apply to specific metacard types
- * </ol>
- *
- * In the event that an attribute has a 'global' default value as well as a default value for a
- * specific metacard type, the default value for the specific metacard type will be returned (i.e.,
- * the more specific default value wins).
- *
- * <p><b> This code is experimental. While this interface is functional and tested, it may change or
- * be removed in a future version of the library. </b>
+ * Manages required attribute values, which correspond to specific metacard types.
  */
 public interface RequiredAttributesRegistry {
 
@@ -49,10 +33,10 @@ public interface RequiredAttributesRegistry {
    * Registers the given set of attributes as required for the given metacard type.
    *
    * @param metacardTypeName the name of the metacard type, cannot be null
-   * @param attributeName the name of the attribute belonging to the metacard type, cannot be null
+   * @param attributeNames a set of required attributes belonging to the metacard type, cannot be null
    * @throws IllegalArgumentException if any arguments are null
    */
-  void addRequiredAttributes(String metacardTypeName, Set<String> attributeName);
+  void addRequiredAttributes(String metacardTypeName, Set<String> attributeNames);
 
   /**
    * Checks if the given attribute is required for the given metacard type.

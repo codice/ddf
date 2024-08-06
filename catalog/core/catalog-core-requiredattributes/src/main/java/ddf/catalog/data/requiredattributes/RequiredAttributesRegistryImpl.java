@@ -46,6 +46,8 @@ public class RequiredAttributesRegistryImpl implements RequiredAttributesRegistr
 
   @Override
   public void addRequiredAttributes(String metacardTypeName, Set<String> attributeNames) {
+    notNull(metacardTypeName, "The metacard type name cannot be null.");
+    notNull(attributeNames, "The attribute names cannot be null.");
     requiredAttributesMap.compute(
         metacardTypeName,
         (name, requiredAttributes) -> {
@@ -60,6 +62,7 @@ public class RequiredAttributesRegistryImpl implements RequiredAttributesRegistr
 
   @Override
   public Set<String> getRequiredAttributes(String metacardTypeName) {
+    notNull(metacardTypeName, "The metacard type name cannot be null.");
     return requiredAttributesMap.getOrDefault(metacardTypeName, Collections.emptySet());
   }
 
