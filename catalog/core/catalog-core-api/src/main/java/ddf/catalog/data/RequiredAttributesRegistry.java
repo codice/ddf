@@ -15,9 +15,7 @@ package ddf.catalog.data;
 
 import java.util.Set;
 
-/**
- * Manages required attribute values, which correspond to specific metacard types.
- */
+/** Manages required attribute values, which correspond to specific metacard types. */
 public interface RequiredAttributesRegistry {
 
   /**
@@ -33,7 +31,8 @@ public interface RequiredAttributesRegistry {
    * Registers the given set of attributes as required for the given metacard type.
    *
    * @param metacardTypeName the name of the metacard type, cannot be null
-   * @param attributeNames a set of required attributes belonging to the metacard type, cannot be null
+   * @param attributeNames a set of required attributes belonging to the metacard type, cannot be
+   *     null
    * @throws IllegalArgumentException if any arguments are null
    */
   void addRequiredAttributes(String metacardTypeName, Set<String> attributeNames);
