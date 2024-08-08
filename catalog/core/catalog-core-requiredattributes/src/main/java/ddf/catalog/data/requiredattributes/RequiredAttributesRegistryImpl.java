@@ -15,50 +15,20 @@ package ddf.catalog.data.requiredattributes;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import ddf.catalog.data.RequiredAttributes;
 import ddf.catalog.data.RequiredAttributesRegistry;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RequiredAttributesRegistryImpl implements RequiredAttributesRegistry {
+
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(RequiredAttributesRegistryImpl.class);
   private final Map<String, Set<String>> requiredAttributesMap = new ConcurrentHashMap<>();
-
-  @Override
-  public void addRequiredAttribute(String metacardTypeName, String attributeName) {
-    notNull(metacardTypeName, "The metacard type name cannot be null.");
-    notNull(attributeName, "The attribute name cannot be null.");
-
-    requiredAttributesMap.compute(
-        metacardTypeName,
-        (name, requiredAttributes) -> {
-          if (requiredAttributes == null) {
-            final Set<String> newAttributes = new HashSet<>();
-            newAttributes.add(attributeName);
-            return newAttributes;
-          } else {
-            requiredAttributes.add(attributeName);
-            return requiredAttributes;
-          }
-        });
-  }
-
-  @Override
-  public void addRequiredAttributes(String metacardTypeName, Set<String> attributeNames) {
-    notNull(metacardTypeName, "The metacard type name cannot be null.");
-    notNull(attributeNames, "The attribute names cannot be null.");
-    requiredAttributesMap.compute(
-        metacardTypeName,
-        (name, requiredAttributes) -> {
-          if (requiredAttributes == null) {
-            return attributeNames;
-          } else {
-            requiredAttributes.addAll(attributeNames);
-            return requiredAttributes;
-          }
-        });
-  }
 
   @Override
   public Set<String> getRequiredAttributes(String metacardTypeName) {
@@ -76,23 +46,40 @@ public class RequiredAttributesRegistryImpl implements RequiredAttributesRegistr
         .contains(attributeName);
   }
 
-  @Override
-  public void removeRequiredAttribute(String metacardTypeName, String attributeName) {
-    notNull(metacardTypeName, "The metacard type name cannot be null.");
-    notNull(attributeName, "The attribute name cannot be null.");
-
-    requiredAttributesMap.computeIfPresent(
-        metacardTypeName,
-        (name, requiredAttributes) -> {
-          requiredAttributes.remove(attributeName);
-          return requiredAttributes;
-        });
+  /**
+   * Adds a new {@code RequiredAttributes} to the {@code requiredAttributesMap} map. Called by
+   * blueprint when a new {@code RequiredAttributes} is registered as a service.
+   *
+   * @param requiredAttributes the new {@code RequiredAttributes} to be registered.
+   */
+  public void bind(RequiredAttributes requiredAttributes) {
+    if (requiredAttributes != null) {
+      String metacardType = requiredAttributes.getMetacardType();
+      LOGGER.trace("Binding new RequiredAttributes instance for metacard type {}", metacardType);
+      requiredAttributesMap.compute(
+          metacardType,
+          (name, attributes) -> {
+            if (attributes == null) {
+              return requiredAttributes.getRequiredAttributes();
+            } else {
+              attributes.addAll(requiredAttributes.getRequiredAttributes());
+              return attributes;
+            }
+          });
+    }
   }
 
-  @Override
-  public void removeRequiredAttributes(String metacardTypeName) {
-    notNull(metacardTypeName, "The metacard type name cannot be null.");
-
-    requiredAttributesMap.remove(metacardTypeName);
+  /**
+   * Removes an existing {@code RequiredAttributes} from the {@code requiredAttributesMap} map.
+   * Called by blueprint when an existing {@code RequiredAttributes} service is removed.
+   *
+   * @param requiredAttributes the {@code RequiredAttributes} to be removed from the collection.
+   */
+  public void unbind(RequiredAttributes requiredAttributes) {
+    if (requiredAttributes != null) {
+      String metacardType = requiredAttributes.getMetacardType();
+      LOGGER.trace("Unbinding RequiredAttributes instance for metacard type {}", metacardType);
+      requiredAttributesMap.remove(metacardType);
+    }
   }
 }

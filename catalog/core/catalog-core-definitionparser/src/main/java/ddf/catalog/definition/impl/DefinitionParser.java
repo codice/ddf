@@ -33,7 +33,6 @@ import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.RequiredAttributesRegistry;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.InjectableAttributeImpl;
@@ -132,6 +131,12 @@ public class DefinitionParser {
 
   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
+  private static final String[] REQUIRED_ATTRIBUTES_INTERFACES =
+      new String[] {
+        "ddf.catalog.validation.MetacardValidator",
+        "ddf.catalog.data.RequiredAttributes"
+      };
+
   public static final Type OUTER_VALIDATOR_TYPE =
       new TypeToken<List<Outer.Validator>>() {}.getType();
 
@@ -150,8 +155,6 @@ public class DefinitionParser {
   private final AttributeValidatorRegistry attributeValidatorRegistry;
 
   private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
-
-  private final RequiredAttributesRegistry requiredAttributesRegistry;
 
   private final Map<String, Changeset> changesetsByFile = new ConcurrentHashMap<>();
 
@@ -178,13 +181,11 @@ public class DefinitionParser {
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,
-      RequiredAttributesRegistry requiredAttributesRegistry,
       List<MetacardType> metacardTypes) {
     this(
         attributeRegistry,
         attributeValidatorRegistry,
         defaultAttributeValueRegistry,
-        requiredAttributesRegistry,
         metacardTypes,
         FrameworkUtil::getBundle);
 
@@ -221,13 +222,11 @@ public class DefinitionParser {
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,
-      RequiredAttributesRegistry requiredAttributesRegistry,
       List<MetacardType> metacardTypes,
       Function<Class, Bundle> bundleLookup) {
     this.attributeRegistry = attributeRegistry;
     this.attributeValidatorRegistry = attributeValidatorRegistry;
     this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
-    this.requiredAttributesRegistry = requiredAttributesRegistry;
     this.metacardTypes = metacardTypes;
     this.bundleLookup = bundleLookup;
   }
@@ -355,8 +354,6 @@ public class DefinitionParser {
         for (String type : metacardType.extendsTypes) {
           if (stagedRequiredAttributes.containsKey(type)) {
             requiredAttributes.addAll(stagedRequiredAttributes.get(type));
-          } else {
-            requiredAttributes.addAll(requiredAttributesRegistry.getRequiredAttributes(type));
           }
         }
       }
@@ -375,22 +372,14 @@ public class DefinitionParser {
                       attribute));
 
       if (!requiredAttributes.isEmpty()) {
-        final MetacardValidator validator =
+        final RequiredAttributesMetacardValidator validator =
             new RequiredAttributesMetacardValidator(metacardType.type, requiredAttributes);
         staged.add(
             () -> {
-              ServiceRegistration<MetacardValidator> registration =
-                  context.registerService(MetacardValidator.class, validator, null);
+              ServiceRegistration<?> registration =
+                  context.registerService(REQUIRED_ATTRIBUTES_INTERFACES, validator, null);
               changeset.metacardValidatorServices.add(registration);
               return registration != null;
-            });
-
-        staged.add(
-            () -> {
-              requiredAttributesRegistry.addRequiredAttributes(
-                  metacardType.type, requiredAttributes);
-              changeset.metacardTypes.add(metacardType);
-              return true;
             });
 
         stagedRequiredAttributes.put(metacardType.type, requiredAttributes);
@@ -458,15 +447,15 @@ public class DefinitionParser {
     for (Map<String, List<MetacardValidatorDefinition>> mvdMap : metacardValidatorDefinitions) {
       for (Entry<String, List<MetacardValidatorDefinition>> row : mvdMap.entrySet()) {
         try {
-          List<MetacardValidator> metacardValidators =
+          List<RequiredAttributesMetacardValidator> metacardValidators =
               getMetacardValidators(row.getKey(), row.getValue().get(0));
           metacardValidators.forEach(
               metacardValidator ->
                   staged.add(
                       () -> {
-                        ServiceRegistration<MetacardValidator> registration =
+                        ServiceRegistration<?> registration =
                             context.registerService(
-                                MetacardValidator.class, metacardValidator, null);
+                                REQUIRED_ATTRIBUTES_INTERFACES, metacardValidator, null);
                         changeset.metacardValidatorServices.add(registration);
                         return registration != null;
                       }));
@@ -541,7 +530,7 @@ public class DefinitionParser {
         .collect(toSet());
   }
 
-  private List<MetacardValidator> getMetacardValidators(
+  private List<RequiredAttributesMetacardValidator> getMetacardValidators(
       String metacardTypeName, MetacardValidatorDefinition validatorDefinition) {
 
     if (!REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY.equals(validatorDefinition.validator)) {
@@ -785,7 +774,6 @@ public class DefinitionParser {
       undoMetacardValidators(changeset.metacardValidatorServices);
       undoReportingMetacardValidators(changeset.reportingMetacardValidatorServices);
       undoAttributes(changeset.attributes);
-      undoRequiredAttributes(changeset.metacardTypes);
       undoDefaults(changeset.defaults);
       undoAttributeValidators(changeset.attributeValidators);
       undoInjectableAttributes(changeset.injectableAttributeServices);
@@ -798,8 +786,7 @@ public class DefinitionParser {
     metacardTypeServices.forEach(ServiceRegistration::unregister);
   }
 
-  private void undoMetacardValidators(
-      List<ServiceRegistration<MetacardValidator>> metacardValidatorServices) {
+  private void undoMetacardValidators(List<ServiceRegistration<?>> metacardValidatorServices) {
     metacardValidatorServices.forEach(ServiceRegistration::unregister);
   }
 
@@ -822,13 +809,6 @@ public class DefinitionParser {
                 type ->
                     defaultAttributeValueRegistry.removeDefaultValue(type, theDefault.attribute));
           }
-        });
-  }
-
-  private void undoRequiredAttributes(List<Outer.MetacardType> metacardTypes) {
-    metacardTypes.forEach(
-        type -> {
-          requiredAttributesRegistry.removeRequiredAttributes(type.type);
         });
   }
 
@@ -929,8 +909,7 @@ public class DefinitionParser {
   private class Changeset {
     private final List<ServiceRegistration<MetacardType>> metacardTypeServices = new ArrayList<>();
 
-    private final List<ServiceRegistration<MetacardValidator>> metacardValidatorServices =
-        new ArrayList<>();
+    private final List<ServiceRegistration<?>> metacardValidatorServices = new ArrayList<>();
 
     private final List<ServiceRegistration<ReportingMetacardValidator>>
         reportingMetacardValidatorServices = new ArrayList<>();
@@ -938,8 +917,6 @@ public class DefinitionParser {
     private final Set<AttributeDescriptor> attributes = new HashSet<>();
 
     private final List<Outer.Default> defaults = new ArrayList<>();
-
-    private final List<Outer.MetacardType> metacardTypes = new ArrayList<>();
 
     private final Map<String, Set<AttributeValidator>> attributeValidators = new HashMap<>();
 

@@ -18,6 +18,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.RequiredAttributes;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ReportingMetacardValidator;
 import ddf.catalog.validation.ValidationException;
@@ -38,7 +39,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 /** Validates that a {@link Metacard} contains certain {@link Attribute}s. */
 public class RequiredAttributesMetacardValidator
-    implements MetacardValidator, ReportingMetacardValidator {
+    implements MetacardValidator, ReportingMetacardValidator, RequiredAttributes {
   private final String metacardTypeName;
 
   private final Set<String> requiredAttributes;
@@ -118,6 +119,16 @@ public class RequiredAttributesMetacardValidator
     }
 
     return Optional.empty();
+  }
+
+  @Override
+  public Set<String> getRequiredAttributes() {
+    return requiredAttributes;
+  }
+
+  @Override
+  public String getMetacardType() {
+    return metacardTypeName;
   }
 
   private void addRequiredAttributeViolation(
