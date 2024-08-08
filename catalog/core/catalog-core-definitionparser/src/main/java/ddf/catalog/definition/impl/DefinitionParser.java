@@ -133,8 +133,7 @@ public class DefinitionParser {
 
   private static final String[] REQUIRED_ATTRIBUTES_INTERFACES =
       new String[] {
-        "ddf.catalog.validation.MetacardValidator",
-        "ddf.catalog.data.RequiredAttributes"
+        "ddf.catalog.validation.MetacardValidator", "ddf.catalog.data.RequiredAttributes"
       };
 
   public static final Type OUTER_VALIDATOR_TYPE =
