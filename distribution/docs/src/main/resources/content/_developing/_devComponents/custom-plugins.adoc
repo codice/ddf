@@ -168,7 +168,6 @@ Develop a custom Pre-Query Plugin
 
 . Implement the required method. +
 `public QueryRequest process(QueryRequest input) throws PluginExecutionException, StopProcessingException;`
-
 . Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
 
