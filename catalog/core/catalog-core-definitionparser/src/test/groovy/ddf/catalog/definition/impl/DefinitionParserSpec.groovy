@@ -4,6 +4,7 @@ import ddf.catalog.data.AttributeRegistry
 import ddf.catalog.data.DefaultAttributeValueRegistry
 import ddf.catalog.data.InjectableAttribute
 import ddf.catalog.data.MetacardType
+import ddf.catalog.data.RequiredAttributesRegistry
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
 import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.AttributeRegistryImpl
@@ -16,12 +17,14 @@ import ddf.catalog.validation.MetacardValidator
 import ddf.catalog.validation.ReportingMetacardValidator
 import ddf.catalog.validation.ValidationException
 import ddf.catalog.validation.impl.AttributeValidatorRegistryImpl
+import ddf.catalog.validation.impl.validator.RequiredAttributesMetacardValidator
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceRegistration
 import spock.lang.Specification
+import ddf.catalog.data.requiredattributes.RequiredAttributesRegistryImpl
 
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -51,6 +54,10 @@ class DefinitionParserSpec extends Specification {
             new MetacardTypeImpl("testMetacard", [new CoreAttributes()]),
             new MetacardTypeImpl("already-registered-type", [new CoreAttributes()])]
 
+    String[] REQUIRED_ATTRIBUTES_INTERFACES = [
+                    "ddf.catalog.validation.MetacardValidator",
+                    "ddf.catalog.data.RequiredAttributes"]
+
     void setup() {
         attributeRegistry = new AttributeRegistryImpl()
 
@@ -59,6 +66,7 @@ class DefinitionParserSpec extends Specification {
         attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", [new CoreAttributes()]))
 
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
+
         definitionParser = new DefinitionParser(
                 attributeRegistry,
                 attributeValidatorRegistry,
@@ -109,7 +117,7 @@ class DefinitionParserSpec extends Specification {
         ServiceRegistration<MetacardType> typeService2 = Mock(ServiceRegistration)
         ServiceRegistration<InjectableAttribute> injectService1 = Mock(ServiceRegistration)
         ServiceRegistration<InjectableAttribute> injectService2 = Mock(ServiceRegistration)
-        ServiceRegistration<MetacardValidator> validatorService = Mock(ServiceRegistration)
+        ServiceRegistration<?> validatorService = Mock(ServiceRegistration)
 
         def type1Name = "type1"
         def type2Name = "type2"
@@ -121,8 +129,7 @@ class DefinitionParserSpec extends Specification {
         definitionParser.install(file)
 
         then: "a required attributes metacard validator is registered as a service"
-        1 * mockBundleContext.registerService(
-                MetacardValidator.class, _ as MetacardValidator, null) >> validatorService
+        1 * mockBundleContext.registerService(_, _, _) >> validatorService
 
         and: "the metacard types are registered as services"
         1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
@@ -185,7 +192,7 @@ class DefinitionParserSpec extends Specification {
         def ServiceRegistration<MetacardType> typeService2 = Mock(ServiceRegistration)
         def ServiceRegistration<InjectableAttribute> injectService1 = Mock(ServiceRegistration)
         def ServiceRegistration<InjectableAttribute> injectService2 = Mock(ServiceRegistration)
-        def ServiceRegistration<MetacardValidator> mockValidatorService = Mock(ServiceRegistration)
+        def ServiceRegistration<?> mockValidatorService = Mock(ServiceRegistration)
 
         def type1Name = "type1"
         def type2Name = "type2"
@@ -211,8 +218,7 @@ class DefinitionParserSpec extends Specification {
         definitionParser.update(file)
 
         then: "a required attributes metacard validator service is registered on the install"
-        1 * mockBundleContext.registerService(
-                MetacardValidator.class, _ as MetacardValidator, null) >> mockValidatorService
+        1 * mockBundleContext.registerService(_, _, _) >> mockValidatorService
 
         and: "two metacard type services are registered on the install"
         1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
@@ -252,7 +258,7 @@ class DefinitionParserSpec extends Specification {
         1 * injectService2.unregister()
 
         then: "a new required attributes metacard validator service is registered"
-        1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, null)
+        1 * mockBundleContext.registerService(_, _, _)
 
         and: "two new metacard type services are registered"
         1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
@@ -464,7 +470,7 @@ class DefinitionParserSpec extends Specification {
         definitionParser.install(file)
 
         then:
-        1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull()) >> {
+        1 * mockBundleContext.registerService(REQUIRED_ATTRIBUTES_INTERFACES, _ as RequiredAttributesMetacardValidator, isNull()) >> {
             arguments -> validator = arguments.get(1)
         }
 
