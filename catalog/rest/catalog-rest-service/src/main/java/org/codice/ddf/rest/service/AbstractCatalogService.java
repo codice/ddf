@@ -641,7 +641,8 @@ public abstract class AbstractCatalogService implements CatalogService {
       List<String> contentTypeList,
       MultipartBody multipartBody,
       String transformerParam,
-      InputStream message)
+      InputStream message,
+      Map<String, Serializable> properties)
       throws CatalogServiceException {
     LOGGER.trace("PUT");
 
@@ -661,7 +662,19 @@ public abstract class AbstractCatalogService implements CatalogService {
       }
     }
 
-    updateDocument(attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message);
+    updateDocument(
+        attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message, properties);
+  }
+
+  @Override
+  public void updateDocument(
+      String id,
+      List<String> contentTypeList,
+      MultipartBody multipartBody,
+      String transformerParam,
+      InputStream message)
+      throws CatalogServiceException {
+    updateDocument(id, contentTypeList, multipartBody, transformerParam, message, null);
   }
 
   @Override
@@ -694,7 +707,42 @@ public abstract class AbstractCatalogService implements CatalogService {
       LOGGER.info("Unable to get contents part: ", e);
     }
 
-    updateDocument(attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message);
+    updateDocument(attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message, null);
+  }
+
+  @Override
+  public void updateDocument(
+      String id,
+      List<String> contentTypeList,
+      HttpServletRequest httpServletRequest,
+      String transformerParam,
+      InputStream message,
+      Map<String, Serializable> properties)
+      throws CatalogServiceException {
+    LOGGER.trace("PUT");
+
+    if (id == null || message == null) {
+      String errorResponseString = "Both ID and content are needed to perform UPDATE.";
+      LOGGER.info(errorResponseString);
+      throw new CatalogServiceException(errorResponseString);
+    }
+
+    Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
+    try {
+      if (httpServletRequest != null) {
+        Collection<Part> contentParts = httpServletRequest.getParts();
+        if (CollectionUtils.isNotEmpty(contentParts)) {
+          attachmentInfoAndMetacard = parseParts(contentParts, transformerParam);
+        } else {
+          LOGGER.debug(NO_FILE_CONTENTS_ATT_FOUND);
+        }
+      }
+    } catch (ServletException | IOException e) {
+      LOGGER.info("Unable to get contents part: ", e);
+    }
+
+    updateDocument(
+        attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message, properties);
   }
 
   private void updateDocument(
@@ -702,7 +750,8 @@ public abstract class AbstractCatalogService implements CatalogService {
       String id,
       List<String> contentTypeList,
       String transformerParam,
-      InputStream message)
+      InputStream message,
+      Map<String, Serializable> properties)
       throws CatalogServiceException {
     try {
       MimeType mimeType = getMimeType(contentTypeList);
@@ -722,7 +771,7 @@ public abstract class AbstractCatalogService implements CatalogService {
                         attachmentInfoAndMetacard.getKey().getFilename(),
                         0,
                         attachmentInfoAndMetacard.getValue())),
-                null);
+                properties);
         catalogFramework.update(streamUpdateRequest);
       }
 
