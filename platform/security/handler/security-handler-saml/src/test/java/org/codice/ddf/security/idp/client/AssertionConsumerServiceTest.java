@@ -48,6 +48,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.security.jaxrs.impl.SamlSecurity;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -158,6 +159,12 @@ public class AssertionConsumerServiceTest {
     assertionConsumerService.setSessionFactory(sessionFactory);
     assertionConsumerService.setContextPolicyManager(contextPolicyManager);
     assertionConsumerService.setSamlSecurity(new SamlSecurity());
+    System.setProperty("ddf.home", "./");
+  }
+
+  @After
+  public void after() {
+    System.clearProperty("ddf.home");
   }
 
   @Test

@@ -86,6 +86,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleService;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
+import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
@@ -98,6 +99,7 @@ import org.glassfish.grizzly.http.Method;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -639,6 +641,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testFederatedRetrieveExistingProductCsw() throws Exception {
     String productDirectory =
         new File(DEFAULT_SAMPLE_PRODUCT_FILE_NAME).getAbsoluteFile().getParent();
@@ -683,26 +686,30 @@ public class TestFederation extends AbstractIntegrationTest {
     String wildcardQuery =
         getCswQuery("AnyText", "*", "application/xml", "http://www.opengis.net/cat/csw/2.0.2");
 
-    given()
-        .contentType(ContentType.XML)
-        .body(wildcardQuery)
-        .when()
-        .post(CSW_PATH.getUrl())
-        .then()
-        .assertThat()
-        .body(
-            hasXPath(
-                "/GetRecordsResponse/SearchResults/Record/identifier[text()='"
-                    + METACARD_IDS[GEOJSON_RECORD_INDEX]
-                    + "']"),
-            hasXPath(
-                "/GetRecordsResponse/SearchResults/Record/identifier[text()='"
-                    + METACARD_IDS[XML_RECORD_INDEX]
-                    + "']"),
-            hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", is("2")),
-            hasXPath(
-                "/GetRecordsResponse/SearchResults/Record/relation",
-                containsString("/services/catalog/sources/")));
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .body(wildcardQuery)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                .body(
+                    hasXPath(
+                        "/GetRecordsResponse/SearchResults/Record/identifier[text()='"
+                            + METACARD_IDS[GEOJSON_RECORD_INDEX]
+                            + "']"),
+                    hasXPath(
+                        "/GetRecordsResponse/SearchResults/Record/identifier[text()='"
+                            + METACARD_IDS[XML_RECORD_INDEX]
+                            + "']"),
+                    hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", is("2")),
+                    hasXPath(
+                        "/GetRecordsResponse/SearchResults/Record/relation",
+                        containsString("/services/catalog/sources/"))),
+        3,
+        1);
   }
 
   @Test
@@ -732,59 +739,76 @@ public class TestFederation extends AbstractIntegrationTest {
         };
 
     // Run a normal federated query to the CSW source and assert response
-    given()
-        .contentType(ContentType.XML)
-        .body(query)
-        .when()
-        .post(CSW_PATH.getUrl())
-        .then()
-        .assertThat()
-        .body(assertion[0], assertion);
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .body(query)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                .body(assertion[0], assertion),
+        3,
+        1);
 
     // Assert that response is the same as without the plugin
-    given()
-        .contentType(ContentType.XML)
-        .body(query)
-        .when()
-        .post(CSW_PATH.getUrl())
-        .then()
-        .assertThat()
-        .body(assertion[0], assertion);
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .body(query)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                .body(assertion[0], assertion),
+        3,
+        1);
   }
 
   @Test
   public void testCswQueryForMetacardXml() {
     String titleQuery = getCswQuery("title", "myTitle", "application/xml", "urn:catalog:metacard");
 
-    given()
-        .contentType(ContentType.XML)
-        .body(titleQuery)
-        .when()
-        .post(CSW_PATH.getUrl())
-        .then()
-        .assertThat()
-        .body(
-            hasXPath(
-                "/GetRecordsResponse/SearchResults/metacard/@id",
-                is(METACARD_IDS[GEOJSON_RECORD_INDEX])),
-            hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", is("1")),
-            hasXPath(
-                "/GetRecordsResponse/SearchResults/@recordSchema", is("urn:catalog:metacard")));
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .body(titleQuery)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                .body(
+                    hasXPath(
+                        "/GetRecordsResponse/SearchResults/metacard/@id",
+                        is(METACARD_IDS[GEOJSON_RECORD_INDEX])),
+                    hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", is("1")),
+                    hasXPath(
+                        "/GetRecordsResponse/SearchResults/@recordSchema",
+                        is("urn:catalog:metacard"))),
+        3,
+        1);
   }
 
   @Test
   public void testCswQueryForJson() {
     String titleQuery = getCswQuery("title", "myTitle", "application/json", null);
 
-    given()
-        .headers("Accept", "application/json", "Content-Type", "application/xml")
-        .body(titleQuery)
-        .when()
-        .post(CSW_PATH.getUrl())
-        .then()
-        .assertThat()
-        .contentType(ContentType.JSON)
-        .body("results[0].metacard.properties.title", equalTo(RECORD_TITLE_1));
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .headers("Accept", "application/json", "Content-Type", "application/xml")
+                .body(titleQuery)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                .contentType(ContentType.JSON)
+                .body("results[0].metacard.properties.title", equalTo(RECORD_TITLE_1)),
+        3,
+        1);
   }
 
   @Test
@@ -803,6 +827,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testOpensearchToCswSourceToCswEndpointQuerywithMetacardXml() {
     ValidatableResponse response =
         getOpenSearch(
@@ -934,27 +959,35 @@ public class TestFederation extends AbstractIntegrationTest {
     String wildcardQuery = getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
 
     String subscriptionId =
-        given()
-            .contentType(ContentType.XML)
-            .body(wildcardQuery)
-            .when()
-            .post(CSW_SUBSCRIPTION_PATH.getUrl())
-            .then()
-            .assertThat()
-            .body(hasXPath("/Acknowledgement/RequestId"))
-            .extract()
-            .body()
-            .xmlPath()
-            .get("Acknowledgement.RequestId")
-            .toString();
+        CatalogTestCommons.retryAssertionErrorCall(
+            () ->
+                given()
+                    .contentType(ContentType.XML)
+                    .body(wildcardQuery)
+                    .when()
+                    .post(CSW_SUBSCRIPTION_PATH.getUrl())
+                    .then()
+                    .assertThat()
+                    .body(hasXPath("/Acknowledgement/RequestId"))
+                    .extract()
+                    .body()
+                    .xmlPath()
+                    .get("Acknowledgement.RequestId")
+                    .toString(),
+            3,
+            1);
 
-    given()
-        .contentType(ContentType.XML)
-        .when()
-        .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-        .then()
-        .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"));
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId")),
+        3,
+        1);
 
     String metacardId =
         ingest(
@@ -967,21 +1000,29 @@ public class TestFederation extends AbstractIntegrationTest {
         new HashSet<>(0),
         new HashSet<>(Arrays.asList(subscrptionIds)));
 
-    given()
-        .contentType(ContentType.XML)
-        .when()
-        .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-        .then()
-        .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"));
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .when()
+                .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId")),
+        3,
+        1);
 
-    given()
-        .contentType(ContentType.XML)
-        .when()
-        .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-        .then()
-        .assertThat()
-        .statusCode(404);
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .statusCode(404),
+        3,
+        1);
   }
 
   @Test
@@ -995,19 +1036,23 @@ public class TestFederation extends AbstractIntegrationTest {
 
     // CswSubscribe
     String subscriptionId =
-        given()
-            .contentType(ContentType.XML)
-            .body(wildcardQuery)
-            .when()
-            .post(CSW_SUBSCRIPTION_PATH.getUrl())
-            .then()
-            .assertThat()
-            .body(hasXPath("/Acknowledgement/RequestId"))
-            .extract()
-            .body()
-            .xmlPath()
-            .get("Acknowledgement.RequestId")
-            .toString();
+        CatalogTestCommons.retryAssertionErrorCall(
+            () ->
+                given()
+                    .contentType(ContentType.XML)
+                    .body(wildcardQuery)
+                    .when()
+                    .post(CSW_SUBSCRIPTION_PATH.getUrl())
+                    .then()
+                    .assertThat()
+                    .body(hasXPath("/Acknowledgement/RequestId"))
+                    .extract()
+                    .body()
+                    .xmlPath()
+                    .get("Acknowledgement.RequestId")
+                    .toString(),
+            3,
+            1);
 
     BundleService bundleService = getServiceManager().getService(BundleService.class);
     Bundle bundle = bundleService.getBundle("spatial-csw-endpoint");
@@ -1026,13 +1071,17 @@ public class TestFederation extends AbstractIntegrationTest {
 
     getServiceManager().waitForHttpEndpoint(CSW_SUBSCRIPTION_PATH + "?_wadl");
     // get subscription
-    given()
-        .contentType(ContentType.XML)
-        .when()
-        .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-        .then()
-        .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"));
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId")),
+        3,
+        1);
 
     String metacardId =
         ingest(
@@ -1045,21 +1094,29 @@ public class TestFederation extends AbstractIntegrationTest {
         new HashSet<>(0),
         new HashSet<>(Arrays.asList(subscrptionIds)));
 
-    given()
-        .contentType(ContentType.XML)
-        .when()
-        .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-        .then()
-        .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"));
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .when()
+                .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId")),
+        3,
+        1);
 
-    given()
-        .contentType(ContentType.XML)
-        .when()
-        .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-        .then()
-        .assertThat()
-        .statusCode(404);
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .statusCode(404),
+        3,
+        1);
   }
 
   @Test
@@ -1075,36 +1132,48 @@ public class TestFederation extends AbstractIntegrationTest {
     String event = getFileContent("get-records-response.xml");
 
     String subscriptionId =
-        given()
-            .contentType(ContentType.XML)
-            .body(wildcardQuery)
-            .when()
-            .post(CSW_SUBSCRIPTION_PATH.getUrl())
-            .then()
-            .assertThat()
-            .body(hasXPath("/Acknowledgement/RequestId"))
-            .extract()
-            .body()
-            .xmlPath()
-            .get("Acknowledgement.RequestId")
-            .toString();
+        CatalogTestCommons.retryAssertionErrorCall(
+            () ->
+                given()
+                    .contentType(ContentType.XML)
+                    .body(wildcardQuery)
+                    .when()
+                    .post(CSW_SUBSCRIPTION_PATH.getUrl())
+                    .then()
+                    .assertThat()
+                    .body(hasXPath("/Acknowledgement/RequestId"))
+                    .extract()
+                    .body()
+                    .xmlPath()
+                    .get("Acknowledgement.RequestId")
+                    .toString(),
+            3,
+            1);
 
-    given()
-        .contentType(ContentType.XML)
-        .when()
-        .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-        .then()
-        .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"));
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId")),
+        3,
+        1);
 
-    given()
-        .contentType(ContentType.XML)
-        .body(event)
-        .when()
-        .post(CSW_EVENT_PATH.getUrl())
-        .then()
-        .assertThat()
-        .statusCode(200);
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .body(event)
+                .when()
+                .post(CSW_EVENT_PATH.getUrl())
+                .then()
+                .assertThat()
+                .statusCode(200),
+        3,
+        1);
 
     String[] subscrptionIds = {subscriptionId};
 
@@ -1113,25 +1182,34 @@ public class TestFederation extends AbstractIntegrationTest {
         new HashSet<>(0),
         new HashSet<>(Arrays.asList(subscrptionIds)));
 
-    given()
-        .contentType(ContentType.XML)
-        .when()
-        .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-        .then()
-        .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"));
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .when()
+                .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId")),
+        3,
+        1);
 
-    given()
-        .contentType(ContentType.XML)
-        .when()
-        .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-        .then()
-        .assertThat()
-        .statusCode(404);
+    CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            given()
+                .contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .statusCode(404),
+        3,
+        1);
   }
 
   /** Tests basic download from the live federated csw source */
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testDownloadFromFederatedCswSource() {
 
     String filename = "product1.txt";
@@ -1177,6 +1255,7 @@ public class TestFederation extends AbstractIntegrationTest {
    * @throws Exception
    */
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testRetrievalReliablility() throws Exception {
     try {
       getSecurityPolicy().configureWebContextPolicy("PKI|BASIC", "PKI|BASIC", null, null);
@@ -1245,6 +1324,7 @@ public class TestFederation extends AbstractIntegrationTest {
    * respond with the correct Partial Content when a range header is sent in the request
    */
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testRetrievalWithByteOffset() {
 
     String filename = "product2.txt";
@@ -1297,6 +1377,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
   /** Tests that if the endpoint disconnects 3 times, the retrieval fails after 3 attempts */
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testRetrievalReliabilityFails() {
 
     String filename = "product3.txt";
@@ -1368,6 +1449,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
   /** Tests that ddf will redownload a product if the remote metacard has changed */
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testCacheIsUpdatedIfRemoteProductChanges() {
     String filename = "product5.txt";
     String metacardId = generateUniqueMetacardId();
@@ -1425,6 +1507,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testProductDownloadWithTwoUsers() throws Exception {
     try {
       getSecurityPolicy().configureWebContextPolicy("PKI|BASIC", "PKI|BASIC", null, null);

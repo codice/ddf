@@ -73,7 +73,7 @@ class OpenSearchEndpointSpec extends Specification {
                     getQueryParameters() >> Mock(MultivaluedMap) {
                         get(_) >> null
                     }
-                    getRequestUri() >> new URI()
+                    getRequestUri() >> URI.create("http://localhost")
                 },
                 null,
                 null,

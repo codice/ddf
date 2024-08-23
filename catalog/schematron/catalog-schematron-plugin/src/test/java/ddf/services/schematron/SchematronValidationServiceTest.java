@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,6 +47,7 @@ public class SchematronValidationServiceTest {
 
   @Before
   public void setup() throws IOException {
+    System.setProperty("ddf.home", "./");
     URL src = SchematronValidationServiceTest.class.getClassLoader().getResource("dog_legs.sch");
     fileWithSpaces =
         Paths.get(testFolder.getRoot().getAbsolutePath())
@@ -53,6 +55,11 @@ public class SchematronValidationServiceTest {
             .resolve("dog_legs.sch")
             .toFile();
     FileUtils.copyURLToFile(src, fileWithSpaces);
+  }
+
+  @After
+  public void after() {
+    System.clearProperty("ddf.home");
   }
 
   @Test
