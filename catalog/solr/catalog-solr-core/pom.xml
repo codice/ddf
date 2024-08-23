@@ -157,6 +157,11 @@
             <version>3.1.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-v1_1_0-source</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>

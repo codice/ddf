@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.Antimeridian;
 import org.joda.time.DateTime;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -777,7 +778,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
   private String fixSelfIntersectingGeometry(String wkt) {
     try {
-      Shape wktShape = WKT_READER.read(wkt);
+      String adjustedWkt = Antimeridian.normalizeWkt(wkt);
+      Shape wktShape = WKT_READER.read(adjustedWkt);
       // All polygons will be an instance of JtsGeometry. If it is not a polygon we don't need
       // to do anything with it so just return the original wkt string.
       if (!(wktShape instanceof JtsGeometry)) {
