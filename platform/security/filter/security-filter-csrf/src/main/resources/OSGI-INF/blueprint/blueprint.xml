@@ -19,7 +19,7 @@
     <property name="whiteListContexts">
       <array value-type="java.lang.String">
         <value>/services[/]?$=GET</value>
-        <value>/services/internal/catalog/?$=PUT</value>
+        <value>/services/internal/catalog.*=PUT</value>
         <value>/services/admin/config[/]?$=GET</value>
         <value>/services/content[/]?$=GET</value>
         <value>/services/catalog/query[/]?$=GET</value> <!-- Simple Search -->
