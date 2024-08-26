@@ -213,7 +213,7 @@ public class UpdateOperations {
                   metacardMap.values().stream().map(Metacard::getId).collect(Collectors.toList()),
                   String.class),
               new ArrayList<>(metacardMap.values()));
-      updateRequest.setProperties(streamUpdateRequest.getProperties());
+      updateRequest.setProperties(new HashMap<>(streamUpdateRequest.getProperties()));
       historian.setSkipFlag(updateRequest);
       updateResponse = doUpdate(updateRequest);
       historian.version(streamUpdateRequest, updateStorageResponse, updateResponse);
