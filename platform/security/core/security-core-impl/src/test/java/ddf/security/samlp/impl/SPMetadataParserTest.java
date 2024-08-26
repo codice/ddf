@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -60,6 +61,7 @@ public class SPMetadataParserTest {
   @BeforeClass
   public static void setupClass() throws Exception {
 
+    System.setProperty("ddf.home", "./");
     // read Certificate file into certificate
     certificate =
         IOUtils.toString(
@@ -83,6 +85,11 @@ public class SPMetadataParserTest {
     // get the METADATA
     testInfo = testMap.get(ENTITY_ID);
     testInfo2 = testMap.get(ENTITY_ID_2);
+  }
+
+  @AfterClass
+  public static void after() {
+    System.clearProperty("ddf.home");
   }
 
   @Test
