@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,8 +32,14 @@ public class ResourceBundleLocatorImplTest {
 
   @Before
   public void setup() {
+    System.setProperty("ddf.home", "./");
     this.resourceBundleLocator = new ResourceBundleLocatorImpl();
     resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
+  }
+
+  @After
+  public void after() {
+    System.clearProperty("ddf.home");
   }
 
   @Test

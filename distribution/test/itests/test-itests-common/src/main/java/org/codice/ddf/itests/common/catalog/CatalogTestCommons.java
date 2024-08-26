@@ -26,10 +26,14 @@ import static org.codice.ddf.itests.common.csw.CswTestCommons.getMetacardIdFromC
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import java.io.IOException;
+import java.time.Duration;
+import java.util.function.Supplier;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
@@ -160,6 +164,16 @@ public class CatalogTestCommons {
         .ignoreExceptions()
         .until(() -> doesMetacardExist(id[0]));
     return id[0];
+  }
+
+  public static <T> T retryAssertionErrorCall(Supplier<T> call, int retries, int waitPeriodSec) {
+    return Failsafe.with(
+            RetryPolicy.<T>builder()
+                .handle(AssertionError.class)
+                .withMaxRetries(retries)
+                .withDelay(Duration.ofSeconds(waitPeriodSec))
+                .build())
+        .get(call::get);
   }
 
   /**

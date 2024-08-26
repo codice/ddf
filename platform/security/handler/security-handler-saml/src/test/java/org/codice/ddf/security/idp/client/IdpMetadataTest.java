@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
@@ -50,6 +51,12 @@ public class IdpMetadataTest {
   public void setup() throws IOException {
     metadata = new IdpMetadata();
     entityXml = IOUtils.toString(getClass().getResourceAsStream("/entityDescriptor.xml"), "UTF-8");
+    System.setProperty("ddf.home", "./");
+  }
+
+  @After
+  public void after() {
+    System.clearProperty("ddf.home");
   }
 
   @Test

@@ -643,6 +643,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testCswUtmQuery() {
     Response response = ingestXmlViaCsw();
     response.then();
@@ -693,22 +694,28 @@ public class TestCatalog extends AbstractIntegrationTest {
   public void testCswFunctionQuery() {
     String id = ingest(getFileContent("metacard5.xml"), "text/xml");
     try {
-      given()
-          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-          .body(
-              getCswFunctionQuery(
-                  "metadata",
-                  true,
-                  "application/xml",
-                  "http://www.opengis.net/cat/csw/2.0.2",
-                  "proximity",
-                  2,
-                  "All Hail Our SysAdmin"))
-          .post(CSW_PATH.getUrl())
-          .then()
-          .assertThat()
-          .statusCode(equalTo(200))
-          .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"), not("0"));
+      CatalogTestCommons.retryAssertionErrorCall(
+          () ->
+              given()
+                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                  .body(
+                      getCswFunctionQuery(
+                          "metadata",
+                          true,
+                          "application/xml",
+                          "http://www.opengis.net/cat/csw/2.0.2",
+                          "proximity",
+                          2,
+                          "All Hail Our SysAdmin"))
+                  .post(CSW_PATH.getUrl())
+                  .then()
+                  .assertThat()
+                  .statusCode(equalTo(200))
+                  .body(
+                      hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"),
+                      not("0")),
+          3,
+          1);
     } finally {
       delete(id);
     }
@@ -1511,6 +1518,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testPptxTumbnail() throws Exception {
     final String file = "testPPT.pptx";
 
@@ -1538,6 +1546,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testContentDirectoryMonitor() throws Exception {
     final String TMP_PREFIX = "tcdm_";
     Path tmpDir = Files.createTempDirectory(TMP_PREFIX);

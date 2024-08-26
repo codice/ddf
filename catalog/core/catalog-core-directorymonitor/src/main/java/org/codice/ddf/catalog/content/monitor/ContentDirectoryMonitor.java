@@ -458,7 +458,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      */
     @Override
     public void process(Exchange exchange) {
-      ThreadContext.bind(security.getSystemSubject());
+      ThreadContext.bind(security.runAsAdmin(security::getSystemSubject));
     }
   }
 }

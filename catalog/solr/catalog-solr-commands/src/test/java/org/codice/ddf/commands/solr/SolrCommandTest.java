@@ -34,7 +34,6 @@ import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.NamedList;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
 public abstract class SolrCommandTest {
@@ -51,9 +50,9 @@ public abstract class SolrCommandTest {
 
   protected static final String DEFAULT_DDF_HOME = "/opt/ddf";
 
-  @Rule @ClassRule public static TemporaryFolder baseDir = new TemporaryFolder();
+  @ClassRule public static TemporaryFolder baseDir = new TemporaryFolder();
 
-  @Rule @ClassRule public static TemporaryFolder backupLocation = new TemporaryFolder();
+  @ClassRule public static TemporaryFolder backupLocation = new TemporaryFolder();
 
   protected ConsoleOutput consoleOutput;
 

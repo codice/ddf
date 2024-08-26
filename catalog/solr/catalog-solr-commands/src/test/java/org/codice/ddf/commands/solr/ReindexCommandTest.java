@@ -40,12 +40,19 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.codice.ddf.security.Security;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReindexCommandTest extends SolrCommandTest {
+
+  @BeforeClass
+  public static void beforeClass() {
+    setDdfHome();
+    setDdfEtc();
+  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNoArgReindex() throws Exception {
