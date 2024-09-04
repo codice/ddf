@@ -48,6 +48,11 @@ public class Antimeridian {
   private static final Logger LOGGER = LoggerFactory.getLogger(Antimeridian.class);
   private static final WKTReader WKT_READER = new WKTReader();
   private static final WKTWriter WKT_WRITER = new WKTWriter();
+  private static final double MAX_LONGITUDE = 180.0;
+  private static final double MIN_LONGITUDE = -180.0;
+  private static final double MAX_LATITUDE = 90.0;
+  private static final double MIN_LATITUDE = -90.0;
+  private static final double FULL_CIRCLE = 360.0;
 
   private Antimeridian() {}
 
@@ -58,10 +63,10 @@ public class Antimeridian {
       Coordinate[] coordinates = geo.getCoordinates();
       // keep coordinates within [-180,180]
       for (Coordinate coord : coordinates) {
-        if (coord.x > 180) {
-          coord.x -= 360;
-        } else if (coord.x < -180) {
-          coord.x += 360;
+        if (coord.x > MAX_LONGITUDE) {
+          coord.x -= FULL_CIRCLE;
+        } else if (coord.x < MIN_LONGITUDE) {
+          coord.x += FULL_CIRCLE;
         }
       }
       Geometry normalizedGeo = new GeometryFactory().createPolygon(coordinates);
@@ -88,7 +93,7 @@ public class Antimeridian {
   }
 
   public static Geometry unwrapAntimeridian(Geometry geo) {
-    if (geo.getEnvelopeInternal().getWidth() < 180.0 || geo instanceof MultiPoint) {
+    if (geo.getEnvelopeInternal().getWidth() < MAX_LONGITUDE || geo instanceof MultiPoint) {
       return geo;
     }
 
@@ -120,7 +125,7 @@ public class Antimeridian {
     newGeom.apply(
         (GeometryFilter)
             geometry -> {
-              if (geometry.getEnvelopeInternal().getWidth() < 180.0) {
+              if (geometry.getEnvelopeInternal().getWidth() < MAX_LONGITUDE) {
                 return;
               }
               int cross;
@@ -158,7 +163,7 @@ public class Antimeridian {
                     + innerLineString);
           }
 
-          shiftGeomByX(innerLineString, 360);
+          shiftGeomByX(innerLineString, (int) FULL_CIRCLE);
         }
       }
     }
@@ -182,17 +187,17 @@ public class Antimeridian {
       for (i = 1; i < size; ++i) {
         double thisXorig = cseq.getX(i);
 
-        assert thisXorig >= -180.0 && thisXorig <= 180.0 : "X not in geo bounds";
+        assert thisXorig >= MIN_LONGITUDE && thisXorig <= MAX_LONGITUDE : "X not in geo bounds";
 
         double thisX = thisXorig + shiftX;
-        if (prevX - thisX > 180.0) {
-          thisX += 360.0;
-          shiftX += 360;
+        if (prevX - thisX > MAX_LONGITUDE) {
+          thisX += FULL_CIRCLE;
+          shiftX += FULL_CIRCLE;
           ++shiftXPage;
           shiftXPageMax = Math.max(shiftXPageMax, shiftXPage);
-        } else if (thisX - prevX > 180.0) {
-          thisX -= 360.0;
-          shiftX -= 360;
+        } else if (thisX - prevX > MAX_LONGITUDE) {
+          thisX -= FULL_CIRCLE;
+          shiftX -= FULL_CIRCLE;
           --shiftXPage;
           shiftXPageMin = Math.min(shiftXPageMin, shiftXPage);
         }
@@ -210,7 +215,7 @@ public class Antimeridian {
         assert shiftXPage == 0;
       }
 
-      shiftGeomByX(lineString, shiftXPageMin * -360);
+      shiftGeomByX(lineString, shiftXPageMin * (int) -FULL_CIRCLE);
       i = shiftXPageMax - shiftXPageMin;
       return i;
     }
@@ -222,7 +227,7 @@ public class Antimeridian {
     }
 
     Envelope geomEnv = geom.getEnvelopeInternal();
-    if (geomEnv.getMinX() >= -180.0 && geomEnv.getMaxX() <= 180.0) {
+    if (geomEnv.getMinX() >= MIN_LONGITUDE && geomEnv.getMaxX() <= MAX_LONGITUDE) {
       return geom;
     }
 
@@ -230,12 +235,14 @@ public class Antimeridian {
     int page = 0;
 
     while (true) {
-      double minX = (-180 + page * 360);
+      double minX = (MIN_LONGITUDE + page * FULL_CIRCLE);
       if (geomEnv.getMaxX() <= minX) {
         return UnaryUnionOp.union(geomList);
       }
 
-      Geometry rect = geom.getFactory().toGeometry(new Envelope(minX, minX + 360.0, -90.0, 90.0));
+      Geometry rect =
+          geom.getFactory()
+              .toGeometry(new Envelope(minX, minX + FULL_CIRCLE, MIN_LATITUDE, MAX_LATITUDE));
 
       assert rect.isValid() : "rect";
 
@@ -243,7 +250,7 @@ public class Antimeridian {
 
       assert pageGeom.isValid() : "pageGeom";
 
-      shiftGeomByX(pageGeom, page * -360);
+      shiftGeomByX(pageGeom, page * (int) -FULL_CIRCLE);
       geomList.add(pageGeom);
       ++page;
     }
