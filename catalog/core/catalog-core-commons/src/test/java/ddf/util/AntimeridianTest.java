@@ -11,13 +11,14 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
+package ddf.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 
+import java.util.List;
 import org.junit.Test;
-import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -35,13 +36,16 @@ public class AntimeridianTest {
     }
   }
 
-  private Envelope getEnvelopeFromWkt(String wkt) {
-    try {
-      Geometry geo = WKT_READER.read(wkt);
-      return geo.getEnvelopeInternal();
-    } catch (ParseException e) {
-      throw new IllegalArgumentException("Unable to parse WKT", e);
-    }
+  @Test
+  public void testWktMultipolyToSinglePolygons() {
+    String inputWkt =
+        "MULTIPOLYGON (((-90 26, -90 70, -44 70, -44 26, -90 26)), ((180 70, 180 26, 162 26, 162 70, 180 70)))";
+    String expectedA = "POLYGON ((-90 26, -90 70, -44 70, -44 26, -90 26))";
+    String expectedB = "POLYGON ((180 70, 180 26, 162 26, 162 70, 180 70))";
+
+    List<String> resultWkt = Antimeridian.wktMultipolyToSinglePolygons(inputWkt);
+    assertThat(resultWkt, hasItem(expectedA));
+    assertThat(resultWkt, hasItem(expectedB));
   }
 
   @Test

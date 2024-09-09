@@ -1955,6 +1955,20 @@ public class WfsFilterDelegateTest {
 
     final FilterType filter = delegate.intersects(Metacard.ANY_GEO, MULTIPOLYGON);
     assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
+    final BinarySpatialOpType binarySpatialOpType =
+        (BinarySpatialOpType) filter.getSpatialOps().getValue();
+    assertThat(binarySpatialOpType.getGeometry().getValue(), is(instanceOf(PolygonType.class)));
+
+    final PolygonType polygonType = (PolygonType) binarySpatialOpType.getGeometry().getValue();
+    assertThat(
+        polygonType.getExterior().getValue().getRing().getValue(),
+        is(instanceOf(LinearRingType.class)));
+
+    final LinearRingType linearRingType =
+        (LinearRingType) polygonType.getExterior().getValue().getRing().getValue();
+    assertThat(
+        linearRingType.getCoordinates().getValue(),
+        is("5.0,5.0 5.0,40.0 45.0,40.0 45.0,5.0 5.0,5.0"));
   }
 
   @Test

@@ -21,7 +21,7 @@
  * <http://www.apache.org/licenses/LICENSE-2.0.txt
  * ****************************************************************************
  */
-package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
+package ddf.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +55,23 @@ public class Antimeridian {
   private static final double FULL_CIRCLE = 360.0;
 
   private Antimeridian() {}
+
+  public static boolean wktIsMultipolygon(String wkt) {
+    return wkt.toLowerCase().startsWith("multipolygon");
+  }
+
+  public static List<String> wktMultipolyToSinglePolygons(String wkt) {
+    List<String> wkts = new ArrayList<>();
+    try {
+      Geometry geos = WKT_READER.read(wkt);
+      for (int i = 0; i < geos.getNumGeometries(); i++) {
+        wkts.add(WKT_WRITER.write(geos.getGeometryN(i)));
+      }
+    } catch (Exception e) {
+      LOGGER.debug("Unable to parse WKT");
+    }
+    return wkts;
+  }
 
   public static String normalizeWkt(String wkt) {
     String normalizedWkt = wkt;

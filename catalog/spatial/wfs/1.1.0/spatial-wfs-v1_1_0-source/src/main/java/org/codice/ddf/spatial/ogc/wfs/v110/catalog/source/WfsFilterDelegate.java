@@ -13,10 +13,9 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
-import static org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.Antimeridian.unwrapAndSplitWkt;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
+import ddf.util.Antimeridian;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -1075,7 +1074,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private JAXBElement<? extends SpatialOpsType> createSpatialOpType(
       String operation, String propertyName, String wkt, Double distance) {
-    String adjustedWkt = unwrapAndSplitWkt(wkt);
+    String adjustedWkt = Antimeridian.normalizeWkt(wkt);
     switch (SPATIAL_OPERATORS.valueOf(operation)) {
       case BBOX:
         return buildBBoxType(propertyName, adjustedWkt);
@@ -1388,8 +1387,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         if (wktGeometry.getNumGeometries() == 1) {
           return createPolygon(wktGeometry.getGeometryN(0));
         } else {
-          // if it is not supported, why does it work?
-          return createMultiPolygon(wktGeometry);
+          return createPolygon(wktGeometry.getEnvelope());
         }
       } else {
         throw new IllegalArgumentException("The Polygon operand is not supported.");
