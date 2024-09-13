@@ -42,6 +42,26 @@ public class UuidGeneratorImpl implements UuidGenerator {
   }
 
   @Override
+  public String generateKnownId(String metacardTag, String userId, String... additionalInput) {
+    String input = getInputString(metacardTag, userId, additionalInput);
+    String uuid = UUID.nameUUIDFromBytes(input.getBytes()).toString();
+    if (!useHyphens) {
+      uuid = uuid.replace("-", "");
+    }
+    return uuid;
+  }
+
+  private String getInputString(String metacardTag, String userId, String... additionalInput) {
+    String input = String.format("%s-%s", metacardTag, userId);
+    if (additionalInput != null) {
+      for (String additional : additionalInput) {
+        input = input + "-" + additional;
+      }
+    }
+    return input;
+  }
+
+  @Override
   public boolean validateUuid(String uuid) {
     if (StringUtils.isEmpty(uuid)) {
       return false;

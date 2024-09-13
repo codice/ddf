@@ -21,6 +21,7 @@ import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.SourceInfoRequest;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.impl.SourceInfoResponseImpl;
+import ddf.catalog.plugin.SourcePlugin;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
@@ -200,7 +201,11 @@ public class SourceOperations extends DescribableImpl {
                 }
               });
     }
-    return ids;
+    Set<String> filteredIds = ids;
+    for (SourcePlugin plugin : frameworkProperties.getSourcePlugins()) {
+      filteredIds = plugin.processSourceIds(filteredIds);
+    }
+    return filteredIds;
   }
 
   public SourceInfoResponse getSourceInfo(
@@ -273,6 +278,10 @@ public class SourceOperations extends DescribableImpl {
     } catch (RuntimeException re) {
       LOGGER.debug(GET_SOURCE_EXCEPTION_MSG, re);
       throw new SourceUnavailableException(GET_SOURCE_EXCEPTION_MSG);
+    }
+
+    for (SourcePlugin plugin : frameworkProperties.getSourcePlugins()) {
+      response = plugin.processSourceInfo(response);
     }
 
     return response;
@@ -401,6 +410,11 @@ public class SourceOperations extends DescribableImpl {
     } catch (RuntimeException re) {
       throw new SourceUnavailableException(GET_SOURCE_EXCEPTION_MSG, re);
     }
+
+    for (SourcePlugin plugin : frameworkProperties.getSourcePlugins()) {
+      response = plugin.processSourceInfo(response);
+    }
+
     return response;
   }
 

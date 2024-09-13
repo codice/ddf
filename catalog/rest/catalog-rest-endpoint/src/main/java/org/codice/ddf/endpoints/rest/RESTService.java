@@ -84,6 +84,23 @@ public interface RESTService {
       @Context HttpServletRequest httpRequest);
 
   /**
+   * REST Get. Returns HTTP 200 with checksum if the local resource can be downloaded. Otherwise,
+   * HTTP 404. Returns HTTP 500 if unable to determine if the resource can be downloaded.
+   *
+   * @param id
+   * @param uriInfo
+   * @param httpRequest
+   * @return
+   */
+  @GET
+  @Path("/doesExist/{id}")
+  Response doesResourceExist(
+      @PathParam("id") String id,
+      @PathParam("sourceId") String encodedSourceId,
+      @Context UriInfo uriInfo,
+      @Context HttpServletRequest httpRequest);
+
+  /**
    * REST Put. Updates the specified metadata entry with the provided metadata.
    *
    * @param id

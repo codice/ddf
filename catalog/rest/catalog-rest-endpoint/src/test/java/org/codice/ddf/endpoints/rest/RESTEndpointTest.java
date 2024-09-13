@@ -51,6 +51,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.apache.tika.io.IOUtils;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
+import org.codice.ddf.checksum.ChecksumProvider;
 import org.codice.ddf.rest.service.impl.CatalogServiceImpl;
 import org.junit.Test;
 
@@ -166,7 +167,11 @@ public class RESTEndpointTest {
 
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(
-            framework, new AttachmentParserImpl(mimeTypeMapper), mock(AttributeRegistry.class));
+            framework,
+            new AttachmentParserImpl(mimeTypeMapper),
+            mock(AttributeRegistry.class),
+            Collections.emptyList(),
+            mock(ChecksumProvider.class));
     catalogServiceImpl.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
     catalogServiceImpl.setFilterBuilder(filterBuilder);
@@ -378,7 +383,11 @@ public class RESTEndpointTest {
 
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(
-            framework, new AttachmentParserImpl(mimeTypeMapper), mock(AttributeRegistry.class));
+            framework,
+            new AttachmentParserImpl(mimeTypeMapper),
+            mock(AttributeRegistry.class),
+            Collections.emptyList(),
+            mock(ChecksumProvider.class));
 
     catalogServiceImpl.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();

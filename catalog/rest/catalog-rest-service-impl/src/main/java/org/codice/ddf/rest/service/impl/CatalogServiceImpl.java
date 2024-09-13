@@ -14,6 +14,7 @@
 package org.codice.ddf.rest.service.impl;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.content.StorageProvider;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
@@ -30,6 +31,7 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.codice.ddf.attachment.AttachmentParser;
+import org.codice.ddf.checksum.ChecksumProvider;
 import org.codice.ddf.rest.service.AbstractCatalogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +43,10 @@ public class CatalogServiceImpl extends AbstractCatalogService {
   public CatalogServiceImpl(
       CatalogFramework framework,
       AttachmentParser attachmentParser,
-      AttributeRegistry attributeRegistry) {
-    super(framework, attachmentParser, attributeRegistry);
+      AttributeRegistry attributeRegistry,
+      List<StorageProvider> storageProviders,
+      ChecksumProvider checksumProvider) {
+    super(framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider);
   }
 
   @Override
