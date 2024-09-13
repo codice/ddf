@@ -108,7 +108,8 @@ public abstract class AbstractWfsSource extends MaskableImpl
         mappedPropertyName =
             StringUtils.defaultIfBlank(
                 metacardToFeaturePropertyMapper.getSortByRelevanceFeatureProperty(), null);
-      } else if (StringUtils.equals(Result.DISTANCE, incomingPropertyName)) {
+      } else if (org.apache.commons.lang.StringUtils.equals(
+          Result.DISTANCE, incomingPropertyName)) {
         mappedPropertyName =
             StringUtils.defaultIfBlank(
                 metacardToFeaturePropertyMapper.getSortByDistanceFeatureProperty(), null);

@@ -23,6 +23,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -86,6 +87,7 @@ import net.opengis.wfs.v_1_1_0.ResultTypeType;
 import net.opengis.wfs.v_1_1_0.WFSCapabilitiesType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.configuration.DictionaryMap;
@@ -194,6 +196,12 @@ public class WfsSource extends AbstractWfsSource {
   private final EncryptionService encryptionService;
 
   private final ClientBuilderFactory clientBuilderFactory;
+
+  // may be null
+  private String defaultSortName;
+
+  // may be null
+  private SortOrder defaultSortOrder;
 
   private String wfsUrl;
 
@@ -363,6 +371,14 @@ public class WfsSource extends AbstractWfsSource {
       availabilityPollFuture.cancel(true);
       setupAvailabilityPoll();
     }
+  }
+
+  public void setDefaultSortName(String name) {
+    this.defaultSortName = name;
+  }
+
+  public void setDefaultSortOrder(String order) {
+    this.defaultSortOrder = SortOrder.valueOf(order);
   }
 
   public void setAllowRedirects(Boolean allowRedirects) {
@@ -724,12 +740,13 @@ public class WfsSource extends AbstractWfsSource {
     }
 
     final ExtendedGetFeatureType getHits = buildGetFeatureRequestHits(modifiedQuery);
-    final ExtendedGetFeatureType getResults = buildGetFeatureRequestResults(modifiedQuery);
+    final Pair<ExtendedGetFeatureType, Set<SourceProcessingDetails>> getResults =
+        buildGetFeatureRequestResults(modifiedQuery);
+
+    Set<SourceProcessingDetails> sourceProcessingDetails = getResults.getRight();
 
     try {
       LOGGER.debug("WFS Source {}: Getting hits.", getId());
-
-      Set<SourceProcessingDetails> sourceProcessingDetails = null;
 
       long totalHits;
 
@@ -745,7 +762,7 @@ public class WfsSource extends AbstractWfsSource {
       LOGGER.debug("The query has {} hits.", totalHits);
 
       LOGGER.debug("WFS Source {}: Sending query ...", getId());
-      final WfsFeatureCollection featureCollection = wfs.getFeature(getResults);
+      final WfsFeatureCollection featureCollection = wfs.getFeature(getResults.getLeft());
 
       if (featureCollection == null) {
         throw new UnsupportedQueryException("Invalid results returned from server");
@@ -813,20 +830,21 @@ public class WfsSource extends AbstractWfsSource {
 
   private ExtendedGetFeatureType buildGetFeatureRequestHits(final Query query)
       throws UnsupportedQueryException {
-    return buildGetFeatureRequest(query, ResultTypeType.HITS, null);
+    return buildGetFeatureRequest(query, ResultTypeType.HITS, null).getLeft();
   }
 
-  private ExtendedGetFeatureType buildGetFeatureRequestResults(final Query query)
-      throws UnsupportedQueryException {
+  private Pair<ExtendedGetFeatureType, Set<SourceProcessingDetails>> buildGetFeatureRequestResults(
+      final Query query) throws UnsupportedQueryException {
     return buildGetFeatureRequest(
         query, ResultTypeType.RESULTS, BigInteger.valueOf(query.getPageSize()));
   }
 
-  private ExtendedGetFeatureType buildGetFeatureRequest(
+  private Pair<ExtendedGetFeatureType, Set<SourceProcessingDetails>> buildGetFeatureRequest(
       Query query, ResultTypeType resultType, BigInteger maxFeatures)
       throws UnsupportedQueryException {
     List<ContentType> contentTypes = getContentTypesFromQuery(query);
     List<QueryType> queries = new ArrayList<>();
+    Set<SourceProcessingDetails> details = new HashSet<>();
 
     for (Entry<QName, WfsFilterDelegate> filterDelegateEntry : featureTypeFilters.entrySet()) {
       if (contentTypes.isEmpty()
@@ -841,28 +859,12 @@ public class WfsSource extends AbstractWfsSource {
           if (areAnyFiltersSet(filter)) {
             wfsQuery.setFilter(filter);
           }
-          if (!this.disableSorting
-              && query.getSortBy() != null
+          if (!this.disableSorting && query.getSortBy() != null
               && query.getSortBy().getPropertyName() != null
               && query.getSortBy().getPropertyName().getPropertyName() != null) {
-            SortByType sortByType = buildSortBy(filterDelegateEntry.getKey(), query.getSortBy());
-            if (sortByType != null
-                && sortByType.getSortProperty() != null
-                && sortByType.getSortProperty().size() > 0) {
-              LOGGER.debug(
-                  "Sorting using sort property [{}] and sort order [{}].",
-                  sortByType.getSortProperty().get(0).getPropertyName(),
-                  sortByType.getSortProperty().get(0).getSortOrder());
-              wfsQuery.setSortBy(sortByType);
-            } else {
-              throw new UnsupportedQueryException(
-                  "Source "
-                      + this.getId()
-                      + " does not support specified sort property "
-                      + query.getSortBy().getPropertyName().getPropertyName());
-            }
+            setSortBy(query.getSortBy(), filterDelegateEntry.getKey(), wfsQuery, details);
           } else {
-            LOGGER.debug("Sorting is disabled or sort not specified.");
+            LOGGER.debug("Sort not specified.");
           }
           queries.add(wfsQuery);
         } else {
@@ -883,11 +885,69 @@ public class WfsSource extends AbstractWfsSource {
         getFeatureType.setStartIndex(BigInteger.valueOf(query.getStartIndex() - 1));
       }
       logMessage(getFeatureType);
-      return getFeatureType;
+      return Pair.of(getFeatureType, details);
     } else {
       throw new UnsupportedQueryException(
           "Unable to build query. No filters could be created from query criteria.");
     }
+  }
+
+  /**
+   * If sorting is disabled, then skip sorting and add a warning message to the ProcessingDetails.
+   * If the query-supplied sort parameters are valid, then use them. Otherwise, add a warning
+   * message to the ProcessingDetails. If they are not valid, then fallback to the default sort
+   * parameters. If the default sort parameters are unset, then skip sorting. If the default sort
+   * parameters are valid, then use them. If the default sort parameters are invalid, skip sorting.
+   */
+  private void setSortBy(
+      SortBy sortBy, QName key, QueryType wfsQuery, Set<SourceProcessingDetails> details) {
+    SortByType sortByType;
+    String message;
+
+    if (this.disableSorting) {
+      message = "Source has sorting disabled.";
+      details.add(new ProcessingDetailsImpl(this.getId(), null, message));
+      LOGGER.debug(message);
+      return;
+    }
+
+    sortByType = buildSortBy(key, sortBy);
+    if (isSortByValid(sortByType)) {
+      logSortBy(sortByType);
+      wfsQuery.setSortBy(sortByType);
+      return;
+    }
+
+    message = "Source does not support specified sort.";
+    details.add(new ProcessingDetailsImpl(this.getId(), null, message));
+    LOGGER.debug(message);
+
+    if (defaultSortName == null || defaultSortOrder == null) {
+      LOGGER.debug("Skipping sorting because sort properties are not supplied by admin.");
+      return;
+    }
+
+    sortByType = buildSortBy(key, new SortByImpl(defaultSortName, defaultSortOrder));
+    if (isSortByValid(sortByType)) {
+      LOGGER.debug("Using admin supplied sort properties.");
+      logSortBy(sortByType);
+      wfsQuery.setSortBy(sortByType);
+    } else {
+      LOGGER.debug("Skipping sorting because admin supplied sort properties are not valid.");
+    }
+  }
+
+  private void logSortBy(SortByType sortByType) {
+    LOGGER.debug(
+        "Sorting using sort property [{}] and sort order [{}].",
+        sortByType.getSortProperty().get(0).getPropertyName(),
+        sortByType.getSortProperty().get(0).getSortOrder());
+  }
+
+  private boolean isSortByValid(SortByType sortByType) {
+    return sortByType != null
+        && sortByType.getSortProperty() != null
+        && sortByType.getSortProperty().size() > 0;
   }
 
   private SortByType buildSortBy(QName featureType, SortBy incomingSortBy) {
