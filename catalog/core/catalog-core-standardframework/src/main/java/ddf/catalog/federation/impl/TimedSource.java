@@ -19,7 +19,12 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +41,15 @@ public class TimedSource implements Source {
 
   private final Source source;
 
+  private Map<Object, Object> originalThreadResources;
+
   public TimedSource(Source originalSource) {
+    this(originalSource, null);
+  }
+
+  public TimedSource(Source originalSource, Map<Object, Object> originalThreadResources) {
     source = originalSource;
+    this.originalThreadResources = originalThreadResources;
   }
 
   @Override
@@ -52,17 +64,43 @@ public class TimedSource implements Source {
 
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-    long startTime = System.currentTimeMillis();
-    SourceResponse result = source.query(request);
-    long endTime = System.currentTimeMillis();
+    long startTime = System.nanoTime();
+    Map<Object, Object> threadResources = ThreadContext.getResources();
+    try {
+      if (originalThreadResources != null && !originalThreadResources.isEmpty()) {
+        ThreadContext.remove();
+        ThreadContext.setResources(originalThreadResources);
+      } else {
+        LOGGER.warn("TimedSource executing without a security thread context");
+      }
+      SourceResponse result = source.query(request);
+      long endTime = System.nanoTime();
 
-    int elapsedTime = Math.toIntExact(endTime - startTime);
-    String sourceLatencyMetricKey = METRICS_SOURCE_ELAPSED_PREFIX_API + source.getId();
+      // get the elapsed time in ms (rounded by adding 1/2 a ms -> 500000)
+      int elapsedTime = Math.toIntExact(((endTime + 500000) - startTime) / 1000000);
+      String sourceLatencyMetricKey = METRICS_SOURCE_ELAPSED_PREFIX_API + source.getId();
+      Map<String, Serializable> props = result.getProperties();
+      props.put(sourceLatencyMetricKey, elapsedTime);
+      props.put("qm.timedsource.elapsed", endTime - startTime);
 
-    result.getProperties().put(sourceLatencyMetricKey, elapsedTime);
-    LOGGER.trace("Query latency for source [{}] was {}ms.", source.getId(), elapsedTime);
+      // copy over all the original query metrics along with the new solr metrics
+      QueryRequest qr = result.getRequest();
+      if (qr != null) {
+        Map<String, Serializable> requestProps = result.getRequest().getProperties();
+        List<String> keys =
+            requestProps.keySet().stream()
+                .filter(e -> e.startsWith("qm."))
+                .collect(Collectors.toList());
+        for (String key : keys) {
+          props.put(key, requestProps.get(key));
+        }
+      }
 
-    return result;
+      return result;
+    } finally {
+      ThreadContext.remove();
+      ThreadContext.setResources(threadResources);
+    }
   }
 
   @Override
