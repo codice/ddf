@@ -62,10 +62,10 @@ public abstract class CqlCommands extends CatalogCommands {
       description =
           "Option to filter by metacards that match a CQL Filter expression. It is recommended to use the search command (catalog:search) first to see which metacards will be filtered.\n\n"
               + "CQL Examples:\n\t"
-              + "Textual:   --cql \"title like 'some text'\"\n\t"
-              + "Temporal:  --cql \"modified before 2012-09-01T12:30:00Z\"\n\t"
+              + "Textual:   --cql \"\\\"title\\\" like 'some text'\"\n\t"
+              + "Temporal:  --cql \"\\\"modified\\\" before 2012-09-01T12:30:00Z\"\n\t"
               + "Spatial:   --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n\t"
-              + "Complex:   --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
+              + "Complex:   --cql \"\\\"title\\\" like 'some text' AND \\\"modified\\\" before 2012-09-01T12:30:00Z\"")
   String cqlFilter = null;
 
   @Option(
