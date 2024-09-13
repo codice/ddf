@@ -116,6 +116,43 @@ public class SecureWebSocketServlet extends WebSocketServlet {
       runWithUser(session, () -> ws.onError(session, ex));
     }
 
+    private void addClientInfoToContext(Session session) {
+      String clientIP;
+      String clientPort;
+      String clientHost;
+      URI requestUri = null;
+      if (session instanceof org.eclipse.jetty.websocket.common.WebSocketSession) {
+        requestUri =
+            ((org.eclipse.jetty.websocket.common.WebSocketSession) session).getRequestURI();
+      }
+      String xForwardedFor =
+          session.getUpgradeRequest().getHeader(HttpHeader.X_FORWARDED_FOR.toString());
+      if (StringUtils.isNotEmpty(xForwardedFor)) {
+        // a proxy has set the x-forwarded-* headers which indicate the actual client info
+        clientIP = xForwardedFor;
+        clientPort = session.getUpgradeRequest().getHeader(HttpHeader.X_FORWARDED_PORT.toString());
+        clientHost = session.getUpgradeRequest().getHeader(HttpHeader.X_FORWARDED_HOST.toString());
+      } else {
+        // otherwise use the remote address/port info
+        clientIP = session.getRemoteAddress().getAddress().toString();
+        clientPort = Integer.toString(session.getRemoteAddress().getPort());
+        clientHost = session.getRemoteAddress().getHostName();
+      }
+      ThreadContextProperties.addClientInfo(clientIP, clientHost, clientPort, requestUri);
+      callSessionPlugins(session);
+    }
+
+    private void callSessionPlugins(Session session) {
+      sessionPlugins.forEach(
+          sessionPlugin -> {
+            try {
+              sessionPlugin.handle(session);
+            } catch (Exception e) {
+              LOGGER.debug("The session plugin {} failed (continuing)", sessionPlugin, e);
+            }
+          });
+    }
+
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
       if (isUserLoggedIn()) {
