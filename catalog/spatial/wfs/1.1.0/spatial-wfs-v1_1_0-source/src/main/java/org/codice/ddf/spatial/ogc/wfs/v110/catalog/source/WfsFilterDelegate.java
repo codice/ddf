@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
+import ddf.util.Antimeridian;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -1094,7 +1095,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private JAXBElement<? extends SpatialOpsType> createSpatialOpType(
       String operation, String propertyName, String wkt, Double distance) {
-    String adjustedWkt = normalizeWktCoordinates(wkt);
+    String adjustedWkt = Antimeridian.normalizeWkt(wkt);
     switch (SPATIAL_OPERATORS.valueOf(operation)) {
       case BBOX:
         return buildBBoxType(propertyName, adjustedWkt);

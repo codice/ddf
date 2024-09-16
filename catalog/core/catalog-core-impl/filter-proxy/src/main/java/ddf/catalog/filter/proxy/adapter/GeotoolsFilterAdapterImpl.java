@@ -15,12 +15,15 @@ package ddf.catalog.filter.proxy.adapter;
 
 import static java.lang.Math.abs;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
+import ddf.util.Antimeridian;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -121,6 +124,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
   private static final Pattern RELATIVE_TEMPORAL_REGEX =
       Pattern.compile(SHORTENED_RELATIVE_TEMPORAL_REGEX.replaceAll("dec", DECIMAL_REGEX));
+
+  private final GeotoolsFilterBuilder geotoolsFilterBuilder = new GeotoolsFilterBuilder();
 
   @Override
   public <T> T adapt(Filter filter, FilterDelegate<T> filterDelegate)
@@ -755,10 +760,29 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return ((FilterDelegate<?>) delegate).dwithin(filterValues.propertyName, wkt, distance);
   }
 
+  private Or generateOrFilterFromMultipolyWkt(String wkt) {
+    List<String> polygons = Antimeridian.wktMultipolyToSinglePolygons(wkt);
+    List<Intersects> intersectFilters = new ArrayList<>();
+
+    for (String wktPoly : polygons) {
+      intersectFilters.add(
+          (Intersects)
+              geotoolsFilterBuilder.attribute(Metacard.ANY_GEO).intersecting().wkt(wktPoly));
+    }
+
+    return geotoolsFilterBuilder.anyOf(intersectFilters.toArray(new Intersects[0]));
+  }
+
   @Override
   public Object visit(Intersects filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String wkt = geometryToWkt(filterValues.literal);
+    String updatedWkt = Antimeridian.unwrapAndSplitWkt(wkt);
+
+    if (!Antimeridian.wktIsMultipolygon(wkt) && Antimeridian.wktIsMultipolygon(updatedWkt)) {
+      Or orFilter = generateOrFilterFromMultipolyWkt(updatedWkt);
+      return visit(orFilter, delegate);
+    }
 
     return ((FilterDelegate<?>) delegate).intersects(filterValues.propertyName, wkt);
   }
