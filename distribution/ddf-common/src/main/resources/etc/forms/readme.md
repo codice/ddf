@@ -63,7 +63,7 @@ would look something like the following:
 </fes:Filter>
 ```
 
-## Sample Results JSON blob (results.json) 
+## Sample Results JSON blob (results.json)
 
 ```$xslt
 [
