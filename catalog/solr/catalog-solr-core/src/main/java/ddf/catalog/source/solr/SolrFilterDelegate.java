@@ -24,6 +24,7 @@ import ddf.catalog.impl.filter.DivisibleByFunction;
 import ddf.catalog.impl.filter.ProximityFunction;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
+import ddf.util.Antimeridian;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -777,7 +778,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
   private String fixSelfIntersectingGeometry(String wkt) {
     try {
-      Shape wktShape = WKT_READER.read(wkt);
+      String adjustedWkt = Antimeridian.normalizeWkt(wkt);
+      Shape wktShape = WKT_READER.read(adjustedWkt);
       // All polygons will be an instance of JtsGeometry. If it is not a polygon we don't need
       // to do anything with it so just return the original wkt string.
       if (!(wktShape instanceof JtsGeometry)) {
@@ -977,10 +979,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   }
 
   /**
-   * This builds a "is null" query based on the property name provided.
+   * This builds an "is null" query based on the property name provided.
    *
    * <p>Since no type is provided with this method, we build a OR chained expression with anonymous
-   * field names. The actually expression uses a negative ranged query expression. The null query
+   * field names. The actual expression uses a negative ranged query expression. The null query
    * needs to be used in order for this expression to play well with other nested expressions. The
    * query used is outlined in:
    * http://stackoverflow.com/questions/17044661/how-to-filter-search-by-values-that-are-not-available/17045097#17045097

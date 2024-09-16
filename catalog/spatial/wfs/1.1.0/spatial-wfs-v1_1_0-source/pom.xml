@@ -214,6 +214,11 @@
             <artifactId>security-rest-cxfwrapper</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
