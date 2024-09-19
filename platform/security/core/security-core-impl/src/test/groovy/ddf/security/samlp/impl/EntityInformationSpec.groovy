@@ -27,6 +27,7 @@ class EntityInformationSpec extends Specification {
 
     void setup() {
         // This method is for any setup that should run before each test
+        System.setProperty("ddf.home", "/")
     }
 
     void cleanup() {
