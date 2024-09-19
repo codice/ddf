@@ -58,6 +58,7 @@ import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
+import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
@@ -798,20 +799,23 @@ public class TestSpatial extends AbstractIntegrationTest {
   }
 
   private String sendCswQuery(String query) {
-    RequestSpecification queryRequest = given().body(query);
+    RequestSpecification queryRequest =
+        given().body(query).header("Content-Type", TEXT_XML_UTF_8).basePath(CSW_PATH.getUrl());
 
-    queryRequest = queryRequest.header("Content-Type", TEXT_XML_UTF_8);
-
-    return queryRequest
-        .when()
-        .post(CSW_PATH.getUrl())
-        .then()
-        .assertThat()
-        .statusCode(equalTo(HttpStatus.SC_OK))
-        .extract()
-        .response()
-        .getBody()
-        .asString();
+    return CatalogTestCommons.retryAssertionErrorCall(
+        () ->
+            queryRequest
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                .statusCode(equalTo(HttpStatus.SC_OK))
+                .extract()
+                .response()
+                .getBody()
+                .asString(),
+        3,
+        1);
   }
 
   /**

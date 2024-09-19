@@ -43,6 +43,7 @@ import org.apache.commons.io.IOUtils;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
 import org.codice.ddf.security.jaxrs.impl.SamlSecurity;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -103,6 +104,12 @@ public class IdpHandlerTest {
     IOUtils.copy(inputStream, writer, "UTF-8");
     metadata = writer.toString();
     idpMetadata.setMetadata(metadata);
+    System.setProperty("ddf.home", "./");
+  }
+
+  @After
+  public void after() {
+    System.clearProperty("ddf.home");
   }
 
   @Test

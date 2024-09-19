@@ -27,6 +27,7 @@ import org.apache.karaf.features.internal.service.FeaturesServiceImpl;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.service.resolver.ResolutionException;
@@ -44,8 +45,13 @@ public class AbstractProfileCommandTest {
     this.applicationService = mock(ApplicationServiceImpl.class);
     this.featuresService = mock(FeaturesServiceImpl.class);
     this.bundleService = mock(BundleServiceImpl.class);
-
+    System.setProperty("ddf.etc", "./");
     this.abstractProfileCommand = getCommand(applicationService, featuresService, bundleService);
+  }
+
+  @After
+  public void after() {
+    System.clearProperty("ddf.etc");
   }
 
   @Test(expected = ApplicationServiceException.class)

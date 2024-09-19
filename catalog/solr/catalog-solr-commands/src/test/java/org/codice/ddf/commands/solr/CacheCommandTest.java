@@ -33,6 +33,8 @@ public class CacheCommandTest extends SolrCommandTest {
 
   @Test
   public void testCacheClear() throws Exception {
+    setDdfHome();
+    setDdfEtc();
     SolrClient cloudClient = mock(SolrClient.class);
     NamedList<Object> pingStatus = new NamedList<>();
     pingStatus.add("status", "OK");

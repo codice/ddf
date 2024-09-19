@@ -16,7 +16,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
-    <version>2.29.1-SNAPSHOT</version>
+    <version>2.29.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Reactor</name>
     <description>Distributed Data Framework (DDF) Parent</description>
@@ -49,8 +49,8 @@
         <version>1.0.12</version>
     </parent>
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <!--  default URL properties -->
         <ddf.scm.connection.url />
         <snapshots.repository.url />
@@ -114,7 +114,7 @@
         <dom4j.bundle.version>2.1.3_1</dom4j.bundle.version>
 
         <!--Test properties-->
-        <byte-buddy.version>1.10.18</byte-buddy.version>
+        <byte-buddy.version>1.14.19</byte-buddy.version>
         <hamcrest-all.servicemix.version>1.3_1</hamcrest-all.servicemix.version>
         <hamcrest-all.version>1.3</hamcrest-all.version>
         <hamcrest-junit.version>2.0.0.0</hamcrest-junit.version>
@@ -155,7 +155,7 @@
         <c3p0.version>0.9.5.5</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
-        <camel.version>3.18.0</camel.version>
+        <camel.version>3.18.8</camel.version>
         <cesium.version>1.34</cesium.version>
         <commons-compress.version>1.21</commons-compress.version>
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
@@ -327,7 +327,7 @@
 
         <!-- Command line argument properties for the maven-surefire-plugin -->
         <surefire.argline.append />
-        <surefire.argline>${jacoco.argline} ${surefire.argline.append} -Xmx1024m -Djava.awt.headless=true -noverify</surefire.argline>
+        <surefire.argline>${jacoco.argline} ${surefire.argline.append} -Xmx1024m -Djava.awt.headless=true -noverify --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.xml/com.sun.xml.internal.stream=ALL-UNNAMED --add-exports java.base/sun.security.x509=ALL-UNNAMED</surefire.argline>
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
 
         <fabric8.docker.plugin.version>0.36.1</fabric8.docker.plugin.version>
@@ -339,7 +339,7 @@
 
         <!-- SonarQube Properties -->
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/${project.report.output.directory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-
+        <maven-jacoco-plugin.version>0.8.12</maven-jacoco-plugin.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
@@ -839,24 +839,24 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.1</version>
                     <configuration>
-                        <source>11</source>
-                        <target>11</target>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
                         <maxmem>512M</maxmem>
                         <fork>${compiler.fork}</fork>
                         <encoding>${project.build.sourceEncoding}</encoding>
                         <compilerArgs>
                             <arg>-XDcompilePolicy=simple</arg>
-                            <arg>-Xplugin:ErrorProne</arg>
+<!--                            <arg>-Xplugin:ErrorProne</arg>-->
                             <arg>--add-exports</arg>
                             <arg>java.base/sun.security.x509=ALL-UNNAMED</arg>
                         </compilerArgs>
-                        <annotationProcessorPaths>
-                            <path>
-                                <groupId>com.google.errorprone</groupId>
-                                <artifactId>error_prone_core</artifactId>
-                                <version>2.4.0</version>
-                            </path>
-                        </annotationProcessorPaths>
+<!--                        <annotationProcessorPaths>-->
+<!--                            <path>-->
+<!--                                <groupId>com.google.errorprone</groupId>-->
+<!--                                <artifactId>error_prone_core</artifactId>-->
+<!--                                <version>2.4.0</version>-->
+<!--                            </path>-->
+<!--                        </annotationProcessorPaths>-->
                     </configuration>
                 </plugin>
                 <plugin>
@@ -938,7 +938,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>1.4.1</version>
+                    <version>3.5.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>ddf.support</groupId>
@@ -1032,7 +1032,7 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.1</version>
                 <executions>
                     <execution>
                         <goals>
