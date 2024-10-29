@@ -79,9 +79,10 @@ public class TimedSource implements Source {
       // get the elapsed time in ms (rounded by adding 1/2 a ms -> 500000)
       int elapsedTime = Math.toIntExact(((endTime + 500000) - startTime) / 1000000);
       String sourceLatencyMetricKey = METRICS_SOURCE_ELAPSED_PREFIX_API + source.getId();
+      String sourceMetricKey = "qm.timedsource.elapsed." + source.getId();
       Map<String, Serializable> props = result.getProperties();
       props.put(sourceLatencyMetricKey, elapsedTime);
-      props.put("qm.timedsource.elapsed", endTime - startTime);
+      props.put(sourceMetricKey, endTime - startTime);
 
       // copy over all the original query metrics along with the new solr metrics
       QueryRequest qr = result.getRequest();
