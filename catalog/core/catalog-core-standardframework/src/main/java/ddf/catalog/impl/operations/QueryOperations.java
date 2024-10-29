@@ -73,7 +73,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -81,6 +80,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.codice.ddf.security.util.ThreadContextProperties;
+import org.json.simple.JSONObject;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,6 +107,12 @@ public class QueryOperations extends DescribableImpl {
   public static final String QM_REQUEST_POLICYMAP = QMB + "request-policymap.";
   public static final String QM_RESPONSE_POLICYMAP = QMB + "response-policymap.";
   public static final String QM_ELAPSED = ".elapsed";
+  public static final String QM_PRE_QUERY = QMB + "pre-query" + QM_ELAPSED;
+  public static final String QM_DO_QUERY = QMB + "do-query" + QM_ELAPSED;
+  public static final String QM_POST_QUERY = QMB + "post-query" + QM_ELAPSED;
+
+  public static final String QM_TOTAL_ELAPSED = QMB + "total" + QM_ELAPSED;
+  public static final String QM_TIMED_SOURCE = QMB + "timedsource" + QM_ELAPSED + ".";
 
   public static final String QM_RESPONSE_INJECTATTRIBUTES =
       QMB + "response-injectattributes" + QM_ELAPSED;
@@ -202,6 +208,7 @@ public class QueryOperations extends DescribableImpl {
       boolean overrideFanoutRename,
       boolean fanoutEnabled)
       throws UnsupportedQueryException, FederationException {
+    long queryStart = System.nanoTime();
 
     FederationStrategy fedStrategy = strategy;
     QueryResponse queryResponse;
@@ -209,6 +216,7 @@ public class QueryOperations extends DescribableImpl {
     queryRequest = setFlagsOnRequest(queryRequest);
 
     try {
+      long start = System.nanoTime();
       queryRequest = addTraceId(queryRequest);
       queryRequest = validateQueryRequest(queryRequest);
       queryRequest = getFanoutQuery(queryRequest, fanoutEnabled);
@@ -230,21 +238,25 @@ public class QueryOperations extends DescribableImpl {
         }
       }
 
-      long start = System.nanoTime();
+      long preQueryTime = System.nanoTime() - start;
+      long doQueryStart = System.nanoTime();
       queryResponse = doQuery(queryRequest, fedStrategy);
-      long elapsedTime = System.nanoTime() - start;
-      putMetricsDuration(queryResponse, QMB + "do-query" + QM_ELAPSED, elapsedTime);
+      putMetricsDuration(queryResponse, QM_PRE_QUERY, preQueryTime);
+      putMetricsDuration(queryResponse, QM_DO_QUERY, System.nanoTime() - doQueryStart);
 
       // Allow callers to determine the total results returned from the query; this value
       // may differ from the number of filtered results after processing plugins have been run.
       queryResponse.getProperties().put("actualResultSize", queryResponse.getResults().size());
       LOGGER.trace("BeforePostQueryFilter result size: {}", queryResponse.getResults().size());
+      long postQueryStart = System.nanoTime();
       queryResponse = injectAttributes(queryResponse);
       queryResponse = validateFixQueryResponse(queryResponse, overrideFanoutRename, fanoutEnabled);
       queryResponse = postProcessPreAuthorizationPlugins(queryResponse);
       queryResponse = populateQueryResponsePolicyMap(queryResponse);
       queryResponse = processPostQueryAccessPlugins(queryResponse);
       queryResponse = processPostQueryPlugins(queryResponse);
+      putMetricsDuration(queryResponse, QM_POST_QUERY, System.nanoTime() - postQueryStart);
+      putMetricsDuration(queryResponse, QM_TOTAL_ELAPSED, System.nanoTime() - queryStart);
 
       log(queryResponse);
 
@@ -276,54 +288,46 @@ public class QueryOperations extends DescribableImpl {
         }
       }
     }
-    if (QUERY_LOGGER.isDebugEnabled()) {
-      // Combine the request and response metrics to log
-      Map<String, Serializable> allMetrics =
-          collectQueryMetrics(
-              queryResponse.getRequest().getProperties(), queryResponse.getProperties());
-      QUERY_LOGGER.debug("QueryMetrics: {}", serializeMetrics(allMetrics, QMB));
+    Map<String, Serializable> requestProperties =
+        queryResponse.getRequest() == null ? null : queryResponse.getRequest().getProperties();
+    Map<String, Serializable> allProperties =
+        collectQueryProperties(requestProperties, queryResponse.getProperties());
+    if (Boolean.TRUE.equals(allProperties.get("metrics-enabled"))) {
+      QUERY_LOGGER.info("QueryMetrics: {}", getQueryMetricsLog(allProperties));
     }
   }
 
-  protected static Map<String, Serializable> collectQueryMetrics(
-      Map<String, Serializable> requestMetrics, Map<String, Serializable> responseMetrics) {
-    Map<String, Serializable> allMetrics = new HashMap<>();
-    if (requestMetrics != null) {
-      allMetrics.putAll(filterMetrics(requestMetrics, QMB));
+  protected static String getQueryMetricsLog(Map<String, Serializable> properties) {
+    JSONObject queryJson = new JSONObject();
+    // Combine the request and response metrics to log
+    queryJson.put("total-duration", properties.get(QM_TOTAL_ELAPSED));
+    queryJson.put("prequery-duration", properties.get(QM_PRE_QUERY));
+    queryJson.put("query-duration", properties.get(QM_DO_QUERY));
+    queryJson.put("postquery-duration", properties.get(QM_POST_QUERY));
+    Map<String, Serializable> sourceDurationMap = new HashMap<>();
+    properties.entrySet().stream()
+        .filter(e -> e.getKey() != null && e.getKey().startsWith(QM_TIMED_SOURCE))
+        .forEach(e -> sourceDurationMap.put(e.getKey().split(QM_TIMED_SOURCE)[1], e.getValue()));
+    queryJson.put("source-duration", sourceDurationMap);
+    HashMap<String, Serializable> additionalQueryMetrics =
+        (HashMap<String, Serializable>) properties.get("additional-query-metrics");
+    if (additionalQueryMetrics != null) {
+      queryJson.putAll(additionalQueryMetrics);
     }
-    if (responseMetrics != null) {
-      allMetrics.putAll(filterMetrics(responseMetrics, QMB));
-    }
-    return allMetrics;
+
+    return queryJson.toJSONString();
   }
 
-  protected static Map<String, Serializable> filterMetrics(
-      Map<String, Serializable> src, String base) {
-    Map<String, Serializable> filtered =
-        src.entrySet().stream()
-            .filter(x -> x.getKey().startsWith(base))
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey, entry -> replaceNullWithNilID(entry, Map.Entry::getValue)));
-    return filtered;
-  }
-
-  /**
-   * replaceNullWithNilID checks the values of a Map.Entry for null - if found, the value is
-   * replaced with the NIL UUID value (00000000-0000-0000-0000-00000000) with the "-"s removed. This
-   * can occur when queries don't originate from an endpoint and trace-ids are not injected before
-   * calling a query operation.
-   *
-   * @param entry the Map.Entry being processed
-   * @param valueExtractor method to retrieve the value from the entry
-   * @return the original value if non-null, or the NIL UUID value
-   * @param <K> Type of the key
-   * @param <V> Type of the value
-   */
-  private static <K, V> V replaceNullWithNilID(
-      Map.Entry<K, V> entry, Function<Map.Entry<K, V>, V> valueExtractor) {
-    V originalValue = valueExtractor.apply(entry);
-    return originalValue == null ? (V) NIL_UUID : originalValue;
+  protected static Map<String, Serializable> collectQueryProperties(
+      Map<String, Serializable> requestProps, Map<String, Serializable> responseProps) {
+    Map<String, Serializable> allProperties = new HashMap<>();
+    if (requestProps != null) {
+      allProperties.putAll(requestProps);
+    }
+    if (responseProps != null) {
+      allProperties.putAll(responseProps);
+    }
+    return allProperties;
   }
 
   protected static String serializeMetrics(Map<String, Serializable> props, String base) {
