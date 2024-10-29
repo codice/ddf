@@ -18,10 +18,15 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
+import org.opengis.filter.Filter;
 
 public class QueryOperationsTest {
 
@@ -42,42 +47,13 @@ public class QueryOperationsTest {
     respMetrics.put(QueryOperations.QM_POSTQUERY + "metric2" + QueryOperations.QM_ELAPSED, "56789");
     respMetrics.put(QueryOperations.QM_POSTQUERY + "metric3" + QueryOperations.QM_ELAPSED, "98765");
 
-    noQueryMetrics.put("some.metrics", "123");
-    noQueryMetrics.put("other.metrics", "456");
-
-    noTraceIdMetrics.put(
-        QueryOperations.QM_POSTQUERY + "metric1" + QueryOperations.QM_ELAPSED, "45678");
-    noTraceIdMetrics.put(
-        QueryOperations.QM_POSTQUERY + "metric2" + QueryOperations.QM_ELAPSED, "56789");
-    noTraceIdMetrics.put(
-        QueryOperations.QM_POSTQUERY + "metric3" + QueryOperations.QM_ELAPSED, "98765");
-
-    nullTraceIdMetrics.put(QueryOperations.QM_TRACEID, null);
-    nullTraceIdMetrics.put(
-        QueryOperations.QM_POSTQUERY + "metric1" + QueryOperations.QM_ELAPSED, "45678");
-    nullTraceIdMetrics.put(
-        QueryOperations.QM_POSTQUERY + "metric2" + QueryOperations.QM_ELAPSED, "56789");
-    nullTraceIdMetrics.put(
-        QueryOperations.QM_POSTQUERY + "metric3" + QueryOperations.QM_ELAPSED, "98765");
-
-    Map<String, Serializable> metrics = QueryOperations.collectQueryMetrics(null, null);
+    Map<String, Serializable> metrics = QueryOperations.collectQueryProperties(null, null);
     assertNotNull(metrics);
     assertThat(metrics.size(), is(0));
     String metricsString = QueryOperations.serializeMetrics(metrics, QueryOperations.QMB);
     assertThat(metricsString, is("trace-id: null"));
 
-    metrics = QueryOperations.collectQueryMetrics(noQueryMetrics, null);
-    assertNotNull(metrics);
-    assertThat(metrics.size(), is(0));
-
-    metrics = QueryOperations.collectQueryMetrics(noTraceIdMetrics, null);
-    assertNotNull(metrics);
-
-    metrics = QueryOperations.collectQueryMetrics(nullTraceIdMetrics, null);
-    assertNotNull(metrics);
-    assertThat(metrics.get(QueryOperations.QM_TRACEID), is(QueryOperations.NIL_UUID));
-
-    metrics = QueryOperations.collectQueryMetrics(reqMetrics, null);
+    metrics = QueryOperations.collectQueryProperties(reqMetrics, null);
     assertNotNull(metrics);
     assertThat(metrics.size(), is(reqMetrics.size()));
     metricsString = QueryOperations.serializeMetrics(metrics, QueryOperations.QMB);
@@ -91,7 +67,7 @@ public class QueryOperationsTest {
         containsString(
             QueryOperations.QM_PREQUERY + "metric2" + QueryOperations.QM_ELAPSED + ": 34567"));
 
-    metrics = QueryOperations.collectQueryMetrics(null, respMetrics);
+    metrics = QueryOperations.collectQueryProperties(null, respMetrics);
     assertNotNull(metrics);
     assertThat(metrics.size(), is(respMetrics.size()));
     metricsString = QueryOperations.serializeMetrics(metrics, QueryOperations.QMB);
@@ -109,7 +85,7 @@ public class QueryOperationsTest {
         containsString(
             QueryOperations.QM_POSTQUERY + "metric3" + QueryOperations.QM_ELAPSED + ": 98765"));
 
-    metrics = QueryOperations.collectQueryMetrics(reqMetrics, respMetrics);
+    metrics = QueryOperations.collectQueryProperties(reqMetrics, respMetrics);
     assertNotNull(metrics);
     // trace-id from each is merged into 1
     assertThat(metrics.size(), is(reqMetrics.size() + respMetrics.size() - 1));
@@ -135,5 +111,25 @@ public class QueryOperationsTest {
         metricsString,
         containsString(
             QueryOperations.QM_POSTQUERY + "metric3" + QueryOperations.QM_ELAPSED + ": 98765"));
+  }
+
+  @Test
+  public void testLogQueryMetrics() throws NullPointerException {
+    QueryResponse queryResponse =
+        new QueryResponseImpl(new QueryRequestImpl(new QueryImpl(Filter.INCLUDE)));
+    Map<String, Serializable> respProps = new HashMap<>();
+
+    respProps.put(QueryOperations.QM_TRACEID, "12345");
+    respProps.put(QueryOperations.QM_PREQUERY + "metric" + QueryOperations.QM_ELAPSED, "23456");
+    respProps.put(QueryOperations.QM_DO_QUERY + "metric" + QueryOperations.QM_ELAPSED, "23456");
+    respProps.put(
+        QueryOperations.QM_TOTAL_ELAPSED + "metric" + QueryOperations.QM_ELAPSED, "523456");
+    respProps.put(QueryOperations.QM_POSTQUERY + "metric" + QueryOperations.QM_ELAPSED, "45678");
+    respProps.put("metrics-enabled", true);
+    respProps.put("additional-query-metrics", new HashMap<>());
+
+    queryResponse.getProperties().putAll(respProps);
+    String queryMetricsLog = QueryOperations.getQueryMetricsLog(queryResponse.getProperties());
+    assertNotNull(queryMetricsLog);
   }
 }
