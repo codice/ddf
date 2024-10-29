@@ -38,6 +38,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.FacetAttributeResult;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.TermFacetProperties;
@@ -131,8 +132,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String SKIP_REALTIME_GET = "skipRealtimeGet";
 
-  private static final String RESOURCE_ATTRIBUTE = "resource";
-
   private final SolrClient client;
 
   private final SolrFilterDelegateFactory filterDelegateFactory;
@@ -197,12 +196,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     try {
       QueryResponse solrResponse;
-      boolean doRealTimeGet =
-          (boolean) request.getProperties().getOrDefault(DO_REALTIME_GET, false)
-              || BooleanUtils.toBoolean(
-                  filterAdapter.adapt(request.getQuery(), new RealTimeGetDelegate()));
 
-      if (doRealTimeGet) {
+      if (shouldDoRealTimeGet(request)) {
         LOGGER.debug("Performing real time query");
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
