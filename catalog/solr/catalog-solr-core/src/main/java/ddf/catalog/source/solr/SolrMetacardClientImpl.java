@@ -447,7 +447,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
       LOGGER.trace("Begin solr spellcheck: query request {}", request);
       long time0 = System.nanoTime();
-      Collation collation = getCollationToResend(query, solrResponse);
+      Collation collation = getCollationToResend(solrResponse);
       query.set("q", collation.getCollationQueryString());
       query.set(SPELLCHECK_KEY, false);
       long time1 = System.nanoTime();
