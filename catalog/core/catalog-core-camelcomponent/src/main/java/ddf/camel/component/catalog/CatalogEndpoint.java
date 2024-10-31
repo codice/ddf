@@ -22,8 +22,8 @@ import ddf.camel.component.catalog.queryresponsetransformer.QueryResponseTransfo
 import ddf.camel.component.catalog.queryresponsetransformer.QueryResponseTransformerProducer;
 import ddf.catalog.CatalogFramework;
 import ddf.mime.MimeTypeMapper;
-import java.util.concurrent.ExecutorService;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 import org.apache.camel.Consumer;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.MultipleConsumersSupport;
@@ -71,7 +71,6 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
       label = "producer,advanced",
       description = "Sets whether synchronous processing should be strictly used")
   private boolean synchronous;
-
 
   /**
    * Constructs a CatalogEndpoint for the specified custom <code>catalog</code> component.

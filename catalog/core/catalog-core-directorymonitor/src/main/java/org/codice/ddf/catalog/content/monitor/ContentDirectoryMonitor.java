@@ -36,8 +36,8 @@ import javax.annotation.Nullable;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.Predicate;
+import org.apache.camel.Processor;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
@@ -210,7 +210,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   @SuppressWarnings(
       "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
   public void destroy(int code) {
-      LOGGER.debug("Shutting down CDM for {}", this.monitoredDirectory);
+    LOGGER.debug("Shutting down CDM for {}", this.monitoredDirectory);
     CompletableFuture.runAsync(this::removeRoutes, configurationExecutor);
   }
 
