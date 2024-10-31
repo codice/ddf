@@ -16,8 +16,6 @@ package ddf.security.audit.impl;
 import com.google.common.net.HttpHeaders;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectOperations;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import ddf.security.audit.AuditPropertiesPlugin;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -111,7 +109,6 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
     } else {
       messageBuilder.append(TRACE_ID).append(" ").append("none").append(", ");
     }
-
 
     String additionAuditProperties =
         auditPropertiesPlugins.stream()
