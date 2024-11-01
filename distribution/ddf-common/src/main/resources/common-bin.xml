@@ -81,6 +81,7 @@
                 Vulnerabilities: CVE-2008-0732, CVE-2011-5034
                 -->
                 <exclude>**/org/apache/geronimo/bundles/commons-discovery/**/*</exclude>
+                <exclude>**/org/ops4j/pax/logging/**/*</exclude>
             </excludes>
         </fileSet>
 
@@ -383,6 +384,18 @@
                 <include>
                     org.apache.servicemix.bundles:org.apache.servicemix.bundles.jaxb-runtime:jar:${servicemix.bundles.jaxb.version}
                 </include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>system/org/ops4j/pax/logging/pax-logging-log4j2/${pax.logging.version}</outputDirectory>
+            <includes>
+                <include>org.ops4j.pax.logging:pax-logging-log4j2:jar:${pax.logging.version}</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>system/org/ops4j/pax/logging/pax-logging-api/${pax.logging.version}</outputDirectory>
+            <includes>
+                <include>org.ops4j.pax.logging:pax-logging-api:jar:${pax.logging.version}</include>
             </includes>
         </dependencySet>
     </dependencySets>
