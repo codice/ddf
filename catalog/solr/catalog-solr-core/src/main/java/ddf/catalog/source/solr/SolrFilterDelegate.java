@@ -13,6 +13,8 @@
  */
 package ddf.catalog.source.solr;
 
+import static ddf.catalog.data.Metacard.ANY_GEO;
+
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
@@ -691,10 +693,17 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
       SolrQuery query = null;
       if (null != pnt) {
-        String nearestNeighborQuery =
-            geoPointToCircleQuery(propertyName, NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
+        String nearestNeighborQuery;
 
-        updateDistanceSort(propertyName, pnt);
+        if (ANY_GEO.equals(propertyName)) {
+          nearestNeighborQuery = geoPointToCircleQuery(NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
+          updateDistanceSort(pnt);
+        } else {
+          nearestNeighborQuery =
+              geoPointToCircleQuery(propertyName, NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
+          updateDistanceSort(propertyName, pnt);
+        }
+
         query = new SolrQuery(nearestNeighborQuery);
       }
       return query;
@@ -711,8 +720,20 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     return geoIndexName + ":\"" + INTERSECTS_OPERATION + "(" + circle + ")\"";
   }
 
+  private String geoPointToCircleQuery(double distanceInDegrees, Point pnt) {
+    return "("
+        + resolver
+            .anyGeoFields()
+            .map(propertyName -> geoPointToCircleQuery(propertyName, distanceInDegrees, pnt))
+            .collect(Collectors.joining(" "))
+        + ")";
+  }
+
   @Override
   public SolrQuery contains(String propertyName, String wkt) {
+    if (ANY_GEO.equals(propertyName)) {
+      return operationToQuery("Contains", wkt);
+    }
     return operationToQuery("Contains", propertyName, wkt);
   }
 
@@ -751,9 +772,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
       double distanceInDegrees = metersToDegrees(distance);
       if (isPoint(geo)) {
         Point pnt = (Point) geo;
-        String pointRadiusQuery = geoPointToCircleQuery(propertyName, distanceInDegrees, pnt);
-
-        updateDistanceSort(propertyName, pnt);
+        String pointRadiusQuery;
+        if (ANY_GEO.equals(propertyName)) {
+          pointRadiusQuery = geoPointToCircleQuery(distanceInDegrees, pnt);
+          updateDistanceSort(pnt);
+        } else {
+          pointRadiusQuery = geoPointToCircleQuery(propertyName, distanceInDegrees, pnt);
+          updateDistanceSort(propertyName, pnt);
+        }
         return new SolrQuery(pointRadiusQuery);
       } else {
         Geometry bufferGeo = geo.buffer(distanceInDegrees, QUADRANT_SEGMENTS);
@@ -771,7 +797,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
           bufferGeo = removeHoles(bufferGeo);
         }
         String bufferWkt = WKT_WRITER.write(bufferGeo);
-        return operationToQuery(INTERSECTS_OPERATION, propertyName, bufferWkt);
+        if (ANY_GEO.equals(propertyName)) {
+          return operationToQuery(INTERSECTS_OPERATION, bufferWkt);
+        } else {
+          return operationToQuery(INTERSECTS_OPERATION, propertyName, bufferWkt);
+        }
       }
     } else {
       throw new UnsupportedOperationException("Unable to read given WKT: " + wkt);
@@ -817,38 +847,59 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
         if (isPoint(geo)) {
           Point pnt = (Point) geo;
-          String pointRadiusQuery =
-              geoPointToCircleQuery(propertyName, DEFAULT_ERROR_IN_DEGREES, pnt);
-
-          updateDistanceSort(propertyName, pnt);
+          String pointRadiusQuery;
+          if (ANY_GEO.equals(propertyName)) {
+            pointRadiusQuery = geoPointToCircleQuery(DEFAULT_ERROR_IN_DEGREES, pnt);
+            updateDistanceSort(pnt);
+          } else {
+            pointRadiusQuery = geoPointToCircleQuery(propertyName, DEFAULT_ERROR_IN_DEGREES, pnt);
+            updateDistanceSort(propertyName, pnt);
+          }
           return new SolrQuery(pointRadiusQuery);
         }
         if (MULTI_POINT_TYPE.equals(geo.getGeometryType()) && geo.getCoordinates().length == 1) {
           Point pnt = GEOMETRY_FACTORY.createPoint(geo.getCoordinate());
-          String pointRadiusQuery =
-              geoPointToCircleQuery(propertyName, DEFAULT_ERROR_IN_DEGREES, pnt);
+          String pointRadiusQuery;
+          if (propertyName.equals(ANY_GEO)) {
+            pointRadiusQuery = geoPointToCircleQuery(DEFAULT_ERROR_IN_DEGREES, pnt);
+            updateDistanceSort(pnt);
+          } else {
+            pointRadiusQuery = geoPointToCircleQuery(propertyName, DEFAULT_ERROR_IN_DEGREES, pnt);
+            updateDistanceSort(propertyName, pnt);
+          }
 
-          updateDistanceSort(propertyName, pnt);
           return new SolrQuery(pointRadiusQuery);
         }
       }
     }
 
+    if (ANY_GEO.equals(propertyName)) {
+      return operationToQuery(INTERSECTS_OPERATION, wkt);
+    }
     return operationToQuery(INTERSECTS_OPERATION, propertyName, wkt);
   }
 
   @Override
   public SolrQuery within(String propertyName, String wkt) {
+    if (ANY_GEO.equals(propertyName)) {
+      return operationToQuery("IsWithin", wkt);
+    }
     return operationToQuery("IsWithin", propertyName, wkt);
   }
 
   @Override
   public SolrQuery disjoint(String propertyName, String wkt) {
+    if (ANY_GEO.equals(propertyName)) {
+      return operationToQuery("IsDisjointTo", wkt);
+    }
     return operationToQuery("IsDisjointTo", propertyName, wkt);
   }
 
   @Override
   public SolrQuery overlaps(String propertyName, String wkt) {
+    if (ANY_GEO.equals(propertyName)) {
+      return operationToQuery("Overlaps", wkt);
+    }
     return operationToQuery("Overlaps", propertyName, wkt);
   }
 
@@ -883,6 +934,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         }
       }
     }
+  }
+
+  private void updateDistanceSort(Point point) {
+    resolver.anyGeoFields().forEach(propertyName -> updateDistanceSort(propertyName, point));
   }
 
   private SolrQuery getEqualToQuery(String propertyName, AttributeFormat format, Number literal) {
@@ -956,22 +1011,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     return query;
   }
-
-  // @Override
-  // public SolrQuery beyond(String propertyName, String wkt, double distance)
-  // {
-  // return pointRadiusToQuerySolrQuery("IsDisjointTo", propertyName, wkt,
-  // distance);
-  // }
-
-  /*
-   * If we eventually support the OGC Equals operation, we will need the IsEqualTo Spatial4j
-   * string
-   */
-  // @Override
-  // public Object visit(Equals filter, Object data) {
-  // return operationToQuery("IsEqualTo",filter,data);
-  // }
 
   private String getMappedPropertyName(
       String propertyName, AttributeFormat format, boolean isSearchedAsExactString) {
@@ -1077,6 +1116,38 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     Geometry pnt = getGeometry(wkt);
     if (pnt != null) {
       updateDistanceSort(propertyName, pnt.getCentroid());
+    }
+
+    return new SolrQuery(geoQuery);
+  }
+
+  private SolrQuery operationToQuery(String operation, String wkt) {
+
+    if (!StringUtils.isNotEmpty(wkt)) {
+      throw new UnsupportedOperationException("Wkt should not be null or empty.");
+    }
+
+    String geoQuery =
+        "("
+            + resolver
+                .anyGeoFields()
+                .map(
+                    propertyName ->
+                        getMappedPropertyName(propertyName, AttributeFormat.GEOMETRY, false))
+                .map(
+                    geoIndexName ->
+                        geoIndexName
+                            + ":\""
+                            + operation
+                            + "("
+                            + fixSelfIntersectingGeometry(wkt)
+                            + ")\"")
+                .collect(Collectors.joining(" "))
+            + ")";
+
+    Geometry pnt = getGeometry(wkt);
+    if (pnt != null) {
+      updateDistanceSort(pnt.getCentroid());
     }
 
     return new SolrQuery(geoQuery);

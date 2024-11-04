@@ -2339,7 +2339,9 @@ public class CatalogFrameworkImplTest {
     results.add(result);
 
     QueryResponse queryResponse = mock(QueryResponse.class);
+    QueryRequest queryRequest = mock(QueryRequest.class);
     when(queryResponse.getResults()).thenReturn(results);
+    when(queryResponse.getRequest()).thenReturn(queryRequest);
     FederationStrategy strategy = mock(FederationStrategy.class);
     when(strategy.federate(isA(federatedSources.getClass()), isA(QueryRequest.class)))
         .thenReturn(queryResponse);
