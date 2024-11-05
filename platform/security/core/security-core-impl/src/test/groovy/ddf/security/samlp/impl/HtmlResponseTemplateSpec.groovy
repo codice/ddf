@@ -1,12 +1,9 @@
 package ddf.security.samlp.impl
 
-import org.junit.platform.runner.JUnitPlatform
-import org.junit.runner.RunWith
 import org.xml.sax.SAXException
 import org.xml.sax.SAXParseException
 import spock.lang.Specification
 
-@RunWith(JUnitPlatform.class)
 class HtmlResponseTemplateSpec extends Specification {
     static final String URL = "https://mytargeturl.com/idp/stuffs"
     static final String ENCODED_SAML = "000b64encoded0saml0object+but0not0really000"

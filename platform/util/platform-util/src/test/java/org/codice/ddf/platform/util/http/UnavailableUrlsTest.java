@@ -16,8 +16,8 @@ package org.codice.ddf.platform.util.http;
 import static org.codice.ddf.platform.util.http.UnavailableUrls.INITIAL_TIMEOUT_SECONDS_PROPERTY;
 import static org.codice.ddf.platform.util.http.UnavailableUrls.MAX_TIMEOUT_SECONDS_PROPERTY;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 

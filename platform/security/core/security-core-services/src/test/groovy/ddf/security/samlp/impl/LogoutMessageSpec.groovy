@@ -4,9 +4,7 @@ import ddf.security.encryption.EncryptionService
 import ddf.security.samlp.LogoutWrapper
 import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.junit.Rule
-import org.junit.platform.runner.JUnitPlatform
 import org.junit.rules.TemporaryFolder
-import org.junit.runner.RunWith
 import org.opensaml.saml.common.SAMLVersion
 import org.opensaml.saml.saml2.core.LogoutRequest
 import org.opensaml.saml.saml2.core.LogoutResponse
@@ -18,7 +16,6 @@ import java.time.Instant
 import static java.time.Instant.now
 import static org.apache.commons.lang.StringUtils.isNotBlank
 
-@RunWith(JUnitPlatform.class)
 class LogoutMessageSpec extends Specification {
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()
