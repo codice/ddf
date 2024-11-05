@@ -17,10 +17,16 @@ import com.google.common.collect.Iterables;
 import ddf.action.Action;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
+import ddf.catalog.content.StorageException;
+import ddf.catalog.content.StorageProvider;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
+import ddf.catalog.content.operation.ReadStorageRequest;
+import ddf.catalog.content.operation.ReadStorageResponse;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
+import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -34,10 +40,12 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
@@ -66,6 +74,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -102,6 +111,7 @@ import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
+import org.codice.ddf.checksum.ChecksumProvider;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
@@ -149,6 +159,8 @@ public abstract class AbstractCatalogService implements CatalogService {
 
   private UuidGenerator uuidGenerator;
 
+  private ChecksumProvider checksumProvider;
+
   protected static MimeType jsonMimeType;
 
   static {
@@ -171,14 +183,20 @@ public abstract class AbstractCatalogService implements CatalogService {
 
   protected CatalogFramework catalogFramework;
 
+  protected List<StorageProvider> storageProviders;
+
   public AbstractCatalogService(
       CatalogFramework framework,
       AttachmentParser attachmentParser,
-      AttributeRegistry attributeRegistry) {
+      AttributeRegistry attributeRegistry,
+      List<StorageProvider> storageProviders,
+      ChecksumProvider checksumProvider) {
     LOGGER.trace("Constructing CatalogServiceImpl");
     this.catalogFramework = framework;
     this.attachmentParser = attachmentParser;
     this.attributeRegistry = attributeRegistry;
+    this.storageProviders = storageProviders;
+    this.checksumProvider = checksumProvider;
     LOGGER.trace(("CatalogServiceImpl constructed successfully"));
   }
 
@@ -279,6 +297,88 @@ public abstract class AbstractCatalogService implements CatalogService {
 
   @Override
   public abstract BinaryContent getSourcesInfo();
+
+  @Override
+  public String doesLocalResourceExist(String metacardId, String sourceId)
+      throws CatalogServiceException {
+
+    Filter filter = filterBuilder.attribute(Core.ID).is().text(metacardId);
+
+    QueryResponse queryResponse;
+
+    try {
+      queryResponse =
+          catalogFramework.query(
+              new QueryRequestImpl(new QueryImpl(filter), Collections.singletonList(sourceId)));
+    } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+      throw new CatalogServiceException(
+          String.format(
+              "Unable to query the framework for metacard %s and source %s", metacardId, sourceId),
+          e);
+    }
+
+    if (queryResponse.getResults().size() != 1) {
+      LOGGER.debug("metacard {} not found", metacardId);
+      return null;
+    }
+
+    Metacard metacard = queryResponse.getResults().get(0).getMetacard();
+
+    URI resourceUri = metacard.getResourceURI();
+
+    if (resourceUri == null) {
+      try {
+        resourceUri = new URI("content", metacardId, null);
+      } catch (URISyntaxException e) {
+        LOGGER.debug(
+            "Unable to determine if a local resource for metacard {} exists because the resource uri is invalid",
+            metacardId,
+            e);
+        return null;
+      }
+    }
+
+    ReadStorageRequest readStorageRequest =
+        new ReadStorageRequestImpl(resourceUri, Collections.emptyMap());
+
+    if (storageProviders.size() != 1) {
+      LOGGER.debug(
+          "Unable to determine if a local resource for metacard {} exists because there isn't exactly one storage provider.",
+          metacardId);
+      return null;
+    }
+
+    ReadStorageResponse readStorageResponse;
+    try {
+      readStorageResponse = storageProviders.get(0).read(readStorageRequest);
+    } catch (StorageException e) {
+      LOGGER.debug("Unable to read the resource {} (ignoring)", resourceUri, e);
+      return null;
+    }
+
+    if (containsErrors(readStorageResponse)) {
+      LOGGER.debug("Unable to read the resource {} because of processing errors", resourceUri);
+      return null;
+    }
+
+    ContentItem resource = readStorageResponse.getContentItem();
+    if (resource == null) {
+      return null;
+    }
+
+    try {
+      return checksumProvider.calculateChecksum(resource.getInputStream());
+    } catch (IOException | NoSuchAlgorithmException e) {
+      LOGGER.debug("Unable to generate checksum for resource {}", resourceUri);
+    }
+
+    return "";
+  }
+
+  public boolean containsErrors(ReadStorageResponse response) {
+    return response.getProcessingErrors() != null
+        && response.getProcessingErrors().stream().anyMatch(ProcessingDetails::hasException);
+  }
 
   @Override
   public BinaryContent getDocument(

@@ -32,6 +32,7 @@ import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
+import ddf.catalog.plugin.SourcePlugin;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 import ddf.catalog.source.CatalogProvider;
@@ -77,6 +78,8 @@ public class FrameworkProperties {
   private List<PolicyPlugin> policyPlugins = new ArrayList<>();
 
   private List<AccessPlugin> accessPlugins = new ArrayList<>();
+
+  private List<SourcePlugin> sourcePlugins = new ArrayList<>();
 
   private List<ConnectedSource> connectedSources = new ArrayList<>();
 
@@ -202,6 +205,14 @@ public class FrameworkProperties {
 
   public void setAccessPlugins(List<AccessPlugin> accessPlugins) {
     this.accessPlugins = accessPlugins;
+  }
+
+  public List<SourcePlugin> getSourcePlugins() {
+    return sourcePlugins;
+  }
+
+  public void setSourcePlugins(List<SourcePlugin> sourcePlugins) {
+    this.sourcePlugins = sourcePlugins;
   }
 
   public List<ConnectedSource> getConnectedSources() {

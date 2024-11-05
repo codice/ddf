@@ -18,4 +18,8 @@ public class CatalogServiceException extends Exception {
   public CatalogServiceException(String message) {
     super(message);
   }
+
+  public CatalogServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }
