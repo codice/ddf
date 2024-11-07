@@ -181,14 +181,14 @@ public class CsvQueryResponseTransformerTest {
      */
 
     String[] expectedHeaders = {
-      "attribute1", "attribute2", "attribute3", "attribute4", "attribute5"
+      "attribute1", "attribute2", "attribute3", "attribute4", "attribute5", "metacard-type"
     };
     validate(scanner, expectedHeaders);
 
     // The scanner will split "value,4" into two tokens even though the CSVPrinter will
     // handle it correctly.
     String[] expectedValues = {
-      "", "value1", "101", "3.14159", "\"value", "4\"", "\"POINT(1", "1)\""
+      "", "value1", "101", "3.14159", "\"value", "4\"", "\"POINT(1", "1)\"", "test-type"
     };
 
     for (int i = 0; i < METACARD_COUNT; i++) {
