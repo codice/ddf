@@ -14,9 +14,11 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import static ddf.catalog.Constants.CDM_LOGGER_NAME;
+import static org.apache.camel.LoggingLevel.DEBUG;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
+import ddf.security.Subject;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import java.io.Serializable;
@@ -34,8 +36,10 @@ import javax.annotation.Nullable;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
 import org.apache.camel.Exchange;
+import org.apache.camel.Predicate;
 import org.apache.camel.Processor;
 import org.apache.camel.ServiceStatus;
+import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.FromDefinition;
 import org.apache.camel.model.ModelCamelContext;
@@ -72,6 +76,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private Security security;
 
+  private static final long MAX_FILE_SIZE = 1_073_741_824;
+
   private final int maxRetries;
 
   private final int delayBetweenRetries;
@@ -97,8 +103,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   private Integer numThreads;
 
   private Integer readLockIntervalMilliseconds;
-
-  Processor systemSubjectBinder;
 
   /**
    * Constructs a monitor that uses the given RetryPolicy while waiting for the content scheme, and
@@ -126,7 +130,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     this.delayBetweenRetries = delayBetweenRetries;
     this.configurationExecutor = configurationExecutor;
     this.security = security;
-    systemSubjectBinder = new SystemSubjectBinder(security);
     setBlacklist();
   }
 
@@ -207,6 +210,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   @SuppressWarnings(
       "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
   public void destroy(int code) {
+    LOGGER.debug("Shutting down CDM for {}", this.monitoredDirectory);
     CompletableFuture.runAsync(this::removeRoutes, configurationExecutor);
   }
 
@@ -214,7 +218,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     if (routeBuilder == null) {
       return;
     }
-
+    LOGGER.debug("CDM Removing routes");
     for (RouteDefinition routeDef : routeBuilder.getRouteCollection().getRoutes()) {
       try {
         String routeId = routeDef.getId();
@@ -403,14 +407,31 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
           routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY).constant(attributeOverrides);
         }
 
-        ThreadsDefinition td = routeDefinition.threads(numThreads).process(systemSubjectBinder);
+        Subject subject = security.getSystemSubject();
+
+        ThreadsDefinition td =
+            routeDefinition
+                .threads(numThreads, numThreads)
+                .maxQueueSize(numThreads * 2)
+                .process(exchange -> ThreadContext.bind(subject));
         if (processingMechanism.equals(IN_PLACE)) {
+          String maxSize =
+              System.getProperty(
+                  "org.codice.ddf.catalog.content.monitor.maxFileSizeBytes",
+                  String.valueOf(MAX_FILE_SIZE));
+          Predicate sizeLimit = simple("${file:size} < " + maxSize);
+          Predicate createOrUpdateOperation =
+              simple("${in.headers.operation} == 'CREATE' || ${in.headers.operation} == 'UPDATE'");
+
           td.choice()
-              .when(
-                  simple(
-                      "${in.headers.operation} == 'CREATE' || ${in.headers.operation} == 'UPDATE'"))
+              .when(PredicateBuilder.and(sizeLimit, createOrUpdateOperation))
               .to("catalog:inputtransformer")
               .process(new InPlaceMetacardProcessor(attributeRegistry))
+              .otherwise()
+              .log(
+                  DEBUG,
+                  CDM_LOGGER,
+                  "Ignoring file ${file:name} with size ${file:size} because it is too big")
               .end()
               .to("catalog:framework");
         } else {
