@@ -41,7 +41,7 @@ public abstract class AbstractStoreCommand implements Action {
       aliases = {"-t", "--type"},
       required = true,
       description =
-          "Type of entry in the persistence store to perform the current operation on.\nOptions: metacard, saved_query, notification, activity, workspace, preferences, attributes, subscriptions, event_subscriptions, alerts, or decanter",
+          "Type of entry in the persistence store to perform the current operation on.\nOptions: metacard, saved_query, notification, activity, workspace, attributes, subscriptions, event_subscriptions, alerts, or decanter",
       multiValued = false)
   String type;
 

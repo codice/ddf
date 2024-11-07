@@ -85,6 +85,7 @@
         <feature>jts</feature>
         <feature>geotools</feature>
         <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/preferences-api/${project.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>
 
         <bundle>mvn:joda-time/joda-time/2.9.4</bundle>
