@@ -1072,27 +1072,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return returnFilter;
   }
 
-  String normalizeWktCoordinates(String wkt) {
-    String normalizedWkt;
-    try {
-      Coordinate[] coordinates = getCoordinatesFromWkt(wkt);
-      // keep coordinates within [-180,180]
-      for (Coordinate coord : coordinates) {
-        if (coord.x > 180) {
-          coord.x -= 360;
-        } else if (coord.x < -180) {
-          coord.x += 360;
-        }
-      }
-      Geometry geo = new GeometryFactory().createPolygon(coordinates);
-      normalizedWkt = WKT_WRITER_THREAD_LOCAL.get().write(geo);
-    } catch (Exception e) {
-      LOGGER.debug("Unable to adjust WKT. Continuing with original WKT.");
-      return wkt;
-    }
-    return normalizedWkt;
-  }
-
   private JAXBElement<? extends SpatialOpsType> createSpatialOpType(
       String operation, String propertyName, String wkt, Double distance) {
     String adjustedWkt = Antimeridian.normalizeWkt(wkt);
