@@ -85,9 +85,6 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GmdTransformer.class);
 
-  private static final String TRANSFORM_EXCEPTION_MSG =
-      "Unable to transform from GMD Metadata to Metacard";
-
   private static final Pattern WHITE_SPACE_PATTER = Pattern.compile("(\\s)+");
 
   private static final Pattern NEW_LINE_PATTERN = Pattern.compile("(\\n)+");

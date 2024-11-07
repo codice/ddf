@@ -637,7 +637,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .assertThat()
         .contentType("text/html")
         .statusCode(equalTo(500))
-        .body(containsString("Unable to transform Metacard."));
+        .body(containsString("Resource file is not available"));
   }
 
   @Test

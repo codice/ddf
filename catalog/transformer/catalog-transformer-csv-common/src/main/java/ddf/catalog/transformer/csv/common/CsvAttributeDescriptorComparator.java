@@ -62,6 +62,7 @@ class CsvAttributeDescriptorComparator implements Comparator<AttributeDescriptor
 
     return new CompareToBuilder()
         .append(getAttributeIndex(descriptorName1), getAttributeIndex(descriptorName2))
+        .append(descriptorName1, descriptorName2)
         .toComparison();
   }
 
