@@ -16,12 +16,16 @@ package ddf.security.audit.impl;
 import com.google.common.net.HttpHeaders;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectOperations;
+import ddf.security.audit.AuditPropertiesPlugin;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.AccessController;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -59,8 +63,14 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
 
   private final SubjectOperations subjectOperations;
 
+  private List<AuditPropertiesPlugin> auditPropertiesPlugins = new LinkedList<>();
+
   public SecurityLoggerImpl(SubjectOperations subjectOperations) {
     this.subjectOperations = subjectOperations;
+  }
+
+  public void setAuditPropertiesPlugins(List<AuditPropertiesPlugin> auditPropertiesPlugins) {
+    this.auditPropertiesPlugins = auditPropertiesPlugins;
   }
 
   private String getUser(Subject subject) {
@@ -98,6 +108,17 @@ public final class SecurityLoggerImpl implements ddf.security.audit.SecurityLogg
       messageBuilder.append(TRACE_ID).append(" ").append(traceId).append(", ");
     } else {
       messageBuilder.append(TRACE_ID).append(" ").append("none").append(", ");
+    }
+
+    String additionAuditProperties =
+        auditPropertiesPlugins.stream()
+            .map(AuditPropertiesPlugin::generate)
+            .filter(Objects::nonNull)
+            .map(pair -> pair.getKey() + " " + pair.getValue())
+            .collect(Collectors.joining(", "));
+
+    if (StringUtils.isNotEmpty(additionAuditProperties)) {
+      messageBuilder.append(additionAuditProperties).append(", ");
     }
 
     String user = getUser(subject);
