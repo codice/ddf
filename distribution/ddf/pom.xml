@@ -83,6 +83,7 @@
                                 <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.codice.ddf/ui/${ddf-admin-ui.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
                                 <!-- conditional features -->
@@ -268,7 +269,7 @@
             <artifactId>docs</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <!-- Features to add to system repository -->
         <dependency>
             <groupId>ddf.catalog</groupId>

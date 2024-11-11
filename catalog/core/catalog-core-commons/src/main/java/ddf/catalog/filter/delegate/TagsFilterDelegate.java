@@ -57,7 +57,7 @@ public class TagsFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
   @Override
   public Boolean or(List<Boolean> operands) {
-    return operands.stream().allMatch(op -> op);
+    return operands.stream().anyMatch(op -> op);
   }
 
   @Override
