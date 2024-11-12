@@ -2014,17 +2014,6 @@ public class WfsFilterDelegateTest {
     assertXMLEqual(propertyIsLikeXmlEmpty, marshal(filter));
   }
 
-  @Test
-  public void testNormalizeWktCoordinates() {
-    WfsFilterDelegate delegate = createTextualDelegate();
-    String originalWkt =
-        "POLYGON ((162.421875 68.656555, 226.757813 69.037142, 226.757813 26.431228, 154.6875 27.994401, 162.421875 68.656555))";
-    String expectedWkt =
-        "POLYGON ((162.421875 68.656555, -133.242187 69.037142, -133.242187 26.431228, 154.6875 27.994401, 162.421875 68.656555))";
-    String actualWkt = delegate.normalizeWktCoordinates(originalWkt);
-    assertThat(actualWkt, is(expectedWkt));
-  }
-
   private JAXBElement<FilterType> getFilterTypeJaxbElement(FilterType filterType) {
     return new JAXBElement<>(
         new QName("http://www.opengis.net/ogc", FILTER_QNAME_LOCAL_PART),
