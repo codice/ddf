@@ -330,7 +330,7 @@
         <surefire.argline>${jacoco.argline} ${surefire.argline.append} -Xmx1024m -Djava.awt.headless=true -noverify --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.xml/com.sun.xml.internal.stream=ALL-UNNAMED --add-exports java.base/sun.security.x509=ALL-UNNAMED</surefire.argline>
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
 
-        <fabric8.docker.plugin.version>0.36.1</fabric8.docker.plugin.version>
+        <fabric8.docker.plugin.version>0.45.1</fabric8.docker.plugin.version>
         <tink.version>1.4.0</tink.version>
         <org.json.version>20170516</org.json.version>
 

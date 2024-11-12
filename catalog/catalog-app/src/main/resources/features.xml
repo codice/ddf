@@ -64,6 +64,7 @@
         <bundle>mvn:ddf.catalog.core/filter-proxy/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-attributeregistry/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-requiredattributes/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-injectattribute/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/versioning-api/${project.version}</bundle>

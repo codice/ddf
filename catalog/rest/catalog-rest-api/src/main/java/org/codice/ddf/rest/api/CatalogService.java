@@ -17,6 +17,7 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
@@ -76,6 +77,15 @@ public interface CatalogService {
       InputStream message)
       throws CatalogServiceException;
 
+  void updateDocument(
+      String id,
+      List<String> contentTypeList,
+      MultipartBody multipartBody,
+      String transformerParam,
+      InputStream message,
+      Map<String, Serializable> properties)
+      throws CatalogServiceException;
+
   /** Updates the specified metadata entry with the provided metadata. */
   void updateDocument(
       String id,
@@ -83,6 +93,15 @@ public interface CatalogService {
       HttpServletRequest httpServletRequest,
       String transformerParam,
       InputStream message)
+      throws CatalogServiceException;
+
+  void updateDocument(
+      String id,
+      List<String> contentTypeList,
+      HttpServletRequest httpServletRequest,
+      String transformerParam,
+      InputStream message,
+      Map<String, Serializable> properties)
       throws CatalogServiceException;
 
   /** Creates a new metadata entry in the catalog. */

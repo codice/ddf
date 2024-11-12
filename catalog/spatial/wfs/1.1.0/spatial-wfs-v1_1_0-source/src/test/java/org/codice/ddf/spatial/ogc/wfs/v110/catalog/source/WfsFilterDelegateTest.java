@@ -1955,7 +1955,6 @@ public class WfsFilterDelegateTest {
 
     final FilterType filter = delegate.intersects(Metacard.ANY_GEO, MULTIPOLYGON);
     assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
-
     final BinarySpatialOpType binarySpatialOpType =
         (BinarySpatialOpType) filter.getSpatialOps().getValue();
     assertThat(binarySpatialOpType.getGeometry().getValue(), is(instanceOf(PolygonType.class)));
@@ -2013,17 +2012,6 @@ public class WfsFilterDelegateTest {
     WfsFilterDelegate delegate = createTextualDelegate();
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, "", true);
     assertXMLEqual(propertyIsLikeXmlEmpty, marshal(filter));
-  }
-
-  @Test
-  public void testNormalizeWktCoordinates() {
-    WfsFilterDelegate delegate = createTextualDelegate();
-    String originalWkt =
-        "POLYGON ((162.421875 68.656555, 226.757813 69.037142, 226.757813 26.431228, 154.6875 27.994401, 162.421875 68.656555))";
-    String expectedWkt =
-        "POLYGON ((162.421875 68.656555, -133.242187 69.037142, -133.242187 26.431228, 154.6875 27.994401, 162.421875 68.656555))";
-    String actualWkt = delegate.normalizeWktCoordinates(originalWkt);
-    assertThat(actualWkt, is(expectedWkt));
   }
 
   private JAXBElement<FilterType> getFilterTypeJaxbElement(FilterType filterType) {
