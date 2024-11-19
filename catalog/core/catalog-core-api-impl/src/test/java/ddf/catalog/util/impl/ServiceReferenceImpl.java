@@ -60,6 +60,11 @@ public class ServiceReferenceImpl implements ServiceReference {
   }
 
   @Override
+  public Object adapt(Class type) {
+    return null;
+  }
+
+  @Override
   public int compareTo(Object other) {
 
     ServiceReference otherServiceReference = (ServiceReference) other;

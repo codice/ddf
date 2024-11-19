@@ -28,7 +28,7 @@
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.enterprise</artifactId>
+            <artifactId>osgi.enterprise</artifactId>
             <version>${osgi.enterprise.version}</version>
         </dependency>
         <dependency>

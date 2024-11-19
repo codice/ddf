@@ -16,7 +16,7 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.features/spring-legacy/${karaf.version}/xml/features</repository>
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
@@ -27,7 +27,7 @@
              description="Dependencies for the core security APIs.">
         <!-- Third Party Features -->
         <feature prerequisite="true">wrap</feature>
-        <feature>pax-http-whiteboard</feature>
+        <feature>pax-web-http-whiteboard</feature>
 
         <!-- External DDF Features -->
         <feature>jackson</feature>
@@ -141,8 +141,8 @@
         <!-- Third Party Features -->
         <feature>spring</feature>
         <feature>war</feature>
-        <feature>pax-jetty</feature>
-        <feature>pax-http-jetty</feature>
+        <feature>pax-web-jetty</feature>
+        <feature>pax-web-http-jetty</feature>
 
         <!-- External DDF Features -->
         <feature>apache-commons</feature>

@@ -212,10 +212,10 @@ public class CatalogPolicyTest {
 
   @Test
   public void testUnusedMethods() throws Exception {
-    isTrue(policyPlugin.getReadPermissions() == null);
-    isTrue(policyPlugin.getCreatePermissions() == null);
-    isTrue(policyPlugin.getUpdatePermissions() == null);
-    isTrue(policyPlugin.getDeletePermissions() == null);
+    isTrue(policyPlugin.getReadPermissions() == null, "No Read Permissions");
+    isTrue(policyPlugin.getCreatePermissions() == null, "No Create Permissions");
+    isTrue(policyPlugin.getUpdatePermissions() == null, "No Update Permissions");
+    isTrue(policyPlugin.getDeletePermissions() == null, "No Delete Permissions");
     policyPlugin.setReadPermissions(new String[] {"role=admin"});
     policyPlugin.setCreatePermissions(new String[] {"role=admin"});
     policyPlugin.setUpdatePermissions(new String[] {"role=admin"});

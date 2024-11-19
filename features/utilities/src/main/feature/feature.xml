@@ -17,7 +17,7 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
-    <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.features/spring-legacy/${karaf.version}/xml/features</repository>
 
     <feature name="platform-util" version="${project.version}"
              description="Platform Utilities">
@@ -60,7 +60,7 @@
 
     <feature name="error-api" version="${project.version}"
              description="Platform error handler API.">
-        <feature>pax-jetty</feature>
+        <feature>pax-web-jetty</feature>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.platform.error/platform-error-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.error/platform-error-servlet/${project.version}</bundle>
@@ -142,7 +142,7 @@
     </feature>
 
     <feature name="metrics-servlet-filter" version="${project.version}" description="Servlet metrics reporter">
-        <feature>pax-jetty</feature>
+        <feature>pax-web-jetty</feature>
         <feature>metrics-micrometer</feature>
         <bundle dependency="true">mvn:ddf.platform/http-filter-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.metrics/metrics-servlet-filter/${project.version}</bundle>

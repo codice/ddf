@@ -123,12 +123,12 @@
         <spock.version>2.3-groovy-4.0</spock.version>
         <mockito.version>3.6.28</mockito.version>
         <pax.exam.version>4.13.5</pax.exam.version>
-        <pax.logging.version>2.0.16</pax.logging.version>
-        <pax.url.version>2.6.10</pax.url.version>
-        <pax.web.version>7.3.25</pax.web.version>
+        <pax.logging.version>2.2.7</pax.logging.version>
+        <pax.url.version>2.6.14</pax.url.version>
+        <pax.web.version>8.0.27</pax.web.version>
         <restito.version>0.9.4</restito.version>
         <restassured.version>5.5.0</restassured.version>
-        <groovy.version>4.0.23</groovy.version>
+        <groovy.version>4.0.24</groovy.version>
         <xmlunit.version>1.4</xmlunit.version>
         <xmlunit-matchers.version>2.8.2</xmlunit-matchers.version>
         <auth0.jwt.version>3.8.1</auth0.jwt.version>
@@ -149,7 +149,7 @@
         <abdera.version>1.1.3</abdera.version>
         <antlr.version>4.3</antlr.version>
         <apache.shiro.version>1.9.1</apache.shiro.version>
-        <asm.version>9.3</asm.version>
+        <asm.version>9.7</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
         <bouncy.version>1.69</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
@@ -185,11 +185,11 @@
         <decanter.version>2.9.0</decanter.version>
         <dropwizard.version>4.1.25</dropwizard.version>
         <equinox.version>3.17.200</equinox.version>
-        <felix.configadmin.version>1.9.24</felix.configadmin.version>
+        <felix.configadmin.version>1.9.26</felix.configadmin.version>
         <felix.coordinator.version>1.0.2</felix.coordinator.version>
         <felix.fileinstall.version>3.7.4</felix.fileinstall.version>
         <felix.metatype.version>1.2.4</felix.metatype.version>
-        <felix.scr.version>2.1.30</felix.scr.version>
+        <felix.scr.version>2.2.6</felix.scr.version>
         <geronimo-servlet-api.artifact>geronimo-servlet_3.0_spec</geronimo-servlet-api.artifact>
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>
         <google-http-client.version>1.22.0</google-http-client.version>
@@ -221,7 +221,7 @@
         <jcodec.version>0.2.0_1</jcodec.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
         <jdom2.bundle.version>2.0.6.1_1</jdom2.bundle.version>
-        <jetty.version>9.4.46.v20220331</jetty.version>
+        <jetty.version>9.4.54.v20240208</jetty.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
         <dev.failsafe.version>3.2.4</dev.failsafe.version>
@@ -238,12 +238,12 @@
         <jts.spatial4j.version>1.17.0</jts.spatial4j.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <jwnl.version>1.3.3</jwnl.version>
-        <karaf.version>4.3.7</karaf.version>
-        <jansi.version>2.4.0</jansi.version>
-        <org.osgi.util.promise.version>1.2.0</org.osgi.util.promise.version>
+        <karaf.version>4.4.6</karaf.version>
+        <jansi.version>2.4.1</jansi.version>
+        <org.osgi.util.promise.version>1.3.0</org.osgi.util.promise.version>
         <org.osgi.util.function.version>1.2.0</org.osgi.util.function.version>
         <la4j.version>0.6.0</la4j.version>
-        <apache-log4j.version>2.17.0</apache-log4j.version>
+        <apache-log4j.version>2.23.1</apache-log4j.version>
         <logback.classic.version>1.2.3</logback.classic.version>
         <logback.version>1.2.3</logback.version>
         <mariadb.version>2.4.1</mariadb.version>
@@ -268,7 +268,7 @@
         <org.ops4j.pax.swissbox.version>1.8.5</org.ops4j.pax.swissbox.version>
         <org.rrd4j.version>3.3.1</org.rrd4j.version>
         <org.slf4j.version>1.7.29</org.slf4j.version>
-        <osgi.enterprise.version>5.0.0</osgi.enterprise.version>
+        <osgi.enterprise.version>7.0.0</osgi.enterprise.version>
         <owasp-html-sanitizer.version>20220608.1</owasp-html-sanitizer.version>
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
@@ -299,7 +299,7 @@
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
         <spark.version>2.9.2</spark.version>
         <spatial4j.version>0.8</spatial4j.version>
-        <spring.version>5.3.14</spring.version>
+        <spring.version>6.1.5</spring.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
         <tika.version>1.28.4</tika.version>
         <usng4j.version>0.4</usng4j.version>

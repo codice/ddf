@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.enterprise</artifactId>
+            <artifactId>osgi.enterprise</artifactId>
             <version>${osgi.enterprise.version}</version>
         </dependency>
         <dependency>
@@ -84,7 +84,7 @@
                         </Bundle-Activator>
                         <Embed-Dependency>
                             gson,
-                            org.osgi.core;inline=org/osgi/util/tracker/ServiceTracker*|org/osgi/util/tracker/AbstractTracked.class,
+                            osgi.core;inline=org/osgi/util/tracker/ServiceTracker*|org/osgi/util/tracker/AbstractTracked.class,
                             security-encryption-crypter,
                             <!-- Crypter dependencies must be embedded in this bundle -->
                             json,

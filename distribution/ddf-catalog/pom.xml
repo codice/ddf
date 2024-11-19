@@ -78,11 +78,11 @@
                             <addTransitiveFeatures>true</addTransitiveFeatures>
                             <resolveDefinedRepositoriesRecursively>false</resolveDefinedRepositoriesRecursively>
                             <descriptors>
+                                <descriptor>mvn:org.apache.karaf.features/spring-legacy/${karaf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</descriptor>
 
                                 <descriptor>mvn:ddf.features/kernel/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/install-profiles/${project.version}/xml/features</descriptor>
@@ -182,8 +182,8 @@
                         <configuration>
                             <rules>
                                 <requireFilesSize>
-                                    <maxsize>280000000</maxsize>
-                                    <minsize>240000000</minsize>
+                                    <maxsize>400000000</maxsize>
+                                    <minsize>200000000</minsize>
                                     <files>
                                         <file>${project.build.directory}/${distribution.file.name}.zip</file>
                                     </files>
@@ -219,6 +219,13 @@
             <groupId>org.apache.cxf.karaf</groupId>
             <artifactId>apache-cxf</artifactId>
             <version>${cxf.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>spring</artifactId>
+            <version>${karaf.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

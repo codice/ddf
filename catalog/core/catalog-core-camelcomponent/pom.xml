@@ -73,11 +73,11 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.core</artifactId>
+                    <artifactId>osgi.core</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.compendium</artifactId>
+                    <artifactId>osgi.compendium</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

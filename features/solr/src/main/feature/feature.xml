@@ -19,7 +19,7 @@
     <repository>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</repository>
 
     <feature name="solr-dependencies" version="${project.version}" >
-        <feature>pax-jetty</feature>
+        <feature>pax-web-jetty</feature>
         <bundle>mvn:org.eclipse.jetty/jetty-alpn-client/${jetty.version}</bundle>
         <bundle>mvn:org.eclipse.jetty.http2/http2-hpack/${jetty.version}</bundle>
         <bundle>mvn:org.eclipse.jetty.http2/http2-common/${jetty.version}</bundle>
@@ -56,7 +56,7 @@
 
     <!-- Start of app features -->
 
-    <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.features/spring-legacy/${karaf.version}/xml/features</repository>
     <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
 
