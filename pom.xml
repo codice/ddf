@@ -158,7 +158,7 @@
         <camel.version>3.18.8</camel.version>
         <cesium.version>1.34</cesium.version>
         <commons-compress.version>1.21</commons-compress.version>
-        <commons.fileupload.version>1.3.3</commons.fileupload.version>
+        <commons.fileupload.version>1.4</commons.fileupload.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-collections.version>3.2.2</commons-collections.version>
@@ -168,7 +168,7 @@
         <commons-csv.version>1.4</commons-csv.version>
         <commons-digester.version>1.8.1</commons-digester.version>
         <commons-exec.version>1.3</commons-exec.version>
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.13.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
@@ -194,11 +194,11 @@
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>
         <google-http-client.version>1.22.0</google-http-client.version>
         <gml-v_3_1_1-schema.version>1.1.0</gml-v_3_1_1-schema.version>
-        <gson.version>2.9.0</gson.version>
+        <gson.version>2.11.0</gson.version>
         <guava.version>29.0-jre</guava.version>
         <hawtbuff.version>1.11</hawtbuff.version>
-        <httpclient.version>4.5.12</httpclient.version>
-        <httpcore.version>4.4.13</httpcore.version>
+        <httpclient.version>4.5.13</httpclient.version>
+        <httpcore.version>4.4.15</httpcore.version>
         <httpmime.version>${httpclient.version}</httpmime.version>
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
@@ -221,7 +221,7 @@
         <jcodec.version>0.2.0_1</jcodec.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
         <jdom2.bundle.version>2.0.6.1_1</jdom2.bundle.version>
-        <jetty.version>9.4.54.v20240208</jetty.version>
+        <jetty.version>9.4.56.v20240826</jetty.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
         <dev.failsafe.version>3.2.4</dev.failsafe.version>
@@ -229,7 +229,7 @@
         <johnzon.version>0.9.5</johnzon.version>
         <jpeg2000.version>1.3.1_CODICE_3</jpeg2000.version>
         <json-simple.version>1.1.1</json-simple.version>
-        <json-smart.version>2.4.8</json-smart.version>
+        <json-smart.version>2.4.9</json-smart.version>
         <jsoup.version>1.15.2</jsoup.version>
         <jsr305.version>3.0.2</jsr305.version>
         <jsr305.bundle.version>${jsr305.version}_1</jsr305.bundle.version>
@@ -272,7 +272,7 @@
         <owasp-html-sanitizer.version>20220608.1</owasp-html-sanitizer.version>
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
-        <openjson.version>1.0.12</openjson.version>
+        <openjson.version>1.0.13</openjson.version>
         <pac4j.version>4.5.6</pac4j.version>
         <pdfbox.version>2.0.23</pdfbox.version>
         <poi.version>5.2.2</poi.version>
@@ -332,7 +332,7 @@
 
         <fabric8.docker.plugin.version>0.45.1</fabric8.docker.plugin.version>
         <tink.version>1.4.0</tink.version>
-        <org.json.version>20170516</org.json.version>
+        <org.json.version>20240303</org.json.version>
 
         <!--temporary solr download url> -->
         <solr.download.url>https://archive.apache.org/dist</solr.download.url>
