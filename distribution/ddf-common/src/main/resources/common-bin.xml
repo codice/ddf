@@ -340,11 +340,11 @@
         </dependencySet>
         <dependencySet>
             <outputDirectory>
-                system/org/apache/servicemix/specs/org.apache.servicemix.specs.jaxb-api-2.3/${servicemix.specs.jaxb.version}
+                system/org/apache/servicemix/specs/org.apache.servicemix.specs.jaxb-api-2.2/${servicemix.specs.jaxb.version}
             </outputDirectory>
             <includes>
                 <include>
-                    org.apache.servicemix.specs:org.apache.servicemix.specs.jaxb-api-2.3:jar:${servicemix.specs.jaxb.version}
+                    org.apache.servicemix.specs:org.apache.servicemix.specs.jaxb-api-2.2:jar:${servicemix.specs.jaxb.version}
                 </include>
             </includes>
         </dependencySet>

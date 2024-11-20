@@ -255,7 +255,7 @@ public class RestEndpointIT extends AbstractComponentTest {
         // Add JAXB bundles. They must be installed before Karaf's org.apache.karaf.features.core
         // bundle (which gets installed via startup.properties), hence the low start level.
         options.add(
-            mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.3")
+            mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.2")
                 .versionAsInProject()
                 .startLevel(13),
             mavenBundle(
