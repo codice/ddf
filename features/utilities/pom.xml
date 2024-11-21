@@ -151,7 +151,7 @@
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-all</artifactId>
-            <version>1.14</version>
+            <version>1.17</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>
@@ -212,11 +212,11 @@
             <artifactId>gt-cql</artifactId>
             <version>${org.geotools.version}</version>
         </dependency>
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-jts-wrapper</artifactId>
-			<version>${org.geotools.version}</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.geotools</groupId>-->
+<!--			<artifactId>gt-jts-wrapper</artifactId>-->
+<!--			<version>${org.geotools.version}</version>-->
+<!--		</dependency>-->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-xml</artifactId>
