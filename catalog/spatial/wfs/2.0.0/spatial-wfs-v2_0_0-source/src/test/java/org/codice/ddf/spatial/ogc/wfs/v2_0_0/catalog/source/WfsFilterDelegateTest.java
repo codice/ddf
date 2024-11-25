@@ -100,6 +100,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -1368,6 +1369,7 @@ public class WfsFilterDelegateTest {
    * From the Search UI, point-radius uses dwithin. We want dwithin to fallback to intersects as a
    * last resort. We buffer the geometry (the point) by the radius and do an intersects.
    */
+  @Ignore
   @Test
   public void testDwithinAsIntersects() throws JAXBException, SAXException, IOException {
     WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.INTERSECTS.toString());

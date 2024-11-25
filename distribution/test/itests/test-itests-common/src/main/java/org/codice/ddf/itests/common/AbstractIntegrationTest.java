@@ -716,6 +716,7 @@ public abstract class AbstractIntegrationTest {
     return options(
         mavenBundle(
             "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
+        mavenBundle("commons-lang", "commons-lang", "2.6"),
         junitBundles(),
         features(
             maven()
