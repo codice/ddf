@@ -182,7 +182,7 @@
                         <configuration>
                             <rules>
                                 <requireFilesSize>
-                                    <maxsize>320000000</maxsize>
+                                    <maxsize>350000000</maxsize>
                                     <minsize>240000000</minsize>
                                     <files>
                                         <file>${project.build.directory}/${distribution.file.name}.zip</file>

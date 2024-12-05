@@ -138,7 +138,7 @@
              description="Contains the modules that should be installed after the installer is finished.">
         <feature>admin-modules-configuration</feature>
         <feature>admin-modules-application</feature>
-        <feature>admin-modules-docs</feature>
+<!--        <feature>admin-modules-docs</feature>-->
         <bundle>mvn:ddf.admin.modules/admin-security-certificate-ui/${project.version}</bundle>
     </feature>
 
