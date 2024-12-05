@@ -27,7 +27,7 @@
              description="Dependencies for the core security APIs.">
         <!-- Third Party Features -->
         <feature prerequisite="true">wrap</feature>
-        <feature>pax-http-whiteboard</feature>
+        <feature>pax-web-http-whiteboard</feature>
 
         <!-- External DDF Features -->
         <feature>jackson</feature>
@@ -141,8 +141,8 @@
         <!-- Third Party Features -->
         <feature>spring</feature>
         <feature>war</feature>
-        <feature>pax-jetty</feature>
-        <feature>pax-http-jetty</feature>
+        <feature>pax-web-jetty</feature>
+        <feature>pax-web-http-jetty</feature>
 
         <!-- External DDF Features -->
         <feature>apache-commons</feature>

@@ -83,7 +83,7 @@
                                 <descriptor>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</descriptor>
-
+                                <descriptor>mvn:org.apache.karaf.features/specs/${karaf.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/kernel/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/install-profiles/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/apps/${project.version}/xml/features</descriptor>
@@ -182,7 +182,7 @@
                         <configuration>
                             <rules>
                                 <requireFilesSize>
-                                    <maxsize>280000000</maxsize>
+                                    <maxsize>350000000</maxsize>
                                     <minsize>240000000</minsize>
                                     <files>
                                         <file>${project.build.directory}/${distribution.file.name}.zip</file>

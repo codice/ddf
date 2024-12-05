@@ -24,6 +24,7 @@
     <!-- A list of blacklisted feature identifiers that can't be installed in Karaf and are not part of the distribution -->
     <blacklistedFeatures>
         <feature>pax-jetty-http2</feature>
+        <feature>pax-web-jetty-http2</feature>
         <feature>decanter-appender-cassandra</feature>
         <feature>decanter-appender-cassandra-core</feature>
         <feature>cxf-http-undertow</feature>
