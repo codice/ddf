@@ -15,6 +15,7 @@ package ddf.catalog.impl.operations;
 
 import static ddf.catalog.Constants.QUERY_LOGGER_NAME;
 
+import com.google.gson.Gson;
 import ddf.catalog.Constants;
 import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
@@ -80,7 +81,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.codice.ddf.security.util.ThreadContextProperties;
-import org.json.simple.JSONObject;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -298,24 +298,24 @@ public class QueryOperations extends DescribableImpl {
   }
 
   protected static String getQueryMetricsLog(Map<String, Serializable> properties) {
-    JSONObject queryJson = new JSONObject();
+    Map<String, Serializable> metricsMap = new HashMap<>();
     // Combine the request and response metrics to log
-    queryJson.put("total-duration", properties.get(QM_TOTAL_ELAPSED));
-    queryJson.put("prequery-duration", properties.get(QM_PRE_QUERY));
-    queryJson.put("query-duration", properties.get(QM_DO_QUERY));
-    queryJson.put("postquery-duration", properties.get(QM_POST_QUERY));
-    Map<String, Serializable> sourceDurationMap = new HashMap<>();
+    metricsMap.put("total-duration", properties.get(QM_TOTAL_ELAPSED));
+    metricsMap.put("prequery-duration", properties.get(QM_PRE_QUERY));
+    metricsMap.put("query-duration", properties.get(QM_DO_QUERY));
+    metricsMap.put("postquery-duration", properties.get(QM_POST_QUERY));
+    HashMap<String, Serializable> sourceDurationMap = new HashMap<>();
     properties.entrySet().stream()
         .filter(e -> e.getKey() != null && e.getKey().startsWith(QM_TIMED_SOURCE))
         .forEach(e -> sourceDurationMap.put(e.getKey().split(QM_TIMED_SOURCE)[1], e.getValue()));
-    queryJson.put("source-duration", sourceDurationMap);
+    metricsMap.put("source-duration", sourceDurationMap);
     HashMap<String, Serializable> additionalQueryMetrics =
         (HashMap<String, Serializable>) properties.get("additional-query-metrics");
     if (additionalQueryMetrics != null) {
-      queryJson.putAll(additionalQueryMetrics);
+      metricsMap.putAll(additionalQueryMetrics);
     }
 
-    return queryJson.toJSONString();
+    return new Gson().toJson(metricsMap);
   }
 
   protected static Map<String, Serializable> collectQueryProperties(
