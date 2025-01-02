@@ -165,7 +165,11 @@ public class ExportCategory implements RtfCategory {
       case STRING:
       case XML:
       case GEOMETRY:
-        return attribute != null && StringUtils.isNotEmpty((String) attribute.getValue());
+        return attribute != null
+            && attribute.getValue() != null
+            && ((attribute.getValue() instanceof String)
+                ? StringUtils.isNotEmpty((String) attribute.getValue())
+                : true);
       case INTEGER:
       case LONG:
       case DOUBLE:
