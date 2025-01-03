@@ -82,6 +82,7 @@ public class ErrorPageInjector implements EventListenerHook {
 
   public void init() {
     checkForMissedServletContexts();
+    LOGGER.trace("skipping error page initialization.");
   }
 
   private void checkForMissedServletContexts() {

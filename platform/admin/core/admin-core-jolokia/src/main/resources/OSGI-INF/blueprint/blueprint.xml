@@ -17,10 +17,11 @@
 
     <service ref="jolokiaServlet" id="jolokiaServletService" interface="javax.servlet.Servlet">
         <service-properties>
-            <entry key="alias" value="/admin/jolokia"/>
+
+            <entry key="osgi.http.whiteboard.servlet.name" value="/admin/jolokia"/>
             <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
             <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
-            <entry key="async-supported" value="true"/>
+            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
     </service>
 
