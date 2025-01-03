@@ -62,6 +62,38 @@
             <artifactId>security-core-services</artifactId>
             <scope>test</scope>
         </dependency>
+<!--        &lt;!&ndash; Provided dependencies &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.osgi</groupId>-->
+<!--            <artifactId>osgi.core</artifactId>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.osgi</groupId>-->
+<!--            <artifactId>osgi.cmpn</artifactId>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>${servlet.spec.groupId}</groupId>-->
+<!--            <artifactId>${servlet.spec.artifactId}</artifactId>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.ops4j.pax.web</groupId>-->
+<!--            <artifactId>pax-web-runtime</artifactId>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.ops4j.pax.web</groupId>-->
+<!--            <artifactId>pax-web-extender-whiteboard</artifactId>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.slf4j</groupId>-->
+<!--            <artifactId>slf4j-api</artifactId>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+
     </dependencies>
 
     <build>
