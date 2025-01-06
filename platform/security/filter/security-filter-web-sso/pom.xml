@@ -37,6 +37,10 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>security-filter-api</artifactId>
             <version>${project.version}</version>
@@ -55,7 +59,11 @@
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-api</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-extender-whiteboard</artifactId>
+            <version>${pax.web.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -64,6 +72,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
+                        <Bundle-Activator>org.codice.ddf.security.filter.websso.Activator</Bundle-Activator>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />
                     </instructions>
