@@ -12,16 +12,15 @@
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="jolokiaServlet" class="org.jolokia.osgi.servlet.JolokiaServlet">
-    </bean>
+    <bean id="jolokia" class="org.jolokia.osgi.servlet.JolokiaServlet"/>
 
-    <service ref="jolokiaServlet" id="jolokiaServletService" interface="javax.servlet.Servlet">
+    <service interface="javax.servlet.Servlet" ref="jolokia">
         <service-properties>
-
-            <entry key="osgi.http.whiteboard.servlet.name" value="/admin/jolokia"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/admin/jolokia/*"/>
+            <entry key="osgi.http.whiteboard.servlet.name" value="jolokia"/>
+            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
             <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
             <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
-            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
     </service>
 
