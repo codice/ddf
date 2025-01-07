@@ -264,6 +264,7 @@
         <nimbus.jose.jwt.version>8.18</nimbus.jose.jwt.version>
         <nimbus.langtag.version>1.4.4</nimbus.langtag.version>
         <org.geotools.version>28.2</org.geotools.version>
+        <gt-jts-wrapper.bundle.version>24.7</gt-jts-wrapper.bundle.version>
         <!-- Note: The swissbox version needs to match the version used by pax-exam . -->
         <org.ops4j.pax.swissbox.version>1.8.5</org.ops4j.pax.swissbox.version>
         <org.rrd4j.version>3.3.1</org.rrd4j.version>
@@ -281,7 +282,6 @@
         <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
-<!--        <hazelcast.version>5.1.7</hazelcast.version>-->
         <hazelcast.version>3.12.10</hazelcast.version>
         <saxon.version>9.6.0-4</saxon.version>
         <servicemix.bundles.poi.version>${poi.version}_2</servicemix.bundles.poi.version>
@@ -539,11 +539,6 @@
                 <artifactId>gt-cql</artifactId>
                 <version>${org.geotools.version}</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>org.geotools</groupId>-->
-<!--                <artifactId>gt-jts-wrapper</artifactId>-->
-<!--                <version>${org.geotools.version}</version>-->
-<!--            </dependency>-->
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-xml</artifactId>

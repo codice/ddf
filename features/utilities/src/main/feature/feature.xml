@@ -237,7 +237,7 @@
         <bundle>wrap:mvn:org.geotools/gt-opengis/${org.geotools.version}$Bundle-Name=gt-opengis&amp;Bundle-SymbolicName=gt-opengis</bundle>
         <bundle>wrap:mvn:org.geotools/gt-main/${org.geotools.version}$Bundle-Name=gt-main&amp;Bundle-SymbolicName=gt-main</bundle>
         <bundle>wrap:mvn:org.geotools/gt-cql/${org.geotools.version}$Bundle-Name=gt-cql&amp;Bundle-SymbolicName=gt-cql</bundle>
-        <bundle>wrap:mvn:org.geotools/gt-jts-wrapper/24.7$Bundle-Name=gt-jts-wrapper&amp;Bundle-SymbolicName=gt-jts-wrapper</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-jts-wrapper/${gt-jts-wrapper.bundle.version}$Bundle-Name=gt-jts-wrapper&amp;Bundle-SymbolicName=gt-jts-wrapper</bundle>
         <bundle>wrap:mvn:org.geotools/gt-xml/${org.geotools.version}$Bundle-Name=gt-xml&amp;Bundle-SymbolicName=gt-xml</bundle>
         <bundle>wrap:mvn:org.picocontainer/picocontainer/1.2$Bundle-Name=picocontainer&amp;Bundle-SymbolicName=picocontainer</bundle>
         <bundle>mvn:ddf.thirdparty/eclipse-emf/${project.version}</bundle>
