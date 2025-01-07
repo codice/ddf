@@ -208,11 +208,6 @@
                 <artifactId>gt-main</artifactId>
                 <version>${org.geotools.version}</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>org.geotools</groupId>-->
-<!--                <artifactId>gt-jts-wrapper</artifactId>-->
-<!--                <version>${org.geotools.version}</version>-->
-<!--            </dependency>-->
             <dependency>
                 <groupId>org.geotools.xsd</groupId>
                 <artifactId>gt-xsd-gml3</artifactId>
