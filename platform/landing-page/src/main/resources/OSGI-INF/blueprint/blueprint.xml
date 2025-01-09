@@ -48,8 +48,8 @@
 
     <service ref="landingPage" interface="javax.servlet.http.HttpServlet">
         <service-properties>
-            <entry key="alias" value="/"/>
-            <entry key="servlet-name" value="LandingPage"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/"/>
+            <entry key="osgi.http.whiteboard.servlet.name" value="LandingPage"/>
         </service-properties>
     </service>
 
