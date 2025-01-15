@@ -21,7 +21,7 @@
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.features/camel-karaf/${project.version}/xml/features</repository>
+    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
 
     <feature name="security-core-api-dependencies" version="${project.version"
              description="Dependencies for the core security APIs.">
