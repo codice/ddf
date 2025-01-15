@@ -30,6 +30,7 @@ public class Activator implements BundleActivator {
     DefaultSecurityConfigurationMapping security = new DefaultSecurityConfigurationMapping();
     security.setAuthMethod("DDF");
     security.setRealmName("DDF");
+    security.setContextSelectFilter("(osgi.http.whiteboard.context.path=/*)");
     bundleContext.registerService(SecurityConfigurationMapping.class, security, null);
   }
 
