@@ -284,6 +284,7 @@ public class MetacardImplTest {
     metacard.setSourceId("mySourceId");
     metacard.setDescription("Northern Arizona City");
     metacard.setPointOfContact("poc");
+    metacard.setAttribute(new AttributeImpl("testList", (Serializable) Arrays.asList(null, "testValue1", "testValue2")));
     Serializer<Metacard> serializer = new Serializer<Metacard>();
 
     /* WRITE */
@@ -306,6 +307,7 @@ public class MetacardImplTest {
     assertEquals(metacard.getDescription(), readMetacard.getAttribute("description").getValue());
     assertEquals(
         metacard.getPointOfContact(), readMetacard.getAttribute("point-of-contact").getValue());
+    assertNotNull(metacard.getAttribute("testList"));
 
     MetacardType metacardType = metacard.getMetacardType();
     MetacardType readMetacardType = readMetacard.getMetacardType();

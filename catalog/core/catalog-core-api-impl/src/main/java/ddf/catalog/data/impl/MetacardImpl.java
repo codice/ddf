@@ -757,9 +757,9 @@ public class MetacardImpl implements Metacard {
       wrappedMetacard.setAttribute(attribute);
     } else {
       String name = attribute.getName();
-      Serializable value = attribute.getValue();
+      List<Serializable> values = attribute.getValues()
       if (name != null) {
-        if (value != null) {
+        if (values != null) {
           map.put(name, attribute);
         } else {
           map.remove(name);
