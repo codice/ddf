@@ -184,7 +184,11 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   // Config files in etc may delimit on the '-' but in memory it's always last '.'
   private static String parseFactoryPid(String pid) {
     if (pid != null && pid.contains("-")) {
-      return pid.substring(0, pid.lastIndexOf('.'));
+      if (pid.contains(".")) {
+        return pid.substring(0, pid.lastIndexOf('.'));
+      } else {
+        return pid;
+      }
     }
     return null;
   }
