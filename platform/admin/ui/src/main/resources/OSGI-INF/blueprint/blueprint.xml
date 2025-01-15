@@ -26,14 +26,20 @@
         <property name="branding" ref="brandingRegistry"/>
     </bean>
 
-    <jaxrs:server id="restService" address="/admin">
-        <jaxrs:serviceBeans>
-            <ref component-id="configurationStore"/>
-        </jaxrs:serviceBeans>
-        <jaxrs:outInterceptors>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
-        </jaxrs:outInterceptors>
-    </jaxrs:server>
+<!--    <jaxrs:server id="restService" address="/admin">-->
+<!--        <jaxrs:serviceBeans>-->
+<!--            <ref component-id="configurationStore"/>-->
+<!--        </jaxrs:serviceBeans>-->
+<!--        <jaxrs:outInterceptors>-->
+<!--            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>-->
+<!--            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>-->
+<!--        </jaxrs:outInterceptors>-->
+<!--&lt;!&ndash;        <jaxrs:properties>&ndash;&gt;-->
+<!--&lt;!&ndash;            <entry key="osgi.http.whiteboard.servlet.pattern" value="/"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <entry key="osgi.http.whiteboard.servlet.name" value="adminrest"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.name=custom)"/>&ndash;&gt;-->
+<!--&lt;!&ndash;        </jaxrs:properties>&ndash;&gt;-->
+<!--    </jaxrs:server>-->
+
 
 </blueprint>
