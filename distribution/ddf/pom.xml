@@ -95,6 +95,7 @@
                                 <feature>profile-minimum</feature>
                                 <feature>profile-catalog</feature>
                                 <feature>profile-standard</feature>
+                                <feature>profile-all</feature>
                             </features>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
                         </configuration>

@@ -711,4 +711,15 @@
         <feature>catalog-facet-attribute-access-plugin</feature>
     </feature>
 
+    <feature name="catalog-all" version="${project.version}"
+             description="Installs all catalog app features">
+        <feature>catalog-app</feature>
+        <feature>catalog-transformer-streaming</feature>
+        <feature>catalog-core-backupplugin</feature>
+        <feature>catalog-plugin-expirationdate</feature>
+        <feature>catalog-plugin-federationreplication</feature>
+        <feature>catalog-versioning-plugin</feature>
+        <feature>catalog-metacard-backup-filestorage</feature>
+    </feature>
+
 </features>

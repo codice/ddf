@@ -91,4 +91,18 @@
         <feature prerequisite="true">wrap</feature>
         <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
     </feature>
+
+    <feature name="kernel-all" version="${project.version}">
+        <feature>kernel</feature>
+        <feature>sync-installer</feature>
+        <feature>javax-validation</feature>
+        <feature>joda-converter</feature>
+        <feature>javax-inject</feature>
+        <feature>slf4j</feature>
+        <feature>pax-swissbox</feature>
+        <feature>apache-commons</feature>
+        <feature>saxon</feature>
+        <feature>guava</feature>
+        <feature>dev-failsafe</feature>
+    </feature>
 </features>

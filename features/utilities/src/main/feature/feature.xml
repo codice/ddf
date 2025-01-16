@@ -262,4 +262,23 @@
         <bundle>mvn:javax.measure/unit-api/2.0</bundle>
     </feature>
 
+    <feature name="utilities-all" version="${project.version}">
+        <feature>util-uuidgenerator</feature>
+        <feature>parser-xml</feature>
+        <feature>action-core-impl</feature>
+        <feature>error-impl</feature>
+        <feature>mime-core</feature>
+        <feature>mime-tika-resolver</feature>
+        <feature>bootflag-api</feature>
+        <feature>metrics-core</feature>
+        <feature>platform-api</feature>
+        <feature>platform-usng4j</feature>
+        <feature>platform-logging</feature>
+        <feature>tika</feature>
+        <feature>io</feature>
+        <feature>poi</feature>
+        <feature>jts</feature>
+        <feature>geotools</feature>
+    </feature>
+
 </features>

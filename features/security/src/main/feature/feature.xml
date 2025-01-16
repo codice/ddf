@@ -328,4 +328,13 @@
             mvn:ddf.security.jaas/security-jaas-ldap/${project.version}/config/default-ldaplogin
         </configfile>
     </feature>
+
+    <feature name="security-all" version="${project.version}"
+             description="All DDF security features">
+        <feature>security-core-services</feature>
+        <feature>oidc-auth</feature>
+        <feature>saml-auth</feature>
+        <feature>ldap-auth</feature>
+        <feature>embedded-ldap</feature>
+    </feature>
 </features>
