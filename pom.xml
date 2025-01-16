@@ -109,7 +109,7 @@
         <gib.enabled>false</gib.enabled>
         <gib.failOnError>false</gib.failOnError>
 
-        <jknack.handlebars.version>4.3.0</jknack.handlebars.version>
+        <jknack.handlebars.version>4.4.0</jknack.handlebars.version>
         <picocontainer.version>1.3_1</picocontainer.version>
         <dom4j.bundle.version>2.1.3_1</dom4j.bundle.version>
 
@@ -170,12 +170,12 @@
         <commons-exec.version>1.3</commons-exec.version>
         <commons-io.version>2.13.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-net.version>3.5</commons-net.version>
         <commons-pool.version>1.6</commons-pool.version>
-        <commons-text.version>1.6</commons-text.version>
+        <commons-text.version>1.13.0</commons-text.version>
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.1.8</countryconverter.version>
@@ -742,6 +742,7 @@
                         <formats>
                             <format>HTML</format>
                             <format>JUNIT</format>
+                            <format>CSV</format>
                         </formats>
                     </configuration>
                 </plugin>
