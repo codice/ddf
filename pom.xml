@@ -249,7 +249,7 @@
         <mariadb.version>2.4.1</mariadb.version>
         <maven.failsafe.version>2.22.2</maven.failsafe.version>
         <maven.surefire.version>2.22.2</maven.surefire.version>
-        <mime4j.version>0.8.11</mime4j.version>
+        <mime4j.version>0.8.12</mime4j.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
         <netty.version>4.1.46.Final</netty.version>
