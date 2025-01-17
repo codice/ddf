@@ -55,38 +55,41 @@ public class GeotoolsPluginLoader {
             } else if (PropertyAccessorFactory.class.isAssignableFrom(aClass)) {
               return (Iterator<T>)
                   Arrays.asList(
-                      new org.geotools.filter.expression.SimpleFeaturePropertyAccessorFactory(),
-                      new org.geotools.filter.expression.ThisPropertyAccessorFactory(),
-                      new org.geotools.filter.expression.DirectPropertyAccessorFactory());
+                          new org.geotools.filter.expression.SimpleFeaturePropertyAccessorFactory(),
+                          new org.geotools.filter.expression.ThisPropertyAccessorFactory(),
+                          new org.geotools.filter.expression.DirectPropertyAccessorFactory())
+                      .iterator();
             } else if (ConverterFactory.class.isAssignableFrom(aClass)) {
               return (Iterator<T>)
                   Arrays.asList(
-                      new org.geotools.data.util.CommonsConverterFactory(),
-                      new org.geotools.data.util.NumericConverterFactory(),
-                      new org.geotools.data.util.PercentageConverterFactory(),
-                      new org.geotools.data.util.GeometryConverterFactory(),
-                      new org.geotools.data.util.GeometryTypeConverterFactory(),
-                      new org.geotools.data.util.TemporalConverterFactory(),
-                      new org.geotools.data.util.BooleanConverterFactory(),
-                      new org.geotools.data.util.ColorConverterFactory(),
-                      new org.geotools.data.util.CollectionConverterFactory(),
-                      new org.geotools.data.util.CharsetConverterFactory(),
-                      new org.geotools.data.util.UuidConverterFactory(),
-                      new org.geotools.data.util.EnumerationConverterFactory(),
-                      new org.geotools.data.util.QNameConverterFactory(),
-                      new org.geotools.data.util.MeasureConverterFactory(),
-                      new org.geotools.temporal.TemporalConverterFactory(),
-                      new org.geotools.data.util.NameConverterFactory(),
-                      new org.geotools.data.util.ArrayConverterFactory(),
-                      new org.geotools.data.util.ComplexAttributeConverterFactory(),
-                      new org.geotools.data.util.CRSConverterFactory(),
-                      new org.geotools.data.util.InterpolationConverterFactory(),
-                      new org.geotools.data.util.LobConverterFactory());
+                          new org.geotools.data.util.CommonsConverterFactory(),
+                          new org.geotools.data.util.NumericConverterFactory(),
+                          new org.geotools.data.util.PercentageConverterFactory(),
+                          new org.geotools.data.util.GeometryConverterFactory(),
+                          new org.geotools.data.util.GeometryTypeConverterFactory(),
+                          new org.geotools.data.util.TemporalConverterFactory(),
+                          new org.geotools.data.util.BooleanConverterFactory(),
+                          new org.geotools.data.util.ColorConverterFactory(),
+                          new org.geotools.data.util.CollectionConverterFactory(),
+                          new org.geotools.data.util.CharsetConverterFactory(),
+                          new org.geotools.data.util.UuidConverterFactory(),
+                          new org.geotools.data.util.EnumerationConverterFactory(),
+                          new org.geotools.data.util.QNameConverterFactory(),
+                          new org.geotools.data.util.MeasureConverterFactory(),
+                          new org.geotools.temporal.TemporalConverterFactory(),
+                          new org.geotools.data.util.NameConverterFactory(),
+                          new org.geotools.data.util.ArrayConverterFactory(),
+                          new org.geotools.data.util.ComplexAttributeConverterFactory(),
+                          new org.geotools.data.util.CRSConverterFactory(),
+                          new org.geotools.data.util.InterpolationConverterFactory(),
+                          new org.geotools.data.util.LobConverterFactory())
+                      .iterator();
             } else if (FeatureFactory.class.isAssignableFrom(aClass)) {
               return (Iterator<T>)
                   Arrays.asList(
-                      new org.geotools.feature.LenientFeatureFactoryImpl(),
-                      new org.geotools.feature.ValidatingFeatureFactoryImpl());
+                          new org.geotools.feature.LenientFeatureFactoryImpl(),
+                          new org.geotools.feature.ValidatingFeatureFactoryImpl())
+                      .iterator();
             } else if (FilterFactory.class.isAssignableFrom(aClass)) {
               return (Iterator<T>) Collections.singletonList(new FilterFactoryImpl()).iterator();
             } else if (FeatureTypeFactory.class.isAssignableFrom(aClass)) {
@@ -291,7 +294,7 @@ public class GeotoolsPluginLoader {
                       new org.geotools.filter.function.color.ConstrastFunction(),
                       new org.geotools.filter.function.BoundedByFunction(),
                       new org.geotools.filter.function.DateDifferenceFunction(),
-                      new org.geotools.filter.function.JsonPointerFunction());
+                      new org.geotools.filter.function.JsonPointerFunction()).iterator();
             } else if (GridShiftLocator.class.isAssignableFrom(aClass)) {
               return (Iterator<T>)
                   Collections.singletonList(new ClasspathGridShiftLocator()).iterator();
@@ -418,14 +421,15 @@ public class GeotoolsPluginLoader {
             } else if (CRSAuthorityFactory.class.isAssignableFrom(aClass)) {
               return (Iterator<T>)
                   Arrays.asList(
-                      new org.geotools.referencing.factory.epsg.FactoryUsingWKT(),
-                      new org.geotools.referencing.factory.epsg.LongitudeFirstFactory(),
-                      new org.geotools.referencing.factory.epsg.CartesianAuthorityFactory(),
-                      new org.geotools.referencing.factory.wms.AutoCRSFactory(),
-                      new org.geotools.referencing.factory.wms.WebCRSFactory(),
-                      new org.geotools.referencing.factory.URN_AuthorityFactory(),
-                      new org.geotools.referencing.factory.HTTP_AuthorityFactory(),
-                      new org.geotools.referencing.factory.HTTP_URI_AuthorityFactory());
+                          new org.geotools.referencing.factory.epsg.FactoryUsingWKT(),
+                          new org.geotools.referencing.factory.epsg.LongitudeFirstFactory(),
+                          new org.geotools.referencing.factory.epsg.CartesianAuthorityFactory(),
+                          new org.geotools.referencing.factory.wms.AutoCRSFactory(),
+                          new org.geotools.referencing.factory.wms.WebCRSFactory(),
+                          new org.geotools.referencing.factory.URN_AuthorityFactory(),
+                          new org.geotools.referencing.factory.HTTP_AuthorityFactory(),
+                          new org.geotools.referencing.factory.HTTP_URI_AuthorityFactory())
+                      .iterator();
             } else if (CRSFactory.class.isAssignableFrom(aClass)) {
               return (Iterator<T>)
                   Collections.singletonList(new ReferencingObjectFactory()).iterator();
