@@ -41,9 +41,9 @@ import tech.units.indriya.function.DefaultNumberSystem;
 
 class GeotoolsBuilder {
 
-  private static final String METERS = "METRE";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(GeotoolsBuilder.class);
+
+  private static final String METRE = "METRE";
 
   private static WKTReader reader = new WKTReader();
 
@@ -87,7 +87,7 @@ class GeotoolsBuilder {
     ClassLoader tccl = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(DefaultNumberSystem.class.getClassLoader());
     try {
-      DefaultGeographicCRS wsg84 = DefaultGeographicCRS.WGS84;
+      DefaultGeographicCRS wgs84 = DefaultGeographicCRS.WGS84;
     } finally {
       Thread.currentThread().setContextClassLoader(tccl);
     }
@@ -196,7 +196,7 @@ class GeotoolsBuilder {
         wkt = getValue(String.class);
         distance = getSecondaryValue(Double.class);
         if (wkt != null && wkt.length() > 0) {
-          filter = factory.beyond(factory.property(attribute), toGeometry(wkt), distance, METERS);
+          filter = factory.beyond(factory.property(attribute), toGeometry(wkt), distance, METRE);
         }
         break;
       case CONTAINS:
@@ -209,7 +209,7 @@ class GeotoolsBuilder {
         wkt = getValue(String.class);
         distance = getSecondaryValue(Double.class);
         if (wkt != null && wkt.length() > 0) {
-          filter = factory.dwithin(factory.property(attribute), toGeometry(wkt), distance, METERS);
+          filter = factory.dwithin(factory.property(attribute), toGeometry(wkt), distance, METRE);
         }
         break;
       case INTERSECTS:

@@ -33,8 +33,8 @@ import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
-import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
 import org.geotools.temporal.object.DefaultPeriodDuration;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.IncludeFilter;
@@ -548,19 +548,12 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     return returnSearchPhrase;
   }
 
-  private org.locationtech.jts.geom.Geometry getJtsGeometery(LiteralExpressionImpl geoExpression) {
-    org.locationtech.jts.geom.Geometry jtsGeometry;
-
-    if (geoExpression.getValue() instanceof GeometryImpl) {
-      GeometryImpl geo = (GeometryImpl) geoExpression.getValue();
-      jtsGeometry = geo.getJTSGeometry();
-    } else if (geoExpression.getValue() instanceof org.locationtech.jts.geom.Geometry) {
-      jtsGeometry = (org.locationtech.jts.geom.Geometry) geoExpression.getValue();
+  private Geometry getJtsGeometery(LiteralExpressionImpl geoExpression) {
+    if (geoExpression.getValue() instanceof Geometry) {
+      return (Geometry) geoExpression.getValue();
     } else {
       throw new UnsupportedOperationException(
           "Unsupported implementation of Geometry for spatial filters.");
     }
-
-    return jtsGeometry;
   }
 }
