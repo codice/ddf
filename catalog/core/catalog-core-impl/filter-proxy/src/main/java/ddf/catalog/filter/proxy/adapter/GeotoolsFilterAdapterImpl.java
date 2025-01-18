@@ -15,25 +15,22 @@ package ddf.catalog.filter.proxy.adapter;
 
 import static java.lang.Math.abs;
 
-import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterDelegate;
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
-import ddf.util.Antimeridian;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.geotools.filter.FilterFactoryImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.geotools.util.Converters;
 import org.joda.time.DateTime;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.And;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.ExcludeFilter;
@@ -124,8 +121,6 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
   private static final Pattern RELATIVE_TEMPORAL_REGEX =
       Pattern.compile(SHORTENED_RELATIVE_TEMPORAL_REGEX.replaceAll("dec", DECIMAL_REGEX));
-
-  private final GeotoolsFilterBuilder geotoolsFilterBuilder = new GeotoolsFilterBuilder();
 
   @Override
   public <T> T adapt(Filter filter, FilterDelegate<T> filterDelegate)
@@ -760,29 +755,10 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     return ((FilterDelegate<?>) delegate).dwithin(filterValues.propertyName, wkt, distance);
   }
 
-  private Or generateOrFilterFromMultipolyWkt(String wkt) {
-    List<String> polygons = Antimeridian.wktMultipolyToSinglePolygons(wkt);
-    List<Intersects> intersectFilters = new ArrayList<>();
-
-    for (String wktPoly : polygons) {
-      intersectFilters.add(
-          (Intersects)
-              geotoolsFilterBuilder.attribute(Metacard.ANY_GEO).intersecting().wkt(wktPoly));
-    }
-
-    return geotoolsFilterBuilder.anyOf(intersectFilters.toArray(new Intersects[0]));
-  }
-
   @Override
   public Object visit(Intersects filter, Object delegate) {
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String wkt = geometryToWkt(filterValues.literal);
-    String updatedWkt = Antimeridian.unwrapAndSplitWkt(wkt);
-
-    if (!Antimeridian.wktIsMultipolygon(wkt) && Antimeridian.wktIsMultipolygon(updatedWkt)) {
-      Or orFilter = generateOrFilterFromMultipolyWkt(updatedWkt);
-      return visit(orFilter, delegate);
-    }
 
     return ((FilterDelegate<?>) delegate).intersects(filterValues.propertyName, wkt);
   }
@@ -848,12 +824,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     String wkt;
     // TODO should support OpenGIS Geometry interface and reconstruct the
     // WKT from the getBoundary method
-    if (literal instanceof GeometryImpl) {
-      GeometryImpl surface = (GeometryImpl) literal;
-      org.locationtech.jts.geom.Geometry jtsGeometry = surface.getJTSGeometry();
-      wkt = jtsGeometry.toText();
-    } else if (literal instanceof org.locationtech.jts.geom.Geometry) {
-      org.locationtech.jts.geom.Geometry jtsGeometry = (org.locationtech.jts.geom.Geometry) literal;
+    if (literal instanceof Geometry) {
+      Geometry jtsGeometry = (Geometry) literal;
       wkt = jtsGeometry.toText();
     } else {
       throw new UnsupportedOperationException(

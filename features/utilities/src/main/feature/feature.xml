@@ -237,7 +237,6 @@
         <bundle>wrap:mvn:org.geotools/gt-opengis/${org.geotools.version}$Bundle-Name=gt-opengis&amp;Bundle-SymbolicName=gt-opengis</bundle>
         <bundle>wrap:mvn:org.geotools/gt-main/${org.geotools.version}$Bundle-Name=gt-main&amp;Bundle-SymbolicName=gt-main</bundle>
         <bundle>wrap:mvn:org.geotools/gt-cql/${org.geotools.version}$Bundle-Name=gt-cql&amp;Bundle-SymbolicName=gt-cql</bundle>
-        <bundle>wrap:mvn:org.geotools/gt-jts-wrapper/${gt-jts-wrapper.bundle.version}$Bundle-Name=gt-jts-wrapper&amp;Bundle-SymbolicName=gt-jts-wrapper</bundle>
         <bundle>wrap:mvn:org.geotools/gt-xml/${org.geotools.version}$Bundle-Name=gt-xml&amp;Bundle-SymbolicName=gt-xml</bundle>
         <bundle>wrap:mvn:org.picocontainer/picocontainer/1.2$Bundle-Name=picocontainer&amp;Bundle-SymbolicName=picocontainer</bundle>
         <bundle>mvn:ddf.thirdparty/eclipse-emf/${project.version}</bundle>
@@ -254,12 +253,12 @@
         <bundle>wrap:mvn:org.geotools/gt-geojson/${org.geotools.version}$Bundle-Name=gt-geojson&amp;Bundle-SymbolicName=gt-geojson</bundle>
         <bundle>wrap:mvn:org.geotools/gt-shapefile/${org.geotools.version}$Bundle-Name=gt-shapefile&amp;Bundle-SymbolicName=gt-shapefile</bundle>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
-        <bundle>mvn:tech.units/indriya/2.0.1</bundle>
+        <bundle>mvn:tech.units/indriya/2.0.2</bundle>
         <bundle>mvn:tech.uom.lib/uom-lib-common/2.1</bundle>
         <bundle>mvn:si.uom/si-quantity/2.0.1</bundle>
         <bundle>wrap:mvn:si.uom/si-units/2.0.1$overwrite=merge&amp;Bundle-Name=si-units&amp;Bundle-SymbolicName=si-units&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
         <bundle>mvn:systems.uom/systems-quantity/2.0.1</bundle>
-        <bundle>wrap:mvn:systems.uom/systems-common/2.0.1$overwrite=merge&amp;Bundle-Name=systems-common&amp;Bundle-SymbolicName=systems-common&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
+        <bundle>wrap:mvn:systems.uom/systems-common/2.0.2$overwrite=merge&amp;Bundle-Name=systems-common&amp;Bundle-SymbolicName=systems-common&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
         <bundle>mvn:javax.measure/unit-api/2.0</bundle>
     </feature>
 

@@ -24,18 +24,11 @@ import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
-import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
 import org.opengis.filter.And;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;
@@ -432,13 +425,6 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     if (distance <= radiusRangeLowerBound) {
       LOGGER.debug(
           "Radius must be greater than {}. Ignoring DWithin filter.", radiusRangeLowerBound);
-    } else if (geometryExpression instanceof PointImpl) {
-      PointImpl point = (PointImpl) literalWrapper.evaluate(null);
-      double[] coords = point.getCentroid().getCoordinate();
-      LOGGER.trace("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
-      LOGGER.trace("radius = {}", distance);
-      openSearchFilterVisitorObject.addPointRadiusSearch(
-          new PointRadius(coords[0], coords[1], distance));
     } else if (geometryExpression instanceof Point) {
       Point point = (Point) literalWrapper.evaluate(null);
       Coordinate coords = point.getCoordinate();
@@ -484,25 +470,6 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
     if (geometryExpression instanceof Geometry) {
       Geometry polygon = (Geometry) literalWrapper.evaluate(null);
-      openSearchFilterVisitorObject.addGeometrySearch(polygon);
-    } else if (geometryExpression instanceof SurfaceImpl) {
-      SurfaceImpl surface = (SurfaceImpl) literalWrapper.evaluate(null);
-      Geometry polygon = surface.getJTSGeometry();
-      openSearchFilterVisitorObject.addGeometrySearch(polygon);
-    } else if (geometryExpression instanceof Polygon) {
-      Geometry polygon = (Geometry) literalWrapper.evaluate(null);
-      openSearchFilterVisitorObject.addGeometrySearch(polygon);
-    } else if (geometryExpression instanceof GeometryImpl) {
-      Geometry polygon = ((GeometryImpl) geometryExpression).getJTSGeometry();
-      openSearchFilterVisitorObject.addGeometrySearch(polygon);
-    } else if (geometryExpression instanceof MultiPolygon) {
-      Geometry polygon = ((MultiPolygon) geometryExpression);
-      openSearchFilterVisitorObject.addGeometrySearch(polygon);
-    } else if (geometryExpression instanceof LineString) {
-      Geometry polygon = ((LineString) geometryExpression);
-      openSearchFilterVisitorObject.addGeometrySearch(polygon);
-    } else if (geometryExpression instanceof MultiLineString) {
-      Geometry polygon = ((MultiLineString) geometryExpression);
       openSearchFilterVisitorObject.addGeometrySearch(polygon);
     } else {
       LOGGER.debug("Unsupported filter constraint");

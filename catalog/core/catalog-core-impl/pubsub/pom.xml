@@ -87,11 +87,6 @@
             <artifactId>gt-xsd-gml3</artifactId>
             <version>${org.geotools.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-jts-wrapper</artifactId>
-            <version>24.7</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
