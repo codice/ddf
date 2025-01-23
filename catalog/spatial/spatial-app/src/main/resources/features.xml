@@ -170,4 +170,12 @@
         <feature>spatial-wfs-v2_0_0</feature>
     </feature>
 
+    <feature name="spatial-all" version="${project.version}"
+             description="Installs all spatial app features">
+        <feature>spatial-app</feature>
+        <feature>spatial-connected-sources</feature>
+        <feature>webservice-gazetteer</feature>
+        <feature>offline-gazetteer-index</feature>
+    </feature>
+
 </features>

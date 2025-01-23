@@ -99,4 +99,5 @@
         <feature>admin-config-updater</feature>
         <feature>admin-core-logviewer</feature>
     </feature>
+
 </features>

@@ -165,4 +165,17 @@
         <feature>admin-core</feature>
         <bundle>mvn:ddf.admin/admin-configuration-configupdater/${project.version}</bundle>
     </feature>
+
+    <feature name="admin-all" version="${project.version}"
+             description="All admin features">
+        <feature>admin-modules-installer</feature>
+        <feature>platform-alerts</feature>
+        <feature>landing-page</feature>
+        <feature>platform-scheduler</feature>
+        <feature>platform-commands</feature>
+        <feature>admin-core-logviewer</feature>
+        <feature>admin-configurator</feature>
+        <feature>admin-config-updater</feature>
+        <feature>admin-post-install-modules</feature>
+    </feature>
 </features>
