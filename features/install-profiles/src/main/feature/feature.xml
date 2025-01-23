@@ -44,9 +44,4 @@
         <feature>spatial-app</feature>
     </feature>
 
-    <feature name="profile-all" version="${project.version}"
-             description="This will install all DDF applications." start-level="1">
-        <feature>apps-all</feature>
-    </feature>
-
 </features>

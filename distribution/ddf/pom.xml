@@ -88,14 +88,25 @@
                             <features>
                                 <!-- conditional features -->
                                 <feature>cxf-commands</feature>
-                                <!-- boot features -->
+                                <!-- boot features defined in org.apache.karaf.features.cfg-->
+                                <feature>ddf-boot-features</feature>
                                 <feature>ui</feature>
                                 <feature>admin-modules-installer</feature>
                                 <!-- profile features -->
                                 <feature>profile-minimum</feature>
                                 <feature>profile-catalog</feature>
                                 <feature>profile-standard</feature>
-                                <feature>profile-all</feature>
+                                <!-- all apps -->
+                                <feature>kernel-all</feature>
+                                <feature>security-all</feature>
+                                <feature>solr-all</feature>
+                                <feature>catalog-solr-all</feature>
+                                <feature>utilities-all</feature>
+                                <feature>catalog-all</feature>
+                                <feature>spatial-all</feature>
+                                <feature>admin-all</feature>
+                                <feature>branding-app</feature>
+                                <feature>search-ui-app</feature>
                             </features>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
                         </configuration>

@@ -100,18 +100,4 @@
         <feature>admin-core-logviewer</feature>
     </feature>
 
-    <feature name="apps-all" version="${project.version}"
-             description="Installs all of the DDF applications">
-        <feature>ddf-boot-features</feature>
-        <feature>branding-app</feature>
-        <feature>kernel-all</feature>
-        <feature>security-all</feature>
-        <feature>solr-all</feature>
-        <feature>catalog-solr-all</feature>
-        <feature>utilities-all</feature>
-        <feature>catalog-all</feature>
-        <feature>spatial-all</feature>
-        <feature>search-ui-app</feature>
-        <feature>admin-all</feature>
-    </feature>
 </features>
