@@ -24,8 +24,8 @@
     <packaging>bundle</packaging>
     <properties>
         <parboiled.version>1.4.1</parboiled.version>
-        <!-- Overriding the asm version from the root pom to stay in sync with parboiled-java -->
-        <opensearch.asm.version>9.2</opensearch.asm.version>
+        <!-- Overriding the asm version for jdk21 compatibility -->
+        <opensearch.asm.version>9.5</opensearch.asm.version>
     </properties>
     <dependencies>
         <dependency>
