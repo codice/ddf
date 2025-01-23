@@ -85,6 +85,10 @@
                             geospatial,
                             asm
                         </Embed-Dependency>
+                        <Import-Package>
+                            !org.noggit*,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
