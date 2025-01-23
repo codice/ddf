@@ -18,7 +18,7 @@
 
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
-    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
+    <repository>mvn:ddf.features/camel-karaf/${project.version}/xml/features</repository>
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
     <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
@@ -100,18 +100,4 @@
         <feature>admin-core-logviewer</feature>
     </feature>
 
-    <feature name="apps-all" version="${project.version}"
-             description="Installs all of the DDF applications">
-        <feature>ddf-boot-features</feature>
-        <feature>branding-app</feature>
-        <feature>kernel-all</feature>
-        <feature>security-all</feature>
-        <feature>solr-all</feature>
-        <feature>catalog-solr-all</feature>
-        <feature>utilities-all</feature>
-        <feature>catalog-all</feature>
-        <feature>spatial-all</feature>
-        <feature>search-ui-app</feature>
-        <feature>admin-all</feature>
-    </feature>
 </features>
