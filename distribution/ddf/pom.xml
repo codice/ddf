@@ -64,7 +64,6 @@
                             <resolveDefinedRepositoriesRecursively>false</resolveDefinedRepositoriesRecursively>
                             <descriptors>
                                 <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features</descriptor>
@@ -73,6 +72,7 @@
                                 <descriptor>mvn:ddf.features/kernel/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/install-profiles/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/apps/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:ddf.features/camel-karaf/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/admin/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/branding/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/security/${project.version}/xml/features</descriptor>
@@ -98,23 +98,6 @@
                                 <feature>profile-all</feature>
                             </features>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <replaceregexp file="${project.basedir}/target/dependencies/apache-karaf-${karaf.version}/system/org/apache/camel/karaf/apache-camel/${camel.version}/apache-camel-${camel.version}-features.xml" match="(&lt;repository&gt;.*&lt;/repository&gt;)" replace="" byline="true" />
-                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -308,11 +291,11 @@
             <type>xml</type>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel.karaf</groupId>
-            <artifactId>apache-camel</artifactId>
-            <version>${camel.version}</version>
-            <type>xml</type>
+            <groupId>ddf.features</groupId>
+            <artifactId>camel-karaf</artifactId>
+            <version>${project.version}</version>
             <classifier>features</classifier>
+            <type>xml</type>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf.karaf</groupId>
