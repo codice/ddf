@@ -24,11 +24,6 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-parser-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -61,6 +56,11 @@
         <artifactId>platform-util</artifactId>
         <version>${project.version}</version>
       </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-parser-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

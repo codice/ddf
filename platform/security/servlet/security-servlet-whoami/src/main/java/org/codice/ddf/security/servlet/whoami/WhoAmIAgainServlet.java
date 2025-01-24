@@ -15,7 +15,6 @@ package org.codice.ddf.security.servlet.whoami;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServlet;
@@ -50,10 +49,10 @@ public class WhoAmIAgainServlet extends HttpServlet {
     realmToWhoMap.put("default", "hi");
 
     resp.setContentType("application/json");
-    try {
-      resp.getWriter().print(gson.toJson(realmToWhoMap));
-    } catch (IOException ex) {
-      LOGGER.debug("Unable to write to response for /whoami", ex);
-    }
+
+    resp.setStatus(403);
+    throw new RuntimeException();
+    //      resp.getWriter().print(gson.toJson(realmToWhoMap));
+
   }
 }
