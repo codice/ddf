@@ -31,6 +31,11 @@
             <version>${restito.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.mina</groupId>
+            <artifactId>mina-core</artifactId>
+            <version>2.2.4</version>
+        </dependency>
+        <dependency>
             <groupId>org.glassfish.grizzly</groupId>
             <artifactId>grizzly-http-server</artifactId>
             <version>2.3.25</version>
