@@ -195,7 +195,7 @@
         <google-http-client.version>1.22.0</google-http-client.version>
         <gml-v_3_1_1-schema.version>1.1.0</gml-v_3_1_1-schema.version>
         <gson.version>2.11.0</gson.version>
-        <guava.version>29.0-jre</guava.version>
+        <guava.version>33.4.0-jre</guava.version>
         <hawtbuff.version>1.11</hawtbuff.version>
         <httpclient.version>4.5.13</httpclient.version>
         <httpcore.version>4.4.15</httpcore.version>
@@ -297,7 +297,7 @@
         <solr.httpmime.version>4.5.13</solr.httpmime.version>
         <solr.zookeeper.version>3.7.0</solr.zookeeper.version>
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
-        <spark.version>2.9.2</spark.version>
+        <spark.version>2.9.4</spark.version>
         <spatial4j.version>0.8</spatial4j.version>
         <spring.version>5.3.19</spring.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
@@ -317,7 +317,7 @@
         <xmlsec.version>2.3.1</xmlsec.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
         <xstream.bundle.version>1.4.20_1</xstream.bundle.version>
-        <xstream.version>1.4.20</xstream.version>
+        <xstream.version>1.4.21</xstream.version>
         <micrometer.version>1.8.0</micrometer.version>
         <micrometer.hdrhistogram.version>2.1.12</micrometer.hdrhistogram.version>
         <micrometer.latencyutils.version>2.0.3</micrometer.latencyutils.version>
