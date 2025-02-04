@@ -28,7 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import org.apache.tika.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
