@@ -49,7 +49,7 @@ import java.util.Map;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import org.apache.tika.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
 import org.codice.ddf.checksum.ChecksumProvider;
 import org.codice.ddf.rest.service.impl.CatalogServiceImpl;

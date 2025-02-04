@@ -301,7 +301,7 @@
         <spatial4j.version>0.8</spatial4j.version>
         <spring.version>5.3.19</spring.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
-        <tika.version>1.28.4</tika.version>
+        <tika.version>2.4.0</tika.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
         <woodstox.core.version>6.5.1</woodstox.core.version>
@@ -496,6 +496,7 @@
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers</artifactId>
                 <version>${tika.version}</version>
+                <type>pom</type>
                 <exclusions>
                     <exclusion>
                         <!-- excluding bzip2 due to CVE-2019-12900 https://nvd.nist.gov/vuln/detail/CVE-2019-12900 -->
@@ -503,6 +504,11 @@
                         <artifactId>bzip2</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-parsers-standard-package</artifactId>
+                <version>${tika.version}</version>
             </dependency>
 
             <!-- BEGIN: JTS dependencies -->

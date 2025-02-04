@@ -111,7 +111,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-bundle</artifactId>
+            <artifactId>tika-bundle-standard</artifactId>
             <version>${tika.version}</version>
             <scope>test</scope>
         </dependency>
