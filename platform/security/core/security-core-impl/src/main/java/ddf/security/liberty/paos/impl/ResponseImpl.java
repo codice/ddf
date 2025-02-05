@@ -17,14 +17,14 @@ import ddf.security.liberty.paos.Response;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.opensaml.core.xml.AbstractXMLObject;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSBooleanValue;
-import org.opensaml.saml.common.AbstractSAMLObject;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.soap.soap11.ActorBearing;
 import org.opensaml.soap.soap11.MustUnderstandBearing;
 
-public class ResponseImpl extends AbstractSAMLObject
+public class ResponseImpl extends AbstractXMLObject
     implements Response, SAMLObject, MustUnderstandBearing, ActorBearing {
 
   private String refToMessageID;

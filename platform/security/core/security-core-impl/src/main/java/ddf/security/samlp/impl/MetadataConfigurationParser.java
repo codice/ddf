@@ -307,7 +307,7 @@ public class MetadataConfigurationParser {
           "IDP metadata must either have cache duration or valid-until date."
               + " Defaulting IDP metadata cache duration to {}",
           SamlProtocol.getCacheDuration());
-      root.setCacheDuration(SamlProtocol.getCacheDuration().toMillis());
+      root.setCacheDuration(SamlProtocol.getCacheDuration());
     }
   }
 }

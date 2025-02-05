@@ -25,7 +25,6 @@ import java.time.Duration;
 import java.time.Instant;
 import javax.validation.constraints.NotNull;
 import org.codice.ddf.platform.util.HttpUtils;
-import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.common.SignableSAMLObject;
@@ -55,18 +54,17 @@ public abstract class SamlValidator {
   }
 
   protected void checkTimestamp() throws ValidationException {
-    DateTime issueInstant = getIssueInstant();
+    Instant issueInstant = getIssueInstant();
     if (issueInstant == null) {
       throw new ValidationException("Issue Instant cannot be null!");
     }
 
-    Instant instant = Instant.ofEpochMilli(issueInstant.getMillis());
     Instant now = Instant.now();
-    if (instant.minus(builder.clockSkew).isAfter(now)) {
+    if (issueInstant.minus(builder.clockSkew).isAfter(now)) {
       throw new ValidationException("Issue Instant cannot be in the future");
     }
 
-    if (instant.plus(builder.clockSkew).isBefore(now.minus(builder.timeout))) {
+    if (issueInstant.plus(builder.clockSkew).isBefore(now.minus(builder.timeout))) {
       throw new ValidationException("Issue Instant was outside valid time range");
     }
   }
@@ -91,7 +89,7 @@ public abstract class SamlValidator {
     // pass, default method
   }
 
-  protected abstract DateTime getIssueInstant();
+  protected abstract Instant getIssueInstant();
 
   protected abstract SAMLVersion getSamlVersion();
 
@@ -317,7 +315,7 @@ public abstract class SamlValidator {
     }
 
     @Override
-    protected DateTime getIssueInstant() {
+    protected Instant getIssueInstant() {
       return logoutRequest.getIssueInstant();
     }
 
@@ -362,7 +360,7 @@ public abstract class SamlValidator {
     }
 
     @Override
-    protected DateTime getIssueInstant() {
+    protected Instant getIssueInstant() {
       return logoutResponse.getIssueInstant();
     }
 

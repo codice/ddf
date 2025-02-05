@@ -84,7 +84,7 @@ class LogoutMessageSpec extends Specification {
         SAMLVersion.VERSION_20.equals(logoutRequest.getMessage().version)
         logoutRequest.getMessage().sessionIndexes.size() == 1
         SESSION_INDEX.equals(logoutRequest.getMessage().sessionIndexes.get(0).getSessionIndex());
-        now().isAfter(Instant.ofEpochMilli(logoutRequest.getMessage().issueInstant.millis))
+        now().isAfter(logoutRequest.getMessage().issueInstant)
     }
 
     def "build logout request with invalid info"() {
@@ -121,7 +121,7 @@ class LogoutMessageSpec extends Specification {
         IN_RESPONSE_TO.equals(logoutResponse.getMessage().inResponseTo)
         SAMLVersion.VERSION_20.equals(logoutResponse.getMessage().version)
         !now().
-                isBefore(Instant.ofEpochMilli(logoutResponse.getMessage().issueInstant.millis))
+                isBefore(logoutResponse.getMessage().issueInstant)
     }
 
     def "build logout response with no inResponseTo"() {

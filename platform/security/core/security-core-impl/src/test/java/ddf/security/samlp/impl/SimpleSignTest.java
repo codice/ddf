@@ -29,6 +29,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Security;
 import java.security.cert.Certificate;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -44,7 +45,6 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -157,7 +157,7 @@ public class SimpleSignTest {
     simpleSign.signSamlObject(response);
 
     final SubjectConfirmationData scd = new SubjectConfirmationDataBuilder().buildObject();
-    scd.setNotOnOrAfter(DateTime.now().plusMinutes(30));
+    scd.setNotOnOrAfter(Instant.now().plusSeconds(1800));
     for (Assertion assertion : response.getAssertions()) {
       assertion
           .getSubject()

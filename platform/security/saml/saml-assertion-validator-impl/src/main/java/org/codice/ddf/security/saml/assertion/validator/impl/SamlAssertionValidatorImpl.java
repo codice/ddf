@@ -24,6 +24,7 @@ import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -52,7 +53,6 @@ import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 import org.codice.ddf.security.saml.assertion.validator.SamlAssertionValidator;
-import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.SAMLObjectBuilder;
@@ -61,7 +61,6 @@ import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
-import org.opensaml.saml.saml2.core.StatusMessage;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,8 +94,6 @@ public class SamlAssertionValidatorImpl implements SamlAssertionValidator {
   private static SAMLObjectBuilder<Status> statusBuilder;
 
   private static SAMLObjectBuilder<StatusCode> statusCodeBuilder;
-
-  private static SAMLObjectBuilder<StatusMessage> statusMessageBuilder;
 
   private static SAMLObjectBuilder<Issuer> issuerBuilder;
 
@@ -142,10 +139,7 @@ public class SamlAssertionValidatorImpl implements SamlAssertionValidator {
       // get the crypto junk
       Crypto crypto = getSignatureCrypto();
       Response samlResponse =
-          createSamlResponse(
-              token.getRequestURI(),
-              assertion.getIssuerString(),
-              createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null));
+          createSamlResponse(token.getRequestURI(), assertion.getIssuerString(), createStatus());
 
       BUILDER.get().reset();
       Document doc = BUILDER.get().newDocument();
@@ -172,9 +166,7 @@ public class SamlAssertionValidatorImpl implements SamlAssertionValidator {
         assertion.verifySignature(wsssamlKeyInfoProcessor, crypto);
 
         assertion.parseSubject(
-            new WSSSAMLKeyInfoProcessor(requestData),
-            requestData.getSigVerCrypto(),
-            requestData.getCallbackHandler());
+            new WSSSAMLKeyInfoProcessor(requestData), requestData.getSigVerCrypto());
       }
 
       assertionValidator.validate(credential, requestData);
@@ -204,7 +196,7 @@ public class SamlAssertionValidatorImpl implements SamlAssertionValidator {
     Response response = responseBuilder.buildObject();
 
     response.setID(UUID.randomUUID().toString());
-    response.setIssueInstant(new DateTime());
+    response.setIssueInstant(Instant.now());
     response.setInResponseTo(inResponseTo);
     response.setIssuer(createIssuer(issuer));
     response.setStatus(status);
@@ -216,11 +208,9 @@ public class SamlAssertionValidatorImpl implements SamlAssertionValidator {
   /**
    * Creates the status object for the response.
    *
-   * @param statusCodeValue
-   * @param statusMessage
    * @return Status
    */
-  private static Status createStatus(String statusCodeValue, String statusMessage) {
+  private static Status createStatus() {
     if (statusBuilder == null) {
       statusBuilder =
           (SAMLObjectBuilder<Status>) builderFactory.getBuilder(Status.DEFAULT_ELEMENT_NAME);
@@ -230,23 +220,12 @@ public class SamlAssertionValidatorImpl implements SamlAssertionValidator {
           (SAMLObjectBuilder<StatusCode>)
               builderFactory.getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
     }
-    if (statusMessageBuilder == null) {
-      statusMessageBuilder =
-          (SAMLObjectBuilder<StatusMessage>)
-              builderFactory.getBuilder(StatusMessage.DEFAULT_ELEMENT_NAME);
-    }
 
     Status status = statusBuilder.buildObject();
 
     StatusCode statusCode = statusCodeBuilder.buildObject();
-    statusCode.setValue(statusCodeValue);
+    statusCode.setValue(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS);
     status.setStatusCode(statusCode);
-
-    if (statusMessage != null) {
-      StatusMessage statusMessageObject = statusMessageBuilder.buildObject();
-      statusMessageObject.setMessage(statusMessage);
-      status.setStatusMessage(statusMessageObject);
-    }
 
     return status;
   }

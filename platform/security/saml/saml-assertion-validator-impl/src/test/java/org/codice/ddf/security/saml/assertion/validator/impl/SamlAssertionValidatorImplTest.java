@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.helpers.DOMUtils;
@@ -38,7 +40,6 @@ import org.bouncycastle.util.encoders.Base64;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 import org.codice.ddf.security.util.SAMLUtils;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -148,7 +149,8 @@ public class SamlAssertionValidatorImplTest {
 
   @Test
   public void testValidateBearerAssertion() throws Exception {
-    Assertion assertion = createAssertion(true, true, ISSUER, new DateTime().plusDays(3));
+    Assertion assertion =
+        createAssertion(true, true, ISSUER, Instant.now().plus(3, ChronoUnit.DAYS));
 
     Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
@@ -184,7 +186,8 @@ public class SamlAssertionValidatorImplTest {
 
   @Test(expected = AuthenticationFailureException.class)
   public void testValidateUnsignedAssertion() throws Exception {
-    Assertion assertion = createAssertion(false, true, ISSUER, new DateTime().plusDays(3));
+    Assertion assertion =
+        createAssertion(false, true, ISSUER, Instant.now().plus(3, ChronoUnit.DAYS));
 
     Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
@@ -215,7 +218,7 @@ public class SamlAssertionValidatorImplTest {
 
   @Test(expected = AuthenticationFailureException.class)
   public void testValidateExpiredAssertion() throws Exception {
-    Assertion assertion = createAssertion(false, true, ISSUER, new DateTime().minusSeconds(10));
+    Assertion assertion = createAssertion(false, true, ISSUER, Instant.now().minusSeconds(10));
 
     Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
@@ -230,7 +233,7 @@ public class SamlAssertionValidatorImplTest {
 
   @Test(expected = AuthenticationFailureException.class)
   public void testValidateInvalidIssuer() throws Exception {
-    Assertion assertion = createAssertion(false, true, "WRONG", new DateTime().minusSeconds(10));
+    Assertion assertion = createAssertion(false, true, "WRONG", Instant.now().minusSeconds(10));
 
     Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
@@ -245,7 +248,7 @@ public class SamlAssertionValidatorImplTest {
 
   @Test(expected = AuthenticationFailureException.class)
   public void testValidateInvalidSignature() throws Exception {
-    Assertion assertion = createAssertion(false, false, "WRONG", new DateTime().minusSeconds(10));
+    Assertion assertion = createAssertion(false, false, "WRONG", Instant.now().minusSeconds(10));
 
     Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
@@ -259,11 +262,11 @@ public class SamlAssertionValidatorImplTest {
   }
 
   private Assertion createAssertion(
-      boolean sign, boolean validSignature, String issuerString, DateTime notOnOrAfter)
+      boolean sign, boolean validSignature, String issuerString, Instant notOnOrAfter)
       throws Exception {
     Assertion assertion = new AssertionBuilder().buildObject();
     assertion.setID(UUID.randomUUID().toString());
-    assertion.setIssueInstant(new DateTime());
+    assertion.setIssueInstant(Instant.now());
 
     Issuer issuer = new IssuerBuilder().buildObject();
     issuer.setValue(issuerString);
@@ -283,16 +286,15 @@ public class SamlAssertionValidatorImplTest {
     assertion.setSubject(subject);
 
     Conditions conditions = new ConditionsBuilder().buildObject();
-    conditions.setNotBefore(new DateTime().minusDays(3));
+    conditions.setNotBefore(Instant.now().minus(3, ChronoUnit.DAYS));
     conditions.setNotOnOrAfter(notOnOrAfter);
     assertion.setConditions(conditions);
 
     AuthnStatement authnStatement = new AuthnStatementBuilder().buildObject();
-    authnStatement.setAuthnInstant(new DateTime());
+    authnStatement.setAuthnInstant(Instant.now());
     AuthnContext authnContext = new AuthnContextBuilder().buildObject();
     AuthnContextClassRef authnContextClassRef = new AuthnContextClassRefBuilder().buildObject();
-    authnContextClassRef.setAuthnContextClassRef(
-        "urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified");
+    authnContextClassRef.setValue("urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified");
     authnContext.setAuthnContextClassRef(authnContextClassRef);
     authnStatement.setAuthnContext(authnContext);
     assertion.getAuthnStatements().add(authnStatement);
@@ -342,7 +344,7 @@ public class SamlAssertionValidatorImplTest {
   private Assertion createHolderOfKeyAssertion() throws Exception {
     Assertion assertion = new AssertionBuilder().buildObject();
     assertion.setID(UUID.randomUUID().toString());
-    assertion.setIssueInstant(new DateTime());
+    assertion.setIssueInstant(Instant.now());
 
     Issuer issuer = new IssuerBuilder().buildObject();
     issuer.setValue(ISSUER);
@@ -384,16 +386,15 @@ public class SamlAssertionValidatorImplTest {
     assertion.setSubject(subject);
 
     Conditions conditions = new ConditionsBuilder().buildObject();
-    conditions.setNotBefore(new DateTime().minusDays(3));
-    conditions.setNotOnOrAfter(new DateTime().plusDays(3));
+    conditions.setNotBefore(Instant.now().minus(3, ChronoUnit.DAYS));
+    conditions.setNotOnOrAfter(Instant.now().plus(3, ChronoUnit.DAYS));
     assertion.setConditions(conditions);
 
     AuthnStatement authnStatement = new AuthnStatementBuilder().buildObject();
-    authnStatement.setAuthnInstant(new DateTime());
+    authnStatement.setAuthnInstant(Instant.now());
     AuthnContext authnContext = new AuthnContextBuilder().buildObject();
     AuthnContextClassRef authnContextClassRef = new AuthnContextClassRefBuilder().buildObject();
-    authnContextClassRef.setAuthnContextClassRef(
-        "urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified");
+    authnContextClassRef.setValue("urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified");
     authnContext.setAuthnContextClassRef(authnContextClassRef);
     authnStatement.setAuthnContext(authnContext);
     assertion.getAuthnStatements().add(authnStatement);

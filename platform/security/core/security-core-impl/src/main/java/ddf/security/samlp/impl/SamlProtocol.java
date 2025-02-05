@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import ddf.security.samlp.LogoutWrapper;
 import java.io.StringReader;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,6 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.codehaus.stax2.XMLInputFactory2;
-import org.joda.time.DateTime;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.core.xml.XMLObject;
@@ -242,7 +242,7 @@ public class SamlProtocol {
     response.setIssuer(issuer);
     response.setStatus(status);
     response.setID("_" + UUID.randomUUID().toString());
-    response.setIssueInstant(new DateTime());
+    response.setIssueInstant(Instant.now());
     response.setInResponseTo(requestId);
     response.setVersion(SAMLVersion.VERSION_20);
     if (samlAssertion != null) {
@@ -283,7 +283,7 @@ public class SamlProtocol {
   public static Status createStatus(String statusValue, String message) {
     Status status = createStatus(statusValue);
     StatusMessage statusMessage = statusMessageBuilder.buildObject();
-    statusMessage.setMessage(message);
+    statusMessage.setValue(message);
     status.setStatusMessage(statusMessage);
 
     return status;
@@ -336,7 +336,7 @@ public class SamlProtocol {
 
     for (String nameId : nameIds) {
       NameIDFormat nameIDFormat = nameIdFormatBuilder.buildObject();
-      nameIDFormat.setFormat(nameId);
+      nameIDFormat.setValue(nameId);
       idpssoDescriptor.getNameIDFormats().add(nameIDFormat);
     }
 
@@ -369,7 +369,7 @@ public class SamlProtocol {
 
     entityDescriptor.getRoleDescriptors().add(idpssoDescriptor);
 
-    entityDescriptor.setCacheDuration(getCacheDuration().toMillis());
+    entityDescriptor.setCacheDuration(getCacheDuration());
 
     return entityDescriptor;
   }
@@ -413,7 +413,7 @@ public class SamlProtocol {
 
     for (String nameId : nameIds) {
       NameIDFormat nameIDFormat = nameIdFormatBuilder.buildObject();
-      nameIDFormat.setFormat(nameId);
+      nameIDFormat.setValue(nameId);
       spSsoDescriptor.getNameIDFormats().add(nameIDFormat);
     }
 
@@ -452,7 +452,7 @@ public class SamlProtocol {
 
     entityDescriptor.getRoleDescriptors().add(spSsoDescriptor);
 
-    entityDescriptor.setCacheDuration(getCacheDuration().toMillis());
+    entityDescriptor.setCacheDuration(getCacheDuration());
 
     return entityDescriptor;
   }
@@ -467,7 +467,7 @@ public class SamlProtocol {
       Issuer issuer, Subject subject, String destination) {
     AttributeQuery attributeQuery = attributeQueryBuilder.buildObject();
     attributeQuery.setID(UUID.randomUUID().toString());
-    attributeQuery.setIssueInstant(new DateTime());
+    attributeQuery.setIssueInstant(Instant.now());
     attributeQuery.setIssuer(issuer);
     attributeQuery.setSubject(subject);
     attributeQuery.setVersion(SAMLVersion.VERSION_20);
@@ -487,12 +487,12 @@ public class SamlProtocol {
     logoutRequest.setID(id);
     logoutRequest.setIssuer(issuer);
     logoutRequest.setNameID(nameId);
-    logoutRequest.setIssueInstant(DateTime.now());
+    logoutRequest.setIssueInstant(Instant.now());
     logoutRequest.setVersion(SAMLVersion.VERSION_20);
     SessionIndexBuilder builder = new SessionIndexBuilder();
     for (String index : sessionIndexes) {
       SessionIndex sessionIndexObject = builder.buildObject();
-      sessionIndexObject.setSessionIndex(index);
+      sessionIndexObject.setValue(index);
       logoutRequest.getSessionIndexes().add(sessionIndexObject);
     }
     return new LogoutWrapperImpl<>(logoutRequest);
@@ -507,7 +507,7 @@ public class SamlProtocol {
     if (StringUtils.isNotBlank(inResponseTo)) {
       logoutResponse.setInResponseTo(inResponseTo);
     }
-    logoutResponse.setIssueInstant(DateTime.now());
+    logoutResponse.setIssueInstant(Instant.now());
     logoutResponse.setVersion(SAMLVersion.VERSION_20);
     return new LogoutWrapperImpl<>(logoutResponse);
   }

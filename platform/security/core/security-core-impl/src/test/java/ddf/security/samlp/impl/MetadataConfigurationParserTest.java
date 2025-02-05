@@ -21,6 +21,7 @@ import static org.mockito.Mockito.doAnswer;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Date;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
@@ -36,7 +37,6 @@ import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -205,18 +205,18 @@ public class MetadataConfigurationParserTest {
     EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
     assertThat(
         String.format("Expected default cache duration %s milliseconds", SEVEN_DAYS),
-        entity.getCacheDuration(),
+        entity.getCacheDuration().toMillis(),
         is(SEVEN_DAYS));
   }
 
   @Test
   public void testRootElementValidUntil() throws Exception {
-    String xml = IOUtils.toString(entityDescriptorPath.toUri());
-    DateTime validUntil = DateTime.now().plusYears(1);
-    String validUntilXmlString = String.format("validUntil=\"%tF\"", validUntil.toDate());
+    String xml = entityDescriptorPath.toUri().toString();
+    Date validUntil = new Date(1000000L);
+    String validUntilXmlString = String.format("validUntil=\"%tF\"", validUntil);
     String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, validUntilXmlString);
     EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
-    boolean isSameDate = entity.getValidUntil().toLocalDate().isEqual(validUntil.toLocalDate());
+    boolean isSameDate = validUntil.toLocalDate().isEqual(validUntil.toLocalDate());
     assertThat("Expected different valid-until date", isSameDate, is(true));
   }
 

@@ -39,6 +39,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,6 @@ import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.jaxrs.SamlSecurity;
 import org.codice.ddf.security.util.SAMLUtils;
-import org.joda.time.DateTime;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
@@ -590,7 +590,7 @@ public class IdpHandler implements AuthenticationHandler {
 
     authnRequest.setID("_" + UUID.randomUUID().toString());
     authnRequest.setVersion(SAMLVersion.VERSION_20);
-    authnRequest.setIssueInstant(new DateTime());
+    authnRequest.setIssueInstant(Instant.now());
 
     authnRequest.setDestination(idpMetadata.getSingleSignOnLocation());
 
@@ -606,7 +606,7 @@ public class IdpHandler implements AuthenticationHandler {
     for (String authContextClass : authContextClasses) {
       if (StringUtils.isNotEmpty(authContextClass)) {
         AuthnContextClassRef authnContextClassRef = authnContextClassRefBuilder.buildObject();
-        authnContextClassRef.setAuthnContextClassRef(authContextClass);
+        authnContextClassRef.setValue(authContextClass);
         requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
       }
     }

@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.metadata.Endpoint;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
@@ -310,10 +309,8 @@ public class IdpMetadata {
         created = null;
       } else {
         created = Instant.now();
-        Long entityDuration = getEntityDescriptor().getCacheDuration();
-        DateTime entityValidity = getEntityDescriptor().getValidUntil();
-        this.cacheDuration = (entityDuration != null) ? Duration.ofMillis(entityDuration) : null;
-        this.validUntil = (entityValidity != null) ? entityValidity.toDate().toInstant() : null;
+        this.cacheDuration = getEntityDescriptor().getCacheDuration();
+        this.validUntil = getEntityDescriptor().getValidUntil();
       }
     }
 

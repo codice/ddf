@@ -48,6 +48,7 @@ import ddf.security.samlp.impl.SimpleSign;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +66,6 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.security.jaxrs.impl.SamlSecurity;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.saml.common.SAMLVersion;
@@ -224,9 +224,9 @@ public class LogoutRequestServiceTest {
     String encryptedNameIdWithTime = nameId + "\n" + time;
     when(encryptionService.decrypt(any(String.class))).thenReturn(nameId);
     LogoutRequest logoutRequest = mock(LogoutRequest.class);
-    when(logoutRequest.getIssueInstant()).thenReturn(DateTime.now());
+    when(logoutRequest.getIssueInstant()).thenReturn(Instant.now());
     SessionIndex sessionIndex = mock(SessionIndex.class);
-    when(sessionIndex.getSessionIndex()).thenReturn(SESSION_INDEX);
+    when(sessionIndex.getValue()).thenReturn(SESSION_INDEX);
     when(logoutRequest.getSessionIndexes()).thenReturn(Collections.singletonList(sessionIndex));
     logoutRequestService.setLogoutMessage(logoutMessage);
     Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
@@ -268,9 +268,9 @@ public class LogoutRequestServiceTest {
     String encodedSamlRequest = "encodedSamlRequest";
     String issuerStr = "issuer";
     LogoutRequest logoutRequest = mock(LogoutRequest.class);
-    when(logoutRequest.getIssueInstant()).thenReturn(DateTime.now());
+    when(logoutRequest.getIssueInstant()).thenReturn(Instant.now());
     SessionIndex sessionIndex = mock(SessionIndex.class);
-    when(sessionIndex.getSessionIndex()).thenReturn(SESSION_INDEX);
+    when(sessionIndex.getValue()).thenReturn(SESSION_INDEX);
     when(logoutRequest.getSessionIndexes()).thenReturn(Collections.singletonList(sessionIndex));
     LogoutWrapper<LogoutRequest> requestLogoutWrapper = new LogoutWrapperImpl<>(logoutRequest);
     when(logoutMessage.extractSamlLogoutRequest(any(String.class)))
@@ -279,7 +279,7 @@ public class LogoutRequestServiceTest {
     OpenSAMLUtil.initSamlEngine();
     LogoutResponse logoutResponse = new LogoutResponseBuilder().buildObject();
     when(logoutRequest.getIssuer()).thenReturn(issuer);
-    when(logoutRequest.getIssueInstant()).thenReturn(new DateTime());
+    when(logoutRequest.getIssueInstant()).thenReturn(Instant.now());
     when(logoutRequest.getVersion()).thenReturn(SAMLVersion.VERSION_20);
     when(logoutRequest.getID()).thenReturn("id");
     when(issuer.getValue()).thenReturn(issuerStr);
@@ -359,9 +359,9 @@ public class LogoutRequestServiceTest {
   public void testPostLogoutRequestNotParsable() throws Exception {
     String encodedSamlRequest = "encodedSamlRequest";
     LogoutRequest logoutRequest = mock(LogoutRequest.class);
-    when(logoutRequest.getIssueInstant()).thenReturn(DateTime.now());
+    when(logoutRequest.getIssueInstant()).thenReturn(Instant.now());
     SessionIndex sessionIndex = mock(SessionIndex.class);
-    when(sessionIndex.getSessionIndex()).thenReturn(SESSION_INDEX);
+    when(sessionIndex.getValue()).thenReturn(SESSION_INDEX);
     when(logoutRequest.getSessionIndexes()).thenReturn(Collections.singletonList(sessionIndex));
     insertLogoutRequest();
     logoutRequestService.setLogoutMessage(logoutMessage);
@@ -396,7 +396,7 @@ public class LogoutRequestServiceTest {
         .thenReturn(responseLogoutWrapper);
     logoutRequestService.setLogoutMessage(logoutMessage);
     when(logoutResponse.getIssuer()).thenReturn(issuer);
-    when(logoutResponse.getIssueInstant()).thenReturn(new DateTime());
+    when(logoutResponse.getIssueInstant()).thenReturn(Instant.now());
     when(logoutResponse.getVersion()).thenReturn(SAMLVersion.VERSION_20);
     when(logoutResponse.getID()).thenReturn("id");
     when(issuer.getValue()).thenReturn(issuerStr);
@@ -413,9 +413,9 @@ public class LogoutRequestServiceTest {
   @Test
   public void testPostLogoutRequestResponseNotParsable() throws Exception {
     LogoutRequest logoutRequest = mock(LogoutRequest.class);
-    when(logoutRequest.getIssueInstant()).thenReturn(DateTime.now());
+    when(logoutRequest.getIssueInstant()).thenReturn(Instant.now());
     SessionIndex sessionIndex = mock(SessionIndex.class);
-    when(sessionIndex.getSessionIndex()).thenReturn(SESSION_INDEX);
+    when(sessionIndex.getValue()).thenReturn(SESSION_INDEX);
     when(logoutRequest.getSessionIndexes()).thenReturn(Collections.singletonList(sessionIndex));
     String encodedSamlResponse = "encodedSamlRequest";
     when(logoutMessage.extractSamlLogoutResponse(any(String.class))).thenReturn(null);
@@ -457,9 +457,9 @@ public class LogoutRequestServiceTest {
     LogoutWrapper logoutRequestWrapper = mock(LogoutWrapper.class);
     doReturn(logoutRequest).when(logoutRequestWrapper).getMessage();
     SessionIndex sessionIndex = mock(SessionIndex.class);
-    doReturn(SESSION_INDEX).when(sessionIndex).getSessionIndex();
+    doReturn(SESSION_INDEX).when(sessionIndex).getValue();
     doReturn((Collections.singletonList(sessionIndex))).when(logoutRequest).getSessionIndexes();
-    doReturn(DateTime.now()).when(logoutRequest).getIssueInstant();
+    doReturn(Instant.now()).when(logoutRequest).getIssueInstant();
     doReturn(SAMLVersion.VERSION_20).when(logoutRequest).getVersion();
     doReturn(ID).when(logoutRequest).getID();
     doReturn(logoutRequestWrapper)
@@ -519,7 +519,7 @@ public class LogoutRequestServiceTest {
     SamlSecurity samlSecurity = new SamlSecurity();
     String deflatedSamlResponse = samlSecurity.deflateAndBase64Encode(UNENCODED_SAML_RESPONSE);
     LogoutResponse logoutResponse = mock(LogoutResponse.class);
-    when(logoutResponse.getIssueInstant()).thenReturn(new DateTime());
+    when(logoutResponse.getIssueInstant()).thenReturn(Instant.now());
     when(logoutResponse.getVersion()).thenReturn(SAMLVersion.VERSION_20);
     when(logoutResponse.getID()).thenReturn("id");
     LogoutWrapper<LogoutResponse> responseLogoutWrapper = new LogoutWrapperImpl<>(logoutResponse);
@@ -570,7 +570,7 @@ public class LogoutRequestServiceTest {
     // No session index
     doReturn(Collections.EMPTY_LIST).when(logoutRequest).getSessionIndexes();
 
-    doReturn(DateTime.now()).when(logoutRequest).getIssueInstant();
+    doReturn(Instant.now()).when(logoutRequest).getIssueInstant();
     doReturn(SAMLVersion.VERSION_20).when(logoutRequest).getVersion();
     doReturn(ID).when(logoutRequest).getID();
     doReturn(logoutRequestWrapper)
