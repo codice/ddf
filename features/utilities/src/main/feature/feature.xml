@@ -193,7 +193,7 @@
         <bundle>mvn:com.github.openjson/openjson/${openjson.version}</bundle>
         <bundle>wrap:mvn:net.sf.jwordnet/jwnl/${jwnl.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
+        <bundle>mvn:org.apache.tika/tika-bundle-standard/${tika.version}</bundle>
     </feature>
 
     <feature name="io" version="${project.version}" description="I/O Utilities">
