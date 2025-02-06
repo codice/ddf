@@ -174,10 +174,10 @@ public class CswTransformProvider implements Converter {
     try (InputStream is = readXml(reader, context)) {
       InputStream inputStream = is;
       if (LOGGER.isDebugEnabled()) {
-        String originalInputStream = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
+        String originalInputStream = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         LOGGER.debug("About to transform\n{}", originalInputStream);
         inputStream =
-            new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
+            new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8));
       }
       metacard = transformer.transform(inputStream);
     } catch (IOException | CatalogTransformerException e) {

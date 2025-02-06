@@ -19,6 +19,7 @@ import ddf.security.permission.Permissions;
 import ddf.security.service.SecurityServiceException;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
@@ -99,7 +100,8 @@ public class ApplicationServiceImpl implements ApplicationService {
       try {
         String appJson =
             AccessController.doPrivileged(
-                (PrivilegedExceptionAction<String>) () -> IOUtils.toString(appDef.toURI()));
+                (PrivilegedExceptionAction<String>)
+                    () -> IOUtils.toString(appDef.toURI(), StandardCharsets.UTF_8));
         ApplicationImpl app = JsonUtils.fromJson(appJson, ApplicationImpl.class);
         if (isPermittedToViewFeature(app.getName())) {
           app.loadBundles(bundlesByLocation);

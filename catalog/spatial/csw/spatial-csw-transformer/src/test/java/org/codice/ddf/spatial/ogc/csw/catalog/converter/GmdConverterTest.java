@@ -35,6 +35,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -124,7 +125,7 @@ public class GmdConverterTest {
   private void assertMetacard(Metacard metacard, String xmlPath) throws IOException, SAXException {
     String compareString;
     try (InputStream input = getClass().getResourceAsStream(xmlPath)) {
-      compareString = IOUtils.toString(input);
+      compareString = IOUtils.toString(input, StandardCharsets.UTF_8);
     }
 
     String xml = convert(metacard, true);

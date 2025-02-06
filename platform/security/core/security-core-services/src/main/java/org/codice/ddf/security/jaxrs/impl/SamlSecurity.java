@@ -61,7 +61,7 @@ public final class SamlSecurity implements org.codice.ddf.security.jaxrs.SamlSec
     InputStream is =
         new InflaterInputStream(
             new ByteArrayInputStream(deflatedValue), new Inflater(GZIP_COMPATIBLE));
-    return IOUtils.toString(is, StandardCharsets.UTF_8.name());
+    return IOUtils.toString(is, StandardCharsets.UTF_8);
   }
 
   /**

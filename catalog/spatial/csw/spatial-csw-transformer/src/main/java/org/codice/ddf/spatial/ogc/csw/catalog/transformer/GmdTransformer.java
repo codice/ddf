@@ -42,6 +42,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -230,7 +231,7 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
       byteArray = temporaryFileBackedOutputStream.asByteSource();
 
       try (InputStream xmlSourceInputStream = getSourceInputStream()) {
-        xml = IOUtils.toString(xmlSourceInputStream);
+        xml = IOUtils.toString(xmlSourceInputStream, StandardCharsets.UTF_8);
       }
 
       argumentHolder.put(XstreamPathConverter.PATH_KEY, buildPaths());

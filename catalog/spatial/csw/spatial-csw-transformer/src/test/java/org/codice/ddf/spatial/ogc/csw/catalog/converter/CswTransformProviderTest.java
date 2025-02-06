@@ -215,7 +215,7 @@ public class CswTransformProviderTest {
     verify(mockInputTransformer, times(1)).transform(captor.capture());
 
     InputStream inStream = captor.getValue();
-    String result = IOUtils.toString(inStream);
+    String result = IOUtils.toString(inStream, StandardCharsets.UTF_8);
 
     XMLUnit.setIgnoreWhitespace(true);
     XMLAssert.assertXMLEqual(getRecord(), result);
@@ -289,7 +289,7 @@ public class CswTransformProviderTest {
     verify(mockInputTransformer, times(1)).transform(captor.capture());
 
     InputStream inStream = captor.getValue();
-    String result = IOUtils.toString(inStream);
+    String result = IOUtils.toString(inStream, StandardCharsets.UTF_8);
 
     XMLUnit.setIgnoreWhitespace(true);
     XMLAssert.assertXMLEqual(getRecord(), result);

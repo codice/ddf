@@ -24,6 +24,7 @@ import static org.mockito.Mockito.spy;
 
 import ddf.security.samlp.impl.SamlProtocol;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -50,7 +51,9 @@ public class IdpMetadataTest {
   @Before
   public void setup() throws IOException {
     metadata = new IdpMetadata();
-    entityXml = IOUtils.toString(getClass().getResourceAsStream("/entityDescriptor.xml"), "UTF-8");
+    entityXml =
+        IOUtils.toString(
+            getClass().getResourceAsStream("/entityDescriptor.xml"), StandardCharsets.UTF_8);
     System.setProperty("ddf.home", "./");
   }
 

@@ -29,6 +29,7 @@ import ddf.catalog.transformer.xml.PrintWriterProviderImpl;
 import ddf.catalog.transformer.xml.XmlMetacardTransformer;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -156,7 +157,7 @@ public class XmlMetacardTransformerTest {
     mc.setThumbnail(testThumbnail);
 
     InputStream input = getClass().getResourceAsStream("/extensibleMetacard.xml");
-    String metadata = IOUtils.toString(input);
+    String metadata = IOUtils.toString(input, StandardCharsets.UTF_8);
     mc.setMetadata(metadata);
 
     String outputXml = transform(mc);

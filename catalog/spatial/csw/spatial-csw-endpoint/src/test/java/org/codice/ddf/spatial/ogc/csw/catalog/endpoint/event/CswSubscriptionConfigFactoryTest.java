@@ -22,6 +22,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint;
@@ -47,7 +48,8 @@ public class CswSubscriptionConfigFactoryTest {
     cswSubscriptionConfigFactory = new CswSubscriptionConfigFactory(subscriptionService);
     filterXml =
         IOUtils.toString(
-            CswSubscriptionConfigFactoryTest.class.getResourceAsStream("/GetRecords.xml"), "UTF-8");
+            CswSubscriptionConfigFactoryTest.class.getResourceAsStream("/GetRecords.xml"),
+            StandardCharsets.UTF_8);
   }
 
   @Test

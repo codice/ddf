@@ -555,7 +555,7 @@ public class ConfluenceSourceTest {
     try {
       return IOUtils.toString(
           ConfluenceSourceTest.class.getClassLoader().getResourceAsStream(filePath),
-          StandardCharsets.UTF_8.toString());
+          StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException("Failed to read filepath: " + filePath);
     }

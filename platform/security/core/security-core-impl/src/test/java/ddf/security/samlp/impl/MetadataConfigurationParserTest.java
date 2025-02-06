@@ -19,11 +19,12 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.doAnswer;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Date;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -157,7 +158,8 @@ public class MetadataConfigurationParserTest {
   private void metadataString(Consumer<EntityDescriptor> updateCallback) throws IOException {
     MetadataConfigurationParser metadataConfigurationParser =
         new MetadataConfigurationParser(
-            Collections.singletonList(IOUtils.toString(entityDescriptorPath.toUri())),
+            Collections.singletonList(
+                IOUtils.toString(entityDescriptorPath.toUri(), StandardCharsets.UTF_8)),
             updateCallback);
     Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntityDescriptors();
 
@@ -166,7 +168,7 @@ public class MetadataConfigurationParserTest {
 
   @Test
   public void testMetadataHttp() throws Exception {
-    serverRespondsWith(IOUtils.toString(entityDescriptorPath.toUri()));
+    serverRespondsWith(IOUtils.toString(entityDescriptorPath.toUri(), StandardCharsets.UTF_8));
 
     MetadataConfigurationParser metadataConfigurationParser =
         new MetadataConfigurationParser(Collections.singletonList("http://" + serverAddress));
@@ -200,7 +202,7 @@ public class MetadataConfigurationParserTest {
 
   @Test
   public void testRootElementNoCacheDuration() throws Exception {
-    String xml = IOUtils.toString(entityDescriptorPath.toUri());
+    String xml = IOUtils.toString(entityDescriptorPath.toUri(), StandardCharsets.UTF_8);
     String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, "");
     EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
     assertThat(
@@ -211,12 +213,12 @@ public class MetadataConfigurationParserTest {
 
   @Test
   public void testRootElementValidUntil() throws Exception {
-    String xml = entityDescriptorPath.toUri().toString();
+    String xml = IOUtils.toString(entityDescriptorPath.toUri(), StandardCharsets.UTF_8);
     Date validUntil = new Date(1000000L);
     String validUntilXmlString = String.format("validUntil=\"%tF\"", validUntil);
     String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, validUntilXmlString);
     EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
-    boolean isSameDate = validUntil.toLocalDate().isEqual(validUntil.toLocalDate());
+    boolean isSameDate = validUntil.toInstant().compareTo(entity.getValidUntil()) >= 0;
     assertThat("Expected different valid-until date", isSameDate, is(true));
   }
 

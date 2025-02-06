@@ -126,12 +126,12 @@ public class KmzTransformerTest {
 
   private String resourceToString(String resourceName) throws IOException {
     try (final InputStream inputStream = getResourceAsStream(resourceName)) {
-      return IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
+      return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
     }
   }
 
   private String readContentsFromZipInputStream(ZipInputStream zipInputStream) throws IOException {
-    String kmlDocument = IOUtils.toString(zipInputStream, StandardCharsets.UTF_8.name());
+    String kmlDocument = IOUtils.toString(zipInputStream, StandardCharsets.UTF_8);
     IOUtils.closeQuietly(zipInputStream);
     return kmlDocument;
   }

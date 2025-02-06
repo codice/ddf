@@ -250,7 +250,7 @@ public class DefinitionParser {
   private void apply(File file) throws Exception {
     String data;
     try (InputStream input = new FileInputStream(file)) {
-      data = IOUtils.toString(input, StandardCharsets.UTF_8.name());
+      data = IOUtils.toString(input, StandardCharsets.UTF_8);
       LOGGER.debug("Installing file [{}]. Contents:\n{}", file.getAbsolutePath(), data);
     }
     if (StringUtils.isEmpty(data)) {

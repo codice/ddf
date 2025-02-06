@@ -171,7 +171,7 @@ public class ConfluenceInputTransformerTest {
   private String getFileContent(String filePath) {
     try {
       return IOUtils.toString(
-          this.getClass().getClassLoader().getResourceAsStream(filePath), "UTF-8");
+          this.getClass().getClassLoader().getResourceAsStream(filePath), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException("Failed to read filepath: " + filePath);
     }
