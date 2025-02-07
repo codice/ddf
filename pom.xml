@@ -295,7 +295,7 @@
         <solr.httpclient.version>4.5.13</solr.httpclient.version>
         <solr.httpcore.version>4.4.15</solr.httpcore.version>
         <solr.httpmime.version>4.5.13</solr.httpmime.version>
-        <solr.zookeeper.version>3.8.0</solr.zookeeper.version>
+        <solr.zookeeper.version>3.8.4</solr.zookeeper.version>
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
         <spark.version>2.9.4</spark.version>
         <spatial4j.version>0.8</spatial4j.version>
