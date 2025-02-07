@@ -63,11 +63,6 @@
                 <artifactId>abdera-extensions-opensearch</artifactId>
                 <version>${abdera.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.abdera</groupId>
-                <artifactId>abdera-extensions-geo</artifactId>
-                <version>${abdera.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>

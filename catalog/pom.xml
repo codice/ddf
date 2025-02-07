@@ -151,6 +151,12 @@
                 <groupId>org.apache.abdera</groupId>
                 <artifactId>abdera-extensions-geo</artifactId>
                 <version>${abdera.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.james</groupId>
+                        <artifactId>apache-mime4j-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>ddf.mime.core</groupId>
