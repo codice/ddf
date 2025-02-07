@@ -61,12 +61,10 @@ public class OidcCallbackEndpoint {
           "Passed in request must have a corresponding session to logout.");
     }
 
-    JEESessionStore sessionStore = new JEESessionStore();
-
-    JEEContext jeeContext = new JEEContext(request, response, sessionStore);
+    JEEContext jeeContext = new JEEContext(request, response);
 
     this.securityLogger.audit("Logging out");
-    sessionStore.destroySession(jeeContext);
+    JEESessionStore.INSTANCE.destroySession(jeeContext);
 
     String localLogout = SystemBaseUrl.EXTERNAL.constructUrl("/logout/local");
     WebClient webClient = getWebClient(localLogout);

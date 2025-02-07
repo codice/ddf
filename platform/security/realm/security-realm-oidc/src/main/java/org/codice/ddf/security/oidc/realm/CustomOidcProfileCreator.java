@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.shiro.authc.AuthenticationException;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.ProfileHelper;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.profile.jwt.JwtClaims;
@@ -44,9 +46,10 @@ public class CustomOidcProfileCreator extends OidcProfileCreator {
   }
 
   @Override
-  public Optional<UserProfile> create(OidcCredentials credentials, WebContext context) {
+  public Optional<UserProfile> create(
+      Credentials cred, WebContext context, SessionStore sessionStore) {
     init();
-
+    OidcCredentials credentials = (OidcCredentials) cred;
     final OidcProfile profile = (OidcProfile) getProfileDefinition().newProfile();
 
     final AccessToken accessToken = credentials.getAccessToken();
@@ -66,7 +69,7 @@ public class CustomOidcProfileCreator extends OidcProfileCreator {
     try {
       JWTClaimsSet claimsSet = idToken.getJWTClaimsSet();
       assertNotNull("claimsSet", claimsSet);
-      profile.setId(ProfileHelper.sanitizeIdentifier(profile, claimsSet.getSubject()));
+      profile.setId(ProfileHelper.sanitizeIdentifier(claimsSet.getSubject()));
 
       for (final Map.Entry<String, Object> entry : claimsSet.getClaims().entrySet()) {
         if (!JwtClaims.SUBJECT.equals(entry.getKey())
