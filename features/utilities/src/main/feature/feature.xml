@@ -190,7 +190,6 @@
         <feature prerequisite="true">wrap</feature>
         <feature>jackson</feature>
         <bundle>mvn:com.github.luben/zstd-jni/${zstd-jni.version}</bundle>
-        <bundle>mvn:com.github.openjson/openjson/${openjson.version}</bundle>
         <bundle>wrap:mvn:net.sf.jwordnet/jwnl/${jwnl.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-bundle-standard/${tika.version}</bundle>
