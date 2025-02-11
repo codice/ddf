@@ -299,7 +299,7 @@
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
         <spark.version>2.9.4</spark.version>
         <spatial4j.version>0.8</spatial4j.version>
-        <spring.version>5.3.19</spring.version>
+        <spring.version>6.1.14</spring.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
         <tika.version>2.4.0</tika.version>
         <usng4j.version>0.4</usng4j.version>
