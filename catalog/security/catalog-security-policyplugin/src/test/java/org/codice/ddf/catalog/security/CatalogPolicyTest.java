@@ -48,55 +48,55 @@ public class CatalogPolicyTest {
   }
 
   @Test
-  public void testParseEmptyCreatePermissions() throws Exception {
+  public void testParseEmptyCreatePermissions() {
     policyPlugin.setCreatePermissions(new String[] {});
     assertThat(policyPlugin.getCreatePermissionMap().size(), equalTo(0));
   }
 
   @Test
-  public void testParseEmptyUpdatePermissions() throws Exception {
+  public void testParseEmptyUpdatePermissions() {
     policyPlugin.setUpdatePermissions(new String[] {});
     assertThat(policyPlugin.getUpdatePermissionMap().size(), equalTo(0));
   }
 
   @Test
-  public void testParseEmptyDeletePermissions() throws Exception {
+  public void testParseEmptyDeletePermissions() {
     policyPlugin.setDeletePermissions(new String[] {});
     assertThat(policyPlugin.getDeletePermissionMap().size(), equalTo(0));
   }
 
   @Test
-  public void testParseEmptyReadPermissions() throws Exception {
+  public void testParseEmptyReadPermissions() {
     policyPlugin.setReadPermissions(new String[] {});
     assertThat(policyPlugin.getReadPermissionMap().size(), equalTo(0));
   }
 
   @Test
-  public void testParseNullCreatePermissions() throws Exception {
+  public void testParseNullCreatePermissions() {
     policyPlugin.setCreatePermissions(null);
     assertThat(policyPlugin.getCreatePermissionMap().size(), equalTo(0));
   }
 
   @Test
-  public void testParseNullUpdatePermissions() throws Exception {
+  public void testParseNullUpdatePermissions() {
     policyPlugin.setUpdatePermissions(null);
     assertThat(policyPlugin.getUpdatePermissionMap().size(), equalTo(0));
   }
 
   @Test
-  public void testParseNullDeletePermissions() throws Exception {
+  public void testParseNullDeletePermissions() {
     policyPlugin.setDeletePermissions(null);
     assertThat(policyPlugin.getDeletePermissionMap().size(), equalTo(0));
   }
 
   @Test
-  public void testParseNullReadPermissions() throws Exception {
+  public void testParseNullReadPermissions() {
     policyPlugin.setReadPermissions(null);
     assertThat(policyPlugin.getReadPermissionMap().size(), equalTo(0));
   }
 
   @Test
-  public void testParsePermissionsSingleCondition() throws Exception {
+  public void testParsePermissionsSingleCondition() {
     policyPlugin.setCreatePermissions(new String[] {"role=admin"});
     Map<String, Set<String>> perms = policyPlugin.getCreatePermissionMap();
     assertThat(perms.size(), equalTo(1));
@@ -104,7 +104,7 @@ public class CatalogPolicyTest {
   }
 
   @Test
-  public void testParsePermissionsMultiCondition() throws Exception {
+  public void testParsePermissionsMultiCondition() {
     policyPlugin.setCreatePermissions(new String[] {"role=admin", "name=myname"});
     Map<String, Set<String>> perms = policyPlugin.getCreatePermissionMap();
     assertThat(perms.size(), equalTo(2));
@@ -113,7 +113,7 @@ public class CatalogPolicyTest {
   }
 
   @Test
-  public void testParsePermissionsBadFormat() throws Exception {
+  public void testParsePermissionsBadFormat() {
     policyPlugin.setCreatePermissions(new String[] {"role->admin"});
     Map<String, Set<String>> perms = policyPlugin.getCreatePermissionMap();
     assertThat(perms.size(), equalTo(0));
@@ -204,7 +204,7 @@ public class CatalogPolicyTest {
   }
 
   @Test
-  public void testGetPerms() throws StopProcessingException {
+  public void testGetPerms() {
     policyPlugin.setCreatePermissions(new String[] {"role=admin"});
     String[] permissionStrings = policyPlugin.getCreatePermissions();
     assertThat(permissionStrings.length, equalTo(1));
@@ -212,10 +212,10 @@ public class CatalogPolicyTest {
 
   @Test
   public void testUnusedMethods() throws Exception {
-    isTrue(policyPlugin.getReadPermissions() == null);
-    isTrue(policyPlugin.getCreatePermissions() == null);
-    isTrue(policyPlugin.getUpdatePermissions() == null);
-    isTrue(policyPlugin.getDeletePermissions() == null);
+    isTrue(policyPlugin.getReadPermissions() == null, "read permissions not set");
+    isTrue(policyPlugin.getCreatePermissions() == null, "create permissions not set");
+    isTrue(policyPlugin.getUpdatePermissions() == null, "update permissions not set");
+    isTrue(policyPlugin.getDeletePermissions() == null, "delete permissions not set");
     policyPlugin.setReadPermissions(new String[] {"role=admin"});
     policyPlugin.setCreatePermissions(new String[] {"role=admin"});
     policyPlugin.setUpdatePermissions(new String[] {"role=admin"});
