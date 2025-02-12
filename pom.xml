@@ -247,8 +247,8 @@
         <logback.classic.version>1.2.3</logback.classic.version>
         <logback.version>1.2.3</logback.version>
         <mariadb.version>2.4.1</mariadb.version>
-        <maven.failsafe.version>2.22.2</maven.failsafe.version>
-        <maven.surefire.version>2.22.2</maven.surefire.version>
+        <maven.failsafe.version>3.5.2</maven.failsafe.version>
+        <maven.surefire.version>3.5.2</maven.surefire.version>
         <mime4j.version>0.8.12</mime4j.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
@@ -1415,7 +1415,7 @@
         <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-junit4</artifactId>
-            <version>2.3-groovy-4.0</version>
+            <version>${spock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
