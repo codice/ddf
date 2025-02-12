@@ -65,7 +65,6 @@
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.platform.error/platform-error-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.error/platform-error-servlet/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.error/platform-error-page-injector/${project.version}</bundle>
     </feature>
 
     <feature name="error-impl" version="${project.version}"
