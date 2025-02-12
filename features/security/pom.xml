@@ -451,6 +451,12 @@
             <version>${cxf.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.activemq</groupId>
+                    <artifactId>activemq-broker</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.features</groupId>
