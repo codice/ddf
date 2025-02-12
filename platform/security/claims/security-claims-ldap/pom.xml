@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap-core</artifactId>
-            <version>2.3.8.RELEASE</version>
+            <version>3.2.8</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

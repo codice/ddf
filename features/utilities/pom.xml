@@ -142,11 +142,6 @@
             <version>${zstd-jni.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.openjson</groupId>
-            <artifactId>openjson</artifactId>
-            <version>${openjson.version}</version>
-        </dependency>
-        <dependency>
             <groupId>net.sf.jwordnet</groupId>
             <artifactId>jwnl</artifactId>
             <version>${jwnl.version}</version>
@@ -386,6 +381,12 @@
             <version>${cxf.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.activemq</groupId>
+                    <artifactId>activemq-broker</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.features</groupId>
