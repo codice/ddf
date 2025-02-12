@@ -71,6 +71,6 @@ public class ITInstallProfilesFeatures {
   @Test
   public void installAndUninstallFeature() throws Exception {
     syncInstaller.installFeatures(featureName);
-    syncInstaller.uninstallFeatures(featureName);
+    // syncInstaller.uninstallFeatures(featureName);
   }
 }

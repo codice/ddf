@@ -66,6 +66,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            spark-core
+                        </Embed-Dependency>
                         <Import-Package>
                             !org.eclipse.jetty.websocket.*,
                             *
