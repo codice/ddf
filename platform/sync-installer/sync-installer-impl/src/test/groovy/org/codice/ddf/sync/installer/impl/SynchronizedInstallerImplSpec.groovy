@@ -496,7 +496,7 @@ class SynchronizedInstallerImplSpec extends Specification {
         1 * featuresService.isInstalled(feature) >> true
 
         1 * featuresService.uninstallFeatures(*_) >> { throw new Exception() }
-        //thrown(SynchronizedInstallerException)
+        thrown(SynchronizedInstallerException)
     }
 
     def 'failed to retrieve features when uninstalling'() {

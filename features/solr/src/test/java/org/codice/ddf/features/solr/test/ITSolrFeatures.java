@@ -29,7 +29,6 @@ import javax.inject.Inject;
 import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
 import org.codice.ddf.test.common.features.FeatureUtilities;
 import org.codice.ddf.test.common.features.TestUtilitiesFeatures;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -39,9 +38,6 @@ import org.ops4j.pax.exam.junit.PaxExamParameterized;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
-// TODO Bundles failed to start [security-servlet-session-expiry, security-servlet-logout-endpoint]
-// can't register the jaxrs service (even though this works in the security feature)
-@Ignore
 @RunWith(PaxExamParameterized.class)
 @ExamReactorStrategy(PerClass.class)
 public class ITSolrFeatures {
@@ -77,6 +73,6 @@ public class ITSolrFeatures {
   @Test
   public void installAndUninstallFeature() throws Exception {
     syncInstaller.installFeatures(featureName);
-    // syncInstaller.uninstallFeatures(featureName);
+    syncInstaller.uninstallFeatures(featureName);
   }
 }

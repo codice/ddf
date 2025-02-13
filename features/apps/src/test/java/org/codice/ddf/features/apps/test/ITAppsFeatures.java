@@ -73,6 +73,6 @@ public class ITAppsFeatures {
   @Test
   public void installAndUninstallFeature() throws Exception {
     syncInstaller.installFeatures(featureName);
-    // syncInstaller.uninstallFeatures(featureName);
+    syncInstaller.uninstallFeatures(featureName);
   }
 }
