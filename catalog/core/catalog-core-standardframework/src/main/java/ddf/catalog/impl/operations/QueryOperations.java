@@ -16,6 +16,7 @@ package ddf.catalog.impl.operations;
 import static ddf.catalog.Constants.QUERY_LOGGER_NAME;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.catalog.Constants;
 import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
@@ -315,7 +316,8 @@ public class QueryOperations extends DescribableImpl {
       metricsMap.putAll(additionalQueryMetrics);
     }
 
-    return new Gson().toJson(metricsMap);
+    Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+    return gson.toJson(metricsMap);
   }
 
   protected static Map<String, Serializable> collectQueryProperties(
