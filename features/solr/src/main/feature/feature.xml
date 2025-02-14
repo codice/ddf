@@ -22,6 +22,7 @@
         <feature>pax-jetty</feature>
         <bundle>mvn:org.eclipse.jetty/jetty-client/${solr.jetty.version}</bundle>
         <bundle>mvn:org.eclipse.jetty/jetty-alpn-client/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-alpn-java-client/${solr.jetty.version}</bundle>
         <bundle>mvn:org.eclipse.jetty/jetty-http/${solr.jetty.version}</bundle>
         <bundle>mvn:org.eclipse.jetty/jetty-io/${solr.jetty.version}</bundle>
         <bundle>mvn:org.eclipse.jetty/jetty-util/${solr.jetty.version}</bundle>
