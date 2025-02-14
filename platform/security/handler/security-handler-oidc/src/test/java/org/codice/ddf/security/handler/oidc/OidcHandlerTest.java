@@ -43,6 +43,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
@@ -61,7 +62,7 @@ public class OidcHandlerTest {
 
   @Mock private OidcHandlerConfiguration mockConfiguration;
   @Mock private OidcConfiguration mockOidcConfiguration;
-  @Mock private OidcClient<OidcConfiguration> mockOidcClient;
+  @Mock private OidcClient mockOidcClient;
   @Mock private HttpServletRequest mockRequest;
   @Mock private HttpServletResponse mockResponse;
   @Mock private HttpSession mockSession;
@@ -100,7 +101,7 @@ public class OidcHandlerTest {
     // oidc client
     when(mockOidcClient.computeFinalCallbackUrl(any(WebContext.class)))
         .thenReturn("https://final.callback.url");
-    when(mockOidcClient.getRedirectionAction(any(WebContext.class)))
+    when(mockOidcClient.getRedirectionAction(any(WebContext.class), any(SessionStore.class)))
         .thenReturn(Optional.of(mockRedirectionAction));
     when(mockOidcClient.getConfiguration()).thenReturn(mockOidcConfiguration);
 
@@ -169,7 +170,8 @@ public class OidcHandlerTest {
 
   @Test
   public void getNormalizedTokenNoCredentialsAndMissingRedirectAction() throws Exception {
-    when(mockOidcClient.getRedirectionAction(any(WebContext.class))).thenReturn(Optional.empty());
+    when(mockOidcClient.getRedirectionAction(any(WebContext.class), any(SessionStore.class)))
+        .thenReturn(Optional.empty());
     result = handler.getNormalizedToken(mockRequest, mockResponse, null, false);
 
     assertThat(result.getStatus(), is(Status.NO_ACTION));
@@ -221,7 +223,7 @@ public class OidcHandlerTest {
   }
 
   // have to do a manual mock here in order to stub methods from the parent class
-  private static class MockOidcClient extends OidcClient<OidcConfiguration> {
+  private static class MockOidcClient extends OidcClient {
 
     public MockOidcClient(OidcConfiguration configuration) {
       super(configuration);

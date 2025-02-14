@@ -46,6 +46,7 @@ import java.util.ListIterator;
 import java.util.Optional;
 import net.minidev.json.JSONObject;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.creator.TokenValidator;
@@ -92,7 +93,7 @@ public class OidcTokenValidator {
       Nonce nonce = null;
       if (configuration.isUseNonce()) {
         Optional<Object> optional =
-            webContext.getSessionStore().get(webContext, client.getNonceSessionAttributeName());
+            JEESessionStore.INSTANCE.get(webContext, client.getNonceSessionAttributeName());
         if (optional.isPresent()) {
           nonce = new Nonce((String) optional.get());
         }

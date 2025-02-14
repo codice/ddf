@@ -49,6 +49,11 @@
             <version>${nimbus.jose.jwt.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>${nimbus.oidc.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
@@ -90,6 +95,11 @@
             <groupId>org.osgi</groupId>
             <artifactId>osgi.core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.cryptomator</groupId>
+            <artifactId>siv-mode</artifactId>
+            <version>${cryptomator.version}</version>
+        </dependency>
         <!-- Test Dependencies -->
         <dependency>
             <groupId>com.auth0</groupId>
@@ -107,7 +117,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            gson-support
+                            gson-support,
+                            oauth2-oidc-sdk,
+                            siv-mode
                         </Embed-Dependency>
                         <Import-Package>
                             org.codice.ddf.security.token.storage.api,
@@ -129,7 +141,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>1.4_MB</maxArtifactSize>
+                                    <maxArtifactSize>2.9_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

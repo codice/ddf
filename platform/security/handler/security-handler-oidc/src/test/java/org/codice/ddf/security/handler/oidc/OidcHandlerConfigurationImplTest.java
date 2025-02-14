@@ -30,11 +30,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.pac4j.oidc.client.AzureAdClient;
+import org.pac4j.oidc.client.AzureAd2Client;
 import org.pac4j.oidc.client.GoogleOidcClient;
 import org.pac4j.oidc.client.KeycloakOidcClient;
 import org.pac4j.oidc.client.OidcClient;
-import org.pac4j.oidc.config.AzureAdOidcConfiguration;
+import org.pac4j.oidc.config.AzureAd2OidcConfiguration;
 import org.pac4j.oidc.config.KeycloakOidcConfiguration;
 import org.pac4j.oidc.config.OidcConfiguration;
 
@@ -74,8 +74,8 @@ public class OidcHandlerConfigurationImplTest {
   public void testCreateOidcConfigurationAzure() {
     OidcConfiguration oidcConfiguration =
         handlerConfiguration.createOidcConfiguration("Azure", "master", "https://base/uri");
-    assertTrue(oidcConfiguration instanceof AzureAdOidcConfiguration);
-    assertThat(((AzureAdOidcConfiguration) oidcConfiguration).getTenant(), is("master"));
+    assertTrue(oidcConfiguration instanceof AzureAd2OidcConfiguration);
+    assertThat(((AzureAd2OidcConfiguration) oidcConfiguration).getTenant(), is("master"));
   }
 
   @Test
@@ -88,10 +88,10 @@ public class OidcHandlerConfigurationImplTest {
 
   @Test
   public void testCreateOidcClientAzure() {
-    OidcConfiguration oidcConfiguration = mock(AzureAdOidcConfiguration.class);
+    OidcConfiguration oidcConfiguration = mock(AzureAd2OidcConfiguration.class);
     OidcClient oidcClient =
         handlerConfiguration.createOidcClient("Azure", oidcConfiguration, DEFAULT_CALLBACK_URL);
-    assertTrue(oidcClient instanceof AzureAdClient);
+    assertTrue(oidcClient instanceof AzureAd2Client);
   }
 
   @Test

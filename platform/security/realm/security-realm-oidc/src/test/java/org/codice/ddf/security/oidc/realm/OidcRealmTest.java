@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.pac4j.oidc.profile.OidcProfileDefinition.AUTH_TIME;
@@ -54,8 +55,14 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Optional;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionContext;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.codice.ddf.security.handler.OidcAuthenticationToken;
@@ -63,12 +70,17 @@ import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 
+@RunWith(MockitoJUnitRunner.class)
 public class OidcRealmTest {
 
   private static final String NONCE_SESSION_ATTRIBUTE = "session-attribute";
@@ -79,6 +91,7 @@ public class OidcRealmTest {
 
   private Algorithm validAlgorithm;
   private Algorithm invalidAlgorithm;
+  @Mock private JEEContext jeeContext;
 
   @Before
   public void setup() throws Exception {
@@ -166,7 +179,6 @@ public class OidcRealmTest {
 
     // token not an OidcAuthenticationToken type
     SAMLAuthenticationToken samlAuthenticationToken = mock(SAMLAuthenticationToken.class);
-    when(samlAuthenticationToken.getCredentials()).thenReturn("creds");
     supports = realm.supports(samlAuthenticationToken);
     assertFalse(supports);
   }
@@ -250,11 +262,14 @@ public class OidcRealmTest {
   }
 
   private WebContext getWebContext() {
-    WebContext context = mock(WebContext.class);
-    SessionStore sessionStore = mock(SessionStore.class);
-    when(sessionStore.get(context, NONCE_SESSION_ATTRIBUTE)).thenReturn(Optional.of("myNonce"));
-    when(context.getSessionStore()).thenReturn(sessionStore);
-    return context;
+    HttpSession session = new MyHttpSession();
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getSession(anyBoolean())).thenReturn(session);
+
+    when(jeeContext.getNativeRequest()).thenReturn(request);
+
+    JEESessionStore.INSTANCE.set(jeeContext, NONCE_SESSION_ATTRIBUTE, "myNonce");
+    return jeeContext;
   }
 
   private JWT getIncompleteJwt() throws ParseException {
@@ -279,5 +294,89 @@ public class OidcRealmTest {
             .sign(validAlgorithm);
 
     return SignedJWT.parse(idToken);
+  }
+
+  /**
+   * It was easiest to implement a simple session with a hash map. It only has to support setting
+   * and getting session values.
+   */
+  private static class MyHttpSession implements HttpSession {
+
+    private final Map<String, Object> map = new HashMap<>();
+
+    @Override
+    public long getCreationTime() {
+      return 0;
+    }
+
+    @Override
+    public String getId() {
+      return "";
+    }
+
+    @Override
+    public long getLastAccessedTime() {
+      return 0;
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+      return null;
+    }
+
+    @Override
+    public void setMaxInactiveInterval(int i) {}
+
+    @Override
+    public int getMaxInactiveInterval() {
+      return 0;
+    }
+
+    @Override
+    public HttpSessionContext getSessionContext() {
+      return null;
+    }
+
+    @Override
+    public Object getAttribute(String s) {
+      return map.get(s);
+    }
+
+    @Override
+    public Object getValue(String s) {
+      return null;
+    }
+
+    @Override
+    public Enumeration<String> getAttributeNames() {
+      return null;
+    }
+
+    @Override
+    public String[] getValueNames() {
+      return new String[0];
+    }
+
+    @Override
+    public void setAttribute(String s, Object o) {
+      map.put(s, o);
+    }
+
+    @Override
+    public void putValue(String s, Object o) {}
+
+    @Override
+    public void removeAttribute(String s) {}
+
+    @Override
+    public void removeValue(String s) {}
+
+    @Override
+    public void invalidate() {}
+
+    @Override
+    public boolean isNew() {
+      return false;
+    }
   }
 }
