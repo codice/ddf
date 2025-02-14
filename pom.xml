@@ -277,7 +277,7 @@
         <pdfbox.version>2.0.23</pdfbox.version>
         <poi.version>5.2.2</poi.version>
         <xlsx.transformer.poi.version>5.2.2</xlsx.transformer.poi.version>
-        <protobuf.version>3.21.12</protobuf.version>
+        <protobuf.version>4.28.2</protobuf.version>
         <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
@@ -331,7 +331,7 @@
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
 
         <fabric8.docker.plugin.version>0.45.1</fabric8.docker.plugin.version>
-        <tink.version>1.4.0</tink.version>
+        <tink.version>1.16.0</tink.version>
         <org.json.version>20240303</org.json.version>
 
         <!--temporary solr download url> -->

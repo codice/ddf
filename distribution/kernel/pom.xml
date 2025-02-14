@@ -184,6 +184,13 @@
                                     <outputDirectory>${setup.folder}/jdk9plus</outputDirectory>
                                     <destFileName>json-${org.json.version}.jar</destFileName>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.google.code.gson</groupId>
+                                    <artifactId>gson</artifactId>
+                                    <version>${gson.version}</version>
+                                    <outputDirectory>${setup.folder}/jdk9plus</outputDirectory>
+                                    <destFileName>gson-${gson.version}.jar</destFileName>
+                                </artifactItem>
                                 <!-- End crypter dependencies -->
                                 <artifactItem>
                                     <groupId>ddf.platform.osgi</groupId>
