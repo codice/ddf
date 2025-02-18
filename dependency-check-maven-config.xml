@@ -203,4 +203,58 @@
         <cve>CVE-2007-1652</cve>
     </suppress>
 
+    <suppress>
+        <notes>
+            These CVEs are from XStream and have been mitigated by using the XStream Security
+            Framework wherever DDF creates an XStream object.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/io\.github\.x\-stream/mxparser@.*$</packageUrl>
+        <cve>CVE-2013-7285</cve>
+        <cve>CVE-2021-21342</cve>
+        <cve>CVE-2021-21344</cve>
+        <cve>CVE-2021-21345</cve>
+        <cve>CVE-2021-21346</cve>
+        <cve>CVE-2021-21347</cve>
+        <cve>CVE-2021-21350</cve>
+        <cve>CVE-2021-21351</cve>
+        <cve>CVE-2016-3674</cve>
+        <cve>CVE-2017-7957</cve>
+        <cve>CVE-2020-26217</cve>
+        <cve>CVE-2020-26258</cve>
+        <cve>CVE-2021-21341</cve>
+        <cve>CVE-2021-21343</cve>
+        <cve>CVE-2021-21348</cve>
+        <cve>CVE-2021-21349</cve>
+        <cve>CVE-2021-29505</cve>
+        <cve>CVE-2021-39139</cve>
+        <cve>CVE-2021-39141</cve>
+        <cve>CVE-2021-39144</cve>
+        <cve>CVE-2021-39145</cve>
+        <cve>CVE-2021-39146</cve>
+        <cve>CVE-2021-39147</cve>
+        <cve>CVE-2021-39148</cve>
+        <cve>CVE-2021-39149</cve>
+        <cve>CVE-2021-39150</cve>
+        <cve>CVE-2021-39151</cve>
+        <cve>CVE-2021-39152</cve>
+        <cve>CVE-2021-39153</cve>
+        <cve>CVE-2021-39154</cve>
+        <cve>CVE-2021-43859</cve>
+        <cve>CVE-2022-40151</cve>
+        <cve>CVE-2022-40152</cve>
+        <cve>CVE-2022-41966</cve>
+        <cve>CVE-2020-26259</cve>
+        <cve>CVE-2021-39140</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
+            This CVE applies to the parent library of several contrib artifacts, and the project
+            is using a version that resolves the CVE. These artifacts are false positives
+            because they use a similar naming convention, but a different versioning convention.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback\.contrib/.*@0.1.5$</packageUrl>
+        <cve>CVE-2017-5929</cve>
+    </suppress>
+
 </suppressions>

@@ -71,7 +71,6 @@ public class OidcCallbackEndpointTest {
 
   @Test
   public void logout() throws Exception {
-    when(mockRequest.getSession()).thenReturn(mockSession);
     when(mockRequest.getSession(any(Boolean.class))).thenReturn(mockSession);
 
     Response r = mock(Response.class);

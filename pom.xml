@@ -16,7 +16,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
-    <version>2.29.5-SNAPSHOT</version>
+    <version>2.29.6-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Reactor</name>
     <description>Distributed Data Framework (DDF) Parent</description>
@@ -273,11 +273,11 @@
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
         <openjson.version>1.0.13</openjson.version>
-        <pac4j.version>4.5.8</pac4j.version>
+        <pac4j.version>5.0.0</pac4j.version>
         <pdfbox.version>2.0.23</pdfbox.version>
         <poi.version>5.2.2</poi.version>
         <xlsx.transformer.poi.version>5.2.2</xlsx.transformer.poi.version>
-        <protobuf.version>3.21.12</protobuf.version>
+        <protobuf.version>4.28.2</protobuf.version>
         <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
@@ -290,16 +290,17 @@
         <servicemix.specs.version>2.9.0</servicemix.specs.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <smtp.client.version>1.7.1</smtp.client.version>
-        <solr.version>9.0.0</solr.version>
-        <solr.docs.version>9_0</solr.docs.version>
-        <solr.httpclient.version>4.5.13</solr.httpclient.version>
-        <solr.httpcore.version>4.4.15</solr.httpcore.version>
-        <solr.httpmime.version>4.5.13</solr.httpmime.version>
-        <solr.zookeeper.version>3.7.0</solr.zookeeper.version>
+        <solr.version>9.2.1</solr.version>
+        <solr.docs.version>9_2</solr.docs.version>
+        <solr.httpclient.version>4.5.14</solr.httpclient.version>
+        <solr.httpcore.version>4.4.16</solr.httpcore.version>
+        <solr.httpmime.version>4.5.14</solr.httpmime.version>
+        <solr.jetty.version>10.0.13</solr.jetty.version>
+        <solr.zookeeper.version>3.8.4</solr.zookeeper.version>
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
         <spark.version>2.9.4</spark.version>
         <spatial4j.version>0.8</spatial4j.version>
-        <spring.version>5.3.19</spring.version>
+        <spring.version>6.1.14</spring.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
         <tika.version>2.4.0</tika.version>
         <usng4j.version>0.4</usng4j.version>
@@ -331,7 +332,7 @@
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
 
         <fabric8.docker.plugin.version>0.45.1</fabric8.docker.plugin.version>
-        <tink.version>1.4.0</tink.version>
+        <tink.version>1.16.0</tink.version>
         <org.json.version>20240303</org.json.version>
 
         <!--temporary solr download url> -->
@@ -445,13 +446,6 @@
                 <groupId>org.apache.camel.karaf</groupId>
                 <artifactId>camel-karaf-bom</artifactId>
                 <version>${camel.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-bom</artifactId>
-                <version>${jetty.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>

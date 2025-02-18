@@ -16,7 +16,7 @@
     <parent>
         <artifactId>osgi</artifactId>
         <groupId>ddf.platform</groupId>
-        <version>2.29.5-SNAPSHOT</version>
+        <version>2.29.6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
@@ -54,6 +54,11 @@
             <version>${gson.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.conscrypt</groupId>
+            <artifactId>conscrypt-openjdk-uber</artifactId>
+            <version>2.5.2</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-crypter</artifactId>
             <version>${project.version}</version>
@@ -89,7 +94,8 @@
                             <!-- Crypter dependencies must be embedded in this bundle -->
                             json,
                             protobuf-java,
-                            tink
+                            tink,
+                            conscrypt-openjdk-uber
                         </Embed-Dependency>
                         <Import-Package>
                             <!-- BEGIN: Exclude unnecessary transitive dependencies -->
@@ -102,6 +108,7 @@
                             !com.google.protobuf.*,
                             !org.json.*,
                             <!-- END -->
+                            !sun.security.x509.*,
                             *
                         </Import-Package>
                         <Private-Package>
@@ -123,7 +130,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>2.7_MB</maxArtifactSize>
+                                    <maxArtifactSize>8.4_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

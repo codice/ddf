@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.security.filter</groupId>
         <artifactId>filter</artifactId>
-        <version>2.29.5-SNAPSHOT</version>
+        <version>2.29.6-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -52,6 +52,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-http</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
     </dependencies>
     <build>
