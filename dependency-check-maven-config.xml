@@ -257,4 +257,15 @@
         <cve>CVE-2017-5929</cve>
     </suppress>
 
+    <suppress>
+        <notes>
+            This CVE is a false positive. The siv-mode artifact is incorrectly included in other
+            org.cryptomator artifacts.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.cryptomator/siv\-mode@1\.5\.2</packageUrl>
+        <cve>CVE-2022-25366</cve>
+        <cve>CVE-2023-37907</cve>
+        <cve>CVE-2023-39520</cve>
+    </suppress>
+
 </suppressions>
