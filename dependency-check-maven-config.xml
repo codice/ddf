@@ -247,4 +247,14 @@
         <cve>CVE-2021-39140</cve>
     </suppress>
 
+    <suppress>
+        <notes>
+            This CVE applies to the parent library of several contrib artifacts, and the project
+            is using a version that resolves the CVE. These artifacts are false positives
+            because they use a similar naming convention, but a different versioning convention.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback\.contrib/.*@0.1.5$</packageUrl>
+        <cve>CVE-2017-5929</cve>
+    </suppress>
+
 </suppressions>

@@ -41,6 +41,7 @@ import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.http.ajax.DefaultAjaxRequestResolver;
@@ -90,8 +91,7 @@ public class OidcLogoutActionProvider implements ActionProvider {
       HttpServletRequest request = (HttpServletRequest) ((Map) subjectMap).get("http_request");
       HttpServletResponse response = (HttpServletResponse) ((Map) subjectMap).get("http_response");
 
-      JEESessionStore sessionStore = new JEESessionStore();
-      JEEContext jeeContext = new JEEContext(request, response, sessionStore);
+      JEEContext jeeContext = new JEEContext(request, response);
 
       HttpSession session = request.getSession(false);
       PrincipalHolder principalHolder = null;
@@ -121,7 +121,7 @@ public class OidcLogoutActionProvider implements ActionProvider {
       logoutActionBuilder.setAjaxRequestResolver(
           new DefaultAjaxRequestResolver() {
             @Override
-            public boolean isAjax(final WebContext context) {
+            public boolean isAjax(WebContext context, SessionStore sessionStore) {
               return false;
             }
           });
@@ -135,7 +135,8 @@ public class OidcLogoutActionProvider implements ActionProvider {
 
       RedirectionAction logoutAction =
           logoutActionBuilder
-              .getLogoutAction(jeeContext, oidcProfile, urlBuilder.build().toString())
+              .getLogoutAction(
+                  jeeContext, JEESessionStore.INSTANCE, oidcProfile, urlBuilder.build().toString())
               .orElse(null);
 
       if (logoutAction instanceof WithLocationAction) {

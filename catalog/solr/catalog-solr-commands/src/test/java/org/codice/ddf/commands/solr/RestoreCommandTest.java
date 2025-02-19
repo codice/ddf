@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.commands.solr;
 
-import static org.codice.ddf.commands.solr.SolrCommands.collectionExists;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -59,6 +58,7 @@ public class RestoreCommandTest extends SolrCommandTest {
     setDdfHome();
     setDdfEtc();
     createDefaultMiniSolrCloudCluster();
+    addDocument("1");
   }
 
   @Before
@@ -363,21 +363,29 @@ public class RestoreCommandTest extends SolrCommandTest {
   // Replace ASCII color codes in console output and get the request Id
   private String getRequestId(String consoleOutput) {
     return StringUtils.trim(
-        StringUtils.substringAfterLast(
-            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), ":"));
+        StringUtils.substringsBetween(
+            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""),
+            "Restore request Id [",
+            "]")[0]);
   }
 
   // Replace ASCII color codes in console output and get the status
   private String getRequestStatus(String consoleOutput) {
+    if (!StringUtils.contains(consoleOutput, "Status for request Id")) {
+      return "";
+    }
+
     return StringUtils.trim(
         StringUtils.substringsBetween(
-            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), "[", "]")[1]);
+            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), "] is [", "]")[0]);
   }
 
   private String getBackupName(String consoleOutput) {
     return StringUtils.trim(
         StringUtils.substringsBetween(
-            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), "[", "]")[2]);
+            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""),
+            "using backup name [",
+            "]")[0]);
   }
 
   private String waitForCompletedStatusOrFail(
@@ -402,27 +410,9 @@ public class RestoreCommandTest extends SolrCommandTest {
     return status;
   }
 
-  private void waitForCollectionOrFail(SolrClient solrClient, String core) throws Exception {
-    long startTime = System.currentTimeMillis();
-    long endTime = startTime + TimeUnit.MINUTES.toMillis(TIMEOUT_IN_MINUTES);
-    boolean exists = collectionExists(solrClient, core);
-
-    while (!exists) {
-      if (System.currentTimeMillis() >= endTime) {
-        fail(
-            String.format(
-                "The restore status command did not complete within %s minute(s).",
-                TIMEOUT_IN_MINUTES));
-      }
-      TimeUnit.SECONDS.sleep(1);
-      exists = collectionExists(solrClient, core);
-    }
-  }
-
   private void backupSolr() throws Exception {
     setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     SolrClient solrClient = miniSolrCloud.getSolrClient();
-    waitForCollectionOrFail(solrClient, DEFAULT_CORE_NAME);
     miniSolrCloud.waitForAllNodes((int) TimeUnit.SECONDS.toMillis(1));
     BackupCommand backupCommand =
         getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, solrClient);

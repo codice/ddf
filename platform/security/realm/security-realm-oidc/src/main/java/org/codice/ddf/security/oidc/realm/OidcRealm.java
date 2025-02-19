@@ -29,6 +29,7 @@ import org.codice.ddf.security.handler.OidcAuthenticationToken;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.codice.ddf.security.oidc.resolver.OidcCredentialsResolver;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.oidc.client.OidcClient;
@@ -88,8 +89,7 @@ public class OidcRealm extends AuthenticatingRealm {
     OidcConfiguration oidcConfiguration = oidcHandlerConfiguration.getOidcConfiguration();
     OIDCProviderMetadata oidcProviderMetadata = oidcConfiguration.findProviderMetadata();
     WebContext webContext = (WebContext) oidcAuthenticationToken.getContext();
-    OidcClient<OidcConfiguration> oidcClient =
-        oidcHandlerConfiguration.getOidcClient(webContext.getFullRequestURL());
+    OidcClient oidcClient = oidcHandlerConfiguration.getOidcClient(webContext.getFullRequestURL());
     int connectTimeout = oidcHandlerConfiguration.getConnectTimeout();
     int readTimeout = oidcHandlerConfiguration.getReadTimeout();
 
@@ -105,7 +105,7 @@ public class OidcRealm extends AuthenticatingRealm {
 
     // problem getting id token, invalidate credentials
     if (credentials.getIdToken() == null) {
-      webContext.getSessionStore().destroySession(webContext);
+      JEESessionStore.INSTANCE.destroySession(webContext);
 
       String msg =
           String.format(
@@ -120,7 +120,8 @@ public class OidcRealm extends AuthenticatingRealm {
 
     OidcProfileCreator oidcProfileCreator =
         new CustomOidcProfileCreator(oidcConfiguration, oidcClient);
-    Optional<UserProfile> userProfile = oidcProfileCreator.create(credentials, webContext);
+    Optional<UserProfile> userProfile =
+        oidcProfileCreator.create(credentials, webContext, JEESessionStore.INSTANCE);
 
     SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo();
     simpleAuthenticationInfo.setCredentials(credentials);

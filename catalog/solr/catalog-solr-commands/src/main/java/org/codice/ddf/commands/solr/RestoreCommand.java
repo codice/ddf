@@ -199,7 +199,7 @@ public class RestoreCommand extends SolrCommands {
     try {
       if (asyncRestore) {
         String requestId = restoreAsync(client, coreName, backupLocation, backupName);
-        printInfoMessage("Restore request Id: " + requestId);
+        printInfoMessage("Restore request Id [" + requestId + "]");
       } else {
         boolean isSuccess = restore(client, coreName, backupLocation, backupName);
         if (isSuccess) {
