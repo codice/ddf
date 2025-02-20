@@ -172,16 +172,6 @@
         <bundle start-level="30">mvn:org.apache.neethi/neethi/${wss4j.neethi.version}</bundle>
 
         <!-- Pax -->
-        <config name="org.ops4j.pax.web" append="true">
-            #######################################
-            # Jetty Server Authenticator Settings
-            #######################################
-
-            # Set the authmethod/realmname so that our JettyAuthenticator is used
-            org.ops4j.pax.web.default.authMethod=DDF
-            org.ops4j.pax.web.default.realmName=DDF
-
-        </config>
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/${pax.web.version}</bundle>
 
         <!-- Miscellaneous -->

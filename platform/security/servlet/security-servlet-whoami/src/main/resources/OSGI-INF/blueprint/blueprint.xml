@@ -21,18 +21,6 @@
         </argument>
     </bean>
 
-    <bean id="whoamiagain" class="org.codice.ddf.security.servlet.whoami.WhoAmIAgainServlet">
-    </bean>
-
-<!--    <service interface="javax.servlet.Servlet" ref="whoamiagain">-->
-<!--        <service-properties>-->
-<!--            <entry key="osgi.http.whiteboard.servlet.pattern" value="/whoami/again/"/>-->
-<!--            <entry key="osgi.http.whiteboard.servlet.name" value="whoamiagain"/>-->
-<!--            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>-->
-<!--        </service-properties>-->
-
-<!--    </service>-->
-
     <service interface="javax.servlet.Servlet" ref="whoami">
         <service-properties>
             <entry key="osgi.http.whiteboard.servlet.pattern" value="/whoami"/>

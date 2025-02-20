@@ -25,11 +25,15 @@ public class Activator implements BundleActivator {
 
   private ServiceRegistration<SecurityConfigurationMapping> securityReg;
 
+  private static final String AUTH_METHOD = "DDF";
+
+  private static final String REALM_NAME = "DDF";
+
   @Override
   public void start(BundleContext bundleContext) throws Exception {
     DefaultSecurityConfigurationMapping security = new DefaultSecurityConfigurationMapping();
-    security.setAuthMethod("DDF");
-    security.setRealmName("DDF");
+    security.setAuthMethod(AUTH_METHOD);
+    security.setRealmName(REALM_NAME);
     security.setContextSelectFilter("(osgi.http.whiteboard.context.path=/*)");
     bundleContext.registerService(SecurityConfigurationMapping.class, security, null);
   }
