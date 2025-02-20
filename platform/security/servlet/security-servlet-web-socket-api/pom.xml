@@ -65,9 +65,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import-Package>
-                            !org.eclipse.jetty
-                        </Import-Package>
                         <Export-Package>
                             org.codice.ddf.security.servlet.web.socket
                         </Export-Package>

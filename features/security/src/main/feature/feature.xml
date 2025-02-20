@@ -28,6 +28,7 @@
         <!-- Third Party Features -->
         <feature prerequisite="true">wrap</feature>
         <feature>pax-web-http-whiteboard</feature>
+        <feature>pax-web-jetty-websockets</feature>
 
         <!-- External DDF Features -->
         <feature>jackson</feature>
