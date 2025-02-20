@@ -50,11 +50,11 @@
 
     <service ref="locallogout" interface="javax.servlet.Servlet">
         <service-properties>
-            <entry key="osgi.http.whiteboard.servlet.pattern" value="/logout/local"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/local"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="locallogout"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/logout)"/>
             <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
-
     </service>
 
 </blueprint>

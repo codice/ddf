@@ -18,7 +18,7 @@
         <service-properties>
             <entry key="osgi.http.whiteboard.servlet.pattern" value="/jolokia/*"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="jolokia"/>
-            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/*)"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/admin)"/>
             <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
             <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
             <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>

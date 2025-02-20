@@ -18,7 +18,7 @@
 
     <bean id="docsSparkApp" class="org.codice.ui.admin.docs.DocsSparkApplication"/>
     <bean id="docsReqSupplier" class="org.codice.ui.admin.docs.DocsRequestSupplier"/>
-    <bean id="sparkServlet" class="org.codice.ui.admin.docs.SparkServlet">
+    <bean id="documentation" class="org.codice.ui.admin.docs.SparkServlet">
         <property name="sparkApplications">
             <list>
                 <ref component-id="docsSparkApp"/>
@@ -28,10 +28,12 @@
         <property name="filterMappingPattern" value="/admin/documentation/*"/>
     </bean>
 
-    <service ref="sparkServlet" interface="javax.servlet.Servlet">
+    <service ref="documentation" interface="javax.servlet.Servlet">
         <service-properties>
-            <entry key="urlPatterns" value="/admin/documentation/*"/>
-            <entry key="async-supported" value="true"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/documentation/*"/>
+            <entry key="osgi.http.whiteboard.servlet.name" value="documentation"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/admin)"/>
+            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
     </service>
 
