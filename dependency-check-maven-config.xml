@@ -268,4 +268,26 @@
         <cve>CVE-2023-39520</cve>
     </suppress>
 
+    <suppress>
+        <notes>
+            These CVEs are a false positive. They apply to the greater Spring Framework library.
+            This artifact uses a similar naming convention, but different versioning. It is not
+            included in the greater library.
+        </notes>
+        <packageUrl regex="true">pkg:maven/org\.springframework\.ldap/spring\-ldap\-core@3\.2\.11</packageUrl>
+        <cve>CVE-2015-3192</cve>
+        <cve>CVE-2015-5211</cve>
+        <cve>CVE-2016-1000027</cve>
+        <cve>CVE-2016-5007</cve>
+        <cve>CVE-2018-11039</cve>
+        <cve>CVE-2018-11040</cve>
+        <cve>CVE-2018-1257</cve>
+        <cve>CVE-2020-5421</cve>
+        <cve>CVE-2022-22950</cve>
+        <cve>CVE-2022-22965</cve>
+        <cve>CVE-2022-22968</cve>
+        <cve>CVE-2022-22970</cve>
+        <cve>CVE-2023-20861</cve>
+    </suppress>
+
 </suppressions>
