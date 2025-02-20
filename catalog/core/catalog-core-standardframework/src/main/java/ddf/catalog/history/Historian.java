@@ -29,6 +29,7 @@ import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
+import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion.Action;
 import ddf.catalog.core.versioning.impl.DeletedMetacardImpl;
 import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
@@ -99,6 +100,8 @@ public class Historian {
       Collectors.joining(", ", "[", "]");
 
   private boolean historyEnabled = true;
+
+  private boolean useKnownIdForDeletes = true;
 
   private final Predicate<Metacard> isNotVersionNorDeleted =
       ((Predicate<Metacard>) MetacardVersionImpl::isVersion)
@@ -420,7 +423,7 @@ public class Historian {
             .map(
                 s ->
                     new DeletedMetacardImpl(
-                        uuidGenerator.generateUuid(),
+                        generateDeletedMetacardId(s.getKey()),
                         s.getKey(),
                         userid,
                         s.getValue().getId(),
@@ -450,6 +453,10 @@ public class Historian {
 
   public void setHistoryEnabled(boolean historyEnabled) {
     this.historyEnabled = historyEnabled;
+  }
+
+  public void setUseKnownIdForDeletes(boolean useKnownIdForDeletes) {
+    this.useKnownIdForDeletes = useKnownIdForDeletes;
   }
 
   public List<StorageProvider> getStorageProviders() {
@@ -636,6 +643,13 @@ public class Historian {
                 MetacardVersionImpl::getVersionOfId,
                 Function.identity(),
                 Historian::firstInWinsMerge));
+  }
+
+  private String generateDeletedMetacardId(String metacardId) {
+    if (useKnownIdForDeletes) {
+      return uuidGenerator.generateKnownId(DeletedMetacard.DELETED_TAG, "historian", metacardId);
+    }
+    return uuidGenerator.generateUuid();
   }
 
   /**

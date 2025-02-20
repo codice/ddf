@@ -50,6 +50,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -233,17 +234,28 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
             source, getMetacardTypeBinary(source).orElseThrow(cannotDeserializeException));
     result.setId(id);
     result.setTags(getVersionTags(source));
-    if (source.getAttribute(VERSIONED_RESOURCE_URI) != null) {
-      try {
-        result.setResourceURI(
-            new URI(String.valueOf(source.getAttribute(VERSIONED_RESOURCE_URI).getValue())));
-      } catch (URISyntaxException e) {
-        LOGGER.debug("Could not replace the versioned resource URI, It might not be valid", e);
+    try {
+      URI resourceUri = getVersionedResourceUri(source);
+      if (resourceUri != null) {
+        result.setResourceURI(resourceUri);
       }
+    } catch (URISyntaxException e) {
+      LOGGER.debug("Could not replace the versioned resource URI, It might not be valid", e);
     }
 
     sanitizeVersionAttributes(result);
     return result;
+  }
+
+  private static URI getVersionedResourceUri(Metacard source) throws URISyntaxException {
+    Attribute resourceUriAttr = source.getAttribute(VERSIONED_RESOURCE_URI);
+    if (resourceUriAttr != null) {
+      Serializable value = resourceUriAttr.getValue();
+      if (value != null && StringUtils.isNotBlank(String.valueOf(value))) {
+        return new URI(String.valueOf(value));
+      }
+    }
+    return null;
   }
 
   private static void sanitizeVersionAttributes(/*Mutable*/ Metacard source) {
