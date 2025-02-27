@@ -38,13 +38,11 @@ public abstract class AbstractWfsSource extends MaskableImpl
 
   protected static final String SSL_PROTOCOL_KEY = "sslProtocol";
 
-  private static final String DEFAULT_SSL_PROTOCOL = "TLSv1.2";
-
   protected String certAlias;
 
   protected String keystorePath;
 
-  protected String sslProtocol = DEFAULT_SSL_PROTOCOL;
+  protected String sslProtocol;
 
   public String getCertAlias() {
     return certAlias;

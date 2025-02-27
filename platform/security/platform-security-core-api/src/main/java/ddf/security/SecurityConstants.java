@@ -68,6 +68,10 @@ public final class SecurityConstants {
 
   public static final String ASSOCIATED_DATA_PATH = "associated.data.path";
 
+  public static final String DEFAULT_SSL_PROTOCOL = "TLSv1.2";
+
+  public static final String DEFAULT_SSL_PROTOCOL_PROPERTY = "https.default.protocol";
+
   /**
    * Helper method for retrieving the keystore
    *
@@ -102,6 +106,15 @@ public final class SecurityConstants {
    */
   public static String getTruststorePassword() {
     return System.getProperty(TRUSTSTORE_PASSWORD);
+  }
+
+  /**
+   * Helper method for retrieving the default ssl protocol
+   *
+   * @return The default ssl protocol
+   */
+  public static String getDefaultSslProtocol() {
+    return System.getProperty(DEFAULT_SSL_PROTOCOL_PROPERTY, DEFAULT_SSL_PROTOCOL);
   }
 
   public static KeyStore newKeystore() throws KeyStoreException {
