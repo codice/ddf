@@ -42,6 +42,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import ddf.catalog.data.Metacard;
+import ddf.security.SecurityConstants;
 import io.restassured.path.json.JsonPath;
 import java.io.FileInputStream;
 import java.io.IOException;
