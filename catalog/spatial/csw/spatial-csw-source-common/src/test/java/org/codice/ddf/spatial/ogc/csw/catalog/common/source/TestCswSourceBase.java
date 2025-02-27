@@ -30,6 +30,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.security.SecurityConstants;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -113,7 +114,7 @@ public class TestCswSourceBase {
 
   protected static final String KEYSTORE_PATH = "/path/to/keystore";
 
-  protected static final String SSL_PROTOCOL = "TLSv1.2";
+  protected static final String SSL_PROTOCOL = SecurityConstants.getDefaultSslProtocol();
 
   protected static final Integer CONNECTION_TIMEOUT = 11;
 

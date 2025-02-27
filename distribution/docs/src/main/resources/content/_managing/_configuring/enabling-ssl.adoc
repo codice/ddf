@@ -48,8 +48,12 @@ When making outbound secure connections a handshake is done with the remote secu
 |The cipher suites that are supported when making outbound HTTPS connections
 
 |`https.protocols`
-|`TLSv1.1`,`TLSv1.2`
+|`TLSv1.2`,`TLSv1.3`
 |The protocols that are supported when making outbound HTTPS connections
+
+|`https.default.protocol`
+|`TLSv1.2`
+|The default protocol used when making outbound HTTPS connections
 
 |`jdk.tls.client.protocols`
 |`TLSv1.2`,`TLSv1.3`

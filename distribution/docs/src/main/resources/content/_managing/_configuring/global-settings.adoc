@@ -260,7 +260,14 @@ TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 |https.protocols
 |String
 |Protocols to allow for secure connections
-|TLSv1.1,TLSv1.2
+|TLSv1.2,TLSv1.3
+|No
+
+|Https Default Protocol
+|https.default.protocol
+|String
+|The default protocol used when making outbound HTTPS connections
+|TLSv1.2
 |No
 
 |Allow Basic Auth Over Http

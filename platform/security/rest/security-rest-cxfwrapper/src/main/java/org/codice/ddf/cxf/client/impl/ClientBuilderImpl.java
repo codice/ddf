@@ -13,12 +13,14 @@
  */
 package org.codice.ddf.cxf.client.impl;
 
+import ddf.security.SecurityConstants;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.codice.ddf.configuration.PropertyResolver;
@@ -194,7 +196,11 @@ public class ClientBuilderImpl<T> implements ClientBuilder<T> {
 
   @Override
   public ClientBuilder<T> sslProtocol(String sslProtocol) {
-    this.sslProtocol = sslProtocol;
+    if (StringUtils.isBlank(sslProtocol)) {
+      this.sslProtocol = SecurityConstants.getDefaultSslProtocol();
+    } else {
+      this.sslProtocol = sslProtocol;
+    }
     return this;
   }
 

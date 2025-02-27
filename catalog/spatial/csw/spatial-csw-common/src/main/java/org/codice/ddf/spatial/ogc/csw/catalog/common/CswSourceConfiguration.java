@@ -27,8 +27,6 @@ import java.util.Set;
  */
 public class CswSourceConfiguration {
 
-  private static final String DEFAULT_SSL_PROTOCOL = "TLSv1.2";
-
   private String cswUrl;
 
   private String id;
@@ -51,7 +49,7 @@ public class CswSourceConfiguration {
 
   private String keystorePath;
 
-  private String sslProtocol = DEFAULT_SSL_PROTOCOL;
+  private String sslProtocol;
 
   private boolean disableCnCheck = false;
 
