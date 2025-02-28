@@ -26,6 +26,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.locationtech.jts.geom.Geometry;
@@ -110,8 +111,11 @@ public class OverlayActionProvider implements ActionProvider {
   private boolean canHandleMetacard(Metacard metacard) {
     final String wkt = metacard.getLocation();
     try {
-      final Geometry geometry = GeometryUtils.parseGeometry(wkt);
-      return GeometryUtils.canHandleGeometry(geometry) && hasOverlay.test(metacard);
+      if (StringUtils.isNotEmpty(wkt)) {
+        final Geometry geometry = GeometryUtils.parseGeometry(wkt);
+        return GeometryUtils.canHandleGeometry(geometry) && hasOverlay.test(metacard);
+      }
+      return false;
     } catch (CatalogTransformerException e) {
       LOGGER.debug("Cannot parse this metacard's geometry [wkt = {}]", wkt, e);
       return false;
