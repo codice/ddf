@@ -36,10 +36,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -66,34 +62,6 @@ public class BackupCommandTest extends SolrCommandTest {
   @Rule public ExpectedException expectedException = ExpectedException.none();
 
   @Mock SolrClient mockSolrClient;
-
-  @BeforeClass
-  public static void beforeClass() throws Exception {
-    setDdfHome();
-    setDdfEtc();
-    createDefaultMiniSolrCloudCluster();
-    addDocument("1");
-  }
-
-  @AfterClass
-  public static void afterClass() throws Exception {
-    if (miniSolrCloud != null) {
-      miniSolrCloud.getSolrClient().close();
-      miniSolrCloud.shutdown();
-    }
-  }
-
-  @Before
-  public void setUp() throws Exception {
-    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
-    consoleOutput = new ConsoleOutput();
-    consoleOutput.interceptSystemOut();
-  }
-
-  @After
-  public void tearDown() {
-    consoleOutput.resetSystemOut();
-  }
 
   @Test
   public void testPerformSolrCloudSynchronousBackup() throws Exception {
