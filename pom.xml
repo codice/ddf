@@ -125,7 +125,7 @@
         <pax.exam.version>4.13.5</pax.exam.version>
         <pax.logging.version>2.2.6</pax.logging.version>
         <pax.url.version>2.6.14</pax.url.version>
-        <pax.web.version>8.0.27</pax.web.version>
+        <pax.web.version>8.0.24</pax.web.version>
         <restito.version>1.1.2</restito.version>
         <restassured.version>5.5.0</restassured.version>
         <groovy.version>4.0.23</groovy.version>
@@ -149,7 +149,7 @@
         <abdera.version>1.1.3</abdera.version>
         <antlr.version>4.3</antlr.version>
         <apache.shiro.version>1.9.1</apache.shiro.version>
-        <asm.version>9.3</asm.version>
+        <asm.version>9.6</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
         <bouncy.version>1.69</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
@@ -180,7 +180,7 @@
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.1.8</countryconverter.version>
         <cryptomator.version>1.5.2</cryptomator.version>
-        <cxf.version>3.5.3</cxf.version>
+        <cxf.version>3.5.8</cxf.version>
         <ddf-admin-ui.version>2.25.0</ddf-admin-ui.version>
         <decanter.version>2.9.0</decanter.version>
         <dropwizard.version>4.1.25</dropwizard.version>
@@ -221,7 +221,7 @@
         <jcodec.version>0.2.0_1</jcodec.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
         <jdom2.bundle.version>2.0.6.1_1</jdom2.bundle.version>
-        <jetty.version>9.4.54.v20240208</jetty.version>
+        <jetty.version>9.4.53.v20231009</jetty.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
         <dev.failsafe.version>3.2.4</dev.failsafe.version>
@@ -268,6 +268,7 @@
         <org.ops4j.pax.swissbox.version>1.8.5</org.ops4j.pax.swissbox.version>
         <org.rrd4j.version>3.3.1</org.rrd4j.version>
         <org.slf4j.version>1.7.29</org.slf4j.version>
+        <osgi.compendium.version>7.0.0</osgi.compendium.version>
         <osgi.enterprise.version>5.0.0</osgi.enterprise.version>
         <owasp-html-sanitizer.version>20220608.1</owasp-html-sanitizer.version>
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
