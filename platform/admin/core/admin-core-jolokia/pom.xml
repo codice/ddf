@@ -49,6 +49,11 @@
             <artifactId>pax-web-extender-whiteboard</artifactId>
             <version>${pax.web.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-extender-whiteboard</artifactId>
+            <version>${pax.web.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
