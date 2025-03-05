@@ -859,8 +859,7 @@ public class WfsSource extends AbstractWfsSource {
           if (areAnyFiltersSet(filter)) {
             wfsQuery.setFilter(filter);
           }
-          if (!this.disableSorting
-              && query.getSortBy() != null
+          if (query.getSortBy() != null
               && query.getSortBy().getPropertyName() != null
               && query.getSortBy().getPropertyName().getPropertyName() != null) {
             setSortBy(query.getSortBy(), filterDelegateEntry.getKey(), wfsQuery, details);

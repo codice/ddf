@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Date;
 import java.util.Map.Entry;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,8 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
   protected void applyCreatedOperationRules(
       CreateRequest createRequest, Metacard aMetacard, Date now) {
     LOGGER.debug("Applying standard rules on CreateRequest");
-    if ((aMetacard.getResourceURI() != null && !isCatalogResourceUri(aMetacard.getResourceURI()))
+    if ((isValidResourceUri(aMetacard.getResourceURI())
+            && !isCatalogResourceUri(aMetacard.getResourceURI()))
         || !uuidGenerator.validateUuid(aMetacard.getId())) {
       if (isPreferenceMetacard(aMetacard)) {
         String userId = (String) aMetacard.getAttribute(USER_ATTRIBUTE).getValue();
@@ -81,6 +83,10 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
 
     aMetacard.setAttribute(new AttributeImpl(Core.METACARD_MODIFIED, now));
     logMetacardAttributeUpdate(aMetacard, Core.METACARD_MODIFIED, now);
+  }
+
+  private boolean isValidResourceUri(URI uri) {
+    return uri != null && StringUtils.isNotBlank(uri.toString());
   }
 
   private boolean isCatalogResourceUri(URI uri) {

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.security.SecurityConstants;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.claims.ClaimsHandler;
 import ddf.security.encryption.EncryptionService;
@@ -69,7 +70,7 @@ public class ClaimsHandlerManagerTest {
     System.setProperty(
         "https.cipherSuites",
         "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
-    System.setProperty("https.protocols", "TLSv1.2");
+    System.setProperty("https.protocols", SecurityConstants.getDefaultSslProtocol());
 
     manager.setSecurityLogger(mock(SecurityLogger.class));
     manager.setLdapBindUserDn("cn=admin");

@@ -15,6 +15,7 @@ package org.codice.ddf.commands.solr;
 
 import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -163,7 +164,8 @@ public class BackupCommand extends SolrCommands {
         CollectionAdminRequest.AsyncCollectionAdminRequest.backupCollection(collection, backupName)
             .setLocation(backupLocation);
 
-    String requestId = backup.processAsync(client);
+    String requestId = UUID.randomUUID().toString();
+    backup.processAsync(requestId, client);
     LOGGER.debug("Async backup request Id: {}", requestId);
     return requestId;
   }

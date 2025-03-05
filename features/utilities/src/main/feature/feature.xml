@@ -210,7 +210,7 @@
         <feature dependency="true">apache-commons</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/1.2_5</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/9.9.1-6_1</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/3.1.0_2</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/${xmlbeans.version}_1</bundle>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-math3/${commons-math3.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-compress/${commons-compress.version}</bundle>

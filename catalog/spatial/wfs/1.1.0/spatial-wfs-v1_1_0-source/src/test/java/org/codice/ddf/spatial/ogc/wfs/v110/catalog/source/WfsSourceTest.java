@@ -50,6 +50,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.SecurityConstants;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
@@ -1402,7 +1403,7 @@ public class WfsSourceTest {
     final Integer receiveTimeout = 20000;
     final String certAlias = "mycert";
     final String keystorePath = "/path/to/keystore";
-    final String sslProtocol = "TLSv1.2";
+    final String sslProtocol = SecurityConstants.getDefaultSslProtocol();
 
     source.setPollInterval(1);
 
