@@ -180,7 +180,7 @@
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.1.8</countryconverter.version>
         <cryptomator.version>1.5.2</cryptomator.version>
-        <cxf.version>3.5.8</cxf.version>
+        <cxf.version>3.5.3</cxf.version>
         <ddf-admin-ui.version>2.25.0</ddf-admin-ui.version>
         <decanter.version>2.9.0</decanter.version>
         <dropwizard.version>4.1.25</dropwizard.version>
