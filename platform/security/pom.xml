@@ -140,11 +140,6 @@
                 <artifactId>wss4j-policy</artifactId>
                 <version>${wss4j.version}</version>
             </dependency>
-            <dependency>
-                <groupId>xalan</groupId>
-                <artifactId>xalan</artifactId>
-                <version>${xalan.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
