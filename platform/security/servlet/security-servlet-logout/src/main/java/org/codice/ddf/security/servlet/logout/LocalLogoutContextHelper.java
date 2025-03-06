@@ -15,4 +15,4 @@ package org.codice.ddf.security.servlet.logout;
 
 import org.osgi.service.http.context.ServletContextHelper;
 
-public class LocalLogoutContext extends ServletContextHelper {}
+public class LocalLogoutContextHelper extends ServletContextHelper {}

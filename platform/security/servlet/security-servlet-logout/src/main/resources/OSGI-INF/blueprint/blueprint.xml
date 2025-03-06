@@ -37,16 +37,6 @@
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
-    <bean id="localLogoutContext" class="org.codice.ddf.security.servlet.logout.LocalLogoutContext"/>
-
-
-    <service interface="org.osgi.service.http.context.ServletContextHelper" ref="localLogoutContext">
-        <service-properties>
-            <entry key="osgi.http.whiteboard.context.name" value="localLogoutContext" />
-            <entry key="osgi.http.whiteboard.context.path" value="/logout/local" />
-        </service-properties>
-    </service>
-
     <bean id="localLogout" class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet">
         <argument>
             <reference interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
@@ -65,5 +55,15 @@
             <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
     </service>
+
+    <bean id="localLogoutContext" class="org.codice.ddf.security.servlet.logout.LocalLogoutContextHelper"/>
+
+    <service interface="org.osgi.service.http.context.ServletContextHelper" ref="localLogoutContext">
+        <service-properties>
+            <entry key="osgi.http.whiteboard.context.name" value="localLogoutContext" />
+            <entry key="osgi.http.whiteboard.context.path" value="/logout/local" />
+        </service-properties>
+    </service>
+
 
 </blueprint>
