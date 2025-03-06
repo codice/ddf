@@ -180,6 +180,7 @@
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.1.8</countryconverter.version>
         <cryptomator.version>1.5.2</cryptomator.version>
+        <!--TODO upgrade this to 3.5.12 to get the mina-core upgrade (https://github.com/apache/cxf/commit/f75c96a5a49f175a6618ac1ca406118bba8662b0) when available-->
         <cxf.version>3.5.10</cxf.version>
         <ddf-admin-ui.version>2.25.0</ddf-admin-ui.version>
         <decanter.version>2.9.0</decanter.version>
