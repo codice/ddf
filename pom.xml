@@ -125,7 +125,7 @@
         <pax.exam.version>4.13.5</pax.exam.version>
         <pax.logging.version>2.2.6</pax.logging.version>
         <pax.url.version>2.6.14</pax.url.version>
-        <pax.web.version>8.0.24</pax.web.version>
+        <pax.web.version>8.0.31</pax.web.version>
         <restito.version>1.1.2</restito.version>
         <restassured.version>5.5.0</restassured.version>
         <groovy.version>4.0.23</groovy.version>

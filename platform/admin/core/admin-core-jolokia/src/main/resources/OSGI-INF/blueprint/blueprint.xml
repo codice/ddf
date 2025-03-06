@@ -16,12 +16,21 @@
 
     <service interface="javax.servlet.Servlet" ref="jolokia">
         <service-properties>
-            <entry key="osgi.http.whiteboard.servlet.pattern" value="/jolokia/*"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/*"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="jolokia"/>
-            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/*)"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.name=jolokiaContext)"/>
             <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
-<!--            <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>-->
-<!--            <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>-->
+            <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
+            <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
+        </service-properties>
+    </service>
+
+    <bean id="jolokiaContext" class="org.codice.ddf.platform.admin.core.jolokia.JolokiaServletContextHelper"/>
+
+    <service interface="org.osgi.service.http.context.ServletContextHelper" ref="jolokiaContext">
+        <service-properties>
+            <entry key="osgi.http.whiteboard.context.name" value="jolokiaContext" />
+            <entry key="osgi.http.whiteboard.context.path" value="/admin/jolokia" />
         </service-properties>
     </service>
 
