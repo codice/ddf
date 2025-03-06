@@ -334,12 +334,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.xalan</artifactId>
-            <version>${xalan.bundle.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-localstorageprovider</artifactId>
             <version>${project.version}</version>
