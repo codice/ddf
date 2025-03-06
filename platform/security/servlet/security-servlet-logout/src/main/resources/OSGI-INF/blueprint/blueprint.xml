@@ -56,14 +56,4 @@
         </service-properties>
     </service>
 
-    <bean id="localLogoutContext" class="org.codice.ddf.security.servlet.logout.LocalLogoutContextHelper"/>
-
-    <service interface="org.osgi.service.http.context.ServletContextHelper" ref="localLogoutContext">
-        <service-properties>
-            <entry key="osgi.http.whiteboard.context.name" value="localLogoutContext" />
-            <entry key="osgi.http.whiteboard.context.path" value="/logout/local" />
-        </service-properties>
-    </service>
-
-
 </blueprint>

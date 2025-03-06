@@ -13,6 +13,11 @@
  */
 package org.codice.ddf.security.servlet.logout;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.http.whiteboard.propertytypes.HttpWhiteboardContext;
 
+@Component(service = ServletContextHelper.class, scope = ServiceScope.BUNDLE)
+@HttpWhiteboardContext(name = "localLogoutContext", path = "/logout/local")
 public class LocalLogoutContextHelper extends ServletContextHelper {}

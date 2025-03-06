@@ -36,10 +36,12 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>osgi.core</artifactId>
+            <version>${osgi.enterprise.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>osgi.cmpn</artifactId>
+            <version>${osgi.compendium.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.handler</groupId>
@@ -98,6 +100,16 @@
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-services</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-api</artifactId>
+            <version>${pax.web.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-extender-whiteboard</artifactId>
+            <version>${pax.web.version}</version>
         </dependency>
     </dependencies>
     <build>
