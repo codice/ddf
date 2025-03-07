@@ -106,6 +106,7 @@
         <feature>ddf-branding</feature>
         <feature>branding-registry</feature>
         <bundle>mvn:ddf.admin/admin-ui/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.search/ui-frontend/${kanri.version}/jar/kanri</bundle>
     </feature>
 
     <feature name="admin-modules-configuration" version="${project.version}"

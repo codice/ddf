@@ -184,6 +184,14 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.codice.ddf.search</groupId>
+            <artifactId>ui-frontend</artifactId>
+            <version>${kanri.version}</version>
+            <type>jar</type>
+            <classifier>kanri</classifier>
+        </dependency>
+
         <!--feature dependencies-->
         <dependency>
             <groupId>ddf.features</groupId>
