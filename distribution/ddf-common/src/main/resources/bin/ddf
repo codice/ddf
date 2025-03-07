@@ -16,6 +16,10 @@ PROPERTIES_FILE=$HOME_DIR/etc/custom.system.properties
 RESTART_FILE="$SCRIPTDIR/restart.jvm"
 GET=${SCRIPTDIR}/get_property
 
+# Defines java garbage collection logging options
+EXTRA_JAVA_OPTS="-Xlog:gc*=info:file=${HOME_DIR}/data/log/gc.log:time,uptime,level,tags:filecount=9,filesize=20m"
+export EXTRA_JAVA_OPTS
+
 # Return 0 (success/true) if a restart.jvm file was created to request a restart
 is_restarting() {
     local RC=1
