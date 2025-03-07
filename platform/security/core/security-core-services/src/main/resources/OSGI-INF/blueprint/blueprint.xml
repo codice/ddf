@@ -28,10 +28,6 @@
 
     <bean id="auditPropertiesSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
 
-    <service interface="ddf.security.audit.AuditPropertiesPlugin">
-        <bean class="ddf.security.audit.impl.TraceIdAuditPropertiesPlugin"/>
-    </service>
-
     <bean id="permissions" class="ddf.security.permission.impl.PermissionsImpl" />
 
     <service ref="permissions" interface="ddf.security.permission.Permissions" />
