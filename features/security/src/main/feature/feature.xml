@@ -29,6 +29,7 @@
         <feature prerequisite="true">wrap</feature>
         <feature>pax-web-http-whiteboard</feature>
         <feature>pax-web-jetty-websockets</feature>
+        <feature>scr</feature>
 
         <!-- External DDF Features -->
         <feature>jackson</feature>

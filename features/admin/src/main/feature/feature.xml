@@ -83,6 +83,7 @@
         <feature>cxf-jaxws</feature>
         <feature>cxf-jaxrs</feature>
         <feature>persistence-core</feature>
+        <feature>scr</feature>
 
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
