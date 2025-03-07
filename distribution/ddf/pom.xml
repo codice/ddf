@@ -82,7 +82,6 @@
                                 <descriptor>mvn:ddf.catalog.solr/catalog-solr-app/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.codice.ddf/ui/${ddf-admin-ui.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
@@ -90,7 +89,6 @@
                                 <feature>cxf-commands</feature>
                                 <!-- boot features defined in org.apache.karaf.features.cfg-->
                                 <feature>ddf-boot-features</feature>
-                                <feature>ui</feature>
                                 <feature>admin-modules-installer</feature>
                                 <!-- profile features -->
                                 <feature>profile-minimum</feature>
@@ -360,13 +358,6 @@
             <groupId>ddf.ui</groupId>
             <artifactId>search-ui-app</artifactId>
             <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>ui</artifactId>
-            <version>${ddf-admin-ui.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
