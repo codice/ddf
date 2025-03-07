@@ -41,10 +41,11 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.name}</Bundle-Name>
+                        <Export-Package>
+                            org.codice.ddf.security.logout.service
+                        </Export-Package>
                     </instructions>
-                    <Export-Package>
-                        org.codice.ddf.security.logout.service
-                    </Export-Package>
                 </configuration>
             </plugin>
         </plugins>

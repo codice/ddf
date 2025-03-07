@@ -23,7 +23,7 @@
 
     <service interface="javax.servlet.Servlet" ref="whoami">
         <service-properties>
-            <entry key="osgi.http.whiteboard.servlet.pattern" value="/whoami"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/whoami/*"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="whoami"/>
             <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>

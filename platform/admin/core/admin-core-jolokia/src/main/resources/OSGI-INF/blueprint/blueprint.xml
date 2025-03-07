@@ -25,13 +25,4 @@
         </service-properties>
     </service>
 
-    <bean id="jolokiaContext" class="org.codice.ddf.platform.admin.core.jolokia.JolokiaServletContextHelper"/>
-
-    <service interface="org.osgi.service.http.context.ServletContextHelper" ref="jolokiaContext">
-        <service-properties>
-            <entry key="osgi.http.whiteboard.context.name" value="jolokiaContext" />
-            <entry key="osgi.http.whiteboard.context.path" value="/admin/jolokia" />
-        </service-properties>
-    </service>
-
 </blueprint>

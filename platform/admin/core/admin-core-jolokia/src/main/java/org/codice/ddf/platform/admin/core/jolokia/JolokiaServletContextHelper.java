@@ -13,6 +13,11 @@
  */
 package org.codice.ddf.platform.admin.core.jolokia;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.http.whiteboard.propertytypes.HttpWhiteboardContext;
 
+@Component(service = ServletContextHelper.class, scope = ServiceScope.BUNDLE)
+@HttpWhiteboardContext(name = "jolokiaContext", path = "/admin/jolokia")
 public class JolokiaServletContextHelper extends ServletContextHelper {}
