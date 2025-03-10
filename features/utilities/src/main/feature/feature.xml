@@ -42,6 +42,7 @@
     <feature name="parser-xml" version="${project.version}"
              description="Platform JAXB support.">
         <feature>guava</feature>
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:ddf.platform/platform-parser-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform/platform-parser-xml/${project.version}</bundle>
     </feature>
@@ -97,6 +98,7 @@
              description="Tika MIME Resolver">
         <feature>mime-core-api</feature>
         <feature>slf4j</feature>
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
     </feature>
 
@@ -163,6 +165,7 @@
         <feature prerequisite="true">wrap</feature>
         <feature>spifly</feature>
         <feature version="${project.version}">jackson</feature>
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:org.slf4j/slf4j-api/${tika.slf4j.version}</bundle>
         <bundle>mvn:org.slf4j/slf4j-nop/${tika.slf4j.version}</bundle>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
@@ -173,6 +176,7 @@
     </feature>
 
     <feature name="io" version="${project.version}" description="I/O Utilities">
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:ddf.platform.io/platform-io-internal-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.io/platform-io-impl/${project.version}</bundle>
     </feature>

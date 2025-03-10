@@ -114,21 +114,21 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.bouncycastle</groupId>
-                                    <artifactId>bcprov-jdk15on</artifactId>
+                                    <artifactId>bcprov-jdk18on</artifactId>
                                     <version>${bouncy.version}</version>
                                     <outputDirectory>${setup.folder}/jdk9plus</outputDirectory>
                                     <destFileName>bcprov-${bouncy.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.bouncycastle</groupId>
-                                    <artifactId>bcmail-jdk15on</artifactId>
+                                    <artifactId>bcmail-jdk18on</artifactId>
                                     <version>${bouncy.version}</version>
                                     <outputDirectory>${setup.folder}/jdk9plus</outputDirectory>
                                     <destFileName>bcmail-${bouncy.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.bouncycastle</groupId>
-                                    <artifactId>bcpkix-jdk15on</artifactId>
+                                    <artifactId>bcpkix-jdk18on</artifactId>
                                     <version>${bouncy.version}</version>
                                     <outputDirectory>${setup.folder}/jdk9plus</outputDirectory>
                                     <destFileName>bcpkix-${bouncy.version}.jar</destFileName>
@@ -338,6 +338,11 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jaxb-runtime</artifactId>
             <version>${servicemix.bundles.jaxb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.aries.spifly</groupId>
+            <artifactId>org.apache.aries.spifly.dynamic.bundle</artifactId>
+            <version>${spifly.version}</version>
         </dependency>
     </dependencies>
 </project>

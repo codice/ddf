@@ -63,6 +63,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -109,6 +110,7 @@ public class ITSynchronizedInstaller {
   public void beforeExam() throws Exception {
     startExampleBundle();
     featuresService.installFeature(EXAMPLE_FEATURE);
+    resetBundleContext();
     syncInstaller.waitForBundles();
   }
 
@@ -323,6 +325,12 @@ public class ITSynchronizedInstaller {
                 getService(ExampleService.class)
                     .getExampleProp()
                     .equals(ExampleService.DEFAULT_EXAMPLE_PROP_VALUE));
+  }
+
+  private void resetBundleContext() {
+    Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+    bundleContext = bundle.getBundleContext();
+    configAdmin = getService(ConfigurationAdmin.class);
   }
 
   private Stream<org.osgi.service.cm.Configuration> configurations(String filter)

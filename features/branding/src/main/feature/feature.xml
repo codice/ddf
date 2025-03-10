@@ -24,6 +24,7 @@
 
     <feature name="ddf-branding" version="${project.version}" description="DDF Branding">
         <feature>branding-api</feature>
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:commons-configuration/commons-configuration/${commons-configuration.version}</bundle>
         <bundle>mvn:ddf.distribution/ddf-branding-plugin/${project.version}</bundle>
