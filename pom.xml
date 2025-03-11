@@ -16,7 +16,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
-    <version>2.29.9-SNAPSHOT</version>
+    <version>2.29.10-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Reactor</name>
     <description>Distributed Data Framework (DDF) Parent</description>
@@ -181,7 +181,6 @@
         <countryconverter.version>0.1.8</countryconverter.version>
         <cryptomator.version>1.5.2</cryptomator.version>
         <cxf.version>3.5.10</cxf.version>
-        <ddf-admin-ui.version>2.25.0</ddf-admin-ui.version>
         <decanter.version>2.9.0</decanter.version>
         <dropwizard.version>4.1.25</dropwizard.version>
         <equinox.version>3.17.200</equinox.version>
@@ -310,8 +309,8 @@
         <woodstox.stax2-api.version>4.2.1</woodstox.stax2-api.version>
         <wss4j.neethi.version>3.1.1</wss4j.neethi.version>
         <wss4j.version>2.3.4</wss4j.version>
-        <xalan.bundle.version>2.7.3_3</xalan.bundle.version>
-        <xalan.version>2.7.3</xalan.version>
+        <xalan.bundle.version>2.7.2_3</xalan.bundle.version>
+        <xalan.version>2.7.2</xalan.version>
         <xerces.version>2.12.2</xerces.version>
         <xerces.bundle.version>2.12.2_1</xerces.bundle.version>
         <xml-apis.version>1.4.01</xml-apis.version>

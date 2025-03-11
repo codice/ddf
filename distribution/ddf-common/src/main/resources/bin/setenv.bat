@@ -83,6 +83,5 @@ rem Defines the special on-error Java options
 rem set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR%%%p -XX:OnError=%DDF_ON_ERROR%%%p
 set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR% -XX:OnError=%DDF_ON_ERROR%
 set KARAF_OPTS=-Dfile.encoding=UTF8
-rem Java garbage collection logging options
-set GC_OPTS=-Xlog:gc*=info:file=\"%DDF_HOME%data/log/gc.log\":time,uptime,level,tags:filecount=9,filesize=20m 
+
 set JAVA_OPTS=-Xms2g -Xmx6g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.perm=%DDF_HOME_PERM% -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS% %GC_OPTS%
