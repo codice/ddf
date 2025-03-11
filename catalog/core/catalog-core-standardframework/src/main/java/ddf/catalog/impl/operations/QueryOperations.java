@@ -67,6 +67,8 @@ import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.Permissions;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,6 +80,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.TimeZone;
+import java.util.Date;
 import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -114,6 +118,7 @@ public class QueryOperations extends DescribableImpl {
 
   public static final String QM_TOTAL_ELAPSED = QMB + "total" + QM_ELAPSED;
   public static final String QM_TIMED_SOURCE = QMB + "timedsource" + QM_ELAPSED + ".";
+  private static final String CACHE_SOURCES_KEY = "cache-sources";
 
   public static final String QM_RESPONSE_INJECTATTRIBUTES =
       QMB + "response-injectattributes" + QM_ELAPSED;
@@ -209,6 +214,9 @@ public class QueryOperations extends DescribableImpl {
       boolean overrideFanoutRename,
       boolean fanoutEnabled)
       throws UnsupportedQueryException, FederationException {
+    DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+    format.setTimeZone(TimeZone.getTimeZone("UTC"));
+    String startTime = format.format(new Date());
     long queryStart = System.nanoTime();
 
     FederationStrategy fedStrategy = strategy;
@@ -258,6 +266,7 @@ public class QueryOperations extends DescribableImpl {
       queryResponse = processPostQueryPlugins(queryResponse);
       putMetricsDuration(queryResponse, QM_POST_QUERY, System.nanoTime() - postQueryStart);
       putMetricsDuration(queryResponse, QM_TOTAL_ELAPSED, System.nanoTime() - queryStart);
+      queryResponse.getProperties().put("start-time", startTime);
 
       log(queryResponse);
 
@@ -301,6 +310,7 @@ public class QueryOperations extends DescribableImpl {
   protected static String getQueryMetricsLog(Map<String, Serializable> properties) {
     Map<String, Serializable> metricsMap = new HashMap<>();
     // Combine the request and response metrics to log
+    metricsMap.put("start-time", properties.get("start-time"));
     metricsMap.put("total-duration", properties.get(QM_TOTAL_ELAPSED));
     metricsMap.put("prequery-duration", properties.get(QM_PRE_QUERY));
     metricsMap.put("query-duration", properties.get(QM_DO_QUERY));
@@ -309,6 +319,11 @@ public class QueryOperations extends DescribableImpl {
     properties.entrySet().stream()
         .filter(e -> e.getKey() != null && e.getKey().startsWith(QM_TIMED_SOURCE))
         .forEach(e -> sourceDurationMap.put(e.getKey().split(QM_TIMED_SOURCE)[1], e.getValue()));
+    Serializable cacheSourceValue = sourceDurationMap.remove("cache");
+    if (cacheSourceValue != null) {
+      String sourceName = (String) properties.get(CACHE_SOURCES_KEY);
+      sourceDurationMap.put(sourceName == null ? "Unknown Source" : sourceName, cacheSourceValue);
+    }
     metricsMap.put("source-duration", sourceDurationMap);
     HashMap<String, Serializable> additionalQueryMetrics =
         (HashMap<String, Serializable>) properties.get("additional-query-metrics");
