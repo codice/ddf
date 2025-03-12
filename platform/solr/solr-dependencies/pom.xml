@@ -26,6 +26,11 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
+            <artifactId>solr-api</artifactId>
+            <version>${solr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
             <version>${solr.version}</version>
             <exclusions>
@@ -114,11 +119,13 @@
                             <!--packages required for solrj -->
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj.*;version=${solr.version},
+                            org.apache.solr.client.api.util.*;version=${solr.version},
                             org.apache.solr.common.*;version=${solr.version},
                             org.apache.zookeeper.*;version=${solr.zookeeper.version},
                             com.fasterxml.jackson.*;version=${jackson.version}
                         </Export-Package>
                         <Embed-Dependency>
+                            solr-api,
                             solr-solrj,
                             solr-solrj-zookeeper,
                             commons-io,
@@ -159,9 +166,6 @@
                             javax.swing,
                             javax.swing.table,
                             javax.swing.tree,
-                            javax.ws.rs,
-                            javax.ws.rs.core,
-                            javax.ws.rs.ext,
                             javax.xml.bind;version="[2.2,3)",
                             javax.xml.datatype,
                             javax.xml.namespace,
