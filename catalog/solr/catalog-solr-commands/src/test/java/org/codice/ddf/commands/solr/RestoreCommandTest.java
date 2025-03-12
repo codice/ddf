@@ -32,10 +32,7 @@ import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.common.util.NamedList;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -53,38 +50,13 @@ public class RestoreCommandTest extends SolrCommandTest {
 
   private File backupFile;
 
-  @BeforeClass
-  public static void setupClass() throws Exception {
-    setDdfHome();
-    setDdfEtc();
-    createDefaultMiniSolrCloudCluster();
-    addDocument("1");
-  }
-
   @Before
-  public void setUp() throws Exception {
-    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
-    consoleOutput = new ConsoleOutput();
-    consoleOutput.interceptSystemOut();
-
+  public void setUpBackup() throws Exception {
     if (backupFile == null) {
       backupSolr();
     }
 
     consoleOutput.reset();
-  }
-
-  @After
-  public void tearDown() {
-    consoleOutput.resetSystemOut();
-  }
-
-  @AfterClass
-  public static void tearDownClass() throws Exception {
-    if (miniSolrCloud != null) {
-      miniSolrCloud.getSolrClient().close();
-      miniSolrCloud.shutdown();
-    }
   }
 
   @Test(expected = IllegalArgumentException.class)
