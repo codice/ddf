@@ -42,7 +42,12 @@
         <dependency>
             <groupId>org.jolokia</groupId>
             <artifactId>jolokia-osgi</artifactId>
-            <version>1.6.2</version>
+            <version>1.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-extender-whiteboard</artifactId>
+            <version>${pax.web.version}</version>
         </dependency>
     </dependencies>
     <build>

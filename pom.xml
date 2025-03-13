@@ -49,8 +49,8 @@
         <version>1.0.12</version>
     </parent>
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <!--  default URL properties -->
         <ddf.scm.connection.url />
         <snapshots.repository.url />
@@ -120,15 +120,15 @@
         <hamcrest-junit.version>2.0.0.0</hamcrest-junit.version>
         <hamcrest-optional.version>1.0</hamcrest-optional.version>
         <jsonassert.version>1.5.0</jsonassert.version>
-        <spock.version>2.0-M4-groovy-3.0</spock.version>
+        <spock.version>2.3-groovy-4.0</spock.version>
         <mockito.version>3.6.28</mockito.version>
         <pax.exam.version>4.13.5</pax.exam.version>
-        <pax.logging.version>2.0.19</pax.logging.version>
+        <pax.logging.version>2.2.6</pax.logging.version>
         <pax.url.version>2.6.14</pax.url.version>
-        <pax.web.version>7.3.29</pax.web.version>
+        <pax.web.version>8.0.24</pax.web.version>
         <restito.version>1.1.2</restito.version>
-        <restassured.version>3.3.0</restassured.version>
-        <groovy.version>3.0.7</groovy.version>
+        <restassured.version>5.5.0</restassured.version>
+        <groovy.version>4.0.23</groovy.version>
         <xmlunit.version>1.4</xmlunit.version>
         <xmlunit-matchers.version>2.8.2</xmlunit-matchers.version>
         <auth0.jwt.version>3.8.1</auth0.jwt.version>
@@ -138,18 +138,18 @@
         <project.report.output.directory>project-info</project.report.output.directory>
 
         <!--Documentation properties-->
-        <asciidoctor.maven.plugin.version>2.2.1</asciidoctor.maven.plugin.version>
-        <asciidoctorj.diagram.version>2.2.1</asciidoctorj.diagram.version>
-        <asciidoctorj.pdf.version>1.6.0</asciidoctorj.pdf.version>
-        <asciidoctorj.version>2.5.2</asciidoctorj.version>
-        <jruby.version>9.2.19.0</jruby.version>
+        <asciidoctor.maven.plugin.version>2.2.6</asciidoctor.maven.plugin.version>
+        <asciidoctorj.diagram.version>2.3.1</asciidoctorj.diagram.version>
+        <asciidoctorj.pdf.version>2.3.19</asciidoctorj.pdf.version>
+        <asciidoctorj.version>2.5.7</asciidoctorj.version>
+        <jruby.version>9.4.12.0</jruby.version>
         <openlayers.version>4.6.5</openlayers.version>
 
         <abdera.osgi.version>1.1.3_2</abdera.osgi.version>
         <abdera.version>1.1.3</abdera.version>
         <antlr.version>4.3</antlr.version>
         <apache.shiro.version>1.13.0</apache.shiro.version>
-        <asm.version>9.3</asm.version>
+        <asm.version>9.6</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
         <bouncy.version>1.69</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
@@ -168,7 +168,7 @@
         <commons-csv.version>1.4</commons-csv.version>
         <commons-digester.version>1.8.1</commons-digester.version>
         <commons-exec.version>1.3</commons-exec.version>
-        <commons-io.version>2.13.0</commons-io.version>
+        <commons-io.version>2.15.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
@@ -220,7 +220,7 @@
         <jcodec.version>0.2.0_1</jcodec.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
         <jdom2.bundle.version>2.0.6.1_1</jdom2.bundle.version>
-        <jetty.version>9.4.52.v20230823</jetty.version>
+        <jetty.version>9.4.53.v20231009</jetty.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
         <dev.failsafe.version>3.2.4</dev.failsafe.version>
@@ -229,7 +229,7 @@
         <jpeg2000.version>1.3.1_CODICE_3</jpeg2000.version>
         <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.4.11</json-smart.version>
-        <jsoup.version>1.15.2</jsoup.version>
+        <jsoup.version>1.18.3</jsoup.version>
         <jsr305.version>3.0.2</jsr305.version>
         <jsr305.bundle.version>${jsr305.version}_1</jsr305.bundle.version>
         <jsr339-api.bundle.version>2.6.0</jsr339-api.bundle.version>
@@ -237,8 +237,8 @@
         <jts.spatial4j.version>1.17.0</jts.spatial4j.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <jwnl.version>1.3.3</jwnl.version>
-        <karaf.version>4.3.10</karaf.version>
-        <jansi.version>2.4.0</jansi.version>
+        <karaf.version>4.4.5</karaf.version>
+        <jansi.version>2.4.1</jansi.version>
         <org.osgi.util.promise.version>1.2.0</org.osgi.util.promise.version>
         <org.osgi.util.function.version>1.2.0</org.osgi.util.function.version>
         <la4j.version>0.6.0</la4j.version>
@@ -246,8 +246,8 @@
         <logback.classic.version>1.2.3</logback.classic.version>
         <logback.version>1.2.3</logback.version>
         <mariadb.version>2.4.1</mariadb.version>
-        <maven.failsafe.version>2.22.2</maven.failsafe.version>
-        <maven.surefire.version>2.22.2</maven.surefire.version>
+        <maven.failsafe.version>3.5.2</maven.failsafe.version>
+        <maven.surefire.version>3.5.2</maven.surefire.version>
         <mime4j.version>0.8.12</mime4j.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
@@ -267,6 +267,7 @@
         <org.ops4j.pax.swissbox.version>1.8.5</org.ops4j.pax.swissbox.version>
         <org.rrd4j.version>3.3.1</org.rrd4j.version>
         <org.slf4j.version>1.7.29</org.slf4j.version>
+        <osgi.compendium.version>7.0.0</osgi.compendium.version>
         <osgi.enterprise.version>7.0.0</osgi.enterprise.version>
         <owasp-html-sanitizer.version>20220608.1</owasp-html-sanitizer.version>
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
@@ -310,8 +311,8 @@
         <wss4j.version>2.3.4</wss4j.version>
         <xalan.bundle.version>2.7.2_3</xalan.bundle.version>
         <xalan.version>2.7.2</xalan.version>
-        <xerces.version>2.12.0</xerces.version>
-        <xerces.bundle.version>2.12.0_1</xerces.bundle.version>
+        <xerces.version>2.12.2</xerces.version>
+        <xerces.bundle.version>2.12.2_1</xerces.bundle.version>
         <xml-apis.version>1.4.01</xml-apis.version>
         <xmlbeans.version>5.0.3</xmlbeans.version>
         <xmlsec.version>2.3.1</xmlsec.version>
@@ -388,10 +389,20 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-spring</artifactId>
+                <version>${camel.version}</version>
+            </dependency>
+            <dependency>
                 <!-- Not declared in cxf-bom. Remove if that changes -->
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-security-xml</artifactId>
                 <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.converter</artifactId>
+                <version>1.0.14</version>
             </dependency>
             <!-- TODO: Use the OpenSAML BOM instead of declaring these individually. Can't do that
                        right now because the BOM manages a bunch of other thirdparty dependencies,
@@ -1027,7 +1038,7 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.13.1</version>
+                <version>4.0.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -1389,7 +1400,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
+            <groupId>org.apache.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>${groovy.version}</version>
             <type>pom</type>
@@ -1398,7 +1409,7 @@
         <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-junit4</artifactId>
-            <version>2.0-M4-groovy-3.0</version>
+            <version>${spock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

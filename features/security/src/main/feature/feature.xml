@@ -27,7 +27,9 @@
              description="Dependencies for the core security APIs.">
         <!-- Third Party Features -->
         <feature prerequisite="true">wrap</feature>
-        <feature>pax-http-whiteboard</feature>
+        <feature>pax-web-http-whiteboard</feature>
+        <feature>pax-web-jetty-websockets</feature>
+        <feature>scr</feature>
 
         <!-- External DDF Features -->
         <feature>jackson</feature>
@@ -141,8 +143,8 @@
         <!-- Third Party Features -->
         <feature>spring</feature>
         <feature>war</feature>
-        <feature>pax-jetty</feature>
-        <feature>pax-http-jetty</feature>
+        <feature>pax-web-jetty</feature>
+        <feature>pax-web-http-jetty</feature>
 
         <!-- External DDF Features -->
         <feature>apache-commons</feature>
@@ -172,15 +174,6 @@
         <bundle start-level="30">mvn:org.apache.neethi/neethi/${wss4j.neethi.version}</bundle>
 
         <!-- Pax -->
-        <config name="org.ops4j.pax.web" append="true">
-            #######################################
-            # Jetty Server Authenticator Settings
-            #######################################
-
-            # Set the authmethod/realmname so that our JettyAuthenticator is used
-            org.ops4j.pax.web.default.authmethod=DDF
-            org.ops4j.pax.web.default.realmname=DDF
-        </config>
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/${pax.web.version}</bundle>
 
         <!-- Miscellaneous -->

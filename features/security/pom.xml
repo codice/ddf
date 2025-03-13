@@ -343,11 +343,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.error</groupId>
-            <artifactId>platform-error-page-injector</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.api</groupId>
             <artifactId>platform-api</artifactId>
             <version>${project.version}</version>

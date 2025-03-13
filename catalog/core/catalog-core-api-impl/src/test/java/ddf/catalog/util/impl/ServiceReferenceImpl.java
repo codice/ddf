@@ -40,6 +40,11 @@ public class ServiceReferenceImpl implements ServiceReference {
   }
 
   @Override
+  public Object adapt(Class type) {
+    return null;
+  }
+
+  @Override
   public Bundle getBundle() {
     return null;
   }

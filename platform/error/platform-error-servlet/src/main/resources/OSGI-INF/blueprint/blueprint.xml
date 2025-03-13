@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- /**
+<!--
+/**
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
@@ -9,25 +10,35 @@
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
- **/ -->
+ **/
+-->
+
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
 
-    <reference id="logoutService" interface="org.codice.ddf.security.logout.service.LogoutService"/>
+    <bean id="errorPage" class="org.codice.ddf.platform.error.servlet.ErrorServlet" init-method="init" />
 
-    <bean id="logoutServiceEndpoint" class="org.codice.ddf.security.logout.endpoint.LogoutEndpoint">
-        <argument ref="logoutService"/>
-    </bean>
-
-    <service ref="logoutServiceEndpoint" interface="javax.servlet.Servlet">
+    <service interface="javax.servlet.Servlet" ref="errorPage">
         <service-properties>
-            <entry key="osgi.http.whiteboard.servlet.pattern" value="/actions/*"/>
-            <entry key="osgi.http.whiteboard.servlet.name" value="logoutServiceServlet"/>
-            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.name=servicesLogoutContextHelper)"/>
+            <entry key="osgi.http.whiteboard.servlet.errorPage">
+                <list>
+                    <value>400</value>
+                    <value>401</value>
+                    <value>403</value>
+                    <value>404</value>
+                    <value>405</value>
+                    <value>406</value>
+                    <value>500</value>
+                    <value>501</value>
+                    <value>502</value>
+                    <value>503</value>
+                    <value>504</value>
+                </list>
+            </entry>
+            <entry key="osgi.http.whiteboard.servlet.name" value="errorPage"/>
         </service-properties>
     </service>
 
