@@ -182,9 +182,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
             <scope>test</scope>
+            <version>${apache-log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.mime.core</groupId>

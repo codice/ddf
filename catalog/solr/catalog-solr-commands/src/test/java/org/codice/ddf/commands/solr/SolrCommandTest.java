@@ -196,7 +196,7 @@ public abstract class SolrCommandTest {
             .addConfig(
                 DEFAULT_CONFIGSET,
                 Paths.get(
-                    BackupCommandTest.class.getClassLoader().getResource("configset").getPath()))
+                    BackupCommandTest.class.getClassLoader().getResource("configset").toURI()))
             .build();
     miniSolrCloud.getSolrClient().connect();
     System.setProperty("solr.cloud.shardCount", "1");
