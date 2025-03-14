@@ -43,7 +43,6 @@
                 <exclude>system/**/org.ops4j.pax.tipi.tomcat*</exclude>
                 <exclude>system/**/*elasticsearch*</exclude>
                 <exclude>system/**/*kibana*</exclude>
-                <exclude>system/**/pax-web-tomcat*</exclude>
                 <exclude>**/jetty/**/9.4.6.v20170531/*</exclude>
                 <exclude>**/jetty/**/8.1.14.v20131031/*</exclude>
                 <exclude>**/pax/web/**/7.0.0/*</exclude>
