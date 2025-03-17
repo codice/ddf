@@ -18,15 +18,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.operation.impl.QueryResponseImpl;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
-import org.opengis.filter.Filter;
 
 public class QueryOperationsTest {
 
@@ -111,25 +106,5 @@ public class QueryOperationsTest {
         metricsString,
         containsString(
             QueryOperations.QM_POSTQUERY + "metric3" + QueryOperations.QM_ELAPSED + ": 98765"));
-  }
-
-  @Test
-  public void testLogQueryMetrics() throws NullPointerException {
-    QueryResponse queryResponse =
-        new QueryResponseImpl(new QueryRequestImpl(new QueryImpl(Filter.INCLUDE)));
-    Map<String, Serializable> respProps = new HashMap<>();
-
-    respProps.put(QueryOperations.QM_TRACEID, "12345");
-    respProps.put(QueryOperations.QM_PREQUERY + "metric" + QueryOperations.QM_ELAPSED, "23456");
-    respProps.put(QueryOperations.QM_DO_QUERY + "metric" + QueryOperations.QM_ELAPSED, "23456");
-    respProps.put(
-        QueryOperations.QM_TOTAL_ELAPSED + "metric" + QueryOperations.QM_ELAPSED, "523456");
-    respProps.put(QueryOperations.QM_POSTQUERY + "metric" + QueryOperations.QM_ELAPSED, "45678");
-    respProps.put("metrics-enabled", true);
-    respProps.put("additional-query-metrics", new HashMap<>());
-
-    queryResponse.getProperties().putAll(respProps);
-    String queryMetricsLog = QueryOperations.getQueryMetricsLog(queryResponse.getProperties());
-    assertNotNull(queryMetricsLog);
   }
 }
