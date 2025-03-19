@@ -34,7 +34,8 @@
         <module>solr</module>
         <module>admin</module>
         <module>apps</module>
-        <module>install-profiles</module>
+<!--        TODO: fix solrProvider bundle starting in kernel dist-->
+<!--        <module>install-profiles</module>-->
     </modules>
 
     <properties>
