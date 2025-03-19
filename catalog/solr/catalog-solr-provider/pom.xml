@@ -92,6 +92,8 @@
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj;version=${solr.version},
                             org.apache.solr.client.solrj.*;version=${solr.version},
+                            org.apache.solr.client.api.util;version=${solr.version},
+                            org.apache.solr.client.api.util.*;version=${solr.version},
                             org.apache.solr.common;version=${solr.version},
                             org.apache.solr.common.*;version=${solr.version},
                             org.apache.zookeeper;version=${solr.zookeeper.version},
