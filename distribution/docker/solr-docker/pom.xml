@@ -68,6 +68,12 @@
                                 <image>
                                     <name>docker.io/codice/ddf-solr:${project.version}</name>
                                     <build>
+                                        <buildx>
+                                            <platforms>
+                                                <platform>linux/amd64</platform>
+                                                <platform>linux/arm64</platform>
+                                            </platforms>
+                                        </buildx>
                                         <dockerFile>Dockerfile</dockerFile>
                                         <assembly>
                                             <descriptor>files.xml</descriptor>
