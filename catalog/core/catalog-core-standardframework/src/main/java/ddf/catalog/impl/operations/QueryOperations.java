@@ -15,8 +15,6 @@ package ddf.catalog.impl.operations;
 
 import static ddf.catalog.Constants.QUERY_LOGGER_NAME;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import ddf.catalog.Constants;
 import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
@@ -209,8 +207,6 @@ public class QueryOperations extends DescribableImpl {
       boolean overrideFanoutRename,
       boolean fanoutEnabled)
       throws UnsupportedQueryException, FederationException {
-    long queryStart = System.nanoTime();
-
     FederationStrategy fedStrategy = strategy;
     QueryResponse queryResponse;
 
@@ -257,7 +253,6 @@ public class QueryOperations extends DescribableImpl {
       queryResponse = processPostQueryAccessPlugins(queryResponse);
       queryResponse = processPostQueryPlugins(queryResponse);
       putMetricsDuration(queryResponse, QM_POST_QUERY, System.nanoTime() - postQueryStart);
-      putMetricsDuration(queryResponse, QM_TOTAL_ELAPSED, System.nanoTime() - queryStart);
 
       log(queryResponse);
 
@@ -289,35 +284,6 @@ public class QueryOperations extends DescribableImpl {
         }
       }
     }
-    Map<String, Serializable> requestProperties =
-        queryResponse.getRequest() == null ? null : queryResponse.getRequest().getProperties();
-    Map<String, Serializable> allProperties =
-        collectQueryProperties(requestProperties, queryResponse.getProperties());
-    if (Boolean.TRUE.equals(allProperties.get("metrics-enabled"))) {
-      QUERY_LOGGER.info("QueryMetrics: {}", getQueryMetricsLog(allProperties));
-    }
-  }
-
-  protected static String getQueryMetricsLog(Map<String, Serializable> properties) {
-    Map<String, Serializable> metricsMap = new HashMap<>();
-    // Combine the request and response metrics to log
-    metricsMap.put("total-duration", properties.get(QM_TOTAL_ELAPSED));
-    metricsMap.put("prequery-duration", properties.get(QM_PRE_QUERY));
-    metricsMap.put("query-duration", properties.get(QM_DO_QUERY));
-    metricsMap.put("postquery-duration", properties.get(QM_POST_QUERY));
-    HashMap<String, Serializable> sourceDurationMap = new HashMap<>();
-    properties.entrySet().stream()
-        .filter(e -> e.getKey() != null && e.getKey().startsWith(QM_TIMED_SOURCE))
-        .forEach(e -> sourceDurationMap.put(e.getKey().split(QM_TIMED_SOURCE)[1], e.getValue()));
-    metricsMap.put("source-duration", sourceDurationMap);
-    HashMap<String, Serializable> additionalQueryMetrics =
-        (HashMap<String, Serializable>) properties.get("additional-query-metrics");
-    if (additionalQueryMetrics != null) {
-      metricsMap.putAll(additionalQueryMetrics);
-    }
-
-    Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-    return gson.toJson(metricsMap);
   }
 
   protected static Map<String, Serializable> collectQueryProperties(
