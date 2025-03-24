@@ -310,7 +310,6 @@
         <cve>CVE-2022-47937</cve>
         <cve>CVE-2023-33008</cve>
     </suppress>
-
     <suppress>
         <notes>
             These CVEs are a false positive. They apply to the json-smart and accessors-smart libraries.
@@ -326,5 +325,14 @@
         <cve>CVE-2022-45688</cve>
         <cve>CVE-2023-5072</cve>
     </suppress>
-
+    <suppress>
+        <notes>
+            This CVE concerns the possibility of users injecting executable data. However,
+            only the admin can specify the command to be executed via platform-scheduler.
+            Also, the CVE notes that experts do not agree if a user could inject data to
+            reach the code location where injection must occur.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@2\.3\.2$</packageUrl>
+        <cpe>cpe:/a:softwareag:quartz</cpe>
+    </suppress>
 </suppressions>
