@@ -289,5 +289,26 @@
         <cve>CVE-2022-22970</cve>
         <cve>CVE-2023-20861</cve>
     </suppress>
+    <suppress>
+        <notes>
+            This CVE is a false positive. It is related to PASV FTP requests. However, DDF does not use
+            FTP.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.sling/org\.apache\.sling\.commons\.johnzon@1\.2\.16$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            These CVEs are false positives. It is related to Apache Sling, which DDF does not use. It is
+            being reported because Apache Karaf pulls in an Apache Johnzon (JSON parsing) artifact that
+            registers a service provider. Also, the code is related to the karaf configs and only admins
+            can access the configs. Others have also reported this as a false positive under very
+            similar conditions: https://github.com/anchore/grype/issues/1269
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.sling/org\.apache\.sling\.commons\.johnzon@1\.2\.16$</packageUrl>
+        <cve>CVE-2022-45064</cve>
+        <cve>CVE-2022-47937</cve>
+        <cve>CVE-2023-33008</cve>
+    </suppress>
 
 </suppressions>
