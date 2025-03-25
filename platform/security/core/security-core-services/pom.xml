@@ -254,6 +254,7 @@
                             System bundle.
                             -->
                             javax.xml.stream;version="1.0",
+                            net.minidev.*;version="${json-smart.version}",
                             *
                         </Import-Package>
                         <Embed-Dependency>

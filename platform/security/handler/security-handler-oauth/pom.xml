@@ -156,6 +156,7 @@
                         </Embed-Dependency>
                         <Import-Package>
                             !com.github.scribejava.*,
+                            net.minidev.*;version="${json-smart.version}",
                             *
                         </Import-Package>
                     </instructions>

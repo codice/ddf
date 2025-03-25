@@ -74,6 +74,7 @@
                             org.codice.ddf.security.handler
                         </Export-Package>
                         <Import-Package>
+                            net.minidev.*;version="${json-smart.version}",
                             *
                         </Import-Package>
                     </instructions>

@@ -123,6 +123,7 @@
                         </Embed-Dependency>
                         <Import-Package>
                             org.codice.ddf.security.token.storage.api,
+                            net.minidev.*;version="${json-smart.version}",
                             *
                         </Import-Package>
                     </instructions>

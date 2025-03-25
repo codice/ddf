@@ -172,6 +172,7 @@
                         <Conditional-Package>org.codice.ddf.security.util</Conditional-Package>
                         <Import-Package>
                             !org.springframework.security.crypto.password,
+                            net.minidev.*;version="${json-smart.version}",
                             *
                         </Import-Package>
                     </instructions>

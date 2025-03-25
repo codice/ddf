@@ -290,4 +290,20 @@
         <cve>CVE-2023-20861</cve>
     </suppress>
 
+    <suppress>
+        <notes>
+            These CVEs are a false positive. They apply to the json-smart and accessors-smart libraries.
+            However, the CVEs are caused via a transitive dependency in OIDC libraries, which reference an
+            outdated version of these smart libraries. We have assured that a newer version of the smart libraries
+            are imported to prevent these vulnerabilities.
+        </notes>
+        <packageUrl regex="true">pkg:maven/net\.minidev/.*@.*$</packageUrl>
+        <cve>CVE-2021-27568</cve>
+        <cve>CVE-2021-31684</cve>
+        <cve>CVE-2023-1370</cve>
+        <cve>CVE-2024-57699</cve>
+        <cve>CVE-2022-45688</cve>
+        <cve>CVE-2023-5072</cve>
+    </suppress>
+
 </suppressions>

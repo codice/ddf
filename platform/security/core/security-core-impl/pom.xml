@@ -234,6 +234,7 @@
                             !org.mockito*,
                             !org.hamcrest*,
                             !org.junit*,
+                            net.minidev.*;version="${json-smart.version}",
                             *
                         </Import-Package>
                     </instructions>

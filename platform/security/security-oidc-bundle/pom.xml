@@ -133,6 +133,7 @@
                             !org.opensaml.*,
                             !org.springframework.security.crypto.password,
                             !com.nimbusds.jose.shaded.json,
+                            net.minidev.*;version="${json-smart.version}",
                             *
                         </Import-Package>
                         <Export-Package>
