@@ -19,7 +19,7 @@
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
 
-    <bean id="errorPage" class="org.codice.ddf.platform.error.servlet.ErrorServlet" init-method="init" />
+    <bean id="errorPage" class="org.codice.ddf.platform.error.servlet.ErrorServlet" init-method="init" scope="prototype"/>
 
     <service interface="javax.servlet.Servlet" ref="errorPage">
         <service-properties>

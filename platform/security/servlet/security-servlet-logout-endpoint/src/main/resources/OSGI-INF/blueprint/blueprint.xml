@@ -19,15 +19,17 @@
 
     <reference id="logoutService" interface="org.codice.ddf.security.logout.service.LogoutService"/>
 
-    <bean id="logoutServiceEndpoint" class="org.codice.ddf.security.logout.endpoint.LogoutEndpoint">
+    <bean id="logoutServiceEndpoint" class="org.codice.ddf.security.logout.endpoint.LogoutEndpoint" scope="prototype">
         <argument ref="logoutService"/>
     </bean>
 
     <service ref="logoutServiceEndpoint" interface="javax.servlet.Servlet">
         <service-properties>
-            <entry key="osgi.http.whiteboard.servlet.pattern" value="/actions/*"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/services/logout/actions/*"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="logoutServiceServlet"/>
-            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.name=servicesLogoutContextHelper)"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.name=ddfDefaultContext)"/>
+            <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
+            <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
         </service-properties>
     </service>
 

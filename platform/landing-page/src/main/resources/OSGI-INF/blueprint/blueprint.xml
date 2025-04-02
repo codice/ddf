@@ -20,14 +20,15 @@
     <service id="resources" ref="resourceMapping"
              interface="org.ops4j.pax.web.service.whiteboard.ResourceMapping">
             <service-properties>
-                <entry key="osgi.http.whiteboard.servlet.pattern" value="/landing"/>
-                <entry key="osgi.http.whiteboard.servlet.name" value="landingpage"/>
+                <entry key="osgi.http.whiteboard.resource.pattern" value="/landing/assets/*"/>
+                <entry key="osgi.http.whiteboard.resource.prefix" value="assets"/>
+                <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.name=ddfDefaultContext)"/>
             </service-properties>
     </service>
 
     <reference id="resourceBundleLocator" interface="ddf.platform.resource.bundle.locator.ResourceBundleLocator"/>
 
-    <bean id="landingPage" class="org.codice.ddf.landing.LandingPage">
+    <bean id="landingPage" class="org.codice.ddf.landing.LandingPage" scope="prototype">
         <cm:managed-properties persistent-id="org.codice.ddf.distribution.landingpage.properties"
                                update-strategy="container-managed"/>
         <property name="branding" ref="brandingRegistry"/>
@@ -53,6 +54,9 @@
         <service-properties>
             <entry key="osgi.http.whiteboard.servlet.pattern" value="/"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="LandingPage"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.name=ddfDefaultContext)"/>
+            <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
+            <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
         </service-properties>
     </service>
 

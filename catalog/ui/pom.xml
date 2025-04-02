@@ -27,7 +27,6 @@
     <modules>
         <module>search-ui</module>
         <module>search-ui-app</module>
-
     </modules>
     <dependencyManagement>
         <dependencies>

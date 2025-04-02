@@ -124,6 +124,7 @@
         <bundle>mvn:ddf.catalog.rest/catalog-rest-service-impl/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.rest/catalog-rest-impl/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.rest/catalog-rest-endpoint/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.rest/ddf-default-context/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-opensearch" version="${project.version}">
