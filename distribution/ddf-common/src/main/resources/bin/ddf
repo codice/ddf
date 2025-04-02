@@ -20,7 +20,7 @@ GET=${SCRIPTDIR}/get_property
 if [ -z $EXTRA_JAVA_OPTS]
     EXTRA_JAVA_OPTS="-Xlog:gc*=info:file=${HOME_DIR}/data/log/gc.log:time,uptime,level,tags:filecount=9,filesize=20m"
 else
-    EXTRA_JAVA_OPTS="$EXTRA_JAVA_OPTS -Xlog:gc*=info:file=${HOME_DIR}/data/log/gc.log:time,uptime,level,tags:filecount=9,filesize=20m"
+    EXTRA_JAVA_OPTS="-Xlog:gc*=info:file=${HOME_DIR}/data/log/gc.log:time,uptime,level,tags:filecount=9,filesize=20m $EXTRA_JAVA_OPTS"
 fi
 export EXTRA_JAVA_OPTS
 
