@@ -134,23 +134,15 @@ abstract class AbstractFeatureConverterWfs11 extends AbstractFeatureConverter
     return ser;
   }
 
-  private Geometry readGml(String xml) {
-    LOGGER.debug("readGml() input XML: {}", xml);
-    // Add namespace into XML for processing
-    DocumentBuilder dBuilder;
-    Document doc = null;
-    Object gml = null;
+  /**
+   * Converts the GML XML document to a JTS Geometry using the Geotools libraries
+   *
+   * @param doc - the document that is expected to be a valid GML 3.1.1 compliant XML doc
+   * @return JTS Geometry representing the GML
+   */
+  protected Geometry readGml(Document doc) {
     InputStream xmlIs;
-
-    // Check if GML 3.1.1 namespace exist on XML chunk
-    try {
-      dBuilder = XML_UTILS.getSecureDocumentBuilder(false);
-      InputSource is = new InputSource();
-      is.setCharacterStream(new StringReader(xml));
-      doc = dBuilder.parse(is);
-    } catch (ParserConfigurationException | SAXException | IOException e) {
-      LOGGER.debug(XML_PARSE_FAILURE, e);
-    }
+    Object gml = null;
 
     if (null != doc) {
       String[] namePrefix = doc.getDocumentElement().getNodeName().split(":");
@@ -191,14 +183,38 @@ abstract class AbstractFeatureConverterWfs11 extends AbstractFeatureConverter
       try {
         gml = parser.parse(xmlIs);
       } catch (IOException | SAXException | ParserConfigurationException e) {
-        LOGGER.debug("{} {}", GML_FAILURE, xml, e);
+        LOGGER.debug("{}", GML_FAILURE, e);
       }
     }
 
     return gml instanceof Geometry ? (Geometry) gml : null;
   }
 
-  private void swapCoordinates(Geometry geo) {
+  /**
+   * Converts the GML XML document String to a JTS Geometry using the Geotools libraries
+   *
+   * @param xml - a document that is expected to be a valid GML 3.1.1 compliant XML doc
+   * @return JTS Geometry representing the GML
+   */
+  protected Geometry readGml(String xml) {
+    LOGGER.debug("readGml() input XML: {}", xml);
+    // Add namespace into XML for processing
+    DocumentBuilder dBuilder;
+    Document doc = null;
+
+    // Check if GML 3.1.1 namespace exist on XML chunk
+    try {
+      dBuilder = XML_UTILS.getSecureDocumentBuilder(false);
+      InputSource is = new InputSource();
+      is.setCharacterStream(new StringReader(xml));
+      doc = dBuilder.parse(is);
+    } catch (ParserConfigurationException | SAXException | IOException e) {
+      LOGGER.debug(XML_PARSE_FAILURE, e);
+    }
+    return readGml(doc);
+  }
+
+  protected void swapCoordinates(Geometry geo) {
     LOGGER.trace("Swapping Lat/Lon Coords to Lon/Lat using Geometry: {}", geo);
 
     geo.apply(
