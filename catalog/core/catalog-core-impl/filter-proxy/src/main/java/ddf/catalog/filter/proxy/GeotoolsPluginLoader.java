@@ -16,6 +16,7 @@ package ddf.catalog.filter.proxy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import org.geotools.data.DataAccessFactory;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.FunctionExpression;
@@ -434,6 +435,10 @@ public class GeotoolsPluginLoader {
             } else if (CRSFactory.class.isAssignableFrom(aClass)) {
               return (Iterator<T>)
                   Collections.singletonList(new ReferencingObjectFactory()).iterator();
+            } else if (DataAccessFactory.class.isAssignableFrom(aClass)) {
+              return (Iterator<T>)
+                  Arrays.asList(new org.geotools.data.shapefile.ShapefileDataStoreFactory())
+                      .iterator();
             } else {
               return null;
             }
