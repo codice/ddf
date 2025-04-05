@@ -235,9 +235,6 @@
         <feature>javax-inject</feature>
         <bundle>wrap:mvn:org.geotools/gt-opengis/${org.geotools.version}$Bundle-Name=gt-opengis&amp;Bundle-SymbolicName=gt-opengis</bundle>
         <bundle>wrap:mvn:org.geotools/gt-main/${org.geotools.version}$Bundle-Name=gt-main&amp;Bundle-SymbolicName=gt-main</bundle>
-        <bundle>wrap:mvn:org.geotools/gt-csv/${org.geotools.version}$Bundle-Name=gt-csv&amp;Bundle-SymbolicName=gt-csv</bundle>
-        <bundle>wrap:mvn:org.geotools/gt-shapefile/${org.geotools.version}$Bundle-Name=gt-shapefile&amp;Bundle-SymbolicName=gt-shapefile</bundle>
-        <bundle>wrap:mvn:org.geotools/gt-app-schema/${org.geotools.version}$Bundle-Name=gt-app-schema&amp;Bundle-SymbolicName=gt-app-schema</bundle>
         <bundle>wrap:mvn:org.geotools/gt-cql/${org.geotools.version}$Bundle-Name=gt-cql&amp;Bundle-SymbolicName=gt-cql</bundle>
         <bundle>wrap:mvn:org.geotools/gt-xml/${org.geotools.version}$Bundle-Name=gt-xml&amp;Bundle-SymbolicName=gt-xml</bundle>
         <bundle>wrap:mvn:org.picocontainer/picocontainer/1.2$Bundle-Name=picocontainer&amp;Bundle-SymbolicName=picocontainer</bundle>

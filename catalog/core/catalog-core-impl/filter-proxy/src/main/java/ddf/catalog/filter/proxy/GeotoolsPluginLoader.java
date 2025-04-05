@@ -437,10 +437,7 @@ public class GeotoolsPluginLoader {
                   Collections.singletonList(new ReferencingObjectFactory()).iterator();
             } else if (DataAccessFactory.class.isAssignableFrom(aClass)) {
               return (Iterator<T>)
-                  Arrays.asList(
-                          new org.geotools.data.complex.AppSchemaDataAccessFactory(),
-                          new org.geotools.data.csv.CSVDataStoreFactory(),
-                          new org.geotools.data.shapefile.ShapefileDataStoreFactory())
+                  Arrays.asList(new org.geotools.data.shapefile.ShapefileDataStoreFactory())
                       .iterator();
             } else {
               return null;

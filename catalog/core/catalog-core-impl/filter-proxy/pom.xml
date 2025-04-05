@@ -40,16 +40,6 @@
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-app-schema</artifactId>
-            <version>${org.geotools.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-csv</artifactId>
-            <version>${org.geotools.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
             <version>${org.geotools.version}</version>
         </dependency>
