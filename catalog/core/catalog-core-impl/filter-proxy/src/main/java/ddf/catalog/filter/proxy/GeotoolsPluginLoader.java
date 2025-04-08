@@ -37,6 +37,8 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Function;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CRSFactory;
+import org.opengis.referencing.datum.DatumFactory;
+import org.opengis.referencing.operation.MathTransformFactory;
 
 public class GeotoolsPluginLoader {
 
@@ -439,6 +441,18 @@ public class GeotoolsPluginLoader {
               return (Iterator<T>)
                   Arrays.asList(new org.geotools.data.shapefile.ShapefileDataStoreFactory())
                       .iterator();
+            } else if (DatumFactory.class.isAssignableFrom(aClass)) {
+              return (Iterator<T>)
+                  Arrays.asList(
+                          new org.geotools.referencing.factory.ReferencingObjectFactory(),
+                          new org.geotools.referencing.factory.DatumAliases())
+                      .iterator();
+            } else if (MathTransformFactory.class.isAssignableFrom(aClass)) {
+              return (Iterator<T>)
+                  Arrays.asList(
+                          new org.geotools.referencing.operation.DefaultMathTransformFactory())
+                      .iterator();
+
             } else {
               return null;
             }
