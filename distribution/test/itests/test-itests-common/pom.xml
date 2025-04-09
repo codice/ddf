@@ -196,6 +196,7 @@
                         </Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Import-Package>
+                            ddf.security,
                             org.junit.*,
                             org.hamcrest.*;version=1.3,
                             org.awaitility.*,
