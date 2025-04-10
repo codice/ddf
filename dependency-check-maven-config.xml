@@ -335,4 +335,15 @@
         <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@2\.3\.2$</packageUrl>
         <cpe>cpe:/a:softwareag:quartz</cpe>
     </suppress>
+    <suppress>
+        <notes>
+            These CVEs are for spring framework, but as a transitive dependency of Apache CXF. The CVEs
+            require untrusted user data reaching the spring expression library. However, there is no way
+            in DDF for a user to inject user data via CXF.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-(tx|aop|jcl|beans|core|expression|context)@5\.3\.27$</packageUrl>
+        <cve>CVE-2016-1000027</cve>
+        <cve>CVE-2024-38808</cve>
+        <cve>CVE-2024-38820</cve>
+    </suppress>
 </suppressions>
