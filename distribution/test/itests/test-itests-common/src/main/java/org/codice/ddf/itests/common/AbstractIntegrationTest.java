@@ -716,6 +716,11 @@ public abstract class AbstractIntegrationTest {
     return options(
         mavenBundle(
             "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
+        // The version of the xalan bundle is an old version. This is the only way we could get
+        // some itests to work. It seems to be a classloader problem that only occurs in a
+        // pax-exam setup.
+        mavenBundle(
+            "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xalan", "2.7.2_1"),
         mavenBundle("commons-lang", "commons-lang", "2.6"),
         junitBundles(),
         features(

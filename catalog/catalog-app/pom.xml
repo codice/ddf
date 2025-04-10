@@ -705,5 +705,25 @@
             <artifactId>org.apache.servicemix.bundles.poi</artifactId>
             <version>${servicemix.bundles.poi.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xalan</artifactId>
+            <version>${xalan.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xalan-serializer</artifactId>
+            <version>${xalan.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xerces</artifactId>
+            <version>${xerces.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>serializer</artifactId>
+            <version>${xalan.version}</version>
+        </dependency>
     </dependencies>
 </project>
