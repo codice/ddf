@@ -109,12 +109,6 @@
             <artifactId>hibernate-core</artifactId>
             <version>5.4.24.Final</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.calcite</groupId>
-            <artifactId>calcite-core</artifactId>
-            <version>1.37.0</version>
-        </dependency>
-
         <!--feature dependencies-->
         <dependency>
             <groupId>ddf.features</groupId>
