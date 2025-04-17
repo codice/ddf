@@ -18,7 +18,7 @@
 
     <bean id="docsSparkApp" class="org.codice.ui.admin.docs.DocsSparkApplication"/>
     <bean id="docsReqSupplier" class="org.codice.ui.admin.docs.DocsRequestSupplier"/>
-    <bean id="documentation" class="org.codice.ui.admin.docs.SparkServlet" scope="prototype">
+    <bean id="documentation" class="org.codice.ui.admin.docs.SparkServlet">
         <property name="sparkApplications">
             <list>
                 <ref component-id="docsSparkApp"/>
@@ -32,7 +32,7 @@
         <service-properties>
             <entry key="osgi.http.whiteboard.servlet.pattern" value="/admin/documentation/*"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="adminDocumentation"/>
-            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.name=ddfDefaultContext)"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
             <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
             <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
             <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>

@@ -34,7 +34,7 @@ public class Activator implements BundleActivator {
     DefaultSecurityConfigurationMapping security = new DefaultSecurityConfigurationMapping();
     security.setAuthMethod(AUTH_METHOD);
     security.setRealmName(REALM_NAME);
-    security.setContextSelectFilter("(osgi.http.whiteboard.context.path=/*)");
+    security.setContextSelectFilter("(osgi.http.whiteboard.context.name=*)");
     bundleContext.registerService(SecurityConfigurationMapping.class, security, null);
   }
 

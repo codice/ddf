@@ -50,6 +50,11 @@
             <artifactId>pax-web-extender-whiteboard</artifactId>
             <version>${pax.web.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.enterprise</artifactId>
+            <version>${osgi.enterprise.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -61,9 +66,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
-                        <Bundle-Activator>
-                            org.codice.ddf.rest.ddf.context.Activator
-                        </Bundle-Activator>
                     </instructions>
                 </configuration>
             </plugin>

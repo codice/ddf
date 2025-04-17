@@ -13,7 +13,10 @@
  */
 package org.codice.ddf.rest.ddf.context;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.http.whiteboard.propertytypes.HttpWhiteboardContext;
 
 //
 // <bean id="ddfDefaultContextHelper" class="org.codice.ddf.rest.ddf.context.DdfDefaultContext"
@@ -31,6 +34,6 @@ import org.osgi.service.http.context.ServletContextHelper;
 //
 // </service>
 
-// @Component(service = ServletContextHelper.class, scope = ServiceScope.BUNDLE)
-// @HttpWhiteboardContext(name = "ddfDefaultContext", path = "/")
+@Component(service = ServletContextHelper.class, scope = ServiceScope.BUNDLE)
+@HttpWhiteboardContext(name = "ddfDefaultContext", path = "/")
 public class DdfDefaultContext extends ServletContextHelper {}

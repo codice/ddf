@@ -15,14 +15,14 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <bean id="prometheusmetrics" class="org.codice.ddf.metrics.endpoint.PrometheusMetricsEndpoint" scope="prototype"/>
+    <bean id="prometheusmetrics" class="org.codice.ddf.metrics.endpoint.PrometheusMetricsEndpoint" />
 
     <service interface="javax.servlet.Servlet" ref="prometheusmetrics">
         <service-properties>
             <entry key="osgi.http.whiteboard.servlet.pattern" value="/metrics/*"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="prometheusmetrics"/>
             <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
-            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.name=ddfDefaultContext)"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
             <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
             <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
         </service-properties>
