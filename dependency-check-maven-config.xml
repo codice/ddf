@@ -349,7 +349,7 @@
             These CVEs are a false positive. The CVEs apply to previous versions of mime4j libraries, but
             not the version used in this project.
         </notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.james/apache\-mime4j\-.*@0\.8\.12$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.james/apache\-mime4j\-(core|dom)@0\.8\.12$</packageUrl>
         <cve>CVE-2021-38542</cve>
         <cve>CVE-2021-40110</cve>
         <cve>CVE-2021-40111</cve>
