@@ -128,11 +128,6 @@
         <!-- BEGIN: Tika dependencies -->
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-bundle-standard</artifactId>
-            <version>${tika.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
             <version>${tika.version}</version>
         </dependency>
