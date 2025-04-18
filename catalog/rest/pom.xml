@@ -29,6 +29,5 @@
         <module>catalog-rest-endpoint</module>
         <module>catalog-rest-service-impl</module>
         <module>catalog-rest-api</module>
-        <module>ddf-default-context</module>
     </modules>
 </project>

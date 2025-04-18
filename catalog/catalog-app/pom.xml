@@ -701,11 +701,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>ddf-default-context</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.poi</artifactId>
             <version>${servicemix.bundles.poi.version}</version>
