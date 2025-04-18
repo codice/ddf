@@ -379,17 +379,17 @@
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-spi</artifactId>
+            <version>${pax.web.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>osgi.core</artifactId>
-            <scope>compile</scope>
+            <version>${osgi.enterprise.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>osgi.cmpn</artifactId>
-            <version>7.0.0</version>
-            <scope>compile</scope>
+            <version>${osgi.compendium.version}</version>
         </dependency>
     </dependencies>
     <modules>

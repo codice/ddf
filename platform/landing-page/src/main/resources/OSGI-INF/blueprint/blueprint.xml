@@ -55,8 +55,6 @@
             <entry key="osgi.http.whiteboard.servlet.pattern" value="/"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="LandingPage"/>
             <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
-            <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
-            <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
         </service-properties>
     </service>
 

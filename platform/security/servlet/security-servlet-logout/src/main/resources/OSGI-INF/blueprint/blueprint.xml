@@ -52,8 +52,6 @@
             <entry key="osgi.http.whiteboard.servlet.pattern" value="/logout/local/*"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="localLogout"/>
             <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
-            <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
-            <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
             <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
     </service>
