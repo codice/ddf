@@ -38,7 +38,7 @@
              interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="100">
         <service-properties>
             <entry key="osgi.http.whiteboard.filter.name" value="token-filter"/>
-            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/*)"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
         </service-properties>
     </service>
 
