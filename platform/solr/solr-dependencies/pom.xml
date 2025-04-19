@@ -56,11 +56,6 @@
             <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty.http2</groupId>
-            <artifactId>http2-client</artifactId>
-            <version>${solr.jetty.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${solr.httpclient.version}</version>
@@ -145,7 +140,6 @@
                             solr-solrj,
                             solr-solrj-zookeeper,
                             commons-io,
-                            http2-client,
                             httpmime,
                             zookeeper,
                             zookeeper-jute
