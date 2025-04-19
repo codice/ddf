@@ -514,6 +514,16 @@
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers-standard-package</artifactId>
                 <version>${tika.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.james</groupId>
+                        <artifactId>apache-mime4j-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.james</groupId>
+                        <artifactId>apache-mime4j-dom</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- BEGIN: JTS dependencies -->

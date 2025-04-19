@@ -327,6 +327,39 @@
     </suppress>
     <suppress>
         <notes>
+            These CVEs are a false positive. They apply to transitive dependencies for tika-bundle-standard 2.4.0.
+            However, these transitive dependencies are not actually imported into the system. In addition, the maven
+            webpage for this version of tika-bundle-standard does not list any CVEs.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tika/tika\-bundle\-standard@2\.4\.0.*$</packageUrl>
+        <cve>CVE-2021-38542</cve>
+        <cve>CVE-2021-40110</cve>
+        <cve>CVE-2021-40111</cve>
+        <cve>CVE-2021-40525</cve>
+        <cve>CVE-2022-28220</cve>
+        <cve>CVE-2022-45787</cve>
+        <cve>CVE-2022-45935</cve>
+        <cve>CVE-2023-26269</cve>
+        <cve>CVE-2024-21742</cve>
+        <cve>CVE-2021-37533</cve>
+        <cve>CVE-2024-47554</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            These CVEs are a false positive. The CVEs apply to previous versions of mime4j libraries, but
+            not the version used in this project.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.james/apache\-mime4j\-(core|dom)@0\.8\.12$</packageUrl>
+        <cve>CVE-2021-38542</cve>
+        <cve>CVE-2021-40110</cve>
+        <cve>CVE-2021-40111</cve>
+        <cve>CVE-2021-40525</cve>
+        <cve>CVE-2022-28220</cve>
+        <cve>CVE-2022-45935</cve>
+        <cve>CVE-2023-26269</cve>
+    </suppress>
+    <suppress>
+        <notes>
             This CVE concerns the possibility of users injecting executable data. However,
             only the admin can specify the command to be executed via platform-scheduler.
             Also, the CVE notes that experts do not agree if a user could inject data to
