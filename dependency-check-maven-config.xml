@@ -380,4 +380,13 @@
         <cve>CVE-2024-38808</cve>
         <cve>CVE-2024-38820</cve>
     </suppress>
+    <suppress>
+        <notes>
+            The CVE is for Apache soap, but is being reported against cxf-rt-bindings-soap,
+            which is a different library. Confirmation https://github.com/dependency-check/DependencyCheck/issues/5543
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-bindings\-soap@.*$</packageUrl>
+        <cpe>cpe:/a:apache:soap</cpe>
+        <cve>CVE-2016-10750</cve>
+    </suppress>
 </suppressions>
