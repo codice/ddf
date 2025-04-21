@@ -61,6 +61,7 @@ public class SecureWebSocketServlet implements WebSocketCreator {
     return new SocketWrapper(executor, ws, sessionPlugins, servletUpgradeRequest.getSession());
   }
 
+  @org.eclipse.jetty.websocket.api.annotations.WebSocket
   public static class SocketWrapper {
 
     private final WebSocket ws;
