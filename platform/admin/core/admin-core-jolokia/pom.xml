@@ -49,6 +49,11 @@
             <artifactId>pax-web-extender-whiteboard</artifactId>
             <version>${pax.web.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>${json-simple.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -62,6 +67,8 @@
                         <Export-Package />
                         <Import-Package>
                             org.jboss.mx.util;resolution:=optional,
+                            org.json.simple;version="[1.1,2)",
+                            org.json.simple.parser;version="[1.1,2)",
                             *
                         </Import-Package>
                     </instructions>

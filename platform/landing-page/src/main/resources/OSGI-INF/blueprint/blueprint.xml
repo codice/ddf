@@ -20,8 +20,9 @@
     <service id="resources" ref="resourceMapping"
              interface="org.ops4j.pax.web.service.whiteboard.ResourceMapping">
             <service-properties>
-                <entry key="osgi.http.whiteboard.servlet.pattern" value="/landing"/>
-                <entry key="osgi.http.whiteboard.servlet.name" value="landingpage"/>
+                <entry key="osgi.http.whiteboard.resource.pattern" value="/landing/assets/*"/>
+                <entry key="osgi.http.whiteboard.resource.prefix" value="assets"/>
+                <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
             </service-properties>
     </service>
 
@@ -53,6 +54,7 @@
         <service-properties>
             <entry key="osgi.http.whiteboard.servlet.pattern" value="/"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="LandingPage"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
         </service-properties>
     </service>
 

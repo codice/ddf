@@ -76,6 +76,7 @@
 
     <feature name="admin-core" version="${project.version}"
              description="Administration Tools">
+        <feature>pax-web-http-whiteboard</feature>
         <feature>sync-installer</feature>
         <feature>security-core-services</feature>
         <feature>camel-core</feature>

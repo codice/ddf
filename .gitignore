@@ -42,3 +42,4 @@ buildNumber.properties
 .mvn/timing.properties
 coverage/
 .nyc_output
+**/.java-version

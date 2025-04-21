@@ -22,6 +22,7 @@
             <entry key="osgi.http.whiteboard.servlet.pattern" value="/metrics/*"/>
             <entry key="osgi.http.whiteboard.servlet.name" value="prometheusmetrics"/>
             <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
         </service-properties>
     </service>
 

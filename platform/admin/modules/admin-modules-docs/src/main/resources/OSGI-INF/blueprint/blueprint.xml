@@ -30,9 +30,9 @@
 
     <service ref="documentation" interface="javax.servlet.Servlet">
         <service-properties>
-            <entry key="osgi.http.whiteboard.servlet.pattern" value="/*"/>
-            <entry key="osgi.http.whiteboard.servlet.name" value="documentation"/>
-            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.name=adminDocsContext)"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/admin/documentation/*"/>
+            <entry key="osgi.http.whiteboard.servlet.name" value="adminDocumentation"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
             <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
     </service>
