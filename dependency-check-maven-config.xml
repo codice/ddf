@@ -365,7 +365,7 @@
             Also, the CVE notes that experts do not agree if a user could inject data to
             reach the code location where injection must occur.
         </notes>
-        <packageUrl regex="true">^pkg:maven/org\.quartz\-(scheduler|jobs)/quartz@2\.3\.2$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz.*@2\.3\.2$</packageUrl>
         <cpe>cpe:/a:softwareag:quartz</cpe>
         <cve>CVE-2023-39017</cve>
     </suppress>
