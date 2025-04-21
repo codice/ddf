@@ -29,12 +29,12 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
-import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
+import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
+import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SecureWebSocketServlet extends WebSocketServlet {
+public class SecureWebSocketServlet implements WebSocketCreator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SecureWebSocketServlet.class);
 
@@ -51,15 +51,14 @@ public class SecureWebSocketServlet extends WebSocketServlet {
     this.sessionPlugins = sessionPlugins;
   }
 
-  @Override
   public void destroy() {
     executor.shutdown();
   }
 
   @Override
-  public void configure(WebSocketServletFactory factory) {
-    factory.setCreator(
-        (req, resp) -> new SocketWrapper(executor, ws, sessionPlugins, req.getSession()));
+  public Object createWebSocket(
+      ServletUpgradeRequest servletUpgradeRequest, ServletUpgradeResponse servletUpgradeResponse) {
+    return new SocketWrapper(executor, ws, sessionPlugins, servletUpgradeRequest.getSession());
   }
 
   @org.eclipse.jetty.websocket.api.annotations.WebSocket
