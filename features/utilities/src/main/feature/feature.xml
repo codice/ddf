@@ -258,6 +258,7 @@
         <bundle>mvn:systems.uom/systems-quantity/2.0.1</bundle>
         <bundle>wrap:mvn:systems.uom/systems-common/2.0.2$overwrite=merge&amp;Bundle-Name=systems-common&amp;Bundle-SymbolicName=systems-common&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
         <bundle>mvn:javax.measure/unit-api/2.0</bundle>
+        <bundle>wrap:mvn:org.hsqldb/hsqldb/${geotools-hsql.version}/jar/jdk8</bundle>
     </feature>
 
     <feature name="utilities-all" version="${project.version}">

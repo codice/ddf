@@ -37,6 +37,7 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Function;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CRSFactory;
+import org.opengis.referencing.cs.CSFactory;
 import org.opengis.referencing.datum.DatumFactory;
 import org.opengis.referencing.operation.MathTransformFactory;
 
@@ -45,6 +46,7 @@ public class GeotoolsPluginLoader {
   public GeotoolsPluginLoader() {
     GeoTools.addClassLoader(DefaultFunctionFactory.class.getClassLoader());
     GeoTools.addClassLoader(CRSFactory.class.getClassLoader());
+    GeoTools.addClassLoader(CSFactory.class.getClassLoader());
     GeoTools.addFactoryIteratorProvider(
         new FactoryIteratorProvider() {
           @Override
@@ -424,16 +426,12 @@ public class GeotoolsPluginLoader {
                       .iterator();
             } else if (CRSAuthorityFactory.class.isAssignableFrom(aClass)) {
               return (Iterator<T>)
-                  Arrays.asList(
-                          new org.geotools.referencing.factory.epsg.FactoryUsingWKT(),
-                          new org.geotools.referencing.factory.epsg.LongitudeFirstFactory(),
-                          new org.geotools.referencing.factory.epsg.CartesianAuthorityFactory(),
-                          new org.geotools.referencing.factory.wms.AutoCRSFactory(),
-                          new org.geotools.referencing.factory.wms.WebCRSFactory(),
-                          new org.geotools.referencing.factory.URN_AuthorityFactory(),
-                          new org.geotools.referencing.factory.HTTP_AuthorityFactory(),
-                          new org.geotools.referencing.factory.HTTP_URI_AuthorityFactory())
+                  Collections.singletonList(
+                          new org.geotools.referencing.factory.epsg.hsql.ThreadedHsqlEpsgFactory())
                       .iterator();
+            } else if (CSFactory.class.isAssignableFrom(aClass)) {
+              return (Iterator<T>)
+                  Collections.singletonList(new ReferencingObjectFactory()).iterator();
             } else if (CRSFactory.class.isAssignableFrom(aClass)) {
               return (Iterator<T>)
                   Collections.singletonList(new ReferencingObjectFactory()).iterator();

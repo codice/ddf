@@ -43,9 +43,11 @@ import net.opengis.ows.v_1_0_0.Operation;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.geotools.util.factory.Hints;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -610,6 +612,13 @@ public class CswCqlFilterTest {
     operations.add(getRecords);
 
     return getRecords;
+  }
+
+  @Before
+  public void setup() {
+    Hints.putSystemDefault(
+        Hints.CRS_AUTHORITY_FACTORY,
+        "org.geotools.referencing.factory.epsg.hsql.ThreadedHsqlEpsgFactory");
   }
 
   /**
