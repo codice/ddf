@@ -81,7 +81,7 @@ Set `karaf.shutdown.port=-1` in `${home_directory}/etc/custom.properties` or `${
 
 |SSL/TLS
 |man-in-the-middle, information disclosure
-a|Update the `${home_directory}/etc/org.ops4j.pax.web.cfg` file to add the entry `org.ops4j.pax.web.ssl.clientauthneeded=true`.
+a|Update the `${home_directory}/etc/org.ops4j.pax.web.cfg` file to add the entry `org.ops4j.pax.web.ssl.clientauth.needed=true`.
 
 [WARNING]
 ====
