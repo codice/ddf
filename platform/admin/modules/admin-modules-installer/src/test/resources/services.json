@@ -731,7 +731,7 @@
           "cardinality": 0
         },
         {
-          "id": "org.ops4j.pax.web.ssl.clientauthwanted",
+          "id": "org.ops4j.pax.web.ssl.clientauth.wanted",
           "optionLabels": [],
           "description": null,
           "optionValues": [],
@@ -743,7 +743,7 @@
           "cardinality": 0
         },
         {
-          "id": "org.ops4j.pax.web.ssl.clientauthneeded",
+          "id": "org.ops4j.pax.web.ssl.clientauth.needed",
           "optionLabels": [],
           "description": null,
           "optionValues": [],
@@ -1006,7 +1006,7 @@
             "org.ops4j.pax.web.ssl.keystore.type": "jks",
             "org.osgi.service.http.port.secure": "8993",
             "org.osgi.service.http.secure.enabled": "true",
-            "org.ops4j.pax.web.ssl.clientauthwanted": "true",
+            "org.ops4j.pax.web.ssl.clientauth.wanted": "true",
             "org.ops4j.pax.web.ssl.keypassword": "changeit",
             "org.ops4j.pax.web.ssl.keystore": "etc/keystores/serverKeystore.jks",
             "org.osgi.service.http.enabled": "true",
