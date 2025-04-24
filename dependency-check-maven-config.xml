@@ -365,7 +365,7 @@
             Also, the CVE notes that experts do not agree if a user could inject data to
             reach the code location where injection must occur.
         </notes>
-        <packageUrl regex="true">^pkg:maven/org\.quartz\-(scheduler|jobs)/quartz@2\.3\.2$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz.*@2\.3\.2$</packageUrl>
         <cpe>cpe:/a:softwareag:quartz</cpe>
         <cve>CVE-2023-39017</cve>
     </suppress>
@@ -379,5 +379,14 @@
         <cve>CVE-2016-1000027</cve>
         <cve>CVE-2024-38808</cve>
         <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            The CVE is for Apache soap, but is being reported against cxf-rt-bindings-soap,
+            which is a different library. Confirmation https://github.com/dependency-check/DependencyCheck/issues/5543
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-bindings\-soap@.*$</packageUrl>
+        <cpe>cpe:/a:apache:soap</cpe>
+        <cve>CVE-2016-10750</cve>
     </suppress>
 </suppressions>
