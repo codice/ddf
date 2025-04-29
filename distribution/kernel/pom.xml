@@ -421,9 +421,9 @@
             <version>${servicemix.specs.jaxb.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.jaxb-runtime</artifactId>
-            <version>${servicemix.bundles.jaxb.version}</version>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>${glassfish.bundles.jaxb.version}</version>
         </dependency>
     </dependencies>
 </project>

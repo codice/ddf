@@ -23,7 +23,7 @@
              description="Platform Utilities">
         <feature>dev-failsafe</feature>
         <feature>common-system</feature>
-        <feature>spring</feature>
+        <feature version="${spring.feature.version}">spring</feature>
         <feature>guava</feature>
         <bundle>mvn:ddf.platform.util/platform-util/${project.version}</bundle>
     </feature>
@@ -82,7 +82,7 @@
              description="MIME Core">
         <feature>mime-core-api</feature>
         <feature>guava</feature>
-        <feature>spring</feature>
+        <feature version="${spring.feature.version}">spring</feature>
         <feature>common-system</feature>
         <feature>slf4j</feature>
         <feature>platform-util</feature>

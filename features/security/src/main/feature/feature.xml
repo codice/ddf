@@ -141,7 +141,7 @@
     <feature name="security-core-services-dependencies" version="${project.version}"
              description="Dependencies for core security services.">
         <!-- Third Party Features -->
-        <feature>spring</feature>
+        <feature version="${spring.feature.version}">spring</feature>
         <feature>war</feature>
         <feature>pax-web-jetty</feature>
         <feature>pax-web-http-jetty</feature>

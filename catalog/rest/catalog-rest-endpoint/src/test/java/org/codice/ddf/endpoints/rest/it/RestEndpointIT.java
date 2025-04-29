@@ -258,10 +258,7 @@ public class RestEndpointIT extends AbstractComponentTest {
             mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.2")
                 .versionAsInProject()
                 .startLevel(13),
-            mavenBundle(
-                    "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.jaxb-runtime")
-                .versionAsInProject()
-                .startLevel(14));
+            mavenBundle("org.glassfish.jaxb", "jaxb-runtime").versionAsInProject().startLevel(14));
         return options;
       }
     };
