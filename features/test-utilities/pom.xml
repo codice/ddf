@@ -34,7 +34,6 @@
             <artifactId>rest-assured</artifactId>
             <version>${restassured.version}</version>
         </dependency>
-
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>sync-installer-api</artifactId>

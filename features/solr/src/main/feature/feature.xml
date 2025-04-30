@@ -46,7 +46,7 @@
              description="Solr factory">
         <feature>security-core-services</feature>
         <feature>common-system</feature>
-        <feature>spring</feature>
+        <feature version="${spring.feature.version}">spring</feature>
         <feature>solr-factory-api</feature>
         <feature>platform-util</feature>
         <bundle>mvn:ddf.platform.solr/solr-factory-impl/${project.version}</bundle>
