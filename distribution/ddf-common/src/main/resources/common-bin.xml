@@ -349,11 +349,11 @@
         </dependencySet>
         <dependencySet>
             <outputDirectory>
-                system/org/glassfish/jaxb/jaxb-runtime/${glassfish.bundles.jaxb.version}
+                system/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jaxb-runtime/${servicemix.bundles.jaxb.version}
             </outputDirectory>
             <includes>
                 <include>
-                    org.glassfish.jaxb:jaxb-runtime:jar:${glassfish.bundles.jaxb.version}
+                    org.apache.servicemix.bundles:org.apache.servicemix.bundles.jaxb-runtime:jar:${servicemix.bundles.jaxb.version}
                 </include>
             </includes>
         </dependencySet>
