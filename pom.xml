@@ -287,7 +287,6 @@
         <saxon.version>9.6.0-4</saxon.version>
         <servicemix.bundles.poi.version>${poi.version}_2</servicemix.bundles.poi.version>
         <servicemix.bundles.jaxb.version>${jaxb.version}_3</servicemix.bundles.jaxb.version>
-        <glassfish.bundles.jaxb.version>2.3.9</glassfish.bundles.jaxb.version>
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
         <servicemix.specs.jaxb.version>2.9.0</servicemix.specs.jaxb.version>
         <servicemix.specs.version>2.9.0</servicemix.specs.version>
@@ -1515,6 +1514,11 @@
             <artifactId>failsafe-controller</artifactId>
             <version>${codice-test.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jaxb-runtime</artifactId>
+            <version>${servicemix.bundles.jaxb.version}</version>
         </dependency>
     </dependencies>
     <repositories>
