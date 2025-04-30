@@ -47,8 +47,6 @@ import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WebSSOFilterTest {
 
@@ -58,8 +56,6 @@ public class WebSSOFilterTest {
 
   @Test
   public void testInit() {
-    final Logger logger = LoggerFactory.getLogger(WebSSOFilter.class);
-
     AuthenticationHandler handlerMock = mock(AuthenticationHandler.class);
     when(handlerMock.getAuthenticationType()).thenReturn("basic");
 

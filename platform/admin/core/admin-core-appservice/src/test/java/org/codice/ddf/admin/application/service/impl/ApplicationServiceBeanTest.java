@@ -31,8 +31,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.core.Appender;
 import ddf.security.audit.SecurityLogger;
 import java.lang.management.ManagementFactory;
 import java.nio.file.LinkOption;
@@ -80,8 +78,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.util.tracker.ServiceTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ApplicationServiceBeanTest {
   private static final String TEST_FEATURE_DESCRIPTION =
@@ -480,15 +476,8 @@ public class ApplicationServiceBeanTest {
    *
    * @throws Exception
    */
-  // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
   @Test
   public void testGetServicesASE() throws Exception {
-    ch.qos.logback.classic.Logger root =
-        (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    final Appender mockAppender = mock(Appender.class);
-    when(mockAppender.getName()).thenReturn("MOCK");
-    root.addAppender(mockAppender);
-    root.setLevel(Level.ALL);
 
     ApplicationServiceBean serviceBean = newApplicationServiceBean();
 
