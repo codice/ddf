@@ -74,6 +74,7 @@
                         <configuration>
                             <target>
                                 <replaceregexp file="${project.basedir}/target/dependency/apache-camel-${camel.version}-features.xml" match="(&lt;repository&gt;.*&lt;/repository&gt;)" replace="" byline="true" />
+                                <replaceregexp file="${project.basedir}/target/dependency/apache-camel-${camel.version}-features.xml" match="(\[5,6\))" replace="${spring.feature.version}" byline="true" />
                             </target>
                         </configuration>
                     </execution>
