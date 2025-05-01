@@ -384,10 +384,10 @@ public class RestoreCommandTest extends SolrCommandTest {
 
   private void backupSolr() throws Exception {
     setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
-    SolrClient solrClient = miniSolrCloud.getSolrClient();
     miniSolrCloud.waitForAllNodes((int) TimeUnit.MINUTES.toMillis(1));
     BackupCommand backupCommand =
-        getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, solrClient);
+        getSynchronousBackupCommand(
+            getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
     backupCommand.execute();
     String backupName = getBackupName(consoleOutput.getOutput());
     backupFile = Paths.get(backupCommand.backupLocation, backupName).toAbsolutePath().toFile();

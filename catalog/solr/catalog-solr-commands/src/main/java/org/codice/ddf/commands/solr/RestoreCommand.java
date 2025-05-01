@@ -16,6 +16,7 @@ package org.codice.ddf.commands.solr;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -142,7 +143,8 @@ public class RestoreCommand extends SolrCommands {
         CollectionAdminRequest.AsyncCollectionAdminRequest.restoreCollection(collection, backupName)
             .setLocation(backupLocation);
 
-    String syncReqId = restore.processAsync(client);
+    String syncReqId = UUID.randomUUID().toString();
+    restore.processAsync(syncReqId, client);
 
     boolean restoreComplete = false;
 
@@ -177,7 +179,8 @@ public class RestoreCommand extends SolrCommands {
                   collection, backupName)
               .setLocation(backupLocation);
 
-      String requestId = restore.processAsync(client);
+      String requestId = UUID.randomUUID().toString();
+      restore.processAsync(requestId, client);
       LOGGER.debug("Restore request Id: {}", requestId);
       return requestId;
     } else {
