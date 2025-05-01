@@ -629,7 +629,7 @@ public class URLResourceReaderTest {
         ImmutableMap.of("username", "myusername", "password", "mypassword");
     HttpClient client = urlResourceReader.getHttpClient(properties);
 
-    assertNotNull(client.authenticator().get());
+    assertTrue(client.authenticator().isPresent());
   }
 
   private class TestURLResourceReader extends URLResourceReader {

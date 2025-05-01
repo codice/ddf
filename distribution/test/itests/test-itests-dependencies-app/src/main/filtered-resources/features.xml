@@ -49,5 +49,6 @@
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/${hamcrest-all.servicemix.version}
         </bundle>
+        <bundle>mvn:org.apache.groovy/groovy-json/4.0.23</bundle>
     </feature>
 </features>

@@ -86,19 +86,6 @@
 
     <suppress>
         <notes>
-            file name: groovy-2.4.4.jar
-            file name: groovy-xml-2.4.4.jar
-            file name: groovy-json-2.4.4.jar
-
-            DDF uses an old version of REST Assured which pulls in these vulnerable Groovy
-            dependencies. Suppressing since REST Assured and Groovy are only used for testing.
-        </notes>
-        <packageUrl regex="true">^pkg:maven/org\.codehaus\.groovy/groovy.*@2\.4\.4$</packageUrl>
-        <cve>CVE-2016-6814</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
             Ignore all vulnerabilities reported against DDF artifacts. These are false positives.
             Note: CVEs with a score of exactly 10.0 will need to be suppressed separately.
         </notes>

@@ -24,11 +24,13 @@ import static org.codice.ddf.test.common.options.PortOptions.defaultPortsOptions
 import static org.codice.ddf.test.common.options.TestResourcesOptions.getTestResource;
 import static org.codice.ddf.test.common.options.TestResourcesOptions.includeTestResources;
 import static org.codice.ddf.test.common.options.VmOptions.defaultVmOptions;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.osgi.framework.Constants.SERVICE_PID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.util.Dictionary;
@@ -144,11 +146,10 @@ public class ITSynchronizedInstaller {
         syncInstaller.createManagedFactoryService(
             ExampleMSFInstance.FACTORY_PID, props, getExampleBundleLocation());
 
-    assertThat(getServices(ExampleMSFInstance.class).size(), is(1));
-    assertThat(
-        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID),
-        is(createdConfig.getPid()));
-    assertThat(getService(ExampleMSFInstance.class).getExampleProp(), is("testValue"));
+    assertEquals(1, getServices(ExampleMSFInstance.class).size());
+    assertEquals(createdConfig.getPid(),
+            getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID));
+    assertEquals("testValue", getService(ExampleMSFInstance.class).getExampleProp());
   }
 
   @Test
@@ -157,13 +158,11 @@ public class ITSynchronizedInstaller {
         syncInstaller.createManagedFactoryService(
             ExampleMSFInstance.FACTORY_PID, new HashMap<>(), getExampleBundleLocation());
 
-    assertThat(getServices(ExampleMSFInstance.class).size(), is(1));
-    assertThat(
-        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID),
-        is(createdConfig.getPid()));
-    assertThat(
-        getService(ExampleMSFInstance.class).getExampleProp(),
-        is(ExampleMSFInstance.DEFAULT_EXAMPLE_PROP_VALUE));
+    assertEquals(1, getServices(ExampleMSFInstance.class).size());
+    assertEquals(createdConfig.getPid(),
+            getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID));
+    assertEquals(ExampleMSFInstance.DEFAULT_EXAMPLE_PROP_VALUE,
+            getService(ExampleMSFInstance.class).getExampleProp());
   }
 
   @Test
@@ -171,12 +170,11 @@ public class ITSynchronizedInstaller {
     Map<String, Object> newProps = new HashMap<>();
     newProps.put(ExampleService.EXAMPLE_PROP_NAME, "testValue");
     syncInstaller.updateManagedService(ExampleService.PID, newProps, getExampleBundleLocation());
-    assertThat(
+    assertEquals("testValue",
         configAdmin
             .getConfiguration(ExampleService.PID)
             .getProperties()
-            .get(ExampleService.EXAMPLE_PROP_NAME),
-        is("testValue"));
+            .get(ExampleService.EXAMPLE_PROP_NAME));
   }
 
   @Test
@@ -185,29 +183,25 @@ public class ITSynchronizedInstaller {
         syncInstaller.createManagedFactoryService(
             ExampleMSFInstance.FACTORY_PID, new Hashtable<>(), getExampleBundleLocation());
 
-    assertThat(getServices(ExampleMSFInstance.class).size(), is(1));
-    assertThat(
-        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID),
-        is(createdConfig.getPid()));
-    assertThat(
-        getService(ExampleMSFInstance.class).getExampleProp(),
-        is(ExampleMSFInstance.DEFAULT_EXAMPLE_PROP_VALUE));
+    assertEquals(1, getServices(ExampleMSFInstance.class).size());
+    assertEquals(createdConfig.getPid(),
+            getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID));
+    assertEquals(ExampleMSFInstance.DEFAULT_EXAMPLE_PROP_VALUE,
+            getService(ExampleMSFInstance.class).getExampleProp());
 
     Map<String, Object> newProps = new HashMap<>();
     newProps.put(ExampleMSFInstance.EXAMPLE_PROP_NAME, "testValue");
     syncInstaller.updateManagedService(
         createdConfig.getPid(), newProps, getExampleBundleLocation());
 
-    assertThat(getServices(ExampleMSFInstance.class).size(), is(1));
-    assertThat(
-        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID),
-        is(createdConfig.getPid()));
-    assertThat(
+    assertEquals(1, getServices(ExampleMSFInstance.class).size());
+    assertEquals(createdConfig.getPid(),
+            getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID));
+    assertEquals("testValue",
         configAdmin
             .getConfiguration(createdConfig.getPid())
             .getProperties()
-            .get(ExampleMSFInstance.EXAMPLE_PROP_NAME),
-        is("testValue"));
+            .get(ExampleMSFInstance.EXAMPLE_PROP_NAME));
   }
 
   @Test
@@ -238,13 +232,13 @@ public class ITSynchronizedInstaller {
   public void installFeatures() throws Exception {
     featuresService.uninstallFeature(EXAMPLE_FEATURE);
     syncInstaller.installFeatures(EXAMPLE_FEATURE);
-    assertThat(featuresService.isInstalled(featuresService.getFeature(EXAMPLE_FEATURE)), is(true));
+    assertTrue(featuresService.isInstalled(featuresService.getFeature(EXAMPLE_FEATURE)));
   }
 
   @Test
   public void uninstallFeatures() throws Exception {
     syncInstaller.uninstallFeatures(EXAMPLE_FEATURE);
-    assertThat(!featuresService.isInstalled(featuresService.getFeature(EXAMPLE_FEATURE)), is(true));
+    assertFalse(featuresService.isInstalled(featuresService.getFeature(EXAMPLE_FEATURE)));
   }
 
   @Test
@@ -268,14 +262,14 @@ public class ITSynchronizedInstaller {
   @Test
   public void stopBundles() throws SynchronizedInstallerException {
     syncInstaller.stopBundles(EXAMPLE_BUNDLE_SYM_NAME);
-    assertThat(testBundle.getState(), is(Bundle.RESOLVED));
+    assertEquals(testBundle.getState(), Bundle.RESOLVED);
   }
 
   @Test
   public void startBundles() throws Exception {
     testBundle.stop();
     syncInstaller.startBundles(EXAMPLE_BUNDLE_SYM_NAME);
-    assertThat(testBundle.getState(), is(Bundle.ACTIVE));
+    assertEquals(testBundle.getState(), Bundle.ACTIVE);
   }
 
   @Test

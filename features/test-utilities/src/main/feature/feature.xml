@@ -36,12 +36,6 @@
         <bundle>mvn:ddf.platform/sync-installer-impl/${project.version}</bundle>
     </feature>
 
-    <feature name="hamcrest-all" version="${project.version}"
-             description="Hamcrest bundles for asserting test cases.">
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/${hamcrest-all.servicemix.version}
-        </bundle>
-    </feature>
-
     <feature name="awaitility" version="${project.version}"
              description="Hamcrest bundles for asserting test cases.">
         <bundle>mvn:org.awaitility/awaitility/${awaitility.version}</bundle>
@@ -69,7 +63,7 @@
         <bundle>wrap:mvn:jakarta.xml.bind/jakarta.xml.bind-api/${jakarta.xml.bind.version}</bundle>
         <bundle>wrap:mvn:javax.activation/activation/1.1.1</bundle>
         <bundle>mvn:org.codehaus.groovy/groovy-all/2.4.21</bundle>
-
-        <bundle>mvn:io.rest-assured/rest-assured/${restassured.version}</bundle>
+        <!-- TODO: Would be better to find a groovy 4 bundle that works with rest-assured 5.5.0 -->
+        <bundle>mvn:io.rest-assured/rest-assured/3.3.0</bundle>
     </feature>
 </features>

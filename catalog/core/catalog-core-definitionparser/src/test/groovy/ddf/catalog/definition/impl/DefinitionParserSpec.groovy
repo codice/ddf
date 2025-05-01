@@ -16,23 +16,20 @@ import ddf.catalog.validation.MetacardValidator
 import ddf.catalog.validation.ReportingMetacardValidator
 import ddf.catalog.validation.ValidationException
 import ddf.catalog.validation.impl.AttributeValidatorRegistryImpl
-import org.junit.Rule
 import org.junit.platform.runner.JUnitPlatform
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceRegistration
 import spock.lang.Specification
 
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @RunWith(JUnitPlatform.class)
 class DefinitionParserSpec extends Specification {
-
-    @Rule
-    TemporaryFolder temporaryFolder = new TemporaryFolder()
 
     DefinitionParser definitionParser
 
@@ -69,7 +66,9 @@ class DefinitionParserSpec extends Specification {
 
         mockBundle.getBundleContext() >> mockBundleContext
 
-        file = temporaryFolder.newFile("temp.json")
+        Path tempDir = Files.createTempDirectory("definitionParserTest")
+
+        file = Files.createFile(tempDir.resolve("temp.json")).toFile()
     }
 
     def "test blank file"() {

@@ -18,21 +18,18 @@ import ddf.catalog.data.MetacardCreationException
 import ddf.catalog.transform.InputTransformer
 import ddf.mime.MimeTypeToTransformerMapper
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
-import org.junit.Rule
 import org.junit.platform.runner.JUnitPlatform
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.activation.MimeType
 import java.nio.file.Path
-import java.nio.file.Paths
+import java.nio.file.Files
 
 @RunWith(JUnitPlatform.class)
 class MetacardFactorySpec extends Specification {
-    @Rule
-    TemporaryFolder tempFolder
+
     @Shared
     File file
 
@@ -49,8 +46,9 @@ class MetacardFactorySpec extends Specification {
     private Path path
 
     def setup() {
-        file = tempFolder.newFile('testinput.txt')
-        path = Paths.get(file.toURI())
+        Path tempDir = Files.createTempDirectory("metacardTest")
+        file = Files.createFile(tempDir.resolve("testinput.txt")).toFile()
+        path = file.toPath()
 
         metacardPlain = Mock(Metacard)
         metacardXml = Mock(Metacard)
@@ -61,6 +59,7 @@ class MetacardFactorySpec extends Specification {
         itXml = Mock(InputTransformer)
         itXml2 = Mock(InputTransformer)
         itBad = Mock(InputTransformer)
+        itRuntimeBad = Mock(InputTransformer)
 
         itBad.transform(_ as InputStream) >> { throw new IOException() }
         itRuntimeBad.transform(_ as InputStream) >> { throw new RuntimeException() }
