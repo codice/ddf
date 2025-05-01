@@ -125,10 +125,11 @@ public class XmlInputTransformerTest {
 
     assertEquals("Title!", metacard.getAttribute(Metacard.TITLE).getValue());
 
+    byte[] value = (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue();
     assertArrayEquals(
         Base64.getDecoder()
             .decode("AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
-        (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue());
+        value);
 
     // TODO use XMLUnit to test equivalence
     assertThat(
@@ -174,10 +175,11 @@ public class XmlInputTransformerTest {
 
     assertThat("Title!", is(metacard.getAttribute(Metacard.TITLE).getValue()));
 
+    byte[] value = (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue();
     assertArrayEquals(
         Base64.getDecoder()
             .decode("AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
-        (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue());
+        value);
 
     assertThat(
         metacard.getAttribute(Metacard.METADATA).getValue().toString(),
