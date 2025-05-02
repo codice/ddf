@@ -24,6 +24,8 @@ import org.geotools.filter.FunctionFactory;
 import org.geotools.filter.expression.PropertyAccessorFactory;
 import org.geotools.filter.function.DefaultFunctionFactory;
 import org.geotools.filter.function.PropertyExistsFunction;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.factory.ReferencingObjectFactory;
 import org.geotools.referencing.factory.gridshift.ClasspathGridShiftLocator;
 import org.geotools.referencing.factory.gridshift.GridShiftLocator;
@@ -47,6 +49,8 @@ public class GeotoolsPluginLoader {
     GeoTools.addClassLoader(DefaultFunctionFactory.class.getClassLoader());
     GeoTools.addClassLoader(CRSFactory.class.getClassLoader());
     GeoTools.addClassLoader(CSFactory.class.getClassLoader());
+    GeoTools.addClassLoader(DefaultGeographicCRS.class.getClassLoader());
+    GeoTools.addClassLoader(DefaultProjectedCRS.class.getClassLoader());
     GeoTools.addFactoryIteratorProvider(
         new FactoryIteratorProvider() {
           @Override
