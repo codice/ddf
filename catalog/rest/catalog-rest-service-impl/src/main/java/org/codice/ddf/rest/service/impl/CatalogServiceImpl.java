@@ -45,8 +45,8 @@ public class CatalogServiceImpl extends AbstractCatalogService {
       AttachmentParser attachmentParser,
       AttributeRegistry attributeRegistry,
       List<StorageProvider> storageProviders,
-      ChecksumProvider checksumProvider) {
-    super(framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider);
+      List<ChecksumProvider> checksumProviders) {
+    super(framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders);
   }
 
   @Override
