@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.rest.service;
 
+import static ddf.catalog.data.Metacard.CHECKSUM_ALGORITHM;
+
 import com.google.common.collect.Iterables;
 import ddf.action.Action;
 import ddf.catalog.CatalogFramework;
@@ -88,6 +90,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -160,7 +163,7 @@ public abstract class AbstractCatalogService implements CatalogService {
 
   private UuidGenerator uuidGenerator;
 
-  private ChecksumProvider checksumProvider;
+  private List<ChecksumProvider> checksumProviders;
 
   protected static MimeType jsonMimeType;
 
@@ -191,13 +194,13 @@ public abstract class AbstractCatalogService implements CatalogService {
       AttachmentParser attachmentParser,
       AttributeRegistry attributeRegistry,
       List<StorageProvider> storageProviders,
-      ChecksumProvider checksumProvider) {
+      List<ChecksumProvider> checksumProviders) {
     LOGGER.trace("Constructing CatalogServiceImpl");
     this.catalogFramework = framework;
     this.attachmentParser = attachmentParser;
     this.attributeRegistry = attributeRegistry;
     this.storageProviders = storageProviders;
-    this.checksumProvider = checksumProvider;
+    this.checksumProviders = checksumProviders;
     LOGGER.trace(("CatalogServiceImpl constructed successfully"));
   }
 
@@ -373,13 +376,43 @@ public abstract class AbstractCatalogService implements CatalogService {
       return null;
     }
 
-    try {
-      return checksumProvider.calculateChecksum(resource.getInputStream());
-    } catch (IOException | NoSuchAlgorithmException e) {
-      LOGGER.debug("Unable to generate checksum for resource {}", resourceUri);
+    return getChecksum(resource, metacard);
+  }
+
+  private String getChecksum(ContentItem resource, Metacard metacard) {
+    String checksumAlgorithm = (String) metacard.getAttribute(CHECKSUM_ALGORITHM).getValue();
+    String resourceChecksum = "";
+
+    Optional<ChecksumProvider> checksumProviderOptional =
+        checksumProviders.stream()
+            .filter(
+                checksumProvider -> doesChecksumProviderMatch(checksumProvider, checksumAlgorithm))
+            .findAny();
+
+    if (checksumProviderOptional.isEmpty()) {
+      LOGGER.warn(
+          "Cannot find a checksum provider named '{}' for metacard id '{}'",
+          checksumAlgorithm,
+          metacard.getId());
+      return resourceChecksum;
     }
 
-    return "";
+    try {
+      resourceChecksum =
+          checksumProviderOptional.get().calculateChecksum(resource.getInputStream());
+    } catch (NoSuchAlgorithmException | IOException e) {
+      LOGGER.debug("Unable to generate checksum for resource {}", metacard.getResourceURI());
+    }
+
+    return resourceChecksum;
+  }
+
+  private boolean doesChecksumProviderMatch(ChecksumProvider checksumProvider, String algorithm) {
+    String checksumProviderAlgorithm = checksumProvider.getChecksumAlgorithm();
+    if (checksumProviderAlgorithm == null) {
+      return false;
+    }
+    return checksumProviderAlgorithm.equals(algorithm);
   }
 
   public boolean containsErrors(ReadStorageResponse response) {

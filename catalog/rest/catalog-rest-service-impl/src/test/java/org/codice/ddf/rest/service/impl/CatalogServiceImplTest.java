@@ -127,7 +127,7 @@ public class CatalogServiceImplTest {
 
   private AttributeRegistry attributeRegistry;
 
-  private ChecksumProvider checksumProvider;
+  private List<ChecksumProvider> checksumProviders;
 
   private final List<StorageProvider> storageProviders = Collections.emptyList();
 
@@ -141,7 +141,7 @@ public class CatalogServiceImplTest {
 
     attributeRegistry = mock(AttributeRegistry.class);
 
-    checksumProvider = mock(ChecksumProvider.class);
+    checksumProviders = Collections.singletonList(mock(ChecksumProvider.class));
   }
 
   @Test
@@ -151,7 +151,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider);
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders);
 
     HttpHeaders headers = mock(HttpHeaders.class);
 
@@ -187,7 +187,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider);
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders);
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
 
@@ -228,7 +228,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider) {
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -300,7 +300,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider) {
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -402,7 +402,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider) {
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -475,7 +475,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider) {
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -535,7 +535,7 @@ public class CatalogServiceImplTest {
     CatalogFramework framework = givenCatalogFramework();
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider);
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders);
 
     when(attributeRegistry.lookup(Topic.KEYWORD))
         .thenReturn(Optional.of(new TopicAttributes().getAttributeDescriptor(Topic.KEYWORD)));
@@ -587,7 +587,7 @@ public class CatalogServiceImplTest {
     CatalogFramework framework = givenCatalogFramework();
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider);
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders);
 
     when(attributeRegistry.lookup(Topic.KEYWORD))
         .thenReturn(Optional.of(new TopicAttributes().getAttributeDescriptor(Topic.KEYWORD)));
@@ -653,7 +653,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider) {
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -727,7 +727,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider) {
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -831,7 +831,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider);
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders);
 
     BinaryContent content = catalogService.getSourcesInfo();
     assertEquals(jsonMimeTypeString, content.getMimeTypeValue());
@@ -893,7 +893,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider);
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders);
 
     // Add a MimeTypeToINputTransformer that the REST endpoint will call to create the metacard
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
@@ -969,7 +969,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider) {
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders) {
           @Override
           protected BundleContext getBundleContext() {
             return bundleContext;
@@ -1021,7 +1021,7 @@ public class CatalogServiceImplTest {
 
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(
-            framework, attachmentParser, attributeRegistry, storageProviders, checksumProvider);
+            framework, attachmentParser, attributeRegistry, storageProviders, checksumProviders);
 
     addMatchingService(catalogService, Collections.singletonList(getSimpleTransformer()));
 

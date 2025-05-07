@@ -171,7 +171,7 @@ public class RESTEndpointTest {
             new AttachmentParserImpl(mimeTypeMapper),
             mock(AttributeRegistry.class),
             Collections.emptyList(),
-            mock(ChecksumProvider.class));
+            Collections.singletonList(mock(ChecksumProvider.class)));
     catalogServiceImpl.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
     catalogServiceImpl.setFilterBuilder(filterBuilder);
@@ -387,7 +387,7 @@ public class RESTEndpointTest {
             new AttachmentParserImpl(mimeTypeMapper),
             mock(AttributeRegistry.class),
             Collections.emptyList(),
-            mock(ChecksumProvider.class));
+            Collections.singletonList(mock(ChecksumProvider.class)));
 
     catalogServiceImpl.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();

@@ -22,7 +22,7 @@
     <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
     <reference id="attachmentParser" interface="org.codice.ddf.attachment.AttachmentParser"/>
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
-    <reference id="checksumProvider" interface="org.codice.ddf.checksum.ChecksumProvider"/>
+    <reference-list id="checksumProviders" interface="org.codice.ddf.checksum.ChecksumProvider"/>
 
     <bean id="storageProviderSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
 
@@ -36,7 +36,7 @@
         <argument ref="attachmentParser"/>
         <argument ref="attributeRegistry" />
         <argument ref="storageProviderSortedList" />
-        <argument ref="checksumProvider" />
+        <argument ref="checksumProviders" />
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver"/>
