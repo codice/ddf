@@ -252,6 +252,13 @@
 			<artifactId>gt-epsg-hsql</artifactId>
 			<version>${org.geotools.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>${geotools-hsql.version}</version>
+            <type>jar</type>
+            <classifier>jdk8</classifier>
+        </dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-epsg-extension</artifactId>
