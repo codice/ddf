@@ -380,19 +380,27 @@ public abstract class AbstractCatalogService implements CatalogService {
   }
 
   private String getChecksum(ContentItem resource, Metacard metacard) {
-    String checksumAlgorithm = (String) metacard.getAttribute(CHECKSUM_ALGORITHM).getValue();
     String resourceChecksum = "";
+    Attribute checksumAttribute = metacard.getAttribute(CHECKSUM_ALGORITHM);
+
+    if (checksumAttribute == null || checksumAttribute.getValue() == null) {
+      LOGGER.debug(
+          "Metacard id '{}' does not have a checksum algorithm attribute", metacard.getId());
+      return resourceChecksum;
+    }
 
     Optional<ChecksumProvider> checksumProviderOptional =
         checksumProviders.stream()
             .filter(
-                checksumProvider -> doesChecksumProviderMatch(checksumProvider, checksumAlgorithm))
+                checksumProvider ->
+                    doesChecksumProviderMatch(
+                        checksumProvider, (String) checksumAttribute.getValue()))
             .findAny();
 
     if (checksumProviderOptional.isEmpty()) {
       LOGGER.warn(
           "Cannot find a checksum provider named '{}' for metacard id '{}'",
-          checksumAlgorithm,
+          checksumAttribute.getValue(),
           metacard.getId());
       return resourceChecksum;
     }
