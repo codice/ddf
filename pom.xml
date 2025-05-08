@@ -300,6 +300,8 @@
         <solr.jetty.version>10.0.22</solr.jetty.version>
         <solr.zookeeper.version>3.9.2</solr.zookeeper.version>
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
+        <solr.javax.ws.rs.version>3.1.0</solr.javax.ws.rs.version>
+        <solr.javax.annotation-api.version>2.1.1</solr.javax.annotation-api.version>
         <spark.version>2.9.4</spark.version>
         <spatial4j.version>0.8</spatial4j.version>
         <spring.version>6.1.14</spring.version>
