@@ -13,8 +13,8 @@
  */
 package ddf.camel.component.catalog.content;
 
-import com.hazelcast.core.MapLoader;
-import com.hazelcast.core.MapStore;
+import com.hazelcast.map.MapLoader;
+import com.hazelcast.map.MapStore;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.file.Paths;
