@@ -298,7 +298,7 @@
         <solr.httpcore.version>4.4.16</solr.httpcore.version>
         <solr.httpmime.version>4.5.14</solr.httpmime.version>
         <solr.jetty.version>10.0.22</solr.jetty.version>
-        <solr.zookeeper.version>3.9.2</solr.zookeeper.version>
+        <solr.zookeeper.version>3.8.4</solr.zookeeper.version>
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
         <solr.javax.ws.rs.version>3.1.0</solr.javax.ws.rs.version>
         <solr.javax.annotation-api.version>2.1.1</solr.javax.annotation-api.version>
