@@ -178,7 +178,7 @@
         <commons-text.version>1.13.0</commons-text.version>
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
-        <countryconverter.version>0.2.1-SNAPSHOT</countryconverter.version>
+        <countryconverter.version>0.2.1</countryconverter.version>
         <cryptomator.version>1.5.2</cryptomator.version>
         <!--TODO upgrade this to 3.5.12 to get the mina-core upgrade (https://github.com/apache/cxf/commit/f75c96a5a49f175a6618ac1ca406118bba8662b0) when available-->
         <cxf.version>3.5.10</cxf.version>
