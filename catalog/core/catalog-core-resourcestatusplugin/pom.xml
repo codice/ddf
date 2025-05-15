@@ -81,7 +81,37 @@
                         <Embed-Transitive>true</Embed-Transitive>
                         <Export-Package />
                         <Import-Package>
-                            com.hazelcast.client;resolution:=optional,
+                            sun.misc;resolution:=optional,
+                            javax.cache;resolution:=optional,
+                            javax.cache.*;resolution:=optional,
+                            org.apache.log4j;resolution:=optional,
+                            org.apache.log4j.spi;resolution:=optional,
+                            org.apache.logging.log4j;resolution:=optional,
+                            org.apache.logging.log4j.spi;resolution:=optional,
+                            org.slf4j;resolution:=optional,
+                            org.codehaus.groovy.jsr223;resolution:=optional,
+                            com.damnhandy.uri.template;resolution:=optional,
+                            org.apache.commons.validator.routines;resolution:=optional,
+                            com.google.re2j;resolution:=optional,
+                            com.codahale.metrics;resolution:=optional,
+                            com.codahale.metrics.health;resolution:=optional,
+                            io.micrometer.core.instrument;resolution:=optional,
+                            io.prometheus.client;resolution:=optional,
+                            javassist;resolution:=optional,
+                            javassist.bytecode;resolution:=optional,
+                            org.hibernate;resolution:=optional,
+                            org.hibernate.engine.jdbc.connections.spi;resolution:=optional,
+                            org.hibernate.service;resolution:=optional,
+                            org.hibernate.service.spi;resolution:=optional,
+                            net.openhft.affinity;resolution:=optional,
+                            COM.newmonics.PercClassLoader;resolution:=optional,
+                            android.os;resolution:=optional,
+                            com.fasterxml.jackson.annotation;resolution:=optional,
+                            com.hazelcast.license.util;resolution:=optional,
+                            org.apache.logging.log4j.core;resolution:=optional,
+                            org.apache.logging.log4j.core.config;resolution:=optional,
+                            org.apache.openejb.*;resolution:=optional,
+                            picocli;resolution:=optional,
                             *
                         </Import-Package>
                     </instructions>
