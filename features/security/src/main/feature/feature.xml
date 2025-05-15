@@ -23,7 +23,7 @@
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/camel-karaf/${project.version}/xml/features</repository>
 
-    <feature name="security-core-api-dependencies" version="${project.version"
+    <feature name="security-core-api-dependencies" version="${project.version}"
              description="Dependencies for the core security APIs.">
         <!-- Third Party Features -->
         <feature prerequisite="true">wrap</feature>
@@ -32,7 +32,7 @@
         <feature>scr</feature>
 
         <!-- External DDF Features -->
-        <feature>jackson</feature>
+        <feature version="${project.version}">jackson</feature>
         <feature>wss4j</feature>
         <feature>cxf-ws-security</feature>
         <feature>cxf-jaxrs</feature>
@@ -53,6 +53,7 @@
         <!-- Miscellaneous -->
         <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
         <bundle>mvn:com.sun.mail/jakarta.mail/${jakarta.mail.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-text/${commons-text.version}</bundle>
         <!--
             net.minidev/accessors-smart/1.2 uses asm v5.x. Need this resolved before we can upgrade:
             https://bitbucket.org/connect2id/nimbus-jose-jwt/issues/239/switch-to-other-json-library

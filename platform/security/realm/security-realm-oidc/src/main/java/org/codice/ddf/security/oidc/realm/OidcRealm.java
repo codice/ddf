@@ -13,9 +13,12 @@
  */
 package org.codice.ddf.security.oidc.realm;
 
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
+import java.io.IOException;
+import java.net.URL;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -28,10 +31,11 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.security.handler.OidcAuthenticationToken;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.codice.ddf.security.oidc.resolver.OidcCredentialsResolver;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.profile.UserProfile;
+import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
@@ -87,25 +91,31 @@ public class OidcRealm extends AuthenticatingRealm {
     OidcAuthenticationToken oidcAuthenticationToken = (OidcAuthenticationToken) authenticationToken;
     OidcCredentials credentials = (OidcCredentials) oidcAuthenticationToken.getCredentials();
     OidcConfiguration oidcConfiguration = oidcHandlerConfiguration.getOidcConfiguration();
-    OIDCProviderMetadata oidcProviderMetadata = oidcConfiguration.findProviderMetadata();
     WebContext webContext = (WebContext) oidcAuthenticationToken.getContext();
     OidcClient oidcClient = oidcHandlerConfiguration.getOidcClient(webContext.getFullRequestURL());
     int connectTimeout = oidcHandlerConfiguration.getConnectTimeout();
     int readTimeout = oidcHandlerConfiguration.getReadTimeout();
 
     try {
+      OIDCProviderMetadata oidcProviderMetadata =
+          OIDCProviderMetadata.parse(
+              oidcConfiguration
+                  .getResourceRetriever()
+                  .retrieveResource(new URL(oidcConfiguration.getDiscoveryURI()))
+                  .getContent());
+
       OidcCredentialsResolver oidcCredentialsResolver =
           new OidcCredentialsResolver(
               oidcConfiguration, oidcClient, oidcProviderMetadata, connectTimeout, readTimeout);
 
       oidcCredentialsResolver.resolveIdToken(credentials, webContext);
-    } catch (TechnicalException e) {
+    } catch (TechnicalException | IOException | ParseException e) {
       throw new AuthenticationException(e);
     }
 
     // problem getting id token, invalidate credentials
-    if (credentials.getIdToken() == null) {
-      JEESessionStore.INSTANCE.destroySession(webContext);
+    if (credentials.toIdToken() == null) {
+      JEESessionStoreFactory.INSTANCE.newSessionStore(null).destroySession(webContext);
 
       String msg =
           String.format(
@@ -121,7 +131,9 @@ public class OidcRealm extends AuthenticatingRealm {
     OidcProfileCreator oidcProfileCreator =
         new CustomOidcProfileCreator(oidcConfiguration, oidcClient);
     Optional<UserProfile> userProfile =
-        oidcProfileCreator.create(credentials, webContext, JEESessionStore.INSTANCE);
+        oidcProfileCreator.create(
+            new CallContext(webContext, JEESessionStoreFactory.INSTANCE.newSessionStore(null)),
+            credentials);
 
     SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo();
     simpleAuthenticationInfo.setCredentials(credentials);

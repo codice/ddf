@@ -132,7 +132,7 @@ public class OAuthHandlerTest {
     assertThat(result.getStatus(), is(Status.COMPLETED));
     assertThat(result.getToken().getCredentials(), instanceOf(OidcCredentials.class));
     assertThat(
-        ((OidcCredentials) result.getToken().getCredentials()).getAccessToken().toString(),
+        ((OidcCredentials) result.getToken().getCredentials()).toAccessToken().getValue(),
         is(accessTokenString));
   }
 
@@ -145,7 +145,7 @@ public class OAuthHandlerTest {
     assertThat(result.getStatus(), is(Status.COMPLETED));
     assertThat(result.getToken().getCredentials(), instanceOf(OidcCredentials.class));
     assertThat(
-        ((OidcCredentials) result.getToken().getCredentials()).getAccessToken().toString(),
+        ((OidcCredentials) result.getToken().getCredentials()).toAccessToken().getValue(),
         is(accessTokenString));
   }
 }

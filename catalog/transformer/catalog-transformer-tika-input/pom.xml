@@ -51,12 +51,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-            <type>pom</type>
-            <version>${tika.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers-standard-package</artifactId>
         </dependency>
         <dependency>

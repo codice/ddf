@@ -23,8 +23,7 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.shiro.authc.AuthenticationException;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.ProfileHelper;
 import org.pac4j.core.profile.UserProfile;
@@ -46,24 +45,23 @@ public class CustomOidcProfileCreator extends OidcProfileCreator {
   }
 
   @Override
-  public Optional<UserProfile> create(
-      Credentials cred, WebContext context, SessionStore sessionStore) {
+  public Optional<UserProfile> create(CallContext callContext, Credentials cred) {
     init();
     OidcCredentials credentials = (OidcCredentials) cred;
     final OidcProfile profile = (OidcProfile) getProfileDefinition().newProfile();
 
-    final AccessToken accessToken = credentials.getAccessToken();
+    final AccessToken accessToken = credentials.toAccessToken();
     if (accessToken != null && !accessToken.getValue().isEmpty()) {
       profile.setAccessToken(accessToken);
     }
 
-    final RefreshToken refreshToken = credentials.getRefreshToken();
+    final RefreshToken refreshToken = credentials.toRefreshToken();
     if (refreshToken != null && !refreshToken.getValue().isEmpty()) {
       profile.setRefreshToken(refreshToken);
       LOGGER.debug("Found refresh token");
     }
 
-    final JWT idToken = credentials.getIdToken();
+    final JWT idToken = credentials.toIdToken();
     profile.setIdTokenString(idToken.getParsedString());
 
     try {

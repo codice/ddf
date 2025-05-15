@@ -44,6 +44,11 @@
             <version>${pac4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-javaee</artifactId>
+            <version>${pac4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
         </dependency>
@@ -133,6 +138,8 @@
                             !org.opensaml.*,
                             !org.springframework.security.crypto.password,
                             !com.nimbusds.jose.shaded.json,
+                            !org.reflections.*,
+                            !javassist,
                             net.minidev.*;version="${json-smart.version}",
                             *
                         </Import-Package>
