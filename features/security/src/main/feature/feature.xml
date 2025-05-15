@@ -30,6 +30,7 @@
         <feature>pax-web-http-whiteboard</feature>
         <feature>pax-web-jetty-websockets</feature>
         <feature>scr</feature>
+        <feature version="${spring.feature.version}">spring</feature>
 
         <!-- External DDF Features -->
         <feature version="${project.version}">jackson</feature>
