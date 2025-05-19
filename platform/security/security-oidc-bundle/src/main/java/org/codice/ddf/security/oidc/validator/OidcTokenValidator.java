@@ -40,7 +40,6 @@ import com.nimbusds.openid.connect.sdk.claims.AccessTokenHash;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.validators.AccessTokenValidator;
-import java.net.URL;
 import java.security.Key;
 import java.util.List;
 import java.util.ListIterator;
@@ -102,12 +101,7 @@ public class OidcTokenValidator {
         }
       }
 
-      OIDCProviderMetadata providerMetadata =
-          OIDCProviderMetadata.parse(
-              configuration
-                  .getResourceRetriever()
-                  .retrieveResource(new URL(configuration.getDiscoveryURI()))
-                  .getContent());
+      OIDCProviderMetadata providerMetadata = configuration.getOpMetadataResolver().load();
       TokenValidator tokenValidator = new TokenValidator(configuration, providerMetadata);
       return tokenValidator.validate(idToken, nonce);
     } catch (Exception e) {
@@ -148,7 +142,7 @@ public class OidcTokenValidator {
 
     try {
       if (!(idToken instanceof SignedJWT)) {
-        LOGGER.info("ID token received from the userinfo endpoint was not signed.");
+        LOGGER.debug("ID token received from the userinfo endpoint was not signed.");
         return;
       }
 

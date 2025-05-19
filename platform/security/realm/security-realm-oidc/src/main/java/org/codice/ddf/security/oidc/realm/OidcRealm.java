@@ -13,12 +13,9 @@
  */
 package org.codice.ddf.security.oidc.realm;
 
-import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.jwt.impl.SecurityAssertionJwt;
-import java.io.IOException;
-import java.net.URL;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -97,19 +94,14 @@ public class OidcRealm extends AuthenticatingRealm {
     int readTimeout = oidcHandlerConfiguration.getReadTimeout();
 
     try {
-      OIDCProviderMetadata oidcProviderMetadata =
-          OIDCProviderMetadata.parse(
-              oidcConfiguration
-                  .getResourceRetriever()
-                  .retrieveResource(new URL(oidcConfiguration.getDiscoveryURI()))
-                  .getContent());
+      OIDCProviderMetadata oidcProviderMetadata = oidcConfiguration.getOpMetadataResolver().load();
 
       OidcCredentialsResolver oidcCredentialsResolver =
           new OidcCredentialsResolver(
               oidcConfiguration, oidcClient, oidcProviderMetadata, connectTimeout, readTimeout);
 
       oidcCredentialsResolver.resolveIdToken(credentials, webContext);
-    } catch (TechnicalException | IOException | ParseException e) {
+    } catch (TechnicalException e) {
       throw new AuthenticationException(e);
     }
 

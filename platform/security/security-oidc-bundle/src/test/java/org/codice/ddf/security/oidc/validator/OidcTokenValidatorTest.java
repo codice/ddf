@@ -26,6 +26,7 @@ import static org.pac4j.oidc.profile.OidcProfileDefinition.PREFERRED_USERNAME;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.impl.PublicClaims;
+import com.google.common.collect.ImmutableList;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
@@ -37,9 +38,11 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -68,6 +71,7 @@ import org.pac4j.jee.context.JEEContext;
 import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.pac4j.oidc.metadata.OidcOpMetadataResolver;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OidcTokenValidatorTest {
@@ -76,7 +80,7 @@ public class OidcTokenValidatorTest {
 
   @Mock private ResourceRetriever resourceRetriever;
   @Mock private OidcConfiguration configuration;
-  private OIDCProviderMetadata oidcProviderMetadata;
+  @Mock private OIDCProviderMetadata oidcProviderMetadata;
   @Mock private OidcClient oidcClient;
   @Mock private JEEContext jeeContext;
 
@@ -99,16 +103,17 @@ public class OidcTokenValidatorTest {
             .keyID(UUID.randomUUID().toString())
             .build();
 
-    String jwk =
-        "{\"keys\": ["
-            + sigJwk.toPublicJWK().toJSONString()
-            + "], \"issuer\": \"http://localhost:8080/auth/realms/master\", \"id_token_signing_alg_values_supported\": [\""
-            + JWSAlgorithm.RS256
-            + "\"], \"userinfo_signing_alg_values_supported\": [\""
-            + JWSAlgorithm.RS256
-            + "\"], \"jwks_uri\": \"http://localhost:8080/auth/realms/master/protocol/openid-connect/certs\", \"subject_types_supported\": [\"public\"] }";
+    String jwk = "{\"keys\": [" + sigJwk.toPublicJWK().toJSONString() + "] }";
 
-    oidcProviderMetadata = OIDCProviderMetadata.parse(jwk);
+    when(oidcProviderMetadata.getIDTokenJWSAlgs()).thenReturn(ImmutableList.of(JWSAlgorithm.RS256));
+    when(oidcProviderMetadata.getIssuer())
+        .thenReturn(new Issuer("http://localhost:8080/auth/realms/master"));
+    when(oidcProviderMetadata.getJWKSetURI())
+        .thenReturn(
+            new URI("http://localhost:8080/auth/realms/master/protocol/openid-connect/certs"));
+
+    OidcOpMetadataResolver metadataResolver = mock(OidcOpMetadataResolver.class);
+    when(metadataResolver.load()).thenReturn(oidcProviderMetadata);
 
     Resource resource = new Resource(jwk, APPLICATION_JSON);
     when(resourceRetriever.retrieveResource(any())).thenReturn(resource);
@@ -116,9 +121,8 @@ public class OidcTokenValidatorTest {
     when(configuration.getClientId()).thenReturn("ddf-client");
     when(configuration.getSecret()).thenReturn("secret");
     when(configuration.isUseNonce()).thenReturn(true);
-    when(configuration.getDiscoveryURI()).thenReturn("https://keycloak:8080/discovery-url");
-    when(configuration.getResourceRetriever()).thenReturn(resourceRetriever);
     when(configuration.findResourceRetriever()).thenReturn(resourceRetriever);
+    when(configuration.getOpMetadataResolver()).thenReturn(metadataResolver);
 
     validAlgorithm = Algorithm.RSA256(publicKey, privateKey);
     invalidAlgorithm = Algorithm.HMAC256("WRONG");

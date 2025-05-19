@@ -128,7 +128,6 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
 
     // try to get id token using access token
     if (credentials.getIdToken() == null && initialAccessToken != null) {
-
       final UserInfoRequest userInfoRequest =
           new UserInfoRequest(
               metadata.getUserInfoEndpointURI(),
@@ -149,7 +148,7 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
           }
 
           OidcTokenValidator.validateUserInfoIdToken(idToken, resourceRetriever, metadata);
-          credentials.setIdToken(idToken.getParsedString());
+          credentials.setIdToken(idToken.serialize());
         } else {
           throw new TechnicalException("Received a non-successful UserInfoResponse.");
         }

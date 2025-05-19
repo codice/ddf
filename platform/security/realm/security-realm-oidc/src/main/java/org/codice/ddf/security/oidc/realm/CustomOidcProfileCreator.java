@@ -62,7 +62,11 @@ public class CustomOidcProfileCreator extends OidcProfileCreator {
     }
 
     final JWT idToken = credentials.toIdToken();
-    profile.setIdTokenString(idToken.getParsedString());
+    if (idToken.getParsedString() != null) {
+      profile.setIdTokenString(idToken.getParsedString());
+    } else {
+      profile.setIdTokenString(idToken.serialize());
+    }
 
     try {
       JWTClaimsSet claimsSet = idToken.getJWTClaimsSet();
