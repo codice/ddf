@@ -191,6 +191,7 @@
                                 <argument>${solr.port}</argument>
                                 <argument>-m</argument>
                                 <argument>512m</argument>
+                                <argument>-V</argument>
                                 <argument>${solr.force}</argument>
                             </arguments>
                             <async>true</async>
@@ -211,9 +212,10 @@
                                 <argument>stop</argument>
                                 <argument>-p</argument>
                                 <argument>${solr.port}</argument>
+                                <argument>-V</argument>
                             </arguments>
-                            <async>true</async>
-                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                            <async>false</async>
+                            <timeout>60000</timeout>
                         </configuration>
                     </execution>
                 </executions>
@@ -243,6 +245,7 @@
                         -Djava.awt.headless=true
                         -noverify
                     </argLine>
+                    <forkedProcessExitTimeoutInSeconds>1</forkedProcessExitTimeoutInSeconds>
                 </configuration>
                 <executions>
                     <execution>
