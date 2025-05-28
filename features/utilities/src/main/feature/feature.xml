@@ -193,12 +193,12 @@
         <feature>spifly</feature>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:com.github.luben/zstd-jni/${zstd-jni.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-        <bundle>wrap:mvn:org.apache.tika/tika-bundle-standard/${tika.version}$overwrite=merge&amp;Import-Package=!org.junit,!org.junit.*,!junit.*,org.github.javaparser.resolution.*;resolution:=optional,org.apache.tika.*,org.slf4j,org.slf4j.event,org.slf4j.helpers,*;resolution:=optional</bundle>
-        <feature>tika-parser-libraries</feature>
+        <feature>tika-libraries</feature>
     </feature>
 
-    <feature name="tika-parser-libraries" version="${project.version}" description="Provides tika parser libraries">
+    <feature name="tika-libraries" version="${project.version}" description="Provides tika parser libraries">
+        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
+        <bundle>wrap:mvn:org.apache.tika/tika-bundle-standard/${tika.version}$overwrite=merge&amp;Import-Package=!org.junit,!org.junit.*,!junit.*,org.github.javaparser.resolution.*;resolution:=optional,org.apache.tika.*,org.slf4j,org.slf4j.event,org.slf4j.helpers,*;resolution:=optional</bundle>
         <bundle>mvn:org.apache.tika/tika-parser-apple-module/${tika.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-parser-audiovideo-module/${tika.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-parser-cad-module/${tika.version}</bundle>
