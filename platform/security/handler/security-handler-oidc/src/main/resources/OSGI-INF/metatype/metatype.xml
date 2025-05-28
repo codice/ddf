@@ -34,6 +34,12 @@
     <AD name="Secret" id="secret" type="String" default="secret"
       description="This value must match the value set on the Identity Provider."/>
 
+    <AD name="Client Authentication Method" id="clientAuthMethod" type="String" default="client_secret_basic"
+        description="The method to use when authenticating to the IdP">
+        <Option label="Client Secret - Basic" value="client_secret_basic"/>
+        <Option label="Client Secret - POST" value="client_secret_post"/>
+    </AD>
+
     <AD name="Discovery URI" id="discoveryUri" type="String" default="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"
         description="Discovery URI for fetching OP metadata (http://openid.net/specs/openid-connect-discovery-1_0.html)."/>
 

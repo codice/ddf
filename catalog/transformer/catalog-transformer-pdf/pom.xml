@@ -67,17 +67,17 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk18on</artifactId>
             <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcmail-jdk15on</artifactId>
+            <artifactId>bcmail-jdk18on</artifactId>
             <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
+            <artifactId>bcpkix-jdk18on</artifactId>
             <version>${bouncy.version}</version>
         </dependency>
         <dependency>
@@ -90,8 +90,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-            <type>pom</type>
+            <artifactId>tika-parsers-standard-package</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -110,6 +109,8 @@
                             !com.ibm.icu.text,
                             !org.apache.pdfbox.debugger.*,
                             sun.java2d.cmm.kcms;resolution:=optional,
+                            picocli;resolution:=optional,
+                            sun.print;resolution:=optional,
                             *
                         </Import-Package>
                         <Embed-Dependency>

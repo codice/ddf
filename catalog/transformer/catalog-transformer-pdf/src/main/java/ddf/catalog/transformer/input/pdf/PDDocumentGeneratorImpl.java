@@ -15,11 +15,13 @@ package ddf.catalog.transformer.input.pdf;
 
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 public class PDDocumentGeneratorImpl implements PDDocumentGenerator {
   @Override
   public PDDocument apply(InputStream inputStream) throws IOException {
-    return PDDocument.load(inputStream);
+    return Loader.loadPDF(new RandomAccessReadBuffer(inputStream));
   }
 }

@@ -43,10 +43,10 @@ import com.nimbusds.openid.connect.sdk.validators.AccessTokenValidator;
 import java.security.Key;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Optional;
-import net.minidev.json.JSONObject;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.creator.TokenValidator;
@@ -93,13 +93,16 @@ public class OidcTokenValidator {
       Nonce nonce = null;
       if (configuration.isUseNonce()) {
         Optional<Object> optional =
-            JEESessionStore.INSTANCE.get(webContext, client.getNonceSessionAttributeName());
+            JEESessionStoreFactory.INSTANCE
+                .newSessionStore(null)
+                .get(webContext, client.getNonceSessionAttributeName());
         if (optional.isPresent()) {
           nonce = new Nonce((String) optional.get());
         }
       }
 
-      TokenValidator tokenValidator = new TokenValidator(configuration);
+      OIDCProviderMetadata providerMetadata = configuration.getOpMetadataResolver().load();
+      TokenValidator tokenValidator = new TokenValidator(configuration, providerMetadata);
       return tokenValidator.validate(idToken, nonce);
     } catch (Exception e) {
       LOGGER.error(ID_VALIDATION_ERR_MSG, e);
@@ -139,7 +142,7 @@ public class OidcTokenValidator {
 
     try {
       if (!(idToken instanceof SignedJWT)) {
-        LOGGER.info("ID token received from the userinfo endpoint was not signed.");
+        LOGGER.debug("ID token received from the userinfo endpoint was not signed.");
         return;
       }
 
@@ -266,7 +269,7 @@ public class OidcTokenValidator {
         String accessTokenString = accessToken.getValue();
         Base64URL header =
             new Base64URL(accessTokenString.substring(0, accessTokenString.indexOf('.')));
-        JSONObject jsonObject = JSONObjectUtils.parse(header.decodeToString());
+        Map<String, Object> jsonObject = JSONObjectUtils.parse(header.decodeToString());
         expectedAlgorithm = Header.parseAlgorithm(jsonObject);
       } else {
         expectedAlgorithm = idToken.getHeader().getAlgorithm();

@@ -151,13 +151,13 @@
         <apache.shiro.version>1.13.0</apache.shiro.version>
         <asm.version>9.6</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
-        <bouncy.version>1.69</bouncy.version>
+        <bouncy.version>1.80</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
         <camel.version>3.18.8</camel.version>
         <cesium.version>1.34</cesium.version>
-        <commons-compress.version>1.21</commons-compress.version>
+        <commons-compress.version>1.23.0</commons-compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
@@ -205,13 +205,14 @@
         <jackson.version>2.17.2</jackson.version>
         <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
-        <jakarta.mail.version>1.6.6</jakarta.mail.version>
+        <jakarta.mail.version>1.6.7</jakarta.mail.version>
         <jasypt.version>1.9.3</jasypt.version>
         <javax.annotation-api.version>1.3.5</javax.annotation-api.version>
         <javax.cache.version>1.1.1</javax.cache.version>
         <javax.cache.bundle.version>1.1.0_1</javax.cache.bundle.version>
         <javax.inject.version>1</javax.inject.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+        <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
         <javax.ws.rs.version>2.1.6</javax.ws.rs.version>
         <javax-el.version>3.0.0</javax-el.version>
         <soap-api.version>1.4.2</soap-api.version>
@@ -229,7 +230,7 @@
         <johnzon.version>0.9.5</johnzon.version>
         <jpeg2000.version>1.3.1_CODICE_3</jpeg2000.version>
         <json-simple.version>1.1.1</json-simple.version>
-        <json-smart.version>2.4.11</json-smart.version>
+        <json-smart.version>2.5.2</json-smart.version>
         <jsoup.version>1.18.3</jsoup.version>
         <jsr305.version>3.0.2</jsr305.version>
         <jsr305.bundle.version>${jsr305.version}_1</jsr305.bundle.version>
@@ -258,26 +259,25 @@
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
         <opensaml.version>3.4.6</opensaml.version>
         <opensaml.osgi.version>3.4.5_2</opensaml.osgi.version>
-        <nimbus.version>8.14.1</nimbus.version>
-        <nimbus.oidc.version>8.22</nimbus.oidc.version>
-        <nimbus.content-type.version>2.1</nimbus.content-type.version>
-        <nimbus.jose.jwt.version>8.18</nimbus.jose.jwt.version>
-        <nimbus.langtag.version>1.4.4</nimbus.langtag.version>
+        <nimbus.oidc.version>11.24</nimbus.oidc.version>
+        <nimbus.content-type.version>2.3</nimbus.content-type.version>
+        <nimbus.jose.jwt.version>10.3</nimbus.jose.jwt.version>
+        <nimbus.langtag.version>1.7</nimbus.langtag.version>
         <org.geotools.version>28.6</org.geotools.version>
         <geotools-hsql.version>2.7.2</geotools-hsql.version>
         <!-- Note: The swissbox version needs to match the version used by pax-exam . -->
         <org.ops4j.pax.swissbox.version>1.8.5</org.ops4j.pax.swissbox.version>
         <org.rrd4j.version>3.3.1</org.rrd4j.version>
-        <org.slf4j.version>1.7.29</org.slf4j.version>
+        <org.slf4j.version>1.7.32</org.slf4j.version>
         <osgi.compendium.version>7.0.0</osgi.compendium.version>
         <osgi.enterprise.version>7.0.0</osgi.enterprise.version>
         <owasp-html-sanitizer.version>20220608.1</owasp-html-sanitizer.version>
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
         <openjson.version>1.0.13</openjson.version>
-        <pac4j.version>5.0.0</pac4j.version>
-        <pdfbox.version>2.0.23</pdfbox.version>
-        <poi.version>5.2.5</poi.version>
+        <pac4j.version>6.1.2</pac4j.version>
+        <pdfbox.version>3.0.5</pdfbox.version>
+        <poi.version>5.3.0</poi.version>
         <xlsx.transformer.poi.version>5.2.2</xlsx.transformer.poi.version>
         <protobuf.version>4.28.2</protobuf.version>
         <quartz.version>2.3.2</quartz.version>
@@ -307,7 +307,8 @@
         <spring.version>6.1.14</spring.version>
         <spring.feature.version>6.1.14_1</spring.feature.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
-        <tika.version>2.4.0</tika.version>
+        <tika.version>3.1.0</tika.version>
+        <tika.slf4j.version>2.0.7</tika.slf4j.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
         <woodstox.core.version>6.5.1</woodstox.core.version>
@@ -329,7 +330,7 @@
         <micrometer.latencyutils.version>2.0.3</micrometer.latencyutils.version>
         <micrometer.prometheus-client.version>0.12.0</micrometer.prometheus-client.version>
         <micrometer.opentelemetry.version>1.9.1</micrometer.opentelemetry.version>
-        <zstd-jni.version>1.4.9-1</zstd-jni.version>
+        <zstd-jni.version>1.5.5-2</zstd-jni.version>
 
         <!-- Command line argument properties for the maven-surefire-plugin -->
         <surefire.argline.append />
@@ -506,31 +507,13 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
-                <artifactId>tika-parsers</artifactId>
+                <artifactId>tika-bundle-standard</artifactId>
                 <version>${tika.version}</version>
-                <type>pom</type>
-                <exclusions>
-                    <exclusion>
-                        <!-- excluding bzip2 due to CVE-2019-12900 https://nvd.nist.gov/vuln/detail/CVE-2019-12900 -->
-                        <groupId>org.itadaki</groupId>
-                        <artifactId>bzip2</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers-standard-package</artifactId>
                 <version>${tika.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.james</groupId>
-                        <artifactId>apache-mime4j-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.james</groupId>
-                        <artifactId>apache-mime4j-dom</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- BEGIN: JTS dependencies -->

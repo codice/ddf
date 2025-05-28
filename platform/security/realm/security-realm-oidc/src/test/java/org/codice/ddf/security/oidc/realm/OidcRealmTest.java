@@ -40,7 +40,6 @@ import com.nimbusds.jose.util.Resource;
 import com.nimbusds.jose.util.ResourceRetriever;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
@@ -73,12 +72,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.jee.context.JEEContext;
+import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
+import org.pac4j.oidc.metadata.OidcOpMetadataResolver;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OidcRealmTest {
@@ -113,15 +113,18 @@ public class OidcRealmTest {
             .keyID(UUID.randomUUID().toString())
             .build();
 
-    String jwk = "{\"keys\": [" + sigJwk.toPublicJWK().toJSONString() + "] }";
-
     OIDCProviderMetadata oidcProviderMetadata = mock(OIDCProviderMetadata.class);
+
     when(oidcProviderMetadata.getIDTokenJWSAlgs()).thenReturn(ImmutableList.of(JWSAlgorithm.RS256));
     when(oidcProviderMetadata.getIssuer())
         .thenReturn(new Issuer("http://localhost:8080/auth/realms/master"));
     when(oidcProviderMetadata.getJWKSetURI())
         .thenReturn(
             new URI("http://localhost:8080/auth/realms/master/protocol/openid-connect/certs"));
+    OidcOpMetadataResolver metadataResolver = mock(OidcOpMetadataResolver.class);
+    when(metadataResolver.load()).thenReturn(oidcProviderMetadata);
+
+    String jwk = "{\"keys\": [" + sigJwk.toPublicJWK().toJSONString() + "] }";
 
     ResourceRetriever resourceRetriever = mock(ResourceRetriever.class);
     Resource resource = new Resource(jwk, APPLICATION_JSON);
@@ -132,8 +135,8 @@ public class OidcRealmTest {
     when(configuration.getSecret()).thenReturn("secret");
     when(configuration.isUseNonce()).thenReturn(true);
     when(configuration.getResponseType()).thenReturn("code");
-    when(configuration.findProviderMetadata()).thenReturn(oidcProviderMetadata);
     when(configuration.findResourceRetriever()).thenReturn(resourceRetriever);
+    when(configuration.getOpMetadataResolver()).thenReturn(metadataResolver);
 
     OidcHandlerConfiguration handlerConfiguration = mock(OidcHandlerConfiguration.class);
     when(handlerConfiguration.getOidcConfiguration()).thenReturn(configuration);
@@ -145,14 +148,12 @@ public class OidcRealmTest {
 
     JWT jwt = mock(JWT.class);
     AccessToken accessToken = new BearerAccessToken(getAccessTokenBuilder().sign(validAlgorithm));
-    AuthorizationCode authorizationCode = new AuthorizationCode();
 
     WebContext webContext = getWebContext();
     oidcCredentials = mock(OidcCredentials.class);
-    when(oidcCredentials.getIdToken()).thenReturn(jwt);
-    when(oidcCredentials.getIdToken()).thenReturn(jwt);
-    when(oidcCredentials.getAccessToken()).thenReturn(accessToken);
-    when(oidcCredentials.getCode()).thenReturn(authorizationCode);
+    when(oidcCredentials.toIdToken()).thenReturn(jwt);
+    when(oidcCredentials.toIdToken()).thenReturn(jwt);
+    when(oidcCredentials.toAccessToken()).thenReturn(accessToken);
 
     authenticationToken = mock(OidcAuthenticationToken.class);
     when(authenticationToken.getCredentials()).thenReturn(oidcCredentials);
@@ -188,7 +189,7 @@ public class OidcRealmTest {
     String idToken = getIdTokenBuilder().withClaim("nonce", "myNonce").sign(validAlgorithm);
     JWT jwt = SignedJWT.parse(idToken);
 
-    when(oidcCredentials.getIdToken()).thenReturn(jwt);
+    when(oidcCredentials.toIdToken()).thenReturn(jwt);
 
     AuthenticationInfo authenticationInfo = realm.doGetAuthenticationInfo(authenticationToken);
     assertNotNull(authenticationInfo.getCredentials());
@@ -199,7 +200,7 @@ public class OidcRealmTest {
   @Test
   public void testDoGetAuthenticationInfoWithMissingInfo() throws ParseException {
     JWT jwt = getIncompleteJwt();
-    when(oidcCredentials.getIdToken()).thenReturn(jwt);
+    when(oidcCredentials.toIdToken()).thenReturn(jwt);
 
     AuthenticationInfo authenticationInfo = realm.doGetAuthenticationInfo(authenticationToken);
     assertNotNull(authenticationInfo.getCredentials());
@@ -212,7 +213,7 @@ public class OidcRealmTest {
   public void testDoGetAuthenticationInvalid() throws Exception {
     String idToken = getIdTokenBuilder().withClaim("nonce", "myNonce").sign(invalidAlgorithm);
     JWT jwt = SignedJWT.parse(idToken);
-    when(oidcCredentials.getIdToken()).thenReturn(jwt);
+    when(oidcCredentials.toIdToken()).thenReturn(jwt);
 
     realm.doGetAuthenticationInfo(authenticationToken);
   }
@@ -268,7 +269,9 @@ public class OidcRealmTest {
 
     when(jeeContext.getNativeRequest()).thenReturn(request);
 
-    JEESessionStore.INSTANCE.set(jeeContext, NONCE_SESSION_ATTRIBUTE, "myNonce");
+    JEESessionStoreFactory.INSTANCE
+        .newSessionStore(null)
+        .set(jeeContext, NONCE_SESSION_ATTRIBUTE, "myNonce");
     return jeeContext;
   }
 
