@@ -139,8 +139,8 @@ public final class SignerCondition extends AbstractCondition implements Conditio
     try (ASN1InputStream decoder = new ASN1InputStream(itemBytes)) {
       ASN1Encodable encoded = decoder.readObject();
       encoded = ((DERSequence) encoded).getObjectAt(1);
-      encoded = ((DERTaggedObject) encoded).getObject();
-      encoded = ((DERTaggedObject) encoded).getObject();
+      encoded = ((DERTaggedObject) encoded).getBaseObject();
+      encoded = ((DERTaggedObject) encoded).getBaseObject();
       return ((DERUTF8String) encoded).getString();
     } catch (IOException e) {
       return "";

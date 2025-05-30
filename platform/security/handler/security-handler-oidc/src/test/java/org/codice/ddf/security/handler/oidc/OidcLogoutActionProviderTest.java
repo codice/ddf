@@ -89,7 +89,7 @@ public class OidcLogoutActionProviderTest {
 
     FoundAction foundAction = mock(FoundAction.class);
     when(foundAction.getLocation()).thenReturn(actionUrl);
-    when(oidcLogoutActionBuilder.getLogoutAction(any(), any(), any(), any()))
+    when(oidcLogoutActionBuilder.getLogoutAction(any(), any(), any()))
         .thenReturn(Optional.of(foundAction));
 
     Action action =
@@ -119,7 +119,7 @@ public class OidcLogoutActionProviderTest {
             response));
 
     ArgumentCaptor<String> callbackUri = ArgumentCaptor.forClass(String.class);
-    verify(oidcLogoutActionBuilder).getLogoutAction(any(), any(), any(), callbackUri.capture());
+    verify(oidcLogoutActionBuilder).getLogoutAction(any(), any(), callbackUri.capture());
     assertThat(callbackUri.getValue(), containsString("prevurl=" + PREVIOUS_URL_ENCODED));
   }
 
@@ -137,7 +137,7 @@ public class OidcLogoutActionProviderTest {
             response));
 
     ArgumentCaptor<String> callbackUri = ArgumentCaptor.forClass(String.class);
-    verify(oidcLogoutActionBuilder).getLogoutAction(any(), any(), any(), callbackUri.capture());
+    verify(oidcLogoutActionBuilder).getLogoutAction(any(), any(), callbackUri.capture());
     assertThat(callbackUri.getValue(), containsString("prevurl=" + PREVIOUS_URL_ENCODED));
   }
 

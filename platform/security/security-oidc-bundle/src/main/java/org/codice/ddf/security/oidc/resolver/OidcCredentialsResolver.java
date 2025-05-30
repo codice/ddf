@@ -24,7 +24,6 @@ import com.nimbusds.oauth2.sdk.RefreshTokenGrant;
 import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.TokenResponse;
-import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
@@ -45,7 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.codice.ddf.security.oidc.validator.OidcTokenValidator;
 import org.codice.ddf.security.oidc.validator.OidcValidationException;
-import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.oidc.client.OidcClient;
@@ -83,8 +81,8 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
   3. access token
   */
   public void resolveIdToken(OidcCredentials credentials, WebContext webContext) {
-    final AccessToken initialAccessToken = credentials.getAccessToken();
-    final JWT initialIdToken = credentials.getIdToken();
+    final AccessToken initialAccessToken = credentials.toAccessToken();
+    final JWT initialIdToken = credentials.toIdToken();
 
     try {
       OidcTokenValidator.validateAccessToken(
@@ -97,8 +95,8 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
       throw new TechnicalException(e);
     }
 
-    final RefreshToken initialRefreshToken = credentials.getRefreshToken();
-    final AuthorizationCode initialAuthorizationCode = credentials.getCode();
+    final RefreshToken initialRefreshToken = credentials.toRefreshToken();
+    final AuthorizationCode initialAuthorizationCode = credentials.toAuthorizationCode();
 
     final List<AuthorizationGrant> grantList = new ArrayList<>();
 
@@ -151,7 +149,7 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
           }
 
           OidcTokenValidator.validateUserInfoIdToken(idToken, resourceRetriever, metadata);
-          credentials.setIdToken(idToken);
+          credentials.setIdToken(idToken.serialize());
         } else {
           throw new TechnicalException("Received a non-successful UserInfoResponse.");
         }
@@ -179,9 +177,9 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
             accessToken, idToken, resourceRetriever, metadata, configuration);
       }
 
-      credentials.setAccessToken(accessToken);
-      credentials.setIdToken(idToken);
-      credentials.setRefreshToken(oidcTokens.getRefreshToken());
+      credentials.setAccessToken(accessToken.toJSONObject());
+      credentials.setIdToken(idToken.getParsedString());
+      credentials.setRefreshToken(oidcTokens.getRefreshToken().toJSONObject());
 
     } catch (OidcValidationException e) {
       throw new TechnicalException(e);
@@ -189,35 +187,12 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
   }
 
   public OIDCTokens getOidcTokens(AuthorizationGrant grant) throws IOException, ParseException {
-    return getOidcTokens(grant, metadata, getClientAuthentication(), connectTimeout, readTimeout);
+    return getOidcTokens(grant, connectTimeout, readTimeout);
   }
 
-  /**
-   * @deprecated Please use {@link #getOidcTokens(AuthorizationGrant, OIDCProviderMetadata,
-   *     ClientAuthentication, int, int)}
-   */
-  public static OIDCTokens getOidcTokens(
-      AuthorizationGrant grant,
-      OIDCProviderMetadata metadata,
-      ClientAuthentication clientAuthentication)
+  public OIDCTokens getOidcTokens(AuthorizationGrant grant, int connectTimeout, int readTimeout)
       throws IOException, ParseException {
-    return getOidcTokens(
-        grant,
-        metadata,
-        clientAuthentication,
-        HttpConstants.DEFAULT_CONNECT_TIMEOUT,
-        HttpConstants.DEFAULT_READ_TIMEOUT);
-  }
-
-  public static OIDCTokens getOidcTokens(
-      AuthorizationGrant grant,
-      OIDCProviderMetadata metadata,
-      ClientAuthentication clientAuthentication,
-      int connectTimeout,
-      int readTimeout)
-      throws IOException, ParseException {
-    final TokenRequest request =
-        new TokenRequest(metadata.getTokenEndpointURI(), clientAuthentication, grant);
+    final TokenRequest request = createTokenRequest(grant);
     HTTPRequest tokenHttpRequest = request.toHTTPRequest();
     tokenHttpRequest.setConnectTimeout(connectTimeout);
     tokenHttpRequest.setReadTimeout(readTimeout);

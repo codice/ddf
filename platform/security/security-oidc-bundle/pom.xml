@@ -44,6 +44,11 @@
             <version>${pac4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-javaee</artifactId>
+            <version>${pac4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
         </dependency>
@@ -81,6 +86,12 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -133,6 +144,8 @@
                             !org.opensaml.*,
                             !org.springframework.security.crypto.password,
                             !com.nimbusds.jose.shaded.json,
+                            !org.reflections.*,
+                            !javassist,
                             net.minidev.*;version="${json-smart.version}",
                             *
                         </Import-Package>

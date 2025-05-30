@@ -66,11 +66,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.jee.context.JEEContext;
+import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.pac4j.oidc.metadata.OidcOpMetadataResolver;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OidcTokenValidatorTest {
@@ -111,14 +112,17 @@ public class OidcTokenValidatorTest {
         .thenReturn(
             new URI("http://localhost:8080/auth/realms/master/protocol/openid-connect/certs"));
 
+    OidcOpMetadataResolver metadataResolver = mock(OidcOpMetadataResolver.class);
+    when(metadataResolver.load()).thenReturn(oidcProviderMetadata);
+
     Resource resource = new Resource(jwk, APPLICATION_JSON);
     when(resourceRetriever.retrieveResource(any())).thenReturn(resource);
 
     when(configuration.getClientId()).thenReturn("ddf-client");
     when(configuration.getSecret()).thenReturn("secret");
     when(configuration.isUseNonce()).thenReturn(true);
-    when(configuration.findProviderMetadata()).thenReturn(oidcProviderMetadata);
     when(configuration.findResourceRetriever()).thenReturn(resourceRetriever);
+    when(configuration.getOpMetadataResolver()).thenReturn(metadataResolver);
 
     validAlgorithm = Algorithm.RSA256(publicKey, privateKey);
     invalidAlgorithm = Algorithm.HMAC256("WRONG");
@@ -321,7 +325,9 @@ public class OidcTokenValidatorTest {
 
     when(jeeContext.getNativeRequest()).thenReturn(request);
 
-    JEESessionStore.INSTANCE.set(jeeContext, NONCE_SESSION_ATTRIBUTE, "myNonce");
+    JEESessionStoreFactory.INSTANCE
+        .newSessionStore(null)
+        .set(jeeContext, NONCE_SESSION_ATTRIBUTE, "myNonce");
     return jeeContext;
   }
 
