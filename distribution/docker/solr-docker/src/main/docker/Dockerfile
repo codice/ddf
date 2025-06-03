@@ -22,9 +22,11 @@ COPY --from=prep /prep/solr/conf/* /seed/
 COPY maven/createCore.sh /usr/local/bin/create-ddf-core
 RUN chmod 755 /usr/local/bin/create-ddf-core
 RUN chown -R solr:solr /seed
-USER solr
 
 # Add ddf-solr entrypoint
 COPY maven/docker-ddf-solr-entrypoint.sh /usr/local/bin/docker-ddf-solr-entrypoint
+RUN chmod 755 /usr/local/bin/docker-ddf-solr-entrypoint
+
+USER solr
 ENTRYPOINT ["/usr/local/bin/docker-ddf-solr-entrypoint"]
 CMD ["solr-foreground"]
