@@ -19,9 +19,10 @@
     <repository>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</repository>
 
     <feature name="solr-dependencies" version="${project.version}" >
-        <feature>pax-web-jetty</feature>
+        <feature>pax-web-jetty-extras</feature>
         <bundle>mvn:org.eclipse.jetty/jetty-client/${solr.jetty.version}</bundle>
         <bundle>mvn:org.eclipse.jetty/jetty-alpn-client/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-alpn-java-client/${solr.jetty.version}</bundle>
         <bundle>mvn:org.eclipse.jetty/jetty-http/${solr.jetty.version}</bundle>
         <bundle>mvn:org.eclipse.jetty/jetty-io/${solr.jetty.version}</bundle>
         <bundle>mvn:org.eclipse.jetty/jetty-util/${solr.jetty.version}</bundle>

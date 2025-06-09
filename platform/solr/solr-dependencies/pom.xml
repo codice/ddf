@@ -26,6 +26,11 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
+            <artifactId>solr-api</artifactId>
+            <version>${solr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
             <version>${solr.version}</version>
             <exclusions>
@@ -49,6 +54,47 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>${solr.netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <version>${solr.netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+            <version>${solr.netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>${solr.netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver</artifactId>
+            <version>${solr.netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-tcnative-boringssl-static</artifactId>
+            <version>${solr.netty.boringssl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <classifier>linux-x86_64</classifier>
+            <version>${solr.netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-classes-epoll</artifactId>
+            <version>${solr.netty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.http2</groupId>
@@ -114,15 +160,25 @@
                             <!--packages required for solrj -->
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj.*;version=${solr.version},
+                            org.apache.solr.client.api.util.*;version=${solr.version},
                             org.apache.solr.common.*;version=${solr.version},
                             org.apache.zookeeper.*;version=${solr.zookeeper.version},
                             com.fasterxml.jackson.*;version=${jackson.version}
                         </Export-Package>
                         <Embed-Dependency>
+                            solr-api,
                             solr-solrj,
                             solr-solrj-zookeeper,
                             commons-io,
                             http2-client,
+                            netty-handler,
+                            netty-buffer,
+                            netty-common,
+                            netty-transport,
+                            netty-resolver,
+                            netty-tcnative-boringssl-static,
+                            netty-transport-native-epoll,
+                            netty-transport-classes-epoll,
                             httpmime,
                             zookeeper,
                             zookeeper-jute
@@ -152,9 +208,6 @@
                             javax.security.auth.spi,
                             javax.security.auth.x500,
                             javax.security.sasl,
-                            javax.servlet;version="[3.1,4)",
-                            javax.servlet.descriptor;version="[3.1,4)",
-                            javax.servlet.http;version="[3.1,4)",
                             javax.sql,
                             javax.swing,
                             javax.swing.table,

@@ -238,14 +238,18 @@
         <servicemix.specs.jaxb.version>2.3_3</servicemix.specs.jaxb.version>
         <servicemix.specs.version>2.9.0</servicemix.specs.version>
         <servlet-api.version>3.1.0</servlet-api.version>
-        <solr.version>9.3.0</solr.version>
-        <solr.docs.version>9_2</solr.docs.version>
+        <solr.version>9.8.1</solr.version>
+        <solr.docs.version>9_8</solr.docs.version>
         <solr.httpclient.version>4.5.14</solr.httpclient.version>
         <solr.httpcore.version>4.4.16</solr.httpcore.version>
         <solr.httpmime.version>4.5.14</solr.httpmime.version>
-        <solr.jetty.version>10.0.15</solr.jetty.version>
-        <solr.zookeeper.version>3.8.3</solr.zookeeper.version>
+        <solr.jetty.version>10.0.22</solr.jetty.version>
+        <solr.netty.version>4.1.122.Final</solr.netty.version>
+        <solr.netty.boringssl.version>2.0.72.Final</solr.netty.boringssl.version>
+        <solr.zookeeper.version>3.9.2</solr.zookeeper.version>
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
+        <solr.javax.ws.rs.version>3.1.0</solr.javax.ws.rs.version>
+        <solr.javax.annotation-api.version>2.1.1</solr.javax.annotation-api.version>
         <spatial4j.version>0.8</spatial4j.version>
         <spifly.version>1.3.7</spifly.version>
         <tika.version>2.8.0</tika.version>
