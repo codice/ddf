@@ -46,9 +46,9 @@ import org.codice.ddf.spatial.geocoding.FeatureIndexer;
 import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.WKTWriter;
-import org.opengis.feature.simple.SimpleFeature;
 
 public class CatalogFeatureIndexer implements FeatureIndexer {
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =

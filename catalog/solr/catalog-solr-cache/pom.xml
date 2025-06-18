@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.spatial4j.version}</version>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>org.locationtech.spatial4j</groupId>
@@ -82,8 +82,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            jts-core,
-                            spatial4j,
                             catalog-solr-core,
                             catalog-core-api-impl
                         </Embed-Dependency>

@@ -19,12 +19,12 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.XPathBuilder;
 import java.util.Arrays;
 import java.util.List;
+import org.geotools.api.filter.And;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.Not;
+import org.geotools.api.filter.Or;
 import org.geotools.filter.FilterFactoryImpl;
-import org.opengis.filter.And;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.Not;
-import org.opengis.filter.Or;
 
 /** @author Michael Menousek */
 public class GeotoolsFilterBuilder implements FilterBuilder {

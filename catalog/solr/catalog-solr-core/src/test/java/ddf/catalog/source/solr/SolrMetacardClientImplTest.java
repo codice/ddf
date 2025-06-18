@@ -71,12 +71,12 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortOrder;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortOrder;
 
 public class SolrMetacardClientImplTest {
   private static final String DDF_METACARD_TYPE = "ddf.metacardType";

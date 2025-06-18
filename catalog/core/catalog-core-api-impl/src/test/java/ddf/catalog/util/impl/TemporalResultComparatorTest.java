@@ -19,9 +19,9 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import java.util.Calendar;
+import org.geotools.api.filter.sort.SortOrder;
 import org.junit.Before;
 import org.junit.Test;
-import org.opengis.filter.sort.SortOrder;
 
 public class TemporalResultComparatorTest {
 

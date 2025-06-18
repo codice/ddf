@@ -111,7 +111,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.codice.thirdparty</groupId>
-                    <artifactId>gt-opengis</artifactId>
+                    <artifactId>gt-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

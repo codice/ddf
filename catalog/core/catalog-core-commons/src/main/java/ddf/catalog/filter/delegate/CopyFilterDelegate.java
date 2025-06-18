@@ -18,7 +18,7 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
 import java.util.Date;
 import java.util.List;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public class CopyFilterDelegate extends FilterDelegate<Filter> {
   protected FilterBuilder filterBuilder;

@@ -14,9 +14,9 @@
 package org.codice.solr.query;
 
 import org.apache.commons.lang.StringUtils;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.visitor.NullExpressionVisitor;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
 
 public class ExpressionValueVisitor extends NullExpressionVisitor {
   @Override

@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.spatial4j.version}</version>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
@@ -109,9 +109,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            jts-core,
-                            spatial-geocoding-api-impl,
-                            spatial4j
+                            spatial-geocoding-api-impl
                         </Embed-Dependency>
                         <Import-Package>
                             !com.fasterxml.jackson*,

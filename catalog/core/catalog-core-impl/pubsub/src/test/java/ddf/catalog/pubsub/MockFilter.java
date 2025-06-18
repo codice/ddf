@@ -16,8 +16,8 @@ package ddf.catalog.pubsub;
 import ddf.catalog.federation.Federatable;
 import java.util.Set;
 import javax.security.auth.Subject;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterVisitor;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

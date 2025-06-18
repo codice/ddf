@@ -19,11 +19,11 @@ package org.codice.ddf.spatial.geocoding;
 
 /**
  * A {@code FeatureIndexer} provides methods for adding {@link
- * org.opengis.feature.simple.SimpleFeature} objects to a new or existing local index.
+ * org.geotools.api.feature.simple.SimpleFeature} objects to a new or existing local index.
  */
 public interface FeatureIndexer {
   /**
-   * Updates a GeoNames index with {@link org.opengis.feature.simple.SimpleFeature} objects
+   * Updates a GeoNames index with {@link org.geotools.api.feature.simple.SimpleFeature} objects
    * extracted by a {@link GeoEntryExtractor}.
    *
    * @param resource the resource containing GeoNames entries

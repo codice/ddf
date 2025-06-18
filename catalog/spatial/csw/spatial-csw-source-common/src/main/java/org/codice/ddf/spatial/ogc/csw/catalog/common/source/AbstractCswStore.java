@@ -75,7 +75,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImp
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 import org.osgi.framework.BundleContext;
 
 public abstract class AbstractCswStore extends AbstractCswSource implements CatalogStore {

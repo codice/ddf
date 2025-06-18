@@ -21,6 +21,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import org.codice.ddf.opensearch.OpenSearchConstants;
+import org.geotools.api.filter.And;
+import org.geotools.api.filter.Not;
+import org.geotools.api.filter.Or;
+import org.geotools.api.filter.PropertyIsEqualTo;
+import org.geotools.api.filter.PropertyIsLike;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.PropertyName;
+import org.geotools.api.filter.spatial.BinarySpatialOperator;
+import org.geotools.api.filter.spatial.Contains;
+import org.geotools.api.filter.spatial.DWithin;
+import org.geotools.api.filter.spatial.Intersects;
+import org.geotools.api.filter.temporal.After;
+import org.geotools.api.filter.temporal.Before;
+import org.geotools.api.filter.temporal.BinaryTemporalOperator;
+import org.geotools.api.filter.temporal.During;
+import org.geotools.api.filter.temporal.TOverlaps;
+import org.geotools.api.temporal.Period;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
@@ -29,24 +47,6 @@ import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
-import org.opengis.filter.And;
-import org.opengis.filter.Not;
-import org.opengis.filter.Or;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.spatial.BinarySpatialOperator;
-import org.opengis.filter.spatial.Contains;
-import org.opengis.filter.spatial.DWithin;
-import org.opengis.filter.spatial.Intersects;
-import org.opengis.filter.temporal.After;
-import org.opengis.filter.temporal.Before;
-import org.opengis.filter.temporal.BinaryTemporalOperator;
-import org.opengis.filter.temporal.During;
-import org.opengis.filter.temporal.TOverlaps;
-import org.opengis.temporal.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -402,7 +402,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       return;
     }
 
-    final org.opengis.filter.expression.Expression expression1 = filter.getExpression1();
+    final org.geotools.api.filter.expression.Expression expression1 = filter.getExpression1();
     final String expectedSpatialSearchTerm = OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM;
     if (!expectedSpatialSearchTerm.equals(expression1.toString())) {
       LOGGER.debug(
@@ -451,7 +451,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       return;
     }
 
-    final org.opengis.filter.expression.Expression expression1 = filter.getExpression1();
+    final org.geotools.api.filter.expression.Expression expression1 = filter.getExpression1();
     final String expectedSpatialSearchTerm = OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM;
     if (!expectedSpatialSearchTerm.equals(expression1.toString())) {
       LOGGER.debug(
@@ -492,7 +492,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       return;
     }
 
-    final org.opengis.filter.expression.Expression expression1 = filter.getExpression1();
+    final org.geotools.api.filter.expression.Expression expression1 = filter.getExpression1();
     final String expectedTemporalSearchTerm = OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM;
     if (!expectedTemporalSearchTerm.equals(expression1.toString())) {
       LOGGER.debug(

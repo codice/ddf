@@ -51,8 +51,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * CswFilterDelegate is an implementation of a {@link ddf.catalog.filter.FilterDelegate}. It extends
- * {@link CswAbstractFilterDelegate} and converts a {@link org.opengis.filter.Filter} into a {@link
- * net.opengis.filter.v_1_1_0.FilterType}.
+ * {@link CswAbstractFilterDelegate} and converts a {@link org.geotools.api.filter.Filter} into a
+ * {@link net.opengis.filter.v_1_1_0.FilterType}.
  *
  * <p>Generic type that the FilterDelegate will return as a final result
  */

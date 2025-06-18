@@ -148,11 +148,11 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImp
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
+import org.geotools.api.filter.sort.SortBy;
 import org.junit.Test;
 import org.locationtech.jts.io.ParseException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
-import org.opengis.filter.sort.SortBy;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;

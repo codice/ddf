@@ -16,7 +16,7 @@ package org.codice.ddf.opensearch.endpoint.query;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public class FilterStatus {
   private final List<Filter> filters = new ArrayList<>();

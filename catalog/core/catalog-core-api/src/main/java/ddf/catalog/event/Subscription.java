@@ -14,7 +14,7 @@
 package ddf.catalog.event;
 
 import ddf.catalog.federation.Federatable;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 /**
  * A Subscription is used for a "subscriber" to subscribe to events based on a particular type of

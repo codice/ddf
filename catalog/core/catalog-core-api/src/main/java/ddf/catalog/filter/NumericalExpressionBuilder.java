@@ -13,7 +13,7 @@
  */
 package ddf.catalog.filter;
 
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 /**
  * Completes the fluent API to create {@link Filter} based on a numerical value.

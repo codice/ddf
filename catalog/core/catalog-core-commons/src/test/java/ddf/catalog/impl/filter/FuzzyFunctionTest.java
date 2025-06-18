@@ -17,8 +17,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.geotools.api.filter.expression.Expression;
 import org.junit.Test;
-import org.opengis.filter.expression.Expression;
 
 @Deprecated
 public class FuzzyFunctionTest {

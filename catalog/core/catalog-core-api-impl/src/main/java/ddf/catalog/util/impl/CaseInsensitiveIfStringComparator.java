@@ -16,7 +16,7 @@ package ddf.catalog.util.impl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Result;
 import java.util.Comparator;
-import org.opengis.filter.sort.SortOrder;
+import org.geotools.api.filter.sort.SortOrder;
 
 /** Comparator that ignores case for string attributes or falls back to the passed in comparator */
 public class CaseInsensitiveIfStringComparator implements Comparator<Result> {

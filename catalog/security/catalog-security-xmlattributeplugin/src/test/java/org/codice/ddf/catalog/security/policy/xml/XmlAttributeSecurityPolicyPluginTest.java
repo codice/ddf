@@ -35,10 +35,10 @@ import java.util.Set;
 import junit.framework.Assert;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.PatternLayout;
+import org.geotools.api.filter.Filter;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.opengis.filter.Filter;
 
 public class XmlAttributeSecurityPolicyPluginTest {
   private static final String TEST_METADATA =

@@ -17,8 +17,8 @@ import ddf.catalog.event.DeliveryMethod;
 import ddf.catalog.event.Subscription;
 import java.util.Collections;
 import java.util.Set;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterVisitor;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterVisitor;
 
 public class SubscriptionImpl implements Subscription {
   private final Filter filter;

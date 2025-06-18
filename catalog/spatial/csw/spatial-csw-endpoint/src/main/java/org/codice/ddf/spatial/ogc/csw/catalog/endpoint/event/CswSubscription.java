@@ -21,7 +21,7 @@ import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public class CswSubscription extends SubscriptionImpl {
 

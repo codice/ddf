@@ -28,7 +28,7 @@ import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.fusesource.jansi.Ansi;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 @Service
 @Command(

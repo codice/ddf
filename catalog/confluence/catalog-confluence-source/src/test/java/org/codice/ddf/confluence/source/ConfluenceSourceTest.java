@@ -77,10 +77,10 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.confluence.api.SearchResource;
 import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.geotools.api.filter.sort.SortOrder;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.opengis.filter.sort.SortOrder;
 
 public class ConfluenceSourceTest {
   private static final String JSON_RESPONSE = getFileContent("full_response.json");

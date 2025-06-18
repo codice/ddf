@@ -29,6 +29,16 @@ import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.util.Arrays;
 import java.util.Date;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.PropertyName;
+import org.geotools.api.temporal.Instant;
+import org.geotools.api.temporal.Period;
+import org.geotools.api.temporal.PeriodDuration;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.FilterFactoryImpl;
@@ -41,23 +51,13 @@ import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.temporal.Instant;
-import org.opengis.temporal.Period;
-import org.opengis.temporal.PeriodDuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CopyFilterDelegateTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(CopyFilterDelegateTest.class);
 
-  private static final FilterFactory2 FF = new FilterFactoryImpl();
+  private static final FilterFactory FF = new FilterFactoryImpl();
 
   private static final WKTReader WKT_READER = new WKTReader();
 

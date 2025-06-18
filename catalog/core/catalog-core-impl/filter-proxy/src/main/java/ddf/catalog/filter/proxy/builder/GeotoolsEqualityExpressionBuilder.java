@@ -15,7 +15,7 @@ package ddf.catalog.filter.proxy.builder;
 
 import ddf.catalog.filter.EqualityExpressionBuilder;
 import java.util.Date;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public class GeotoolsEqualityExpressionBuilder extends GeotoolsBuilder
     implements EqualityExpressionBuilder {

@@ -14,7 +14,7 @@
 package ddf.catalog.filter.proxy.builder;
 
 import ddf.catalog.filter.NumericalRangeExpressionBuilder;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public final class GeotoolsNumericalRangeExpressionBuilder extends GeotoolsBuilder
     implements NumericalRangeExpressionBuilder {

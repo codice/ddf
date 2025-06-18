@@ -14,15 +14,16 @@
 package ddf.catalog.filter;
 
 import ddf.catalog.source.UnsupportedQueryException;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 /**
  * {@code FilterAdapter} visits a {@link Filter} and invokes {@link FilterDelegate} methods with
- * normalized, typed values. A large part of implementing a {@link org.opengis.filter.FilterVisitor}
- * is handling expressions, type casting literals, and supporting custom filter logic like {@code
- * FuzzyFunction} s. The {@code FilterAdapter} handles all of this common boilerplate functionality.
- * Furthermore, sources using the {@code FilterAdapter} will receive future enhancements and ensure
- * basic compatibility with Endpoints that use the {@code FilterBuilder}.
+ * normalized, typed values. A large part of implementing a {@link
+ * org.geotools.api.filter.FilterVisitor} is handling expressions, type casting literals, and
+ * supporting custom filter logic like {@code FuzzyFunction} s. The {@code FilterAdapter} handles
+ * all of this common boilerplate functionality. Furthermore, sources using the {@code
+ * FilterAdapter} will receive future enhancements and ensure basic compatibility with Endpoints
+ * that use the {@code FilterBuilder}.
  *
  * <p>To use the {@code FilterAdapter}, a {@code FilterDelegate} for the source is required. Here is
  * an example using a text base filter delegate.

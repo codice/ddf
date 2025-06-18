@@ -14,17 +14,17 @@
 package ddf.catalog.impl.filter;
 
 import java.util.List;
+import org.geotools.api.filter.capability.FunctionName;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
 import org.geotools.filter.FunctionExpressionImpl;
 import org.geotools.filter.capability.FunctionNameImpl;
-import org.opengis.filter.capability.FunctionName;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Used as a customized function in a {@link org.opengis.filter.Filter}. This {@link
- * org.opengis.filter.expression.Function} will wrap a property name to signify that it must be
+ * Used as a customized function in a {@link org.geotools.api.filter.Filter}. This {@link
+ * org.geotools.api.filter.expression.Function} will wrap a property name to signify that it must be
  * searched in a "fuzzy" manner
  *
  * @author Ashraf Barakat

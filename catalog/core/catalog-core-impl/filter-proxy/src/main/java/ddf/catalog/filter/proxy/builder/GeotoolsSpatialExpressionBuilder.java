@@ -14,7 +14,7 @@
 package ddf.catalog.filter.proxy.builder;
 
 import ddf.catalog.filter.SpatialExpressionBuilder;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public class GeotoolsSpatialExpressionBuilder extends GeotoolsBuilder
     implements SpatialExpressionBuilder {

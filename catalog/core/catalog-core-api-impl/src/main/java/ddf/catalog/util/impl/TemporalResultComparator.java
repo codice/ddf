@@ -18,7 +18,7 @@ import ddf.catalog.data.Result;
 import java.util.Comparator;
 import java.util.Date;
 import org.apache.commons.lang.StringUtils;
-import org.opengis.filter.sort.SortOrder;
+import org.geotools.api.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

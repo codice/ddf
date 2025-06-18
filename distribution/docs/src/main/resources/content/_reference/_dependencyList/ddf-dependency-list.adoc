@@ -198,7 +198,7 @@
 * `org.codice.thirdparty:commons-httpclient:jar:3.1.0_1`
 * `org.codice.thirdparty:ffmpeg:zip:bin:4.3.1_1`
 * `org.codice.thirdparty:geotools-suite:jar:20.1_2`
-* `org.codice.thirdparty:gt-opengis:jar:20.1_3`
+* `org.codice.thirdparty:gt-api:jar:20.1_3`
 * `org.codice.thirdparty:jts:jar:1.16.0_2`
 * `org.codice.thirdparty:lucene-core:jar:3.0.2_1`
 * `org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar:1.1.0_5`
@@ -224,7 +224,7 @@
 * `org.geotools:gt-cql:jar:20.2`
 * `org.geotools:gt-epsg-hsql:jar:28.2`
 * `org.geotools:gt-main:jar:28.2`
-* `org.geotools:gt-opengis:jar:28.2`
+* `org.geotools:gt-api:jar:28.2`
 * `org.geotools:gt-referencing:jar:28.2`
 * `org.geotools:gt-shapefile:jar:28.2`
 * `org.geotools:gt-xml:jar:28.2`
