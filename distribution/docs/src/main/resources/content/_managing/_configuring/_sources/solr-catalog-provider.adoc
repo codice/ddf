@@ -95,13 +95,13 @@ The following JAR is needed to support WKT geospatial queries and needs to be in
 
 The JAR can be downloaded from:
 
-.. http://artifacts.codice.org/content/groups/public/org/locationtech/jts/jts-core/${jts.solr.version}/jts-core-${jts.solr.version}.jar[jts-core-${jts.solr.version}.jar] {external-link}
+.. http://artifacts.codice.org/content/groups/public/org/locationtech/jts/jts-core/${jts.spatial4j.version}/jts-core-${jts.spatial4j.version}.jar[jts-core-${jts.spatial4j.version}.jar] {external-link}
 
 Repeat the following procedure for each Zookeeper and SolrCloud node instance:
 
 . Add `jute.maxbuffer=0x30D40` to `<ZOOKEEPER_INSTALL_DIR>/conf/zoo.cfg`.
 . Add `SOLR_OPTS="$SOLR_OPTS -Djute.maxbuffer=0x30D40"` to `<SOLR_INSTALL_DIR>/bin/solr.in.cmd`.
-. Copy `jts-core-${jts.solr.version}.jar` to: `<SOLR_INSTALL_DIR>/server/solr-webapp/webapp/WEB-INF/lib/`.
+. Copy `jts-core-${jts.spatial4j.version}.jar` to: `<SOLR_INSTALL_DIR>/server/solr-webapp/webapp/WEB-INF/lib/`.
 
 .Configuring ${branding} for SolrCloud
 . On the ${branding} server, edit `${home_directory}/etc/custom.system.properties`:

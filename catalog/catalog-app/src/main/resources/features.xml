@@ -38,7 +38,8 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-        <bundle>wrap:mvn:org.geotools/gt-api/${org.geotools.version}$Bundle-Name=gt-api&amp;Bundle-SymbolicName=gt-api</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-api/${org.geotools.version}$Bundle-Name=gt-api&amp;Bundle-SymbolicName=gt-api
+        </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-attachment/${project.version}</bundle>
     </feature>
 
@@ -50,7 +51,9 @@
 
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${jdom2.bundle.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/${xalan.bundle.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan-serializer/${xalan.bundle.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan-serializer/${xalan.bundle.version}
+        </bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${xerces.bundle.version}</bundle>
 
         <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
@@ -75,12 +78,13 @@
         <feature>joda-converter</feature>
         <feature>dev-failsafe</feature>
         <feature>slf4j</feature>
-        <bundle>mvn:org.locationtech.spatial4j/spatial4j/${spatial4j.version}</bundle>
         <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
 
         <bundle>mvn:nu.validator.htmlparser/htmlparser/1.4</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}
+        </bundle>
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}
         </bundle>
@@ -322,7 +326,9 @@
         <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}
+        </bundle>
     </feature>
 
     <feature name="catalog-transformer-bootflag" version="${project.version}"
@@ -607,8 +613,8 @@
     </feature>
 
     <feature name="catalog-validator-unsupportedattributes"
-      version="${project.version}"
-      description="Unsupported Attributes Query Validator">
+             version="${project.version}"
+             description="Unsupported Attributes Query Validator">
         <feature>catalog-core-api</feature>
         <bundle>
             mvn:org.codice.ddf.validator/catalog-validator-unsupportedattributes/${project.version}

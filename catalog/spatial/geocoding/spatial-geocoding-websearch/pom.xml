@@ -61,7 +61,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.version}</version>
+            <version>${jts.spatial4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf</groupId>
@@ -79,6 +79,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             json-smart,
+                            jts-core,
+                            spatial4j,
                             spatial-geocoding-api-impl,
                             geospatial,
                             asm
@@ -103,7 +105,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>1.3_MB</maxArtifactSize>
+                                    <maxArtifactSize>1.2_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

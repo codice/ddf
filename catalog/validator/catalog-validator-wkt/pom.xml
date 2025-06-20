@@ -34,7 +34,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.version}</version>
+            <version>${jts.spatial4j.version}</version>
         </dependency>
     </dependencies>
 
@@ -46,6 +46,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>jts-core,spatial4j</Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.validator.wkt;version=${project.version}
                         </Export-Package>

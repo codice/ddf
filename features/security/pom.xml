@@ -431,6 +431,11 @@
             <artifactId>security-realm-guest</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.javax-cache-api</artifactId>
+            <version>${javax.cache.bundle.version}</version>
+        </dependency>
 
         <!--feature dependencies-->
         <dependency>

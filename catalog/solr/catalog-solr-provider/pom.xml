@@ -42,7 +42,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.version}</version>
+            <version>${jts.spatial4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.locationtech.spatial4j</groupId>
@@ -87,7 +87,9 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-solr-core,
-                            catalog-core-api-impl
+                            catalog-core-api-impl,
+                            jts-core,
+                            spatial4j
                         </Embed-Dependency>
                         <Include-Resource>
                             {maven-resources},
@@ -125,7 +127,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>4_MB</maxArtifactSize>
+                                    <maxArtifactSize>1.2_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

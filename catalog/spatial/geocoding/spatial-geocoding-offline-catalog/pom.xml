@@ -50,7 +50,11 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.version}</version>
+            <version>${jts.spatial4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
@@ -76,7 +80,9 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            spatial-geocoding-api-impl
+                            jts-core,
+                            spatial-geocoding-api-impl,
+                            spatial4j
                         </Embed-Dependency>
                         <Import-Package>
                             !com.fasterxml.jackson*,
@@ -99,7 +105,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>1.3_MB</maxArtifactSize>
+                                    <maxArtifactSize>1.2_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>
