@@ -18,7 +18,7 @@ import java.util.Date;
 /**
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b> Completes the fluent API to create a {@link
- * org.opengis.filter.Filter} for a function that takes N parameters.
+ * org.geotools.api.filter.Filter} for a function that takes N parameters.
  */
 public interface ArgumentBuilder {
 
@@ -141,10 +141,10 @@ public interface ArgumentBuilder {
    * ExpressionBuilder is() the api just has equalTo
    *
    * <p>Continue building a Filter with the "equal to" operator ( {@link
-   * org.opengis.filter.PropertyIsEqualTo})
+   * org.geotools.api.filter.PropertyIsEqualTo})
    *
    * @return {@link EqualityExpressionBuilder} to continue building the {@link
-   *     org.opengis.filter.Filter}
+   *     org.geotools.api.filter.Filter}
    */
   EqualityExpressionBuilder equalTo();
 }

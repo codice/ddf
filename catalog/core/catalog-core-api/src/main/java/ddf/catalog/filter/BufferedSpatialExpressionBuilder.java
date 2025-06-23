@@ -13,7 +13,7 @@
  */
 package ddf.catalog.filter;
 
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 /**
  * Continues the fluent API to create a Spatial {@link Filter}. Extends {@link

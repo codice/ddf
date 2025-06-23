@@ -27,14 +27,14 @@ import java.util.Collections;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.util.NamedList;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.Or;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opengis.filter.Filter;
-import org.opengis.filter.Or;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SolrQueryFilterVisitorTest {

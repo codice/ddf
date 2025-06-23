@@ -14,18 +14,18 @@
 package ddf.catalog.filter;
 
 /**
- * Starts the fluent API to create {@link org.opengis.filter.Filter} based on a particular {@link
- * ddf.catalog.data.Attribute}
+ * Starts the fluent API to create {@link org.geotools.api.filter.Filter} based on a particular
+ * {@link ddf.catalog.data.Attribute}
  *
  * @author Michael Menousek
  */
 public interface AttributeBuilder extends ExpressionBuilder {
 
   /**
-   * Continue building the {@link org.opengis.filter.Filter} with an implied equality operator. Also
-   * used for syntactic completeness (readability).
+   * Continue building the {@link org.geotools.api.filter.Filter} with an implied equality operator.
+   * Also used for syntactic completeness (readability).
    *
-   * @return ExpressionBuilder to continue building this {@link org.opengis.filter.Filter}
+   * @return ExpressionBuilder to continue building this {@link org.geotools.api.filter.Filter}
    */
   public abstract ExpressionBuilder is();
 }

@@ -37,13 +37,13 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import org.codice.ddf.catalog.resource.cache.ResourceCache;
 import org.codice.ddf.catalog.resource.cache.ResourceCacheServiceMBean;
+import org.geotools.api.filter.Filter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opengis.filter.Filter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResourceCacheServiceTest {

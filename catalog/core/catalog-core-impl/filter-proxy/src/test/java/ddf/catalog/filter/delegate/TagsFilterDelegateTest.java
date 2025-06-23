@@ -23,8 +23,8 @@ import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import java.util.Arrays;
 import java.util.HashSet;
+import org.geotools.api.filter.Filter;
 import org.junit.Test;
-import org.opengis.filter.Filter;
 
 public class TagsFilterDelegateTest {
 

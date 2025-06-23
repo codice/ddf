@@ -52,7 +52,7 @@ public interface EventProcessor {
    * @return {@link String} an id for the registered {@link Subscription} that can be used later by
    *     calling {@link #unsubscribe(String)}
    * @throws InvalidSubscriptionException if this {@link EventProcessor} can not support the {@link
-   *     org.opengis.filter.Filter} of the provided {@link Subscription}.
+   *     org.geotools.api.filter.Filter} of the provided {@link Subscription}.
    */
   public String createSubscription(Subscription subscription) throws InvalidSubscriptionException;
 
@@ -77,7 +77,7 @@ public interface EventProcessor {
    * @param subscription the {@link Subscription} to register
    * @param subscriptionId the desired id
    * @throws InvalidSubscriptionException if this {@link EventProcessor} can not support the {@link
-   *     org.opengis.filter.Filter} of the provided {@link Subscription}.
+   *     org.geotools.api.filter.Filter} of the provided {@link Subscription}.
    * @throws SubscriptionExistsException if a subscription with this ID already exists
    */
   public void createSubscription(Subscription subscription, String subscriptionId)

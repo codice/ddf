@@ -16,7 +16,16 @@ package ddf.catalog.filter.proxy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import org.geotools.data.DataAccessFactory;
+import org.geotools.api.data.DataAccessFactory;
+import org.geotools.api.feature.FeatureFactory;
+import org.geotools.api.feature.type.FeatureTypeFactory;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.expression.Function;
+import org.geotools.api.referencing.crs.CRSAuthorityFactory;
+import org.geotools.api.referencing.crs.CRSFactory;
+import org.geotools.api.referencing.cs.CSFactory;
+import org.geotools.api.referencing.datum.DatumFactory;
+import org.geotools.api.referencing.operation.MathTransformFactory;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.FunctionExpression;
@@ -33,15 +42,6 @@ import org.geotools.referencing.operation.MathTransformProvider;
 import org.geotools.util.ConverterFactory;
 import org.geotools.util.factory.FactoryIteratorProvider;
 import org.geotools.util.factory.GeoTools;
-import org.opengis.feature.FeatureFactory;
-import org.opengis.feature.type.FeatureTypeFactory;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Function;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.crs.CRSFactory;
-import org.opengis.referencing.cs.CSFactory;
-import org.opengis.referencing.datum.DatumFactory;
-import org.opengis.referencing.operation.MathTransformFactory;
 
 public class GeotoolsPluginLoader {
 

@@ -18,8 +18,8 @@ import static org.hamcrest.Matchers.is;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.geotools.api.filter.expression.Expression;
 import org.junit.Test;
-import org.opengis.filter.expression.Expression;
 
 public class ProximityFunctionTest {
 

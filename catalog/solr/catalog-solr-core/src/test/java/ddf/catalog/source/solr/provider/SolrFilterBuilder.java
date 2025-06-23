@@ -18,16 +18,16 @@ import ddf.catalog.impl.filter.ProximityFunction;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.temporal.Instant;
+import org.geotools.api.temporal.Period;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.FunctionImpl;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
-import org.opengis.temporal.Instant;
-import org.opengis.temporal.Period;
 
 public class SolrFilterBuilder extends GeotoolsFilterBuilder {
 

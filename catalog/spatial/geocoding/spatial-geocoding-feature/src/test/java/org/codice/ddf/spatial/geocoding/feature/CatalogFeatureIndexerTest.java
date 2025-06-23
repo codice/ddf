@@ -61,6 +61,7 @@ import org.codice.ddf.spatial.geocoding.FeatureIndexer;
 import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.junit.Before;
@@ -69,7 +70,6 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.WKTWriter;
 import org.mockito.ArgumentCaptor;
-import org.opengis.feature.simple.SimpleFeature;
 
 public class CatalogFeatureIndexerTest {
   private static final String RESOURCE_PATH = "blah";

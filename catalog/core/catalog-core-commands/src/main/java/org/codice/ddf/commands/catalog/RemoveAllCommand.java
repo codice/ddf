@@ -39,8 +39,8 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.geotools.api.filter.Filter;
 import org.joda.time.DateTime;
-import org.opengis.filter.Filter;
 import org.slf4j.LoggerFactory;
 
 /** Command used to remove all or a subset of records (in bulk) from the Catalog. */

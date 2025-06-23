@@ -52,7 +52,7 @@ Note that the OGC `PropertyIsLike` Filter is used for this simple contextual que
 .Simple Contextual Search
 [source,java,linenums]
 ----
-org.opengis.filter.FilterFactory filterFactory = new FilterFactoryImpl() ;
+org.geotools.api.filter.FilterFactory filterFactory = new FilterFactoryImpl() ;
 boolean isCaseSensitive = false ;
 
 String wildcardChar = "*" ; // used to match zero or more characters
@@ -61,7 +61,7 @@ String escapeChar = "\\" ; // used to escape the meaning of the wildCard, single
 and the escapeChar itself
 
 String searchPhrase = "mission" ;
-org.opengis.filter.Filter propertyIsLikeFilter =
+org.geotools.api.filter.Filter propertyIsLikeFilter =
     filterFactory.like(filterFactory.property(Metacard.ANY_TEXT), searchPhrase, wildcardChar, singleChar, escapeChar, isCaseSensitive);
 ${ddf-branding}.catalog.operation.QueryImpl query = new QueryImpl( propertyIsLikeFilter );
 ----
@@ -72,16 +72,16 @@ Note that this query uses the `During` OGC Filter for an absolute temporal query
 .Absolute Temporal Search
 [source,java,linenums]
 ----
-org.opengis.filter.FilterFactory filterFactory = new FilterFactoryImpl() ;
-org.opengis.temporal.Instant startInstant = new org.geotools.temporal.object.DefaultInstant(new DefaultPosition(start));
+org.geotools.api.filter.FilterFactory filterFactory = new FilterFactoryImpl() ;
+org.geotools.api.temporal.Instant startInstant = new org.geotools.temporal.object.DefaultInstant(new DefaultPosition(start));
 
-org.opengis.temporal.Instant endInstant = new org.geotools.temporal.object.DefaultInstant(new DefaultPosition(end));
+org.geotools.api.temporal.Instant endInstant = new org.geotools.temporal.object.DefaultInstant(new DefaultPosition(end));
 
-org.opengis.temporal.Period period =  new org.geotools.temporal.object.DefaultPeriod(startInstant, endInstant);
+org.geotools.api.temporal.Period period =  new org.geotools.temporal.object.DefaultPeriod(startInstant, endInstant);
 
 String property = Metacard.MODIFIED ; // modified date of a metacard
 
-org.opengis.filter.Filter filter = filterFactory.during( filterFactory.property(property), filterFactory.literal(period)  );
+org.geotools.api.filter.Filter filter = filterFactory.during( filterFactory.property(property), filterFactory.literal(period)  );
 
 ${ddf-branding}.catalog.operation.QueryImpl query = new QueryImpl(filter) ;
 ----
@@ -111,7 +111,7 @@ Characters and words, such as `AND`, `&`, `and`, `OR`, `|`, `or`, `NOT`, `~`, `n
 .Creating the search phrase "mission and planning"
 [source,java,linenums]
 ----
-org.opengis.filter.FilterFactory filterFactory = new FilterFactoryImpl() ;
+org.geotools.api.filter.FilterFactory filterFactory = new FilterFactoryImpl() ;
 
 boolean isCaseSensitive = false ;
 
@@ -212,7 +212,7 @@ Sources can parse OGC Filters using the `FilterAdapter` and `FilterDelegate`.
 See Developing a Filter Delegate for more details on implementing a new `FilterDelegate`.
 This is the preferred way to handle OGC Filters in a consistent manner.
 
-Alternately, `org.opengis.filter.Filter` implementations can be parsed using implementations of the interface `org.opengis.filter.FilterVisitor`.
+Alternately, `org.geotools.api.filter.Filter` implementations can be parsed using implementations of the interface `org.geotools.api.filter.FilterVisitor`.
 The `FilterVisitor` uses the http://www.oodesign.com/visitor-pattern.html[Visitor pattern] {external-link}. Essentially, `FilterVisitor` instances "visit" each part of the `Filter` tree allowing developers to implement logic to handle the filter's operations.
 GeoTools 8 includes implementations of the `FilterVisitor` interface.
 The `DefaultFilterVisitor`, as an example, provides only business logic to visit every node in the `Filter` tree.

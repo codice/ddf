@@ -14,7 +14,7 @@
 package org.codice.ddf.spatial.geocoding;
 
 import java.util.List;
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeature;
 
 /**
  * <b> This code is experimental. While this interface is functional and tested, it may change or be

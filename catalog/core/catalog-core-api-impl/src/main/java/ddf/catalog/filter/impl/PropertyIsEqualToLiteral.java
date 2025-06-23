@@ -13,12 +13,11 @@
  */
 package ddf.catalog.filter.impl;
 
-import org.opengis.annotation.XmlElement;
-import org.opengis.filter.FilterVisitor;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
+import org.geotools.api.filter.FilterVisitor;
+import org.geotools.api.filter.PropertyIsEqualTo;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.PropertyName;
 
 /**
  * Simple implementation of filter that does not depend on GeoTools. Please use {@link
@@ -26,9 +25,9 @@ import org.opengis.filter.expression.PropertyName;
  */
 public class PropertyIsEqualToLiteral implements PropertyIsEqualTo {
 
-  private PropertyName propertyName;
+  private final PropertyName propertyName;
 
-  private Literal literal;
+  private final Literal literal;
 
   /**
    * Create PropertyIsEqualTo filter with property name as expression 1 and literal as expression 2.
@@ -42,25 +41,21 @@ public class PropertyIsEqualToLiteral implements PropertyIsEqualTo {
   }
 
   @Override
-  @XmlElement("expression")
   public Expression getExpression1() {
     return propertyName;
   }
 
   @Override
-  @XmlElement("expression")
   public Expression getExpression2() {
     return literal;
   }
 
   @Override
-  @XmlElement("matchCase")
   public boolean isMatchingCase() {
     return true;
   }
 
   @Override
-  @XmlElement("matchAction")
   public MatchAction getMatchAction() {
     return MatchAction.ANY;
   }
@@ -71,11 +66,7 @@ public class PropertyIsEqualToLiteral implements PropertyIsEqualTo {
       return false;
     }
 
-    if (object.equals(literal.getValue())) {
-      return true;
-    }
-
-    return false;
+    return object.equals(literal.getValue());
   }
 
   @Override

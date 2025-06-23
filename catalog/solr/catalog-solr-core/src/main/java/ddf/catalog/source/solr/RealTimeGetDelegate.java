@@ -18,8 +18,8 @@ import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import java.util.List;
 
 /**
- * When a {@link FilterAdapter} visits a {@link org.opengis.filter.Filter} with this delegate it
- * will return a boolean indicating whether this query should be performed as a real time get. We
+ * When a {@link FilterAdapter} visits a {@link org.geotools.api.filter.Filter} with this delegate
+ * it will return a boolean indicating whether this query should be performed as a real time get. We
  * only want to do a real time get on queries for metacards with specific ids. Here are some
  * examples:
  *

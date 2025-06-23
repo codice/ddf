@@ -19,10 +19,10 @@ import static org.apache.commons.lang3.Validate.notNull;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.geotools.api.filter.capability.FunctionName;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
 import org.geotools.filter.FunctionExpressionImpl;
-import org.opengis.filter.capability.FunctionName;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
 
 /** The DivisibleByFunction contains two parameters that can be used to build a filter. */
 public class DivisibleByFunction extends FunctionExpressionImpl {

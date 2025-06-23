@@ -45,7 +45,7 @@ import org.codice.ddf.preferences.PostRetrievalPlugin;
 import org.codice.ddf.preferences.Preferences;
 import org.codice.ddf.preferences.PreferencesException;
 import org.codice.gsonsupport.GsonTypeAdapters;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,9 +19,9 @@ import ddf.catalog.filter.AttributeBuilder
 import ddf.catalog.filter.ContextualExpressionBuilder
 import ddf.catalog.filter.ExpressionBuilder
 import ddf.catalog.filter.FilterBuilder
+import org.geotools.api.filter.sort.SortOrder
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
-import org.opengis.filter.sort.SortOrder
 import spock.lang.Specification
 import spock.lang.Unroll
 

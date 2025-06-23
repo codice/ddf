@@ -43,6 +43,9 @@ import java.util.Collections;
 import java.util.List;
 import org.codice.ddf.spatial.geocoding.FeatureQueryException;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.filter.And;
+import org.geotools.api.filter.Filter;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.IsEqualsToImpl;
 import org.geotools.filter.LikeFilterImpl;
@@ -51,9 +54,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.mockito.ArgumentCaptor;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.filter.And;
-import org.opengis.filter.Filter;
 
 public class CatalogFeatureQueryableTest {
 

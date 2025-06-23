@@ -157,7 +157,9 @@
         <feature>cxf-ws-policy</feature>
         <feature>cxf-frontend-javascript</feature>
         <feature>cxf-rs-security-oauth2</feature>
-        <feature>cxf-rs-security-sso-saml</feature>
+        <feature>cxf-rs-security-xml</feature>
+        <bundle start-level="40" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-sso-saml/${cxf.version}</bundle>
         <feature>action-core-impl</feature>
         <feature>error-api</feature>
         <feature>util-uuidgenerator</feature>

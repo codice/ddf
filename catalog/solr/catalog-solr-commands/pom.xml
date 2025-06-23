@@ -171,11 +171,11 @@
             <artifactId>spatial4j</artifactId>
             <version>${spatial4j.version}</version>
         </dependency>
-      <dependency>
-        <groupId>ddf.catalog.core</groupId>
-        <artifactId>catalog-core-commands</artifactId>
-        <version>${project.version}</version>
-      </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commands</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
@@ -248,7 +248,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>6.4_MB</maxArtifactSize>
+                                    <maxArtifactSize>6.3_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

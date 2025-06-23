@@ -49,6 +49,11 @@
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
+            <artifactId>gt-api</artifactId>
+            <version>${org.geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>
             <version>${org.geotools.version}</version>
             <scope>test</scope>

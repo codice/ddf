@@ -15,7 +15,7 @@ package org.codice.ddf.opensearch.endpoint;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterBuilder;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public class KeywordFilterGenerator {
   // TODO refactor this from helper class

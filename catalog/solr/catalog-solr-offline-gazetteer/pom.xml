@@ -110,6 +110,10 @@
             <version>${spatial4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
             <version>${karaf.version}</version>
@@ -154,6 +158,7 @@
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             jts-core,
+                            spatial4j,
                             failsafe
                         </Embed-Dependency>
                         <Karaf-Commands>*</Karaf-Commands>
@@ -177,7 +182,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>3_MB</maxArtifactSize>
+                                    <maxArtifactSize>1.3_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

@@ -26,7 +26,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.geotools.version}</version>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools.xsd</groupId>

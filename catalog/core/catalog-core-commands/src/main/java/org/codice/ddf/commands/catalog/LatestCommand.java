@@ -28,9 +28,9 @@ import java.util.List;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortOrder;
 import org.joda.time.DateTime;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortOrder;
 
 @Service
 @Command(

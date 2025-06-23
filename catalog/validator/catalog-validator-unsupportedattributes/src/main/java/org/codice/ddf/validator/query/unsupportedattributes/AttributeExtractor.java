@@ -19,7 +19,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public class AttributeExtractor {
 
