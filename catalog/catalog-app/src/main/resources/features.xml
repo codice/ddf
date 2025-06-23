@@ -147,6 +147,7 @@
              description="OpenSearch Federated Source queries a Federated Source using OpenSearch.">
         <feature>abdera</feature>
         <feature>cxf-rs-security-xml</feature>
+        <bundle start-level="40" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-sso-saml/${cxf.version}</bundle>
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
