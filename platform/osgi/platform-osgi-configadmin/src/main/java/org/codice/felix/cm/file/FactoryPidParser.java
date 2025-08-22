@@ -13,21 +13,30 @@
  */
 package org.codice.felix.cm.file;
 
+import java.util.Optional;
+
 public class FactoryPidParser {
   public record ParsedFactoryPid( // suppress checkstyle:MethodName TODO update checkstyle
       String factoryPid, String serviceName) {}
 
-  // Config files in etc may delimit on the '-' but in memory it's always last '.'
-  public static ParsedFactoryPid parseFactoryParts(String pid) {
+  /**
+   * Attempt to parse a service PID into a factory PID and a service name, following the conventions
+   * used by Felix's ConfigurationAdmin.
+   *
+   * @param pid the service PID to parse
+   * @return an Optional containing the parsed parts, if the PID is a factory PID. If the PID is not
+   *     a factory PID, then an empty Optional is returned.
+   */
+  public static Optional<ParsedFactoryPid> parseFactoryParts(String pid) {
     if (pid == null) {
-      return new ParsedFactoryPid(null, null);
+      return Optional.empty();
     }
 
     // Check for the ~ used as the separator between the factory PID and the name by
     // ConfigurationAdmin's getFactoryConfiguration() methods.
     final var tilde = pid.indexOf('~');
     if (tilde > -1) {
-      return new ParsedFactoryPid(pid.substring(0, tilde), pid.substring(tilde + 1));
+      return Optional.of(new ParsedFactoryPid(pid.substring(0, tilde), pid.substring(tilde + 1)));
     }
 
     // Check for the - in the UUID appended to the factory PID by ConfigurationAdmin's
@@ -35,10 +44,11 @@ public class FactoryPidParser {
     if (pid.contains("-")) {
       final var lastPeriod = pid.lastIndexOf('.');
       return lastPeriod > -1
-          ? new ParsedFactoryPid(pid.substring(0, lastPeriod), pid.substring(lastPeriod + 1))
-          : new ParsedFactoryPid(null, null);
+          ? Optional.of(
+              new ParsedFactoryPid(pid.substring(0, lastPeriod), pid.substring(lastPeriod + 1)))
+          : Optional.empty();
     }
 
-    return new ParsedFactoryPid(null, null);
+    return Optional.empty();
   }
 }

@@ -117,8 +117,9 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
     this.servicePid = pid;
     final var parsedFactory = FactoryPidParser.parseFactoryParts(pid);
-    this.factoryPid = parsedFactory.factoryPid();
-    this.factoryServiceName = parsedFactory.serviceName();
+    this.factoryPid = parsedFactory.map(FactoryPidParser.ParsedFactoryPid::factoryPid).orElse(null);
+    this.factoryServiceName =
+        parsedFactory.map(FactoryPidParser.ParsedFactoryPid::serviceName).orElse(null);
     this.configFile = createFileFromFelixProp(propsCopy.remove(FELIX_FILENAME));
 
     this.configIsNew = propsCopy.remove(FELIX_NEW_CONFIG);
