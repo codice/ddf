@@ -37,6 +37,15 @@ public interface ConfigurationContext {
   String getFactoryPid();
 
   /**
+   * TODO add more javadocs about this
+   *
+   * @return the unique name for the service factory instance, or null if the config belongs to a
+   *     singleton service.
+   */
+  @Nullable
+  String getFactoryServiceName();
+
+  /**
    * @return a {@link File} in the {@code etc} directory that defines this config if and only if the
    *     config was created by the Felix directory watcher. Returns {@code null} otherwise.
    */

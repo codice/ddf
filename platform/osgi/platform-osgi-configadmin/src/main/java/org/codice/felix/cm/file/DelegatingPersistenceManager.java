@@ -109,6 +109,9 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
         }
       }
       super.store(pid, properties);
+    } catch (IOException | RuntimeException e) {
+      LOGGER.error("Failed to store.", e);
+      throw e;
     } finally {
       serviceStartingLock.unlockRead(stamp);
     }
