@@ -385,6 +385,7 @@ public class RestoreCommandTest extends SolrCommandTest {
   private void backupSolr() throws Exception {
     setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
     miniSolrCloud.waitForAllNodes((int) TimeUnit.SECONDS.toMillis(1));
+    miniSolrCloud.waitForActiveCollection("catalog", 1, 1);
     BackupCommand backupCommand =
         getSynchronousBackupCommand(
             getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
@@ -397,7 +398,8 @@ public class RestoreCommandTest extends SolrCommandTest {
             String.format(
                 "Backing up collection [%s] to shared location [%s] using backup name [%s",
                 DEFAULT_CORE_NAME, backupCommand.backupLocation, backupName)));
-    assertThat(consoleOutput.getOutput(), containsString("Backup complete."));
+    String output = consoleOutput.getOutput();
+    assertThat(output, containsString("Backup complete."));
     assertThat(backupFile.exists(), is(true));
   }
 }
