@@ -179,7 +179,7 @@ pipeline {
             catchError(buildResult: null, stageResult: 'FAILURE') {
                 echo '...Cleaning up workspace'
                 cleanWs()
-                sh 'rm -rf ~/.m2/repository'
+                sh 'rm -rf ~/.m2/repository || true'
                 wrap([$class: 'MesosSingleUseSlave']) {
                     sh 'echo "...Shutting down Jenkins slave: `hostname`"'
                 }
