@@ -19,7 +19,7 @@ When providing multiple core names in the `CORES` environment variable must be s
 
 ### Docker Compose
 
-Running a basic solr container with docker-compose would look something like this:
+Running a basic solr container with docker compose would look something like this:
 
 ```
 version: '3.7'
