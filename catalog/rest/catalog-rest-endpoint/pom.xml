@@ -231,6 +231,10 @@
                             asm,
                             json-smart
                         </Embed-Dependency>
+                        <Export-Package>
+                            org.codice.ddf.endpoints,
+                            org.codice.ddf.endpoints.rest
+                        </Export-Package>
                         <Include-Resource>{maven-resources},META-INF/maven=${project.build.outputDirectory}/META-INF/maven</Include-Resource>
                     </instructions>
                 </configuration>
