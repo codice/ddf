@@ -96,11 +96,11 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
   private final int propertyCount;
 
-  ConfigurationContextImpl(Configuration config) {
+  public ConfigurationContextImpl(Configuration config) {
     this(config.getPid(), config.getProperties());
   }
 
-  ConfigurationContextImpl(String pid, Dictionary<String, Object> props) {
+  public ConfigurationContextImpl(String pid, Dictionary<String, Object> props) {
     this.originalProperties = props;
 
     Dictionary<String, Object> propsCopy = copyDictionary(props);
