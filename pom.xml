@@ -309,7 +309,7 @@
         <spring.version>6.1.21</spring.version>
         <spring.feature.version>6.1.21_1</spring.feature.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
-        <tika.version>2.4.0</tika.version>
+        <tika.version>3.2.2</tika.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
         <woodstox.core.version>6.5.1</woodstox.core.version>

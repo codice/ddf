@@ -39,6 +39,20 @@
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-common</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcjmail-jdk18on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk18on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcmail-jdk18on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--External dependencies-->
