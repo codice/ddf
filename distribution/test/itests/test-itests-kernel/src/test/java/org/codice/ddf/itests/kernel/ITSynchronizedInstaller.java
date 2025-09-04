@@ -25,22 +25,20 @@ import static org.codice.ddf.test.common.options.TestResourcesOptions.getTestRes
 import static org.codice.ddf.test.common.options.TestResourcesOptions.includeTestResources;
 import static org.codice.ddf.test.common.options.VmOptions.defaultVmOptions;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.osgi.framework.Constants.SERVICE_PID;
 
-import java.io.IOException;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.apache.karaf.features.FeaturesService;
 import org.awaitility.Duration;
@@ -61,7 +59,7 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -70,7 +68,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerMethod.class)
 public class ITSynchronizedInstaller {
 
   private static final String EXAMPLE_FEATURE = "example-feature";
@@ -91,6 +89,8 @@ public class ITSynchronizedInstaller {
 
   @Rule public PaxExamRule paxExamRule = new PaxExamRule(this);
 
+  private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
   @Configuration
   public static Option[] examConfiguration() {
     return options(
@@ -103,7 +103,7 @@ public class ITSynchronizedInstaller {
         logLevelOption("org.codice.ddf.sync.installer.impl", "TRACE"),
         includeTestResources(),
         addFeatureRepo(FeatureUtilities.toFeatureRepo(TEST_FEATURE_PATH)),
-        addBootFeature(TestUtilitiesFeatures.testCommon(), TestUtilitiesFeatures.hamcrestAll(), TestUtilitiesFeatures.awaitility()));
+        addBootFeature(TestUtilitiesFeatures.testCommon(), TestUtilitiesFeatures.awaitility()));
   }
 
   @BeforeExam
@@ -114,23 +114,18 @@ public class ITSynchronizedInstaller {
   }
 
   @After
-  public void afterTest() throws Exception {
-    startExampleBundle();
-    featuresService.installFeature(EXAMPLE_FEATURE);
-    resetExampleMSProps();
-    deleteAllExampleMSFServices();
+  public void tearDown() {
+    executor.shutdownNow();
   }
 
   private void startExampleBundle() throws Exception {
-    if (testBundle == null) {
-      testBundle =
-          bundleContext.installBundle(
-              maven()
-                  .groupId("ddf.test")
-                  .artifactId("example-bundle")
-                  .version(DependencyVersionResolver.resolver())
-                  .getURL());
-    }
+    testBundle =
+        bundleContext.installBundle(
+            maven()
+                .groupId("ddf.test")
+                .artifactId("example-bundle")
+                .version(DependencyVersionResolver.resolver())
+                .getURL());
     testBundle.start();
   }
 
@@ -215,14 +210,9 @@ public class ITSynchronizedInstaller {
             throw new RuntimeException(e);
           }
         };
-    Future future = Executors.newSingleThreadExecutor().submit(runnable);
-
-    try {
-      reg = bundleContext.registerService(ExampleService.class, new ExampleService(null), props);
-      await().atMost(Duration.ONE_MINUTE).until(future::isDone);
-    } finally {
-      reg.unregister();
-    }
+    Future<?> future = executor.submit(runnable);
+    bundleContext.registerService(ExampleService.class, new ExampleService(null), props);
+    await().atMost(Duration.TEN_SECONDS).until(future::isDone);
   }
 
   @Test
@@ -251,7 +241,7 @@ public class ITSynchronizedInstaller {
           }
         };
 
-    Future future = Executors.newSingleThreadExecutor().submit(runnable);
+    Future<?> future = executor.submit(runnable);
     testBundle.start();
     await().atMost(Duration.ONE_MINUTE).until(future::isDone);
   }
@@ -282,46 +272,9 @@ public class ITSynchronizedInstaller {
           }
         };
 
-    Future future = Executors.newSingleThreadExecutor().submit(runnable);
+    Future<?> future = executor.submit(runnable);
     testBundle.start();
     await().atMost(Duration.ONE_MINUTE).until(future::isDone);
-  }
-
-  private void deleteAllExampleMSFServices() throws IOException, InvalidSyntaxException {
-    configurations(
-            String.format(
-                "(%s=%s)", ConfigurationAdmin.SERVICE_FACTORYPID, ExampleMSFInstance.FACTORY_PID))
-        .forEach(this::deleteServiceConfig);
-    await()
-        .atMost(Duration.ONE_MINUTE)
-        .until(() -> getServices(ExampleMSFInstance.class).isEmpty());
-  }
-
-  private void deleteServiceConfig(org.osgi.service.cm.Configuration config) {
-    try {
-      config.delete();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private void resetExampleMSProps() throws IOException {
-    Dictionary<String, Object> defaultProps = new Hashtable<>();
-    defaultProps.put(ExampleService.EXAMPLE_PROP_NAME, ExampleService.DEFAULT_EXAMPLE_PROP_VALUE);
-    configAdmin.getConfiguration(ExampleService.PID).update(defaultProps);
-    await()
-        .atMost(Duration.ONE_MINUTE)
-        .until(
-            () ->
-                getService(ExampleService.class)
-                    .getExampleProp()
-                    .equals(ExampleService.DEFAULT_EXAMPLE_PROP_VALUE));
-  }
-
-  private Stream<org.osgi.service.cm.Configuration> configurations(String filter)
-      throws IOException, InvalidSyntaxException {
-    org.osgi.service.cm.Configuration[] configs = configAdmin.listConfigurations(filter);
-    return configs == null ? Stream.empty() : Stream.of(configs);
   }
 
   private String getExampleBundleLocation() {
@@ -341,6 +294,6 @@ public class ITSynchronizedInstaller {
         .getServiceReferences(clazz, null)
         .stream()
         .map(bundleContext::getService)
-        .collect(Collectors.toList());
+        .toList();
   }
 }
