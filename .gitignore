@@ -43,3 +43,4 @@ buildNumber.properties
 coverage/
 .nyc_output
 **/.java-version
+.m2
