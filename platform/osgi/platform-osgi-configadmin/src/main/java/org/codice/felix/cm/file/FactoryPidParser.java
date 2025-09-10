@@ -16,7 +16,7 @@ package org.codice.felix.cm.file;
 import java.util.Optional;
 
 public class FactoryPidParser {
-  public record ParsedFactoryPid( // suppress checkstyle:MethodName TODO update checkstyle
+  public record ParsedFactoryPid( // suppress checkstyle:MethodName
       String factoryPid, String serviceName) {}
 
   /**

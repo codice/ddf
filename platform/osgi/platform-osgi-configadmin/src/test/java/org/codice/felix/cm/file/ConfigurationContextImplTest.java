@@ -18,10 +18,10 @@ import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_FILENAME;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_NEW_CONFIG;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.PROPERTY_REVISION;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.SERVICE_FACTORY_PIDLIST;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.osgi.framework.Constants.SERVICE_PID;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_BUNDLELOCATION;
@@ -49,8 +49,9 @@ public class ConfigurationContextImplTest {
 
   private static final String TEST_PID_2 = "org.codice.test.separate.Service";
 
-  private static final String TEST_MSF_PID =
-      format("%s.%s", TEST_PID, UUID.randomUUID().toString());
+  private static final String TEST_MSF_PID_UUID = UUID.randomUUID().toString();
+
+  private static final String TEST_MSF_PID = format("%s.%s", TEST_PID, TEST_MSF_PID_UUID);
 
   private static final String TEST_REVISION = "5";
 
@@ -116,7 +117,7 @@ public class ConfigurationContextImplTest {
   }
 
   @Test
-  public void testNotVisiblePidlist() {
+  public void testNotVisiblePidList() {
     testProps.put(SERVICE_FACTORY_PIDLIST, new ArrayList<>());
     context = new ConfigurationContextImpl(TEST_PID, testProps);
     assertThat(
@@ -228,12 +229,23 @@ public class ConfigurationContextImplTest {
   }
 
   @Test
-  public void testGetFactoryPidSingletonService() {
+  public void testGetFactoryPidFactoryServiceUuidFormat() {
     context = new ConfigurationContextImpl(TEST_MSF_PID, new Hashtable<>());
     assertThat(
         "Factory PIDs for factory services should be regular PIDs without a UUID",
         context.getFactoryPid(),
         is(TEST_PID));
+    assertThat(context.getFactoryServiceName(), is(TEST_MSF_PID_UUID));
+  }
+
+  @Test
+  public void testGetFactoryPidFactoryServiceNameFormat() {
+    context = new ConfigurationContextImpl(TEST_PID + "~" + "foobar", new Hashtable<>());
+    assertThat(
+        "Factory PIDs for factory services should be regular PIDs without a UUID",
+        context.getFactoryPid(),
+        is(TEST_PID));
+    assertThat(context.getFactoryServiceName(), is("foobar"));
   }
 
   @Test
@@ -267,7 +279,7 @@ public class ConfigurationContextImplTest {
   }
 
   @Test
-  public void testFelixFileFromURI() throws Exception {
+  public void testFelixFileFromURI() {
     testProps.put(FELIX_FILENAME, temporaryFile.toURI());
     context = new ConfigurationContextImpl(mockConfig);
     assertThat(context.getConfigFile(), is(notNullValue()));
@@ -275,7 +287,7 @@ public class ConfigurationContextImplTest {
   }
 
   @Test
-  public void testFelixFileFromString() throws Exception {
+  public void testFelixFileFromString() {
     testProps.put(FELIX_FILENAME, temporaryFile.toURI().toString());
     context = new ConfigurationContextImpl(mockConfig);
     assertThat(context.getConfigFile(), is(notNullValue()));
@@ -283,28 +295,28 @@ public class ConfigurationContextImplTest {
   }
 
   @Test
-  public void testFelixFileFromURLwithBadURISyntax() throws Exception {
+  public void testFelixFileFromURLWithBadURISyntax() throws Exception {
     testProps.put(FELIX_FILENAME, new URL(URL_BUT_NOT_URI));
     context = new ConfigurationContextImpl(mockConfig);
     assertThat(context.getConfigFile(), is(nullValue()));
   }
 
   @Test
-  public void testFelixFileFromMalformedURLstring() throws Exception {
+  public void testFelixFileFromMalformedURLString() {
     testProps.put(FELIX_FILENAME, MALFORMED_URL);
     context = new ConfigurationContextImpl(mockConfig);
     assertThat(context.getConfigFile(), is(nullValue()));
   }
 
   @Test
-  public void testFelixFileFromStringWithBadURISyntax() throws Exception {
+  public void testFelixFileFromStringWithBadURISyntax() {
     testProps.put(FELIX_FILENAME, URL_BUT_NOT_URI);
     context = new ConfigurationContextImpl(mockConfig);
     assertThat(context.getConfigFile(), is(nullValue()));
   }
 
   @Test
-  public void testFelixFileFromUnexpectedType() throws Exception {
+  public void testFelixFileFromUnexpectedType() {
     testProps.put(FELIX_FILENAME, new Object());
     context = new ConfigurationContextImpl(mockConfig);
     assertThat(context.getConfigFile(), is(nullValue()));
