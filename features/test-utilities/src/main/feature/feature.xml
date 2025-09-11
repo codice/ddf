@@ -43,8 +43,8 @@
 
         <bundle>mvn:org.ops4j.base/ops4j-base-store/${org.ops4j.base.version}</bundle>
 
-        <bundle>mvn:biz.aQute.bnd/biz.aQute.bndlib/6.4.1</bundle>
-        <bundle>mvn:biz.aQute.bnd/biz.aQute.bnd.util/6.4.1</bundle>
+        <bundle>mvn:biz.aQute.bnd/biz.aQute.bndlib/${tinybundles.bnd.version}</bundle>
+        <bundle>mvn:biz.aQute.bnd/biz.aQute.bnd.util/${tinybundles.bnd.version}</bundle>
         <bundle>mvn:org.ops4j.pax.tinybundles/tinybundles/${tinybundles.version}</bundle>
     </feature>
 
