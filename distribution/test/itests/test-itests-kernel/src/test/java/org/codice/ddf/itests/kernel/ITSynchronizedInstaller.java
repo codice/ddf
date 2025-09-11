@@ -245,7 +245,7 @@ public class ITSynchronizedInstaller {
   @Test
   public void uninstallFeatures() throws Exception {
     syncInstaller.uninstallFeatures(EXAMPLE_FEATURE);
-    assertThat(!featuresService.isInstalled(featuresService.getFeature(EXAMPLE_FEATURE)), is(true));
+    assertThat(featuresService.isInstalled(featuresService.getFeature(EXAMPLE_FEATURE)), is(false));
   }
 
   @Test
