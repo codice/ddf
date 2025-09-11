@@ -14,6 +14,7 @@
 package org.codice.ddf.itests.kernel;
 
 import static org.awaitility.Awaitility.await;
+import static org.codice.ddf.test.common.configurators.KarafOptions.overridePaxExamJUnitHamcrest;
 import static org.codice.ddf.test.common.options.DebugOptions.defaultDebuggingOptions;
 import static org.codice.ddf.test.common.options.DistributionOptions.kernelDistributionOption;
 import static org.codice.ddf.test.common.options.FeatureOptions.addBootFeature;
@@ -24,21 +25,23 @@ import static org.codice.ddf.test.common.options.PortOptions.defaultPortsOptions
 import static org.codice.ddf.test.common.options.TestResourcesOptions.getTestResource;
 import static org.codice.ddf.test.common.options.TestResourcesOptions.includeTestResources;
 import static org.codice.ddf.test.common.options.VmOptions.defaultVmOptions;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.osgi.framework.Constants.SERVICE_PID;
 
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.apache.karaf.features.FeaturesService;
 import org.awaitility.Duration;
@@ -59,7 +62,7 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -68,7 +71,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerMethod.class)
+@ExamReactorStrategy(PerClass.class)
 public class ITSynchronizedInstaller {
 
   private static final String EXAMPLE_FEATURE = "example-feature";
@@ -89,8 +92,6 @@ public class ITSynchronizedInstaller {
 
   @Rule public PaxExamRule paxExamRule = new PaxExamRule(this);
 
-  private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
   @Configuration
   public static Option[] examConfiguration() {
     return options(
@@ -99,6 +100,7 @@ public class ITSynchronizedInstaller {
         defaultDebuggingOptions(),
         defaultPortsOptions(),
         defaultLogging(),
+        overridePaxExamJUnitHamcrest(),
         logLevelOption("org.codice.ddf.test", "TRACE"),
         logLevelOption("org.codice.ddf.sync.installer.impl", "TRACE"),
         includeTestResources(),
@@ -114,18 +116,23 @@ public class ITSynchronizedInstaller {
   }
 
   @After
-  public void tearDown() {
-    executor.shutdownNow();
+  public void afterTest() throws Exception {
+    startExampleBundle();
+    featuresService.installFeature(EXAMPLE_FEATURE);
+    resetExampleMSProps();
+    deleteAllExampleMSFServices();
   }
 
   private void startExampleBundle() throws Exception {
-    testBundle =
-        bundleContext.installBundle(
-            maven()
-                .groupId("ddf.test")
-                .artifactId("example-bundle")
-                .version(DependencyVersionResolver.resolver())
-                .getURL());
+    if (testBundle == null) {
+      testBundle =
+          bundleContext.installBundle(
+              maven()
+                  .groupId("ddf.test")
+                  .artifactId("example-bundle")
+                  .version(DependencyVersionResolver.resolver())
+                  .getURL());
+    }
     testBundle.start();
   }
 
@@ -138,10 +145,11 @@ public class ITSynchronizedInstaller {
         syncInstaller.createManagedFactoryService(
             ExampleMSFInstance.FACTORY_PID, props, getExampleBundleLocation());
 
-    assertEquals(1, getServices(ExampleMSFInstance.class).size());
-    assertEquals(createdConfig.getPid(),
-        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID));
-    assertEquals("testValue", getService(ExampleMSFInstance.class).getExampleProp());
+    assertThat(getServices(ExampleMSFInstance.class), hasSize(1));
+    assertThat(
+        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID),
+        is(createdConfig.getPid()));
+    assertThat(getService(ExampleMSFInstance.class).getExampleProp(), is("testValue"));
   }
 
   @Test
@@ -150,11 +158,13 @@ public class ITSynchronizedInstaller {
         syncInstaller.createManagedFactoryService(
             ExampleMSFInstance.FACTORY_PID, new HashMap<>(), getExampleBundleLocation());
 
-    assertEquals(1, getServices(ExampleMSFInstance.class).size());
-    assertEquals(createdConfig.getPid(),
-        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID));
-    assertEquals(ExampleMSFInstance.DEFAULT_EXAMPLE_PROP_VALUE,
-        getService(ExampleMSFInstance.class).getExampleProp());
+    assertThat(getServices(ExampleMSFInstance.class), hasSize(1));
+    assertThat(
+        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID),
+        is(createdConfig.getPid()));
+    assertThat(
+        getService(ExampleMSFInstance.class).getExampleProp(),
+        is(ExampleMSFInstance.DEFAULT_EXAMPLE_PROP_VALUE));
   }
 
   @Test
@@ -162,11 +172,12 @@ public class ITSynchronizedInstaller {
     Map<String, Object> newProps = new HashMap<>();
     newProps.put(ExampleService.EXAMPLE_PROP_NAME, "testValue");
     syncInstaller.updateManagedService(ExampleService.PID, newProps, getExampleBundleLocation());
-    assertEquals("testValue",
+    assertThat(
         configAdmin
             .getConfiguration(ExampleService.PID)
             .getProperties()
-            .get(ExampleService.EXAMPLE_PROP_NAME));
+            .get(ExampleService.EXAMPLE_PROP_NAME),
+        is("testValue"));
   }
 
   @Test
@@ -175,25 +186,29 @@ public class ITSynchronizedInstaller {
         syncInstaller.createManagedFactoryService(
             ExampleMSFInstance.FACTORY_PID, new Hashtable<>(), getExampleBundleLocation());
 
-    assertEquals(1, getServices(ExampleMSFInstance.class).size());
-    assertEquals(createdConfig.getPid(),
-        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID));
-    assertEquals(ExampleMSFInstance.DEFAULT_EXAMPLE_PROP_VALUE,
-        getService(ExampleMSFInstance.class).getExampleProp());
+    assertThat(getServices(ExampleMSFInstance.class), hasSize(1));
+    assertThat(
+        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID),
+        is(createdConfig.getPid()));
+    assertThat(
+        getService(ExampleMSFInstance.class).getExampleProp(),
+        is(ExampleMSFInstance.DEFAULT_EXAMPLE_PROP_VALUE));
 
     Map<String, Object> newProps = new HashMap<>();
     newProps.put(ExampleMSFInstance.EXAMPLE_PROP_NAME, "testValue");
     syncInstaller.updateManagedService(
         createdConfig.getPid(), newProps, getExampleBundleLocation());
 
-    assertEquals(1, getServices(ExampleMSFInstance.class).size());
-    assertEquals(createdConfig.getPid(),
-        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID));
-    assertEquals("testValue",
+    assertThat(getServices(ExampleMSFInstance.class), hasSize(1));
+    assertThat(
+        getServiceReference(ExampleMSFInstance.class).getProperty(SERVICE_PID),
+        is(createdConfig.getPid()));
+    assertThat(
         configAdmin
             .getConfiguration(createdConfig.getPid())
             .getProperties()
-            .get(ExampleMSFInstance.EXAMPLE_PROP_NAME));
+            .get(ExampleMSFInstance.EXAMPLE_PROP_NAME),
+        is("testValue"));
   }
 
   @Test
@@ -210,22 +225,27 @@ public class ITSynchronizedInstaller {
             throw new RuntimeException(e);
           }
         };
-    Future<?> future = executor.submit(runnable);
-    bundleContext.registerService(ExampleService.class, new ExampleService(null), props);
-    await().atMost(Duration.TEN_SECONDS).until(future::isDone);
+    Future<?> future = Executors.newSingleThreadExecutor().submit(runnable);
+
+    try {
+      reg = bundleContext.registerService(ExampleService.class, new ExampleService(null), props);
+      await().atMost(Duration.ONE_MINUTE).until(future::isDone);
+    } finally {
+      reg.unregister();
+    }
   }
 
   @Test
   public void installFeatures() throws Exception {
     featuresService.uninstallFeature(EXAMPLE_FEATURE);
     syncInstaller.installFeatures(EXAMPLE_FEATURE);
-    assertTrue(featuresService.isInstalled(featuresService.getFeature(EXAMPLE_FEATURE)));
+    assertThat(featuresService.isInstalled(featuresService.getFeature(EXAMPLE_FEATURE)), is(true));
   }
 
   @Test
   public void uninstallFeatures() throws Exception {
     syncInstaller.uninstallFeatures(EXAMPLE_FEATURE);
-    assertFalse(featuresService.isInstalled(featuresService.getFeature(EXAMPLE_FEATURE)));
+    assertThat(!featuresService.isInstalled(featuresService.getFeature(EXAMPLE_FEATURE)), is(true));
   }
 
   @Test
@@ -241,7 +261,7 @@ public class ITSynchronizedInstaller {
           }
         };
 
-    Future<?> future = executor.submit(runnable);
+    Future<?> future = Executors.newSingleThreadExecutor().submit(runnable);
     testBundle.start();
     await().atMost(Duration.ONE_MINUTE).until(future::isDone);
   }
@@ -249,14 +269,14 @@ public class ITSynchronizedInstaller {
   @Test
   public void stopBundles() throws SynchronizedInstallerException {
     syncInstaller.stopBundles(EXAMPLE_BUNDLE_SYM_NAME);
-    assertEquals(Bundle.RESOLVED, testBundle.getState());
+    assertThat(testBundle.getState(), is(Bundle.RESOLVED));
   }
 
   @Test
   public void startBundles() throws Exception {
     testBundle.stop();
     syncInstaller.startBundles(EXAMPLE_BUNDLE_SYM_NAME);
-    assertEquals(Bundle.ACTIVE, testBundle.getState());
+    assertThat(testBundle.getState(), is(Bundle.ACTIVE));
   }
 
   @Test
@@ -272,9 +292,46 @@ public class ITSynchronizedInstaller {
           }
         };
 
-    Future<?> future = executor.submit(runnable);
+    Future<?> future = Executors.newSingleThreadExecutor().submit(runnable);
     testBundle.start();
     await().atMost(Duration.ONE_MINUTE).until(future::isDone);
+  }
+
+  private void deleteAllExampleMSFServices() throws IOException, InvalidSyntaxException {
+    configurations(
+        String.format(
+            "(%s=%s)", ConfigurationAdmin.SERVICE_FACTORYPID, ExampleMSFInstance.FACTORY_PID))
+        .forEach(this::deleteServiceConfig);
+    await()
+        .atMost(Duration.ONE_MINUTE)
+        .until(() -> getServices(ExampleMSFInstance.class), is(empty()));
+  }
+
+  private void deleteServiceConfig(org.osgi.service.cm.Configuration config) {
+    try {
+      config.delete();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void resetExampleMSProps() throws IOException {
+    Dictionary<String, Object> defaultProps = new Hashtable<>();
+    defaultProps.put(ExampleService.EXAMPLE_PROP_NAME, ExampleService.DEFAULT_EXAMPLE_PROP_VALUE);
+    configAdmin.getConfiguration(ExampleService.PID).update(defaultProps);
+    await()
+        .atMost(Duration.ONE_MINUTE)
+        .until(
+            () ->
+                getService(ExampleService.class)
+                    .getExampleProp()
+                    .equals(ExampleService.DEFAULT_EXAMPLE_PROP_VALUE));
+  }
+
+  private Stream<org.osgi.service.cm.Configuration> configurations(String filter)
+      throws IOException, InvalidSyntaxException {
+    org.osgi.service.cm.Configuration[] configs = configAdmin.listConfigurations(filter);
+    return configs == null ? Stream.empty() : Stream.of(configs);
   }
 
   private String getExampleBundleLocation() {
