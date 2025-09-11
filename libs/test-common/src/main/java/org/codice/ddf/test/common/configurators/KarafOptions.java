@@ -118,7 +118,7 @@ public class KarafOptions implements ContainerOptions {
         overridePaxExamJUnitHamcrest(),
         useOwnExamBundlesStartLevel(100),
         cleanCaches(),
-        logLevel().logLevel(LogLevelOption.LogLevel.INFO));
+        logLevel().logLevel(LogLevelOption.LogLevel.WARN));
   }
 
   private Option getMavenRepositoryOptions() {
