@@ -37,9 +37,10 @@ public interface ConfigurationContext {
   String getFactoryPid();
 
   /**
-   * TODO add more javadocs about this
+   * When this object represents a factory service, this method returns the unique name for the
+   * factory service instance that Felix appends to the factory PID to create a unique service PID.
    *
-   * @return the unique name for the service factory instance, or null if the config belongs to a
+   * @return the unique name for the factory service instance, or null if the config belongs to a
    *     singleton service.
    */
   @Nullable
