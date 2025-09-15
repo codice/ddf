@@ -32,5 +32,6 @@
     <modules>
         <module>restito</module>
         <module>eclipse-emf</module>
+        <module>tika</module>
     </modules>
 </project>

@@ -37,7 +37,7 @@
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
+<!--        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>-->
         <bundle>wrap:mvn:org.geotools/gt-api/${org.geotools.version}$Bundle-Name=gt-api&amp;Bundle-SymbolicName=gt-api
         </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-attachment/${project.version}</bundle>
