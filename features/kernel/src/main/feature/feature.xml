@@ -60,10 +60,7 @@
         <bundle>
             mvn:org.ops4j.pax.swissbox/pax-swissbox-lifecycle/${org.ops4j.pax.swissbox.version}
         </bundle>
-        <bundle>
-            mvn:org.ops4j.pax.swissbox/pax-swissbox-optional-jcl/${org.ops4j.pax.swissbox.version}
-        </bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-lang/${org.ops4j-base-lang}</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-lang/${org.ops4j.base.version}</bundle>
         <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-extender/${org.ops4j.pax.swissbox.version}
         </bundle>
     </feature>

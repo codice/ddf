@@ -159,12 +159,12 @@
             <dependency>
                 <groupId>org.ops4j.base</groupId>
                 <artifactId>ops4j-base-util-property</artifactId>
-                <version>1.5.0</version>
+                <version>${org.ops4j.base.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.base</groupId>
                 <artifactId>ops4j-base-net</artifactId>
-                <version>1.5.0</version>
+                <version>${org.ops4j.base.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

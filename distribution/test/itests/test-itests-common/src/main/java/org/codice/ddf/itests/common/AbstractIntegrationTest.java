@@ -18,10 +18,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
+import static org.codice.ddf.test.common.configurators.KarafOptions.overridePaxExamJUnitHamcrest;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.composite;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -715,15 +715,13 @@ public abstract class AbstractIntegrationTest {
   protected Option[] configureStartScript() {
     // add test dependencies to the test-dependencies-app instead of here
     return options(
-        mavenBundle(
-            "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
         // The version of the xalan bundle is an old version. This is the only way we could get
         // some itests to work. It seems to be a classloader problem that only occurs in a
         // pax-exam setup.
         mavenBundle(
             "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xalan", "2.7.2_1"),
         mavenBundle("commons-lang", "commons-lang", "2.6"),
-        junitBundles(),
+        overridePaxExamJUnitHamcrest(),
         features(
             maven()
                 .groupId(DDF_ITESTS_GROUP_ID)

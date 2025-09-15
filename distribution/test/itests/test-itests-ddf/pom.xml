@@ -41,6 +41,7 @@
         <dependency>
             <groupId>org.ops4j.pax.tinybundles</groupId>
             <artifactId>tinybundles</artifactId>
+            <version>${tinybundles.version}</version>
         </dependency>
 
         <!-- In-container depedencies -->

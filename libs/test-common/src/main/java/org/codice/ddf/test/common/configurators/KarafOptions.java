@@ -16,17 +16,18 @@ package org.codice.ddf.test.common.configurators;
 import static org.codice.ddf.test.common.options.VmOptions.javaModuleVmOptions;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.composite;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.overrideJUnitBundles;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 
 import org.codice.ddf.test.common.DependencyVersionResolver;
@@ -92,11 +93,29 @@ public class KarafOptions implements ContainerOptions {
         vmOption("-Dfile.encoding=UTF8"));
   }
 
+  /**
+   * Pax Exam 4.14.0 starts both the JUnit 4.13.2 and Hamcrest-all 1.3 ServiceMix bundles by
+   * default, but they both export some Hamcrest packages. That causes problems when the test probe
+   * tries to resolve Hamcrest classes. To fix this, we override Pax Exam's bundles and substitute a
+   * wrapped JUnit (which does not contain Hamcrest) for the ServiceMix version.
+   */
+  public static Option overridePaxExamJUnitHamcrest() {
+    return composite(
+        overrideJUnitBundles(),
+        wrappedBundle("mvn:junit/junit/4.13.2"),
+        mavenBundle()
+            .groupId("org.apache.servicemix.bundles")
+            .artifactId("org.apache.servicemix.bundles.hamcrest")
+            .version("1.3_1"),
+        mavenBundle()
+            .groupId("org.ops4j.pax.exam")
+            .artifactId("pax-exam-invoker-junit")
+            .version("4.14.0"));
+  }
+
   private Option getPaxExamOptions() {
     return composite(
-        mavenBundle(
-            "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
-        junitBundles(),
+        overridePaxExamJUnitHamcrest(),
         useOwnExamBundlesStartLevel(100),
         cleanCaches(),
         logLevel().logLevel(LogLevelOption.LogLevel.WARN));
