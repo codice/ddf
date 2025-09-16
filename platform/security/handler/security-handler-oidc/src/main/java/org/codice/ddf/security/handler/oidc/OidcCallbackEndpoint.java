@@ -82,7 +82,10 @@ public class OidcCallbackEndpoint {
         redirectUrlBuilder.addParameter("prevurl", prevUrl);
       }
 
-      return Response.seeOther(redirectUrlBuilder.build()).build();
+      return Response.seeOther(redirectUrlBuilder.build())
+          .header("Cache-Control", "no-cache, no-store")
+          .header("Pragma", "no-cache")
+          .build();
     } catch (URISyntaxException e) {
       LOGGER.debug("Unable to create logout response URL for OIDC logout.", e);
     }
