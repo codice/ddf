@@ -46,7 +46,7 @@ public class FactoryPidParser {
       return lastPeriod > -1
           ? Optional.of(
               new ParsedFactoryPid(pid.substring(0, lastPeriod), pid.substring(lastPeriod + 1)))
-          : Optional.empty();
+          : Optional.of(new ParsedFactoryPid(pid, null));
     }
 
     return Optional.empty();
