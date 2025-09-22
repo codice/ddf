@@ -86,6 +86,7 @@
         <feature>common-system</feature>
         <feature>slf4j</feature>
         <feature>platform-util</feature>
+        <feature dependency="true">tika</feature>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
@@ -111,6 +112,7 @@
              description="Tika MIME Resolver">
         <feature>mime-core-api</feature>
         <feature>slf4j</feature>
+        <feature>tika</feature>
         <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
     </feature>
@@ -241,6 +243,7 @@
 
     <feature name="poi" version="${project.version}">
         <feature dependency="true">apache-commons</feature>
+        <feature dependency="true">tika</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/1.2_5</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/9.9.1-6_1</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/${xmlbeans.version}_1</bundle>
@@ -251,10 +254,14 @@
         <bundle>wrap:mvn:xml-apis/xml-apis-ext/1.3.04</bundle>
         <bundle>mvn:org.apache.santuario/xmlsec/${xmlsec.version}</bundle>
         <bundle>wrap:mvn:org.apache.xmlgraphics/xmlgraphics-commons/2.7</bundle>
-        <bundle>mvn:org.apache.pdfbox/pdfbox/${pdfbox.version}</bundle>
-        <bundle>mvn:org.apache.pdfbox/fontbox/${pdfbox.version}</bundle>
+        <!-- need to be on the tika classloader -->
+<!--        <bundle>mvn:org.apache.pdfbox/pdfbox/${pdfbox.version}</bundle>-->
+<!--        <bundle>mvn:org.apache.pdfbox/fontbox/${pdfbox.version}</bundle>-->
         <bundle>wrap:mvn:de.rototor.pdfbox/graphics2d/0.38</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/${servicemix.bundles.poi.version}</bundle>
+<!--        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/${servicemix.bundles.poi.version}</bundle>-->
+        <bundle>wrap:mvn:org.apache.poi/poi/${poi.version}</bundle>
+        <bundle>wrap:mvn:org.apache.poi/poi-ooxml/${poi.version}</bundle>
+        <bundle>wrap:mvn:org.apache.poi/poi-scratchpad/${poi.version}</bundle>
     </feature>
 
     <feature name="jts" version="${project.version}">

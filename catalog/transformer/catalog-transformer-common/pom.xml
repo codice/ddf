@@ -22,6 +22,10 @@
 
     <artifactId>catalog-transformer-common</artifactId>
     <name>DDF :: Catalog :: Transformer :: Common</name>
+    
+    <properties>
+        <surefire.argline.append>-Dorg.apache.tika.service.error.warn=true</surefire.argline.append>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -52,11 +56,42 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
+            <!-- bug between new tika and old compress from karaf -->
+            <!-- https://issues.apache.org/jira/si/jira.issueviews:issue-html/TIKA-4469/TIKA-4469.html -->
+            <version>${commons-compress.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers-standard-package</artifactId>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.tika</groupId>-->
+<!--            <artifactId>tika-parser-text-module</artifactId>-->
+<!--            <version>${tika.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.james</groupId>-->
+<!--            <artifactId>apache-mime4j-core</artifactId>-->
+<!--            <version>0.8.13</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.github.luben</groupId>-->
+<!--            <artifactId>zstd-jni</artifactId>-->
+<!--            <version>1.5.6-3</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>

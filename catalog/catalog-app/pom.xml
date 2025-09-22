@@ -716,11 +716,11 @@
             <artifactId>catalog-rest-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.poi</artifactId>
-            <version>${servicemix.bundles.poi.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.servicemix.bundles</groupId>-->
+<!--            <artifactId>org.apache.servicemix.bundles.poi</artifactId>-->
+<!--            <version>${servicemix.bundles.poi.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.xalan</artifactId>

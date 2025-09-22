@@ -278,8 +278,8 @@
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
         <openjson.version>1.0.13</openjson.version>
         <pac4j.version>6.1.2</pac4j.version>
-        <pdfbox.version>2.0.23</pdfbox.version>
-        <poi.version>5.2.5</poi.version>
+        <pdfbox.version>3.0.5</pdfbox.version>
+        <poi.version>5.4.1</poi.version>
         <xlsx.transformer.poi.version>5.2.2</xlsx.transformer.poi.version>
         <protobuf.version>4.28.2</protobuf.version>
         <quartz.version>2.3.2</quartz.version>
@@ -343,7 +343,7 @@
         <org.json.version>20240303</org.json.version>
 
         <!--temporary solr download url> -->
-        <solr.download.url>https://archive.apache.org/dist</solr.download.url>
+        <solr.download.url>https://dlcdn.apache.org</solr.download.url>
 
         <!-- SonarQube Properties -->
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/${project.report.output.directory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
